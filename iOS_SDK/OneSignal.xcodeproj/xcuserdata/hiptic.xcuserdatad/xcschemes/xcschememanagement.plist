@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>GameThrive.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>0</integer>
+		</dict>
+		<key>GameThriveFramework.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>37747F9219147D6500558FAD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>37747FA219147D6500558FAD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>37748017191487F900558FAD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>3774802C19148A3700558FAD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
