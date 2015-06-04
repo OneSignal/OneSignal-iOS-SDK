@@ -23,7 +23,7 @@
 
 typedef void (^OneSignalResultSuccessBlock)(NSDictionary* result);
 typedef void (^OneSignalFailureBlock)(NSError* error);
-typedef void (^OneSignalIdsAvailableBlock)(NSString* playerId, NSString* pushToken);
+typedef void (^OneSignalIdsAvailableBlock)(NSString* userId, NSString* pushToken);
 typedef void (^OneSignalHandleNotificationBlock)(NSString* message, NSDictionary* additionalData, BOOL isActive);
 
 /**
@@ -93,6 +93,13 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 - (void)deleteTagsWithJsonString:(NSString*)jsonString;
 
 - (void)IdsAvailable:(OneSignalIdsAvailableBlock)idsAvailableBlock;
+
+- (void)enableInAppAlertNotification:(BOOL)enable;
+- (void)setSubscription:(BOOL)enable;
+
+- (void)postNotification:(NSDictionary*)jsonData;
+- (void)postNotification:(NSDictionary*)jsonData onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock;
+- (void)postNotificationWithJsonString:(NSString*)jsonData onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock;
 
 @end
 

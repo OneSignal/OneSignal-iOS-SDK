@@ -32,10 +32,16 @@
 
 @implementation OneSignalTrackIAP
 
-// NSClassFromString and performSelector are used so OneSignal does not depend on StoreKit to link the app.
-
 static Class skPaymentQueue;
 NSMutableDictionary* skusToTrack;
+
+// NSClassFromString and performSelector are used so OneSignal does not depend on StoreKit to link the app.
+// Suppressing undeclared selector warnings
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundeclared-selector"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+
 
 + (BOOL)canTrack {
     skPaymentQueue = NSClassFromString(@"SKPaymentQueue");
@@ -103,6 +109,10 @@ NSMutableDictionary* skusToTrack;
     if ([arrayOfPruchases count] > 0)
         [[OneSignal defaultClient] performSelector:@selector(sendPurchases:) withObject:arrayOfPruchases];
 }
+
+#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
+
 
 
 @end

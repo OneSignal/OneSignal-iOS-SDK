@@ -26,6 +26,7 @@
 		3724485819F6D1DE00573B5A /* OneSignalJailbreakDetection.m in Sources */ = {isa = PBXBuildFile; fileRef = 3724485719F6D1DE00573B5A /* OneSignalJailbreakDetection.m */; };
 		37668EE91AA80B7E0095D813 /* OneSignalReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 37668EE81AA80B7E0095D813 /* OneSignalReachability.m */; };
 		37747FC51914837300558FAD /* OneSignalHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 37747FBD1914837300558FAD /* OneSignalHTTPClient.m */; };
+		37D6E07F1B1EAE6500EC3624 /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D6E07D1B1EAE6500EC3624 /* OneSignalMobileProvision.m */; };
 		37E277051ACB940000D49C8D /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E277031ACB940000D49C8D /* OneSignal.m */; };
 		37E277261ACBB58D00D49C8D /* GameThrive.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E277251ACBB58D00D49C8D /* GameThrive.m */; };
 		37E277281ACCA5B300D49C8D /* GameThrive.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E277241ACBB58D00D49C8D /* GameThrive.h */; };
@@ -67,6 +68,8 @@
 		37747FBC1914837300558FAD /* OneSignalHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalHTTPClient.h; sourceTree = "<group>"; };
 		37747FBD1914837300558FAD /* OneSignalHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalHTTPClient.m; sourceTree = "<group>"; };
 		378699FC1919B5FB00C3E7DA /* OneSignal-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OneSignal-Prefix.pch"; sourceTree = "<group>"; };
+		37D6E07C1B1EAE6500EC3624 /* OneSignalMobileProvision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalMobileProvision.h; sourceTree = "<group>"; };
+		37D6E07D1B1EAE6500EC3624 /* OneSignalMobileProvision.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalMobileProvision.m; sourceTree = "<group>"; };
 		37E277031ACB940000D49C8D /* OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignal.m; sourceTree = "<group>"; };
 		37E277041ACB940000D49C8D /* OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignal.h; sourceTree = "<group>"; };
 		37E277241ACBB58D00D49C8D /* GameThrive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameThrive.h; sourceTree = "<group>"; };
@@ -108,6 +111,7 @@
 		37747F8A19147D6400558FAD = {
 			isa = PBXGroup;
 			children = (
+				37D6E07B1B1EAE6500EC3624 /* OneSignalMobileProvision */,
 				37E277231ACBB58D00D49C8D /* GameThrive */,
 				37668EE31AA80A560095D813 /* OneSignalReachability */,
 				3724485519F61C3D00573B5A /* OneSignalJailbreakDetection */,
@@ -145,6 +149,15 @@
 				371FDEDA19F1F9D9001479B7 /* OneSignalTrackIAP.h */,
 			);
 			path = OneSignal;
+			sourceTree = "<group>";
+		};
+		37D6E07B1B1EAE6500EC3624 /* OneSignalMobileProvision */ = {
+			isa = PBXGroup;
+			children = (
+				37D6E07C1B1EAE6500EC3624 /* OneSignalMobileProvision.h */,
+				37D6E07D1B1EAE6500EC3624 /* OneSignalMobileProvision.m */,
+			);
+			path = OneSignalMobileProvision;
 			sourceTree = "<group>";
 		};
 		37E277231ACBB58D00D49C8D /* GameThrive */ = {
@@ -229,6 +242,7 @@
 				371FDED919F1A486001479B7 /* OneSignalTrackIAP.m in Sources */,
 				3724485819F6D1DE00573B5A /* OneSignalJailbreakDetection.m in Sources */,
 				37747FC51914837300558FAD /* OneSignalHTTPClient.m in Sources */,
+				37D6E07F1B1EAE6500EC3624 /* OneSignalMobileProvision.m in Sources */,
 				37668EE91AA80B7E0095D813 /* OneSignalReachability.m in Sources */,
 				37E277051ACB940000D49C8D /* OneSignal.m in Sources */,
 			);
