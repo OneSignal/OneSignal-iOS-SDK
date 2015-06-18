@@ -35,7 +35,7 @@
 
 #define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
 
-NSString* const VERSION = @"010900";
+NSString* const VERSION = @"010901";
 
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -80,7 +80,6 @@ UIBackgroundTaskIdentifier focusBackgroundTask;
 
 OneSignalTrackIAP* trackIAPPurchase;
 
-
 bool registeredWithApple = false; // Has attempted to register for push notifications with Apple.
 bool oneSignalReg = false;
 bool waitingForOneSReg = false;
@@ -89,7 +88,11 @@ NSNumber* unSentActiveTime;
 NSNumber* timeToPingWith;
 int mNotificationTypes = -1;
 bool mSubscriptionSet = true;
-NSString* mSDKType = @"native";
+static NSString* mSDKType = @"native";
+
++ (void)setMSDKType:(NSString*)str {
+    mSDKType = str;
+}
 
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions {
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:nil autoRegister:true];
@@ -1229,10 +1232,14 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 static Class delegateClass = nil;
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
-	if(delegateClass != nil)
-		return;
+    if (delegateClass != nil) {
+        [self setOneSignalDelegate:delegate];
+        return;
+    }
+    
     
 	delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
+    
     
     injectSelector(self.class, @selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
                     delegateClass, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:));
