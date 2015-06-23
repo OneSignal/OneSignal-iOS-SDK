@@ -35,7 +35,7 @@
 
 #define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
 
-NSString* const VERSION = @"010901";
+NSString* const VERSION = @"010902";
 
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -160,7 +160,10 @@ static NSString* mSDKType = @"native";
         
         mUserId = [defaults stringForKey:@"GT_PLAYER_ID"];
         mDeviceToken = [defaults stringForKey:@"GT_DEVICE_TOKEN"];
-        registeredWithApple = mDeviceToken != nil || [defaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
+        if (([[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]))
+            registeredWithApple = [[UIApplication sharedApplication] currentUserNotificationSettings].types != (NSUInteger)nil;
+        else
+            registeredWithApple = mDeviceToken != nil || [defaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
         mSubscriptionSet = [defaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
         mNotificationTypes = getNotificationTypes();
         
@@ -303,6 +306,7 @@ void Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
                              deviceToken, @"identifier",
                              nil];
     
+    Log(ONE_S_LL_VERBOSE, @"Calling OneSignal PUT updated pushToken!");
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
@@ -398,6 +402,7 @@ NSNumber* getNetType() {
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc)
         dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
     
+    Log(ONE_S_LL_VERBOSE, @"Calling OneSignal create/on_session");
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
@@ -981,7 +986,6 @@ int getNotificationTypes() {
     
     [self sendNotificationTypesUpdateIsConfirmed:false];
 }
-
 
 - (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     NSString* trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
