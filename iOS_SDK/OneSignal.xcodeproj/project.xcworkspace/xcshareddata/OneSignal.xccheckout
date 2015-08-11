@@ -7,21 +7,21 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>82DF9B41-8B65-40E7-832A-C61D19DFA081</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>OneSignal</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>5A4AFF41A71B5F8D4741699EC46766398BC4FE44</key>
-		<string>https://github.com/Hiptic/GameThrive</string>
+		<string>https://github.com/Hiptic/OneSignal</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>SDK/iOS/iOS_SDK/OneSignal.xcodeproj/project.xcworkspace</string>
+	<string>SDK/iOS/iOS_SDK/OneSignal.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>5A4AFF41A71B5F8D4741699EC46766398BC4FE44</key>
 		<string>../../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/Hiptic/GameThrive</string>
+	<string>https://github.com/Hiptic/OneSignal</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>

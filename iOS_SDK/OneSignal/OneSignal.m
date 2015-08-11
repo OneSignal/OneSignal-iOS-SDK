@@ -35,7 +35,7 @@
 
 #define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
 
-NSString* const VERSION = @"010902";
+NSString* const VERSION = @"011000";
 
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -187,7 +187,7 @@ static NSString* mSDKType = @"native";
         [self notificationOpened:userInfo isActive:false];
     }
     
-    clearBadgeCount();
+    clearBadgeCount(false);
     
     if ([OneSignalTrackIAP canTrack])
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
@@ -611,7 +611,7 @@ NSString* getUsableDeviceToken() {
         lastTrackedTime = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970]];
         
         [self sendNotificationTypesUpdateIsConfirmed:false];
-        wasBadgeSet = clearBadgeCount();
+        wasBadgeSet = clearBadgeCount(false);
     }
     else {
         NSNumber* timeElapsed = @(([[NSDate date] timeIntervalSince1970] - [lastTrackedTime longLongValue]) + 0.5);
@@ -775,7 +775,7 @@ NSString* getUsableDeviceToken() {
     
     self.lastMessageReceived = messageDict;
     
-    clearBadgeCount();
+    clearBadgeCount(true);
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
     
     
@@ -784,18 +784,19 @@ NSString* getUsableDeviceToken() {
         handleNotification([self getMessageString], [self getAdditionalData], isActive);
 }
 
-bool clearBadgeCount() {
+bool clearBadgeCount(bool fromNotifOpened) {
     if (mNotificationTypes == -1 || (mNotificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
-    bool wasBadgeSet = false;
+    bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
     
-    if ([UIApplication sharedApplication].applicationIconBadgeNumber > 0)
-        wasBadgeSet = true;
-    
-    // Clear bages and nofiications from this app. Setting to 1 then 0 was needed to clear the notifications.
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    if ((!(NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_7_1) && fromNotifOpened) || wasBadgeSet) {
+        // Clear bages and nofiications from this app.
+        // Setting to 1 then 0 was needed to clear the notifications on iOS 6 & 7. (Otherwise you can click the notification multiple times.)
+        // iOS 8+ auto dismisses the notificaiton you tap on so only clear the badge (and notifications [side-effect]) if it was set.
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    }
     
     return wasBadgeSet;
 }
@@ -847,12 +848,20 @@ int getNotificationTypes() {
         additionalData[@"sound"] = self.lastMessageReceived[@"aps"][@"sound"];
     if (self.lastMessageReceived[@"custom"][@"u"] != nil)
         additionalData[@"launchURL"] = self.lastMessageReceived[@"custom"][@"u"];
+    if ([self.lastMessageReceived[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
+         additionalData[@"title"] = self.lastMessageReceived[@"aps"][@"alert"][@"title"];
     
     return additionalData;
 }
 
 - (NSString*)getMessageString {
-    return self.lastMessageReceived[@"aps"][@"alert"];
+    id alertObj = self.lastMessageReceived[@"aps"][@"alert"];
+    if ([alertObj isKindOfClass:[NSString class]])
+        return alertObj;
+    else if ([alertObj isKindOfClass:[NSDictionary class]])
+        return alertObj[@"body"];
+    
+    return @"";
 }
 
 - (void)postNotification:(NSDictionary*)jsonData {
@@ -999,6 +1008,7 @@ int getNotificationTypes() {
 }
 
 - (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo {
+    // If 'm' present then the notification has action buttons attached to it.
     if (userInfo[@"m"]) {
         NSDictionary* data = userInfo;
         
@@ -1030,7 +1040,13 @@ int getNotificationTypes() {
         
         UILocalNotification* notification = [[UILocalNotification alloc] init];
         notification.category = [category identifier];
-        notification.alertBody = data[@"m"];
+        if ([data[@"m"] isKindOfClass:[NSDictionary class]]) {
+            if ([notification respondsToSelector:NSSelectorFromString(@"alertTitle")])
+                notification.alertTitle = data[@"m"][@"title"];
+            notification.alertBody = data[@"m"][@"body"];
+        }
+        else
+            notification.alertBody = data[@"m"];
         notification.userInfo = userInfo;
         notification.soundName = data[@"s"];
         if (notification.soundName == nil)
@@ -1040,7 +1056,7 @@ int getNotificationTypes() {
         
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
     }
-    else
+    else if (application.applicationState != UIApplicationStateBackground)
         [self notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
 }
 
