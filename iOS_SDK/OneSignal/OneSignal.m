@@ -35,8 +35,6 @@
 
 #define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
 
-NSString* const VERSION = @"011000";
-
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
 #define NOTIFICATION_TYPE_ALERT 4
@@ -61,6 +59,8 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 @end
 
 @implementation OneSignal
+
+NSString* const ONESIGNAL_VERSION = @"011001";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
@@ -173,6 +173,7 @@ static NSString* mSDKType = @"native";
         // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
+        
         
         if (mUserId != nil)
             [self registerUser];
@@ -371,7 +372,7 @@ NSNumber* getNetType() {
                              [NSNumber numberWithInt:0], @"device_type",
                              [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
                              [self getSoundFiles], @"sounds",
-                             VERSION, @"sdk",
+                             ONESIGNAL_VERSION, @"sdk",
                              mDeviceToken, @"identifier", // identifier MUST be at the end as it could be nil.
                              nil];
     
@@ -396,6 +397,8 @@ NSNumber* getNetType() {
         id asIdManager = [ASIdentifierManagerClass valueForKey:@"sharedManager"];
         if ([[asIdManager valueForKey:@"advertisingTrackingEnabled"] isEqual:[NSNumber numberWithInt:1]])
             dataDic[@"as_id"] = [[asIdManager valueForKey:@"advertisingIdentifier"] UUIDString];
+        else
+            dataDic[@"as_id"] = @"OptedOut";
     }
     
     UIApplicationReleaseMode releaseMode = [OneSignalMobileProvision releaseMode];
@@ -770,7 +773,9 @@ NSString* getUsableDeviceToken() {
     
     if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && [customDict objectForKey:@"u"] != nil) {
         NSURL *url = [NSURL URLWithString:[customDict objectForKey:@"u"]];
-        [[UIApplication sharedApplication] openURL:url];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:url];
+        });
     }
     
     self.lastMessageReceived = messageDict;
@@ -1144,12 +1149,18 @@ static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protoc
     return searchClass;
 }
 
+
+
+
+
+
 static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getInstanceMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
     const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
     
     BOOL successful = class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
+    
     if (!successful) {
         class_addMethod(addToClass, newSel, imp, methodTypeEncoding);
         newMeth = class_getInstanceMethod(addToClass, newSel);
@@ -1252,6 +1263,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 static Class delegateClass = nil;
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
+    
     if (delegateClass != nil) {
         [self setOneSignalDelegate:delegate];
         return;
