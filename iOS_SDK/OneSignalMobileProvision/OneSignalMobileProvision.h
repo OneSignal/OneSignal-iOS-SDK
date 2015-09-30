@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 The Blindsight Corporation. All rights reserved.
 //  Released under the BSD 2-Clause License (see LICENSE)
 
+@import Foundation;
+
 typedef NS_ENUM(NSInteger, UIApplicationReleaseMode) {
     UIApplicationReleaseUnknown,
     UIApplicationReleaseDev,

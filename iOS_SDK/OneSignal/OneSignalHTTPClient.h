@@ -25,6 +25,8 @@
  * THE SOFTWARE.
  */
 
+@import UIKit;
+
 @interface OneSignalHTTPClient : NSObject
 
 @property (readonly, nonatomic) NSURL *baseURL;
