@@ -296,10 +296,11 @@
 				CODE_SIGN_IDENTITY = "iOS Distribution: Lilomi Inc.";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/hiptic/Documents/GameThrive/SDK/iOS/iOS_SDK/Framework,
+					"\"$(SRCROOT)/../iOS_SDK/Framework\"/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "push-notifications/OneSignalExample-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../iOS_SDK/Framework\"/**";
 				INFOPLIST_FILE = "push-notifications/OneSignalExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
@@ -316,10 +317,11 @@
 				CODE_SIGN_IDENTITY = "iOS Distribution: Lilomi Inc.";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/hiptic/Documents/GameThrive/SDK/iOS/iOS_SDK/Framework,
+					"\"$(SRCROOT)/../iOS_SDK/Framework\"/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "push-notifications/OneSignalExample-Prefix.pch";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../iOS_SDK/Framework\"/**";
 				INFOPLIST_FILE = "push-notifications/OneSignalExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
