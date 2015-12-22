@@ -60,7 +60,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011001";
+NSString* const ONESIGNAL_VERSION = @"011006";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
@@ -117,12 +117,12 @@ static NSString* mSDKType = @"native";
         return self;
     
     if (![[NSUUID alloc] initWithUUIDString:appId]) {
-        Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n");
+        onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n");
         return self;
     }
     
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
-        Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
+        onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
 
     
     if (self) {
@@ -200,7 +200,7 @@ static NSString* mSDKType = @"native";
     _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
 }
 
-void Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
+void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSString* levelString;
     switch (logLevel) {
         case ONE_S_LL_FATAL:
@@ -307,7 +307,7 @@ void Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
                              deviceToken, @"identifier",
                              nil];
     
-    Log(ONE_S_LL_VERBOSE, @"Calling OneSignal PUT updated pushToken!");
+    onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal PUT updated pushToken!");
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
@@ -405,7 +405,7 @@ NSNumber* getNetType() {
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc)
         dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
     
-    Log(ONE_S_LL_VERBOSE, @"Calling OneSignal create/on_session");
+    onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal create/on_session");
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
@@ -435,7 +435,7 @@ NSNumber* getNetType() {
     } onFailure:^(NSError* error) {
         oneSignalReg = false;
         waitingForOneSReg = false;
-        Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error registering with OneSignal: %@", error]);
+        onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error registering with OneSignal: %@", error]);
     }];
 }
 
@@ -461,8 +461,8 @@ NSString* getUsableDeviceToken() {
     if (jsonError == nil)
         [self sendTags:keyValuePairs];
     else {
-        Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error: %@", jsonError]);
-        Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error: %@", jsonError]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]);
     }
 }
 
@@ -566,8 +566,8 @@ NSString* getUsableDeviceToken() {
     if (jsonError == nil)
         [self deleteTags:keys];
     else {
-        Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]);
-        Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]);
     }
 }
 
@@ -887,13 +887,13 @@ int getNotificationTypes() {
                    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:results options:0 error:nil];
                    NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
                    
-                   Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
+                   onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
                    if (successBlock)
                        successBlock(results);
                }
                onFailure:^(NSError* error) {
-                   Log(ONE_S_LL_ERROR, @"Create notification failed");
-                   Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
+                   onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
+                   onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
                    if (failureBlock)
                        failureBlock(error);
                }];
@@ -907,8 +907,8 @@ int getNotificationTypes() {
     if (jsonError == nil)
         [self postNotification:jsonData onSuccess:successBlock onFailure:failureBlock];
     else {
-        Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]);
-        Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]);
     }
 }
 
@@ -1004,11 +1004,11 @@ int getNotificationTypes() {
 - (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     NSString* trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     NSString* parsedDeviceToken = [[trimmedDeviceToken componentsSeparatedByString:@" "] componentsJoinedByString:@""];
-    Log((ONE_S_LOG_LEVEL)ONE_S_LL_INFO, [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]);
+    onesignal_Log((ONE_S_LOG_LEVEL)ONE_S_LL_INFO, [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]);
     [self registerDeviceToken:parsedDeviceToken onSuccess:^(NSDictionary* results) {
-        Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"Device Registered with OneSignal: %@", mUserId]);
+        onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"Device Registered with OneSignal: %@", mUserId]);
     } onFailure:^(NSError* error) {
-        Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error in OneSignal Registration: %@", error]);
+        onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error in OneSignal Registration: %@", error]);
     }];
 }
 
@@ -1176,14 +1176,15 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 @implementation UIApplication(OneSignalPush)
 
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
-    [[OneSignal defaultClient] didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    if ([OneSignal defaultClient])
+        [[OneSignal defaultClient] didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
     if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
         [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
-    Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]);
+    onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]);
     
     if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
@@ -1200,7 +1201,8 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 
 // Notification opened! iOS 6 ONLY!
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
-    [[OneSignal defaultClient] notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
+    if ([OneSignal defaultClient])
+        [[OneSignal defaultClient] notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
@@ -1208,8 +1210,8 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 
 // Notification opened or silent one received on iOS 7 & 8
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
-    
-    [[OneSignal defaultClient] remoteSilentNotification:application UserInfo:userInfo];
+    if ([OneSignal defaultClient])
+        [[OneSignal defaultClient] remoteSilentNotification:application UserInfo:userInfo];
     
     
     if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)])
@@ -1229,7 +1231,8 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 }
 
 - (void)oneSignalLocalNotificaionOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
-    [[OneSignal defaultClient] processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
+    if ([OneSignal defaultClient])
+        [[OneSignal defaultClient] processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
     
     if ([self respondsToSelector:@selector(oneSignalLocalNotificaionOpened:notification:)])
         [self oneSignalLocalNotificaionOpened:application notification:notification];
