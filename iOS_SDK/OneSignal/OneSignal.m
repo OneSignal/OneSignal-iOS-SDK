@@ -60,7 +60,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011006";
+NSString* const ONESIGNAL_VERSION = @"011100";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
@@ -123,19 +123,23 @@ static NSString* mSDKType = @"native";
     
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
-
+    
     
     if (self) {
         
         handleNotification = callback;
         unSentActiveTime = [NSNumber numberWithInteger:-1];
-
+        
         lastTrackedTime = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970]];
         
         if (appId)
             self.app_id = appId;
-        else
-            self.app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
+        else {
+            self.app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
+            if (self.app_id == nil)
+                self.app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
+        }
+        
         
         NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"%@", DEFAULT_PUSH_HOST]];
         self.httpClient = [[OneSignalHTTPClient alloc] initWithBaseURL:url];
@@ -145,8 +149,8 @@ static NSString* mSDKType = @"native";
         self.deviceModel   = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
         self.systemVersion = [[UIDevice currentDevice] systemVersion];
         
-        if ([OneSignal defaultClient] == nil)
-            [OneSignal setDefaultClient:self];
+        if (defaultClient == nil)
+            defaultClient = self;
         
         // Handle changes to the app id. This might happen on a developer's device when testing.
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -221,7 +225,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         case ONE_S_LL_VERBOSE:
             levelString = @"VERBOSE: ";
             break;
-        
+            
         default:
             break;
     }
@@ -363,18 +367,18 @@ NSNumber* getNetType() {
     NSString* build = infoDictionary[(NSString*)kCFBundleVersionKey];
     
     NSMutableDictionary* dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                             self.app_id, @"app_id",
-                             self.deviceModel, @"device_model",
-                             self.systemVersion, @"device_os",
-                             [[NSLocale preferredLanguages] objectAtIndex:0], @"language",
-                             [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
-                             build, @"game_version",
-                             [NSNumber numberWithInt:0], @"device_type",
-                             [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
-                             [self getSoundFiles], @"sounds",
-                             ONESIGNAL_VERSION, @"sdk",
-                             mDeviceToken, @"identifier", // identifier MUST be at the end as it could be nil.
-                             nil];
+                                    self.app_id, @"app_id",
+                                    self.deviceModel, @"device_model",
+                                    self.systemVersion, @"device_os",
+                                    [[NSLocale preferredLanguages] objectAtIndex:0], @"language",
+                                    [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
+                                    build, @"game_version",
+                                    [NSNumber numberWithInt:0], @"device_type",
+                                    [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
+                                    [self getSoundFiles], @"sounds",
+                                    ONESIGNAL_VERSION, @"sdk",
+                                    mDeviceToken, @"identifier", // identifier MUST be at the end as it could be nil.
+                                    nil];
     
     mNotificationTypes = getNotificationTypes();
     
@@ -387,7 +391,7 @@ NSNumber* getNetType() {
         dataDic[@"sdk_type"] = mSDKType;
         dataDic[@"ios_bundle"] = [[NSBundle mainBundle] bundleIdentifier];
     }
-
+    
     
     if (mNotificationTypes != -1)
         dataDic[@"notification_types"] = [NSNumber numberWithInt:mNotificationTypes];
@@ -592,7 +596,7 @@ NSString* getUsableDeviceToken() {
             idsAvailableBlockWhenReady = nil;
         }
     }
-
+    
 }
 
 
@@ -656,7 +660,7 @@ NSString* getUsableDeviceToken() {
         [self saveUnsentActiveTime:0];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self beginBackgroundFocusTask];
-        
+            
             
             
             NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_focus", mUserId]];
@@ -669,7 +673,7 @@ NSString* getUsableDeviceToken() {
             
             NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
             [request setHTTPBody:postData];
-        
+            
             // We are already running in a thread so send the request synchronous to keep the thread alive.
             [self enqueueRequest:request
                        onSuccess:nil
@@ -696,7 +700,7 @@ NSString* getUsableDeviceToken() {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:time forKey:@"GT_UNSENT_ACTIVE_TIME"];
     [defaults synchronize];
-
+    
 }
 
 - (void)sendPurchases:(NSArray*)purchases {
@@ -751,12 +755,18 @@ NSString* getUsableDeviceToken() {
     }
     
     [self handleNotificationOpened:messageDict isActive:isActive];
-
+    
 }
 
 - (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
-    NSDictionary* customDict = [messageDict objectForKey:@"custom"];
-    NSString* messageId = [customDict objectForKey:@"i"];
+    NSString *messageId, *openUrl;
+    
+    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
+    if (customDict == nil)
+        customDict = [messageDict objectForKey:@"custom"];
+    
+    messageId = [customDict objectForKey:@"i"];
+    openUrl = [customDict objectForKey:@"u"];
     
     NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
     
@@ -771,8 +781,8 @@ NSString* getUsableDeviceToken() {
     
     [self enqueueRequest:request onSuccess:nil onFailure:nil];
     
-    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && [customDict objectForKey:@"u"] != nil) {
-        NSURL *url = [NSURL URLWithString:[customDict objectForKey:@"u"]];
+    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && openUrl) {
+        NSURL *url = [NSURL URLWithString:openUrl];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UIApplication sharedApplication] openURL:url];
         });
@@ -844,17 +854,30 @@ int getNotificationTypes() {
 
 - (NSDictionary*)getAdditionalData {
     NSMutableDictionary* additionalData;
-    NSDictionary* orgAdditionalData = [[self.lastMessageReceived objectForKey:@"custom"] objectForKey:@"a"];
+    NSMutableDictionary* osDataDict = [self.lastMessageReceived objectForKey:@"os_data"];
     
-    additionalData = [[NSMutableDictionary alloc] initWithDictionary:orgAdditionalData];
+    if (osDataDict) {
+        additionalData = [self.lastMessageReceived mutableCopy];
+        if (self.lastMessageReceived[@"os_data"][@"u"])
+            additionalData[@"launchURL"] = self.lastMessageReceived[@"os_data"][@"u"];
+    }
+    else {
+        additionalData = [self.lastMessageReceived[@"custom"][@"a"] mutableCopy];
+        if (self.lastMessageReceived[@"custom"][@"u"])
+            additionalData[@"launchURL"] = self.lastMessageReceived[@"custom"][@"u"];
+    }
+    
     
     // TODO: Add sound when notification sent with buttons.
     if (self.lastMessageReceived[@"aps"][@"sound"] != nil)
         additionalData[@"sound"] = self.lastMessageReceived[@"aps"][@"sound"];
-    if (self.lastMessageReceived[@"custom"][@"u"] != nil)
-        additionalData[@"launchURL"] = self.lastMessageReceived[@"custom"][@"u"];
     if ([self.lastMessageReceived[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
-         additionalData[@"title"] = self.lastMessageReceived[@"aps"][@"alert"][@"title"];
+        additionalData[@"title"] = self.lastMessageReceived[@"aps"][@"alert"][@"title"];
+    
+    if (osDataDict) {
+        [additionalData removeObjectForKey:@"aps"];
+        [additionalData removeObjectForKey:@"os_data"];
+    }
     
     return additionalData;
 }
@@ -922,20 +945,20 @@ int getNotificationTypes() {
         NSError* error = nil;
         
         [NSURLConnection sendSynchronousRequest:request
-            returningResponse:&response
-            error:&error];
+                              returningResponse:&response
+                                          error:&error];
         
         [self handleJSONNSURLResponse:response data:nil error:error onSuccess:successBlock onFailure:failureBlock];
     }
     else {
-		[NSURLConnection
-            sendAsynchronousRequest:request
-            queue:[[NSOperationQueue alloc] init]
-            completionHandler:^(NSURLResponse* response,
-                                NSData* data,
-                                NSError* error) {
-                [self handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
-            }];
+        [NSURLConnection
+         sendAsynchronousRequest:request
+         queue:[[NSOperationQueue alloc] init]
+         completionHandler:^(NSURLResponse* response,
+                             NSData* data,
+                             NSError* error) {
+             [self handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
+         }];
     }
 }
 
@@ -974,7 +997,7 @@ int getNotificationTypes() {
 
 
 + (void)setDefaultClient:(OneSignal*)client {
-    defaultClient = client;
+    onesignal_Log(ONE_S_LL_WARN, @"Depercated, this is automaticly set to the first instace of OneSignal you create.");
 }
 
 + (OneSignal*)defaultClient {
@@ -1014,9 +1037,15 @@ int getNotificationTypes() {
 
 - (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo {
     // If 'm' present then the notification has action buttons attached to it.
-    if (userInfo[@"m"]) {
-        NSDictionary* data = userInfo;
-        
+    
+    NSDictionary* data = nil;
+    
+    if (userInfo[@"os_data"])
+        data = userInfo[@"os_data"][@"buttons"];
+    else if (userInfo[@"m"])
+        data = userInfo;
+    
+    if (data) {
         id category = [[NSClassFromString(@"UIMutableUserNotificationCategory") alloc] init];
         [category setIdentifier:@"dynamic"];
         
@@ -1052,6 +1081,7 @@ int getNotificationTypes() {
         }
         else
             notification.alertBody = data[@"m"];
+        
         notification.userInfo = userInfo;
         notification.soundName = data[@"s"];
         if (notification.soundName == nil)
@@ -1066,24 +1096,41 @@ int getNotificationTypes() {
 }
 
 - (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
-    if (notification.userInfo && notification.userInfo[@"custom"]) {
-        NSMutableDictionary* userInfo = [notification.userInfo mutableCopy];
-        NSMutableDictionary* customDict = [userInfo[@"custom"] mutableCopy];
-        NSMutableDictionary* additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+    if (notification.userInfo) {
+        NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
+        
+        if (notification.userInfo[@"os_data"] && notification.userInfo[@"os_data"][@"buttons"]) {
+            userInfo = [notification.userInfo mutableCopy];
+            additionalData = [NSMutableDictionary dictionary];
+            optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
+        }
+        else if (notification.userInfo[@"custom"]) {
+            userInfo = [notification.userInfo mutableCopy];
+            customDict = [userInfo[@"custom"] mutableCopy];
+            additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+            optionsDict = userInfo[@"o"];
+        }
+        else
+            return;
         
         NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
-        for (NSDictionary* button in userInfo[@"o"]) {
+        for (NSDictionary* button in optionsDict) {
             [buttonArray addObject: @{@"text" : button[@"n"],
                                       @"id" : (button[@"i"] ? button[@"i"] : button[@"n"])}];
         }
-        
         additionalData[@"actionSelected"] = identifier;
         additionalData[@"actionButtons"] = buttonArray;
         
-        customDict[@"a"] = additionalData;
-        userInfo[@"custom"] = customDict;
-        
-        userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
+        if (notification.userInfo[@"os_data"]) {
+            [userInfo addEntriesFromDictionary:additionalData];
+            userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
+        }
+        else { //if (notification.userInfo[@"custom"]) {
+            customDict[@"a"] = additionalData;
+            userInfo[@"custom"] = customDict;
+            
+            userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
+        }
         
         [self notificationOpened:userInfo isActive:[[UIApplication sharedApplication] applicationState] == UIApplicationStateActive];
     }
@@ -1116,13 +1163,19 @@ static NSMutableArray* delegateReference;
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex != 0) {
         NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
-        NSMutableDictionary* customDict = [userInfo[@"custom"] mutableCopy];
-        NSMutableDictionary* additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
-    
-        additionalData[@"actionSelected"] = additionalData[@"actionButtons"][buttonIndex - 1][@"id"];
-    
-        customDict[@"a"] = additionalData;
-        userInfo[@"custom"] = customDict;
+        
+        if (mMessageDict[@"os_data"])
+            userInfo[@"actionSelected"] = mMessageDict[@"actionButtons"][buttonIndex - 1][@"id"];
+        else {
+            NSMutableDictionary* customDict = [userInfo[@"custom"] mutableCopy];
+            NSMutableDictionary* additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+            
+            additionalData[@"actionSelected"] = additionalData[@"actionButtons"][buttonIndex - 1][@"id"];
+            
+            customDict[@"a"] = additionalData;
+            userInfo[@"custom"] = customDict;
+        }
+        
         mMessageDict = userInfo;
     }
     
@@ -1213,7 +1266,6 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] remoteSilentNotification:application UserInfo:userInfo];
     
-    
     if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)])
         [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
     else
@@ -1249,7 +1301,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 - (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] onFocus:@"resume"];
-
+    
     if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
         [self oneSignalApplicationDidBecomeActive:application];
 }
@@ -1273,11 +1325,11 @@ static Class delegateClass = nil;
     }
     
     
-	delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
+    delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
     
     
     injectSelector(self.class, @selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
-                    delegateClass, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:));
+                   delegateClass, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:));
     
     injectSelector(self.class, @selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
                    delegateClass, @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:));
@@ -1297,10 +1349,10 @@ static Class delegateClass = nil;
                    delegateClass, @selector(application:didReceiveRemoteNotification:));
     
     injectSelector(self.class, @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:),
-                    delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
+                   delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
     
     injectSelector(self.class, @selector(oneSignalLocalNotificaionOpened:notification:),
-                    delegateClass, @selector(application:didReceiveLocalNotification:));
+                   delegateClass, @selector(application:didReceiveLocalNotification:));
     
     injectSelector(self.class, @selector(oneSignalApplicationWillResignActive:),
                    delegateClass, @selector(applicationWillResignActive:));
