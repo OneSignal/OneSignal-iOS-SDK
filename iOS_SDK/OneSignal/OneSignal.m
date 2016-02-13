@@ -102,6 +102,10 @@ static NSString* mSDKType = @"native";
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:nil autoRegister:autoRegister];
 }
 
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
+    return [self initWithLaunchOptions:launchOptions appId:appId handleNotification:nil autoRegister:true];
+}
+
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(OneSignalHandleNotificationBlock)callback {
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:callback autoRegister:true];
 }
