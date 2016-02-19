@@ -78,7 +78,7 @@
         return YES;
     
     // Omit logic below since they show warnings in the device log on iOS 9 devices.
-    if (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_8_4)
+    if (NSFoundationVersionNumber > 1144.17) // NSFoundationVersionNumber_iOS_8_4
         return NO;
     
     // Check if the app can access outside of its sandbox
