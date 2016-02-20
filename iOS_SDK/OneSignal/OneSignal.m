@@ -118,10 +118,6 @@ static NSString* mSDKType = @"native";
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:callback autoRegister:autoRegister];
 }
 
-- (id)initWithLaunchOptions:(NSDictionary*)launchOptions autoRegister:(BOOL)autoRegister {
-    return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:nil autoRegister:autoRegister];
-}
-
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OneSignalHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister {
     self = [super init];
     

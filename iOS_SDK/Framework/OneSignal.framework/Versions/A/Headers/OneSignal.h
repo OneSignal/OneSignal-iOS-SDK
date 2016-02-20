@@ -67,6 +67,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OneSignalHandleNotificationBlock)callback;
 
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(OneSignalHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister;
+
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OneSignalHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister;
 
 // Only use if you passed FALSE to autoRegister
