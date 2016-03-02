@@ -875,6 +875,9 @@ int getNotificationTypes() {
             additionalData[@"launchURL"] = self.lastMessageReceived[@"custom"][@"u"];
     }
     
+    if (!additionalData)
+        additionalData = [[NSMutableDictionary alloc] init];
+    
     
     // TODO: Add sound when notification sent with buttons.
     if (self.lastMessageReceived[@"aps"][@"sound"] != nil)
