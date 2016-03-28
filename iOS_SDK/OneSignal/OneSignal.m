@@ -24,6 +24,7 @@
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalReachability.h"
 #import "OneSignalMobileProvision.h"
+#import "OneSignalLocation.h"
 
 #import <stdlib.h>
 #import <stdio.h>
@@ -60,7 +61,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011103";
+NSString* const ONESIGNAL_VERSION = @"011200";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
@@ -89,6 +90,21 @@ NSNumber* timeToPingWith;
 int mNotificationTypes = -1;
 bool mSubscriptionSet = true;
 static NSString* mSDKType = @"native";
+
+
+typedef struct os_location_coordinate {
+    double latitude;
+    double longitude;
+} os_location_coordinate;
+
+typedef struct os_last_location {
+    os_location_coordinate cords;
+    double verticalAccuracy;
+    double horizontalAccuracy;
+} os_last_location;
+
+static os_last_location *lastLocation;
+static bool location_event_fired;
 
 + (void)setMSDKType:(NSString*)str {
     mSDKType = str;
@@ -132,6 +148,8 @@ static NSString* mSDKType = @"native";
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
+    
+    [OneSignalLocation getLocation:self prompt:false];
     
     if (self) {
         
@@ -421,6 +439,14 @@ NSNumber* getNetType() {
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
+    if (lastLocation) {
+        dataDic[@"lat"] = [NSNumber numberWithDouble:lastLocation->cords.latitude];
+        dataDic[@"long"] = [NSNumber numberWithDouble:lastLocation->cords.longitude];
+        dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:lastLocation->verticalAccuracy];
+        dataDic[@"loc_acc"] = [NSNumber numberWithDouble:lastLocation->horizontalAccuracy];
+        lastLocation = nil;
+    }
+    
     [self enqueueRequest:request onSuccess:^(NSDictionary* results) {
         oneSignalReg = true;
         waitingForOneSReg = false;
@@ -435,6 +461,7 @@ NSNumber* getNetType() {
             
             if (tagsToSend != nil) {
                 [self sendTags:tagsToSend];
+                [self sendLocation:lastLocation];
                 tagsToSend = nil;
             }
             
@@ -1145,6 +1172,64 @@ int getNotificationTypes() {
         
         [self notificationOpened:userInfo isActive:[[UIApplication sharedApplication] applicationState] == UIApplicationStateActive];
     }
+}
+
+- (void) promptLocation {
+    [OneSignalLocation getLocation:self prompt:true];
+}
+
+
+- (void)locationManager:(id)manager didUpdateLocations:(NSArray*)locations {
+    [manager performSelector:@selector(stopUpdatingLocation)];
+    
+    if (location_event_fired)
+        return;
+    
+    location_event_fired = true;
+
+    id location = locations.lastObject;
+    
+    SEL cord_selector = NSSelectorFromString(@"coordinate");
+    os_location_coordinate cords;
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[location class] instanceMethodSignatureForSelector:cord_selector]];
+    
+    [invocation setTarget:locations.lastObject];
+    [invocation setSelector:cord_selector];
+    [invocation invoke];
+    [invocation getReturnValue:&cords];
+    
+    os_last_location *currentLocation = (os_last_location*)malloc(sizeof(os_last_location));
+    currentLocation->verticalAccuracy = [[location valueForKey:@"verticalAccuracy"] doubleValue];
+    currentLocation->horizontalAccuracy = [[location valueForKey:@"horizontalAccuracy"] doubleValue];
+    currentLocation->cords = cords;
+    
+    if (mUserId == nil) {
+        lastLocation = currentLocation;
+        return;
+    }
+    
+    [self sendLocation:currentLocation];
+}
+
+- (void) sendLocation:(os_last_location*)location {
+    
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
+    
+    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.app_id, @"app_id",
+                             [NSNumber numberWithDouble:location->cords.latitude], @"lat",
+                             [NSNumber numberWithDouble:location->cords.longitude], @"long",
+                             [NSNumber numberWithDouble:location->verticalAccuracy], @"loc_acc_vert",
+                             [NSNumber numberWithDouble:location->horizontalAccuracy], @"loc_acc",
+                             getNetType(), @"net_type",
+                             nil];
+    
+    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+    [request setHTTPBody:postData];
+    
+    [self enqueueRequest:request
+               onSuccess:nil
+               onFailure:nil];
 }
 
 @end

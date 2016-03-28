@@ -32,6 +32,7 @@
 		37E277281ACCA5B300D49C8D /* GameThrive.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E277241ACBB58D00D49C8D /* GameThrive.h */; };
 		37E2772A1ACCA67400D49C8D /* OneSignal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
+		91F2D1031C94D10F00DE95D0 /* OneSignalLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -75,6 +76,8 @@
 		37E277241ACBB58D00D49C8D /* GameThrive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameThrive.h; sourceTree = "<group>"; };
 		37E277251ACBB58D00D49C8D /* GameThrive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameThrive.m; sourceTree = "<group>"; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		91F2D1011C94D0DD00DE95D0 /* OneSignalLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalLocation.h; sourceTree = "<group>"; };
+		91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalLocation.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +150,8 @@
 				37747FBD1914837300558FAD /* OneSignalHTTPClient.m */,
 				371FDED819F1A486001479B7 /* OneSignalTrackIAP.m */,
 				371FDEDA19F1F9D9001479B7 /* OneSignalTrackIAP.h */,
+				91F2D1011C94D0DD00DE95D0 /* OneSignalLocation.h */,
+				91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */,
 			);
 			path = OneSignal;
 			sourceTree = "<group>";
@@ -245,6 +250,7 @@
 				37D6E07F1B1EAE6500EC3624 /* OneSignalMobileProvision.m in Sources */,
 				37668EE91AA80B7E0095D813 /* OneSignalReachability.m in Sources */,
 				37E277051ACB940000D49C8D /* OneSignal.m in Sources */,
+				91F2D1031C94D10F00DE95D0 /* OneSignalLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
