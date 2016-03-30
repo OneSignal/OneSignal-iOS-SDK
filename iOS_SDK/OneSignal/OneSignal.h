@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
+
 typedef void (^OneSignalResultSuccessBlock)(NSDictionary* result);
 typedef void (^OneSignalFailureBlock)(NSError* error);
 typedef void (^OneSignalIdsAvailableBlock)(NSString* userId, NSString* pushToken);
