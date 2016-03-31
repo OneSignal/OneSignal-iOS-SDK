@@ -61,7 +61,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011201";
+NSString* const ONESIGNAL_VERSION = @"011202";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
