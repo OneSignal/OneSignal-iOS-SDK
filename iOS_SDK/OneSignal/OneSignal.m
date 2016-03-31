@@ -61,7 +61,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011200";
+NSString* const ONESIGNAL_VERSION = @"011201";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
@@ -459,10 +459,14 @@ NSNumber* getNetType() {
             if (mDeviceToken)
                 [self updateDeviceToken:mDeviceToken onSuccess:tokenUpdateSuccessBlock onFailure:tokenUpdateFailureBlock];
             
-            if (tagsToSend != nil) {
+            if (tagsToSend) {
                 [self sendTags:tagsToSend];
-                [self sendLocation:lastLocation];
                 tagsToSend = nil;
+            }
+            
+            if (lastLocation) {
+                [self sendLocation:lastLocation];
+                lastLocation = nil;
             }
             
             if (idsAvailableBlockWhenReady) {
