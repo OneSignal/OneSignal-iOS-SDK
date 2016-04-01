@@ -85,6 +85,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 - (void)sendTags:(NSDictionary*)keyValuePair;
 - (void)sendTagsWithJsonString:(NSString*)jsonString;
 
+- (void)setEmail:(NSString*)email;
+
 - (void)getTags:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock;
 - (void)getTags:(OneSignalResultSuccessBlock)successBlock;
 

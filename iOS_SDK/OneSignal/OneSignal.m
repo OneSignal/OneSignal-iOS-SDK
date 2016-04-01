@@ -61,13 +61,16 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011202";
+NSString* const ONESIGNAL_VERSION = @"011300";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
 @synthesize lastMessageReceived;
 
+bool disableBadgeClearing = false;
+
 NSMutableDictionary* tagsToSend;
+NSString* emailToSet;
 
 NSString* mDeviceToken;
 OneSignalResultSuccessBlock tokenUpdateSuccessBlock;
@@ -165,6 +168,8 @@ static bool location_event_fired;
             if (self.app_id == nil)
                 self.app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
         }
+        
+        disableBadgeClearing = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_disable_badge_clearing"];
         
         
         NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"%@", DEFAULT_PUSH_HOST]];
@@ -469,6 +474,12 @@ NSNumber* getNetType() {
                 lastLocation = nil;
             }
             
+            if (emailToSet) {
+                [self setEmail:emailToSet];
+                emailToSet = nil;
+                
+            }
+            
             if (idsAvailableBlockWhenReady) {
                 idsAvailableBlockWhenReady(mUserId, getUsableDeviceToken());
                 if (getUsableDeviceToken())
@@ -547,6 +558,34 @@ NSString* getUsableDeviceToken() {
 
 - (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     [self sendTags:[NSDictionary dictionaryWithObjectsAndKeys: value, key, nil] onSuccess:successBlock onFailure:failureBlock];
+}
+
+
+- (void)setEmail:(NSString*)email {
+    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 || mUserId == nil)
+        return;
+    
+    if (mUserId == nil) {
+        emailToSet = email;
+        return;
+    }
+    
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
+    
+    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.app_id, @"app_id",
+                             email, @"email",
+                             getNetType(), @"net_type",
+                             nil];
+    
+    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+    [request setHTTPBody:postData];
+    
+    [self enqueueRequest:request
+               onSuccess:nil
+               onFailure:nil];
+
+    
 }
 
 - (void)getTags:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
@@ -839,7 +878,7 @@ NSString* getUsableDeviceToken() {
 }
 
 bool clearBadgeCount(bool fromNotifOpened) {
-    if (mNotificationTypes == -1 || (mNotificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+    if (disableBadgeClearing || mNotificationTypes == -1 || (mNotificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;

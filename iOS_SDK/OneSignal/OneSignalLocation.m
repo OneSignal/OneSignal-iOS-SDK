@@ -60,7 +60,6 @@ static bool hasDelayed = false;
 }
 
 + (void) internalGetLocation:(id)delegate prompt:(bool)prompt {
-    NSLog(@"getLocation called:started:%d", started);
     if (started)
         return;
     
