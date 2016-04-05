@@ -10,9 +10,10 @@ typedef NS_ENUM(NSInteger, UIApplicationReleaseMode) {
     UIApplicationReleaseUnknown,
     UIApplicationReleaseDev,
     UIApplicationReleaseAdHoc,
+    UIApplicationReleaseWildcard,
     UIApplicationReleaseAppStore,
     UIApplicationReleaseSim,
-    UIApplicationReleaseEnterprise,
+    UIApplicationReleaseEnterprise
 };
 
 @interface OneSignalMobileProvision : NSObject

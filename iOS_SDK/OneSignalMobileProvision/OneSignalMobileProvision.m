@@ -82,11 +82,14 @@
 		// enterprise distribution contains ProvisionsAllDevices - true
 		return UIApplicationReleaseEnterprise;
 	} else if ([mobileProvision objectForKey:@"ProvisionedDevices"] && [[mobileProvision objectForKey:@"ProvisionedDevices"] count] > 0) {
-		// development contains UDIDs and get-task-allow is true
+		// development contains UDIDs and get-task-allow is true, expect for one with a wildcard identifier. It creates a production push token.
 		// ad hoc contains UDIDs and get-task-allow is false
 		NSDictionary *entitlements = [mobileProvision objectForKey:@"Entitlements"];
-		if ([[entitlements objectForKey:@"get-task-allow"] boolValue]) {
-			return UIApplicationReleaseDev;
+        if ([[entitlements objectForKey:@"get-task-allow"] boolValue]) {
+            if (entitlements[@"application-identifier"] && [entitlements[@"application-identifier"] hasSuffix:@"*"])
+                return UIApplicationReleaseWildcard;
+            else
+                return UIApplicationReleaseDev;
 		} else {
 			return UIApplicationReleaseAdHoc;
 		}
