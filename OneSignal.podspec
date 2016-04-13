@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "OneSignal"
-  s.version          = "1.13.1"
+  s.version          = "1.13.2"
   s.summary          = "OneSignal push notification library for mobile apps."
   s.homepage         = "https://onesignal.com"
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
