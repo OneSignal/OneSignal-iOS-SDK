@@ -41,6 +41,7 @@
 #define NOTIFICATION_TYPE_ALERT 4
 #define NOTIFICATION_TYPE_ALL 7
 
+static NSString *const kUserDefaultsSubscriptionEnabledKey = @"ONESIGNAL_SUBSCRIPTION";
 static OneSignal* defaultClient = nil;
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
@@ -199,7 +200,7 @@ static bool location_event_fired;
             registeredWithApple = [[UIApplication sharedApplication] currentUserNotificationSettings].types != (NSUInteger)nil;
         else
             registeredWithApple = mDeviceToken != nil || [defaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
-        mSubscriptionSet = [defaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
+        mSubscriptionSet = [defaults objectForKey:kUserDefaultsSubscriptionEnabledKey] == nil;
         mNotificationTypes = getNotificationTypes();
         
         // Register this device with Apple's APNS server.
@@ -1097,12 +1098,16 @@ int getNotificationTypes() {
         value = @"no";
     
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:value forKey:@"ONESIGNAL_SUBSCRIPTION"];
+    [defaults setObject:value forKey:kUserDefaultsSubscriptionEnabledKey];
     [defaults synchronize];
     
     mSubscriptionSet = enable;
     
     [self sendNotificationTypesUpdateIsConfirmed:false];
+}
+
+- (BOOL)isSubscriptionEnabled {
+    return [[NSUserDefaults standardUserDefaults] objectForKey:kUserDefaultsSubscriptionEnabledKey] == nil;
 }
 
 - (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
