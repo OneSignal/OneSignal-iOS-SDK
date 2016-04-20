@@ -655,29 +655,35 @@ NSString* getUsableDeviceToken() {
 }
 
 - (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm {
+    [self sendNotificationTypesUpdateIsConfirmed:isConfirm onSuccess:nil onFailure:nil];
+}
+
+- (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm onSuccess:(dispatch_block_t)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     // User changed notification settings for the app.
     if (mNotificationTypes != -1 && mUserId && (isConfirm || mNotificationTypes != getNotificationTypes()) ) {
         mNotificationTypes = getNotificationTypes();
         NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-        
+
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                  self.app_id, @"app_id",
                                  [NSNumber numberWithInt:mNotificationTypes], @"notification_types",
                                  nil];
-        
+
         NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
         [request setHTTPBody:postData];
-        
-        [self enqueueRequest:request onSuccess:nil onFailure:nil];
-        
+
+        [self enqueueRequest:request onSuccess:^(NSDictionary *_) {
+            if (successBlock) successBlock();
+        } onFailure:failureBlock];
+
         if (getUsableDeviceToken() && idsAvailableBlockWhenReady) {
             idsAvailableBlockWhenReady(mUserId, getUsableDeviceToken());
             idsAvailableBlockWhenReady = nil;
         }
+    } else {
+        successBlock();
     }
-    
 }
-
 
 - (void) beginBackgroundFocusTask {
     focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
@@ -1093,17 +1099,21 @@ int getNotificationTypes() {
 }
 
 - (void)setSubscription:(BOOL)enable {
+    [self setSubscription:enable onSuccess:nil onFailure:nil];
+}
+
+- (void)setSubscription:(BOOL)enable onSuccess:(dispatch_block_t)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     NSString* value = nil;
     if (!enable)
         value = @"no";
-    
+
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [defaults setObject:value forKey:kUserDefaultsSubscriptionEnabledKey];
     [defaults synchronize];
-    
+
     mSubscriptionSet = enable;
-    
-    [self sendNotificationTypesUpdateIsConfirmed:false];
+
+    [self sendNotificationTypesUpdateIsConfirmed:false onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (BOOL)isSubscriptionEnabled {
