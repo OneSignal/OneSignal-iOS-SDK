@@ -654,25 +654,27 @@ NSString* getUsableDeviceToken() {
     }
 }
 
-- (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm {
-    [self sendNotificationTypesUpdateIsConfirmed:isConfirm onSuccess:nil onFailure:nil];
+- (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm notificationTypes:(int)newNotificationTypes {
+    [self sendNotificationTypesUpdateIsConfirmed:isConfirm notificationTypes:newNotificationTypes onSuccess:nil onFailure:nil];
 }
 
-- (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm onSuccess:(dispatch_block_t)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
+- (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm notificationTypes:(int)newNotificationTypes onSuccess:(dispatch_block_t)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
+    
     // User changed notification settings for the app.
-    if (mNotificationTypes != -1 && mUserId && (isConfirm || mNotificationTypes != getNotificationTypes()) ) {
-        mNotificationTypes = getNotificationTypes();
+    if (mNotificationTypes != -1 && mUserId && (isConfirm || mNotificationTypes != newNotificationTypes)) {
+        //mNotificationTypes = getNotificationTypes();
         NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
 
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                  self.app_id, @"app_id",
-                                 [NSNumber numberWithInt:mNotificationTypes], @"notification_types",
+                                 [NSNumber numberWithInt:newNotificationTypes], @"notification_types",
                                  nil];
 
         NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
         [request setHTTPBody:postData];
 
         [self enqueueRequest:request onSuccess:^(NSDictionary *_) {
+            mNotificationTypes = newNotificationTypes;
             if (successBlock) successBlock();
         } onFailure:failureBlock];
 
@@ -681,7 +683,7 @@ NSString* getUsableDeviceToken() {
             idsAvailableBlockWhenReady = nil;
         }
     } else {
-        if (successBlock) successBlock();
+        if (failureBlock) failureBlock(nil);
     }
 }
 
@@ -702,7 +704,7 @@ NSString* getUsableDeviceToken() {
     if ([state isEqualToString:@"resume"]) {
         lastTrackedTime = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970]];
         
-        [self sendNotificationTypesUpdateIsConfirmed:false];
+        [self sendNotificationTypesUpdateIsConfirmed:false notificationTypes:getNotificationTypes()];
         wasBadgeSet = clearBadgeCount(false);
     }
     else {
@@ -906,10 +908,14 @@ bool isCapableOfGettingNotificationTypes() {
 }
 
 int getNotificationTypes() {
-    if (!mSubscriptionSet)
+    return _getNotificationTypes(mSubscriptionSet, mDeviceToken);
+}
+
+int _getNotificationTypes(bool isSubscriptionSet, NSString* deviceToken) {
+    if (!isSubscriptionSet)
         return -2;
     
-    if (mDeviceToken) {
+    if (deviceToken) {
         if (isCapableOfGettingNotificationTypes())
             return [[UIApplication sharedApplication] currentUserNotificationSettings].types;
         else
@@ -931,7 +937,7 @@ int getNotificationTypes() {
     if (mUserId == nil && mDeviceToken)
         [self registerUser];
     else if (mDeviceToken)
-        [self sendNotificationTypesUpdateIsConfirmed:changed];
+        [self sendNotificationTypesUpdateIsConfirmed:changed notificationTypes:getNotificationTypes()];
     
     if (idsAvailableBlockWhenReady && mUserId && getUsableDeviceToken())
         idsAvailableBlockWhenReady(mUserId, getUsableDeviceToken());
@@ -1107,13 +1113,20 @@ int getNotificationTypes() {
     if (!enable)
         value = @"no";
 
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:value forKey:kUserDefaultsSubscriptionEnabledKey];
-    [defaults synchronize];
-
-    mSubscriptionSet = enable;
-
-    [self sendNotificationTypesUpdateIsConfirmed:false onSuccess:successBlock onFailure:failureBlock];
+    [self sendNotificationTypesUpdateIsConfirmed:false
+                               notificationTypes:_getNotificationTypes(enable, mDeviceToken)
+                                       onSuccess:^{
+                                           NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+                                           [defaults setObject:value forKey:kUserDefaultsSubscriptionEnabledKey];
+                                           [defaults synchronize];
+                                           
+                                           mSubscriptionSet = enable;
+                                           
+                                           if (successBlock) {
+                                               successBlock();
+                                           }
+                                       }
+                                       onFailure:failureBlock];
 }
 
 - (BOOL)isSubscriptionEnabled {
