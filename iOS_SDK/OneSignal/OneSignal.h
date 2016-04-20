@@ -101,6 +101,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 - (void)enableInAppAlertNotification:(BOOL)enable;
 - (void)setSubscription:(BOOL)enable;
+//onSuccess and onFailure might not run on the main thread.
 - (void)setSubscription:(BOOL)enable onSuccess:(dispatch_block_t)successBlock onFailure:(OneSignalFailureBlock)failureBlock;
 
 //This returns the local state, the user might still receive notifications while this isn't true server-side

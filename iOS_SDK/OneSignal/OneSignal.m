@@ -681,7 +681,7 @@ NSString* getUsableDeviceToken() {
             idsAvailableBlockWhenReady = nil;
         }
     } else {
-        successBlock();
+        if (successBlock) successBlock();
     }
 }
 
