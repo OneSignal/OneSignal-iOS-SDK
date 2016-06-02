@@ -8,6 +8,7 @@
 
 #import "OneSignalMobileProvision.h"
 #import "TargetConditionals.h"
+#import "OneSignal.h"
 
 @implementation OneSignalMobileProvision
 
@@ -68,32 +69,33 @@
 }
 
 + (UIApplicationReleaseMode) releaseMode {
+    NSDictionary *entitlements = nil;
 	NSDictionary *mobileProvision = [self getMobileProvision];
+    if (mobileProvision) {
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"mobileProvision: %@", mobileProvision]];
+        entitlements = [mobileProvision objectForKey:@"Entitlements"];
+    }
+    else
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"mobileProvision not found"];
+              
 	if (!mobileProvision) {
 		// failure to read other than it simply not existing
 		return UIApplicationReleaseUnknown;
-	} else if (![mobileProvision count]) {
+	}
+    else if (![mobileProvision count]) {
 #if TARGET_IPHONE_SIMULATOR
 		return UIApplicationReleaseSim;
 #else
 		return UIApplicationReleaseAppStore;
 #endif
-	} else if ([[mobileProvision objectForKey:@"ProvisionsAllDevices"] boolValue]) {
+	}
+    else if ([[mobileProvision objectForKey:@"ProvisionsAllDevices"] boolValue]) {
 		// enterprise distribution contains ProvisionsAllDevices - true
 		return UIApplicationReleaseEnterprise;
-	} else if ([mobileProvision objectForKey:@"ProvisionedDevices"] && [[mobileProvision objectForKey:@"ProvisionedDevices"] count] > 0) {
-		// development contains UDIDs and get-task-allow is true, expect for one with a wildcard identifier. It creates a production push token.
-		// ad hoc contains UDIDs and get-task-allow is false
-		NSDictionary *entitlements = [mobileProvision objectForKey:@"Entitlements"];
-        if ([[entitlements objectForKey:@"get-task-allow"] boolValue]) {
-            if (entitlements[@"application-identifier"] && [entitlements[@"application-identifier"] hasSuffix:@"*"])
-                return UIApplicationReleaseWildcard;
-            else
-                return UIApplicationReleaseDev;
-		} else {
-			return UIApplicationReleaseAdHoc;
-		}
-	} else {
+	}
+    else if ([@"development" isEqualToString: entitlements[@"aps-environment"]])
+        return UIApplicationReleaseDev;
+    else {
 		// app store contains no UDIDs (if the file exists at all?)
 		return UIApplicationReleaseAppStore;
 	}

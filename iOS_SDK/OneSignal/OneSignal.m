@@ -61,7 +61,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"011302";
+NSString* const ONESIGNAL_VERSION = @"011303";
 
 @synthesize app_id = _GT_publicKey;
 @synthesize httpClient = _GT_httpRequest;
@@ -235,6 +235,10 @@ static bool location_event_fired;
     _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
 }
 
++ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
+    onesignal_Log(logLevel, message);
+}
+
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSString* levelString;
     switch (logLevel) {
@@ -403,13 +407,15 @@ NSNumber* getNetType() {
                                     self.systemVersion, @"device_os",
                                     [[NSLocale preferredLanguages] objectAtIndex:0], @"language",
                                     [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
-                                    build, @"game_version",
                                     [NSNumber numberWithInt:0], @"device_type",
                                     [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
                                     [self getSoundFiles], @"sounds",
                                     ONESIGNAL_VERSION, @"sdk",
                                     mDeviceToken, @"identifier", // identifier MUST be at the end as it could be nil.
                                     nil];
+    
+    if (build)
+        dataDic[@"game_version"] = build;
     
     mNotificationTypes = getNotificationTypes();
     
@@ -1021,6 +1027,9 @@ int getNotificationTypes() {
 }
 
 - (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
+    
+    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]);
+    
     if (isSynchronous) {
         NSURLResponse* response = nil;
         NSError* error = nil;
