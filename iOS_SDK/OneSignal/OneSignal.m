@@ -875,9 +875,6 @@ NSString* getUsableDeviceToken() {
     self.lastMessageReceived = messageDict;
     
     clearBadgeCount(true);
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    
-    
     
     if (handleNotification)
         handleNotification([self getMessageString], [self getAdditionalData], isActive);
