@@ -26,24 +26,24 @@
  */
 
 /***
- 
+
  ### Setting up the SDK ###
  Follow the documentation from https://documentation.onesignal.com/docs/installing-the-onesignal-ios-sdk to setup OneSignal in your app.
- 
+
  ### API Reference ###
  Follow the documentation from https://documentation.onesignal.com/docs/ios-sdk-api for a detailed explanation of the API.
- 
+
  ### FAQ & Troubleshoot ###
  FAQ: https://documentation.onesignal.com/docs/frequently-asked-questions-1
  Troubleshoot: https://documentation.onesignal.com/docs/common-problems-1
- 
+
  For help on how to upgrade your code from 1.* SDK to 2.*: https://documentation.onesignal.com/docs/upgrading-to-sdk-20
- 
+
  ### More ###
  iOS Configuration: https://documentation.onesignal.com/docs/generating-an-ios-push-certificate
  REST API: https://documentation.onesignal.com/docs/server-api-overview
  Create Notification API: https://documentation.onesignal.com/docs/notifications-create-notification
- 
+
 ***/
 
 #import <Foundation/Foundation.h>
@@ -70,10 +70,10 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
     OSNotificationDisplayTypeNone,
-    
+
     /*Default UIAlertView display*/
     OSNotificationDisplayTypeInAppAlert,
-    
+
     /*iOS native notification display*/
     OSNotificationDisplayTypeNotification
 } ;
@@ -190,17 +190,17 @@ typedef void (^OSHandleNotificationReceivedBlock)(OSNotification* notification);
 typedef void (^OSHandleNotificationActionBlock)(OSNotificationOpenedResult * result);
 
 /*Dictionary of keys to pass alongside the init serttings*/
-    
+
 /*Let OneSignal directly promt for push notifications on init*/
 extern NSString * const kOSSettingsKeyAutoPrompt;
-    
+
 /*Enable the default in-app alerts*/
 extern NSString * const kOSSettingsKeyInAppAlerts;
 
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
 
-/* iOS10+ - 
+/* iOS10+ -
  Set notificaion's in-focus display option.
  Value must be an OSNotificationDisplayType enum
 */
@@ -226,7 +226,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 /**
  Initialize OneSignal. Sends push token to OneSignal so you can later send notifications.
- 
+
 */
 
 // - Initialization
@@ -236,13 +236,15 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 
 + (NSString*)app_id;
-    
+
 // Only use if you passed FALSE to autoRegister
 + (void)registerForPushNotifications;
 
++ (void)disableBadgeClearing:(bool)badgeClearing;
+
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*)message;
++ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*)message;
 
 // - Tagging
 + (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
