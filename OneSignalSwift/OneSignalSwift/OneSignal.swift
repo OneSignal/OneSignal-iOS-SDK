@@ -32,7 +32,7 @@ typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> V
 
 class OneSignal : NSObject {
     
-    static var defaultClient : OneSignal!zdvxfv
+    static var defaultClient : OneSignal!
     
     var app_id : String!
     var deviceModel : NSString!
