@@ -32,7 +32,7 @@ typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> V
 
 class OneSignal : NSObject {
     
-    static var defaultClient : OneSignal!
+    static var defaultClient : OneSignal!zdvxfv
     
     var app_id : String!
     var deviceModel : NSString!
@@ -64,9 +64,8 @@ class OneSignal : NSObject {
         
         super.init()
         
-        if appId == nil {return}
+        if appId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 {return}
         
-        if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return }
         if NSUUID(UUIDString: appId! as String) == nil {
             onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
             return
@@ -98,7 +97,10 @@ class OneSignal : NSObject {
         if OneSignal.defaultClient == nil { OneSignal.defaultClient = self}
         
         let defaults = NSUserDefaults.standardUserDefaults()
-        if app_id == nil { app_id = defaults.stringForKey("GT_APP_ID") }
+        
+        if app_id == nil {
+            app_id = defaults.stringForKey("GT_APP_ID")
+        }
         else if app_id != defaults.stringForKey("GT_APP_ID") {
             defaults.setObject(app_id, forKey: "GT_APP_ID")
             defaults.setObject(nil, forKey: "GT_PLAYER_ID")
@@ -107,23 +109,35 @@ class OneSignal : NSObject {
         
         userId = defaults.stringForKey("GT_PLAYER_ID")
         deviceToken = defaults.stringForKey("GT_DEVICE_TOKEN")
-        if isCapableOfGettingNotificationTypes() {
-            if #available(iOS 8.0, *) {registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil}
+         if #available(iOS 8.0, *) {
+            if isCapableOfGettingNotificationTypes() {
+                registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil
+            }
+            notificationTypes = getNotificationTypes()
+         }
+         else {
+            registeredWithApple = deviceToken != nil || defaults.boolForKey("GT_REGISTERED_WITH_APPLE")
         }
-        else { registeredWithApple = deviceToken != nil || defaults.boolForKey("GT_REGISTERED_WITH_APPLE") }
+        
         subscriptionSet = defaults.objectForKey("ONESIGNAL_SUBSCRIPTION") == nil
-        notificationTypes = getNotificationTypes()
         
         // Register this device with Apple's APNS server.
-        if autoRegister || registeredWithApple { self.registerForPushNotifications() }
+        if autoRegister || registeredWithApple {
+            self.registerForPushNotifications()
+        }
+            
         else if #available(iOS 8.0, *) {
             if UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.registerForRemoteNotifications)) {
                 UIApplication.sharedApplication().registerForRemoteNotifications()
             }
         }
         
-        if userId != nil { registerUser() }
-        else { self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0) }
+        if userId != nil {
+            registerUser()
+        }
+        else {
+            self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0)
+        }
             
         if let userInfo = launchOptions.objectForKey(UIApplicationLaunchOptionsRemoteNotificationKey) as? NSDictionary {
             if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_7_0 {
@@ -133,7 +147,9 @@ class OneSignal : NSObject {
         
         clearBadgeCount(false)
         
-        if OneSignalTrackIAP.canTrack() {trackIAPPurchase = OneSignalTrackIAP()}
+        if OneSignalTrackIAP.canTrack() {
+            trackIAPPurchase = OneSignalTrackIAP()
+        }
     }
 
     

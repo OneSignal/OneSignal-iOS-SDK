@@ -64,6 +64,7 @@ extension OneSignal : UIApplicationDelegate{
                 }
                 else { notification.alertBody = data!["m"] as? String }
             }
+            
             notification.userInfo = userInfo as [NSObject : AnyObject]
             notification.soundName = data!["s"] as? String
             if notification.soundName == nil { notification.soundName = UILocalNotificationDefaultSoundName }

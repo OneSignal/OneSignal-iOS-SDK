@@ -83,7 +83,9 @@ extension OneSignal {
         NSUserDefaults.standardUserDefaults().synchronize()
         
         subscriptionSet = enable
-        self.sendNotificationTypesUpdateIsConfirmed(false)
+        if #available(iOS 8.0, *) {
+            self.sendNotificationTypesUpdateIsConfirmed(false)
+        }
     }
     
     func enableInAppAlertNotification(enable: Bool) {

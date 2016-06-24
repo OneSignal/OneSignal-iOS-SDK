@@ -25,13 +25,13 @@
 		3EB689C11D1B60AE00AA06EE /* OneSignal-Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689C01D1B60AE00AA06EE /* OneSignal-Location.swift */; };
 		3EB689C31D1B692300AA06EE /* OneSignal-Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689C21D1B692300AA06EE /* OneSignal-Networking.swift */; };
 		3EB689C51D1B794600AA06EE /* OneSignal-Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689C41D1B794600AA06EE /* OneSignal-Helpers.swift */; };
-		3EB689C71D1B899100AA06EE /* OneSignal-Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689C61D1B899100AA06EE /* OneSignal-Notifications.swift */; };
 		3EB689C91D1C6C9E00AA06EE /* OneSignal-Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689C81D1C6C9E00AA06EE /* OneSignal-Tags.swift */; };
 		3EB689CB1D1C90C200AA06EE /* OneSignal-FocusTasks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689CA1D1C90C200AA06EE /* OneSignal-FocusTasks.swift */; };
 		3EB689CD1D1C95D000AA06EE /* OneSignal-Purchases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689CC1D1C95D000AA06EE /* OneSignal-Purchases.swift */; };
 		3EB689CF1D1C9BFD00AA06EE /* OneSignal-Swizzling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689CE1D1C9BFD00AA06EE /* OneSignal-Swizzling.swift */; };
 		3EB689D11D1CB54900AA06EE /* OneSignal-UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB689D01D1CB54900AA06EE /* OneSignal-UIApplication.swift */; };
 		3EB689D41D1CC59100AA06EE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB689D31D1CC59100AA06EE /* Foundation.framework */; };
+		3ED94EC91D1DD69200EF6745 /* OneSignal-Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED94EC81D1DD69200EF6745 /* OneSignal-Notifications.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,13 +66,13 @@
 		3EB689C01D1B60AE00AA06EE /* OneSignal-Location.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Location.swift"; sourceTree = "<group>"; };
 		3EB689C21D1B692300AA06EE /* OneSignal-Networking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Networking.swift"; sourceTree = "<group>"; };
 		3EB689C41D1B794600AA06EE /* OneSignal-Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Helpers.swift"; sourceTree = "<group>"; };
-		3EB689C61D1B899100AA06EE /* OneSignal-Notifications.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Notifications.swift"; sourceTree = "<group>"; };
 		3EB689C81D1C6C9E00AA06EE /* OneSignal-Tags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Tags.swift"; sourceTree = "<group>"; };
 		3EB689CA1D1C90C200AA06EE /* OneSignal-FocusTasks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-FocusTasks.swift"; sourceTree = "<group>"; };
 		3EB689CC1D1C95D000AA06EE /* OneSignal-Purchases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Purchases.swift"; sourceTree = "<group>"; };
 		3EB689CE1D1C9BFD00AA06EE /* OneSignal-Swizzling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Swizzling.swift"; sourceTree = "<group>"; };
 		3EB689D01D1CB54900AA06EE /* OneSignal-UIApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-UIApplication.swift"; sourceTree = "<group>"; };
 		3EB689D31D1CC59100AA06EE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3ED94EC81D1DD69200EF6745 /* OneSignal-Notifications.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OneSignal-Notifications.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,12 +183,12 @@
 				3EB689BE1D1B575E00AA06EE /* OneSignal-Alert.swift */,
 				3EB689C01D1B60AE00AA06EE /* OneSignal-Location.swift */,
 				3EB689C21D1B692300AA06EE /* OneSignal-Networking.swift */,
-				3EB689C61D1B899100AA06EE /* OneSignal-Notifications.swift */,
 				3EB689C81D1C6C9E00AA06EE /* OneSignal-Tags.swift */,
 				3EB689CA1D1C90C200AA06EE /* OneSignal-FocusTasks.swift */,
 				3EB689CC1D1C95D000AA06EE /* OneSignal-Purchases.swift */,
 				3EB689CE1D1C9BFD00AA06EE /* OneSignal-Swizzling.swift */,
 				3EB689D01D1CB54900AA06EE /* OneSignal-UIApplication.swift */,
+				3ED94EC81D1DD69200EF6745 /* OneSignal-Notifications.swift */,
 			);
 			name = OneSignal;
 			sourceTree = "<group>";
@@ -264,6 +264,8 @@
 				TargetAttributes = {
 					3EAE55001D1A097D00B854EE = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 99SW8E36CT;
+						DevelopmentTeamName = "Lilomi Inc.";
 						LastSwiftMigration = 0800;
 					};
 					3EAE550A1D1A097D00B854EE = {
@@ -312,7 +314,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3EB689C71D1B899100AA06EE /* OneSignal-Notifications.swift in Sources */,
 				3EB689CD1D1C95D000AA06EE /* OneSignal-Purchases.swift in Sources */,
 				3EAE552C1D1A1D1800B854EE /* OneSignalHTTPClient.swift in Sources */,
 				3EB689C31D1B692300AA06EE /* OneSignal-Networking.swift in Sources */,
@@ -328,6 +329,7 @@
 				3EB689BB1D1B543200AA06EE /* OneSignal-Initialize.swift in Sources */,
 				3EB689B41D1B488800AA06EE /* OneSignalMobileProvision.swift in Sources */,
 				3EB689C11D1B60AE00AA06EE /* OneSignal-Location.swift in Sources */,
+				3ED94EC91D1DD69200EF6745 /* OneSignal-Notifications.swift in Sources */,
 				3EAE552E1D1A1E7B00B854EE /* OneSignalLocation.swift in Sources */,
 				3EB689C91D1C6C9E00AA06EE /* OneSignal-Tags.swift in Sources */,
 				3EB689B91D1B538600AA06EE /* Constants.swift in Sources */,
@@ -455,6 +457,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OneSignalSwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -475,6 +478,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OneSignalSwift/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
