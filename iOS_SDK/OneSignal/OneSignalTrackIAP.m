@@ -84,6 +84,7 @@ NSMutableDictionary* skusToTrack;
 
 - (void)getProductInfo:(NSArray*)productIdentifiers {
     Class SKProductsRequestClass = NSClassFromString(@"SKProductsRequest");
+
     id productsRequest = [[SKProductsRequestClass alloc]
                             performSelector:@selector(initWithProductIdentifiers:) withObject:[NSSet setWithArray:productIdentifiers]];
     [productsRequest setDelegate:self];

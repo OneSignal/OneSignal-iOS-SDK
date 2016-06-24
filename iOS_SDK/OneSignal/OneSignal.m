@@ -109,34 +109,42 @@ typedef struct os_last_location {
 static os_last_location *lastLocation;
 static bool location_event_fired;
 
+#pragma mark - Swift-Converted
 + (void)setMSDKType:(NSString*)str {
     mSDKType = str;
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions {
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:nil autoRegister:true];
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions autoRegister:(BOOL)autoRegister {
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:nil autoRegister:autoRegister];
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
     return [self initWithLaunchOptions:launchOptions appId:appId handleNotification:nil autoRegister:true];
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(OneSignalHandleNotificationBlock)callback {
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:callback autoRegister:true];
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OneSignalHandleNotificationBlock)callback {
     return [self initWithLaunchOptions:launchOptions appId:appId handleNotification:callback autoRegister:true];
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(OneSignalHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister {
     return [self initWithLaunchOptions:launchOptions appId:nil handleNotification:callback autoRegister:autoRegister];
 }
 
+#pragma mark - Swift-Converted
 - (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OneSignalHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister {
     self = [super init];
     
@@ -177,6 +185,7 @@ static bool location_event_fired;
         
         struct utsname systemInfo;
         uname(&systemInfo);
+
         self.deviceModel   = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
         self.systemVersion = [[UIDevice currentDevice] systemVersion];
         
@@ -231,14 +240,17 @@ static bool location_event_fired;
     return self;
 }
 
+#pragma mark - Swift-Converted
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
     _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
 }
 
+#pragma mark - Swift-Converted
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
     onesignal_Log(logLevel, message);
 }
 
+#pragma mark - Swift-Converted
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSString* levelString;
     switch (logLevel) {
@@ -278,6 +290,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
+#pragma mark - Swift-Converted
 // "registerForRemoteNotifications*" calls didRegisterForRemoteNotificationsWithDeviceToken
 // in the implementation UIApplication(OneSignalPush) below after contacting Apple's server.
 - (void)registerForPushNotifications {
@@ -303,6 +316,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
+#pragma mark - Swift-Converted
 - (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     [self updateDeviceToken:inDeviceToken onSuccess:successBlock onFailure:failureBlock];
     
@@ -311,6 +325,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [defaults synchronize];
 }
 
+#pragma mark - Swift-Converted
 - (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     
     if (mUserId == nil) {
@@ -360,7 +375,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
-
+#pragma mark - Swift-Converted
 - (NSArray*)getSoundFiles {
     NSFileManager* fm = [NSFileManager defaultManager];
     NSError* error = nil;
@@ -377,6 +392,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     return soundFiles;
 }
 
+#pragma mark - Swift-Converted
 NSNumber* getNetType() {
     OneSignalReachability* reachability = [OneSignalReachability reachabilityForInternetConnection];
     NetworkStatus status = [reachability currentReachabilityStatus];
@@ -385,6 +401,7 @@ NSNumber* getNetType() {
     return @1;
 }
 
+#pragma mark - Swift-Converted
 - (void)registerUser {
     // Make sure we only call create or on_session once per run of the app.
     if (oneSignalReg || waitingForOneSReg)
@@ -446,9 +463,6 @@ NSNumber* getNetType() {
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
     
-    onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal create/on_session");
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
     
     if (lastLocation) {
         dataDic[@"lat"] = [NSNumber numberWithDouble:lastLocation->cords.latitude];
@@ -457,6 +471,11 @@ NSNumber* getNetType() {
         dataDic[@"loc_acc"] = [NSNumber numberWithDouble:lastLocation->horizontalAccuracy];
         lastLocation = nil;
     }
+    
+    onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal create/on_session");
+    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+    [request setHTTPBody:postData];
+
     
     [self enqueueRequest:request onSuccess:^(NSDictionary* results) {
         oneSignalReg = true;
@@ -499,6 +518,7 @@ NSNumber* getNetType() {
     }];
 }
 
+#pragma mark - Swift-Converted
 - (void)IdsAvailable:(OneSignalIdsAvailableBlock)idsAvailableBlock {
     if (mUserId)
         idsAvailableBlock(mUserId, getUsableDeviceToken());
@@ -507,12 +527,14 @@ NSNumber* getNetType() {
         idsAvailableBlockWhenReady = idsAvailableBlock;
 }
 
+#pragma mark - Swift-Converted
 NSString* getUsableDeviceToken() {
     if (mNotificationTypes > 0)
         return mDeviceToken;
     return nil;
 }
 
+#pragma mark - Swift-Converted
 - (void)sendTagsWithJsonString:(NSString*)jsonString {
     NSError* jsonError;
     
@@ -526,10 +548,12 @@ NSString* getUsableDeviceToken() {
     }
 }
 
+#pragma mark - Swift-Converted
 - (void)sendTags:(NSDictionary*)keyValuePair {
     [self sendTags:keyValuePair onSuccess:nil onFailure:nil];
 }
 
+#pragma mark - Swift-Converted
 - (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0)
         return;
@@ -558,15 +582,89 @@ NSString* getUsableDeviceToken() {
                onFailure:failureBlock];
 }
 
+#pragma mark - Swift-Converted
 - (void)sendTag:(NSString*)key value:(NSString*)value {
     [self sendTag:key value:value onSuccess:nil onFailure:nil];
 }
 
+
+#pragma mark - Swift-Converted
 - (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     [self sendTags:[NSDictionary dictionaryWithObjectsAndKeys: value, key, nil] onSuccess:successBlock onFailure:failureBlock];
 }
 
+#pragma mark - Swift-Converted
+- (void)getTags:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
+    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 || mUserId == nil)
+        return;
+    
+    NSMutableURLRequest* request;
+    request = [self.httpClient requestWithMethod:@"GET" path:[NSString stringWithFormat:@"players/%@", mUserId]];
+    
+    [self enqueueRequest:request onSuccess:^(NSDictionary* results) {
+        if ([results objectForKey:@"tags"] != nil)
+            successBlock([results objectForKey:@"tags"]);
+    } onFailure:failureBlock];
+}
 
+#pragma mark - Swift-Converted
+- (void)getTags:(OneSignalResultSuccessBlock)successBlock {
+    [self getTags:successBlock onFailure:nil];
+}
+
+#pragma mark - Swift-Converted
+- (void)deleteTag:(NSString*)key onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
+    [self deleteTags:@[key] onSuccess:successBlock onFailure:failureBlock];
+}
+
+#pragma mark - Swift-Converted
+- (void)deleteTag:(NSString*)key {
+    [self deleteTags:@[key] onSuccess:nil onFailure:nil];
+}
+
+#pragma mark - Swift-Converted
+- (void)deleteTags:(NSArray*)keys onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
+    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 || mUserId == nil)
+        return;
+    
+    NSMutableURLRequest* request;
+    request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
+    
+    NSMutableDictionary* deleteTagsDict = [NSMutableDictionary dictionary];
+    for(id key in keys)
+        [deleteTagsDict setObject:@"" forKey:key];
+    
+    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.app_id, @"app_id",
+                             deleteTagsDict, @"tags",
+                             nil];
+    
+    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+    [request setHTTPBody:postData];
+    
+    [self enqueueRequest:request onSuccess:successBlock onFailure:failureBlock];
+}
+
+#pragma mark - Swift-Converted
+- (void)deleteTags:(NSArray*)keys {
+    [self deleteTags:keys onSuccess:nil onFailure:nil];
+}
+
+#pragma mark - Swift-Converted
+- (void)deleteTagsWithJsonString:(NSString*)jsonString {
+    NSError* jsonError;
+    
+    NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray* keys = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonError];
+    if (jsonError == nil)
+        [self deleteTags:keys];
+    else {
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]);
+        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]);
+    }
+}
+
+#pragma mark - Swift-Converted
 - (void)setEmail:(NSString*)email {
     if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 || mUserId == nil)
         return;
@@ -590,75 +688,11 @@ NSString* getUsableDeviceToken() {
     [self enqueueRequest:request
                onSuccess:nil
                onFailure:nil];
-
+    
     
 }
 
-- (void)getTags:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
-    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 || mUserId == nil)
-        return;
-    
-    NSMutableURLRequest* request;
-    request = [self.httpClient requestWithMethod:@"GET" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-    
-    [self enqueueRequest:request onSuccess:^(NSDictionary* results) {
-        if ([results objectForKey:@"tags"] != nil)
-            successBlock([results objectForKey:@"tags"]);
-    } onFailure:failureBlock];
-}
-
-- (void)getTags:(OneSignalResultSuccessBlock)successBlock {
-    [self getTags:successBlock onFailure:nil];
-}
-
-
-- (void)deleteTag:(NSString*)key onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
-    [self deleteTags:@[key] onSuccess:successBlock onFailure:failureBlock];
-}
-
-- (void)deleteTag:(NSString*)key {
-    [self deleteTags:@[key] onSuccess:nil onFailure:nil];
-}
-
-- (void)deleteTags:(NSArray*)keys onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
-    if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 || mUserId == nil)
-        return;
-    
-    NSMutableURLRequest* request;
-    request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-    
-    NSMutableDictionary* deleteTagsDict = [NSMutableDictionary dictionary];
-    for(id key in keys)
-        [deleteTagsDict setObject:@"" forKey:key];
-    
-    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             self.app_id, @"app_id",
-                             deleteTagsDict, @"tags",
-                             nil];
-    
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
-    
-    [self enqueueRequest:request onSuccess:successBlock onFailure:failureBlock];
-}
-
-- (void)deleteTags:(NSArray*)keys {
-    [self deleteTags:keys onSuccess:nil onFailure:nil];
-}
-
-- (void)deleteTagsWithJsonString:(NSString*)jsonString {
-    NSError* jsonError;
-    
-    NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    NSArray* keys = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&jsonError];
-    if (jsonError == nil)
-        [self deleteTags:keys];
-    else {
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]);
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]);
-    }
-}
-
+#pragma mark - Swift-Converted
 - (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm {
     // User changed notification settings for the app.
     if (mNotificationTypes != -1 && mUserId && (isConfirm || mNotificationTypes != getNotificationTypes()) ) {
@@ -683,18 +717,96 @@ NSString* getUsableDeviceToken() {
     
 }
 
+#pragma mark - Swift-Converted
+- (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    
+    BOOL inAppAlert = false;
+    if (isActive) {
+        NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+        inAppAlert = [defaults boolForKey:@"ONESIGNAL_INAPP_ALERT"];
+        
+        if (inAppAlert) {
+            self.lastMessageReceived = messageDict;
+            NSDictionary* additionalData = [self getAdditionalData];
+            NSString* title = additionalData[@"title"];
+            if (!title)
+                title = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+            
+            id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict OneSignal:self];
+            
+            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title
+                                                                message:[self getMessageString]
+                                                               delegate:oneSignalAlertViewDelegate
+                                                      cancelButtonTitle:@"Close"
+                                                      otherButtonTitles:nil, nil];
+            
+            if (additionalData[@"actionButtons"]) {
+                for(id button in additionalData[@"actionButtons"])
+                    [alertView addButtonWithTitle:button[@"text"]];
+            }
+            
+            [alertView show];
+            return;
+        }
+    }
+    
+    [self handleNotificationOpened:messageDict isActive:isActive];
+    
+}
 
+#pragma mark - Swift-Converted
+- (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    NSString *messageId, *openUrl;
+    
+    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
+    if (customDict == nil)
+        customDict = [messageDict objectForKey:@"custom"];
+    
+    messageId = [customDict objectForKey:@"i"];
+    openUrl = [customDict objectForKey:@"u"];
+    
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
+    
+    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.app_id, @"app_id",
+                             mUserId, @"player_id",
+                             @(YES), @"opened",
+                             nil];
+    
+    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+    [request setHTTPBody:postData];
+    
+    [self enqueueRequest:request onSuccess:nil onFailure:nil];
+    
+    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && openUrl) {
+        NSURL *url = [NSURL URLWithString:openUrl];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:url];
+        });
+    }
+    
+    self.lastMessageReceived = messageDict;
+    
+    clearBadgeCount(true);
+    
+    if (handleNotification)
+        handleNotification([self getMessageString], [self getAdditionalData], isActive);
+}
+
+#pragma mark - Swift-Converted
 - (void) beginBackgroundFocusTask {
     focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
         [self endBackgroundFocusTask];
     }];
 }
 
+#pragma mark - Swift-Converted
 - (void) endBackgroundFocusTask {
     [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
 }
 
+#pragma mark - Swift-Converted
 - (void)onFocus:(NSString*)state {
     bool wasBadgeSet = false;
     
@@ -768,6 +880,7 @@ NSString* getUsableDeviceToken() {
     }
 }
 
+#pragma mark - Swift-Converted
 - (NSNumber*)getUnsentActiveTime {
     if ([unSentActiveTime intValue] == -1) {
         NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -779,6 +892,7 @@ NSString* getUsableDeviceToken() {
     return unSentActiveTime;
 }
 
+#pragma mark - Swift-Converted
 - (void)saveUnsentActiveTime:(NSNumber*)time {
     unSentActiveTime = time;
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
@@ -787,6 +901,7 @@ NSString* getUsableDeviceToken() {
     
 }
 
+#pragma mark - Swift-Converted
 - (void)sendPurchases:(NSArray*)purchases {
     if (mUserId == nil)
         return;
@@ -806,80 +921,8 @@ NSString* getUsableDeviceToken() {
                onFailure:nil];
 }
 
-- (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
-    
-    BOOL inAppAlert = false;
-    if (isActive) {
-        NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-        inAppAlert = [defaults boolForKey:@"ONESIGNAL_INAPP_ALERT"];
-        
-        if (inAppAlert) {
-            self.lastMessageReceived = messageDict;
-            NSDictionary* additionalData = [self getAdditionalData];
-            NSString* title = additionalData[@"title"];
-            if (!title)
-                title = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
-            
-            id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict OneSignal:self];
-            
-            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title
-                                                                message:[self getMessageString]
-                                                               delegate:oneSignalAlertViewDelegate
-                                                      cancelButtonTitle:@"Close"
-                                                      otherButtonTitles:nil, nil];
-            
-            if (additionalData[@"actionButtons"]) {
-                for(id button in additionalData[@"actionButtons"])
-                    [alertView addButtonWithTitle:button[@"text"]];
-            }
-            
-            [alertView show];
-            return;
-        }
-    }
-    
-    [self handleNotificationOpened:messageDict isActive:isActive];
-    
-}
 
-- (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
-    NSString *messageId, *openUrl;
-    
-    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
-    if (customDict == nil)
-        customDict = [messageDict objectForKey:@"custom"];
-    
-    messageId = [customDict objectForKey:@"i"];
-    openUrl = [customDict objectForKey:@"u"];
-    
-    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
-    
-    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             self.app_id, @"app_id",
-                             mUserId, @"player_id",
-                             @(YES), @"opened",
-                             nil];
-    
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
-    
-    [self enqueueRequest:request onSuccess:nil onFailure:nil];
-    
-    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && openUrl) {
-        NSURL *url = [NSURL URLWithString:openUrl];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[UIApplication sharedApplication] openURL:url];
-        });
-    }
-    
-    self.lastMessageReceived = messageDict;
-    
-    clearBadgeCount(true);
-    
-    if (handleNotification)
-        handleNotification([self getMessageString], [self getAdditionalData], isActive);
-}
-
+#pragma mark - Swift-Converted
 bool clearBadgeCount(bool fromNotifOpened) {
     if (disableBadgeClearing || mNotificationTypes == -1 || (mNotificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
@@ -897,10 +940,12 @@ bool clearBadgeCount(bool fromNotifOpened) {
     return wasBadgeSet;
 }
 
+#pragma mark - Swift-Converted
 bool isCapableOfGettingNotificationTypes() {
     return [[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)];
 }
 
+#pragma mark - Swift-Converted
 int getNotificationTypes() {
     if (!mSubscriptionSet)
         return -2;
@@ -916,6 +961,7 @@ int getNotificationTypes() {
 }
 
 // iOS 8.0+ only
+#pragma mark - Swift-Converted
 - (void) updateNotificationTypes:(int)notificationTypes {
     if (mNotificationTypes == -2)
         return;
@@ -933,6 +979,7 @@ int getNotificationTypes() {
         idsAvailableBlockWhenReady(mUserId, getUsableDeviceToken());
 }
 
+#pragma mark - Swift-Converted
 - (NSDictionary*)getAdditionalData {
     NSMutableDictionary* additionalData;
     NSMutableDictionary* osDataDict = [self.lastMessageReceived objectForKey:@"os_data"];
@@ -951,8 +998,6 @@ int getNotificationTypes() {
     if (!additionalData)
         additionalData = [[NSMutableDictionary alloc] init];
     
-    
-    // TODO: Add sound when notification sent with buttons.
     if (self.lastMessageReceived[@"aps"][@"sound"] != nil)
         additionalData[@"sound"] = self.lastMessageReceived[@"aps"][@"sound"];
     if ([self.lastMessageReceived[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
@@ -966,6 +1011,7 @@ int getNotificationTypes() {
     return additionalData;
 }
 
+#pragma mark - Swift-Converted
 - (NSString*)getMessageString {
     id alertObj = self.lastMessageReceived[@"aps"][@"alert"];
     if ([alertObj isKindOfClass:[NSString class]])
@@ -976,10 +1022,12 @@ int getNotificationTypes() {
     return @"";
 }
 
+#pragma mark - Swift-Converted
 - (void)postNotification:(NSDictionary*)jsonData {
     [self postNotification:jsonData onSuccess:nil onFailure:nil];
 }
 
+#pragma mark - Swift-Converted
 - (void)postNotification:(NSDictionary*)jsonData onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"POST" path:@"notifications"];
     
@@ -1006,6 +1054,7 @@ int getNotificationTypes() {
                }];
 }
 
+#pragma mark - Swift-Converted
 - (void)postNotificationWithJsonString:(NSString*)jsonString onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     NSError* jsonError;
     
@@ -1019,10 +1068,12 @@ int getNotificationTypes() {
     }
 }
 
+#pragma mark - Swift-Converted
 - (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     [self enqueueRequest:request onSuccess:successBlock onFailure:failureBlock isSynchronous:false];
 }
 
+#pragma mark - Swift-Converted
 - (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
     
     onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]);
@@ -1049,6 +1100,7 @@ int getNotificationTypes() {
     }
 }
 
+#pragma mark - Swift-Converted
 - (void)handleJSONNSURLResponse:(NSURLResponse*) response data:(NSData*) data error:(NSError*) error onSuccess:(OneSignalResultSuccessBlock)successBlock onFailure:(OneSignalFailureBlock)failureBlock {
     NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
     NSInteger statusCode = [HTTPResponse statusCode];
@@ -1082,21 +1134,24 @@ int getNotificationTypes() {
     }
 }
 
-
+#pragma mark - Swift-Converted
 + (void)setDefaultClient:(OneSignal*)client {
     onesignal_Log(ONE_S_LL_WARN, @"Depercated, this is automaticly set to the first instace of OneSignal you create.");
 }
 
+#pragma mark - Swift-Converted
 + (OneSignal*)defaultClient {
     return defaultClient;
 }
 
+#pragma mark - Swift-Converted
 - (void)enableInAppAlertNotification:(BOOL)enable {
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     [defaults setBool:enable forKey:@"ONESIGNAL_INAPP_ALERT"];
     [defaults synchronize];
 }
 
+#pragma mark - Swift-Converted
 - (void)setSubscription:(BOOL)enable {
     NSString* value = nil;
     if (!enable)
@@ -1111,6 +1166,7 @@ int getNotificationTypes() {
     [self sendNotificationTypesUpdateIsConfirmed:false];
 }
 
+#pragma mark - Swift-Converted
 - (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     NSString* trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     NSString* parsedDeviceToken = [[trimmedDeviceToken componentsSeparatedByString:@" "] componentsJoinedByString:@""];
@@ -1122,6 +1178,7 @@ int getNotificationTypes() {
     }];
 }
 
+#pragma mark - Swift-Converted
 - (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo {
     // If 'm' present then the notification has action buttons attached to it.
     
@@ -1182,6 +1239,7 @@ int getNotificationTypes() {
         [self notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
 }
 
+#pragma mark - Swift-Converted
 - (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
     if (notification.userInfo) {
         NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
@@ -1223,11 +1281,12 @@ int getNotificationTypes() {
     }
 }
 
+#pragma mark - Swift-Converted
 - (void) promptLocation {
     [OneSignalLocation getLocation:self prompt:true];
 }
 
-
+#pragma mark - Swift-Converted
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray*)locations {
     [manager performSelector:@selector(stopUpdatingLocation)];
     
@@ -1260,6 +1319,7 @@ int getNotificationTypes() {
     [self sendLocation:currentLocation];
 }
 
+#pragma mark - Swift-Converted
 - (void) sendLocation:(os_last_location*)location {
     
     NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
@@ -1293,6 +1353,7 @@ OneSignal* mOneSignal;
 // This is becuase UIAlertView delegate is set to weak instead of strong
 static NSMutableArray* delegateReference;
 
+#pragma mark - Swift-Converted
 - (id)initWithMessageDict:(NSDictionary*)messageDict OneSignal:oneSignal {
     mMessageDict = messageDict;
     mOneSignal = oneSignal;
@@ -1305,6 +1366,7 @@ static NSMutableArray* delegateReference;
     return self;
 }
 
+#pragma mark - Swift-Converted
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex != 0) {
         NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
@@ -1330,8 +1392,7 @@ static NSMutableArray* delegateReference;
 
 @end
 
-
-
+#pragma mark - Swift-Converted
 static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
     if (!class_conformsToProtocol(searchClass, protocolToFind)) {
         if ([searchClass superclass] == nil)
@@ -1347,11 +1408,7 @@ static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protoc
     return searchClass;
 }
 
-
-
-
-
-
+#pragma mark - Swift-Converted
 static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getInstanceMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
@@ -1373,6 +1430,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 
 @implementation UIApplication(OneSignalPush)
 
+#pragma mark - Swift-Converted
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
@@ -1381,6 +1439,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
 }
 
+#pragma mark - Swift-Converted
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]);
     
@@ -1388,6 +1447,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
 }
 
+#pragma mark - Swift-Converted
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] updateNotificationTypes:notificationSettings.types];
@@ -1396,7 +1456,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
 }
 
-
+#pragma mark - Swift-Converted
 // Notification opened! iOS 6 ONLY!
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     if ([OneSignal defaultClient])
@@ -1406,6 +1466,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
 }
 
+#pragma mark - Swift-Converted
 // Notification opened or silent one received on iOS 7 & 8
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     if ([OneSignal defaultClient])
@@ -1417,6 +1478,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         completionHandler(UIBackgroundFetchResultNewData);
 }
 
+#pragma mark - Swift-Converted
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
     
     [[OneSignal defaultClient] processLocalActionBasedNotification:notification identifier:identifier];
@@ -1427,6 +1489,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         completionHandler();
 }
 
+#pragma mark - Swift-Converted
 - (void)oneSignalLocalNotificaionOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
@@ -1435,6 +1498,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         [self oneSignalLocalNotificaionOpened:application notification:notification];
 }
 
+#pragma mark - Swift-Converted
 - (void)oneSignalApplicationWillResignActive:(UIApplication*)application {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] onFocus:@"suspend"];
@@ -1443,6 +1507,7 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         [self oneSignalApplicationWillResignActive:application];
 }
 
+#pragma mark - Swift-Converted
 - (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] onFocus:@"resume"];
@@ -1510,4 +1575,3 @@ static Class delegateClass = nil;
 }
 
 @end
-

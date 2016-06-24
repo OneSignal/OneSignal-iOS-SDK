@@ -37,6 +37,7 @@ typedef void (^OneSignalHandleNotificationBlock)(NSString* message, NSDictionary
  Follow the documentation from http://documentation.gamethrive.com/v1.0/docs/installing-the-gamethrive-ios-sdk to setup with your game.
  
  */
+
 @interface OneSignal : NSObject
 
 @property(nonatomic, readonly, copy) NSString* app_id;

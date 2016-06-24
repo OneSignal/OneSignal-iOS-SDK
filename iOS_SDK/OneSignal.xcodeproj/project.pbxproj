@@ -143,13 +143,13 @@
 		37747F9819147D6500558FAD /* OneSignal */ = {
 			isa = PBXGroup;
 			children = (
-				37E277031ACB940000D49C8D /* OneSignal.m */,
 				37E277041ACB940000D49C8D /* OneSignal.h */,
+				37E277031ACB940000D49C8D /* OneSignal.m */,
 				378699FC1919B5FB00C3E7DA /* OneSignal-Prefix.pch */,
 				37747FBC1914837300558FAD /* OneSignalHTTPClient.h */,
 				37747FBD1914837300558FAD /* OneSignalHTTPClient.m */,
-				371FDED819F1A486001479B7 /* OneSignalTrackIAP.m */,
 				371FDEDA19F1F9D9001479B7 /* OneSignalTrackIAP.h */,
+				371FDED819F1A486001479B7 /* OneSignalTrackIAP.m */,
 				91F2D1011C94D0DD00DE95D0 /* OneSignalLocation.h */,
 				91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */,
 			);

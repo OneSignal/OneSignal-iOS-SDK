@@ -61,8 +61,8 @@ OneSignal* oneSignal;
     
     oneSignal = [[OneSignal alloc] initWithLaunchOptions:launchOptions appId:appId handleNotification:callback autoRegister:autoRegister];
     
-    return self;
-}
+
+    return self;}
 
 - (void)registerForPushNotifications {
     [oneSignal registerForPushNotifications];
