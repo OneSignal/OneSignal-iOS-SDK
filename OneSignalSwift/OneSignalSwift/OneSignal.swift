@@ -8,10 +8,10 @@
 
 import Foundation
 
-typealias OneSignalResultSuccessBlock = (NSDictionary) -> Void
-typealias OneSignalFailureBlock = (NSError) -> Void
-typealias OneSignalIdsAvailableBlock = (NSString, NSString) -> Void
-typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> Void
+public typealias OneSignalResultSuccessBlock = (NSDictionary) -> Void
+public typealias OneSignalFailureBlock = (NSError) -> Void
+public typealias OneSignalIdsAvailableBlock = (NSString, NSString?) -> Void
+public typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> Void
 
 
 /**
@@ -30,9 +30,9 @@ typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> V
  Follow the documentation from http://documentation.gamethrive.com/v1.0/docs/installing-the-gamethrive-ios-sdk to setup with your game.
  */
 
-class OneSignal : NSObject {
+public class OneSignal : NSObject {
     
-    static var defaultClient : OneSignal!
+    public static var defaultClient : OneSignal!
     
     var app_id : String!
     var deviceModel : NSString!
@@ -41,10 +41,10 @@ class OneSignal : NSObject {
     var disableBadgeClearing = false
     var tagsToSend : NSMutableDictionary!
     var emailToSet : NSString!
-    var deviceToken : NSString!
+    var deviceToken : NSString? = nil
     var tokenUpdateSuccessBlock : OneSignalResultSuccessBlock!
     var tokenUpdateFailureBlock : OneSignalFailureBlock!
-    var userId : NSString!
+    var userId : NSString? = nil
     var httpClient : OneSignalHTTPClient!
     var idsAvailableBlockWhenReady : OneSignalIdsAvailableBlock!
     var handleNotification : OneSignalHandleNotificationBlock!
@@ -60,19 +60,19 @@ class OneSignal : NSObject {
     var subscriptionSet = true
     static var SDKType = "native"
     
-    init(launchOptions : NSDictionary, appId : NSString?, handleNotifications callback : OneSignalHandleNotificationBlock?, autoRegister : Bool) {
+    init(launchOptions : NSDictionary?, appId : NSString?, handleNotification callback : OneSignalHandleNotificationBlock?, autoRegister : Bool) {
         
         super.init()
         
         if appId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 {return}
         
         if NSUUID(UUIDString: appId! as String) == nil {
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
             return
         }
         
         if appId!.isEqualToString("b2f7f966-d8cc-11eg-bed1-df8f05be55ba") || appId!.isEqualToString("5eb5a37e-b458-11e3-ac11-000c2940e62c") {
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "OneSignal Example AppID detected, please update to your app's id found on OneSignal.com\n")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "OneSignal Example AppID detected, please update to your app's id found on OneSignal.com\n")
         }
         
         OneSignalLocation.getLocation(self, prompt: false)
@@ -92,7 +92,13 @@ class OneSignal : NSObject {
         let url = NSURL(string: DEFAULT_PUSH_HOST)!
         httpClient = OneSignalHTTPClient(baseURL: url)
         
-        deviceModel = UIDevice.currentDevice().modelName
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        var v = systemInfo.machine
+        let _ = withUnsafePointer(&v){
+            self.deviceModel = String.fromCString(UnsafePointer($0))
+        }
+        
         systemVersion = UIDevice.currentDevice().systemVersion
         if OneSignal.defaultClient == nil { OneSignal.defaultClient = self}
         
@@ -139,7 +145,7 @@ class OneSignal : NSObject {
             self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0)
         }
             
-        if let userInfo = launchOptions.objectForKey(UIApplicationLaunchOptionsRemoteNotificationKey) as? NSDictionary {
+        if let userInfo = launchOptions?.objectForKey(UIApplicationLaunchOptionsRemoteNotificationKey) as? NSDictionary {
             if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_7_0 {
                 self.notificationOpened(userInfo, isActive : false)
             }

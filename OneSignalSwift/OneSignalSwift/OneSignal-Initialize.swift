@@ -18,28 +18,28 @@ import Foundation
  */
 extension OneSignal {
    
-    convenience init(launchOptions: NSDictionary) {
-        self.init(launchOptions: launchOptions, appId: nil, handleNotifications: nil, autoRegister: true)
+    public convenience init(launchOptions: NSDictionary?) {
+        self.init(launchOptions: launchOptions, appId: nil, handleNotification: nil, autoRegister: true)
     }
     
-    convenience init(launchOptions : NSDictionary, autoRegister : Bool) {
-        self.init(launchOptions: launchOptions, appId: nil, handleNotifications: nil, autoRegister: autoRegister)
+    public convenience init(launchOptions : NSDictionary?, autoRegister : Bool) {
+        self.init(launchOptions: launchOptions, appId: nil, handleNotification: nil, autoRegister: autoRegister)
     }
     
-    convenience init(launchOptions : NSDictionary, appId : NSString?) {
-        self.init(launchOptions: launchOptions, appId: appId, handleNotifications: nil, autoRegister: true)
+    public convenience init(launchOptions : NSDictionary?, appId : NSString?) {
+        self.init(launchOptions: launchOptions, appId: appId, handleNotification: nil, autoRegister: true)
     }
     
-    convenience init(launchOptions : NSDictionary, handleNotifications callback : OneSignalHandleNotificationBlock?) {
-        self.init(launchOptions: launchOptions, appId: nil, handleNotifications: callback, autoRegister: true)
+    public convenience init(launchOptions : NSDictionary?, handleNotification callback : OneSignalHandleNotificationBlock?) {
+        self.init(launchOptions: launchOptions, appId: nil, handleNotification: callback, autoRegister: true)
     }
     
-    convenience init(launchOptions : NSDictionary, appId : NSString?, handleNotifications callback : OneSignalHandleNotificationBlock?) {
-        self.init(launchOptions: launchOptions, appId: appId, handleNotifications: callback, autoRegister: true)
+    public convenience init(launchOptions : NSDictionary?, appId : NSString?, handleNotification callback : OneSignalHandleNotificationBlock?) {
+        self.init(launchOptions: launchOptions, appId: appId, handleNotification: callback, autoRegister: true)
     }
     
-    convenience init(launchOptions : NSDictionary, handleNotifications callback : OneSignalHandleNotificationBlock?, autoRegister : Bool) {
-        self.init(launchOptions: launchOptions, appId: nil, handleNotifications: callback, autoRegister: autoRegister)
+    public convenience init(launchOptions : NSDictionary?, handleNotification callback : OneSignalHandleNotificationBlock?, autoRegister : Bool) {
+        self.init(launchOptions: launchOptions, appId: nil, handleNotification: callback, autoRegister: autoRegister)
     }
     
     

@@ -16,9 +16,9 @@ extension OneSignal {
         return nil
     }
     
-    func idsAvailable(idsAvailableBlock : OneSignalIdsAvailableBlock) {
+    public func IdsAvailable(idsAvailableBlock : OneSignalIdsAvailableBlock) {
         if let usableToken = getUsableDeviceToken() where userId != nil {
-            idsAvailableBlock(userId, usableToken)
+            idsAvailableBlock(userId!, usableToken)
         }
         else {
             idsAvailableBlockWhenReady = idsAvailableBlock
@@ -65,7 +65,7 @@ extension OneSignal {
         return wasBadgeSet
     }
     
-    func registerForPushNotifications() {
+    public func registerForPushNotifications() {
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         // iOS 8+
@@ -113,7 +113,7 @@ extension OneSignal {
             return
         }
         
-        if deviceToken.isEqualToString(self.deviceToken as String) {
+        if self.deviceToken != nil && deviceToken.isEqualToString(self.deviceToken as! String) {
             if successBlock != nil {
                 successBlock!([:])
             }
@@ -123,7 +123,7 @@ extension OneSignal {
         self.deviceToken = deviceToken
         let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
         let dataDic = NSDictionary(objects: [app_id, deviceToken], forKeys: ["app_id", "identifier"])
-        onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_VERBOSE, message: "Calling OneSignal PUT updated pushToken!")
+        OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_VERBOSE, message: "Calling OneSignal PUT updated pushToken!")
         
         var postData : NSData? = nil
         do {
@@ -139,7 +139,7 @@ extension OneSignal {
                 self.notificationTypes = getNotificationTypes()
             }
             if let usableToken = getUsableDeviceToken() {
-                idsAvailableBlockWhenReady(userId, usableToken)
+                idsAvailableBlockWhenReady(userId!, usableToken)
                 idsAvailableBlockWhenReady = nil
             }
         }
@@ -154,7 +154,7 @@ extension OneSignal {
         
         let request : NSMutableURLRequest!
         if userId == nil {
-            request = self.httpClient.requestWithMethod("POST", path: "Players")
+            request = self.httpClient.requestWithMethod("POST", path: "players")
         }
         else {
             request = self.httpClient.requestWithMethod("POST", path: "players/\(userId)/on_session")
@@ -162,15 +162,18 @@ extension OneSignal {
         
         let infoDictionary = NSBundle.mainBundle().infoDictionary
         let build = infoDictionary?[kCFBundleVersionKey as String] as? String
+        let identifier = deviceToken == nil ? "" : deviceToken!
+        
         var dataDict = ["app_id" : app_id,
                         "device_model" : deviceModel,
                         "device_os" : systemVersion,
                         "language" : NSLocale.preferredLanguages()[0],
                         "timezone" : NSNumber(long: NSTimeZone.localTimeZone().secondsFromGMT),
                         "ad_id" : NSNumber(int : 0),
+                        "device_type" : NSNumber(int : 0),
                         "sounds" : self.getSoundFiles(),
                         "sdk" : ONESIGNAL_VERSION,
-                        "identifier" : deviceToken,
+                        "identifier" : identifier,
                         "net_type" : getNetType()
         ]
         
@@ -222,7 +225,7 @@ extension OneSignal {
             OneSignal.lastLocation = nil
         }
         
-        onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_VERBOSE, message: "Calling OneSignal create/on_session")
+        OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_VERBOSE, message: "Calling OneSignal create/on_session")
         
         var postData : NSData? = nil
         do {
@@ -240,15 +243,15 @@ extension OneSignal {
             self.waitingForOneSReg = false
             if let uid = results.objectForKey("id") as? NSString {
                 self.userId = uid
-                NSUserDefaults.standardUserDefaults().setObject(self.userId, forKey: "GT_PLAYER_ID")
+                NSUserDefaults.standardUserDefaults().setObject(self.userId!, forKey: "GT_PLAYER_ID")
                 NSUserDefaults.standardUserDefaults().synchronize()
                 
                 if self.deviceToken != nil {
-                    self.updateDeviceToken(self.deviceToken, onSuccess: self.tokenUpdateSuccessBlock, onFailure: self.tokenUpdateFailureBlock)
+                    self.updateDeviceToken(self.deviceToken!, onSuccess: self.tokenUpdateSuccessBlock, onFailure: self.tokenUpdateFailureBlock)
                 }
                 
                 if self.tagsToSend != nil {
-                    self.sendTagsWithKeyValuePair(self.tagsToSend)
+                    self.sendTags(self.tagsToSend)
                     self.tagsToSend = nil
                 }
                 
@@ -264,7 +267,7 @@ extension OneSignal {
                 
                 if let block = self.idsAvailableBlockWhenReady {
                     if let token = self.getUsableDeviceToken() {
-                        block(self.userId, token)
+                        block(self.userId!, token)
                         self.idsAvailableBlockWhenReady = nil
                     }
                 }
@@ -292,7 +295,7 @@ extension OneSignal {
             self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
             
             if let usableToken = getUsableDeviceToken(), block = idsAvailableBlockWhenReady {
-                block(userId, usableToken)
+                block(userId!, usableToken)
                 idsAvailableBlockWhenReady = nil
             }
         }
@@ -344,8 +347,9 @@ extension OneSignal {
         if messageId != nil {
             
             let request = self.httpClient.requestWithMethod("PUT", path: "notifications/\(messageId!)")
+            let playerId = userId != nil ? userId! : ""
             let dataDict = ["app_id" : app_id,
-                            "player_id" : userId,
+                            "player_id" : playerId,
                             "opened": NSNumber(bool: true)
                             ]
             

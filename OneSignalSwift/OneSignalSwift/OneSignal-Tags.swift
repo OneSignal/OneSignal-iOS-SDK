@@ -16,19 +16,19 @@ extension OneSignal {
         var pairs : NSDictionary? = nil
         do {
             pairs = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(rawValue: UInt(0))) as? NSDictionary
-            if pairs != nil { self.sendTagsWithKeyValuePair(pairs!) }
+            if pairs != nil { self.sendTags(pairs!) }
         }
         catch let error as NSError {
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "sendTags JSON Parse Error: \(error)")
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "sendTags JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "sendTags JSON Parse Error: \(error)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "sendTags JSON Parse Error, JSON: \(jsonString)")
         }
     }
     
-    func sendTagsWithKeyValuePair(keyValuePair : NSDictionary) {
-        self.sendTagsWithKeyValuePair(keyValuePair, onSuccess: nil, onFailure: nil)
+    public func sendTags(keyValuePair : NSDictionary) {
+        self.sendTags(keyValuePair, onSuccess: nil, onFailure: nil)
     }
     
-    func sendTagsWithKeyValuePair(keyValuePair : NSDictionary, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    public func sendTags(keyValuePair : NSDictionary, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
@@ -52,18 +52,18 @@ extension OneSignal {
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
     }
     
-    func sendTag(key : NSString, value : NSString) {
+    public func sendTag(key : NSString, value : NSString) {
         sendTag(key, value: value, onSuccess: nil, onFailure: nil)
     }
     
-    func sendTag(key : NSString, value : NSString, onSuccess successBlock: OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    public func sendTag(key : NSString, value : NSString, onSuccess successBlock: OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         
-        sendTagsWithKeyValuePair([key : value], onSuccess : successBlock, onFailure : failureBlock)
+        sendTags([key : value], onSuccess : successBlock, onFailure : failureBlock)
     }
     
-    func getTags(onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
+    public func getTags(onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
         
-        if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
+        if userId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         let request = self.httpClient.requestWithMethod("GET", path: "players/\(userId)")
         self.enqueueRequest(request, onSuccess: { (results) in
@@ -73,19 +73,19 @@ extension OneSignal {
             }, onFailure: failureBlock)
     }
     
-    func getTags(onSuccess successBlock : OneSignalResultSuccessBlock) {
+    public func getTags(onSuccess successBlock : OneSignalResultSuccessBlock) {
         self.getTags(onSuccess: successBlock, onFailure: nil)
     }
     
-    func deleteTag(key : NSString, onSuccess successBlock : OneSignalResultSuccessBlock, onFailure failureBlock : OneSignalFailureBlock) {
+    public func deleteTag(key : NSString, onSuccess successBlock : OneSignalResultSuccessBlock, onFailure failureBlock : OneSignalFailureBlock) {
         self.deleteTags([key], onSuccess: successBlock, onFailure: failureBlock)
     }
     
-    func deleteTag(key : NSString) {
+    public func deleteTag(key : NSString) {
         self.deleteTags([key], onSuccess: nil, onFailure: nil)
     }
     
-    func deleteTags(keys : NSArray, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    public func deleteTags(keys : NSArray, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         
         if userId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
@@ -105,7 +105,7 @@ extension OneSignal {
         
     }
     
-    func deleteTags(keys : NSArray) {
+    public func deleteTags(keys : NSArray) {
         self.deleteTags(keys, onSuccess: nil, onFailure: nil)
     }
     
@@ -118,8 +118,8 @@ extension OneSignal {
             }
         }
         catch let error as NSError {
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error: \(error)");
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error: \(error)");
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error, JSON: \(jsonString)")
         }
     }
     

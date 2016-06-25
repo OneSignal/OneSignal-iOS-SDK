@@ -3,7 +3,7 @@
 //  OneSignalSwift
 //
 //  Created by Joseph Kalash on 6/23/16.
-//  Copyright © 2016 Joseph Kalash. All rights reserved.
+//  Copyright © 2016 OneSignal. All rights reserved.
 //
 
 import Foundation
@@ -14,11 +14,11 @@ extension OneSignal : UIApplicationDelegate{
     func didRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
         let trimmedDeviceToken = inDeviceToken.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
         let parsedDeviceToken = (trimmedDeviceToken.componentsSeparatedByString(" ") as NSArray).componentsJoinedByString("")
-        onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
+        OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
         self.registerDeviceToken(parsedDeviceToken, onSuccess: { (results) in
-            self.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId)")
             }) { (error) in
-                self.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Error in OneSignal registration: \(error)")
+                OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Error in OneSignal registration: \(error)")
         }
     }
     

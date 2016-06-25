@@ -3,7 +3,7 @@
 //  OneSignalSwift
 //
 //  Created by Joseph Kalash on 6/23/16.
-//  Copyright © 2016 Joseph Kalash. All rights reserved.
+//  Copyright © 2016 OneSignal. All rights reserved.
 //
 
 import Foundation

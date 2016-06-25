@@ -9,7 +9,5 @@
 #ifndef OneSignalSwiftExample_Bridging_Header_h_h
 #define OneSignalSwiftExample_Bridging_Header_h_h
 
-#import <OneSignal/OneSignal.h>
-
 
 #endif /* OneSignalSwiftExample_Bridging_Header_h_h */

@@ -10,7 +10,7 @@ import Foundation
 
 extension OneSignal {
     
-    enum ONE_S_LOG_LEVEL : Int {
+    public enum ONE_S_LOG_LEVEL : Int {
         case ONE_S_LL_NONE
         case ONE_S_LL_FATAL
         case ONE_S_LL_ERROR
@@ -24,16 +24,12 @@ extension OneSignal {
     static var visualLogLevel = ONE_S_LOG_LEVEL.ONE_S_LL_NONE
     
     
-    class func setLogLevel(nslogLevel : ONE_S_LOG_LEVEL, visualLevel visualLogLevel : ONE_S_LOG_LEVEL) {
+    public class func setLogLevel(nslogLevel : ONE_S_LOG_LEVEL, visualLevel visualLogLevel : ONE_S_LOG_LEVEL) {
         OneSignal.nsLogLevel = nslogLevel
         OneSignal.visualLogLevel = visualLogLevel
     }
     
-    class func onesignal_Log(logLevel : ONE_S_LOG_LEVEL, message : NSString) {
-        onesignal_Log(logLevel, message: message)
-    }
-    
-    func onesignal_Log(logLevel : ONE_S_LOG_LEVEL, message : String) {
+    public class func onesignal_Log(logLevel : ONE_S_LOG_LEVEL, message : String) {
         var levelString = ""
         
         switch logLevel {

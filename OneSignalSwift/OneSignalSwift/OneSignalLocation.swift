@@ -40,7 +40,8 @@ class OneSignalLocation : NSObject {
         
         let clLocationManagerClass : AnyClass? = NSClassFromString("CLLocationManager")
         
-        if (clLocationManagerClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("locationServicesEnabled")).takeUnretainedValue() as? Bool != true {return}
+        //if (clLocationManagerClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("locationServicesEnabled")).takeUnretainedValue() as? Bool != true {return}
+        if clLocationManagerClass?.valueForKey("locationServicesEnabled") as? Bool == true {return}
         
         if (clLocationManagerClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("authorizationStatus")).takeUnretainedValue() as? Int32 == 0 && prompt == false {return}
         

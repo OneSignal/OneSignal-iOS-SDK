@@ -10,11 +10,11 @@ import Foundation
 
 extension OneSignal {
     
-    func postNotification(jsonData : NSDictionary) {
+    public func postNotification(jsonData : NSDictionary) {
         self.postNotification(jsonData, onSuccess: nil, onFailure: nil)
     }
     
-    func postNotification(jsonData : NSDictionary, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    public func postNotification(jsonData : NSDictionary, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         let request = self.httpClient.requestWithMethod("POST", path: "notifications")
         
         let dataDic = NSMutableDictionary(dictionary: jsonData)
@@ -36,13 +36,13 @@ extension OneSignal {
             
             let resultsString = NSString(data: jsonData!, encoding: NSUTF8StringEncoding)
             
-            self.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_DEBUG, message: "HTTP Create Notification Success \(resultsString)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_DEBUG, message: "HTTP Create Notification Success \(resultsString)")
             
             if successBlock != nil {successBlock!(results)}
             
             }) { (error) in
-                self.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_ERROR, message: "Create Notification Failed")
-                self.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "\(error)")
+                OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_ERROR, message: "Create Notification Failed")
+                OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "\(error)")
                 if failureBlock != nil { failureBlock!(error) }
         }
         
@@ -54,8 +54,8 @@ extension OneSignal {
         var jsonData : NSDictionary? = nil
         do { jsonData = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions(rawValue: UInt(0))) as? NSDictionary }
         catch let error as NSError {
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "postNotification JSON Parse Error: \(error)")
-            onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "postNotification JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "postNotification JSON Parse Error: \(error)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_WARN, message: "postNotification JSON Parse Error, JSON: \(jsonString)")
             return
         }
         
@@ -68,7 +68,7 @@ extension OneSignal {
     
     func enqueueRequest(request : NSURLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?, isSynchronous : Bool) {
         
-        onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_VERBOSE, message: "request.body: \(NSString(data: request.HTTPBody!, encoding: NSUTF8StringEncoding))")
+        OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_VERBOSE, message: "request.body: \(NSString(data: request.HTTPBody!, encoding: NSUTF8StringEncoding))")
         
             var response : NSURLResponse?
             var err : NSError?

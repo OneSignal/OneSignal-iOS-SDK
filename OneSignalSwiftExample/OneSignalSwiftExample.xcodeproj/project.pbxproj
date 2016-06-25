@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		918ECE421C75250300A8358F /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 918ECE411C75250300A8358F /* OneSignal.framework */; };
+		3EC900001D1E03A00085449A /* OneSignalSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3EC9FFFE1D1E03A00085449A /* OneSignalSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3EC9FFFF1D1E03A00085449A /* OneSignalSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EC9FFFE1D1E03A00085449A /* OneSignalSwift.framework */; };
 		918ECE441C75252700A8358F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 918ECE431C75252700A8358F /* SystemConfiguration.framework */; };
 		91E4D5111C7521DE00025BA8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4D5101C7521DE00025BA8 /* AppDelegate.swift */; };
 		91E4D5131C7521DE00025BA8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E4D5121C7521DE00025BA8 /* ViewController.swift */; };
@@ -16,8 +17,22 @@
 		91E4D51B1C7521DE00025BA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4D5191C7521DE00025BA8 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3EC900011D1E03A00085449A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3EC900001D1E03A00085449A /* OneSignalSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		918ECE411C75250300A8358F /* OneSignal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OneSignal.framework; path = ../iOS_SDK/Framework/OneSignal.framework; sourceTree = "<group>"; };
+		3EC9FFFE1D1E03A00085449A /* OneSignalSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OneSignalSwift.framework; path = "../../../Library/Developer/Xcode/DerivedData/OneSignalSwift-clrzusdlziboxydxrlajlccrugoj/Build/Products/Debug-iphonesimulator/OneSignalSwift.framework"; sourceTree = "<group>"; };
 		918ECE431C75252700A8358F /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		91E4D50D1C7521DE00025BA8 /* OneSignalSwiftExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalSwiftExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E4D5101C7521DE00025BA8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -35,7 +50,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				918ECE441C75252700A8358F /* SystemConfiguration.framework in Frameworks */,
-				918ECE421C75250300A8358F /* OneSignal.framework in Frameworks */,
+				3EC9FFFF1D1E03A00085449A /* OneSignalSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,8 +60,8 @@
 		91E4D5041C7521DE00025BA8 = {
 			isa = PBXGroup;
 			children = (
+				3EC9FFFE1D1E03A00085449A /* OneSignalSwift.framework */,
 				918ECE431C75252700A8358F /* SystemConfiguration.framework */,
-				918ECE411C75250300A8358F /* OneSignal.framework */,
 				91E4D50F1C7521DE00025BA8 /* OneSignalSwiftExample */,
 				91E4D50E1C7521DE00025BA8 /* Products */,
 			);
@@ -84,6 +99,7 @@
 				91E4D5091C7521DE00025BA8 /* Sources */,
 				91E4D50A1C7521DE00025BA8 /* Frameworks */,
 				91E4D50B1C7521DE00025BA8 /* Resources */,
+				3EC900011D1E03A00085449A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -106,6 +122,8 @@
 				TargetAttributes = {
 					91E4D50C1C7521DE00025BA8 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 99SW8E36CT;
+						DevelopmentTeamName = "Lilomi Inc.";
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -199,6 +217,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "/Users/josephkalash/Library/Developer/Xcode/DerivedData/OneSignalSwift-clrzusdlziboxydxrlajlccrugoj/Build/Products/Debug-iphonesimulator";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -244,6 +263,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "/Users/josephkalash/Library/Developer/Xcode/DerivedData/OneSignalSwift-clrzusdlziboxydxrlajlccrugoj/Build/Products/Debug-iphonesimulator";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -264,7 +284,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../iOS_SDK/Framework\"";
+				FRAMEWORK_SEARCH_PATHS = "/Users/josephkalash/Library/Developer/Xcode/DerivedData/OneSignalSwift-clrzusdlziboxydxrlajlccrugoj/Build/Products/Debug-iphonesimulator";
 				INFOPLIST_FILE = OneSignalSwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
@@ -277,7 +297,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../iOS_SDK/Framework\"";
+				FRAMEWORK_SEARCH_PATHS = "/Users/josephkalash/Library/Developer/Xcode/DerivedData/OneSignalSwift-clrzusdlziboxydxrlajlccrugoj/Build/Products/Debug-iphonesimulator";
 				INFOPLIST_FILE = OneSignalSwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
