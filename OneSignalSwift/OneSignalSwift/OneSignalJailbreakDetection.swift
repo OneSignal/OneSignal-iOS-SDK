@@ -11,8 +11,6 @@ import Foundation
 class OneSignalJailbreakDetection : NSObject {
     
     class func isJailbroken() -> Bool {
-        
-           let url = NSURL(string: "cydia://package/com.example.package")!
-            return UIApplication.sharedApplication().canOpenURL(url)
-        }
+        return NSFileManager.defaultManager().fileExistsAtPath("/private/var/lib/apt/")
+    }
 }

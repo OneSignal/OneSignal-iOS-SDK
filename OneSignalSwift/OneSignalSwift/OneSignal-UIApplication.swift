@@ -11,6 +11,7 @@ import Foundation
 extension UIApplication {
     
     func oneSignalDidRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
+        
         if OneSignal.defaultClient != nil {
             OneSignal.defaultClient.didRegisterForRemoteNotifications(app, deviceToken: inDeviceToken)
         }

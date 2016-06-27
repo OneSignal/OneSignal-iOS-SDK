@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 // CoreLocation must be statically linked for geotagging to work on iOS 6 and possibly 7.
 // plist NSLocationUsageDescription (iOS 6 & 7) and NSLocationWhenInUseUsageDescription (iOS 8+) keys also required.
@@ -39,25 +40,31 @@ class OneSignalLocation : NSObject {
         if started {return}
         
         let clLocationManagerClass : AnyClass? = NSClassFromString("CLLocationManager")
-        
-        //if (clLocationManagerClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("locationServicesEnabled")).takeUnretainedValue() as? Bool != true {return}
-        if clLocationManagerClass?.valueForKey("locationServicesEnabled") as? Bool == true {return}
-        
-        if (clLocationManagerClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("authorizationStatus")).takeUnretainedValue() as? Int32 == 0 && prompt == false {return}
-        
-        // Check for location in plist
-        if (clLocationManagerClass as! NSObjectProtocol).performSelector(NSSelectorFromString("locationServicesEnabled")) == nil { return }
-        
-        if (clLocationManagerClass as! NSObjectProtocol).performSelector(NSSelectorFromString("authorizationStatus")) == nil && !prompt { return }
 
-        
-        locationManager = clLocationManagerClass?.alloc()
-        locationManager?.setValue(delegate, forKey: "delegate")
-        if (UIDevice.currentDevice().systemVersion as NSString).floatValue >= 8.0 {
-            locationManager?.performSelector(NSSelectorFromString("requestWhenInUseAuthorization"))
+        if clLocationManagerClass == nil {
+            OneSignal.onesignal_Log(OneSignal.ONE_S_LOG_LEVEL.ONE_S_LL_ERROR, message: "No CLLocationManager Class. Need to import Core Location first.")
+            return
         }
         
-        locationManager?.performSelector(NSSelectorFromString("startUpdatingLocation"))
+        if let _ = (clLocationManagerClass as! NSObjectProtocol).performSelector(NSSelectorFromString("locationServicesEnabled")) {}
+        else {
+            OneSignal.onesignal_Log(OneSignal.ONE_S_LOG_LEVEL.ONE_S_LL_ERROR, message: "Could not implement location services. Make sure to add NSLocationWhenInUseUsageDescription to you Info.plist file.")
+            return
+        }
+        
+        if (clLocationManagerClass as! NSObjectProtocol).performSelector(NSSelectorFromString("authorizationStatus")) != nil || prompt == true {
+        }
+        else { return }
+        
+        let locationManager = (clLocationManagerClass as! NSObject.Type).init()
+
+        locationManager.setValue(delegate, forKey: "delegate")
+        if #available(iOS 8.0, *) {
+            locationManager.performSelector(NSSelectorFromString("requestWhenInUseAuthorization"))
+        }
+        
+        locationManager.performSelector(NSSelectorFromString("startUpdatingLocation"))
+        
         
         started = true
     }

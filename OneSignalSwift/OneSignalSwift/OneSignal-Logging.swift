@@ -42,7 +42,8 @@ extension OneSignal {
             default: break
         }
         
-        if logLevel.rawValue <= OneSignal.nsLogLevel.rawValue { print("\(levelString)\(message)") }
+        //if logLevel.rawValue <= OneSignal.nsLogLevel.rawValue { print("\(levelString)\(message)") }
+        print("\(levelString)\(message)")
         
         if logLevel.rawValue <= OneSignal.visualLogLevel.rawValue {
             let alert = UIAlertView(title: levelString, message: message, delegate: nil, cancelButtonTitle: "Close")

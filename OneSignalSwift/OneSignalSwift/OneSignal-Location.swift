@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CoreLocation
 
 extension OneSignal {
     
@@ -29,7 +28,9 @@ extension OneSignal {
         OneSignalLocation.getLocation(self, prompt: true)
     }
     
-    func locationManager(manager: AnyObject, didUpdateLocations locations: [NSObject]) {
+    func locationManager(manager: AnyObject, didUpdateLocations locations: [AnyObject]) {
+        
+        print("OneSignal: locationManager:didUpdateLocations:")
         
         manager.performSelector(NSSelectorFromString("stopUpdatingLocation"))
         

@@ -12,15 +12,15 @@ import Foundation
 extension OneSignal {
     
     func getUsableDeviceToken() -> NSString? {
-        if notificationTypes > 0 { return deviceToken}
-        return nil
+        return notificationTypes > 0 ? deviceToken : nil
     }
     
     public func IdsAvailable(idsAvailableBlock : OneSignalIdsAvailableBlock) {
-        if let usableToken = getUsableDeviceToken() where userId != nil {
-            idsAvailableBlock(userId!, usableToken)
+        if userId != nil {
+            idsAvailableBlock(userId!, getUsableDeviceToken())
         }
-        else {
+        
+        if userId == nil || getUsableDeviceToken() == nil {
             idsAvailableBlockWhenReady = idsAvailableBlock
         }
     }
@@ -36,11 +36,8 @@ extension OneSignal {
         
         if self.deviceToken != nil {
             if isCapableOfGettingNotificationTypes() {
-                if let notifTypes = UIApplication.sharedApplication().currentUserNotificationSettings()?.types {
-                    return Int(notifTypes.rawValue)
-                }
-                
-                return -1
+                if let notifTypes = UIApplication.sharedApplication().currentUserNotificationSettings()?.types { return Int(notifTypes.rawValue) }
+                return 0
             }
             else { return NotificationType.All.rawValue}
         }
@@ -157,7 +154,7 @@ extension OneSignal {
             request = self.httpClient.requestWithMethod("POST", path: "players")
         }
         else {
-            request = self.httpClient.requestWithMethod("POST", path: "players/\(userId)/on_session")
+            request = self.httpClient.requestWithMethod("POST", path: "players/\(userId!)/on_session")
         }
         
         let infoDictionary = NSBundle.mainBundle().infoDictionary
@@ -169,7 +166,6 @@ extension OneSignal {
                         "device_os" : systemVersion,
                         "language" : NSLocale.preferredLanguages()[0],
                         "timezone" : NSNumber(long: NSTimeZone.localTimeZone().secondsFromGMT),
-                        "ad_id" : NSNumber(int : 0),
                         "device_type" : NSNumber(int : 0),
                         "sounds" : self.getSoundFiles(),
                         "sdk" : ONESIGNAL_VERSION,
@@ -181,8 +177,13 @@ extension OneSignal {
             dataDict["game_version"] = build!
         }
         
+        
         if #available(iOS 8, *) {
             notificationTypes = getNotificationTypes()
+        }
+        
+        if let vendorIdentifier = UIDevice.currentDevice().identifierForVendor?.UUIDString {
+            dataDict["ad_id"] = vendorIdentifier
         }
         
         if OneSignalJailbreakDetection.isJailbroken() {
@@ -243,33 +244,34 @@ extension OneSignal {
             self.waitingForOneSReg = false
             if let uid = results.objectForKey("id") as? NSString {
                 self.userId = uid
-                NSUserDefaults.standardUserDefaults().setObject(self.userId!, forKey: "GT_PLAYER_ID")
-                NSUserDefaults.standardUserDefaults().synchronize()
+            }
+            NSUserDefaults.standardUserDefaults().setObject(self.userId!, forKey: "GT_PLAYER_ID")
+            NSUserDefaults.standardUserDefaults().synchronize()
                 
-                if self.deviceToken != nil {
-                    self.updateDeviceToken(self.deviceToken!, onSuccess: self.tokenUpdateSuccessBlock, onFailure: self.tokenUpdateFailureBlock)
-                }
+            if self.deviceToken != nil {
+                self.updateDeviceToken(self.deviceToken!, onSuccess: self.tokenUpdateSuccessBlock, onFailure: self.tokenUpdateFailureBlock)
+            }
                 
-                if self.tagsToSend != nil {
-                    self.sendTags(self.tagsToSend)
-                    self.tagsToSend = nil
-                }
+            if self.tagsToSend != nil {
+                self.sendTags(self.tagsToSend)
+                self.tagsToSend = nil
+            }
                 
-                if OneSignal.lastLocation != nil {
-                    self.sendLocation(OneSignal.lastLocation)
-                    OneSignal.lastLocation = nil
-                }
+            if OneSignal.lastLocation != nil {
+                self.sendLocation(OneSignal.lastLocation)
+                OneSignal.lastLocation = nil
+            }
+
                 
-                if self.emailToSet != nil {
-                    self.setEmail(self.emailToSet)
-                    self.emailToSet = nil
-                }
+            if self.emailToSet != nil {
+                self.setEmail(self.emailToSet)
+                self.emailToSet = nil
+            }
                 
-                if let block = self.idsAvailableBlockWhenReady {
-                    if let token = self.getUsableDeviceToken() {
-                        block(self.userId!, token)
-                        self.idsAvailableBlockWhenReady = nil
-                    }
+            if let block = self.idsAvailableBlockWhenReady {
+                if let token = self.getUsableDeviceToken() {
+                    block(self.userId!, token)
+                    self.idsAvailableBlockWhenReady = nil
                 }
             }
         }) { (error) in

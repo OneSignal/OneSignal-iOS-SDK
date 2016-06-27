@@ -12,11 +12,14 @@ extension OneSignal : UIApplicationDelegate{
     
     
     func didRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
+        
         let trimmedDeviceToken = inDeviceToken.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
         let parsedDeviceToken = (trimmedDeviceToken.componentsSeparatedByString(" ") as NSArray).componentsJoinedByString("")
+        
         OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
+        
         self.registerDeviceToken(parsedDeviceToken, onSuccess: { (results) in
-            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId)")
+            OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId!)")
             }) { (error) in
                 OneSignal.onesignal_Log(ONE_S_LOG_LEVEL.ONE_S_LL_INFO, message: "Error in OneSignal registration: \(error)")
         }
@@ -135,7 +138,7 @@ extension OneSignal : UIApplicationDelegate{
         var newMeth = class_getInstanceMethod(newClass, newSel)
         let imp = method_getImplementation(newMeth)
         let methodTypeEncoding = method_getTypeEncoding(newMeth)
-        let successful = class_addMethod(addToClass, newSel, imp, methodTypeEncoding)
+        let successful = class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding)
         if !successful {
             class_addMethod(addToClass, newSel, imp, methodTypeEncoding)
             newMeth = class_getInstanceMethod(addToClass, newSel)

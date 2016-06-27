@@ -84,7 +84,7 @@ class OneSignalMobileProvision : NSObject {
         
         var entitlements : NSDictionary? = nil
         if let mobileProvision = getMobileProvision() {
-            OneSignal.onesignal_Log(OneSignal.ONE_S_LOG_LEVEL.ONE_S_LL_DEBUG, message: "mobileProvision: \(mobileProvision)")
+           // OneSignal.onesignal_Log(OneSignal.ONE_S_LOG_LEVEL.ONE_S_LL_DEBUG, message: "mobileProvision: \(mobileProvision)")
             entitlements = mobileProvision.objectForKey("Entitlements") as? NSDictionary
             if mobileProvision.count != 0 {
                 if TARGET_IPHONE_SIMULATOR != 0 { return .UIApplicationReleaseSim}
