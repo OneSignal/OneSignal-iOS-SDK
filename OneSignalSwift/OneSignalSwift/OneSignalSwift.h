@@ -13,3 +13,5 @@ FOUNDATION_EXPORT double OneSignalSwiftVersionNumber;
 
 //! Project version string for OneSignalSwift.
 FOUNDATION_EXPORT const unsigned char OneSignalSwiftVersionString[];
+
+#import "OneSignalLocation-Helper.h"

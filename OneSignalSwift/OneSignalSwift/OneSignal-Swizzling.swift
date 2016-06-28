@@ -27,8 +27,6 @@ extension OneSignal : UIApplicationDelegate{
     
     func remoteSilentNotification(application : UIApplication, userInfo : NSDictionary) {
         
-        print("remoteSilentNotification method")
-        
         var data : NSDictionary? = nil
         
         if let os_data = userInfo["os_data"] as? NSDictionary { data = os_data["buttons"] as? NSDictionary }
@@ -36,7 +34,6 @@ extension OneSignal : UIApplicationDelegate{
         
         if data != nil {
             var notification : UILocalNotification!
-            if #available(iOS 8.0, *) {
                 let category = UIMutableUserNotificationCategory()
                 category.identifier = "dynamic"
                 var actionArray : [UIUserNotificationAction] = []
@@ -68,7 +65,6 @@ extension OneSignal : UIApplicationDelegate{
                     notification.alertBody = m["body"] as? String
                 }
                 else { notification.alertBody = data!["m"] as? String }
-            }
             
             notification.userInfo = userInfo as [NSObject : AnyObject]
             notification.soundName = data!["s"] as? String
@@ -84,8 +80,6 @@ extension OneSignal : UIApplicationDelegate{
     }
     
     func processLocalActionBasedNotification(notification : UILocalNotification, identifier: NSString) {
-        
-        print("processLocalActionBasedNotification method")
         
         if notification.userInfo == nil {return}
         

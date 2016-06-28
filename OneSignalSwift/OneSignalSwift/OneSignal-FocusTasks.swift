@@ -26,9 +26,8 @@ extension OneSignal {
         if state.isEqualToString("resume") {
             
             lastTrackedTime = NSNumber(double: NSDate().timeIntervalSince1970)
-            if #available(iOS 8.0, *) {
-                self.sendNotificationTypesUpdateIsConfirmed(false)
-            }
+            self.sendNotificationTypesUpdateIsConfirmed(false)
+      
             wasBadgeSet = clearBadgeCount(false)
         }
         else {

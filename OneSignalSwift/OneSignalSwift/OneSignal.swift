@@ -58,6 +58,7 @@ public class OneSignal : NSObject {
     var timeToPingWith : NSNumber!
     var notificationTypes = -1
     var subscriptionSet = true
+    var location_event_fired = false
     static var SDKType = "native"
     
     init(launchOptions : NSDictionary?, appId : NSString?, handleNotification callback : OneSignalHandleNotificationBlock?, autoRegister : Bool) {
@@ -115,15 +116,10 @@ public class OneSignal : NSObject {
         
         userId = defaults.stringForKey("GT_PLAYER_ID")
         deviceToken = defaults.stringForKey("GT_DEVICE_TOKEN")
-         if #available(iOS 8.0, *) {
-            if isCapableOfGettingNotificationTypes() {
-                registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil
-            }
-            notificationTypes = getNotificationTypes()
-         }
-         else {
-            registeredWithApple = deviceToken != nil || defaults.boolForKey("GT_REGISTERED_WITH_APPLE")
+        if isCapableOfGettingNotificationTypes() {
+            registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil
         }
+        notificationTypes = getNotificationTypes()
         
         subscriptionSet = defaults.objectForKey("ONESIGNAL_SUBSCRIPTION") == nil
         
@@ -132,11 +128,11 @@ public class OneSignal : NSObject {
             self.registerForPushNotifications()
         }
             
-        else if #available(iOS 8.0, *) {
-            if UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.registerForRemoteNotifications)) {
-                UIApplication.sharedApplication().registerForRemoteNotifications()
-            }
+        
+        else if UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.registerForRemoteNotifications)) {
+            UIApplication.sharedApplication().registerForRemoteNotifications()
         }
+        
         
         if userId != nil {
             registerUser()

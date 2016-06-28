@@ -51,7 +51,6 @@ extension OneSignal {
         catch _ {}
         if postData != nil { request.HTTPBody = postData!}
         
-        print("\nURL: \(request.URL!.absoluteString!)\nSending Data: \(NSString(data: postData!, encoding: NSUTF8StringEncoding)!)\n")
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
     }
     
@@ -104,8 +103,6 @@ extension OneSignal {
         catch _ {}
         if postData != nil { request.HTTPBody = postData!}
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
-        
-        
     }
     
     public func deleteTags(keys : NSArray) {
@@ -147,29 +144,5 @@ extension OneSignal {
         if postData != nil { request.HTTPBody = postData!}
         self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
     }
-    
-    
-    
-    
-    
-    
-    
-    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

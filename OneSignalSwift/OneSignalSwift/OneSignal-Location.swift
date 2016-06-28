@@ -22,7 +22,6 @@ extension OneSignal  {
     }
     
     static var lastLocation : os_last_location!
-    static var location_event_fired : Bool!
     
     public func promptLocation() {
         OneSignalLocation.getLocation(self, prompt: true)
@@ -30,13 +29,13 @@ extension OneSignal  {
     
     func locationManager(manager: AnyObject, didUpdateLocations locations: [AnyObject]) {
         
-        print("OneSignal: locationManager:didUpdateLocations:")
-        
         manager.performSelector(NSSelectorFromString("stopUpdatingLocation"))
         
-        if OneSignal.location_event_fired == true {return}
+        if location_event_fired == true {
+            return
+        }
         
-        OneSignal.location_event_fired = false
+        location_event_fired = false
         
         let location = locations.last
         
@@ -59,7 +58,8 @@ extension OneSignal  {
     }
     
     func sendLocation(location : os_last_location) {
-        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
+        
+        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
         let dataDic = NSDictionary(objects: [app_id, NSNumber(double: location.cords.latitude), NSNumber(double: location.cords.longitude), NSNumber(double: location.verticalAccuracy), NSNumber(double: location.horizontalAccuracy), getNetType()], forKeys: ["app_id", "lat", "long", "loc_acc_vert", "loc_acc", "net_type"])
         
         var postData : NSData? = nil

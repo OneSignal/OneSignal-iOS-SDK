@@ -41,8 +41,7 @@ extension OneSignal {
             case .ONE_S_LL_VERBOSE: levelString = "VERBOSE: "
             default: break
         }
-        
-        //if logLevel.rawValue <= OneSignal.nsLogLevel.rawValue { print("\(levelString)\(message)") }
+
         print("\(levelString)\(message)")
         
         if logLevel.rawValue <= OneSignal.visualLogLevel.rawValue {

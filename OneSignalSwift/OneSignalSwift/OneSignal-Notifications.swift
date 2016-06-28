@@ -66,19 +66,19 @@ extension OneSignal {
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         // iOS 8+
-        if #available(iOS 8.0, *) {
+   //     if #available(iOS 8.0, *) {
             let existingCategories = UIApplication.sharedApplication().currentUserNotificationSettings()?.categories
             let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: existingCategories)
             UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
             UIApplication.sharedApplication().registerForRemoteNotifications()
-        }
-        else {
-            UIApplication.sharedApplication().registerForRemoteNotificationTypes([.Badge, .Sound, .Alert])
-            if !registeredWithApple {
-                NSUserDefaults.standardUserDefaults().setObject(NSNumber(bool: true), forKey: "GT_REGISTERED_WITH_APPLE")
-                NSUserDefaults.standardUserDefaults().synchronize()
-            }
-        }
+//        }
+//        else {
+//            UIApplication.sharedApplication().registerForRemoteNotificationTypes([.Badge, .Sound, .Alert])
+//            if !registeredWithApple {
+//                NSUserDefaults.standardUserDefaults().setObject(NSNumber(bool: true), forKey: "GT_REGISTERED_WITH_APPLE")
+//                NSUserDefaults.standardUserDefaults().synchronize()
+//            }
+//        }
     }
     
     func registerDeviceToken(inDeviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
@@ -98,13 +98,8 @@ extension OneSignal {
             // Also check mNotificationTypes so there is no waiting if user has already answered the system prompt.
             // The goal is to only have 1 server call.
             if notificationTypes == -1 {
-                if #available(iOS 8, *) {
-                    NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(OneSignal.registerUser), object: nil)
-                    self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0)
-                }
-                else {
-                    registerUser()
-                }
+                NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(OneSignal.registerUser), object: nil)
+                self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0)
             }
             
             return
@@ -132,9 +127,7 @@ extension OneSignal {
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
         
         if idsAvailableBlockWhenReady != nil {
-            if#available(iOS 8, *) {
-                self.notificationTypes = getNotificationTypes()
-            }
+            self.notificationTypes = getNotificationTypes()
             if let usableToken = getUsableDeviceToken() {
                 idsAvailableBlockWhenReady(userId!, usableToken)
                 idsAvailableBlockWhenReady = nil
@@ -177,10 +170,7 @@ extension OneSignal {
             dataDict["game_version"] = build!
         }
         
-        
-        if #available(iOS 8, *) {
-            notificationTypes = getNotificationTypes()
-        }
+        notificationTypes = getNotificationTypes()
         
         if let vendorIdentifier = UIDevice.currentDevice().identifierForVendor?.UUIDString {
             dataDict["ad_id"] = vendorIdentifier
@@ -258,7 +248,7 @@ extension OneSignal {
                 self.tagsToSend = nil
             }
                 
-            if OneSignal.lastLocation != nil {
+            if OneSignal.lastLocation != nil && self.userId != nil {
                 self.sendLocation(OneSignal.lastLocation)
                 OneSignal.lastLocation = nil
             }
@@ -306,8 +296,6 @@ extension OneSignal {
     
     func notificationOpened(messageDict : NSDictionary, isActive : Bool) {
         
-        print("notificationOpened method")
-        
         var inAppAlert = false
         if isActive {
             
@@ -338,8 +326,6 @@ extension OneSignal {
     }
     
     func handleNotificationOpened(messageDict : NSDictionary, isActive : Bool) {
-        
-        print("handleNotificationOpened method")
         
         var messageId, openUrl : String?
         

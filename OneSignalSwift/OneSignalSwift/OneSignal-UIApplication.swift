@@ -42,8 +42,6 @@ extension UIApplication {
     
     func oneSignalRemoteSilentNotification(application : UIApplication, userInfo : NSDictionary, fetchCompletionHandler completionHandler : (UIBackgroundFetchResult) -> Void) {
         
-        print("oneSignalRemoteSilentNotification method")
-        
         if OneSignal.defaultClient != nil {
             OneSignal.defaultClient.remoteSilentNotification(application, userInfo: userInfo)
         }
@@ -58,8 +56,6 @@ extension UIApplication {
     
     func oneSignalLocalNotificationOpened(application : UIApplication, handleActionWithIdentifier identifier : NSString, forLocalNotification notification : UILocalNotification, completionHandler : ()-> Void) {
         
-        print("oneSignalLocalNotificationOpened handleActionWithIdentifier method")
-        
         if OneSignal.defaultClient != nil {
             OneSignal.defaultClient.processLocalActionBasedNotification(notification, identifier: identifier)
         }
@@ -73,8 +69,6 @@ extension UIApplication {
     }
     
     func oneSignalLocalNotificationOpened(application : UIApplication, notification : UILocalNotification) {
-        
-        print("oneSignalLocalNotificationOpened method")
         
         if OneSignal.defaultClient != nil {
             OneSignal.defaultClient.processLocalActionBasedNotification(notification, identifier: "__DEFAULT__")
@@ -143,15 +137,11 @@ extension UIApplication {
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalRemoteSilentNotification(_:userInfo:fetchCompletionHandler:)), addToClass: UIApplication.delegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)))
         
-        if #available(iOS 8.0, *) {
-            OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)), addToClass: UIApplication.delegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)))
-        }
+        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)), addToClass: UIApplication.delegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)))
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidFailRegisterForRemoteNotifications(_:error:)), addToClass: UIApplication.delegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didFailToRegisterForRemoteNotificationsWithError:)))
         
-        if #available(iOS 8.0, *) {
-            OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:)), addToClass: UIApplication.delegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegisterUserNotificationSettings:)))
-        }
+        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:)), addToClass: UIApplication.delegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegisterUserNotificationSettings:)))
         
         if NSClassFromString("CoronaAppDelegate") != nil {
             self.setOneSignalDelegate(delegate)
