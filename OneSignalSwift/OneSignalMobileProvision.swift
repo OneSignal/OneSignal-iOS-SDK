@@ -31,13 +31,13 @@
  */
 
 enum UIApplicationReleaseMode : NSInteger {
-    case UIApplicationReleaseUnknown = 0
-    case UIApplicationReleaseDev = 1
-    case UIApplicationReleaseAdHoc = 2
-    case UIApplicationReleaseWildcard = 3
-    case UIApplicationReleaseAppStore = 4
-    case UIApplicationReleaseSim = 5
-    case UIApplicationReleaseEnterprise = 6
+    case uiApplicationReleaseUnknown = 0
+    case uiApplicationReleaseDev = 1
+    case uiApplicationReleaseAdHoc = 2
+    case uiApplicationReleaseWildcard = 3
+    case uiApplicationReleaseAppStore = 4
+    case uiApplicationReleaseSim = 5
+    case uiApplicationReleaseEnterprise = 6
 }
 
 class OneSignalMobileProvision : NSObject {
@@ -45,35 +45,35 @@ class OneSignalMobileProvision : NSObject {
     static func getMobileProvision() -> NSDictionary? {
         var mobileProvision : NSDictionary? = nil
         
-        let provisioningPath = NSBundle.mainBundle().pathForResource("embedded", ofType: "mobileprovision")
+        let provisioningPath = Bundle.main().pathForResource("embedded", ofType: "mobileprovision")
         if provisioningPath == nil {return [:]}
         
         // NSISOLatin1 keeps the binary wrapper from being parsed as unicode and dropped as invalid
         let binaryString: NSString?
         do {
-            binaryString = try NSString(contentsOfFile: provisioningPath!, encoding: NSISOLatin1StringEncoding)
+            binaryString = try NSString(contentsOfFile: provisioningPath!, encoding: String.Encoding.isoLatin1.rawValue)
         } catch _ {
             return nil
         }
 
-        let scanner = NSScanner(string: binaryString! as String)
-        var ok = scanner.scanUpToString("<plist", intoString: nil)
-        if !ok { OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Unable to find beginning of plist") ; return nil }
+        let scanner = Scanner(string: binaryString! as String)
+        var ok = scanner.scanUpTo("<plist", into: nil)
+        if !ok { OneSignal.onesignal_Log(.one_S_LL_ERROR, message: "Unable to find beginning of plist") ; return nil }
         
         var plistString : NSString? = ""
-        ok = scanner.scanUpToString("</plist>", intoString: &plistString)
-        if !ok { OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Unable to find end of plist") ; return nil }
+        ok = scanner.scanUpTo("</plist>", into: &plistString)
+        if !ok { OneSignal.onesignal_Log(.one_S_LL_ERROR, message: "Unable to find end of plist") ; return nil }
         
         plistString = (plistString! as String) + "</plist>"
         
         // juggle latin1 back to utf-8!
-        if let plistdata_latin1 = plistString!.dataUsingEncoding(NSISOLatin1StringEncoding) {
+        if let plistdata_latin1 = plistString!.data(using: String.Encoding.isoLatin1.rawValue) {
         
             do {
-                mobileProvision = try NSPropertyListSerialization.propertyListWithData(plistdata_latin1, options: NSPropertyListReadOptions.Immutable, format: nil) as? NSDictionary
+                mobileProvision = try PropertyListSerialization.propertyList(from: plistdata_latin1, options: PropertyListSerialization.MutabilityOptions(), format: nil) as? NSDictionary
             }
             catch let error as NSError {
-                OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Error parsing extracted plist - \(error)")
+                OneSignal.onesignal_Log(.one_S_LL_ERROR, message: "Error parsing extracted plist - \(error)")
             }
         }
         
@@ -91,24 +91,24 @@ class OneSignalMobileProvision : NSObject {
         if let mobileProvision = getMobileProvision() {
             
            // OneSignal.onesignal_Log(OneSignal..ONE_S_LL_DEBUG, message: "mobileProvision: \(mobileProvision)")
-            let entitlements = mobileProvision.objectForKey("Entitlements") as? NSDictionary
+            let entitlements = mobileProvision.object(forKey: "Entitlements") as? NSDictionary
             if mobileProvision.count == 0 {
-                if TARGET_IPHONE_SIMULATOR != 0 { return .UIApplicationReleaseSim}
-                return .UIApplicationReleaseAppStore
+                if TARGET_IPHONE_SIMULATOR != 0 { return .uiApplicationReleaseSim}
+                return .uiApplicationReleaseAppStore
             }
-            else if (mobileProvision.objectForKey("ProvisionsAllDevices") as? NSNumber)?.boolValue == true {
-                return .UIApplicationReleaseEnterprise
+            else if (mobileProvision.object(forKey: "ProvisionsAllDevices") as? NSNumber)?.boolValue == true {
+                return .uiApplicationReleaseEnterprise
             }
-            else if let aps_environment = entitlements?["aps-environment"] as? NSString where aps_environment.isEqualToString("development") {
-                return .UIApplicationReleaseDev
+            else if let aps_environment = entitlements?["aps-environment"] as? NSString where aps_environment.isEqual(to: "development") {
+                return .uiApplicationReleaseDev
             }
-            else { return .UIApplicationReleaseAppStore}
+            else { return .uiApplicationReleaseAppStore}
             
         }
         else {
             
-            OneSignal.onesignal_Log(.ONE_S_LL_DEBUG, message: "mobileProvision not found")
-            return .UIApplicationReleaseUnknown
+            OneSignal.onesignal_Log(.one_S_LL_DEBUG, message: "mobileProvision not found")
+            return .uiApplicationReleaseUnknown
         }
         
         

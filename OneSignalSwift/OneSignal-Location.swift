@@ -27,9 +27,9 @@ extension OneSignal  {
         OneSignalLocation.getLocation(self, prompt: true)
     }
     
-    static func locationManager(manager: AnyObject, didUpdateLocations locations: [AnyObject]) {
+    static func locationManager(_ manager: AnyObject, didUpdateLocations locations: [AnyObject]) {
         
-        manager.performSelector(NSSelectorFromString("stopUpdatingLocation"))
+        let _ = manager.perform(NSSelectorFromString("stopUpdatingLocation"))
         
         if location_event_fired == true {
             return
@@ -39,15 +39,15 @@ extension OneSignal  {
         
         let location = locations.last
         
-        var currentLocation = UnsafeMutablePointer<os_last_location>.alloc(sizeof(os_last_location)).memory
-        if let vertical = (location?.valueForKey("verticalAccuracy") as? NSNumber)?.doubleValue {
+        var currentLocation = UnsafeMutablePointer<os_last_location>(allocatingCapacity: sizeof(os_last_location)).pointee
+        if let vertical = (location?.value(forKey: "verticalAccuracy") as? NSNumber)?.doubleValue {
             currentLocation.verticalAccuracy = vertical
         }
-        if let horizontal = (location?.valueForKey("horizontalAccuracy") as? NSNumber)?.doubleValue {
+        if let horizontal = (location?.value(forKey: "horizontalAccuracy") as? NSNumber)?.doubleValue {
             currentLocation.horizontalAccuracy = horizontal
         }
         
-        if let cords = location?.valueForKey("coordinate") as? os_location_coordinate { currentLocation.cords = cords }
+        if let cords = location?.value(forKey: "coordinate") as? os_location_coordinate { currentLocation.cords = cords }
         
         if userId == nil {
             OneSignal.lastLocation = currentLocation
@@ -57,18 +57,18 @@ extension OneSignal  {
         self.sendLocation(currentLocation)
     }
     
-    static func sendLocation(location : os_last_location) {
+    static func sendLocation(_ location : os_last_location) {
         
-        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
-        let dataDic = NSDictionary(objects: [app_id, NSNumber(double: location.cords.latitude), NSNumber(double: location.cords.longitude), NSNumber(double: location.verticalAccuracy), NSNumber(double: location.horizontalAccuracy), getNetType()], forKeys: ["app_id", "lat", "long", "loc_acc_vert", "loc_acc", "net_type"])
+        var request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
+        let dataDic = NSDictionary(objects: [app_id, NSNumber(value: location.cords.latitude), NSNumber(value: location.cords.longitude), NSNumber(value: location.verticalAccuracy), NSNumber(value: location.horizontalAccuracy), getNetType()], forKeys: ["app_id", "lat", "long", "loc_acc_vert", "loc_acc", "net_type"])
         
-        var postData : NSData? = nil
+        var postData : Data? = nil
         do {
-            postData = try NSJSONSerialization.dataWithJSONObject(dataDic, options: NSJSONWritingOptions(rawValue: UInt(0)))
+            postData = try JSONSerialization.data(withJSONObject: dataDic, options: JSONSerialization.WritingOptions(rawValue: UInt(0)))
         }
         catch _ { }
         
-        request.HTTPBody = postData
+        request.httpBody = postData
         self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
         
     }

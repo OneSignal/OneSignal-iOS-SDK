@@ -11,21 +11,21 @@ import Foundation
 extension OneSignal : UIApplicationDelegate{
     
     
-    static func didRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
+    static func didRegisterForRemoteNotifications(_ app : UIApplication, deviceToken inDeviceToken : Data) {
         
-        let trimmedDeviceToken = inDeviceToken.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
-        let parsedDeviceToken = (trimmedDeviceToken.componentsSeparatedByString(" ") as NSArray).componentsJoinedByString("")
+        let trimmedDeviceToken = inDeviceToken.description.trimmingCharacters(in: CharacterSet(charactersIn: "<>"))
+        let parsedDeviceToken = (trimmedDeviceToken.components(separatedBy: " ") as NSArray).componentsJoined(by: "")
         
-        OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
+        OneSignal.onesignal_Log(.one_S_LL_INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
         
         self.registerDeviceToken(parsedDeviceToken, onSuccess: { (results) in
-            OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId!)")
+            OneSignal.onesignal_Log(.one_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId!)")
             }) { (error) in
-                OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "Error in OneSignal registration: \(error)")
+                OneSignal.onesignal_Log(.one_S_LL_INFO, message: "Error in OneSignal registration: \(error)")
         }
     }
     
-    static func remoteSilentNotification(application : UIApplication, userInfo : NSDictionary) {
+    static func remoteSilentNotification(_ application : UIApplication, userInfo : NSDictionary) {
         
         var data : NSDictionary? = nil
         
@@ -42,21 +42,21 @@ extension OneSignal : UIApplicationDelegate{
                     action.title = button["n"] as? String
                     let identifier = (button["i"] != nil) ? button["i"]! : action.title!
                     action.identifier = identifier as? String
-                    action.activationMode = .Foreground
-                    action.destructive = false
-                    action.authenticationRequired = false
+                    action.activationMode = .foreground
+                    action.isDestructive = false
+                    action.isAuthenticationRequired = false
                     actionArray.append(action)
                     // iOS 8 shows notification buttons in reverse in all cases but alerts. This flips it so the frist button is on the left.
-                    if actionArray.count == 2 { category.setActions([actionArray[1], actionArray[0]], forContext: .Minimal) }
+                    if actionArray.count == 2 { category.setActions([actionArray[1], actionArray[0]], for: .minimal) }
                 }
             
-                category.setActions(actionArray, forContext: UIUserNotificationActionContext.Default)
+                category.setActions(actionArray, for: UIUserNotificationActionContext.default)
             
-                let notificationTypes = NotificationType.All
+                let notificationTypes = NotificationType.all
             
             
                 let set = NSSet(object: category) as! Set<UIUserNotificationCategory>
-                UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: UIUserNotificationType(rawValue: UInt(notificationTypes.rawValue)), categories: set))
+                UIApplication.shared().registerUserNotificationSettings(UIUserNotificationSettings(types: UIUserNotificationType(rawValue: UInt(notificationTypes.rawValue)), categories: set))
             
                 notification = UILocalNotification()
                 notification.category = category.identifier
@@ -69,17 +69,17 @@ extension OneSignal : UIApplicationDelegate{
             notification.userInfo = userInfo as [NSObject : AnyObject]
             notification.soundName = data!["s"] as? String
             if notification.soundName == nil { notification.soundName = UILocalNotificationDefaultSoundName }
-            if let badge = data!["b"] as? NSNumber { notification.applicationIconBadgeNumber = badge.integerValue }
+            if let badge = data!["b"] as? NSNumber { notification.applicationIconBadgeNumber = badge.intValue }
             
-            UIApplication.sharedApplication().scheduleLocalNotification(notification)
+            UIApplication.shared().scheduleLocalNotification(notification)
         }
             
-        else if application.applicationState != .Background {
-            self.notificationOpened(userInfo, isActive: application.applicationState == .Active)
+        else if application.applicationState != .background {
+            self.notificationOpened(userInfo, isActive: application.applicationState == .active)
         }
     }
     
-    static func processLocalActionBasedNotification(notification : UILocalNotification, identifier: NSString) {
+    static func processLocalActionBasedNotification(_ notification : UILocalNotification, identifier: NSString) {
         
         if notification.userInfo == nil {return}
         
@@ -101,14 +101,14 @@ extension OneSignal : UIApplicationDelegate{
         
         let buttonArray = NSMutableArray()
         for button in optionsDict {
-            buttonArray.addObject(["text" : button["n"] as! String,
+            buttonArray.add(["text" : button["n"] as! String,
                                 "id" : button["i"] != nil ? button["i"] as! String : button["n"] as! String])
         }
         additionalData["actionSelected"] = identifier
         additionalData["actionButtons"] = buttonArray
         
         if let os_data = notification.userInfo!["os_data"] as? [NSObject : AnyObject] {
-            userInfo.addEntriesFromDictionary(os_data)
+            userInfo.addEntries(from: os_data)
             let alert = userInfo["os_data"]!["buttons"]!!["m"]!!
             userInfo["aps"] = ["alert" : alert]
         }
@@ -118,10 +118,10 @@ extension OneSignal : UIApplicationDelegate{
             userInfo["aps"] = ["alert" : userInfo!["m"]!]
         }
         
-        self.notificationOpened(userInfo, isActive: UIApplication.sharedApplication().applicationState == .Active)
+        self.notificationOpened(userInfo, isActive: UIApplication.shared().applicationState == .active)
     }
 
-    static func getClassWithProtocolInHierarchy(searchClass : AnyClass, protocolToFind : Protocol) -> AnyClass? {
+    static func getClassWithProtocolInHierarchy(_ searchClass : AnyClass, protocolToFind : Protocol) -> AnyClass? {
         
         if !class_conformsToProtocol(searchClass, protocolToFind) {
             if searchClass.superclass() == nil { return nil}
@@ -132,7 +132,7 @@ extension OneSignal : UIApplicationDelegate{
         return searchClass
     }
     
-    static func injectSelector(newClass : AnyClass, newSel : Selector, addToClass : AnyClass, makeLikeSel : Selector) {
+    static func injectSelector(_ newClass : AnyClass, newSel : Selector, addToClass : AnyClass, makeLikeSel : Selector) {
         var newMeth = class_getInstanceMethod(newClass, newSel)
         let imp = method_getImplementation(newMeth)
         let methodTypeEncoding = method_getTypeEncoding(newMeth)

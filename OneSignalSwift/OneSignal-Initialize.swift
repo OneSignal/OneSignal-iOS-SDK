@@ -42,5 +42,4 @@ extension OneSignal {
 //        self.init(launchOptions: launchOptions, appId: nil, handleNotification: callback, autoRegister: autoRegister)
 //    }
     
-    
 }

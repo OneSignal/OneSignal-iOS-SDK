@@ -8,7 +8,7 @@
 
 import Foundation
 
-let ONESIGNAL_VERSION = "011303"
+let ONESIGNAL_VERSION = "020000"
 let DEFAULT_PUSH_HOST = "https://onesignal.com/api/v1/"
 
 public typealias OneSignalResultSuccessBlock = (NSDictionary) -> Void
@@ -17,10 +17,10 @@ public typealias OneSignalIdsAvailableBlock = (NSString, NSString?) -> Void
 public typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> Void
 
 enum NotificationType : Int {
-    case Badge = 1
-    case Douns = 2
-    case Alert = 4
-    case All = 7
+    case badge = 1
+    case douns = 2
+    case alert = 4
+    case all = 7
 }
 
 /**
@@ -40,18 +40,18 @@ enum NotificationType : Int {
 @objc(OneSignal) public class OneSignal : NSObject {
     
     public enum ONE_S_LOG_LEVEL : Int {
-        case ONE_S_LL_NONE = 0
-        case ONE_S_LL_FATAL = 1
-        case ONE_S_LL_ERROR = 2
-        case ONE_S_LL_WARN = 3
-        case ONE_S_LL_INFO = 4
-        case ONE_S_LL_DEBUG = 5
-        case ONE_S_LL_VERBOSE = 6
+        case one_S_LL_NONE = 0
+        case one_S_LL_FATAL = 1
+        case one_S_LL_ERROR = 2
+        case one_S_LL_WARN = 3
+        case one_S_LL_INFO = 4
+        case one_S_LL_DEBUG = 5
+        case one_S_LL_VERBOSE = 6
     }
     
     static var SDKType = "native"
-    static var nsLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_WARN
-    static var visualLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_NONE
+    static var nsLogLevel : ONE_S_LOG_LEVEL = .one_S_LL_WARN
+    static var visualLogLevel : ONE_S_LOG_LEVEL = .one_S_LL_NONE
     
     static var app_id : String!
     static var deviceModel : NSString!
@@ -82,88 +82,86 @@ enum NotificationType : Int {
     /* Starting v2.0, canot create an instance of this class. Pure static */
     private override init() {}
     
-    public static func initWithLaunchOptions(launchOptions : NSDictionary?, appId : NSString, handleNotification callback : (OneSignalHandleNotificationBlock?) = nil, autoRegister : Bool = true) {
+    public static func initWithLaunchOptions(_ launchOptions : NSDictionary?, appId : NSString, handleNotification callback : (OneSignalHandleNotificationBlock?) = nil, autoRegister : Bool = true) {
         
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 {return}
         
-        if NSUUID(UUIDString: appId as String) == nil {
-            OneSignal.onesignal_Log(.ONE_S_LL_FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
+        if UUID(uuidString: appId as String) == nil {
+            OneSignal.onesignal_Log(.one_S_LL_FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
             return
         }
         
-        if appId.isEqualToString("b2f7f966-d8cc-11eg-bed1-df8f05be55ba") || appId.isEqualToString("5eb5a37e-b458-11e3-ac11-000c2940e62c") {
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "OneSignal Example AppID detected, please update to your app's id found on OneSignal.com\n")
+        if appId.isEqual(to: "b2f7f966-d8cc-11eg-bed1-df8f05be55ba") || appId.isEqual(to: "5eb5a37e-b458-11e3-ac11-000c2940e62c") {
+            OneSignal.onesignal_Log(.one_S_LL_WARN, message: "OneSignal Example AppID detected, please update to your app's id found on OneSignal.com\n")
         }
         
         OneSignalLocation.getLocation(self, prompt: false)
         
         handleNotification = callback
-        unSentActiveTime = NSNumber(int: -1)
-        lastTrackedTime = NSNumber(double: NSDate().timeIntervalSince1970)
+        unSentActiveTime = NSNumber(value: -1)
+        lastTrackedTime = NSNumber(value: Date().timeIntervalSince1970)
         self.app_id = appId as String
         
-        if let disable = NSBundle.mainBundle().objectForInfoDictionaryKey("OneSignal_disable_badge_clearing") as? Bool {
+        if let disable = Bundle.main().objectForInfoDictionaryKey("OneSignal_disable_badge_clearing") as? Bool {
             disableBadgeClearing = disable
         }
         
-        let url = NSURL(string: DEFAULT_PUSH_HOST)!
+        let url = URL(string: DEFAULT_PUSH_HOST)!
         httpClient = OneSignalHTTPClient(baseURL: url)
         
         var systemInfo = utsname()
         uname(&systemInfo)
         var v = systemInfo.machine
         let _ = withUnsafePointer(&v){
-            self.deviceModel = String.fromCString(UnsafePointer($0))
+            self.deviceModel = String(cString: UnsafePointer($0))
         }
         
-        systemVersion = UIDevice.currentDevice().systemVersion
+        systemVersion = UIDevice.current().systemVersion
 
         
-        let defaults = NSUserDefaults.standardUserDefaults()
+        let defaults = UserDefaults.standard()
         
         if app_id == nil {
-            app_id = defaults.stringForKey("GT_APP_ID")
+            app_id = defaults.string(forKey: "GT_APP_ID")
         }
-        else if app_id != defaults.stringForKey("GT_APP_ID") {
-            defaults.setObject(app_id, forKey: "GT_APP_ID")
-            defaults.setObject(nil, forKey: "GT_PLAYER_ID")
+        else if app_id != defaults.string(forKey: "GT_APP_ID") {
+            defaults.set(app_id, forKey: "GT_APP_ID")
+            defaults.set(nil, forKey: "GT_PLAYER_ID")
             defaults.synchronize()
         }
         
-        userId = defaults.stringForKey("GT_PLAYER_ID")
-        deviceToken = defaults.stringForKey("GT_DEVICE_TOKEN")
+        userId = defaults.string(forKey: "GT_PLAYER_ID")
+        deviceToken = defaults.string(forKey: "GT_DEVICE_TOKEN")
         if isCapableOfGettingNotificationTypes() {
-            registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil
+            registeredWithApple = UIApplication.shared().currentUserNotificationSettings() != nil
         }
         notificationTypes = getNotificationTypes()
         
-        subscriptionSet = defaults.objectForKey("ONESIGNAL_SUBSCRIPTION") == nil
+        subscriptionSet = defaults.object(forKey: "ONESIGNAL_SUBSCRIPTION") == nil
         
         // Register this device with Apple's APNS server.
         if autoRegister || registeredWithApple {
             self.registerForPushNotifications()
         }
             
-        
-        else if UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.registerForRemoteNotifications)) {
-            UIApplication.sharedApplication().registerForRemoteNotifications()
-        }
+            
+        else { UIApplication.shared().registerForRemoteNotifications() }
         
         
         if userId != nil {
             registerUser()
         }
         else {
-            self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0)
+            self.perform(#selector(OneSignal.registerUser), with: nil, afterDelay: 30.0)
         }
             
-        if let userInfo = launchOptions?.objectForKey(UIApplicationLaunchOptionsRemoteNotificationKey) as? NSDictionary {
+        if let userInfo = launchOptions?.object(forKey: UIApplicationLaunchOptionsRemoteNotificationKey) as? NSDictionary {
             if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_7_0 {
                 self.notificationOpened(userInfo, isActive : false)
             }
         }
         
-        clearBadgeCount(false)
+        let _ = clearBadgeCount(false)
         
         if OneSignalTrackIAP.canTrack() {
             trackIAPPurchase = OneSignalTrackIAP()
