@@ -1,26 +1,22 @@
 import UIKit
-import OneSignalSwift
+import OneSignal
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var userid : NSString? = nil
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-//        //OneSignal
-//        
-//        //let oneSignal = OneSignal(launchOptions: launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba", handleNotification: nil)
-//        OneSignal.defaultClient.ena (inAppAlertNotification: true)
-//        
-//        oneSignal?.IdsAvailable({ (userId, pushToken) in
-//            NSLog("UserId:%@", userId);
-//            if (pushToken != nil) {
-//                NSLog("Sending Test Noification to this device now");
-//                oneSignal.postNotification(["contents": ["en": "Test Message"], "include_player_ids": [userId]]);
-//            }
-//        });
-//        
+        OneSignal.setLogLevel(.ONE_S_LL_VERBOSE, visualLevel: .ONE_S_LL_NONE)
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "9df877a0-ceed-4a6f-8237-a62364d3babf")
+        OneSignal.enableInAppAlertNotification(true)
+        
+        OneSignal.IdsAvailable { (userid, token) in
+            if token != nil { self.userid = userid }
+        }
+        
         return true
     }
 }
