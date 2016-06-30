@@ -10,120 +10,120 @@ import Foundation
 
 extension OneSignal {
     
-    static func sendTagsWithJSONString(_ jsonString : NSString) {
+    static func sendTagsWithJSONString(jsonString : NSString) {
         
-        let data = jsonString.data(using: String.Encoding.utf8.rawValue)!
+        let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding)!
         var pairs : NSDictionary? = nil
         do {
-            pairs = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions(rawValue: UInt(0))) as? NSDictionary
+            pairs = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(rawValue: UInt(0))) as? NSDictionary
             if pairs != nil { self.sendTags(pairs!) }
         }
         catch let error as NSError {
-            OneSignal.onesignal_Log(.one_S_LL_WARN, message: "sendTags JSON Parse Error: \(error)")
-            OneSignal.onesignal_Log(.one_S_LL_WARN, message: "sendTags JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "sendTags JSON Parse Error: \(error)")
+            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "sendTags JSON Parse Error, JSON: \(jsonString)")
         }
     }
     
-    public static func sendTags(_ keyValuePair : NSDictionary) {
+    public static func sendTags(keyValuePair : NSDictionary) {
         self.sendTags(keyValuePair, successBlock: nil, failureBlock: nil)
     }
     
-    public static func sendTags(_ keyValuePair : NSDictionary, successBlock : OneSignalResultSuccessBlock?, failureBlock : OneSignalFailureBlock?) {
+    public static func sendTags(keyValuePair : NSDictionary, successBlock : OneSignalResultSuccessBlock?, failureBlock : OneSignalFailureBlock?) {
         
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         if userId == nil {
             if tagsToSend == nil { tagsToSend = NSMutableDictionary(dictionary: keyValuePair) }
-            else { tagsToSend.addEntries(from: keyValuePair as! [NSObject : AnyObject]) }
+            else { tagsToSend.addEntriesFromDictionary(keyValuePair as! [NSObject : AnyObject]) }
             return
         }
         
-        var request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
+        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
         
         let dataDict = ["app_id" : app_id,
                         "tags" : keyValuePair,
                         "net_type" : getNetType()
                     ]
         
-        var postData : Data? = nil
+        var postData : NSData? = nil
         
-        do { postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0))) }
+        do { postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0))) }
         catch _ {}
-        if postData != nil { request.httpBody = postData!}
+        if postData != nil { request.HTTPBody = postData!}
         
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
     }
     
-    public static func sendTag(_ key : NSString, value : NSString) {
+    public static func sendTag(key : NSString, value : NSString) {
         sendTag(key, value: value, successBlock: nil, failureBlock: nil)
     }
     
-    public static func sendTag(_ key : NSString, value : NSString, successBlock: OneSignalResultSuccessBlock?, failureBlock : OneSignalFailureBlock?) {
+    public static func sendTag(key : NSString, value : NSString, successBlock: OneSignalResultSuccessBlock?, failureBlock : OneSignalFailureBlock?) {
         
         sendTags([key : value], successBlock : successBlock, failureBlock : failureBlock)
     }
     
-    public static func getTags(_ successBlock : OneSignalResultSuccessBlock?, failureBlock: OneSignalFailureBlock?) {
+    public static func getTags(successBlock : OneSignalResultSuccessBlock?, failureBlock: OneSignalFailureBlock?) {
         
         if userId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         let request = self.httpClient.requestWithMethod("GET", path: "players/\(userId!)")
         self.enqueueRequest(request, onSuccess: { (results) in
-            if let tags = results.object(forKey: "tags") as? NSDictionary {
+            if let tags = results.objectForKey("tags") as? NSDictionary {
                 successBlock?(tags)
             }
             }, onFailure: failureBlock)
     }
     
-    public static func getTags(_ successBlock : OneSignalResultSuccessBlock) {
+    public static func getTags(successBlock : OneSignalResultSuccessBlock) {
         self.getTags(successBlock, failureBlock: nil)
     }
     
-    public static func deleteTag(_ key : NSString, successBlock : OneSignalResultSuccessBlock, failureBlock : OneSignalFailureBlock) {
+    public static func deleteTag(key : NSString, successBlock : OneSignalResultSuccessBlock, failureBlock : OneSignalFailureBlock) {
         self.deleteTags([key], successBlock: successBlock, failureBlock: failureBlock)
     }
     
-    public static func deleteTag(_ key : NSString) {
+    public static func deleteTag(key : NSString) {
         self.deleteTags([key], successBlock: nil, failureBlock: nil)
     }
     
-    public static func deleteTags(_ keys : NSArray, successBlock : OneSignalResultSuccessBlock?, failureBlock : OneSignalFailureBlock?) {
+    public static func deleteTags(keys : NSArray, successBlock : OneSignalResultSuccessBlock?, failureBlock : OneSignalFailureBlock?) {
         
         if userId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
-        var request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
+        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
         let tagsToDeleteDict = NSMutableDictionary()
         for key in keys as! [String] {
             tagsToDeleteDict[key] = ""
         }
         
         let dataDict = ["app_id" : app_id, "tags" : tagsToDeleteDict]
-        var postData : Data? = nil
-        do { postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0))) }
+        var postData : NSData? = nil
+        do { postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0))) }
         catch _ {}
-        if postData != nil { request.httpBody = postData!}
+        if postData != nil { request.HTTPBody = postData!}
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
     }
     
-    public static func deleteTags(_ keys : NSArray) {
+    public static func deleteTags(keys : NSArray) {
         self.deleteTags(keys, successBlock: nil, failureBlock: nil)
     }
     
-    static func deleteTagsWithJSONString(_ jsonString : NSString) {
+    static func deleteTagsWithJSONString(jsonString : NSString) {
         
-        let data = jsonString.data(using: String.Encoding.utf8.rawValue)!
+        let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding)!
         do {
-            if let keys = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSArray {
+            if let keys = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers) as? NSArray {
                 self.deleteTags(keys)
             }
         }
         catch let error as NSError {
-            OneSignal.onesignal_Log(.one_S_LL_WARN, message: "deleteTags JSON Parse Error: \(error)");
-            OneSignal.onesignal_Log(.one_S_LL_WARN, message: "deleteTags JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error: \(error)");
+            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error, JSON: \(jsonString)")
         }
     }
     
-    static func setEmail(_ email : NSString) {
+    static func setEmail(email : NSString) {
         
         if userId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
@@ -132,16 +132,16 @@ extension OneSignal {
             return
         }
         
-        var request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
+        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId!)")
         let dataDict = ["app_id" : app_id,
                         "email" : email,
                         "net_type" : getNetType()
         ]
         
-        var postData : Data? = nil
-        do { postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0))) }
+        var postData : NSData? = nil
+        do { postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0))) }
         catch _ {}
-        if postData != nil { request.httpBody = postData!}
+        if postData != nil { request.HTTPBody = postData!}
         self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
     }
 }

@@ -15,7 +15,7 @@ extension OneSignal {
         return notificationTypes > 0 ? deviceToken : nil
     }
     
-    public static func IdsAvailable(_ idsAvailableBlock : OneSignalIdsAvailableBlock) {
+    public static func IdsAvailable(idsAvailableBlock : OneSignalIdsAvailableBlock) {
         if userId != nil {
             idsAvailableBlock(userId!, getUsableDeviceToken())
         }
@@ -27,7 +27,7 @@ extension OneSignal {
     
     @available(iOS 8.0, *)
     static func isCapableOfGettingNotificationTypes() -> Bool {
-        return UIApplication.shared().responds(to: #selector(UIApplication.currentUserNotificationSettings))
+        return UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.currentUserNotificationSettings))
     }
     
     @available(iOS 8.0, *)
@@ -36,27 +36,27 @@ extension OneSignal {
         
         if self.deviceToken != nil {
             if isCapableOfGettingNotificationTypes() {
-                if let notifTypes = UIApplication.shared().currentUserNotificationSettings()?.types { return Int(notifTypes.rawValue) }
+                if let notifTypes = UIApplication.sharedApplication().currentUserNotificationSettings()?.types { return Int(notifTypes.rawValue) }
                 return 0
             }
-            else { return NotificationType.all.rawValue}
+            else { return NotificationType.All.rawValue}
         }
         
         return -1
     }
     
-    static func clearBadgeCount(_ fromNotifOpened : Bool) -> Bool {
-        if disableBadgeClearing || notificationTypes == -1 || (notificationTypes & NotificationType.badge.rawValue) == 0 { return false}
+    static func clearBadgeCount(fromNotifOpened : Bool) -> Bool {
+        if disableBadgeClearing || notificationTypes == -1 || (notificationTypes & NotificationType.Badge.rawValue) == 0 { return false}
         
-        let wasBadgeSet = UIApplication.shared().applicationIconBadgeNumber > 0
+        let wasBadgeSet = UIApplication.sharedApplication().applicationIconBadgeNumber > 0
         
         if  ( !(NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_7_1) && fromNotifOpened ) || wasBadgeSet {
             
             // Clear bages and nofiications from this app.
             // Setting to 1 then 0 was needed to clear the notifications on iOS 6 & 7. (Otherwise you can click the notification multiple times.)
             // iOS 8+ auto dismisses the notificaiton you tap on so only clear the badge (and notifications [side-effect]) if it was set.
-            UIApplication.shared().applicationIconBadgeNumber = 1
-            UIApplication.shared().applicationIconBadgeNumber = 0
+            UIApplication.sharedApplication().applicationIconBadgeNumber = 1
+            UIApplication.sharedApplication().applicationIconBadgeNumber = 0
         }
         
         return wasBadgeSet
@@ -67,10 +67,10 @@ extension OneSignal {
         
         // iOS 8+
    //     if #available(iOS 8.0, *) {
-            let existingCategories = UIApplication.shared().currentUserNotificationSettings()?.categories
-            let notificationSettings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: existingCategories)
-            UIApplication.shared().registerUserNotificationSettings(notificationSettings)
-            UIApplication.shared().registerForRemoteNotifications()
+            let existingCategories = UIApplication.sharedApplication().currentUserNotificationSettings()?.categories
+            let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: existingCategories)
+            UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
+            UIApplication.sharedApplication().registerForRemoteNotifications()
 //        }
 //        else {
 //            UIApplication.sharedApplication().registerForRemoteNotificationTypes([.Badge, .Sound, .Alert])
@@ -81,13 +81,13 @@ extension OneSignal {
 //        }
     }
     
-    static func registerDeviceToken(_ inDeviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
+    static func registerDeviceToken(inDeviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
         self.updateDeviceToken(inDeviceToken, onSuccess: successBlock, onFailure: failureBlock)
-        UserDefaults.standard().set(deviceToken, forKey: "GT_DEVICE_TOKEN")
-        UserDefaults.standard().synchronize()
+        NSUserDefaults.standardUserDefaults().setObject(deviceToken, forKey: "GT_DEVICE_TOKEN")
+        NSUserDefaults.standardUserDefaults().synchronize()
     }
     
-    static func updateDeviceToken(_ deviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
+    static func updateDeviceToken(deviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
         
         if userId == nil {
             self.deviceToken = deviceToken
@@ -98,14 +98,14 @@ extension OneSignal {
             // Also check mNotificationTypes so there is no waiting if user has already answered the system prompt.
             // The goal is to only have 1 server call.
             if notificationTypes == -1 {
-                NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(OneSignal.registerUser), object: nil)
-                self.perform(#selector(OneSignal.registerUser), with: nil, afterDelay: 30.0)
+                NSObject.cancelPreviousPerformRequestsWithTarget(self, selector: #selector(OneSignal.registerUser), object: nil)
+                self.performSelector(#selector(OneSignal.registerUser), withObject: nil, afterDelay: 30.0)
             }
             
             return
         }
         
-        if self.deviceToken != nil && deviceToken.isEqual(to: self.deviceToken as! String) {
+        if self.deviceToken != nil && deviceToken.isEqualToString(self.deviceToken as! String) {
             if successBlock != nil {
                 successBlock!([:])
             }
@@ -113,17 +113,17 @@ extension OneSignal {
         }
         
         self.deviceToken = deviceToken
-        var request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
+        let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
         let dataDic = NSDictionary(objects: [app_id, deviceToken], forKeys: ["app_id", "identifier"])
-        OneSignal.onesignal_Log(.one_S_LL_VERBOSE, message: "Calling OneSignal PUT updated pushToken!")
+        OneSignal.onesignal_Log(.ONE_S_LL_VERBOSE, message: "Calling OneSignal PUT updated pushToken!")
         
-        var postData : Data? = nil
+        var postData : NSData? = nil
         do {
-            postData = try JSONSerialization.data(withJSONObject: dataDic, options: JSONSerialization.WritingOptions(rawValue: UInt(0)))
+            postData = try NSJSONSerialization.dataWithJSONObject(dataDic, options: NSJSONWritingOptions(rawValue: UInt(0)))
         }
         catch _ { }
         
-        request.httpBody = postData
+        request.HTTPBody = postData
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock)
         
         if idsAvailableBlockWhenReady != nil {
@@ -142,7 +142,7 @@ extension OneSignal {
         
         waitingForOneSReg = true
         
-        var request : URLRequest!
+        let request : NSMutableURLRequest!
         if userId == nil {
             request = self.httpClient.requestWithMethod("POST", path: "players")
         }
@@ -150,16 +150,16 @@ extension OneSignal {
             request = self.httpClient.requestWithMethod("POST", path: "players/\(userId!)/on_session")
         }
         
-        let infoDictionary = Bundle.main().infoDictionary
+        let infoDictionary = NSBundle.mainBundle().infoDictionary
         let build = infoDictionary?[kCFBundleVersionKey as String] as? String
         let identifier = deviceToken == nil ? "" : deviceToken!
         
         var dataDict = ["app_id" : app_id,
                         "device_model" : deviceModel,
                         "device_os" : systemVersion,
-                        "language" : Locale.preferredLanguages()[0],
-                        "timezone" : NSNumber(value: TimeZone.local().secondsFromGMT),
-                        "device_type" : NSNumber(value : 0),
+                        "language" : NSLocale.preferredLanguages()[0],
+                        "timezone" : NSNumber(long: NSTimeZone.localTimeZone().secondsFromGMT),
+                        "device_type" : NSNumber(int : 0),
                         "sounds" : self.getSoundFiles(),
                         "sdk" : ONESIGNAL_VERSION,
                         "identifier" : identifier,
@@ -172,7 +172,7 @@ extension OneSignal {
         
         notificationTypes = getNotificationTypes()
         
-        if let vendorIdentifier = UIDevice.current().identifierForVendor?.uuidString {
+        if let vendorIdentifier = UIDevice.currentDevice().identifierForVendor?.UUIDString {
             dataDict["ad_id"] = vendorIdentifier
         }
         
@@ -182,20 +182,20 @@ extension OneSignal {
         
         if userId != nil {
             dataDict["sdk_type"] = OneSignal.SDKType
-            dataDict["ios_bundle"] = Bundle.main().bundleIdentifier
+            dataDict["ios_bundle"] = NSBundle.mainBundle().bundleIdentifier
         }
         
         if notificationTypes != -1 {
-            dataDict["notification_types"] = NSNumber(value: notificationTypes)
+            dataDict["notification_types"] = NSNumber(long: notificationTypes)
         }
         
         /* Ad Support */
         var enabledAdvertizing = false
         if let ASIdentifierManager = NSClassFromString("ASIdentifierManager"),
-            asIdManager = ASIdentifierManager.value(forKey: "sharedManager"),
-            enabled = asIdManager.value(forKey: "advertizingTrackingEnabled") as? Bool
+            asIdManager = ASIdentifierManager.valueForKey("sharedManager"),
+            enabled = asIdManager.valueForKey("advertizingTrackingEnabled") as? Bool
             where enabled {
-                dataDict["as_id"] = (asIdManager.value(forKey: "advertisingIdentifier") as! UUID).uuidString
+                dataDict["as_id"] = (asIdManager.valueForKey("advertisingIdentifier") as! NSUUID).UUIDString
                 enabledAdvertizing = true
         }
         
@@ -204,40 +204,40 @@ extension OneSignal {
         }
         
         let releaseMode = OneSignalMobileProvision.releaseMode()
-        if releaseMode == .uiApplicationReleaseDev || releaseMode == .uiApplicationReleaseAdHoc || releaseMode == .uiApplicationReleaseWildcard {
-            dataDict["test_type"] = NSNumber(value: releaseMode.rawValue)
+        if releaseMode == .UIApplicationReleaseDev || releaseMode == .UIApplicationReleaseAdHoc || releaseMode == .UIApplicationReleaseWildcard {
+            dataDict["test_type"] = NSNumber(long: releaseMode.rawValue)
         }
         
         
         if OneSignal.lastLocation != nil {
-            dataDict["lat"] = NSNumber(value: OneSignal.lastLocation.cords.latitude)
-            dataDict["long"] = NSNumber(value: OneSignal.lastLocation.cords.longitude)
-            dataDict["loc_acc_vert"] = NSNumber(value: OneSignal.lastLocation.verticalAccuracy)
-            dataDict["loc_acc"] = NSNumber(value: OneSignal.lastLocation.horizontalAccuracy)
+            dataDict["lat"] = NSNumber(double: OneSignal.lastLocation.cords.latitude)
+            dataDict["long"] = NSNumber(double: OneSignal.lastLocation.cords.longitude)
+            dataDict["loc_acc_vert"] = NSNumber(double: OneSignal.lastLocation.verticalAccuracy)
+            dataDict["loc_acc"] = NSNumber(double: OneSignal.lastLocation.horizontalAccuracy)
             OneSignal.lastLocation = nil
         }
         
-        OneSignal.onesignal_Log(.one_S_LL_VERBOSE, message: "Calling OneSignal create/on_session")
+        OneSignal.onesignal_Log(.ONE_S_LL_VERBOSE, message: "Calling OneSignal create/on_session")
         
-        var postData : Data? = nil
+        var postData : NSData? = nil
         do {
-            postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0)))
+            postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0)))
         }
         catch _ {}
         
         
         if postData != nil {
-            request.httpBody = postData!
+            request.HTTPBody = postData!
         }
         
         self.enqueueRequest(request, onSuccess: { (results) in
             self.oneSignalReg = true
             self.waitingForOneSReg = false
-            if let uid = results.object(forKey: "id") as? NSString {
+            if let uid = results.objectForKey("id") as? NSString {
                 self.userId = uid
             }
-            UserDefaults.standard().set(self.userId!, forKey: "GT_PLAYER_ID")
-            UserDefaults.standard().synchronize()
+            NSUserDefaults.standardUserDefaults().setObject(self.userId!, forKey: "GT_PLAYER_ID")
+            NSUserDefaults.standardUserDefaults().synchronize()
                 
             if self.deviceToken != nil {
                 self.updateDeviceToken(self.deviceToken!, onSuccess: self.tokenUpdateSuccessBlock, onFailure: self.tokenUpdateFailureBlock)
@@ -268,23 +268,23 @@ extension OneSignal {
         }) { (error) in
             self.oneSignalReg = false
             self.waitingForOneSReg = false
-            OneSignal.onesignal_Log(.one_S_LL_ERROR, message: "Error registering with OneSignal: \(error)")
+            OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Error registering with OneSignal: \(error)")
         }
         
     }
     
     @available(iOS 8.0, *)
-    static func sendNotificationTypesUpdateIsConfirmed(_ isConfirm : Bool) {
+    static func sendNotificationTypesUpdateIsConfirmed(isConfirm : Bool) {
         // User changed notification settings for the app.
         
         if notificationTypes != -1 && userId != nil && (isConfirm || notificationTypes != getNotificationTypes()) {
             notificationTypes = getNotificationTypes()
-            var request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
-            let dataDict = ["app_id" : app_id, "notification_types" : NSNumber(value: notificationTypes)]
-            var postData : Data? = nil
-            do { postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0))) }
+            let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
+            let dataDict = ["app_id" : app_id, "notification_types" : NSNumber(long: notificationTypes)]
+            var postData : NSData? = nil
+            do { postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0))) }
             catch _ {}
-            if postData != nil { request.httpBody = postData!}
+            if postData != nil { request.HTTPBody = postData!}
             self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
             
             if let usableToken = getUsableDeviceToken(), block = idsAvailableBlockWhenReady {
@@ -294,18 +294,18 @@ extension OneSignal {
         }
     }
     
-    static func notificationOpened(_ messageDict : NSDictionary, isActive : Bool) {
+    static func notificationOpened(messageDict : NSDictionary, isActive : Bool) {
         
         var inAppAlert = false
         if isActive {
             
-            inAppAlert = UserDefaults.standard().bool(forKey: "ONESIGNAL_INAPP_ALERT")
+            inAppAlert = NSUserDefaults.standardUserDefaults().boolForKey("ONESIGNAL_INAPP_ALERT")
             if inAppAlert {
                 self.lastMessageReceived = messageDict
                 let additionalData = self.getAdditionalData()
                 var title = additionalData["title"] as? String
                 if title == nil {
-                    title = Bundle.main().objectForInfoDictionaryKey("CFBundleDisplayName") as? String
+                    title = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleDisplayName") as? String
                 }
                 
                 let oneSignalAlertViewDelegate = OneSignalAlertViewDelegate(messageDict: messageDict)
@@ -313,7 +313,7 @@ extension OneSignal {
                 
                 if let additional = additionalData["actionButtons"] as? [NSDictionary] {
                     for button in additional {
-                        alert.addButton(withTitle: button["text"] as? String)
+                        alert.addButtonWithTitle(button["text"] as? String)
                     }
                 }
                 
@@ -325,48 +325,48 @@ extension OneSignal {
         
     }
     
-    static func handleNotificationOpened(_ messageDict : NSDictionary, isActive : Bool) {
+    static func handleNotificationOpened(messageDict : NSDictionary, isActive : Bool) {
         
         var messageId, openUrl : String?
         
-        var customDict = messageDict.object(forKey: "os_data") as? NSDictionary
+        var customDict = messageDict.objectForKey("os_data") as? NSDictionary
         if customDict == nil {
-            customDict = messageDict.object(forKey: "custom") as? NSDictionary
+            customDict = messageDict.objectForKey("custom") as? NSDictionary
         }
         
-        messageId = customDict?.object(forKey: "i") as? String
-        openUrl = customDict?.object(forKey: "u") as? String
+        messageId = customDict?.objectForKey("i") as? String
+        openUrl = customDict?.objectForKey("u") as? String
         
         if messageId != nil {
             
-            var request = self.httpClient.requestWithMethod("PUT", path: "notifications/\(messageId!)")
+            let request = self.httpClient.requestWithMethod("PUT", path: "notifications/\(messageId!)")
             let playerId = userId != nil ? userId! : ""
             let dataDict = ["app_id" : app_id,
                             "player_id" : playerId,
-                            "opened": NSNumber(value: true)
+                            "opened": NSNumber(bool: true)
                             ]
             
-            var postData : Data? = nil
+            var postData : NSData? = nil
             do {
-                postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0)))
+                postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0)))
             }
             catch _ {}
             if postData != nil {
-                request.httpBody = postData!
+                request.HTTPBody = postData!
             }
             self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
         }
         
         if openUrl != nil {
-            if UIApplication.shared().applicationState != .active {
-                DispatchQueue.main.async(execute: {
-                    UIApplication.shared().openURL(URL(string: openUrl!)!)
+            if UIApplication.sharedApplication().applicationState != .Active {
+                dispatch_async(dispatch_get_main_queue(), {
+                    UIApplication.sharedApplication().openURL(NSURL(string: openUrl!)!)
                 })
             }
         }
         
         self.lastMessageReceived =  messageDict
-        let _ = clearBadgeCount(true)
+        clearBadgeCount(true)
         
         if handleNotification != nil {
             handleNotification!(self.getMessageString(), self.getAdditionalData(), isActive)
@@ -374,7 +374,7 @@ extension OneSignal {
     }
     
     @available(iOS 8.0, *)
-    static func updateNotificationTypes(_ notificationTypes : Int) {
+    static func updateNotificationTypes(notificationTypes : Int) {
         
         if self.notificationTypes == -2 { return}
         

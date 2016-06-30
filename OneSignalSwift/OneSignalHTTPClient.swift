@@ -10,18 +10,18 @@ import Foundation
 
 class OneSignalHTTPClient : NSObject, UIApplicationDelegate {
     
-    var baseURL : URL!
+    var baseURL : NSURL!
     
-    init(baseURL : URL) {
+    init(baseURL : NSURL) {
         super.init()
         self.baseURL = baseURL
     }
     
-    func requestWithMethod(_ method: NSString, path : NSString) -> URLRequest {
-        let url = URL(string: path as String, relativeTo:self.baseURL)!
+    func requestWithMethod(method: NSString, path : NSString) -> NSMutableURLRequest {
+        let url = NSURL(string: path as String, relativeToURL:self.baseURL)!
         
-        var request = URLRequest(url: url)
-        request.httpMethod = method as String
+        let request = NSMutableURLRequest(URL: url)
+        request.HTTPMethod = method as String
         request.setValue("application/json", forHTTPHeaderField:"Content-Type")
         request.setValue("application/json", forHTTPHeaderField:"Accept")
         return request

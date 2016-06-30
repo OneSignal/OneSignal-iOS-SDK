@@ -20,10 +20,10 @@ class OneSignalAlertViewDelegate : NSObject, UIAlertViewDelegate {
         
         super.init()
         self.messageDict = messageDict
-        self.delegateReference.add(self)
+        self.delegateReference.addObject(self)
     }
     
-    func alertView(_ alertView: UIAlertView, clickedButtonAt buttonIndex: Int) {
+    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int) {
         if buttonIndex != 0 {
             
             let userInfo = messageDict.mutableCopy() as! NSMutableDictionary
@@ -32,14 +32,11 @@ class OneSignalAlertViewDelegate : NSObject, UIAlertViewDelegate {
                 userInfo["actionSelected"] = messageDict["actionButtons"]?[buttonIndex - 1]?["id"]
             }
             else {
-                if let customDict = userInfo["custom"] as? NSMutableDictionary {
-                    if let a = customDict["a"] as? NSMutableDictionary {
-                        let customCopy = customDict.mutableCopy() as! NSMutableDictionary
-                        let additionalData = NSMutableDictionary(dictionary: a)
-                        additionalData["actionSelected"] = additionalData["actionButtons"]?[buttonIndex - 1]?["id"]
-                        customDict["a"] = additionalData
-                        userInfo["custom"] = customCopy
-                    }
+                if let customDict = userInfo["custom"]?.mutableCopy() as? NSMutableDictionary, a = customDict["a"] as? NSMutableDictionary {
+                    let additionalData = NSMutableDictionary(dictionary: a)
+                    additionalData["actionSelected"] = additionalData["actionButtons"]?[buttonIndex - 1]?["id"]
+                    customDict["a"] = additionalData
+                    userInfo["custom"] = customDict
                 }
             }
             
@@ -48,6 +45,6 @@ class OneSignalAlertViewDelegate : NSObject, UIAlertViewDelegate {
         }
         
         OneSignal.handleNotificationOpened(messageDict, isActive: true)
-        delegateReference.remove(self)
+        delegateReference.removeObject(self)
     }
 }

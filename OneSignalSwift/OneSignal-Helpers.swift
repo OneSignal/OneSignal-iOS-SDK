@@ -11,14 +11,14 @@ import Foundation
 extension OneSignal {
     
     public static func getSoundFiles() -> NSArray {
-        let fm = FileManager.default()
+        let fm = NSFileManager.defaultManager()
         
         var  allFiles = []
         let soundFiles = NSMutableArray()
-        do { try allFiles = fm.contentsOfDirectory(atPath: Bundle.main().resourcePath!) }
+        do { try allFiles = fm.contentsOfDirectoryAtPath(NSBundle.mainBundle().resourcePath!) }
         catch _ { return [] }
         
-        for file in allFiles { if file.hasSuffix(".wav") || file.hasSuffix(".mp3") { soundFiles.add(file) } }
+        for file in allFiles { if file.hasSuffix(".wav") || file.hasSuffix(".mp3") { soundFiles.addObject(file) } }
         
         return soundFiles
     }
@@ -26,16 +26,16 @@ extension OneSignal {
     static func getNetType() -> NSNumber {
         OneSignalReachability.reachabilityForInternetConnection()
         let status = OneSignalReachability.currentReachabilityStatus()
-        if status == .reachableViaWiFi { return NSNumber(value: 0) }
-        return NSNumber(value: 1)
+        if status == .ReachableViaWiFi { return NSNumber(int: 0) }
+        return NSNumber(int: 1)
     }
     
-    static func setMSDKType(_ str : NSString) { SDKType = str as String }
+    static func setMSDKType(str : NSString) { SDKType = str as String }
     
     static func getAdditionalData() -> NSDictionary {
         
         var additionalData : NSMutableDictionary!
-        let osDataDict = self.lastMessageReceived.object(forKey: "os_data") as? NSMutableDictionary
+        let osDataDict = self.lastMessageReceived.objectForKey("os_data") as? NSMutableDictionary
         
         if osDataDict != nil {
             additionalData = lastMessageReceived.mutableCopy() as! NSMutableDictionary
@@ -61,8 +61,8 @@ extension OneSignal {
         }
         
         if osDataDict != nil {
-            additionalData.removeObject(forKey: "aps")
-            additionalData.removeObject(forKey: "os_data")
+            additionalData.removeObjectForKey("aps")
+            additionalData.removeObjectForKey("os_data")
         }
         
         return additionalData
@@ -81,19 +81,19 @@ extension OneSignal {
         return ""
     }
     
-    public static func setSubscription(_ enable : Bool) {
+    public static func setSubscription(enable : Bool) {
         var value : String? = nil
         if !enable { value = "no"}
         
-        UserDefaults.standard().set(value, forKey: "ONESIGNAL_SUBSCRIPTION")
-        UserDefaults.standard().synchronize()
+        NSUserDefaults.standardUserDefaults().setObject(value, forKey: "ONESIGNAL_SUBSCRIPTION")
+        NSUserDefaults.standardUserDefaults().synchronize()
         
         subscriptionSet = enable
         self.sendNotificationTypesUpdateIsConfirmed(false)
     }
     
-    public static func enableInAppAlertNotification(_ enable: Bool) {
-        UserDefaults.standard().set(enable, forKey: "ONESIGNAL_INAPP_ALERT")
-        UserDefaults.standard().synchronize()
+    public static func enableInAppAlertNotification(enable: Bool) {
+        NSUserDefaults.standardUserDefaults().setBool(enable, forKey: "ONESIGNAL_INAPP_ALERT")
+        NSUserDefaults.standardUserDefaults().synchronize()
     }
 }

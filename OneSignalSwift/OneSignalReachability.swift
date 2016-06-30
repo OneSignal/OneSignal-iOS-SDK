@@ -12,25 +12,25 @@ import CoreFoundation
 import Darwin
 
 extension Bool {
-    init<T : Integer>(_ integer: T){
+    init<T : IntegerType>(_ integer: T){
         self.init(integer != 0)
     }
 }
 
 enum NetworkStatus : NSInteger {
-    case notReachable = 0
-    case reachableViaWiFi = 1
-    case reachableViaWWAN = 2
+    case NotReachable = 0
+    case ReachableViaWiFi = 1
+    case ReachableViaWWAN = 2
 }
 
 class OneSignalReachability : NSObject {
     
     static var alwaysReturnLocalWiFiStatus = false
-    static var reachabiliyRef : SCNetworkReachability!
+    static var reachabiliyRef : SCNetworkReachabilityRef!
     
     static func currentReachabilityStatus() -> NetworkStatus {
         assert( reachabiliyRef != nil, "currentNetworkStatus called with NULL SCNetworkReachabilityRef")
-        var returnValue : NetworkStatus = .notReachable
+        var returnValue : NetworkStatus = .NotReachable
         var flags = SCNetworkReachabilityFlags()
         
         if SCNetworkReachabilityGetFlags(reachabiliyRef, &flags) {
@@ -62,13 +62,13 @@ class OneSignalReachability : NSObject {
         var flags =  SCNetworkReachabilityFlags()
         
         if (SCNetworkReachabilityGetFlags(reachabiliyRef, &flags)) {
-            return Bool(flags.rawValue & SCNetworkReachabilityFlags.connectionRequired.rawValue)
+            return Bool(flags.rawValue & SCNetworkReachabilityFlags.ConnectionRequired.rawValue)
         }
         
         return false;
     }
     
-    static func reachabilityWithAddress(_ hostAddress : UnsafePointer<sockaddr>) {
+    static func reachabilityWithAddress(hostAddress : UnsafePointer<sockaddr>) {
         if let reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, hostAddress) {
             OneSignalReachability.reachabiliyRef = reachability
             OneSignalReachability.alwaysReturnLocalWiFiStatus = false
@@ -77,54 +77,54 @@ class OneSignalReachability : NSObject {
     
     //MARK : Network Flag Handling
     
-    static func localWifiStatusForFlags(_ flags : SCNetworkReachabilityFlags) -> NetworkStatus {
+    static func localWifiStatusForFlags(flags : SCNetworkReachabilityFlags) -> NetworkStatus {
         
-        var returnValue : NetworkStatus = .notReachable;
+        var returnValue : NetworkStatus = .NotReachable;
         
-        if (flags.rawValue & SCNetworkReachabilityFlags.reachable.rawValue) != 0 && (flags.rawValue & SCNetworkReachabilityFlags.isDirect.rawValue) != 0 {
-            returnValue = .reachableViaWiFi
+        if (flags.rawValue & SCNetworkReachabilityFlags.Reachable.rawValue) != 0 && (flags.rawValue & SCNetworkReachabilityFlags.IsDirect.rawValue) != 0 {
+            returnValue = .ReachableViaWiFi
         }
         
         return returnValue
     }
     
-    static func networkStatusForFlags(_ flags : SCNetworkReachabilityFlags) -> NetworkStatus {
-        if (flags.rawValue & SCNetworkReachabilityFlags.reachable.rawValue) == 0 {
+    static func networkStatusForFlags(flags : SCNetworkReachabilityFlags) -> NetworkStatus {
+        if (flags.rawValue & SCNetworkReachabilityFlags.Reachable.rawValue) == 0 {
             // The target host is not reachable.
-            return .notReachable
+            return .NotReachable
         }
         
-        var returnValue : NetworkStatus = .notReachable
+        var returnValue : NetworkStatus = .NotReachable
         
-        if (flags.rawValue & SCNetworkReachabilityFlags.connectionRequired.rawValue) == 0 {
+        if (flags.rawValue & SCNetworkReachabilityFlags.ConnectionRequired.rawValue) == 0 {
             /*
              If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
              */
-            returnValue = .reachableViaWiFi
+            returnValue = .ReachableViaWiFi
         }
         
-        if (flags.rawValue & SCNetworkReachabilityFlags.connectionOnDemand.rawValue)  != 0 ||
-            (flags.rawValue & SCNetworkReachabilityFlags.connectionOnTraffic.rawValue) != 0
+        if (flags.rawValue & SCNetworkReachabilityFlags.ConnectionOnDemand.rawValue)  != 0 ||
+            (flags.rawValue & SCNetworkReachabilityFlags.ConnectionOnTraffic.rawValue) != 0
         {
             /*
              ... and the connection is on-demand (or on-traffic) if the calling application is using the CFSocketStream or higher APIs...
              */
             
-            if (flags.rawValue & SCNetworkReachabilityFlags.interventionRequired.rawValue) == 0
+            if (flags.rawValue & SCNetworkReachabilityFlags.InterventionRequired.rawValue) == 0
             {
                 /*
                  ... and no [user] intervention is needed...
                  */
-                returnValue = .reachableViaWiFi
+                returnValue = .ReachableViaWiFi
             }
         }
         
-        if (flags.rawValue & SCNetworkReachabilityFlags.iswwan.rawValue) == SCNetworkReachabilityFlags.iswwan.rawValue
+        if (flags.rawValue & SCNetworkReachabilityFlags.IsWWAN.rawValue) == SCNetworkReachabilityFlags.IsWWAN.rawValue
         {
             /*
              ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
              */
-            returnValue = .reachableViaWWAN
+            returnValue = .ReachableViaWWAN
         }
         
         return returnValue

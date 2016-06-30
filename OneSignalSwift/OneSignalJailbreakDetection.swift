@@ -11,6 +11,6 @@ import Foundation
 class OneSignalJailbreakDetection : NSObject {
     
     static func isJailbroken() -> Bool {
-        return FileManager.default().fileExists(atPath: "/private/var/lib/apt/")
+        return NSFileManager.defaultManager().fileExistsAtPath("/private/var/lib/apt/")
     }
 }

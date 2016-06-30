@@ -19,22 +19,23 @@ class OneSignalLocation : NSObject {
     static var started = false
     static var hasDelayed = false
     
-    static func getLocation(_ delegate : AnyObject, prompt : Bool) {
+    static func getLocation(delegate : AnyObject, prompt : Bool) {
         if hasDelayed {
             internalGetLocation(delegate, prompt:prompt)
         }
         else {
 
             // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not staticly linked.
-            let popTime = DispatchTime.now() + Double(2 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
-            DispatchQueue.main.after(when: popTime, execute: {() -> Void in
+            let popTime = dispatch_time(DISPATCH_TIME_NOW, 2 * Int64(NSEC_PER_SEC))
+            dispatch_after(popTime, dispatch_get_main_queue(), {() -> Void in
                     hasDelayed = true
                     internalGetLocation(delegate, prompt:prompt)
                 })
         }
+        
     }
     
-    static func internalGetLocation(_ delegate : AnyObject, prompt : Bool) {
+    static func internalGetLocation(delegate : AnyObject, prompt : Bool) {
 
         if started {return}
     
@@ -42,12 +43,12 @@ class OneSignalLocation : NSObject {
         
         
         if clLocationManagerClass == nil {
-            OneSignal.onesignal_Log(.one_S_LL_ERROR, message: "No CLLocationManager Class. Need to import Core Location first.")
+            OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "No CLLocationManager Class. Need to import Core Location first.")
             return
         }
         
         if OneSignalLocationHelper.getLocationServicesEnabled() == false {
-            OneSignal.onesignal_Log(.one_S_LL_ERROR, message: "Could not implement location services. Make sure to add NSLocationWhenInUseUsageDescription to you Info.plist file.")
+            OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Could not implement location services. Make sure to add NSLocationWhenInUseUsageDescription to you Info.plist file.")
             return
         }
         
@@ -65,8 +66,8 @@ class OneSignalLocation : NSObject {
         }
         
         locationManager?.setValue(delegate, forKey: "delegate")
-        let _ = locationManager?.perform(NSSelectorFromString("requestWhenInUseAuthorization"))
-        let _ = locationManager?.perform(NSSelectorFromString("startUpdatingLocation"))
+        locationManager?.performSelector(NSSelectorFromString("requestWhenInUseAuthorization"))
+        locationManager?.performSelector(NSSelectorFromString("startUpdatingLocation"))
         
         started = true
     }

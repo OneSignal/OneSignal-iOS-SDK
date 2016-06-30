@@ -10,18 +10,18 @@ import Foundation
 
 extension OneSignal {
     
-    static func sendPurchases(_ purchases: NSArray) {
+    static func sendPurchases(purchases: NSArray) {
         if userId == nil {return}
         
-        var request = self.httpClient.requestWithMethod("POST", path: "players/\(userId!)/on_purchase")
+        let request = self.httpClient.requestWithMethod("POST", path: "players/\(userId!)/on_purchase")
         let dataDict = ["app_id" : app_id,
                         "purchases" : purchases,
                         ]
         
-        var postData : Data? = nil
-        do { postData = try JSONSerialization.data(withJSONObject: dataDict, options: JSONSerialization.WritingOptions(rawValue: UInt(0))) }
+        var postData : NSData? = nil
+        do { postData = try NSJSONSerialization.dataWithJSONObject(dataDict, options: NSJSONWritingOptions(rawValue: UInt(0))) }
         catch _ {}
-        if postData != nil { request.httpBody = postData!}
+        if postData != nil { request.HTTPBody = postData!}
         self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
     }
 
