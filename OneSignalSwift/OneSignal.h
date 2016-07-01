@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 
 //! Project version number for OneSignalSwift.
 FOUNDATION_EXPORT double OneSignalSwiftVersionNumber;

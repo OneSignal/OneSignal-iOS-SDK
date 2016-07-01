@@ -21,8 +21,6 @@ extension OneSignal  {
         var horizontalAccuracy : Double
     }
     
-    static var lastLocation : os_last_location!
-    
     public static func promptLocation() {
         OneSignalLocation.getLocation(self, prompt: true)
     }
@@ -69,8 +67,10 @@ extension OneSignal  {
         catch _ { }
         
         request.HTTPBody = postData
+        
         self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
         
     }
+    
     
 }

@@ -68,13 +68,13 @@ extension OneSignal {
         return additionalData
     }
     
-    static func getMessageString() -> NSString {
+    static func getMessageString() -> String {
         
-        if let alertObj = self.lastMessageReceived["aps"]?["alert"] as? NSString {
+        if let alertObj = self.lastMessageReceived["aps"]?["alert"] as? String {
             return alertObj
         }
         
-        if let alertObj = self.lastMessageReceived["aps"]?["alert"]??["body"] as? NSString {
+        if let alertObj = self.lastMessageReceived["aps"]?["alert"]??["body"] as? String {
             return alertObj
         }
         

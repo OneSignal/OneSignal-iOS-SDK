@@ -25,100 +25,191 @@ extension OneSignal : UIApplicationDelegate{
         }
     }
     
+    
+    /* Pre iOS 10.0 Use UIUserNotificationAction & UILocalNotification */
+    static func prepareUILocalNotification(data : [String : AnyObject], userInfo : NSDictionary) -> UILocalNotification {
+        let notification = UILocalNotification()
+        let category = UIMutableUserNotificationCategory()
+        category.identifier = "dynamic"
+        var actionArray : [UIUserNotificationAction] = []
+        if let buttons = data["o"] as? [[String : String]] {
+            for button in buttons {
+                let action = UIMutableUserNotificationAction()
+                action.title = button["n"]
+                action.identifier = (button["i"] != nil) ? button["i"]! : action.title!
+                action.activationMode = .Foreground
+                action.destructive = false
+                action.authenticationRequired = false
+                actionArray.append(action)
+            }
+        }
+        
+        //iOS 8 shows notification buttons in reverse in all cases but alerts. This flips it so the frist button is on the left.
+        if actionArray.count == 2 {
+            category.setActions([actionArray[1], actionArray[0]], forContext: .Minimal)
+        }
+        else {
+            category.setActions(actionArray, forContext: .Default)
+        }
+        
+        let notificationTypes = NotificationType.All
+        let set = Set<UIUserNotificationCategory>(arrayLiteral: category)
+        let notificationType = UIUserNotificationType(rawValue: UInt(notificationTypes.rawValue))
+        let notificationSettings = UIUserNotificationSettings(forTypes: notificationType, categories: set)
+        UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
+        
+        notification.category = category.identifier
+        if let m = data["m"] as? [String : String] {
+            if #available(iOS 8.2, *) {notification.alertTitle = m["title"] }
+            notification.alertBody = m["body"]
+        }
+        else if let m = data["m"] as? String {
+            notification.alertBody = m
+        }
+        notification.userInfo = userInfo as [NSObject : AnyObject]
+        notification.soundName = data["s"] as? String
+        if notification.soundName == nil {
+            notification.soundName = UILocalNotificationDefaultSoundName
+        }
+        
+        if let badge = data["b"] as? NSNumber {
+            notification.applicationIconBadgeNumber = badge.integerValue
+        }
+        
+        return notification
+    }
+    
+    
+    @available(iOS 10.0, *)
+    static func prepareUNNotificationRequest(data : [String : AnyObject], userInfo : NSDictionary) -> UNNotificationRequest {
+        
+        
+        var actionArray : [UNNotificationAction] = []
+        if let buttons = data["o"] as? [[String : String]] {
+            for button in buttons {
+                let title = button["n"] != nil ? button["n"]! : ""
+                let identifier = (button["i"] != nil) ? button["i"]! : title
+                let action = UNNotificationAction(identifier: identifier, title: title, options: .Foreground)
+                actionArray.append(action)
+            }
+        }
+        
+        if actionArray.count == 2 { actionArray = actionArray.reverse() }
+        
+        let category = UNNotificationCategory(identifier: "dyanamic", actions: actionArray, minimalActions: [], intentIdentifiers: [], options: .None)
+        let set = Set<UNNotificationCategory>(arrayLiteral: category)
+        UNUserNotificationCenter.currentNotificationCenter().setNotificationCategories(set)
+        
+        
+        let content = UNMutableNotificationContent()
+        content.categoryIdentifier = "dyanamic"
+        
+        if let m = data["m"] as? [String : String] {
+            if let title = m["title"] { content.title = title }
+            if let body = m["body"] { content.body = body }
+        }
+        else if let m = data["m"] as? String {
+            content.body = m
+        }
+        
+        content.userInfo = userInfo as [NSObject : AnyObject]
+        
+        if let sound = data["s"] as? String {
+            content.sound = UNNotificationSound(named: sound)
+        }
+        else {
+            content.sound = UNNotificationSound.defaultSound()
+        }
+        
+        content.badge = data["b"] as? NSNumber
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.25, repeats: false)
+        let notification = UNNotificationRequest(identifier: "dynamic", content: content, trigger: trigger)
+        return notification
+    }
+    
     static func remoteSilentNotification(application : UIApplication, userInfo : NSDictionary) {
         
-        var data : NSDictionary? = nil
-        
-        if let os_data = userInfo["os_data"] as? NSDictionary { data = os_data["buttons"] as? NSDictionary }
-        else if userInfo["m"] != nil {data = userInfo}
+        var data : [String : AnyObject]? = nil
+
+        if let buttons = userInfo["os_data"]?["buttons"] as? [String : AnyObject] { data = buttons }
+        else if let _ = userInfo["m"] as? [String : AnyObject] { data = userInfo as? [String : AnyObject] }
         
         if data != nil {
-            var notification : UILocalNotification!
-                let category = UIMutableUserNotificationCategory()
-                category.identifier = "dynamic"
-                var actionArray : [UIUserNotificationAction] = []
-                for button in data!["o"] as! NSArray {
-                    let action = UIMutableUserNotificationAction()
-                    action.title = button["n"] as? String
-                    let identifier = (button["i"] != nil) ? button["i"]! : action.title!
-                    action.identifier = identifier as? String
-                    action.activationMode = .Foreground
-                    action.destructive = false
-                    action.authenticationRequired = false
-                    actionArray.append(action)
-                    // iOS 8 shows notification buttons in reverse in all cases but alerts. This flips it so the frist button is on the left.
-                    if actionArray.count == 2 { category.setActions([actionArray[1], actionArray[0]], forContext: .Minimal) }
-                }
             
-                category.setActions(actionArray, forContext: UIUserNotificationActionContext.Default)
-            
-                let notificationTypes = NotificationType.All
-            
-            
-                let set = NSSet(object: category) as! Set<UIUserNotificationCategory>
-                UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: UIUserNotificationType(rawValue: UInt(notificationTypes.rawValue)), categories: set))
-            
-                notification = UILocalNotification()
-                notification.category = category.identifier
-                if let m = data!["m"] as? NSDictionary {
-                    if #available(iOS 8.2, *) {notification.alertTitle = m["title"] as? String}
-                    notification.alertBody = m["body"] as? String
-                }
-                else { notification.alertBody = data!["m"] as? String }
-            
-            notification.userInfo = userInfo as [NSObject : AnyObject]
-            notification.soundName = data!["s"] as? String
-            if notification.soundName == nil { notification.soundName = UILocalNotificationDefaultSoundName }
-            if let badge = data!["b"] as? NSNumber { notification.applicationIconBadgeNumber = badge.integerValue }
-            
-            UIApplication.sharedApplication().scheduleLocalNotification(notification)
+            if #available(iOS 10.0, *) {
+                let notificationRequest = prepareUNNotificationRequest(data!, userInfo : userInfo)
+                UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(notificationRequest, withCompletionHandler: nil)
+            }
+            else {
+                let notification = prepareUILocalNotification(data!, userInfo : userInfo)
+                UIApplication.sharedApplication().scheduleLocalNotification(notification)
+            }
         }
             
         else if application.applicationState != .Background {
             self.notificationOpened(userInfo, isActive: application.applicationState == .Active)
         }
+        
     }
     
     static func processLocalActionBasedNotification(notification : UILocalNotification, identifier: NSString) {
         
         if notification.userInfo == nil {return}
         
-        var userInfo, customDict, additionalData : NSMutableDictionary!
-        var optionsDict : [NSDictionary]!
+        let userInfo = NSMutableDictionary()
+        let customDict = NSMutableDictionary()
+        let additionalData = NSMutableDictionary()
+        let optionsDict = NSMutableArray()
         
-        if let _ = notification.userInfo!["os_data"], buttonsDict = notification.userInfo!["os_data"]?["buttons"] as? NSMutableDictionary {
-            userInfo = (notification.userInfo! as NSDictionary).mutableCopy() as! NSMutableDictionary
-            additionalData = NSMutableDictionary()
-            optionsDict = buttonsDict["o"] as? [NSDictionary]
+        if let os_data = notification.userInfo!["os_data"],
+        buttonsDict = os_data["buttons"] as? NSMutableDictionary {
+            userInfo.addEntriesFromDictionary(notification.userInfo!)
+            if let o = buttonsDict["o"] as? [[NSObject : AnyObject]] { optionsDict.addObjectsFromArray(o) }
         }
-        else if let custom = notification.userInfo!["custom"] as? NSMutableDictionary {
-            userInfo = (notification.userInfo! as NSDictionary).mutableCopy() as! NSMutableDictionary
-            customDict = custom.mutableCopy() as! NSMutableDictionary
-            additionalData = NSMutableDictionary(dictionary: customDict["a"] as! NSMutableDictionary)
-            optionsDict = userInfo["o"] as? [NSDictionary]
+        else if let custom = notification.userInfo!["custom"] as? [NSObject : AnyObject] {
+            userInfo.addEntriesFromDictionary(notification.userInfo!)
+            customDict.addEntriesFromDictionary(custom)
+            if let a = customDict["a"] as? [NSObject : AnyObject] {
+                additionalData.addEntriesFromDictionary(a)
+            }
+            if let o = userInfo["o"] as? [[String : String]] {
+                optionsDict.addObjectsFromArray(o)
+            }
         }
+            
         else {return}
-        
+
         let buttonArray = NSMutableArray()
         for button in optionsDict {
-            buttonArray.addObject(["text" : button["n"] as! String,
-                                "id" : button["i"] != nil ? button["i"] as! String : button["n"] as! String])
+            
+            let buttonToAppend : [NSObject : AnyObject] = [
+                                        "text" : button["n"] != nil ? button["n"]!! : "",
+                                            "id" : button["i"] != nil ? button["i"]!! : button["n"]!!
+                                ]
+            
+            buttonArray.addObject(buttonToAppend)
         }
+        
         additionalData["actionSelected"] = identifier
         additionalData["actionButtons"] = buttonArray
         
-        if let os_data = notification.userInfo!["os_data"] as? [NSObject : AnyObject] {
-            userInfo.addEntriesFromDictionary(os_data)
-            let alert = userInfo["os_data"]!["buttons"]!!["m"]!!
-            userInfo["aps"] = ["alert" : alert]
+        if let os_data = notification.userInfo!["os_data"] as? [String : AnyObject] {
+            for (key, val) in os_data { userInfo.setObject(val, forKey: key) }
+            if let os_d = userInfo["os_data"],
+            buttons = os_d["buttons"] as? NSMutableDictionary,
+                m = buttons["m"] {
+                let alert = m
+                userInfo["aps"] = ["alert" : alert]
+            }
         }
         else {
             customDict["a"] = additionalData
             userInfo["custom"] = customDict
-            userInfo["aps"] = ["alert" : userInfo!["m"]!]
+            userInfo["aps"] = ["alert":userInfo["m"]!]
         }
         
-        self.notificationOpened(userInfo, isActive: UIApplication.sharedApplication().applicationState == .Active)
+        OneSignal.notificationOpened(userInfo, isActive: UIApplication.sharedApplication().applicationState == .Active)
     }
 
     static func getClassWithProtocolInHierarchy(searchClass : AnyClass, protocolToFind : Protocol) -> AnyClass? {
@@ -145,11 +236,5 @@ extension OneSignal : UIApplicationDelegate{
         }
     }
     
-    
-    
-    
 }
-
-
-
 

@@ -3,11 +3,10 @@
 //  OneSignalSwift
 //
 //  Created by Joseph Kalash on 6/24/16.
-//  Copyright © 2016 Joseph Kalash. All rights reserved.
+//  Copyright © 2016 OneSignal. All rights reserved.
 //
 
 import Foundation
-
 
 extension OneSignal {
     
@@ -65,20 +64,16 @@ extension OneSignal {
     public static func registerForPushNotifications() {
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
-        // iOS 8+
-   //     if #available(iOS 8.0, *) {
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(UNAuthorizationOptions(rawValue: 7), completionHandler: { (result, error) in })
+        }
+        else {
             let existingCategories = UIApplication.sharedApplication().currentUserNotificationSettings()?.categories
             let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: existingCategories)
             UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
             UIApplication.sharedApplication().registerForRemoteNotifications()
-//        }
-//        else {
-//            UIApplication.sharedApplication().registerForRemoteNotificationTypes([.Badge, .Sound, .Alert])
-//            if !registeredWithApple {
-//                NSUserDefaults.standardUserDefaults().setObject(NSNumber(bool: true), forKey: "GT_REGISTERED_WITH_APPLE")
-//                NSUserDefaults.standardUserDefaults().synchronize()
-//            }
-//        }
+        }
+        
     }
     
     static func registerDeviceToken(inDeviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
@@ -309,37 +304,32 @@ extension OneSignal {
                 }
                 
                 let oneSignalAlertViewDelegate = OneSignalAlertViewDelegate(messageDict: messageDict)
-                let alert = UIAlertView(title: title, message: self.getMessageString() as String, delegate: oneSignalAlertViewDelegate, cancelButtonTitle: "Close")
+                let alert = UIAlertView(title: title, message: self.getMessageString(), delegate: oneSignalAlertViewDelegate, cancelButtonTitle: "Close")
                 
-                if let additional = additionalData["actionButtons"] as? [NSDictionary] {
+                if let additional = additionalData["actionButtons"] as? [[String : String]] {
                     for button in additional {
-                        alert.addButtonWithTitle(button["text"] as? String)
+                        alert.addButtonWithTitle(button["text"])
                     }
                 }
                 
                 alert.show()
+                return
             } 
         }
         
         self.handleNotificationOpened(messageDict, isActive: isActive)
-        
     }
     
     static func handleNotificationOpened(messageDict : NSDictionary, isActive : Bool) {
-        
-        var messageId, openUrl : String?
         
         var customDict = messageDict.objectForKey("os_data") as? NSDictionary
         if customDict == nil {
             customDict = messageDict.objectForKey("custom") as? NSDictionary
         }
         
-        messageId = customDict?.objectForKey("i") as? String
-        openUrl = customDict?.objectForKey("u") as? String
-        
-        if messageId != nil {
+        if let messageId = customDict?.objectForKey("i") as? String {
             
-            let request = self.httpClient.requestWithMethod("PUT", path: "notifications/\(messageId!)")
+            let request = self.httpClient.requestWithMethod("PUT", path: "notifications/\(messageId)")
             let playerId = userId != nil ? userId! : ""
             let dataDict = ["app_id" : app_id,
                             "player_id" : playerId,
@@ -357,10 +347,10 @@ extension OneSignal {
             self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
         }
         
-        if openUrl != nil {
+        if let openUrl = customDict?.objectForKey("u") as? String {
             if UIApplication.sharedApplication().applicationState != .Active {
                 dispatch_async(dispatch_get_main_queue(), {
-                    UIApplication.sharedApplication().openURL(NSURL(string: openUrl!)!)
+                    UIApplication.sharedApplication().openURL(NSURL(string: openUrl)!)
                 })
             }
         }

@@ -8,21 +8,6 @@
 
 import Foundation
 
-let ONESIGNAL_VERSION = "011303"
-let DEFAULT_PUSH_HOST = "https://onesignal.com/api/v1/"
-
-public typealias OneSignalResultSuccessBlock = (NSDictionary) -> Void
-public typealias OneSignalFailureBlock = (NSError) -> Void
-public typealias OneSignalIdsAvailableBlock = (NSString, NSString?) -> Void
-public typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> Void
-
-enum NotificationType : Int {
-    case Badge = 1
-    case Douns = 2
-    case Alert = 4
-    case All = 7
-}
-
 /**
  `OneSignal` provides a high level interface to interact with OneSignal's push service.
  `OneSignal` can only be globally accessed with shared configuration settings. You cannot create an instance of this class.
@@ -49,35 +34,40 @@ enum NotificationType : Int {
         case ONE_S_LL_VERBOSE = 6
     }
     
-    static var SDKType = "native"
-    static var nsLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_WARN
-    static var visualLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_NONE
+    /* Object that conforms to UNUserNOtificationCenterDelegate */
+    @available(iOS 10.0, *)
+    public static var notificationCenterDelegate : OneSignalNotificationCenterDelegate?
+    static var oneSignalObject = OneSignal()
     
     static var app_id : String!
-    static var deviceModel : NSString!
-    static var systemVersion : NSString!
-    static var lastMessageReceived : NSDictionary!
-    static var disableBadgeClearing = false
-    static var tagsToSend : NSMutableDictionary!
-    static var emailToSet : NSString!
-    static var deviceToken : NSString? = nil
-    static var tokenUpdateSuccessBlock : OneSignalResultSuccessBlock!
-    static var tokenUpdateFailureBlock : OneSignalFailureBlock!
-    static var userId : NSString? = nil
-    static var httpClient : OneSignalHTTPClient!
-    static var idsAvailableBlockWhenReady : OneSignalIdsAvailableBlock!
-    static var handleNotification : OneSignalHandleNotificationBlock!
-    static var focusBackgroundTask : UIBackgroundTaskIdentifier!
     static var trackIAPPurchase : OneSignalTrackIAP!
     static var registeredWithApple = false
-    static var oneSignalReg = false
-    static var waitingForOneSReg = false
+    static var focusBackgroundTask : UIBackgroundTaskIdentifier!
     static var lastTrackedTime : NSNumber!
     static var unSentActiveTime : NSNumber!
     static var timeToPingWith : NSNumber!
-    static var notificationTypes = -1
-    static var subscriptionSet = true
+    static var tagsToSend : NSMutableDictionary!
+    static var emailToSet : NSString!
+    static var httpClient : OneSignalHTTPClient!
+    static var lastLocation : os_last_location!
     static var location_event_fired = false
+    static var SDKType = "native"
+    static var lastMessageReceived : NSDictionary!
+    static var subscriptionSet = true
+    static var userId : NSString? = nil
+    static var deviceModel : NSString!
+    static var systemVersion : NSString!
+    static var deviceToken : NSString? = nil
+    static var disableBadgeClearing = false
+    static var tokenUpdateSuccessBlock : OneSignalResultSuccessBlock!
+    static var tokenUpdateFailureBlock : OneSignalFailureBlock!
+    static var idsAvailableBlockWhenReady : OneSignalIdsAvailableBlock!
+    static var handleNotification : OneSignalHandleNotificationBlock!
+    static var oneSignalReg = false
+    static var waitingForOneSReg = false
+    static var notificationTypes = -1
+    static var nsLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_WARN
+    static var visualLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_NONE
     
     /* Starting v2.0, canot create an instance of this class. Pure static */
     private override init() {}
@@ -116,7 +106,8 @@ enum NotificationType : Int {
             self.deviceModel = String.fromCString(UnsafePointer($0))
         }
         
-        systemVersion = UIDevice.currentDevice().systemVersion
+        //!! TEMP : 9.3 until server bug fixed
+        systemVersion = "9.3"//UIDevice.currentDevice().systemVersion
 
         
         let defaults = NSUserDefaults.standardUserDefaults()
@@ -167,6 +158,11 @@ enum NotificationType : Int {
         
         if OneSignalTrackIAP.canTrack() {
             trackIAPPurchase = OneSignalTrackIAP()
+        }
+        
+        /* We are UNUserNotificationCenterDelegate */
+        if #available(iOS 10.0, *) {
+            OneSignal.registerAsUNNotificationCenterDelegate()
         }
     }
 

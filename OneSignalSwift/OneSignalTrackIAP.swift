@@ -57,13 +57,11 @@ class OneSignalTrackIAP : NSObject {
     }
     
     func getProductInfo(productIdentifiers: NSArray) {
-        
         let SKProductsRequestClass : AnyClass? = NSClassFromString("SKProductsRequest")
         let productsRequest : AnyObject? = SKProductsRequestClass?.alloc()
         (productsRequest as? NSObjectProtocol)?.performSelector(NSSelectorFromString("initWithProductIdentifiers:"), withObject: NSSet(array: productIdentifiers as [AnyObject]))
         productsRequest?.setValue(self, forKey: "delegate")
         (productsRequest as? NSObjectProtocol)?.performSelector(NSSelectorFromString("start"))
-        
     }
     
     func productsRequest(request: NSObject, didReceiveResponse response: NSObject) {
