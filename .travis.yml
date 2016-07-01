@@ -1,0 +1,23 @@
+language: objective-c
+osx_image: xcode7.3
+xcode_project: OneSignal.xcodeproj
+xcode_workspace: OneSignalSwift.xcworkspace
+xcode_scheme: OneSignalSwiftTests
+xcode_sdk: iphonesimulator9.3
+env:
+  global:
+  - FRAMEWORK_NAME=OneSignal
+before_install:
+- brew update
+- brew outdated carthage || brew upgrade carthage
+before_script: 
+before_deploy:
+- carthage build --no-skip-current
+- carthage archive OneSignal
+deploy:
+  provider: releases
+  api_key:
+    secure: dH5QwsKwpEaQPPxwoaRX1UkhIPnEC6oOPofuafYJIUAE4VQslwMJET048gAGks32hEumhSNxR6Ym+slOQfpCWbdSn9Qkg4lEK1ZbOPARyweG2e2KXY5+NBdIrXY7NNy3rNjoI/sR28zNcnw2d+daHSkiLaUjdRh8LVeFL+hfnG4TEtYP3A8Sc0UsHU+uZX/NVHIfefxC77gcmEDPQwpP3oXKqmgmyC+PJtLJ+YkQnL2GIyrqwhk389V6y9KgaOzpl5y7lOeoOuLK96YLNeKAJIJEpoPWgyjB/KOr2c0GCNcX/6uL1EkhikevzNw5OMmRyfffYSYmi6CSxdM8eu4QIx4MTMBOyD2rTeMJG9XLcFRpXpvDzwzQ87H6pCzv8fkgror/EjZ1pmGHOD7o6Lzyisdt4lrZsmzIWSwYq2dyHj+HBBrQFLKeQwlIOJnO+/TX+44m1ZSXAKwEbqB/PR2tCKnlbOmTj3JQciUe+HdLdISD6pzakunh1bR4TuUqG64pGSo9aO0TsSPb7fc6xjORQmSvj9/IbmZG5kkAkIouVyOY1WfBEiDeFCOzzD3NosEj71IUjOHDLqPMHgyJ82gmvaa4rc9yzg0YtCLR09UJJUFwRBW6QZFVEz72wTsdkg9Lxc8V/4CI1uL2rVv6UNjwU7ALkqx9J8l5BF0YlS3cs28=
+  file: OneSignal.framework.zip
+  on:
+    repo: OneSignal/OneSignal-iOS-SDK
