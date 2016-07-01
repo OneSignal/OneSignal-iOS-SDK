@@ -19,8 +19,8 @@ extension OneSignal {
             if pairs != nil { self.sendTags(pairs!) }
         }
         catch let error as NSError {
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "sendTags JSON Parse Error: \(error)")
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "sendTags JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(.WARN, message: "sendTags JSON Parse Error: \(error)")
+            OneSignal.onesignal_Log(.WARN, message: "sendTags JSON Parse Error, JSON: \(jsonString)")
         }
     }
     
@@ -118,8 +118,8 @@ extension OneSignal {
             }
         }
         catch let error as NSError {
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error: \(error)");
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "deleteTags JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(.WARN, message: "deleteTags JSON Parse Error: \(error)");
+            OneSignal.onesignal_Log(.WARN, message: "deleteTags JSON Parse Error, JSON: \(jsonString)")
         }
     }
     

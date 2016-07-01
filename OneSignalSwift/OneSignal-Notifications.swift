@@ -110,7 +110,7 @@ extension OneSignal {
         self.deviceToken = deviceToken
         let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
         let dataDic = NSDictionary(objects: [app_id, deviceToken], forKeys: ["app_id", "identifier"])
-        OneSignal.onesignal_Log(.ONE_S_LL_VERBOSE, message: "Calling OneSignal PUT updated pushToken!")
+        OneSignal.onesignal_Log(.VERBOSE, message: "Calling OneSignal PUT updated pushToken!")
         
         var postData : NSData? = nil
         do {
@@ -212,7 +212,7 @@ extension OneSignal {
             OneSignal.lastLocation = nil
         }
         
-        OneSignal.onesignal_Log(.ONE_S_LL_VERBOSE, message: "Calling OneSignal create/on_session")
+        OneSignal.onesignal_Log(.VERBOSE, message: "Calling OneSignal create/on_session")
         
         var postData : NSData? = nil
         do {
@@ -263,7 +263,7 @@ extension OneSignal {
         }) { (error) in
             self.oneSignalReg = false
             self.waitingForOneSReg = false
-            OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Error registering with OneSignal: \(error)")
+            OneSignal.onesignal_Log(.ERROR, message: "Error registering with OneSignal: \(error)")
         }
         
     }

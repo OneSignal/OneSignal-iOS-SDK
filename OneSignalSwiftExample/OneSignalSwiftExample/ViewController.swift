@@ -11,14 +11,19 @@ import OneSignal
 
 class ViewController: UIViewController {
     
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        OneSignal.IdsAvailable { (userid, token) in
+            if token != nil { self.appDelegate.userid = userid }
+        }
     }
     
     /* Sends a notification to the device itself */
     @IBAction func push(sender: AnyObject) {
         print("Sending Test Notification to this device.")
-        OneSignal.postNotification(["contents": ["en": "Test Message"], "include_player_ids": [(UIApplication.sharedApplication().delegate as! AppDelegate).userid!]], onSuccess: { (results) in
+        OneSignal.postNotification(["contents": ["en": "Test Message"], "include_player_ids": [appDelegate.userid!]], onSuccess: { (results) in
             print(results)
             }, onFailure: { (error) in
                 print(error.localizedDescription)

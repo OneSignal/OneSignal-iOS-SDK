@@ -58,11 +58,11 @@ class OneSignalMobileProvision : NSObject {
 
         let scanner = NSScanner(string: binaryString! as String)
         var ok = scanner.scanUpToString("<plist", intoString: nil)
-        if !ok { OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Unable to find beginning of plist") ; return nil }
+        if !ok { OneSignal.onesignal_Log(.ERROR, message: "Unable to find beginning of plist") ; return nil }
         
         var plistString : NSString? = ""
         ok = scanner.scanUpToString("</plist>", intoString: &plistString)
-        if !ok { OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Unable to find end of plist") ; return nil }
+        if !ok { OneSignal.onesignal_Log(.ERROR, message: "Unable to find end of plist") ; return nil }
         
         plistString = (plistString! as String) + "</plist>"
         
@@ -73,7 +73,7 @@ class OneSignalMobileProvision : NSObject {
                 mobileProvision = try NSPropertyListSerialization.propertyListWithData(plistdata_latin1, options: NSPropertyListReadOptions.Immutable, format: nil) as? NSDictionary
             }
             catch let error as NSError {
-                OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Error parsing extracted plist - \(error)")
+                OneSignal.onesignal_Log(.ERROR, message: "Error parsing extracted plist - \(error)")
             }
         }
         
@@ -90,7 +90,7 @@ class OneSignalMobileProvision : NSObject {
         
         if let mobileProvision = getMobileProvision() {
             
-           // OneSignal.onesignal_Log(OneSignal..ONE_S_LL_DEBUG, message: "mobileProvision: \(mobileProvision)")
+           // OneSignal.onesignal_Log(.OneSignal.DEBUG, message: "mobileProvision: \(mobileProvision)")
             let entitlements = mobileProvision.objectForKey("Entitlements") as? NSDictionary
             if mobileProvision.count == 0 {
                 if TARGET_IPHONE_SIMULATOR != 0 { return .UIApplicationReleaseSim}
@@ -107,7 +107,7 @@ class OneSignalMobileProvision : NSObject {
         }
         else {
             
-            OneSignal.onesignal_Log(.ONE_S_LL_DEBUG, message: "mobileProvision not found")
+            OneSignal.onesignal_Log(.DEBUG, message: "mobileProvision not found")
             return .UIApplicationReleaseUnknown
         }
         

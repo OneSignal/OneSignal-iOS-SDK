@@ -43,12 +43,12 @@ class OneSignalLocation : NSObject {
         
         
         if clLocationManagerClass == nil {
-            OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "No CLLocationManager Class. Need to import Core Location first.")
+            OneSignal.onesignal_Log(.ERROR, message: "No CLLocationManager Class. Need to import Core Location first.")
             return
         }
         
         if OneSignalLocationHelper.getLocationServicesEnabled() == false {
-            OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Could not implement location services. Make sure to add NSLocationWhenInUseUsageDescription to you Info.plist file.")
+            OneSignal.onesignal_Log(.ERROR, message: "Could not implement location services. Make sure to add NSLocationWhenInUseUsageDescription to you Info.plist file.")
             return
         }
         

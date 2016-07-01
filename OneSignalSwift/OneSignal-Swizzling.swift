@@ -16,12 +16,12 @@ extension OneSignal : UIApplicationDelegate{
         let trimmedDeviceToken = inDeviceToken.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
         let parsedDeviceToken = (trimmedDeviceToken.componentsSeparatedByString(" ") as NSArray).componentsJoinedByString("")
         
-        OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
+        OneSignal.onesignal_Log(.INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
         
         self.registerDeviceToken(parsedDeviceToken, onSuccess: { (results) in
-            OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "Device Registered With OneSignal: \(self.userId!)")
+            OneSignal.onesignal_Log(.INFO, message: "Device Registered With OneSignal: \(self.userId!)")
             }) { (error) in
-                OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "Error in OneSignal registration: \(error)")
+                OneSignal.onesignal_Log(.INFO, message: "Error in OneSignal registration: \(error)")
         }
     }
     
@@ -83,7 +83,7 @@ extension OneSignal : UIApplicationDelegate{
     @available(iOS 10.0, *)
     static func prepareUNNotificationRequest(data : [String : AnyObject], userInfo : NSDictionary) -> UNNotificationRequest {
         
-        
+        print(userInfo)
         var actionArray : [UNNotificationAction] = []
         if let buttons = data["o"] as? [[String : String]] {
             for button in buttons {
@@ -122,6 +122,48 @@ extension OneSignal : UIApplicationDelegate{
         }
         
         content.badge = data["b"] as? NSNumber
+        
+        
+        //Check if media attached
+        //!! TEMP : Until Server implements Media Dict, use additional data dict as key val media
+        if let custom = userInfo["custom"] as? NSDictionary,
+            additional = custom["a"] as? [String : String] {
+            for (id, URI) in additional {
+                /* Remote Object */
+                if OneSignal.verifyUrl(URI) {
+                    /* Synchroneously download file and chache it */
+                    let name = OneSignal.downloadMediaAndSaveInBundle(URI)
+                    if name == nil { continue }
+                    let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+                    let filePath = (paths[0] as NSString).stringByAppendingPathComponent(name!)
+                    let url = NSURL(fileURLWithPath: filePath)
+                    var attachment : UNNotificationAttachment!
+                    do { attachment = try UNNotificationAttachment(identifier:id, URL: url, options: nil) }
+                    catch _ {}
+                    if attachment != nil {
+                        content.attachments.append(attachment)
+                        print("Attachment added")
+                    }
+                }
+                    
+                /* Local in bundle resources */
+                else {
+                    var files = URI.componentsSeparatedByString(".")
+                    if files.count < 2 {continue}
+                    let fileExtension = files.last!
+                    files.removeLast()
+                    let name = files.joinWithSeparator(".")
+                    // Make sure reesource exists
+                    if let url = NSBundle.mainBundle().URLForResource(name, withExtension: fileExtension) {
+                        var attachment : UNNotificationAttachment!
+                        do { attachment = try UNNotificationAttachment(identifier:id, URL: url, options: nil) }
+                        catch _ {}
+                        if attachment != nil {content.attachments.append(attachment)}
+                    }
+                }
+            }
+        }
+        
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.25, repeats: false)
         let notification = UNNotificationRequest(identifier: "dynamic", content: content, trigger: trigger)

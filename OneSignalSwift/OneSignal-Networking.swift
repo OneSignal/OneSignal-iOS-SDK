@@ -36,13 +36,13 @@ extension OneSignal {
             
             let resultsString = NSString(data: jsonData!, encoding: NSUTF8StringEncoding)
             
-            OneSignal.onesignal_Log(.ONE_S_LL_DEBUG, message: "HTTP Create Notification Success \(resultsString!)")
+            OneSignal.onesignal_Log(.DEBUG, message: "HTTP Create Notification Success \(resultsString!)")
             
             if successBlock != nil {successBlock!(results)}
             
             }) { (error) in
-                OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Create Notification Failed")
-                OneSignal.onesignal_Log(.ONE_S_LL_INFO, message: "\(error)")
+                OneSignal.onesignal_Log(.ERROR, message: "Create Notification Failed")
+                OneSignal.onesignal_Log(.INFO, message: "\(error)")
                 if failureBlock != nil { failureBlock!(error) }
         }
     }
@@ -53,8 +53,8 @@ extension OneSignal {
         var jsonData : NSDictionary? = nil
         do { jsonData = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions(rawValue: UInt(0))) as? NSDictionary }
         catch let error as NSError {
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "postNotification JSON Parse Error: \(error)")
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "postNotification JSON Parse Error, JSON: \(jsonString)")
+            OneSignal.onesignal_Log(.WARN, message: "postNotification JSON Parse Error: \(error)")
+            OneSignal.onesignal_Log(.WARN, message: "postNotification JSON Parse Error, JSON: \(jsonString)")
             return
         }
         
@@ -67,7 +67,7 @@ extension OneSignal {
     
     static func enqueueRequest(request : NSURLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?, isSynchronous : Bool) {
         
-       // OneSignal.onesignal_Log(..ONE_S_LL_VERBOSE, message: "request.body: \(NSString(data: request.HTTPBody!, encoding: NSUTF8StringEncoding)!)")
+       // OneSignal.onesignal_Log(...ONE_S_LL_VERBOSE, message: "request.body: \(NSString(data: request.HTTPBody!, encoding: NSUTF8StringEncoding)!)")
         
             var response : NSURLResponse?
             var err : NSError?

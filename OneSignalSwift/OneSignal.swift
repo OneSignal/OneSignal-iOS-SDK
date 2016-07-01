@@ -24,16 +24,6 @@ import Foundation
 
 @objc(OneSignal) public class OneSignal : NSObject {
     
-    public enum ONE_S_LOG_LEVEL : Int {
-        case ONE_S_LL_NONE = 0
-        case ONE_S_LL_FATAL = 1
-        case ONE_S_LL_ERROR = 2
-        case ONE_S_LL_WARN = 3
-        case ONE_S_LL_INFO = 4
-        case ONE_S_LL_DEBUG = 5
-        case ONE_S_LL_VERBOSE = 6
-    }
-    
     /* Object that conforms to UNUserNOtificationCenterDelegate */
     @available(iOS 10.0, *)
     public static var notificationCenterDelegate : OneSignalNotificationCenterDelegate?
@@ -66,8 +56,8 @@ import Foundation
     static var oneSignalReg = false
     static var waitingForOneSReg = false
     static var notificationTypes = -1
-    static var nsLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_WARN
-    static var visualLogLevel : ONE_S_LOG_LEVEL = .ONE_S_LL_NONE
+    static var nsLogLevel : ONE_S_LOG_LEVEL = .WARN
+    static var visualLogLevel : ONE_S_LOG_LEVEL = .NONE
     
     /* Starting v2.0, canot create an instance of this class. Pure static */
     private override init() {}
@@ -77,12 +67,12 @@ import Foundation
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 {return}
         
         if NSUUID(UUIDString: appId as String) == nil {
-            OneSignal.onesignal_Log(.ONE_S_LL_FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
+            OneSignal.onesignal_Log(.FATAL, message: "OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n")
             return
         }
         
         if appId.isEqualToString("b2f7f966-d8cc-11eg-bed1-df8f05be55ba") || appId.isEqualToString("5eb5a37e-b458-11e3-ac11-000c2940e62c") {
-            OneSignal.onesignal_Log(.ONE_S_LL_WARN, message: "OneSignal Example AppID detected, please update to your app's id found on OneSignal.com\n")
+            OneSignal.onesignal_Log(.WARN, message: "OneSignal Example AppID detected, please update to your app's id found on OneSignal.com\n")
         }
         
         OneSignalLocation.getLocation(self, prompt: false)
@@ -108,7 +98,6 @@ import Foundation
         
         //!! TEMP : 9.3 until server bug fixed
         systemVersion = "9.3"//UIDevice.currentDevice().systemVersion
-
         
         let defaults = NSUserDefaults.standardUserDefaults()
         
@@ -135,11 +124,9 @@ import Foundation
             self.registerForPushNotifications()
         }
             
-        
         else if UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.registerForRemoteNotifications)) {
             UIApplication.sharedApplication().registerForRemoteNotifications()
         }
-        
         
         if userId != nil {
             registerUser()
@@ -164,6 +151,9 @@ import Foundation
         if #available(iOS 10.0, *) {
             OneSignal.registerAsUNNotificationCenterDelegate()
         }
+        
+        /* Clear cached media attachments (iOS 10+) */
+        OneSignal.clearCachedMedia()
     }
 
     

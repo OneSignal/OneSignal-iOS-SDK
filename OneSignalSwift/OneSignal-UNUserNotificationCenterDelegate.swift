@@ -94,14 +94,25 @@ extension OneSignal : UNUserNotificationCenterDelegate {
         if let delegate = OneSignal.notificationCenterDelegate {
             delegate.userNotificationCenter?(center, didReceiveNotificationResponse: response, withCompletionHandler: handler)
         }
+        else {
+            //Call the completion handler ourselves
+            handler()
+        }
     }
     
     // The method will be called on the delegate only if the application is in the foreground. If the method is not implemented or the handler is not called in a timely manner then the notification will not be presented. The application can choose to have the notification presented as a sound, badge, alert and/or in the notification list. This decision should be based on whether the information in the notification is otherwise visible to the user.
     
     public func userNotificationCenter(center: UNUserNotificationCenter, willPresentNotification notification: UNNotification, withCompletionHandler completionHandler: (UNNotificationPresentationOptions) -> Void) {
+        
+        
         /* Nothing interesting to do here, proxy to user only */
         if let delegate = OneSignal.notificationCenterDelegate {
             delegate.userNotificationCenter?(center, willPresentNotification: notification, withCompletionHandler: completionHandler)
+        }
+        
+        else {
+            //Call the completion handler ourselves
+            completionHandler(UNNotificationPresentationOptions(rawValue: 7))
         }
     }
     

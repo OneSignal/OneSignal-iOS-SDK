@@ -20,7 +20,7 @@ extension UIApplication {
     }
     
     func oneSignalDidFailRegisterForRemoteNotifications(app : UIApplication, error : NSError) {
-        OneSignal.onesignal_Log(.ONE_S_LL_ERROR, message: "Error registering for Apple push notifications. Error: \(error)")
+        OneSignal.onesignal_Log(.ERROR, message: "Error registering for Apple push notifications. Error: \(error)")
         
         if self.respondsToSelector(#selector(UIApplication.oneSignalDidFailRegisterForRemoteNotifications(_:error:))) {
             self.oneSignalDidFailRegisterForRemoteNotifications(app, error: error)
@@ -152,7 +152,7 @@ extension UIApplication {
             Make sure AppDelegate does not conform to this protocol */
         if #available(iOS 10.0, *) {
             if UIApplication.appDelegateClass!.conformsToProtocol(UNUserNotificationCenterDelegate) {
-                OneSignal.onesignal_Log(OneSignal.ONE_S_LOG_LEVEL.ONE_S_LL_ERROR, message: "Implementing iOS 10's UNUserNotificationCenterDelegate protocol will result in unexpected outcome. Instead, conform to our similar OneSignalNotificationCenterDelegate protocol.")
+                OneSignal.onesignal_Log(.ERROR, message: "Implementing iOS 10's UNUserNotificationCenterDelegate protocol will result in unexpected outcome. Instead, conform to our similar OneSignalNotificationCenterDelegate protocol.")
             }
         }
         

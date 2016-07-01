@@ -96,4 +96,90 @@ extension OneSignal {
         NSUserDefaults.standardUserDefaults().setBool(enable, forKey: "ONESIGNAL_INAPP_ALERT")
         NSUserDefaults.standardUserDefaults().synchronize()
     }
+    
+    static func verifyUrl (urlString: String?) -> Bool {
+        //Check for nil
+        if let urlString = urlString {
+            // create NSURL instance
+            if let url = NSURL(string: urlString) {
+                // check if your application can open the NSURL instance
+                return UIApplication.sharedApplication().canOpenURL(url)
+            }
+        }
+        return false
+    }
+    
+    //Synchroneously downloads a media
+    //On success returns bundle resource name, otherwise returns nil
+    static func downloadMediaAndSaveInBundle(url : String) -> String? {
+        
+        print("downloadMediaAndSaveInBundle: " + url)
+        
+        let supportedExtentions = ["aiff", "wav", "mp3", "mp4", "jpg", "jpeg", "png", "gif", "mpeg", "mpg", "avi", "m4a", "m4v"]
+        
+        let urlComponents = url.componentsSeparatedByString(".")
+        
+        //URL not to a file
+        if urlComponents.count < 2 { return nil}
+        let extention = urlComponents.last!
+        
+        //Unrecognized extention
+        if !supportedExtentions.contains(extention) { return nil }
+        
+        if let URL = NSURL(string: url), data = NSData(contentsOfURL: URL) {
+            // Generate random name, save file and return name
+            let name = OneSignal.randomStringWithLength(10) as String + "." + extention
+            print("generate name: " + name)
+            let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+            let filePath = (paths[0] as NSString).stringByAppendingPathComponent(name)
+            data.writeToFile(filePath, atomically: true)
+            
+            //Save array of cached files in defaults
+            if var cachedFiles = NSUserDefaults.standardUserDefaults().objectForKey("CACHED_MEDIA") as? [String] {
+                cachedFiles.append(name)
+                NSUserDefaults.standardUserDefaults().setObject(cachedFiles, forKey: "CACHED_MEDIA")
+                NSUserDefaults.standardUserDefaults().synchronize()
+            }
+            else {
+                let cachedFiles = [name]
+                NSUserDefaults.standardUserDefaults().setObject(cachedFiles, forKey: "CACHED_MEDIA")
+                NSUserDefaults.standardUserDefaults().synchronize()
+            }
+            
+            return name
+        }
+        else { return nil }
+    }
+    
+    //Called on init. Clear cache (not needed)
+    static func clearCachedMedia() {
+        if let cachedFiles = NSUserDefaults.standardUserDefaults().objectForKey("CACHED_MEDIA") as? [String] {
+            
+            let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+            
+            for file in cachedFiles {
+                let filePath = (paths[0] as NSString).stringByAppendingPathComponent(file)
+                do { try NSFileManager.defaultManager().removeItemAtPath(filePath)}
+                catch _ {}
+            }
+            
+            NSUserDefaults.standardUserDefaults().removeObjectForKey("CACHED_MEDIA")
+        }
+    }
+    
+    static func randomStringWithLength (len : Int) -> NSString {
+        
+        let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        
+        let randomString : NSMutableString = NSMutableString(capacity: len)
+        
+        for _ in 0 ..< len {
+            let length = UInt32 (letters.length)
+            let rand = arc4random_uniform(length)
+            randomString.appendFormat("%C", letters.characterAtIndex(Int(rand)))
+        }
+        
+        return randomString
+    }
+
 }
