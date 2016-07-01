@@ -1,0 +1,10 @@
+framework module OneSignalSwift {
+  umbrella header "OneSignalSwift.h"
+
+  export *
+  module * { export * }
+}
+
+module OneSignalSwift.__Swift {
+    exclude header "OneSignalSwift-Swift.h"
+}
