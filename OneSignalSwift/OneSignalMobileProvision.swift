@@ -90,10 +90,10 @@ class OneSignalMobileProvision : NSObject {
         
         if let mobileProvision = getMobileProvision() {
             
-           // OneSignal.onesignal_Log(.OneSignal.DEBUG, message: "mobileProvision: \(mobileProvision)")
+           // OneSignal.onesignal_Log(.DBG, message: "mobileProvision: \(mobileProvision)")
             let entitlements = mobileProvision.objectForKey("Entitlements") as? NSDictionary
             if mobileProvision.count == 0 {
-                if TARGET_IPHONE_SIMULATOR != 0 { return .UIApplicationReleaseSim}
+                if TARGET_OS_SIMULATOR != 0 { return .UIApplicationReleaseSim}
                 return .UIApplicationReleaseAppStore
             }
             else if (mobileProvision.objectForKey("ProvisionsAllDevices") as? NSNumber)?.boolValue == true {
@@ -107,7 +107,7 @@ class OneSignalMobileProvision : NSObject {
         }
         else {
             
-            OneSignal.onesignal_Log(.DEBUG, message: "mobileProvision not found")
+            OneSignal.onesignal_Log(.DBG, message: "mobileProvision not found")
             return .UIApplicationReleaseUnknown
         }
         

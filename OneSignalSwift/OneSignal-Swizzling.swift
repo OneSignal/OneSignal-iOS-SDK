@@ -28,6 +28,31 @@ extension OneSignal : UIApplicationDelegate{
     
     /* Pre iOS 10.0 Use UIUserNotificationAction & UILocalNotification */
     static func prepareUILocalNotification(data : [String : AnyObject], userInfo : NSDictionary) -> UILocalNotification {
+        
+        let notification = createUILocalNotification(data)
+        
+        if let m = data["m"] as? [String : String] {
+            if #available(iOS 8.2, *) {notification.alertTitle = m["title"] }
+            notification.alertBody = m["body"]
+        }
+        else if let m = data["m"] as? String {
+            notification.alertBody = m
+        }
+        notification.userInfo = userInfo as [NSObject : AnyObject]
+        notification.soundName = data["s"] as? String
+        if notification.soundName == nil {
+            notification.soundName = UILocalNotificationDefaultSoundName
+        }
+        
+        if let badge = data["b"] as? NSNumber {
+            notification.applicationIconBadgeNumber = badge.integerValue
+        }
+        
+        return notification
+    }
+    
+    @available(iOS 8.0, *)
+    static func createUILocalNotification(data : [String : AnyObject]) -> UILocalNotification {
         let notification = UILocalNotification()
         let category = UIMutableUserNotificationCategory()
         category.identifier = "dynamic"
@@ -57,116 +82,7 @@ extension OneSignal : UIApplicationDelegate{
         let notificationType = UIUserNotificationType(rawValue: UInt(notificationTypes.rawValue))
         let notificationSettings = UIUserNotificationSettings(forTypes: notificationType, categories: set)
         UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
-        
         notification.category = category.identifier
-        if let m = data["m"] as? [String : String] {
-            if #available(iOS 8.2, *) {notification.alertTitle = m["title"] }
-            notification.alertBody = m["body"]
-        }
-        else if let m = data["m"] as? String {
-            notification.alertBody = m
-        }
-        notification.userInfo = userInfo as [NSObject : AnyObject]
-        notification.soundName = data["s"] as? String
-        if notification.soundName == nil {
-            notification.soundName = UILocalNotificationDefaultSoundName
-        }
-        
-        if let badge = data["b"] as? NSNumber {
-            notification.applicationIconBadgeNumber = badge.integerValue
-        }
-        
-        return notification
-    }
-    
-    
-    @available(iOS 10.0, *)
-    static func prepareUNNotificationRequest(data : [String : AnyObject], userInfo : NSDictionary) -> UNNotificationRequest {
-        
-        print(userInfo)
-        var actionArray : [UNNotificationAction] = []
-        if let buttons = data["o"] as? [[String : String]] {
-            for button in buttons {
-                let title = button["n"] != nil ? button["n"]! : ""
-                let identifier = (button["i"] != nil) ? button["i"]! : title
-                let action = UNNotificationAction(identifier: identifier, title: title, options: .Foreground)
-                actionArray.append(action)
-            }
-        }
-        
-        if actionArray.count == 2 { actionArray = actionArray.reverse() }
-        
-        let category = UNNotificationCategory(identifier: "dyanamic", actions: actionArray, minimalActions: [], intentIdentifiers: [], options: .None)
-        let set = Set<UNNotificationCategory>(arrayLiteral: category)
-        UNUserNotificationCenter.currentNotificationCenter().setNotificationCategories(set)
-        
-        
-        let content = UNMutableNotificationContent()
-        content.categoryIdentifier = "dyanamic"
-        
-        if let m = data["m"] as? [String : String] {
-            if let title = m["title"] { content.title = title }
-            if let body = m["body"] { content.body = body }
-        }
-        else if let m = data["m"] as? String {
-            content.body = m
-        }
-        
-        content.userInfo = userInfo as [NSObject : AnyObject]
-        
-        if let sound = data["s"] as? String {
-            content.sound = UNNotificationSound(named: sound)
-        }
-        else {
-            content.sound = UNNotificationSound.defaultSound()
-        }
-        
-        content.badge = data["b"] as? NSNumber
-        
-        
-        //Check if media attached
-        //!! TEMP : Until Server implements Media Dict, use additional data dict as key val media
-        if let custom = userInfo["custom"] as? NSDictionary,
-            additional = custom["a"] as? [String : String] {
-            for (id, URI) in additional {
-                /* Remote Object */
-                if OneSignal.verifyUrl(URI) {
-                    /* Synchroneously download file and chache it */
-                    let name = OneSignal.downloadMediaAndSaveInBundle(URI)
-                    if name == nil { continue }
-                    let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
-                    let filePath = (paths[0] as NSString).stringByAppendingPathComponent(name!)
-                    let url = NSURL(fileURLWithPath: filePath)
-                    var attachment : UNNotificationAttachment!
-                    do { attachment = try UNNotificationAttachment(identifier:id, URL: url, options: nil) }
-                    catch _ {}
-                    if attachment != nil {
-                        content.attachments.append(attachment)
-                        print("Attachment added")
-                    }
-                }
-                    
-                /* Local in bundle resources */
-                else {
-                    var files = URI.componentsSeparatedByString(".")
-                    if files.count < 2 {continue}
-                    let fileExtension = files.last!
-                    files.removeLast()
-                    let name = files.joinWithSeparator(".")
-                    // Make sure reesource exists
-                    if let url = NSBundle.mainBundle().URLForResource(name, withExtension: fileExtension) {
-                        var attachment : UNNotificationAttachment!
-                        do { attachment = try UNNotificationAttachment(identifier:id, URL: url, options: nil) }
-                        catch _ {}
-                        if attachment != nil {content.attachments.append(attachment)}
-                    }
-                }
-            }
-        }
-        
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.25, repeats: false)
-        let notification = UNNotificationRequest(identifier: "dynamic", content: content, trigger: trigger)
         return notification
     }
     
@@ -180,8 +96,10 @@ extension OneSignal : UIApplicationDelegate{
         if data != nil {
             
             if #available(iOS 10.0, *) {
-                let notificationRequest = prepareUNNotificationRequest(data!, userInfo : userInfo)
-                UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(notificationRequest, withCompletionHandler: nil)
+                let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+                if (oneSignalClass as? NSObjectProtocol)?.respondsToSelector(NSSelectorFromString("addnotficationRequest")) == true {
+                    (oneSignalClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("addnotficationRequest"), withObject: data!, withObject: userInfo)
+                }
             }
             else {
                 let notification = prepareUILocalNotification(data!, userInfo : userInfo)

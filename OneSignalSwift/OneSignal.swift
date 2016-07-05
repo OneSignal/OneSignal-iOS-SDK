@@ -22,16 +22,20 @@ import Foundation
  Follow the documentation from http://documentation.gamethrive.com/v1.0/docs/installing-the-gamethrive-ios-sdk to setup with your game.
  */
 
-@objc(OneSignal) public class OneSignal : NSObject {
+let ONESIGNAL_VERSION = "011303"
+let DEFAULT_PUSH_HOST = "https://onesignal.com/api/v1/"
+
+public typealias OneSignalResultSuccessBlock = (NSDictionary) -> Void
+public typealias OneSignalFailureBlock = (NSError) -> Void
+public typealias OneSignalIdsAvailableBlock = (NSString, NSString?) -> Void
+public typealias OneSignalHandleNotificationBlock = (NSString, NSDictionary, Bool) -> Void
+
+public class OneSignal : NSObject {
     
-    /* Object that conforms to UNUserNOtificationCenterDelegate */
-    @available(iOS 10.0, *)
-    public static var notificationCenterDelegate : OneSignalNotificationCenterDelegate?
     static var oneSignalObject = OneSignal()
     
     static var app_id : String!
     static var trackIAPPurchase : OneSignalTrackIAP!
-    static var registeredWithApple = false
     static var focusBackgroundTask : UIBackgroundTaskIdentifier!
     static var lastTrackedTime : NSNumber!
     static var unSentActiveTime : NSNumber!
@@ -96,8 +100,7 @@ import Foundation
             self.deviceModel = String.fromCString(UnsafePointer($0))
         }
         
-        //!! TEMP : 9.3 until server bug fixed
-        systemVersion = "9.3"//UIDevice.currentDevice().systemVersion
+        systemVersion = UIDevice.currentDevice().systemVersion
         
         let defaults = NSUserDefaults.standardUserDefaults()
         
@@ -112,20 +115,15 @@ import Foundation
         
         userId = defaults.stringForKey("GT_PLAYER_ID")
         deviceToken = defaults.stringForKey("GT_DEVICE_TOKEN")
-        if isCapableOfGettingNotificationTypes() {
-            registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil
-        }
+        
         notificationTypes = getNotificationTypes()
         
         subscriptionSet = defaults.objectForKey("ONESIGNAL_SUBSCRIPTION") == nil
         
         // Register this device with Apple's APNS server.
+        let registeredWithApple = UIApplication.sharedApplication().currentUserNotificationSettings() != nil
         if autoRegister || registeredWithApple {
             self.registerForPushNotifications()
-        }
-            
-        else if UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.registerForRemoteNotifications)) {
-            UIApplication.sharedApplication().registerForRemoteNotifications()
         }
         
         if userId != nil {
@@ -149,7 +147,10 @@ import Foundation
         
         /* We are UNUserNotificationCenterDelegate */
         if #available(iOS 10.0, *) {
-            OneSignal.registerAsUNNotificationCenterDelegate()
+            let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+            if (oneSignalClass as? NSObjectProtocol)?.respondsToSelector(NSSelectorFromString("registerAsUNNotificationCenterDelegate")) == true {
+               (oneSignalClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("registerAsUNNotificationCenterDelegate"))
+            }
         }
         
         /* Clear cached media attachments (iOS 10+) */

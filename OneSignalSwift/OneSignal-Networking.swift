@@ -36,7 +36,7 @@ extension OneSignal {
             
             let resultsString = NSString(data: jsonData!, encoding: NSUTF8StringEncoding)
             
-            OneSignal.onesignal_Log(.DEBUG, message: "HTTP Create Notification Success \(resultsString!)")
+            OneSignal.onesignal_Log(.DBG, message: "HTTP Create Notification Success \(resultsString!)")
             
             if successBlock != nil {successBlock!(results)}
             
@@ -66,8 +66,6 @@ extension OneSignal {
     }
     
     static func enqueueRequest(request : NSURLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?, isSynchronous : Bool) {
-        
-       // OneSignal.onesignal_Log(...ONE_S_LL_VERBOSE, message: "request.body: \(NSString(data: request.HTTPBody!, encoding: NSUTF8StringEncoding)!)")
         
             var response : NSURLResponse?
             var err : NSError?

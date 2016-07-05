@@ -24,7 +24,7 @@ extension OneSignal {
             case .ERROR: levelString = "ERROR: "
             case .WARN: levelString = "WARN: "
             case .INFO: levelString = "INFO: "
-            case .DEBUG: levelString = "DEBUG: "
+            case .DBG: levelString = "DEBUG: "
             case .VERBOSE: levelString = "VERBOSE: "
             default: break
         }

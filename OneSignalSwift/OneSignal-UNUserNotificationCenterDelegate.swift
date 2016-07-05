@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 @available(iOS 10.0, *)
 @objc public protocol OneSignalNotificationCenterDelegate {
@@ -16,6 +17,10 @@ import Foundation
 
 @available(iOS 10.0, *)
 extension OneSignal : UNUserNotificationCenterDelegate {
+    
+    /* Object that conforms to UNUserNotificationCenterDelegate */
+    @available(iOS 10.0, *)
+    @nonobjc public static var notificationCenterDelegate : OneSignalNotificationCenterDelegate? = nil
     
     // The method will be called on the delegate when the user responded to the notification by opening the application, dismissing the notification or choosing a UNNotificationAction. The delegate must be set before the application returns from applicationDidFinishLaunching:.
     public func userNotificationCenter(center: UNUserNotificationCenter, didReceiveNotificationResponse response: UNNotificationResponse, withCompletionHandler completionHandler: () -> Void) {
@@ -118,6 +123,115 @@ extension OneSignal : UNUserNotificationCenterDelegate {
     
     static func registerAsUNNotificationCenterDelegate() {
         UNUserNotificationCenter.currentNotificationCenter().delegate = OneSignal.oneSignalObject
+    }
+    
+    @available(iOS 10.0, *)
+    static func addnotficationRequest(data : [String : AnyObject], userInfo : NSDictionary) {
+        let notificationRequest = prepareUNNotificationRequest(data, userInfo : userInfo)
+        UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(notificationRequest, withCompletionHandler: nil)
+    }
+    
+    @available(iOS 10.0, *)
+    static func requestAuthorization () {
+        UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(UNAuthorizationOptions(rawValue: 7), completionHandler: { (result, error) in })
+    }
+    
+    @available(iOS 10.0, *)
+    static func conformsToUNProtocol() {
+        if UIApplication.appDelegateClass!.conformsToProtocol(UNUserNotificationCenterDelegate) {
+            OneSignal.onesignal_Log(.ERROR, message: "Implementing iOS 10's UNUserNotificationCenterDelegate protocol will result in unexpected outcome. Instead, conform to our similar OneSignalNotificationCenterDelegate protocol.")
+        }
+    }
+    
+    
+    @available(iOS 10.0, *)
+    static func prepareUNNotificationRequest(data : [String : AnyObject], userInfo : NSDictionary) -> UNNotificationRequest {
+        
+        print(userInfo)
+        var actionArray : [UNNotificationAction] = []
+        if let buttons = data["o"] as? [[String : String]] {
+            for button in buttons {
+                let title = button["n"] != nil ? button["n"]! : ""
+                let identifier = (button["i"] != nil) ? button["i"]! : title
+                let action = UNNotificationAction(identifier: identifier, title: title, options: .Foreground)
+                actionArray.append(action)
+            }
+        }
+        
+        if actionArray.count == 2 { actionArray = actionArray.reverse() }
+        
+        let category = UNNotificationCategory(identifier: "dyanamic", actions: actionArray, minimalActions: [], intentIdentifiers: [], options: .None)
+        let set = Set<UNNotificationCategory>(arrayLiteral: category)
+        UNUserNotificationCenter.currentNotificationCenter().setNotificationCategories(set)
+        
+        
+        let content = UNMutableNotificationContent()
+        content.categoryIdentifier = "dyanamic"
+        
+        if let m = data["m"] as? [String : String] {
+            if let title = m["title"] { content.title = title }
+            if let body = m["body"] { content.body = body }
+        }
+        else if let m = data["m"] as? String {
+            content.body = m
+        }
+        
+        content.userInfo = userInfo as [NSObject : AnyObject]
+        
+        if let sound = data["s"] as? String {
+            content.sound = UNNotificationSound(named: sound)
+        }
+        else {
+            content.sound = UNNotificationSound.defaultSound()
+        }
+        
+        content.badge = data["b"] as? NSNumber
+        
+        
+        //Check if media attached
+        //!! TEMP : Until Server implements Media Dict, use additional data dict as key val media
+        if let custom = userInfo["custom"] as? NSDictionary,
+            additional = custom["a"] as? [String : String] {
+            for (id, URI) in additional {
+                /* Remote Object */
+                if OneSignal.verifyUrl(URI) {
+                    /* Synchroneously download file and chache it */
+                    let name = OneSignal.downloadMediaAndSaveInBundle(URI)
+                    if name == nil { continue }
+                    let paths = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+                    let filePath = (paths[0] as NSString).stringByAppendingPathComponent(name!)
+                    let url = NSURL(fileURLWithPath: filePath)
+                    var attachment : UNNotificationAttachment!
+                    do { attachment = try UNNotificationAttachment(identifier:id, URL: url, options: nil) }
+                    catch _ {}
+                    if attachment != nil {
+                        content.attachments.append(attachment)
+                        print("Attachment added")
+                    }
+                }
+                    
+                    /* Local in bundle resources */
+                else {
+                    var files = URI.componentsSeparatedByString(".")
+                    if files.count < 2 {continue}
+                    let fileExtension = files.last!
+                    files.removeLast()
+                    let name = files.joinWithSeparator(".")
+                    // Make sure reesource exists
+                    if let url = NSBundle.mainBundle().URLForResource(name, withExtension: fileExtension) {
+                        var attachment : UNNotificationAttachment!
+                        do { attachment = try UNNotificationAttachment(identifier:id, URL: url, options: nil) }
+                        catch _ {}
+                        if attachment != nil {content.attachments.append(attachment)}
+                    }
+                }
+            }
+        }
+        
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.25, repeats: false)
+        let notification = UNNotificationRequest(identifier: "dynamic", content: content, trigger: trigger)
+        return notification
     }
     
 }

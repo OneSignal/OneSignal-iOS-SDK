@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 extension UIApplication {
     
     func oneSignalDidRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
@@ -46,7 +47,6 @@ extension UIApplication {
         }
         else {
             completionHandler(UIBackgroundFetchResult.NewData)
-            
         }
     }
     
@@ -130,9 +130,10 @@ extension UIApplication {
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)))
         
+        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegisterUserNotificationSettings:)))
+        
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidFailRegisterForRemoteNotifications(_:error:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didFailToRegisterForRemoteNotificationsWithError:)))
         
-        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegisterUserNotificationSettings:)))
         
         if NSClassFromString("CoronaAppDelegate") != nil {
             self.setOneSignalDelegate(delegate)
@@ -151,8 +152,9 @@ extension UIApplication {
         /* iOS 10.0: UNUserNotificationCenterDelegate instead of UIApplicationDelegate for methods handling opening app from notification
             Make sure AppDelegate does not conform to this protocol */
         if #available(iOS 10.0, *) {
-            if UIApplication.appDelegateClass!.conformsToProtocol(UNUserNotificationCenterDelegate) {
-                OneSignal.onesignal_Log(.ERROR, message: "Implementing iOS 10's UNUserNotificationCenterDelegate protocol will result in unexpected outcome. Instead, conform to our similar OneSignalNotificationCenterDelegate protocol.")
+            let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+            if (oneSignalClass as? NSObjectProtocol)?.respondsToSelector(NSSelectorFromString("conformsToUNProtocol")) == true {
+                (oneSignalClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("conformsToUNProtocol"))
             }
         }
         

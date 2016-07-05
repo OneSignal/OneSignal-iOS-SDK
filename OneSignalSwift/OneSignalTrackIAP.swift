@@ -63,7 +63,7 @@ class OneSignalTrackIAP : NSObject {
         productsRequest?.setValue(self, forKey: "delegate")
         (productsRequest as? NSObjectProtocol)?.performSelector(NSSelectorFromString("start"))
     }
-    
+
     func productsRequest(request: NSObject, didReceiveResponse response: NSObject) {
         let arrayOfPurchases = NSMutableArray()
         
@@ -85,6 +85,5 @@ class OneSignalTrackIAP : NSObject {
             }
         }
     }
-    
     
 }

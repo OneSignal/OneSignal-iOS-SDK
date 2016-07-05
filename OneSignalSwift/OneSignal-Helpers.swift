@@ -119,7 +119,7 @@ extension OneSignal {
         
         let urlComponents = url.componentsSeparatedByString(".")
         
-        //URL not to a file
+        //URL is not to a file
         if urlComponents.count < 2 { return nil}
         let extention = urlComponents.last!
         

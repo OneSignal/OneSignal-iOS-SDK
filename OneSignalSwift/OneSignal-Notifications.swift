@@ -24,21 +24,12 @@ extension OneSignal {
         }
     }
     
-    @available(iOS 8.0, *)
-    static func isCapableOfGettingNotificationTypes() -> Bool {
-        return UIApplication.sharedApplication().respondsToSelector(#selector(UIApplication.currentUserNotificationSettings))
-    }
-    
-    @available(iOS 8.0, *)
     static func  getNotificationTypes() -> Int {
         if subscriptionSet == false { return -2 }
         
         if self.deviceToken != nil {
-            if isCapableOfGettingNotificationTypes() {
-                if let notifTypes = UIApplication.sharedApplication().currentUserNotificationSettings()?.types { return Int(notifTypes.rawValue) }
-                return 0
-            }
-            else { return NotificationType.All.rawValue}
+            if let notifTypes = UIApplication.sharedApplication().currentUserNotificationSettings()?.types { return Int(notifTypes.rawValue) }
+            return 0
         }
         
         return -1
@@ -65,15 +56,15 @@ extension OneSignal {
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(UNAuthorizationOptions(rawValue: 7), completionHandler: { (result, error) in })
+            let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+            if (oneSignalClass as? NSObjectProtocol)?.respondsToSelector(NSSelectorFromString("requestAuthorization")) == true {
+                (oneSignalClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("requestAuthorization"))
+            }
         }
-        else {
-            let existingCategories = UIApplication.sharedApplication().currentUserNotificationSettings()?.categories
-            let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: existingCategories)
-            UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
-            UIApplication.sharedApplication().registerForRemoteNotifications()
-        }
-        
+        let existingCategories = UIApplication.sharedApplication().currentUserNotificationSettings()?.categories
+        let notificationSettings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: existingCategories)
+        UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
+        UIApplication.sharedApplication().registerForRemoteNotifications()
     }
     
     static func registerDeviceToken(inDeviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
@@ -268,10 +259,9 @@ extension OneSignal {
         
     }
     
-    @available(iOS 8.0, *)
     static func sendNotificationTypesUpdateIsConfirmed(isConfirm : Bool) {
-        // User changed notification settings for the app.
         
+        // User changed notification settings for the app.
         if notificationTypes != -1 && userId != nil && (isConfirm || notificationTypes != getNotificationTypes()) {
             notificationTypes = getNotificationTypes()
             let request = self.httpClient.requestWithMethod("PUT", path: "players/\(userId)")
@@ -363,7 +353,7 @@ extension OneSignal {
         }
     }
     
-    @available(iOS 8.0, *)
+    
     static func updateNotificationTypes(notificationTypes : Int) {
         
         if self.notificationTypes == -2 { return}

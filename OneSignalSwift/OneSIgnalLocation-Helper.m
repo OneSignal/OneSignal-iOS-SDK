@@ -7,7 +7,6 @@
 //
 
 #import "OneSignalLocation-Helper.h"
-#import <CoreLocation/CoreLocation.h>
 
 @implementation OneSignalLocationHelper
 
@@ -24,7 +23,7 @@
 }
 +(BOOL)getLocationServicesEnabled {
         id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
-    return [clLocationManagerClass performSelector:@selector(locationServicesEnabled)];
+    return (BOOL)[clLocationManagerClass performSelector:@selector(locationServicesEnabled)];
 }
 
 +(id)getLocationManager {
