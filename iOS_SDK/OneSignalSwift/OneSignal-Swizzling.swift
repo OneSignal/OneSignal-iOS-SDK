@@ -11,10 +11,10 @@ import Foundation
 extension OneSignal : UIApplicationDelegate{
     
     
-    static func didRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
+    static func didRegisterForRemoteNotifications(_ app : UIApplication, deviceToken inDeviceToken : Data) {
         
-        let trimmedDeviceToken = inDeviceToken.description.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<>"))
-        let parsedDeviceToken = (trimmedDeviceToken.componentsSeparatedByString(" ") as NSArray).componentsJoinedByString("")
+        let trimmedDeviceToken = inDeviceToken.description.trimmingCharacters(in: CharacterSet(charactersIn: "<>"))
+        let parsedDeviceToken = (trimmedDeviceToken.components(separatedBy: " ") as NSArray).componentsJoined(by: "")
         
         OneSignal.onesignal_Log(.INFO, message: "Device Registered With Apple: \(parsedDeviceToken)")
         
@@ -27,7 +27,7 @@ extension OneSignal : UIApplicationDelegate{
     
     
     /* Pre iOS 10.0 Use UIUserNotificationAction & UILocalNotification */
-    static func prepareUILocalNotification(data : [String : AnyObject], userInfo : NSDictionary) -> UILocalNotification {
+    static func prepareUILocalNotification(_ data : [String : AnyObject], userInfo : NSDictionary) -> UILocalNotification {
         
         let notification = createUILocalNotification(data)
         
@@ -45,14 +45,14 @@ extension OneSignal : UIApplicationDelegate{
         }
         
         if let badge = data["b"] as? NSNumber {
-            notification.applicationIconBadgeNumber = badge.integerValue
+            notification.applicationIconBadgeNumber = badge.intValue
         }
         
         return notification
     }
     
     @available(iOS 8.0, *)
-    static func createUILocalNotification(data : [String : AnyObject]) -> UILocalNotification {
+    static func createUILocalNotification(_ data : [String : AnyObject]) -> UILocalNotification {
         let notification = UILocalNotification()
         let category = UIMutableUserNotificationCategory()
         category.identifier = "dynamic"
@@ -62,31 +62,31 @@ extension OneSignal : UIApplicationDelegate{
                 let action = UIMutableUserNotificationAction()
                 action.title = button["n"]
                 action.identifier = (button["i"] != nil) ? button["i"]! : action.title!
-                action.activationMode = .Foreground
-                action.destructive = false
-                action.authenticationRequired = false
+                action.activationMode = .foreground
+                action.isDestructive = false
+                action.isAuthenticationRequired = false
                 actionArray.append(action)
             }
         }
         
         //iOS 8 shows notification buttons in reverse in all cases but alerts. This flips it so the frist button is on the left.
         if actionArray.count == 2 {
-            category.setActions([actionArray[1], actionArray[0]], forContext: .Minimal)
+            category.setActions([actionArray[1], actionArray[0]], for: .minimal)
         }
         else {
-            category.setActions(actionArray, forContext: .Default)
+            category.setActions(actionArray, for: .default)
         }
         
         let notificationTypes = NotificationType.All
         let set = Set<UIUserNotificationCategory>(arrayLiteral: category)
         let notificationType = UIUserNotificationType(rawValue: UInt(notificationTypes.rawValue))
-        let notificationSettings = UIUserNotificationSettings(forTypes: notificationType, categories: set)
-        UIApplication.sharedApplication().registerUserNotificationSettings(notificationSettings)
+        let notificationSettings = UIUserNotificationSettings(types: notificationType, categories: set)
+        UIApplication.shared().registerUserNotificationSettings(notificationSettings)
         notification.category = category.identifier
         return notification
     }
     
-    static func remoteSilentNotification(application : UIApplication, userInfo : NSDictionary) {
+    static func remoteSilentNotification(_ application : UIApplication, userInfo : NSDictionary) {
         
         var data : [String : AnyObject]? = nil
 
@@ -97,23 +97,23 @@ extension OneSignal : UIApplicationDelegate{
             
             if #available(iOS 10.0, *) {
                 let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
-                if (oneSignalClass as? NSObjectProtocol)?.respondsToSelector(NSSelectorFromString("addnotficationRequest")) == true {
-                    (oneSignalClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("addnotficationRequest"), withObject: data!, withObject: userInfo)
+                if (oneSignalClass as? NSObjectProtocol)?.responds(to: NSSelectorFromString("addnotficationRequest")) == true {
+                    let _ = (oneSignalClass as? NSObjectProtocol)?.perform(NSSelectorFromString("addnotficationRequest"), with: data!, with: userInfo)
                 }
             }
             else {
                 let notification = prepareUILocalNotification(data!, userInfo : userInfo)
-                UIApplication.sharedApplication().scheduleLocalNotification(notification)
+                UIApplication.shared().scheduleLocalNotification(notification)
             }
         }
             
-        else if application.applicationState != .Background {
-            self.notificationOpened(userInfo, isActive: application.applicationState == .Active)
+        else if application.applicationState != .background {
+            self.notificationOpened(userInfo, isActive: application.applicationState == .active)
         }
         
     }
     
-    static func processLocalActionBasedNotification(notification : UILocalNotification, identifier: NSString) {
+    static func processLocalActionBasedNotification(_ notification : UILocalNotification, identifier: NSString) {
         
         if notification.userInfo == nil {return}
         
@@ -124,17 +124,17 @@ extension OneSignal : UIApplicationDelegate{
         
         if let os_data = notification.userInfo!["os_data"],
         buttonsDict = os_data["buttons"] as? NSMutableDictionary {
-            userInfo.addEntriesFromDictionary(notification.userInfo!)
-            if let o = buttonsDict["o"] as? [[NSObject : AnyObject]] { optionsDict.addObjectsFromArray(o) }
+            userInfo.addEntries(from: notification.userInfo!)
+            if let o = buttonsDict["o"] as? [[NSObject : AnyObject]] { optionsDict.addObjects(from: o) }
         }
         else if let custom = notification.userInfo!["custom"] as? [NSObject : AnyObject] {
-            userInfo.addEntriesFromDictionary(notification.userInfo!)
-            customDict.addEntriesFromDictionary(custom)
+            userInfo.addEntries(from: notification.userInfo!)
+            customDict.addEntries(from: custom)
             if let a = customDict["a"] as? [NSObject : AnyObject] {
-                additionalData.addEntriesFromDictionary(a)
+                additionalData.addEntries(from: a)
             }
             if let o = userInfo["o"] as? [[String : String]] {
-                optionsDict.addObjectsFromArray(o)
+                optionsDict.addObjects(from: o)
             }
         }
             
@@ -148,7 +148,7 @@ extension OneSignal : UIApplicationDelegate{
                                             "id" : button["i"] != nil ? button["i"]!! : button["n"]!!
                                 ]
             
-            buttonArray.addObject(buttonToAppend)
+            buttonArray.add(buttonToAppend)
         }
         
         additionalData["actionSelected"] = identifier
@@ -169,10 +169,10 @@ extension OneSignal : UIApplicationDelegate{
             userInfo["aps"] = ["alert":userInfo["m"]!]
         }
         
-        OneSignal.notificationOpened(userInfo, isActive: UIApplication.sharedApplication().applicationState == .Active)
+        OneSignal.notificationOpened(userInfo, isActive: UIApplication.shared().applicationState == .active)
     }
 
-    static func getClassWithProtocolInHierarchy(searchClass : AnyClass, protocolToFind : Protocol) -> AnyClass? {
+    static func getClassWithProtocolInHierarchy(_ searchClass : AnyClass, protocolToFind : Protocol) -> AnyClass? {
         
         if !class_conformsToProtocol(searchClass, protocolToFind) {
             if searchClass.superclass() == nil { return nil}
@@ -183,7 +183,7 @@ extension OneSignal : UIApplicationDelegate{
         return searchClass
     }
     
-    static func injectSelector(newClass : AnyClass, newSel : Selector, addToClass : AnyClass, makeLikeSel : Selector) {
+    static func injectSelector(_ newClass : AnyClass, newSel : Selector, addToClass : AnyClass, makeLikeSel : Selector) {
         var newMeth = class_getInstanceMethod(newClass, newSel)
         let imp = method_getImplementation(newMeth)
         let methodTypeEncoding = method_getTypeEncoding(newMeth)

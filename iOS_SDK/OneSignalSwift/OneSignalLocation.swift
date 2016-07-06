@@ -19,23 +19,24 @@ class OneSignalLocation : NSObject {
     static var started = false
     static var hasDelayed = false
     
-    static func getLocation(delegate : AnyObject, prompt : Bool) {
+    static func getLocation(_ delegate : AnyObject, prompt : Bool) {
         if hasDelayed {
             internalGetLocation(delegate, prompt:prompt)
         }
         else {
 
             // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not staticly linked.
-            let popTime = dispatch_time(DISPATCH_TIME_NOW, 2 * Int64(NSEC_PER_SEC))
-            dispatch_after(popTime, dispatch_get_main_queue(), {() -> Void in
+            let popTime = DispatchTime.now() + Double(2 * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC)
+    
+            DispatchQueue.main.after(when: popTime, execute: {() -> Void in
                     hasDelayed = true
                     internalGetLocation(delegate, prompt:prompt)
                 })
         }
-        
+
     }
     
-    static func internalGetLocation(delegate : AnyObject, prompt : Bool) {
+    static func internalGetLocation(_ delegate : AnyObject, prompt : Bool) {
 
         if started {return}
     
@@ -53,7 +54,7 @@ class OneSignalLocation : NSObject {
         }
         
         if let authStatus = OneSignalLocationHelper.getLocationAuthorizationStatus() {
-            if authStatus.intValue == 0 && !prompt {
+            if authStatus.int32Value == 0 && !prompt {
                 return
             }
         }
@@ -66,8 +67,8 @@ class OneSignalLocation : NSObject {
         }
         
         locationManager?.setValue(delegate, forKey: "delegate")
-        locationManager?.performSelector(NSSelectorFromString("requestWhenInUseAuthorization"))
-        locationManager?.performSelector(NSSelectorFromString("startUpdatingLocation"))
+        _ = locationManager?.perform(NSSelectorFromString("requestWhenInUseAuthorization"))
+        _ = locationManager?.perform(NSSelectorFromString("startUpdatingLocation"))
         
         started = true
     }

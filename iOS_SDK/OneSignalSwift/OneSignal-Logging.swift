@@ -10,12 +10,12 @@ import Foundation
 
 extension OneSignal {
     
-    public static func setLogLevel(nslogLevel : ONE_S_LOG_LEVEL, visualLevel visualLogLevel : ONE_S_LOG_LEVEL) {
+    public static func setLogLevel(_ nslogLevel : ONE_S_LOG_LEVEL, visualLevel visualLogLevel : ONE_S_LOG_LEVEL) {
         self.nsLogLevel = nslogLevel
         self.visualLogLevel = visualLogLevel
     }
     
-    public static func onesignal_Log(logLevel : ONE_S_LOG_LEVEL, message : String) {
+    public static func onesignal_Log(_ logLevel : ONE_S_LOG_LEVEL, message : String) {
         
         var levelString = ""
         
@@ -29,9 +29,9 @@ extension OneSignal {
             default: break
         }
 
-        if logLevel.rawValue <= nsLogLevel.rawValue && nsLogLevel != .NONE  { print("\(levelString)\(message)")}
+        if logLevel.rawValue <= nsLogLevel.rawValue && nsLogLevel != .none  { print("\(levelString)\(message)")}
         
-        if logLevel.rawValue <= visualLogLevel.rawValue && visualLogLevel != .NONE {
+        if logLevel.rawValue <= visualLogLevel.rawValue && visualLogLevel != .none {
             let alert = UIAlertView(title: levelString, message: message, delegate: nil, cancelButtonTitle: "Close")
             alert.show()
         }

@@ -10,31 +10,31 @@ import Foundation
 
 extension OneSignal {
     
-    public static func postNotification(jsonData : NSDictionary) {
+    public static func postNotification(_ jsonData : NSDictionary) {
         self.postNotification(jsonData, onSuccess: nil, onFailure: nil)
     }
     
-    public static func postNotification(jsonData : NSDictionary, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
-        let request = self.httpClient.requestWithMethod("POST", path: "notifications")
+    public static func postNotification(_ jsonData : NSDictionary, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+        var request = self.httpClient.requestWithMethod("POST", path: "notifications")
         
         let dataDic = NSMutableDictionary(dictionary: jsonData)
         
         dataDic["app_id"] = self.app_id
         
-        var postData : NSData? = nil
+        var postData : Data? = nil
         do {
-            postData = try NSJSONSerialization.dataWithJSONObject(dataDic, options: NSJSONWritingOptions(rawValue: UInt(0)))
+            postData = try JSONSerialization.data(withJSONObject: dataDic, options: JSONSerialization.WritingOptions(rawValue: UInt(0)))
         }
         catch _ { }
         
-        request.HTTPBody = postData
+        request.httpBody = postData
         
         self.enqueueRequest(request, onSuccess: { (results) in
-            var jsonData : NSData? = nil
-            do { jsonData = try NSJSONSerialization.dataWithJSONObject(results, options: NSJSONWritingOptions(rawValue: UInt(0))) }
+            var jsonData : Data? = nil
+            do { jsonData = try JSONSerialization.data(withJSONObject: results, options: JSONSerialization.WritingOptions(rawValue: UInt(0))) }
             catch _ {}
             
-            let resultsString = NSString(data: jsonData!, encoding: NSUTF8StringEncoding)
+            let resultsString = NSString(data: jsonData!, encoding: String.Encoding.utf8.rawValue)
             
             OneSignal.onesignal_Log(.DBG, message: "HTTP Create Notification Success \(resultsString!)")
             
@@ -47,11 +47,11 @@ extension OneSignal {
         }
     }
     
-    static func postNotificationWithJsonString(jsonString : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    static func postNotificationWithJsonString(_ jsonString : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         
-        let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding)
+        let data = jsonString.data(using: String.Encoding.utf8.rawValue)
         var jsonData : NSDictionary? = nil
-        do { jsonData = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions(rawValue: UInt(0))) as? NSDictionary }
+        do { jsonData = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions(rawValue: UInt(0))) as? NSDictionary }
         catch let error as NSError {
             OneSignal.onesignal_Log(.WARN, message: "postNotification JSON Parse Error: \(error)")
             OneSignal.onesignal_Log(.WARN, message: "postNotification JSON Parse Error, JSON: \(jsonString)")
@@ -61,18 +61,18 @@ extension OneSignal {
         self.postNotification(jsonData!, onSuccess: successBlock, onFailure: failureBlock)
     }
     
-    static func enqueueRequest(request : NSURLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    static func enqueueRequest(_ request : URLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         self.enqueueRequest(request, onSuccess: successBlock, onFailure: failureBlock, isSynchronous: false)
     }
     
-    static func enqueueRequest(request : NSURLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?, isSynchronous : Bool) {
+    static func enqueueRequest(_ request : URLRequest, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?, isSynchronous : Bool) {
         
-            var response : NSURLResponse?
+            var response : URLResponse?
             var err : NSError?
             do {
-                if isSynchronous { try NSURLConnection.sendSynchronousRequest(request, returningResponse: &response) }
+                if isSynchronous { try NSURLConnection.sendSynchronousRequest(request, returning: &response) }
                 else {
-                    NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue(), completionHandler: { (response, data, error) in
+                    NSURLConnection.sendAsynchronousRequest(request, queue: OperationQueue(), completionHandler: { (response, data, error) in
                         self.handleJSONNSURLResponse(response, data: data, error: error, onSuccess: successBlock, onFailure: failureBlock)
                     })
                 }
@@ -85,14 +85,14 @@ extension OneSignal {
         
     }
     
-    static func handleJSONNSURLResponse(response : NSURLResponse?, data : NSData?, error : NSError?, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
+    static func handleJSONNSURLResponse(_ response : URLResponse?, data : Data?, error : NSError?, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock : OneSignalFailureBlock?) {
         
-        let httpResponse = response as? NSHTTPURLResponse
+        let httpResponse = response as? HTTPURLResponse
         let statusCode = httpResponse?.statusCode
         var innerJson : NSMutableDictionary? = nil
         
-        if data != nil && data?.length > 0 {
-            do { innerJson = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions(rawValue: UInt(0))) as? NSMutableDictionary }
+        if data != nil && data?.count > 0 {
+            do { innerJson = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions(rawValue: UInt(0))) as? NSMutableDictionary }
             catch let jsonError as NSError {
                 if failureBlock != nil {
                     failureBlock!(NSError(domain: "OneSignalError", code: statusCode!, userInfo: ["returned" : jsonError]))

@@ -11,51 +11,51 @@ import Foundation
 
 extension UIApplication {
     
-    func oneSignalDidRegisterForRemoteNotifications(app : UIApplication, deviceToken inDeviceToken : NSData) {
+    func oneSignalDidRegisterForRemoteNotifications(_ app : UIApplication, deviceToken inDeviceToken : Data) {
         
         OneSignal.didRegisterForRemoteNotifications(app, deviceToken: inDeviceToken)
 
-        if self.respondsToSelector(#selector(UIApplication.oneSignalDidRegisterForRemoteNotifications(_:deviceToken:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalDidRegisterForRemoteNotifications(_:deviceToken:))) {
             self.oneSignalDidRegisterForRemoteNotifications(app, deviceToken: inDeviceToken)
         }
     }
     
-    func oneSignalDidFailRegisterForRemoteNotifications(app : UIApplication, error : NSError) {
+    func oneSignalDidFailRegisterForRemoteNotifications(_ app : UIApplication, error : NSError) {
         OneSignal.onesignal_Log(.ERROR, message: "Error registering for Apple push notifications. Error: \(error)")
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalDidFailRegisterForRemoteNotifications(_:error:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalDidFailRegisterForRemoteNotifications(_:error:))) {
             self.oneSignalDidFailRegisterForRemoteNotifications(app, error: error)
         }
     }
     
     @available(iOS 8.0, *)
-    func oneSignalDidRegisterUserNotifications(application : UIApplication, settings notificationSettings : UIUserNotificationSettings) {
+    func oneSignalDidRegisterUserNotifications(_ application : UIApplication, settings notificationSettings : UIUserNotificationSettings) {
     
         OneSignal.updateNotificationTypes(Int(notificationSettings.types.rawValue))
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:))) {
             self.oneSignalDidRegisterUserNotifications(application, settings: notificationSettings)
         }
     }
     
-    func oneSignalRemoteSilentNotification(application : UIApplication, userInfo : NSDictionary, fetchCompletionHandler completionHandler : (UIBackgroundFetchResult) -> Void) {
+    func oneSignalRemoteSilentNotification(_ application : UIApplication, userInfo : NSDictionary, fetchCompletionHandler completionHandler : (UIBackgroundFetchResult) -> Void) {
 
         OneSignal.remoteSilentNotification(application, userInfo: userInfo)
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalRemoteSilentNotification(_:userInfo:fetchCompletionHandler:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalRemoteSilentNotification(_:userInfo:fetchCompletionHandler:))) {
             self.oneSignalRemoteSilentNotification(application, userInfo: userInfo, fetchCompletionHandler: completionHandler)
         }
         else {
-            completionHandler(UIBackgroundFetchResult.NewData)
+            completionHandler(UIBackgroundFetchResult.newData)
         }
     }
     
-    func oneSignalLocalNotificationOpened(application : UIApplication, handleActionWithIdentifier identifier : NSString, forLocalNotification notification : UILocalNotification, completionHandler : ()-> Void) {
+    func oneSignalLocalNotificationOpened(_ application : UIApplication, handleActionWithIdentifier identifier : NSString, forLocalNotification notification : UILocalNotification, completionHandler : ()-> Void) {
         
        
         OneSignal.processLocalActionBasedNotification(notification, identifier: identifier)
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:))) {
             self.oneSignalLocalNotificationOpened(application, handleActionWithIdentifier: identifier, forLocalNotification: notification, completionHandler: completionHandler)
         }
         else {
@@ -63,29 +63,29 @@ extension UIApplication {
         }
     }
     
-    func oneSignalLocalNotificationOpened(application : UIApplication, notification : UILocalNotification) {
+    func oneSignalLocalNotificationOpened(_ application : UIApplication, notification : UILocalNotification) {
         
         OneSignal.processLocalActionBasedNotification(notification, identifier: "__DEFAULT__")
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalLocalNotificationOpened(_:notification:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalLocalNotificationOpened(_:notification:))) {
             self.oneSignalLocalNotificationOpened(application, notification: notification)
         }
     }
     
-    func oneSignalApplicationWillResignActive(application : UIApplication) {
+    func oneSignalApplicationWillResignActive(_ application : UIApplication) {
         
         OneSignal.onFocus("suspend")
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalApplicationWillResignActive(_:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalApplicationWillResignActive(_:))) {
             self.oneSignalApplicationWillResignActive(application)
         }
     }
     
-    func oneSignalApplicationDidbecomeActive(application : UIApplication) {
+    func oneSignalApplicationDidbecomeActive(_ application : UIApplication) {
         
         OneSignal.onFocus("resume")
         
-        if self.respondsToSelector(#selector(UIApplication.oneSignalApplicationDidbecomeActive(_:))) {
+        if self.responds(to: #selector(UIApplication.oneSignalApplicationDidbecomeActive(_:))) {
             self.oneSignalApplicationDidbecomeActive(application)
         }
     }
@@ -94,10 +94,10 @@ extension UIApplication {
     
     override public static func initialize() {
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return }
-        struct Static { static var token: dispatch_once_t = 0 }
+        //struct Static { static var token: Int = 0 }
         if self !== UIApplication.self { return } /* Make sure this isn't a subclass */
         
-        dispatch_once(&Static.token) {
+        //dispatch_once(&Static.token) {
     
             //Exchange UIApplications's setDelegate with OneSignal's
             let originalSelector = NSSelectorFromString("setDelegate:")
@@ -111,11 +111,11 @@ extension UIApplication {
                 class_replaceMethod(self, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
             }
             else { method_exchangeImplementations(originalMethod, swizzledMethod) }
-        }
+        //}
         
     }
     
-    func setOneSignalDelegate(delegate : UIApplicationDelegate) {
+    func setOneSignalDelegate(_ delegate : UIApplicationDelegate) {
         
         if UIApplication.appDelegateClass != nil {
             self.setOneSignalDelegate(delegate)
@@ -128,9 +128,9 @@ extension UIApplication {
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalRemoteSilentNotification(_:userInfo:fetchCompletionHandler:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)))
         
-        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)))
+        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:handleActionWithIdentifier:forLocalNotification:completionHandler:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:handleActionWithIdentifier:for:completionHandler:)))
         
-        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegisterUserNotificationSettings:)))
+        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterUserNotifications(_:settings:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegister:)))
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidFailRegisterForRemoteNotifications(_:error:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didFailToRegisterForRemoteNotificationsWithError:)))
         
@@ -142,7 +142,7 @@ extension UIApplication {
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalDidRegisterForRemoteNotifications(_:deviceToken:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didRegisterForRemoteNotificationsWithDeviceToken:)))
         
-        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:notification:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didReceiveLocalNotification:)))
+        OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalLocalNotificationOpened(_:notification:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.application(_:didReceive:)))
         
         OneSignal.injectSelector(self.classForCoder, newSel: #selector(UIApplication.oneSignalApplicationWillResignActive(_:)), addToClass: UIApplication.appDelegateClass!, makeLikeSel: #selector(UIApplicationDelegate.applicationWillResignActive(_:)))
         
@@ -153,8 +153,8 @@ extension UIApplication {
             Make sure AppDelegate does not conform to this protocol */
         if #available(iOS 10.0, *) {
             let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
-            if (oneSignalClass as? NSObjectProtocol)?.respondsToSelector(NSSelectorFromString("conformsToUNProtocol")) == true {
-                (oneSignalClass as? NSObjectProtocol)?.performSelector(NSSelectorFromString("conformsToUNProtocol"))
+            if (oneSignalClass as? NSObjectProtocol)?.responds(to: NSSelectorFromString("conformsToUNProtocol")) == true {
+                let _ = (oneSignalClass as? NSObjectProtocol)?.perform(NSSelectorFromString("conformsToUNProtocol"))
             }
         }
         
