@@ -1,0 +1,9 @@
+module netinet [system] {
+    header "/usr/include/netinet/in.h"
+    export *
+}
+
+module TargetConditionals [system] {
+    header "/usr/include/TargetConditionals.h”
+    export *
+}

@@ -1,1 +1,0 @@
- const unsigned char OneSignalSwiftVersionString[] __attribute__ ((used)) = "@(#)PROGRAM:OneSignalSwift  PROJECT:OneSignalSwift-1" "\n"; const double OneSignalSwiftVersionNumber __attribute__ ((used)) = (double)1.;
