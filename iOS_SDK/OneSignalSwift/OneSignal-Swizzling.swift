@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension OneSignal : UIApplicationDelegate{
     
@@ -96,7 +97,7 @@ extension OneSignal : UIApplicationDelegate{
         if data != nil {
             
             if #available(iOS 10.0, *) {
-                let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+                let oneSignalClass : AnyClass = OneSignal.self
                 if (oneSignalClass as? NSObjectProtocol)?.responds(to: NSSelectorFromString("addnotficationRequest")) == true {
                     let _ = (oneSignalClass as? NSObjectProtocol)?.perform(NSSelectorFromString("addnotficationRequest"), with: data!, with: userInfo)
                 }
@@ -166,11 +167,15 @@ extension OneSignal : UIApplicationDelegate{
         else {
             customDict["a"] = additionalData
             userInfo["custom"] = customDict
-            userInfo["aps"] = ["alert":userInfo["m"]!]
+            
+            if let m = userInfo["m"] {
+                userInfo["aps"] = ["alert":m]
+            }
+            
         }
         
         OneSignal.notificationOpened(userInfo, isActive: UIApplication.shared().applicationState == .active)
-    }
+    } 
 
     static func getClassWithProtocolInHierarchy(_ searchClass : AnyClass, protocolToFind : Protocol) -> AnyClass? {
         

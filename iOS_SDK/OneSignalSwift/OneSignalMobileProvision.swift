@@ -45,7 +45,7 @@ class OneSignalMobileProvision : NSObject {
     static func getMobileProvision() -> NSDictionary? {
         var mobileProvision : NSDictionary? = nil
         
-        let provisioningPath = Bundle.main().pathForResource("embedded", ofType: "mobileprovision")
+        let provisioningPath = Bundle.main.pathForResource("embedded", ofType: "mobileprovision")
         if provisioningPath == nil {return [:]}
         
         // NSISOLatin1 keeps the binary wrapper from being parsed as unicode and dropped as invalid

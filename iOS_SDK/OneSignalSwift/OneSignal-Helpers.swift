@@ -7,15 +7,16 @@
 //
 
 import Foundation
+import UIKit
 
 extension OneSignal {
     
     public static func getSoundFiles() -> NSArray {
-        let fm = FileManager.default()
+        let fm = FileManager.default
         
         var  allFiles = []
         let soundFiles = NSMutableArray()
-        do { try allFiles = fm.contentsOfDirectory(atPath: Bundle.main().resourcePath!) }
+        do { try allFiles = fm.contentsOfDirectory(atPath: Bundle.main.resourcePath!) }
         catch _ { return [] }
         
         for file in allFiles { if file.hasSuffix(".wav") || file.hasSuffix(".mp3") { soundFiles.add(file) } }
@@ -85,28 +86,36 @@ extension OneSignal {
         var value : String? = nil
         if !enable { value = "no"}
         
-        UserDefaults.standard().set(value, forKey: "ONESIGNAL_SUBSCRIPTION")
-        UserDefaults.standard().synchronize()
+        UserDefaults.standard.set(value, forKey: "ONESIGNAL_SUBSCRIPTION")
+        UserDefaults.standard.synchronize()
         
         subscriptionSet = enable
         self.sendNotificationTypesUpdateIsConfirmed(false)
     }
     
     public static func enableInAppAlertNotification(_ enable: Bool) {
-        UserDefaults.standard().set(enable, forKey: "ONESIGNAL_INAPP_ALERT")
-        UserDefaults.standard().synchronize()
+        UserDefaults.standard.set(enable, forKey: "ONESIGNAL_INAPP_ALERT")
+        UserDefaults.standard.synchronize()
     }
     
     static func verifyUrl (_ urlString: String?) -> Bool {
         //Check for nil
         if let urlString = urlString {
-            // create NSURL instance
+            // create URL instance
             if let url = URL(string: urlString) {
                 // check if your application can open the NSURL instance
                 return UIApplication.shared().canOpenURL(url)
             }
         }
         return false
+    }
+    
+    static func displayWebView(_ url : URL) {
+        let webVC = OneSignalWebView()
+        webVC.view.frame = UIScreen.main().bounds
+        webVC.url = url
+        OneSignal.webController.setViewControllers([webVC], animated: false)
+        webVC.showInApp()
     }
     
     //Synchroneously downloads a media
@@ -132,18 +141,18 @@ extension OneSignal {
             print("generate name: " + name)
             let paths = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
             let filePath = (paths[0] as NSString).appendingPathComponent(name)
-            _ = try? data.write(to: Foundation.URL(fileURLWithPath: filePath), options: [.dataWritingAtomic])
+            _ = try? data.write(to: Foundation.URL(fileURLWithPath: filePath), options: [.atomicWrite])
             
             //Save array of cached files in defaults
-            if var cachedFiles = UserDefaults.standard().object(forKey: "CACHED_MEDIA") as? [String] {
+            if var cachedFiles = UserDefaults.standard.object(forKey: "CACHED_MEDIA") as? [String] {
                 cachedFiles.append(name)
-                UserDefaults.standard().set(cachedFiles, forKey: "CACHED_MEDIA")
-                UserDefaults.standard().synchronize()
+                UserDefaults.standard.set(cachedFiles, forKey: "CACHED_MEDIA")
+                UserDefaults.standard.synchronize()
             }
             else {
                 let cachedFiles = [name]
-                UserDefaults.standard().set(cachedFiles, forKey: "CACHED_MEDIA")
-                UserDefaults.standard().synchronize()
+                UserDefaults.standard.set(cachedFiles, forKey: "CACHED_MEDIA")
+                UserDefaults.standard.synchronize()
             }
             
             return name
@@ -153,17 +162,17 @@ extension OneSignal {
     
     //Called on init. Clear cache (not needed)
     static func clearCachedMedia() {
-        if let cachedFiles = UserDefaults.standard().object(forKey: "CACHED_MEDIA") as? [String] {
+        if let cachedFiles = UserDefaults.standard.object(forKey: "CACHED_MEDIA") as? [String] {
             
             let paths = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
             
             for file in cachedFiles {
                 let filePath = (paths[0] as NSString).appendingPathComponent(file)
-                do { try FileManager.default().removeItem(atPath: filePath)}
+                do { try FileManager.default.removeItem(atPath: filePath)}
                 catch _ {}
             }
             
-            UserDefaults.standard().removeObject(forKey: "CACHED_MEDIA")
+            UserDefaults.standard.removeObject(forKey: "CACHED_MEDIA")
         }
     }
     

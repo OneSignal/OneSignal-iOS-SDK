@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import UserNotifications
+import UIKit
 
 @available(iOS 10.0, *)
 @objc public protocol OneSignalNotificationCenterDelegate {
@@ -26,6 +26,7 @@ extension OneSignal : UNUserNotificationCenterDelegate {
     public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: () -> Void) {
         
         let usrInfo = response.notification.request.content.userInfo
+        print("usrInfo: \(usrInfo)")
         
         if usrInfo.count == 0 {
             OneSignal.tunnelToDelegate(center, response: response, handler: completionHandler)
@@ -58,7 +59,7 @@ extension OneSignal : UNUserNotificationCenterDelegate {
             OneSignal.tunnelToDelegate(center, response: response, handler: completionHandler)
             return
         }
-            
+        
         let buttonArray = NSMutableArray()
         for button in optionsDict {
             
@@ -86,7 +87,9 @@ extension OneSignal : UNUserNotificationCenterDelegate {
         else {
             customDict["a"] = additionalData
             userInfo["custom"] = customDict
-            userInfo["aps"] = ["alert":userInfo["m"]!]
+            if let m = userInfo["m"] {
+                userInfo["aps"] = ["alert":m]
+            }
         }
         
         OneSignal.notificationOpened(userInfo, isActive: UIApplication.shared().applicationState == .active)
@@ -133,7 +136,7 @@ extension OneSignal : UNUserNotificationCenterDelegate {
     
     @available(iOS 10.0, *)
     static func requestAuthorization () {
-        UNUserNotificationCenter.current().requestAuthorization(UNAuthorizationOptions(rawValue: 7), completionHandler: { (result, error) in })
+        UNUserNotificationCenter.current().requestAuthorization(options: UNAuthorizationOptions(rawValue: 7), completionHandler: { (result, error) in })
     }
     
     @available(iOS 10.0, *)
@@ -218,7 +221,7 @@ extension OneSignal : UNUserNotificationCenterDelegate {
                     files.removeLast()
                     let name = files.joined(separator: ".")
                     // Make sure reesource exists
-                    if let url = Bundle.main().urlForResource(name, withExtension: fileExtension) {
+                    if let url = Bundle.main.urlForResource(name, withExtension: fileExtension) {
                         var attachment : UNNotificationAttachment!
                         do { attachment = try UNNotificationAttachment(identifier:id, url: url, options: nil) }
                         catch _ {}

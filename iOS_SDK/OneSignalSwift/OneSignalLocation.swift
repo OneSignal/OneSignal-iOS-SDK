@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 // CoreLocation must be statically linked for geotagging to work on iOS 6 and possibly 7.
 // plist NSLocationUsageDescription (iOS 6 & 7) and NSLocationWhenInUseUsageDescription (iOS 8+) keys also required.

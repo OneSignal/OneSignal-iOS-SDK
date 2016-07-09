@@ -10,6 +10,7 @@ import Foundation
 import SystemConfiguration
 import CoreFoundation
 import Darwin
+import UIKit
 
 extension Bool {
     init<T : Integer>(_ integer: T){
@@ -46,8 +47,8 @@ class OneSignalReachability : NSObject {
      */
     static func reachabilityForInternetConnection() {
         var zeroAddress = sockaddr_in()
-        bzero(&zeroAddress, sizeof(sockaddr_in))
-        zeroAddress.sin_len = UInt8(sizeof(sockaddr_in))
+        bzero(&zeroAddress, sizeof(sockaddr_in.self))
+        zeroAddress.sin_len = UInt8(sizeof(sockaddr_in.self))
         zeroAddress.sin_family = UInt8(AF_INET)
         
         let _ = withUnsafePointer(&zeroAddress) { self.reachabilityWithAddress(UnsafePointer($0))}
@@ -119,7 +120,7 @@ class OneSignalReachability : NSObject {
             }
         }
         
-        if (flags.rawValue & SCNetworkReachabilityFlags.iswwan.rawValue) == SCNetworkReachabilityFlags.iswwan.rawValue
+        if (flags.rawValue & SCNetworkReachabilityFlags.isWWAN.rawValue) == SCNetworkReachabilityFlags.isWWAN.rawValue
         {
             /*
              ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension OneSignal {
     
@@ -56,7 +57,7 @@ extension OneSignal {
         if NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         
         if #available(iOS 10.0, *) {
-            let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+            let oneSignalClass : AnyClass = OneSignal.self
             if (oneSignalClass as? NSObjectProtocol)?.responds(to: NSSelectorFromString("requestAuthorization")) == true {
                 let _ = (oneSignalClass as? NSObjectProtocol)?.perform(NSSelectorFromString("requestAuthorization"))
             }
@@ -69,8 +70,8 @@ extension OneSignal {
     
     static func registerDeviceToken(_ inDeviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
         self.updateDeviceToken(inDeviceToken, onSuccess: successBlock, onFailure: failureBlock)
-        UserDefaults.standard().set(deviceToken, forKey: "GT_DEVICE_TOKEN")
-        UserDefaults.standard().synchronize()
+        UserDefaults.standard.set(deviceToken, forKey: "GT_DEVICE_TOKEN")
+        UserDefaults.standard.synchronize()
     }
     
     static func updateDeviceToken(_ deviceToken : NSString, onSuccess successBlock : OneSignalResultSuccessBlock?, onFailure failureBlock: OneSignalFailureBlock?) {
@@ -136,15 +137,15 @@ extension OneSignal {
             request = self.httpClient.requestWithMethod("POST", path: "players/\(userId!)/on_session")
         }
         
-        let infoDictionary = Bundle.main().infoDictionary
+        let infoDictionary = Bundle.main.infoDictionary
         let build = infoDictionary?[kCFBundleVersionKey as String] as? String
         let identifier = deviceToken == nil ? "" : deviceToken!
         
         var dataDict = ["app_id" : app_id,
                         "device_model" : deviceModel,
                         "device_os" : systemVersion,
-                        "language" : Locale.preferredLanguages()[0],
-                        "timezone" : NSNumber(value: TimeZone.local().secondsFromGMT),
+                        "language" : Locale.preferredLanguages[0],
+                        "timezone" : NSNumber(value: TimeZone.local.secondsFromGMT),
                         "device_type" : NSNumber(value : 0),
                         "sounds" : self.getSoundFiles(),
                         "sdk" : ONESIGNAL_VERSION,
@@ -168,7 +169,7 @@ extension OneSignal {
         
         if userId != nil {
             dataDict["sdk_type"] = OneSignal.SDKType
-            dataDict["ios_bundle"] = Bundle.main().bundleIdentifier
+            dataDict["ios_bundle"] = Bundle.main.bundleIdentifier
         }
         
         if notificationTypes != -1 {
@@ -222,8 +223,8 @@ extension OneSignal {
             if let uid = results.object(forKey: "id") as? NSString {
                 self.userId = uid
             }
-            UserDefaults.standard().set(self.userId!, forKey: "GT_PLAYER_ID")
-            UserDefaults.standard().synchronize()
+            UserDefaults.standard.set(self.userId!, forKey: "GT_PLAYER_ID")
+            UserDefaults.standard.synchronize()
                 
             if self.deviceToken != nil {
                 self.updateDeviceToken(self.deviceToken!, onSuccess: self.tokenUpdateSuccessBlock, onFailure: self.tokenUpdateFailureBlock)
@@ -241,7 +242,7 @@ extension OneSignal {
 
                 
             if self.emailToSet != nil {
-                self.setEmail(self.emailToSet)
+                self.setEmail(self.emailToSet as String)
                 self.emailToSet = nil
             }
                 
@@ -284,13 +285,13 @@ extension OneSignal {
         var inAppAlert = false
         if isActive {
             
-            inAppAlert = UserDefaults.standard().bool(forKey: "ONESIGNAL_INAPP_ALERT")
+            inAppAlert = UserDefaults.standard.bool(forKey: "ONESIGNAL_INAPP_ALERT")
             if inAppAlert {
                 self.lastMessageReceived = messageDict
                 let additionalData = self.getAdditionalData()
                 var title = additionalData["title"] as? String
                 if title == nil {
-                    title = Bundle.main().objectForInfoDictionaryKey("CFBundleDisplayName") as? String
+                    title = Bundle.main.objectForInfoDictionaryKey("CFBundleDisplayName") as? String
                 }
                 
                 let oneSignalAlertViewDelegate = OneSignalAlertViewDelegate(messageDict: messageDict)
@@ -337,11 +338,9 @@ extension OneSignal {
             self.enqueueRequest(request, onSuccess: nil, onFailure: nil)
         }
         
-        if let openUrl = customDict?.object(forKey: "u") as? String {
-            if UIApplication.shared().applicationState != .active {
-                DispatchQueue.main.async(execute: {
-                    UIApplication.shared().openURL(URL(string: openUrl)!)
-                })
+        if let openUrl = customDict?.object(forKey: "u") as? String where UIApplication.shared().applicationState != .active {
+            if OneSignal.verifyUrl(openUrl) {
+                OneSignal.displayWebView(URL(string: openUrl)!)
             }
         }
         

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 class OneSignalAlertViewDelegate : NSObject, UIAlertViewDelegate {
     

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 /**
  `OneSignal` provides a high level interface to interact with OneSignal's push service.
@@ -62,6 +63,9 @@ public class OneSignal : NSObject {
     static var notificationTypes = -1
     static var nsLogLevel : ONE_S_LOG_LEVEL = .WARN
     static var visualLogLevel : ONE_S_LOG_LEVEL = .NONE
+
+    //UIWEbView handling
+    static var webController = UINavigationController()
     
     /* Starting v2.0, canot create an instance of this class. Pure static */
     private override init() {}
@@ -86,7 +90,7 @@ public class OneSignal : NSObject {
         lastTrackedTime = NSNumber(value: Date().timeIntervalSince1970)
         self.app_id = appId as String
         
-        if let disable = Bundle.main().objectForInfoDictionaryKey("OneSignal_disable_badge_clearing") as? Bool {
+        if let disable = Bundle.main.objectForInfoDictionaryKey("OneSignal_disable_badge_clearing") as? Bool {
             disableBadgeClearing = disable
         }
         
@@ -102,7 +106,7 @@ public class OneSignal : NSObject {
         
         systemVersion = UIDevice.current().systemVersion
         
-        let defaults = UserDefaults.standard()
+        let defaults = UserDefaults.standard
         
         if app_id == nil {
             app_id = defaults.string(forKey: "GT_APP_ID")
@@ -147,7 +151,7 @@ public class OneSignal : NSObject {
         
         /* We are UNUserNotificationCenterDelegate */
         if #available(iOS 10.0, *) {
-            let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+            let oneSignalClass : AnyClass = OneSignal.self
             if (oneSignalClass as? NSObjectProtocol)?.responds(to: NSSelectorFromString("registerAsUNNotificationCenterDelegate")) == true {
             _ = (oneSignalClass as? NSObjectProtocol)?.perform(NSSelectorFromString("registerAsUNNotificationCenterDelegate"))
             }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension OneSignal {
     
@@ -90,7 +91,7 @@ extension OneSignal {
     
     static func getUnsentActiveTime() -> NSNumber {
         if unSentActiveTime.int32Value == -1 {
-            if let unsent = UserDefaults.standard().object(forKey: "GT_UNSENT_ACTIVE_TIME") as? NSNumber {
+            if let unsent = UserDefaults.standard.object(forKey: "GT_UNSENT_ACTIVE_TIME") as? NSNumber {
                 unSentActiveTime = unsent
             }
             else { unSentActiveTime = 0 }
@@ -100,8 +101,8 @@ extension OneSignal {
     
     static func saveUnsentActiveTime(_ time : NSNumber) {
         unSentActiveTime = time
-        UserDefaults.standard().set(unSentActiveTime, forKey: "GT_UNSENT_ACTIVE_TIME")
-        UserDefaults.standard().synchronize()
+        UserDefaults.standard.set(unSentActiveTime, forKey: "GT_UNSENT_ACTIVE_TIME")
+        UserDefaults.standard.synchronize()
     }
     
     

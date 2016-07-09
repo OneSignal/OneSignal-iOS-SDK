@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension OneSignal {
     
@@ -123,7 +124,7 @@ extension OneSignal {
         }
     }
     
-    static func setEmail(_ email : NSString) {
+    public static func setEmail(_ email : String) {
         
         if userId == nil || NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0 { return}
         

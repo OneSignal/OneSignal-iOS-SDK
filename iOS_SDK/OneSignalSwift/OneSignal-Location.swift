@@ -7,7 +7,9 @@
 //
 
 import Foundation
-import CoreLocation 
+import CoreLocation
+import UIKit
+
 extension OneSignal  {
     
     struct os_location_coordinate {
@@ -36,8 +38,8 @@ extension OneSignal  {
         location_event_fired = false
         
         let location = locations.last
-        
-        var currentLocation = UnsafeMutablePointer<os_last_location>(allocatingCapacity: sizeof(os_last_location)).pointee
+
+        var currentLocation = UnsafeMutablePointer<os_last_location>(allocatingCapacity: sizeof(os_last_location.self)).pointee
         if let vertical = (location?.value(forKey: "verticalAccuracy") as? NSNumber)?.doubleValue {
             currentLocation.verticalAccuracy = vertical
         }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 extension UIApplication {
@@ -98,21 +99,20 @@ extension UIApplication {
         if self !== UIApplication.self { return } /* Make sure this isn't a subclass */
         
         //dispatch_once(&Static.token) {
-    
+
             //Exchange UIApplications's setDelegate with OneSignal's
-            let originalSelector = NSSelectorFromString("setDelegate:")
-            let swizzledSelector = #selector(UIApplication.setOneSignalDelegate(_:))
-            
-            let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
-            let originalMethod = class_getInstanceMethod(self,originalSelector)
-            let didAddMethod = class_addMethod(self, swizzledSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
-            
-            if didAddMethod {
-                class_replaceMethod(self, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-            }
-            else { method_exchangeImplementations(originalMethod, swizzledMethod) }
-        //}
+        let originalSelector = NSSelectorFromString("setDelegate:")
+        let swizzledSelector = #selector(UIApplication.setOneSignalDelegate(_:))
         
+        let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)
+        let originalMethod = class_getInstanceMethod(self,originalSelector)
+        let didAddMethod = class_addMethod(self, swizzledSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
+        
+        if didAddMethod {
+            class_replaceMethod(self, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+        }
+        else { method_exchangeImplementations(originalMethod, swizzledMethod) }
+        //}
     }
     
     func setOneSignalDelegate(_ delegate : UIApplicationDelegate) {
@@ -152,13 +152,28 @@ extension UIApplication {
         /* iOS 10.0: UNUserNotificationCenterDelegate instead of UIApplicationDelegate for methods handling opening app from notification
             Make sure AppDelegate does not conform to this protocol */
         if #available(iOS 10.0, *) {
-            let oneSignalClass : AnyClass! = NSClassFromString("OneSignal")!
+            let oneSignalClass : AnyClass = OneSignal.self
             if (oneSignalClass as? NSObjectProtocol)?.responds(to: NSSelectorFromString("conformsToUNProtocol")) == true {
                 let _ = (oneSignalClass as? NSObjectProtocol)?.perform(NSSelectorFromString("conformsToUNProtocol"))
             }
         }
         
         self.setOneSignalDelegate(delegate)
+    }
+    
+    class func topmostController(base: UIViewController? = UIApplication.shared().keyWindow?.rootViewController) -> UIViewController? {
+        if let nav = base as? UINavigationController {
+            return topmostController(base: nav.visibleViewController)
+        }
+        if let tab = base as? UITabBarController {
+            if let selected = tab.selectedViewController {
+                return topmostController(base: selected)
+            }
+        }
+        if let presented = base?.presentedViewController {
+            return topmostController(base: presented)
+        }
+        return base
     }
     
 }
