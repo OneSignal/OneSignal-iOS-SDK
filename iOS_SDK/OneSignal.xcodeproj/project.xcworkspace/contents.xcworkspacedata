@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:OneSignal.xcodeproj">
+      location = "self:OneSignalSwift.xcodeproj">
    </FileRef>
 </Workspace>

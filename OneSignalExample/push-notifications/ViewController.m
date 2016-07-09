@@ -53,11 +53,11 @@
 }
 
 - (IBAction)sendTags:(id)sender {
-    [[[self appDelegate] oneSignal] sendTag:@"key" value:@"value"];
+    [OneSignal sendTag:@"key" value:@"value"];
 }
 
 - (IBAction)getIds:(id)sender {
-    [[self appDelegate].oneSignal IdsAvailable:^(NSString* userId, NSString* pushToken) {
+    [OneSignal IdsAvailable:^(NSString* userId, NSString* pushToken) {
         NSString* messageFormat = @"PlayerId:\n%@\n\nPushToken:\n%@\n";
         NSString* pushTokenError = @"ERROR: Could not get a pushToken from Apple! Make sure your provisioning profile has 'Push Notifications' enabled and rebuild your app.";
         NSString* message = nil;

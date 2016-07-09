@@ -1,0 +1,12 @@
+/*
+    OneSignal-iOS Custom Module Map
+    Author: Joseph Kalash
+ */
+
+framework module OneSignal {
+    umbrella header "OneSignal.h"
+    header "OneSignalLocation-Helper.h"
+    header "Constants.h"
+    export *
+    module * { export * }
+}
