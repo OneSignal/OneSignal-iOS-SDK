@@ -843,6 +843,7 @@ NSString* getUsableDeviceToken() {
 }
 
 - (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+
     NSString *messageId, *openUrl;
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
@@ -1124,7 +1125,6 @@ int getNotificationTypes() {
 
 - (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo {
     // If 'm' present then the notification has action buttons attached to it.
-    
     NSDictionary* data = nil;
     
     if (userInfo[@"os_data"])
@@ -1132,6 +1132,8 @@ int getNotificationTypes() {
     else if (userInfo[@"m"])
         data = userInfo;
     
+    //If buttons -> Data is buttons
+    //Otherwise if titles or body -> data is title / body
     if (data) {
         id category = [[NSClassFromString(@"UIMutableUserNotificationCategory") alloc] init];
         [category setIdentifier:@"dynamic"];
@@ -1178,8 +1180,16 @@ int getNotificationTypes() {
         
         [[UIApplication sharedApplication] scheduleLocalNotification:notification];
     }
+    
     else if (application.applicationState != UIApplicationStateBackground)
         [self notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
+    
+    
+    /* Handle the case where a silent notification has been sent. No data & No title and the app is in background => need to call the OneSignalHandleNotificationBlock*/
+    else if (handleNotification) {
+        self.lastMessageReceived = userInfo;
+        handleNotification([self getMessageString], [self getAdditionalData], [application applicationState] == UIApplicationStateActive);
+    }
 }
 
 - (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
@@ -1218,9 +1228,10 @@ int getNotificationTypes() {
             
             userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
         }
-        
+
         [self notificationOpened:userInfo isActive:[[UIApplication sharedApplication] applicationState] == UIApplicationStateActive];
     }
+
 }
 
 - (void) promptLocation {
@@ -1229,7 +1240,10 @@ int getNotificationTypes() {
 
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray*)locations {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     [manager performSelector:@selector(stopUpdatingLocation)];
+#pragma clang diagnostic pop
     
     if (location_event_fired)
         return;
@@ -1423,16 +1437,15 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
     
     if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
         [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    else
-        completionHandler();
+    else completionHandler();
 }
 
-- (void)oneSignalLocalNotificaionOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
+- (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
     if ([OneSignal defaultClient])
         [[OneSignal defaultClient] processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
     
-    if ([self respondsToSelector:@selector(oneSignalLocalNotificaionOpened:notification:)])
-        [self oneSignalLocalNotificaionOpened:application notification:notification];
+    if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
+        [self oneSignalLocalNotificationOpened:application notification:notification];
 }
 
 - (void)oneSignalApplicationWillResignActive:(UIApplication*)application {
@@ -1496,7 +1509,7 @@ static Class delegateClass = nil;
     injectSelector(self.class, @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:),
                    delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
     
-    injectSelector(self.class, @selector(oneSignalLocalNotificaionOpened:notification:),
+    injectSelector(self.class, @selector(oneSignalLocalNotificationOpened:notification:),
                    delegateClass, @selector(application:didReceiveLocalNotification:));
     
     injectSelector(self.class, @selector(oneSignalApplicationWillResignActive:),
