@@ -28,21 +28,19 @@
 #import "AppDelegate.h"
 
 @implementation AppDelegate
-@synthesize oneSignal = _oneSignal;
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
     
     // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_INFO];
     
-    self.oneSignal = [[OneSignal alloc] initWithLaunchOptions:launchOptions
-                                                         appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-                                            handleNotification:^(NSString* message, NSDictionary* additionalData, BOOL isActive) {
+    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotification:^(OSNotificationResult *result) {
         // This function gets call when a notification is tapped on or one is received while the app is in focus.
         NSString* messageTitle = @"OneSignal Example";
-        NSString* fullMessage = [message copy];
+        NSString* fullMessage = [result.payload.body copy];
         
-        if (additionalData) {
+        if (result.payload.additionalData) {
+            NSDictionary* additionalData = result.payload.additionalData;
             if (additionalData[@"inAppTitle"])
                 messageTitle = additionalData[@"inAppTitle"];
             
