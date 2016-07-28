@@ -24,11 +24,10 @@
 
 #import "OneSignalJailbreakDetection.h"
 
-#import <UIKit/UIKit.h>
-
 @implementation OneSignalJailbreakDetection
 
 + (BOOL)isJailbroken {
+    
 #if !(TARGET_IPHONE_SIMULATOR)
     
     FILE *file = fopen("/Applications/Cydia.app", "r");
@@ -41,6 +40,7 @@
         fclose(file);
         return YES;
     }
+
     file = fopen("/bin/bash", "r");
     if (file) {
         fclose(file);

@@ -40,7 +40,7 @@
     bzero(&zeroAddress, sizeof(zeroAddress));
     zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
-    
+
     return [self reachabilityWithAddress:&zeroAddress];
 }
 
@@ -55,31 +55,24 @@
 
 #pragma mark - Network Flag Handling
 
-- (NetworkStatus)localWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags
-{
-    NetworkStatus returnValue = NotReachable;
-    
-    if ((flags & kSCNetworkReachabilityFlagsReachable) && (flags & kSCNetworkReachabilityFlagsIsDirect))
-    {
-        returnValue = ReachableViaWiFi;
+- (NetworkStatus)localWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags {
+
+    if ((flags & kSCNetworkReachabilityFlagsReachable) && (flags & kSCNetworkReachabilityFlagsIsDirect)) {
+        return ReachableViaWiFi;
     }
-    
-    return returnValue;
+    return NotReachable;
 }
 
 
-- (NetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags
-{
-    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0)
-    {
+- (NetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags {
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0) {
         // The target host is not reachable.
         return NotReachable;
     }
     
     NetworkStatus returnValue = NotReachable;
     
-    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
-    {
+    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {
         /*
          If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
          */
@@ -87,14 +80,12 @@
     }
     
     if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
-         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0))
-    {
+         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
         /*
          ... and the connection is on-demand (or on-traffic) if the calling application is using the CFSocketStream or higher APIs...
          */
         
-        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0)
-        {
+        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0) {
             /*
              ... and no [user] intervention is needed...
              */
