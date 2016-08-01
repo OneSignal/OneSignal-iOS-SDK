@@ -996,6 +996,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     } onFailure:^(NSError* error) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error in OneSignal Registration: %@", error]];
     }];
+    
 }
     
 + (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo {

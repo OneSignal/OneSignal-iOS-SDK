@@ -75,7 +75,6 @@
         }
         else if(_rawPayload[@"os_data"]) {
             NSDictionary * os_data = _rawPayload[@"os_data"];
-            NSDictionary * buttons = os_data[@"buttons"];
             
             NSMutableDictionary *additional = [_rawPayload mutableCopy];
             [additional removeObjectForKey:@"aps"];
