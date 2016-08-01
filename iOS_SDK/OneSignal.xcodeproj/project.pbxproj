@@ -14,11 +14,12 @@
 		37D6E07F1B1EAE6500EC3624 /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D6E07D1B1EAE6500EC3624 /* OneSignalMobileProvision.m */; };
 		37E277051ACB940000D49C8D /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E277031ACB940000D49C8D /* OneSignal.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3E08E2581D49A4CC002176DE /* CarthageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E08E2571D49A4CC002176DE /* CarthageTests.m */; };
 		3E14F6341D3DB0E7008BF4E2 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */; };
 		3E3414621D42F1A200EB2546 /* UIApplication+Swizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */; };
+		3E84C6231D4AE53500ED8557 /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84001D4936F9008F135D /* NSObject+Extras.m */; };
 		3E8998B61D37268F0066A9ED /* OneSignal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; };
 		3EBD83FE1D49364E008F135D /* OneSignalHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD83FD1D49364E008F135D /* OneSignalHelper.m */; };
-		3EBD84011D4936F9008F135D /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84001D4936F9008F135D /* NSObject+Extras.m */; };
 		3EBD84041D49416A008F135D /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84031D49416A008F135D /* NSString+Hash.m */; };
 		3ECE8FDD1D39829300742055 /* OneSignalAlertViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ECE8FDC1D39829300742055 /* OneSignalAlertViewDelegate.m */; };
 		91F2D1031C94D10F00DE95D0 /* OneSignalLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */; };
@@ -53,6 +54,11 @@
 		37E277031ACB940000D49C8D /* OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignal.m; sourceTree = "<group>"; };
 		37E277041ACB940000D49C8D /* OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignal.h; sourceTree = "<group>"; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		3E08E24D1D49A4CC002176DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3E08E2521D49A4CC002176DE /* CarthageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CarthageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3E08E2571D49A4CC002176DE /* CarthageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CarthageTests.m; sourceTree = "<group>"; };
+		3E08E2591D49A4CC002176DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3E14F6321D3DB0E7008BF4E2 /* OneSignalWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalWebView.h; sourceTree = "<group>"; };
 		3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalWebView.m; sourceTree = "<group>"; };
 		3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIApplication+Swizzling.m"; path = "OneSignal/UIApplication+Swizzling.m"; sourceTree = "<group>"; };
@@ -74,6 +80,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3E08E24F1D49A4CC002176DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +127,8 @@
 				3E3B6F311D494DD6008ED274 /* Helper */,
 				37747F9819147D6500558FAD /* OneSignal */,
 				3E3B6F301D494DBB008ED274 /* Categories */,
+				3E08E24B1D49A4CC002176DE /* Carthage */,
+				3E08E2561D49A4CC002176DE /* CarthageTests */,
 				37747F9519147D6500558FAD /* Frameworks */,
 				37747F9419147D6500558FAD /* Products */,
 			);
@@ -123,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				37747F9319147D6500558FAD /* libOneSignal.a */,
+				3E08E2521D49A4CC002176DE /* CarthageTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -130,6 +146,7 @@
 		37747F9519147D6500558FAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */,
 				37E6B2BA19D9CAF300D0C601 /* UIKit.framework */,
 			);
 			name = Frameworks;
@@ -153,6 +170,23 @@
 			);
 			name = "Mobile Provision";
 			path = OneSignalMobileProvision;
+			sourceTree = "<group>";
+		};
+		3E08E24B1D49A4CC002176DE /* Carthage */ = {
+			isa = PBXGroup;
+			children = (
+				3E08E24D1D49A4CC002176DE /* Info.plist */,
+			);
+			path = Carthage;
+			sourceTree = "<group>";
+		};
+		3E08E2561D49A4CC002176DE /* CarthageTests */ = {
+			isa = PBXGroup;
+			children = (
+				3E08E2571D49A4CC002176DE /* CarthageTests.m */,
+				3E08E2591D49A4CC002176DE /* Info.plist */,
+			);
+			path = CarthageTests;
 			sourceTree = "<group>";
 		};
 		3E14F62D1D3D6006008BF4E2 /* HTTP Client */ = {
@@ -242,6 +276,23 @@
 			productReference = 37747F9319147D6500558FAD /* libOneSignal.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		3E08E2511D49A4CC002176DE /* CarthageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3E08E2601D49A4CC002176DE /* Build configuration list for PBXNativeTarget "CarthageTests" */;
+			buildPhases = (
+				3E08E24E1D49A4CC002176DE /* Sources */,
+				3E08E24F1D49A4CC002176DE /* Frameworks */,
+				3E08E2501D49A4CC002176DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CarthageTests;
+			productName = CarthageTests;
+			productReference = 3E08E2521D49A4CC002176DE /* CarthageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -250,6 +301,14 @@
 			attributes = {
 				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Hiptic;
+				TargetAttributes = {
+					3E08E2511D49A4CC002176DE = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = 99SW8E36CT;
+						DevelopmentTeamName = "Lilomi Inc.";
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = 37747F8E19147D6400558FAD /* Build configuration list for PBXProject "OneSignal" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -264,9 +323,20 @@
 			projectRoot = "";
 			targets = (
 				37747F9219147D6500558FAD /* OneSignal */,
+				3E08E2511D49A4CC002176DE /* CarthageTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3E08E2501D49A4CC002176DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		3EB086061D417A1900A15871 /* ShellScript */ = {
@@ -293,15 +363,23 @@
 				371FDED919F1A486001479B7 /* OneSignalTrackIAP.m in Sources */,
 				3EBD83FE1D49364E008F135D /* OneSignalHelper.m in Sources */,
 				3E3414621D42F1A200EB2546 /* UIApplication+Swizzling.m in Sources */,
+				3E84C6231D4AE53500ED8557 /* NSObject+Extras.m in Sources */,
 				3724485819F6D1DE00573B5A /* OneSignalJailbreakDetection.m in Sources */,
 				37747FC51914837300558FAD /* OneSignalHTTPClient.m in Sources */,
-				3EBD84011D4936F9008F135D /* NSObject+Extras.m in Sources */,
 				3EBD84041D49416A008F135D /* NSString+Hash.m in Sources */,
 				3E14F6341D3DB0E7008BF4E2 /* OneSignalWebView.m in Sources */,
 				37D6E07F1B1EAE6500EC3624 /* OneSignalMobileProvision.m in Sources */,
 				37668EE91AA80B7E0095D813 /* OneSignalReachability.m in Sources */,
 				37E277051ACB940000D49C8D /* OneSignal.m in Sources */,
 				91F2D1031C94D10F00DE95D0 /* OneSignalLocation.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3E08E24E1D49A4CC002176DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3E08E2581D49A4CC002176DE /* CarthageTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,7 +428,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-all_load";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -390,7 +468,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-all_load";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -403,7 +481,8 @@
 				GCC_PREFIX_HEADER = "OneSignal/OneSignal-Prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
 			};
@@ -415,9 +494,45 @@
 				DSTROOT = /tmp/OneSignal.dst;
 				GCC_PREFIX_HEADER = "OneSignal/OneSignal-Prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		3E08E25D1D49A4CC002176DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = CarthageTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.CarthageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3E08E25E1D49A4CC002176DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				INFOPLIST_FILE = CarthageTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.CarthageTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -438,6 +553,15 @@
 			buildConfigurations = (
 				37747FB719147D6500558FAD /* Debug */,
 				37747FB819147D6500558FAD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3E08E2601D49A4CC002176DE /* Build configuration list for PBXNativeTarget "CarthageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3E08E25D1D49A4CC002176DE /* Debug */,
+				3E08E25E1D49A4CC002176DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

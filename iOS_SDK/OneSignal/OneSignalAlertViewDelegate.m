@@ -7,6 +7,14 @@
 //
 
 #import "OneSignalAlertViewDelegate.h"
+#import "OneSignal.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+@interface OneSignal ()
++ (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive actionType : (OSNotificationActionType)actionType displayType:(OSNotificationDisplayType)displayType;
+@end
 
 @implementation OneSignalAlertViewDelegate
 
@@ -30,11 +38,17 @@ static NSMutableArray* delegateReference;
 }
 
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    OSNotificationActionType actionType = Opened;
+    
     if (buttonIndex != 0) {
-        NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
         
+        actionType = ActionTaken;
+        
+        NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
+
         if (mMessageDict[@"os_data"])
-            userInfo[@"actionSelected"] = mMessageDict[@"actionButtons"][buttonIndex - 1][@"id"];
+            userInfo[@"actionSelected"] = mMessageDict[@"os_data"][@"buttons"][@"o"][buttonIndex - 1][@"i"];
         else {
             NSMutableDictionary* customDict = [userInfo[@"custom"] mutableCopy];
             NSMutableDictionary* additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
@@ -48,8 +62,7 @@ static NSMutableArray* delegateReference;
         mMessageDict = userInfo;
     }
     
-    #pragma GCC diagnostic ignored "-Wundeclared-selector"
-    [[OneSignal class] performSelector:@selector(handleNotificationOpened:isActive:) withObject: mMessageDict withObject: [NSNumber numberWithBool:true]];
+    [OneSignal handleNotificationOpened:mMessageDict isActive:YES actionType:actionType displayType:InAppAlert];
     
     [delegateReference removeObject:self];
 }

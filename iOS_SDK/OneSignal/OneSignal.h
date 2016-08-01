@@ -28,66 +28,117 @@
 
 #endif
 
+/* The action type associated to an OSNotificationAction object */
+typedef enum : NSUInteger {
+    Opened,
+    ActionTaken
+} OSNotificationActionType;
+
+/* The way a notification was displayed to the user */
+typedef enum : NSUInteger {
+    /*iOS native notification display*/
+    Notification,
+
+    /*Default UIAlertView display*/
+    InAppAlert,
+    
+    /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
+    None
+} OSNotificationDisplayType;
+
+@interface OSNotificationAction : NSObject
+
+/* The type of the notification action */
+@property(readonly)OSNotificationActionType type;
+
+/* The ID associated with the button tapped. NULL when the actionType is NotificationTapped or InAppAlertClosed */
+@property(readonly)NSString* actionID;
+
+@end
+
 @interface OSNotificationPayload : NSObject
 
-// Unique Message Identifier
-@property(readonly)NSString* identifier;
+/* Unique Message Identifier */
+@property(readonly)NSString* notificationID;
 
-// Provide this key with a value of 1 to indicate that new content is available.
-//Including this key and value means that when your app is launched in the background or resumed application:didReceiveRemoteNotification:fetchCompletionHandler: is called.
+/* Provide this key with a value of 1 to indicate that new content is available.
+ Including this key and value means that when your app is launched in the background or resumed application:didReceiveRemoteNotification:fetchCompletionHandler: is called. */
 @property(readonly)BOOL contentAvailable;
 
-// The badge assigned to the application icon
+/* The badge assigned to the application icon */
 @property(readonly)NSUInteger badge;
 
-// The sound parameter passed to the notification
-// By default set to UILocalNotificationDefaultSoundName
+/* The sound parameter passed to the notification
+ By default set to UILocalNotificationDefaultSoundName */
 @property(readonly)NSString* sound;
 
-// Main push content
+/* Main push content */
 @property(readonly)NSString* title;
 @property(readonly)NSString* subtitle;
 @property(readonly)NSString* body;
 
-// Web address to launch within the app via a UIWebView
+/* Web address to launch within the app via a UIWebView */
 @property(readonly)NSString* launchURL;
 
-// Additional key value properties set within the payload
+/* Additional key value properties set within the payload */
 @property(readonly)NSDictionary* additionalData;
 
-//Action buttons passed
+/* Action buttons passed */
 @property(readonly)NSDictionary *actionButtons;
 
-// Holds the original payload received
-// Keep the raw value for users that would like to root the push
-@property(readonly)NSDictionary *rawMessage;
+/* Holds the original payload received
+ Keep the raw value for users that would like to root the push */
+@property(readonly)NSDictionary *rawPayload;
 
 @end
 
-@interface OSNotificationResult : NSObject
+@interface OSNotification : NSObject
 
-// Notification Payload
+/* Notification Payload */
 @property(readonly)OSNotificationPayload* payload;
 
-// Set to true when notification is opened while the app is in foreground
-//For all other cases, irt is set to false.
-@property(readonly, getter=isActive)BOOL active;
+/* Display method of the notification */
+@property(readonly)OSNotificationDisplayType displayType;
 
-// Set to true when the user was able to see the notification and reacted to it
-//Set to false when app is in focus and in-app alerts are disabled, or the remote notification is silent.
+/* Set to true when the user was able to see the notification and reacted to it
+ Set to false when app is in focus and in-app alerts are disabled, or the remote notification is silent. */
 @property(readonly, getter=wasShown)BOOL shown;
 
-// Set to true when the received notification is silent
-// Silent means there is no alert, sound, or badge payload in the aps dictionary
-// requires remote-notification within UIBackgroundModes array of the Info.plist
+/* Set to true when the received notification is silent
+ Silent means there is no alert, sound, or badge payload in the aps dictionary
+ requires remote-notification within UIBackgroundModes array of the Info.plist */
 @property(readonly, getter=isSilentNotification)BOOL silentNotification;
 
 @end
 
+
+@interface OSNotificationResult : NSObject
+
+@property(readonly)OSNotification* notification;
+
+@property(readonly)OSNotificationAction *action;
+
+@end;
+
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
+
+/*Block for notifying avalability of the User's ID and push token*/
 typedef void (^OSIdsAvailableBlock)(NSString* userId, NSString* pushToken);
-typedef void (^OSHandleNotificationBlock)(OSNotificationResult* notification);
+
+/*Block for handling the reception of a remote notification */
+typedef void (^OSHandleNotificationReceivedBlock)(OSNotification* notification);
+
+/*Block for handling a user reaction to a notification*/
+typedef void (^OSHandleNotificationActionBlock)(OSNotificationResult * result);
+
+/*Dictionary of keys to pass alongside the init serttings*/
+    
+/*Let OneSignal directly promt for push notifications on init*/
+extern NSString * const kOSSettingsKeyAutoPrompt;
+    
+/*Enable the default in-app alerts*/
+extern NSString * const kOSSettingsKeyInAppAlerts;
 
 /**
  `OneSignal` provides a high level interface to interact with OneSignal's push service.
@@ -119,13 +170,10 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 */
 
 // - Initialization
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions autoRegister:(BOOL)autoRegister;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(OSHandleNotificationBlock)callback;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OSHandleNotificationBlock)callback;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(OSHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(OSHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister;
++ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback;
++ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
++ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 
 + (NSString*)app_id;
     
@@ -142,7 +190,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 + (void)sendTags:(NSDictionary*)keyValuePair;
 + (void)sendTagsWithJsonString:(NSString*)jsonString;
-//+ (void)setEmail:(NSString*)email;
 + (void)getTags:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 + (void)getTags:(OSResultSuccessBlock)successBlock;
 + (void)deleteTag:(NSString*)key onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
