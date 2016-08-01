@@ -15,6 +15,9 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
     if (!class_conformsToProtocol(searchClass, protocolToFind)) {
         if ([searchClass superclass] == nil)
@@ -88,10 +91,13 @@ static Class delegateClass = nil;
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
 }
 
-// Notification opened or silent one received on iOS 7 & 8
+// User Tap on Notification while app was in background - OR - Notification received (silent or not, foreground or background) on iOS 7+
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     
-    [OneSignal remoteSilentNotification:application UserInfo:userInfo];
+    //Call notificationAction if app is active -> not a silent notification but rather user tap on notification
+    if([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
+        [OneSignal notificationOpened:userInfo isActive:YES];
+    else [OneSignal remoteSilentNotification:application UserInfo:userInfo];
     
     if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)]) {
         [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
@@ -187,8 +193,7 @@ static Class delegateClass = nil;
     /* iOS 10.0: UNUserNotificationCenterDelegate instead of UIApplicationDelegate for methods handling opening app from notification
      Make sure AppDelegate does not conform to this protocol */
     if([[[UIDevice currentDevice] systemVersion] floatValue] >= 10.0)
-        if([OneSignalHelper respondsToSelector:@selector(conformsToUNProtocol)])
-            [OneSignalHelper performSelector2:@selector(conformsToUNProtocol) withObjects: nil];
+        [OneSignalHelper conformsToUNProtocol];
     
     [self setOneSignalDelegate:delegate];
 }
