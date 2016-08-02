@@ -29,8 +29,6 @@
 
 @property (readonly, nonatomic) NSURL *baseURL;
 
-- (id)initWithBaseURL:(NSURL *)url;
-
 - (NSMutableURLRequest*) requestWithMethod:(NSString*)method
                                       path:(NSString*)path;
 @end

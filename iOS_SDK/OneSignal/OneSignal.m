@@ -15,6 +15,7 @@
  */
 
 #import "OneSignal.h"
+#import "OneSignalTracker.h"
 #import "OneSignalHTTPClient.h"
 #import "OneSignalTrackIAP.h"
 #import "OneSignalLocation.h"
@@ -32,8 +33,6 @@
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
 #import <objc/runtime.h>
-
-#define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
 
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -73,32 +72,27 @@ NSString* const ONESIGNAL_VERSION = @"020000";
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
-    
-NSNumber* lastTrackedTime;
-NSNumber* unSentActiveTime;
 NSString* emailToSet;
 NSMutableDictionary* tagsToSend;
 os_last_location *lastLocation;
 BOOL location_event_fired;
 NSString* mUserId;
 NSString* mDeviceToken;
-BOOL waitingForOneSReg = NO;
 OneSignalHTTPClient *httpClient;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 int mNotificationTypes = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 NSString* mSDKType = @"native";
-UIBackgroundTaskIdentifier focusBackgroundTask;
-NSNumber* timeToPingWith;
 bool disableBadgeClearing = NO;
 bool mSubscriptionSet;
-
-//Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the 1 hour timer delay
-bool nextRegistrationIsHighPriority = NO;
     
 + (NSString*)app_id {
     return app_id;
+}
+
++ (NSString*)mUserId {
+    return mUserId;
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
@@ -128,7 +122,6 @@ bool nextRegistrationIsHighPriority = NO;
     if (self) {
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
-        lastTrackedTime = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970]];
         
         if (appId)
             app_id = appId;
@@ -138,8 +131,7 @@ bool nextRegistrationIsHighPriority = NO;
                 app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
         }
         
-        NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"%@", DEFAULT_PUSH_HOST]];
-        httpClient = [[OneSignalHTTPClient alloc] initWithBaseURL:url];
+        httpClient = [[OneSignalHTTPClient alloc] init];
         
         // Handle changes to the app id. This might happen on a developer's device when testing.
         if (app_id == nil)
@@ -170,13 +162,9 @@ bool nextRegistrationIsHighPriority = NO;
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
         
-        if (mUserId != nil) {
-            if(nextRegistrationIsHighPriority || (mDeviceToken == nil && mNotificationTypes > 0) )
-                [OneSignal registerUser:@YES];
-            else [OneSignal registerUser:@NO];
-        }
-        else // Fall back incase Apple does not responsed in time.
-            [self performSelector:@selector(registerUser:) withObject:@NO afterDelay:30.0f];
+        
+        [OneSignalTracker onFocus:NO];
+        
     }
     
     //If app opened from tap on notification or action
@@ -482,12 +470,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // Also check mNotificationTypes so there is no waiting if user has already answered the system prompt.
         // The goal is to only have 1 server call.
         if ([OneSignalHelper isCapableOfGettingNotificationTypes] && mNotificationTypes == -1) {
-            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser:) object:@YES];
-            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser:) object:@NO];
-            [self performSelector:@selector(registerUser:) withObject:@YES afterDelay:20.0f];
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
+            [self performSelector:@selector(registerUser) withObject:nil afterDelay:20.0f];
         }
         else
-            [OneSignal registerUser:@YES];
+            [OneSignal registerUser];
         return;
     }
     
@@ -521,23 +508,36 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         idsAvailableBlockWhenReady = nil;
     }
 }
+
+//Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the 1 hour timer delay
+bool nextRegistrationIsHighPriority = NO;
+
++ (BOOL)isHighPriorityCall {
+    return mUserId == nil || (mDeviceToken == nil && mNotificationTypes > 0) || nextRegistrationIsHighPriority;
+}
+
++(BOOL)shouldRegisterNow {
     
-+ (void)registerUser:(NSNumber*)isHighPriority {
+    if ([self isHighPriorityCall]) return YES;
     
-    // Make sure we only call create or on_session once per run of the app.
-    if (waitingForOneSReg)
-        return;
-    
-    
+    //Figure out if should pass or not
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    if(![isHighPriority boolValue] && mUserId) {
-        //Make sure last time we called on_session was no more than an hour ago
-        const NSTimeInterval minTimeThreshold = 3600;
-        NSTimeInterval lastTimeRegistered = [[NSUserDefaults standardUserDefaults] doubleForKey:@"LAST_REGISTERED_TIME"];
-        if(lastTimeRegistered)
-            if((now - lastTimeRegistered) < minTimeThreshold) return;
-        
-    }
+    NSTimeInterval lastTimeClosed = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GT_LAST_CLOSED_TIME"];
+    if(!lastTimeClosed) return YES;
+    
+    //Make sure last time we closed app was more than 30 secs ago
+    const NSTimeInterval minTimeThreshold = 30;
+    NSTimeInterval delta = now - lastTimeClosed;
+    return delta > minTimeThreshold;
+}
+    
++ (void)registerUser {
+    
+    static BOOL waitingForOneSReg = NO;
+    
+    // Make sure we only call create or on_session once per open of the app.
+    if (waitingForOneSReg || ![self shouldRegisterNow])
+        return;
     
     
     waitingForOneSReg = true;
@@ -619,11 +619,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         //Success, no more high priority
         nextRegistrationIsHighPriority = NO;
         
-        
-        //Set last time registered
-        [[NSUserDefaults standardUserDefaults] setDouble:now forKey:@"LAST_REGISTERED_TIME"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
         if ([results objectForKey:@"id"] != nil) {
             
             mUserId = [results objectForKey:@"id"];
@@ -691,117 +686,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             idsAvailableBlockWhenReady = nil;
         }
     }
-    
-}
-    
-+ (void) beginBackgroundFocusTask {
-    focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        [OneSignal endBackgroundFocusTask];
-    }];
-}
-    
-+ (void) endBackgroundFocusTask {
-    [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
-    focusBackgroundTask = UIBackgroundTaskInvalid;
-}
-    
-+ (void)onFocus:(NSString*)state {
-    bool wasBadgeSet = false;
-    
-    if ([state isEqualToString:@"resume"]) {
-        lastTrackedTime = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970]];
-        
-        [self sendNotificationTypesUpdateIsConfirmed:false];
-        wasBadgeSet = [self clearBadgeCount:false];
-        
-        //Try to register user.
-        if(nextRegistrationIsHighPriority || !mUserId)
-            [OneSignal registerUser:@YES];
-        else [OneSignal registerUser:@NO];
-    }
-    else {
-        NSNumber* timeElapsed = @(([[NSDate date] timeIntervalSince1970] - [lastTrackedTime longLongValue]) + 0.5);
-        if ([timeElapsed intValue] < 0 || [timeElapsed intValue] > 604800)
-        return;
-        
-        NSNumber* unsentActive = [OneSignal getUnsentActiveTime];
-        NSNumber* totalTimeActive = @([unsentActive intValue] + [timeElapsed intValue]);
-        
-        if ([totalTimeActive intValue] < 30) {
-            [OneSignal saveUnsentActiveTime:totalTimeActive];
-            return;
-        }
-        
-        timeToPingWith = totalTimeActive;
-    }
-    
-    if (mUserId == nil)
-    return;
-    
-    // If resuming and badge was set, clear it on the server as well.
-    if (wasBadgeSet && [state isEqualToString:@"resume"]) {
-        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-        
-        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 app_id, @"app_id",
-                                 @0, @"badge_count",
-                                 nil];
-        
-        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-        [request setHTTPBody:postData];
-        
-        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
-        return;
-    }
-    
-    // Update the playtime on the server when the app put into the background or the device goes to sleep mode.
-    if ([state isEqualToString:@"suspend"]) {
-        [self saveUnsentActiveTime:0];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self beginBackgroundFocusTask];
-            
-            
-            
-            NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_focus", mUserId]];
-            NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     app_id, @"app_id",
-                                     @"ping", @"state",
-                                     timeToPingWith, @"active_time",
-                                     [OneSignalHelper getNetType], @"net_type",
-                                     nil];
-            
-            NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-            [request setHTTPBody:postData];
-            
-            // We are already running in a thread so send the request synchronous to keep the thread alive.
-            [OneSignalHelper enqueueRequest:request
-                       onSuccess:nil
-                       onFailure:nil
-                   isSynchronous:true];
-            [self endBackgroundFocusTask];
-        });
-    }
-}
-    
-+ (NSNumber*)getUnsentActiveTime {
-    if (unSentActiveTime == NULL) {
-        unSentActiveTime = [NSNumber numberWithInteger:-1];
-    }
-    
-    
-    if ([unSentActiveTime intValue] == -1) {
-        unSentActiveTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_UNSENT_ACTIVE_TIME"];
-        if (unSentActiveTime == nil)
-        unSentActiveTime = 0;
-    }
-    
-    return unSentActiveTime;
-}
-    
-+ (void)saveUnsentActiveTime:(NSNumber*)time {
-    unSentActiveTime = time;
-    [[NSUserDefaults standardUserDefaults] setObject:time forKey:@"GT_UNSENT_ACTIVE_TIME"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
     
 }
     
@@ -979,7 +863,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     mNotificationTypes = notificationTypes;
     
     if (mUserId == nil && mDeviceToken)
-        [OneSignal registerUser:@YES];
+        [OneSignal registerUser];
     else if (mDeviceToken)
         [self sendNotificationTypesUpdateIsConfirmed:changed];
     
