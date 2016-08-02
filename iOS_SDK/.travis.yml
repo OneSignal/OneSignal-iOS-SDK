@@ -2,15 +2,16 @@ language: objective-c
 osx_image: xcode8.0
 xcode_project: OneSignal.xcodeproj
 # xcode_workspace: <WORKSPACE_PLACEHOLDER>
-xcode_scheme: Carthage
-xcode_sdk: iphonesimulator9.3
+xcode_scheme: OneSignal-Dynamic
+xcode_sdk: iphonesimulator10.0
 env:
   global: 
-    - FRAMEWORK_NAME=<THIS_IS_A_PLACEHOLDER_REPLACE_ME>
+    - FRAMEWORK_NAME=OneSignal
 before_install:
   - brew update
   - brew outdated carthage || brew upgrade carthage
 before_script:
+  - cd iOS_SDK/
   # bootstrap the dependencies for the project
   # you can remove if you don't have dependencies
   - carthage bootstrap  
