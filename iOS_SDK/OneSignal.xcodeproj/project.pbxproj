@@ -15,7 +15,7 @@
 		37E277051ACB940000D49C8D /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E277031ACB940000D49C8D /* OneSignal.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3E14F6341D3DB0E7008BF4E2 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */; };
-		3E2400401D4FFC39008BDE70 /* OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; };
+		3E2400401D4FFC39008BDE70 /* OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3E3414621D42F1A200EB2546 /* UIApplication+Swizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */; };
 		3E84C6231D4AE53500ED8557 /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84001D4936F9008F135D /* NSObject+Extras.m */; };
 		3E8998B61D37268F0066A9ED /* OneSignal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; };
