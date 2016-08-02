@@ -242,7 +242,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     UILocalNotification * notification = [[UILocalNotification alloc] init];
     
     id category = [[NSClassFromString(@"UIMutableUserNotificationCategory") alloc] init];
-    [category setIdentifier:@"dynamic"];
+    [category setIdentifier:@"__dynamic__"];
     
     Class UIMutableUserNotificationActionClass = NSClassFromString(@"UIMutableUserNotificationAction");
     NSMutableArray* actionArray = [[NSMutableArray alloc] init];
@@ -265,7 +265,12 @@ OSHandleNotificationActionBlock handleNotificationAction;
     Class uiUserNotificationSettings = NSClassFromString(@"UIUserNotificationSettings");
     NSUInteger notificationTypes = NOTIFICATION_TYPE_ALL;
     
-    [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:[NSSet setWithObject:category]]];
+    NSSet* currentCategories = [[[UIApplication sharedApplication] currentUserNotificationSettings] categories];
+    if(currentCategories)
+        currentCategories = [currentCategories setByAddingObject:category];
+    else currentCategories = [NSSet setWithObject:category];
+    
+    [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:currentCategories]];
     notification.category = [category identifier];
     return notification;
 }
@@ -410,14 +415,14 @@ static OneSignal* singleInstance = nil;
     if ([actionArray count] == 2)
         actionArray = (NSMutableArray*)[[actionArray reverseObjectEnumerator] allObjects];
     
-    id category = [[NSClassFromString(@"UNNotificationCategory") class] performSelector2:@selector(categoryWithIdentifier:actions:intentIdentifiers:options:) withObjects:@[@"dynamic", actionArray, @[], @1]];
+    id category = [[NSClassFromString(@"UNNotificationCategory") class] performSelector2:@selector(categoryWithIdentifier:actions:intentIdentifiers:options:) withObjects:@[@"__dynamic__", actionArray, @[], @1]];
     
     NSSet* set = [[NSSet alloc] initWithArray:@[category]];
     
     [[self currentNotificationCenter] performSelector:@selector(setNotificationCategories:) withObject:set];
     
     id content = [[NSClassFromString(@"UNMutableNotificationContent") alloc] init];
-    [content setValue:@"dynamic" forKey:@"categoryIdentifier"];
+    [content setValue:@"__dynamic__" forKey:@"categoryIdentifier"];
     
     if(data[@"m"][@"title"])
         [content setValue:data[@"m"][@"title"] forKey:@"title"];
@@ -480,7 +485,7 @@ static OneSignal* singleInstance = nil;
     
     id trigger = [NSClassFromString(@"UNTimeIntervalNotificationTrigger") performSelector2:@selector(triggerWithTimeInterval:repeats:) withObjects: @[@0.25, [NSNumber numberWithBool:NO]]];
     
-    return [NSClassFromString(@"UNNotificationRequest") performSelector2:@selector(requestWithIdentifier:content:trigger:) withObjects: @[@"dynamic", content, trigger]];
+    return [NSClassFromString(@"UNNotificationRequest") performSelector2:@selector(requestWithIdentifier:content:trigger:) withObjects: @[@"__dynamic__", content, trigger]];
 }
 
 + (BOOL)verifyURL:(NSString *)urlString {
