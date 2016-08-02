@@ -9,6 +9,7 @@
 #import <objc/runtime.h>
 
 #import "OneSignal.h"
+#import "OneSignalTracker.h"
 #import "OneSignalHelper.h"
 #import "NSObject+Extras.h"
 
@@ -49,9 +50,12 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 + (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)token;
 + (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo;
 + (void) updateNotificationTypes:(int)notificationTypes;
-+ (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
-+ (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
-+ (void)onFocus:(NSString*)state;
++ (void) notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
++ (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
+@end
+
+@interface OneSignalTracker ()
++ (void)onFocus:(BOOL)toBackground;
 @end
 
 @implementation UIApplication (Swizzling)
@@ -129,7 +133,7 @@ static Class delegateClass = nil;
 
 - (void)oneSignalApplicationWillResignActive:(UIApplication*)application {
     
-    [OneSignal onFocus:@"suspend"];
+    [OneSignalTracker onFocus:YES];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationWillResignActive:)])
         [self oneSignalApplicationWillResignActive:application];
@@ -137,10 +141,18 @@ static Class delegateClass = nil;
 
 - (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
     
-    [OneSignal onFocus:@"resume"];
+    [OneSignalTracker onFocus:NO];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
         [self oneSignalApplicationDidBecomeActive:application];
+}
+
+-(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+    
+    [OneSignalTracker onFocus:YES];
+    
+    if ([self respondsToSelector:@selector(oneSignalApplicationWillTerminate:)])
+        [self oneSignalApplicationWillTerminate:application];
 }
 
 + (void)load {
@@ -188,6 +200,10 @@ static Class delegateClass = nil;
     
     injectSelector(self.class, @selector(oneSignalApplicationDidBecomeActive:),
                    delegateClass, @selector(applicationDidBecomeActive:));
+    
+    //Used to track how long the app has been closed
+    injectSelector(self.class, @selector(oneSignalApplicationWillTerminate:),
+                   delegateClass, @selector(applicationWillTerminate:));
     
     
     /* iOS 10.0: UNUserNotificationCenterDelegate instead of UIApplicationDelegate for methods handling opening app from notification
