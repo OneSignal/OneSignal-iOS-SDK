@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode8.0
+osx_image: xcode8
 xcode_project: OneSignal.xcodeproj
 # xcode_workspace: <WORKSPACE_PLACEHOLDER>
 xcode_scheme: OneSignal-Dynamic
