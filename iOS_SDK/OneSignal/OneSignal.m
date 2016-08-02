@@ -249,7 +249,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         Class uiUserNotificationSettings = NSClassFromString(@"UIUserNotificationSettings");
         NSUInteger notificationTypes = NOTIFICATION_TYPE_ALL;
         
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:nil]];
+        
+        NSSet* categories = [[[UIApplication sharedApplication] currentUserNotificationSettings] categories];
+        
+        [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:categories]];
         [[UIApplication sharedApplication] registerForRemoteNotifications];
     }
     else { // For iOS 6 & 7 devices
