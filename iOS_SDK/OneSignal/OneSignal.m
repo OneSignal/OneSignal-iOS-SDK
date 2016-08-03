@@ -939,19 +939,15 @@ int getNotificationTypes() {
     NSMutableDictionary* osDataDict = [self.lastMessageReceived objectForKey:@"os_data"];
     
     if (osDataDict) {
-        additionalData = [self.lastMessageReceived mutableCopy];
+        additionalData = [self.lastMessageReceived mutableCopy] ?: [NSMutableDictionary new];
         if (self.lastMessageReceived[@"os_data"][@"u"])
             additionalData[@"launchURL"] = self.lastMessageReceived[@"os_data"][@"u"];
     }
     else {
-        additionalData = [self.lastMessageReceived[@"custom"][@"a"] mutableCopy];
+        additionalData = [self.lastMessageReceived[@"custom"][@"a"] mutableCopy] ?: [NSMutableDictionary new];
         if (self.lastMessageReceived[@"custom"][@"u"])
             additionalData[@"launchURL"] = self.lastMessageReceived[@"custom"][@"u"];
     }
-    
-    if (!additionalData)
-        additionalData = [[NSMutableDictionary alloc] init];
-    
     
     // TODO: Add sound when notification sent with buttons.
     if (self.lastMessageReceived[@"aps"][@"sound"] != nil)
