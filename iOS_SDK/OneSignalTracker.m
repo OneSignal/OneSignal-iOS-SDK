@@ -105,6 +105,7 @@ BOOL lastOnFocusWasToBackground = YES;
             NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                      [OneSignal app_id], @"app_id",
                                      @"ping", @"state",
+                                     @1, @"type",
                                      @(timeToPingWith), @"active_time",
                                      [OneSignalHelper getNetType], @"net_type",
                                      nil];
