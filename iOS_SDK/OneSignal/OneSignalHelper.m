@@ -61,7 +61,7 @@
 @end
 
 @implementation OSNotificationPayload
-@synthesize actionButtons = _actionButtons, additionalData = _additionalData, badge = _badge, body = _body, contentAvailable = _contentAvailable, notificationID = _notificationID, launchURL = _launchURL, rawPayload = _rawPayload, sound = _sound, subtitle = _subtitle, title = _title;
+@synthesize actionButtons = _actionButtons, additionalData = _additionalData, badge = _badge, body = _body, contentAvailable = _contentAvailable, notificationID = _notificationID, launchURL = _launchURL, rawPayload = _rawPayload, sound = _sound, subtitle = _subtitle, title = _title, attachments = _attachments;
 
 - (id)initWithRawMessage:(NSDictionary*)message {
     self = [super init];
@@ -88,7 +88,10 @@
         
         if(_rawPayload[@"custom"]) {
             NSDictionary * custom = _rawPayload[@"custom"];
-            _additionalData = custom[@"a"];
+            if(custom[@"a"])
+                _additionalData = [custom[@"a"] copy];
+            if(custom[@"at"])
+                _attachments = [custom[@"at"] copy];
             _notificationID = custom[@"i"];
             _launchURL = custom[@"u"];
         }
@@ -102,6 +105,9 @@
             
             _notificationID = os_data[@"i"];
             _launchURL = os_data[@"u"];
+            
+            if(os_data[@"at"])
+                _attachments = [os_data[@"at"] copy];
         }
         
         if(_rawPayload[@"m"]) {
@@ -465,10 +471,15 @@ static OneSignal* singleInstance = nil;
     //Check if media attached
     //!! TEMP : Until Server implements Media Dict, use additional data dict as key val media
     NSMutableArray *attachments = [NSMutableArray new];
-    for(id key in userInfo[@"custom"][@"a"]) {
-        NSString * URI = [userInfo[@"custom"][@"a"] valueForKey:key];
-        /* Remote Object */
+    
+    NSDictionary * att = userInfo[@"custom"][@"at"];
+    if(!attachments)
+        attachments = userInfo[@"os_data"][@"at"];
+    
+    for(id key in att) {
+        NSString * URI = [att valueForKey:key];
         
+        /* Remote Object */
         if ([self verifyURL:URI]) {
             /* Synchroneously download file and chache it */
             NSString* name = [OneSignalHelper downloadMediaAndSaveInBundle:URI];

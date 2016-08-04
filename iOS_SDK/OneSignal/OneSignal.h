@@ -94,6 +94,9 @@ typedef enum : NSUInteger {
 /* Additional key value properties set within the payload */
 @property(readonly)NSDictionary* additionalData;
 
+/* iOS 10+ : Attachments sent as part of the rich notification */
+@property(readonly)NSDictionary* attachments;
+
 /* Action buttons passed */
 @property(readonly)NSDictionary *actionButtons;
 
