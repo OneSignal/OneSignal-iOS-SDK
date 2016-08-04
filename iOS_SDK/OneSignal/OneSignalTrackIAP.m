@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2015 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -109,7 +109,7 @@ NSMutableDictionary* skusToTrack;
     }
     
     if ([arrayOfPruchases count] > 0)
-        [[OneSignal defaultClient] performSelector:@selector(sendPurchases:) withObject:arrayOfPruchases];
+        [[OneSignal class] performSelector:@selector(sendPurchases:) withObject:arrayOfPruchases];
 }
 
 #pragma clang diagnostic pop

@@ -9,15 +9,40 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    @IBOutlet weak var textMultiLine1 : UITextView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
+    
+    private func appDelegate() -> AppDelegate? {
+        return UIApplication.sharedApplication().delegate as? AppDelegate
+    }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    @IBAction func sentTags(sender : AnyObject) {
+        
+        OneSignal.sendTags(["some_key" : "some_value"], onSuccess: { (result) in
+            print("success!")
+            }) { (error) in
+                print("Error sending tags - \(error.localizedDescription)")
+        }
+    }
+    
+    @IBAction func getIds(sender : AnyObject) {
+        
+        OneSignal.IdsAvailable { (userId, pushToken) in
+            
+            if pushToken != nil {
+                self.textMultiLine1.text = "PlayerId:\n\(userId)\n\nPushToken:\n\(pushToken)\n"
+            }
+            else {
+                self.textMultiLine1.text = "ERROR: Could not get a pushToken from Apple! Make sure your provisioning profile has 'Push Notifications' enabled and rebuild your app."
+            }
+            print(self.textMultiLine1.text)
+        }
+        
     }
 
 

@@ -26,28 +26,34 @@
  */
 
 #import "AppDelegate.h"
+#import <OneSignal/OneSignal.h>
 
 @implementation AppDelegate
-@synthesize oneSignal = _oneSignal;
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
     
     // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_INFO];
     
-    self.oneSignal = [[OneSignal alloc] initWithLaunchOptions:launchOptions
-                                                         appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-                                            handleNotification:^(NSString* message, NSDictionary* additionalData, BOOL isActive) {
-        // This function gets call when a notification is tapped on or one is received while the app is in focus.
-        NSString* messageTitle = @"OneSignal Example";
-        NSString* fullMessage = [message copy];
+    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+        NSLog(@"Received Notification - %@", notification.payload.notificationID);
+    } handleNotificationAction:^(OSNotificationResult *result) {
         
-        if (additionalData) {
-            if (additionalData[@"inAppTitle"])
-                messageTitle = additionalData[@"inAppTitle"];
+        // This block gets called when the user reacts to a notification received
+        OSNotificationPayload* payload = result.notification.payload;
+        
+        NSString* messageTitle = @"OneSignal Example";
+        NSString* fullMessage = [payload.body copy];
+        
+        if (payload.additionalData) {
             
-            if (additionalData[@"actionSelected"])
-                fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", additionalData[@"actionSelected"]]];
+            if(payload.title)
+                messageTitle = payload.title;
+            
+            NSDictionary* additionalData = payload.additionalData;
+            
+            if (result.action.actionID)
+                fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionID]];
         }
         
         UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:messageTitle
@@ -57,6 +63,13 @@
                                                   otherButtonTitles:nil, nil];
         [alertView show];
 
+    } settings:@{kOSSettingsKeyInAppAlerts : @NO, kOSSettingsKeyAutoPrompt : @NO}];
+    
+    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
+        if(pushToken) {
+            NSLog(@"Received push token - %@", pushToken);
+            NSLog(@"User ID - %@", userId);
+        }
     }];
     
     return YES;

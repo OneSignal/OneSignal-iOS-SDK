@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2015 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,11 +27,9 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-#import <OneSignal/OneSignal.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow* window;
-@property (strong, nonatomic) OneSignal* oneSignal;
 
 @end

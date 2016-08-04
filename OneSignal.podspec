@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name             = "OneSignal"
-  s.version          = "1.13.3"
+  s.version          = "2.0.0"
   s.summary          = "OneSignal push notification library for mobile apps."
   s.homepage         = "https://onesignal.com"
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { "Josh Kasten" => "josh@onesignal.com" }
+  s.author           = { "Joseph Kalash" => "joseph@onesignal.com", "Josh Kasten" => "josh@onesignal.com" }
   
-  s.source           = { :git => "https://github.com/one-signal/OneSignal-iOS-SDK.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/OneSignal/OneSignal-iOS-SDK.git", :tag => s.version.to_s }
   
   s.platform     = :ios
   s.requires_arc = true
