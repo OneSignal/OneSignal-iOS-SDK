@@ -26,6 +26,7 @@
  */
 
 #import "AppDelegate.h"
+#import <OneSignal/OneSignal.h>
 
 @implementation AppDelegate
 
@@ -34,11 +35,12 @@
     // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_INFO];
     
-    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationResult *result) {
+    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+        NSLog(@"Received Notification - %@", notification.payload.notificationID);
+    } handleNotificationAction:^(OSNotificationResult *result) {
+        
         // This block gets called when the user reacts to a notification received
-        
         OSNotificationPayload* payload = result.notification.payload;
-        
         
         NSString* messageTitle = @"OneSignal Example";
         NSString* fullMessage = [payload.body copy];
@@ -50,8 +52,8 @@
             
             NSDictionary* additionalData = payload.additionalData;
             
-            if (additionalData[@"actionSelected"])
-                fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", additionalData[@"actionSelected"]]];
+            if (result.action.actionID)
+                fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionID]];
         }
         
         UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:messageTitle
@@ -61,6 +63,13 @@
                                                   otherButtonTitles:nil, nil];
         [alertView show];
 
+    } settings:@{kOSSettingsKeyInAppAlerts : @NO, kOSSettingsKeyAutoPrompt : @NO}];
+    
+    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
+        if(pushToken) {
+            NSLog(@"Received push token - %@", pushToken);
+            NSLog(@"User ID - %@", userId);
+        }
     }];
     
     return YES;

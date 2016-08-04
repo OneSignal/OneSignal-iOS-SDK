@@ -22,7 +22,12 @@ class ViewController: UIViewController {
     }
 
     @IBAction func sentTags(sender : AnyObject) {
-        OneSignal.sendTag("some_key", value: "some_value")
+        
+        OneSignal.sendTags(["some_key" : "some_value"], onSuccess: { (result) in
+            print("success!")
+            }) { (error) in
+                print("Error sending tags - \(error.localizedDescription)")
+        }
     }
     
     @IBAction func getIds(sender : AnyObject) {

@@ -216,7 +216,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
 
 // - Alerting
-+ (void)enableInAppAlertNotification:(BOOL)enable;
+// + (void)enableInAppAlertNotification:(BOOL)enable;
 + (void)setSubscription:(BOOL)enable;
 
 // - Posting Notification

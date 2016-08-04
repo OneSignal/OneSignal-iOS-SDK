@@ -34,9 +34,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba", handleNotificationAction: nil, settings: [:])
+        OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         
-        OneSignal.enableInAppAlertNotification(true)
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba", handleNotificationReceived: { (notification) in
+                print("Received Notification - \(notification.payload.notificationID)")
+            }, handleNotificationAction: { (result) in
+                
+                // This block gets called when the user reacts to a notification received
+                let payload = result.notification.payload
+                var fullMessage = payload.title
+                
+                //Try to fetch the action selected
+                if let actionSelected = result.action.actionID {
+                    fullMessage =  fullMessage + "\nPressed ButtonId:\(actionSelected)"
+                }
+                
+                print(fullMessage)
+                
+            }, settings: [kOSSettingsKeyAutoPrompt : false, kOSSettingsKeyInAppAlerts : false])
         
         OneSignal.IdsAvailable({ (userId, pushToken) in
             NSLog("UserId:%@", userId);
