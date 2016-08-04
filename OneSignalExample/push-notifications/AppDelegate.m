@@ -34,15 +34,21 @@
     // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_INFO];
     
-    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotification:^(OSNotificationResult *result) {
-        // This function gets call when a notification is tapped on or one is received while the app is in focus.
-        NSString* messageTitle = @"OneSignal Example";
-        NSString* fullMessage = [result.payload.body copy];
+    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationResult *result) {
+        // This block gets called when the user reacts to a notification received
         
-        if (result.payload.additionalData) {
-            NSDictionary* additionalData = result.payload.additionalData;
-            if (additionalData[@"inAppTitle"])
-                messageTitle = additionalData[@"inAppTitle"];
+        OSNotificationPayload* payload = result.notification.payload;
+        
+        
+        NSString* messageTitle = @"OneSignal Example";
+        NSString* fullMessage = [payload.body copy];
+        
+        if (payload.additionalData) {
+            
+            if(payload.title)
+                messageTitle = payload.title;
+            
+            NSDictionary* additionalData = payload.additionalData;
             
             if (additionalData[@"actionSelected"])
                 fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", additionalData[@"actionSelected"]]];

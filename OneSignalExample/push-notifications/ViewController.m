@@ -34,18 +34,8 @@
 
 @implementation ViewController
 
-@synthesize managedObjectContext = _managedObjectContext;
-
 - (AppDelegate*)appDelegate {
     return (AppDelegate*)[[UIApplication sharedApplication] delegate];
-}
-
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -58,17 +48,12 @@
 
 - (IBAction)getIds:(id)sender {
     [OneSignal IdsAvailable:^(NSString* userId, NSString* pushToken) {
-        NSString* messageFormat = @"PlayerId:\n%@\n\nPushToken:\n%@\n";
-        NSString* pushTokenError = @"ERROR: Could not get a pushToken from Apple! Make sure your provisioning profile has 'Push Notifications' enabled and rebuild your app.";
-        NSString* message = nil;
-        
         if (pushToken)
-            message = [NSString stringWithFormat:messageFormat, userId, pushToken];
+            self.textMultiLine1.text = [NSString stringWithFormat:@"PlayerId:\n%@\n\nPushToken:\n%@\n", userId, pushToken];
         else
-            message = [NSString stringWithFormat:messageFormat, userId, pushTokenError];
+            self.textMultiLine1.text = @"ERROR: Could not get a pushToken from Apple! Make sure your provisioning profile has 'Push Notifications' enabled and rebuild your app.";
         
-        NSLog(@"\n%@", message);
-        self.textMultiLine1.text = message;
+        NSLog(@"\n%@", self.textMultiLine1.text);
     }];
 }
 

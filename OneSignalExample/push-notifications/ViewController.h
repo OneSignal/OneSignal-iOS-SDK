@@ -31,8 +31,6 @@
 
 @property(nonatomic,retain) IBOutlet UITextView* textMultiLine1;
 
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
-
 - (IBAction)sendTags:(id)sender;
 - (IBAction)getIds:(id)sender;
 
