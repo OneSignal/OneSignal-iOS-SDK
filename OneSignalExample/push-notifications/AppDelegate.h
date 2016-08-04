@@ -27,7 +27,6 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
-#import <OneSignal/OneSignal.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

@@ -524,9 +524,10 @@ static OneSignal* singleInstance = nil;
         if (url)
             return YES;
     }
+    
+    
     return NO;
 }
-
 
 + (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     [self enqueueRequest:request onSuccess:successBlock onFailure:failureBlock isSynchronous:false];

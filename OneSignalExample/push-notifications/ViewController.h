@@ -26,6 +26,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <OneSignal/OneSignal.h>
 
 @interface ViewController : UIViewController
 

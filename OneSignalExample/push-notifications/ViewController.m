@@ -43,7 +43,12 @@
 }
 
 - (IBAction)sendTags:(id)sender {
-    [OneSignal sendTag:@"key" value:@"value"];
+    
+    [OneSignal sendTags:@{@"key" : @"value"} onSuccess:^(NSDictionary *result) {
+        NSLog(@"success!");
+    } onFailure:^(NSError *error) {
+        NSLog(@"Error - %@", error.localizedDescription);
+    }];
 }
 
 - (IBAction)getIds:(id)sender {

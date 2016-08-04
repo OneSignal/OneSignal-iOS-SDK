@@ -74,7 +74,7 @@ BOOL lastOnFocusWasToBackground = YES;
         [OneSignal registerUser];
     }
     else {
-        
+
         [[NSUserDefaults standardUserDefaults] setDouble:now forKey:@"GT_LAST_CLOSED_TIME"];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
@@ -91,6 +91,7 @@ BOOL lastOnFocusWasToBackground = YES;
         }
         
         timeToPingWith = totalTimeActive;
+        
     }
     
     if (![OneSignal mUserId])
