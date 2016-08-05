@@ -77,8 +77,8 @@ NSString * const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
 
 
 @implementation OneSignal
-    
-NSString* const ONESIGNAL_VERSION = @"020000";
+
+NSString* const ONESIGNAL_VERSION = @"020001";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
@@ -167,8 +167,9 @@ bool mSubscriptionSet;
             [self enableInAppAlertNotification:[settings[kOSSettingsKeyInAppAlerts] boolValue]];
         
         // Register this device with Apple's APNS server.
-        if (settings[kOSSettingsKeyAutoPrompt] || registeredWithApple)
+        if ([@YES isEqual:settings[kOSSettingsKeyAutoPrompt]] || registeredWithApple)
             [self registerForPushNotifications];
+        
         // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
@@ -808,12 +809,12 @@ bool nextRegistrationIsHighPriority = NO;
     [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
     
     if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && openUrl) {
-        
-        if ([OneSignalHelper verifyURL:openUrl])
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSURL *url = [NSURL URLWithString:openUrl];
-            [OneSignalHelper displayWebView:url];
-        });
+        if ([OneSignalHelper verifyURL:openUrl]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSURL *url = [NSURL URLWithString:openUrl];
+                [[UIApplication sharedApplication] openURL:url];
+            });
+        }
     }
     
     [OneSignalHelper lastMessageReceived:messageDict];
