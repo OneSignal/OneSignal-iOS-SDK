@@ -164,7 +164,8 @@ bool mSubscriptionSet;
         
         //Check if in-app setting passed assigned
         if([settings[kOSSettingsKeyInAppAlerts] isKindOfClass:[NSNumber class]])
-            [self enableInAppAlertNotification:[settings[kOSSettingsKeyInAppAlerts] boolValue]];
+            [self enableInAppAlertNotification:settings[kOSSettingsKeyInAppAlerts]];
+        else [self enableInAppAlertNotification:@YES];
         
         // Register this device with Apple's APNS server.
         BOOL autoPrompt = [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]] && [@YES isEqualToNumber:settings[kOSSettingsKeyAutoPrompt]];
@@ -443,8 +444,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
-+ (void)enableInAppAlertNotification:(BOOL)enable {
-    [[NSUserDefaults standardUserDefaults] setBool:enable forKey:@"ONESIGNAL_INAPP_ALERT"];
++ (void)enableInAppAlertNotification:(NSNumber*)enable {
+    [[NSUserDefaults standardUserDefaults] setObject:enable forKey:@"ONESIGNAL_INAPP_ALERT"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -727,11 +728,11 @@ bool nextRegistrationIsHighPriority = NO;
     if (isActive) {
         
         if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"]) {
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"ONESIGNAL_INAPP_ALERT"];
+            [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"ONESIGNAL_INAPP_ALERT"];
             [[NSUserDefaults standardUserDefaults] synchronize];
         }
         
-        inAppAlert = [[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_INAPP_ALERT"];
+        inAppAlert = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"] boolValue];
         
         if (inAppAlert) {
             [OneSignalHelper lastMessageReceived:messageDict];
