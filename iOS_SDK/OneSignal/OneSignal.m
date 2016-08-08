@@ -78,7 +78,7 @@ NSString * const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020000";
+NSString* const ONESIGNAL_VERSION = @"020002";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
@@ -167,15 +167,14 @@ bool mSubscriptionSet;
             [self enableInAppAlertNotification:[settings[kOSSettingsKeyInAppAlerts] boolValue]];
         
         // Register this device with Apple's APNS server.
-        if (settings[kOSSettingsKeyAutoPrompt] || registeredWithApple)
+        BOOL autoPrompt = [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]] && [@YES isEqualToNumber:settings[kOSSettingsKeyAutoPrompt]];
+        if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
         // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
         
-        
         [OneSignalTracker onFocus:NO];
-        
     }
     
     //If app opened from tap on notification or action
@@ -779,6 +778,7 @@ bool nextRegistrationIsHighPriority = NO;
         }
         
         [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:Notification];
+        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:Notification];
     }
     
 }
@@ -1088,6 +1088,8 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     }
     
     else {
+        BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
+        [OneSignal notificationOpened:usrInfo isActive:isActive];
         [OneSignal tunnelToDelegate:center :response :completionHandler];
         return;
     }

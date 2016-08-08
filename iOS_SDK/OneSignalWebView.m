@@ -26,14 +26,15 @@
  */
 
 #import "OneSignalWebView.h"
+#import "OneSignal.h"
 
-@interface UIApplication (Swizzling)
-+(UIViewController*)topmostController:(UIViewController*)base;
+@interface OneSignal ()
++ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
-
 
 @implementation OneSignalWebView
 
+UINavigationController *navController;
 
 -(void)viewDidLoad {
     
@@ -70,13 +71,24 @@
     [_uiBusy stopAnimating];
 }
 
+-(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
+}
+
 
 -(void)showInApp {
-    if (!self.navigationController) { return; }
-    self.navigationController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    UIViewController* topmost = [UIApplication topmostController:[UIApplication sharedApplication].keyWindow.rootViewController];
-    if (topmost)
-       [topmost presentViewController:self.navigationController animated:YES completion:NULL];
+    
+    //if already presented, no need to present again
+    if(navController) {
+        [self viewDidAppear:false];
+        return;
+    }
+    
+    navController = [[UINavigationController alloc] initWithRootViewController:self];
+    
+    UIViewController* root = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+    if(root)
+       [root presentViewController:navController animated:YES completion:NULL];
 }
 
 

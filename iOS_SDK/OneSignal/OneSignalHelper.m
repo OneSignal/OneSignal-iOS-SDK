@@ -175,7 +175,7 @@
 
 @implementation OneSignalHelper
 
-UINavigationController *webController;
+OneSignalWebView *webVC;
 NSDictionary* lastMessageReceived;
 OSHandleNotificationReceivedBlock handleNotificationReceived;
 OSHandleNotificationActionBlock handleNotificationAction;
@@ -593,14 +593,10 @@ static OneSignal* singleInstance = nil;
 }
 
 + (void) displayWebView:(NSURL*)url {
-    OneSignalWebView *webVC = [[OneSignalWebView alloc] init];
-    webVC.view.frame = [[UIScreen mainScreen] bounds];
+    
+    if(!webVC)
+        webVC = [[OneSignalWebView alloc] init];
     webVC.url = url;
-    
-    if(!webController)
-        webController = [[UINavigationController alloc] init];
-    
-    [webController setViewControllers:@[webVC] animated:NO];
     [webVC showInApp];
 }
 
