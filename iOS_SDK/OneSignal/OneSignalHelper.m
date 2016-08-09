@@ -117,10 +117,13 @@
             _subtitle = m[@"subtitle"];
         }
         else if(_rawPayload[@"aps"][@"alert"]) {
-            NSDictionary *a = message[@"aps"][@"alert"];
-            _body = a[@"body"];
-            _title = a[@"title"];
-            _subtitle = a[@"subtitle"];
+            id a = message[@"aps"][@"alert"];
+            if([a isKindOfClass:[NSDictionary class]]) {
+                _body = a[@"body"];
+                _title = a[@"title"];
+                _subtitle = a[@"subtitle"];
+            }
+            else _title = a;
         }
         else if(_rawPayload[@"os_data"][@"buttons"][@"m"]) {
             NSDictionary * m = _rawPayload[@"os_data"][@"buttons"][@"m"];
@@ -180,6 +183,8 @@ NSDictionary* lastMessageReceived;
 OSHandleNotificationReceivedBlock handleNotificationReceived;
 OSHandleNotificationActionBlock handleNotificationAction;
 
+
+
 + (BOOL) isRemoteSilentNotification:(NSDictionary*)msg {
     //no alert, sound, or badge payload
     if(msg[@"badge"] || msg[@"aps"][@"badge"] || msg[@"m"] || msg[@"o"] || msg[@"s"] || msg[@"title"] || msg[@"sound"] || msg[@"aps"][@"sound"] || msg[@"aps"][@"alert"] || msg[@"os_data"][@"buttons"])
@@ -215,15 +220,19 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     NSString *title  = messageDict[@"m"][@"title"];
     NSString *body  = messageDict[@"m"][@"body"];
-    if(!title)
-        title = messageDict[@"aps"][@"alert"][@"title"];
+    if(!title) {
+        if([messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
+            title = messageDict[@"aps"][@"alert"][@"title"];
+        else title = messageDict[@"aps"][@"alert"];
+    }
+    
     if(!title)
         title = messageDict[@"os_data"][@"buttons"][@"m"][@"title"];
     if(!title)
         title = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleNameKey];
     if(!title) title = @"";
     
-    if(!body)
+    if(!body && [messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
         body = messageDict[@"aps"][@"alert"][@"body"];
     if(!body)
         body = messageDict[@"os_data"][@"buttons"][@"m"][@"body"];
@@ -238,15 +247,28 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     OSNotificationPayload *payload = [[OSNotificationPayload alloc] initWithRawMessage:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
+    
+    //Prevent duplicate calls to same action
+    static NSString* lastMessageID = @"";
+    if([payload.notificationID isEqualToString:lastMessageID]) return;
+    lastMessageID = payload.notificationID;
+    
     handleNotificationReceived(notification);
 }
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
     if (!handleNotificationAction) return;
+    
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
     OSNotificationPayload *payload = [[OSNotificationPayload alloc] initWithRawMessage:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
     OSNotificationResult * result = [[OSNotificationResult alloc] initWithNotification:notification action:action];
+    
+    //Prevent duplicate calls to same action
+    static NSString* lastMessageID = @"";
+    if([payload.notificationID isEqualToString:lastMessageID]) return;
+    lastMessageID = payload.notificationID;
+    
     handleNotificationAction(result);
 }
 
@@ -326,7 +348,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return [NSClassFromString(@"UNUserNotificationCenter") performSelector:@selector(currentNotificationCenter)];
 }
 
-//Shared instance as OneSignal is delegate of UNUserNotificationCenterDelegate
+//Shared instance as OneSignal is delegate of UNUserNotificationCenterDelegate and CLLocationManagerDelegate
 static OneSignal* singleInstance = nil;
 +(OneSignal*) sharedInstance {
     @synchronized( singleInstance ) {

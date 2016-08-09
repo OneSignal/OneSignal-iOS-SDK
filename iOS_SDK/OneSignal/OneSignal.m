@@ -128,7 +128,7 @@ bool mSubscriptionSet;
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
-    [OneSignalLocation getLocation:self prompt:false];
+    [OneSignalLocation getLocation:[OneSignalHelper sharedInstance] prompt:false];
     
     if (self) {
         
@@ -192,7 +192,7 @@ bool mSubscriptionSet;
     if ([OneSignalTrackIAP canTrack])
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
-    if (NSFoundationVersionNumber >= NSFoundationVersionNumber10_0) {
+    if (NSClassFromString(@"UNUserNotificationCenter")) {
         [OneSignalHelper registerAsUNNotificationCenterDelegate];
         [OneSignalHelper clearCachedMedia];
     }
@@ -463,7 +463,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void) promptLocation {
-    [OneSignalLocation getLocation:self prompt:true];
+    [OneSignalLocation getLocation:[OneSignalHelper sharedInstance] prompt:true];
 }
     
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -915,7 +915,7 @@ bool nextRegistrationIsHighPriority = NO;
     //Otherwise if titles or body or attachment -> data is everything
     if (data) {
         
-        if(NSFoundationVersionNumber >= NSFoundationVersionNumber10_0) {
+        if(NSClassFromString(@"UNUserNotificationCenter")) {
             if([[OneSignalHelper class] respondsToSelector:NSSelectorFromString(@"addnotificationRequest::")]) {
                 SEL selector = NSSelectorFromString(@"addnotificationRequest::");
                 typedef void(*func)(id, SEL, NSDictionary*, NSDictionary*);
@@ -974,7 +974,8 @@ bool nextRegistrationIsHighPriority = NO;
             customDict[@"a"] = additionalData;
             userInfo[@"custom"] = customDict;
             
-            userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
+            if(userInfo[@"m"])
+                userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
         }
         
         BOOL isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
@@ -984,15 +985,17 @@ bool nextRegistrationIsHighPriority = NO;
     }
     
 }
-    
-- (void)locationManager:(id)manager didUpdateLocations:(NSArray*)locations {
+
+
+- (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
     [manager performSelector:@selector(stopUpdatingLocation)];
 #pragma clang diagnostic pop
     
     if (location_event_fired)
-    return;
+        return;
     
     location_event_fired = true;
     

@@ -35,6 +35,9 @@
 // - Web
 + (void) displayWebView:(NSURL*)url;
 
+// - Visible Shareds Instance
++ (OneSignal*) sharedInstance;
+
 // - Notification Opened
 + (NSArray<NSString*>*)getPushTitleBody:(NSDictionary*)messageDict;
 + (NSArray*)getActionButtons;

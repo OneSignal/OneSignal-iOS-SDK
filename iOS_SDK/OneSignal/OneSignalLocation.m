@@ -26,6 +26,7 @@
  */
 
 #import "OneSignalLocation.h"
+#import <CoreLocation/CoreLocation.h>
 
 @implementation OneSignalLocation
 
@@ -47,7 +48,7 @@ static bool hasDelayed = false;
     if (hasDelayed)
         [OneSignalLocation internalGetLocation:delegate prompt:prompt];
     else {
-        // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not staticly linked.
+        // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not statically linked.
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 2.0 * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
             hasDelayed = true;
@@ -71,8 +72,6 @@ static bool hasDelayed = false;
     
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:delegate forKey:@"delegate"];
-    //locationManager.distanceFilter = kCLDistanceFilterNone;
-    //locationManager.desiredAccuracy = kCLLocationAccuracyBest;
     
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
         [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
