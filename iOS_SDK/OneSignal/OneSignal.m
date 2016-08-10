@@ -75,10 +75,13 @@ NSString * const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
 /*Enable the default in-app alerts*/
 NSString * const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
 
+/*Enable the default in-app launch urls*/
+NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
+
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020002";
+NSString* const ONESIGNAL_VERSION = @"020004";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
@@ -163,14 +166,23 @@ bool mSubscriptionSet;
         mNotificationTypes = [self getNotificationTypes];
         
         //Check if in-app setting passed assigned
-        if([settings[kOSSettingsKeyInAppAlerts] isKindOfClass:[NSNumber class]])
+        if(settings[kOSSettingsKeyInAppAlerts] && [settings[kOSSettingsKeyInAppAlerts] isKindOfClass:[NSNumber class]])
             [self enableInAppAlertNotification:settings[kOSSettingsKeyInAppAlerts]];
         else [self enableInAppAlertNotification:@YES];
         
-        // Register this device with Apple's APNS server.
-        BOOL autoPrompt = [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]] && [@YES isEqualToNumber:settings[kOSSettingsKeyAutoPrompt]];
+        //Check if disabled in-app launch url if passed a NO
+        if(settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
+            [self enableInAppLaunchURL:settings[kOSSettingsKeyInAppLaunchURL]];
+        else [self enableInAppLaunchURL:@YES];
+        
+        // Register this device with Apple's APNS server if enabled auto-prompt or not passed a NO
+        BOOL autoPrompt = YES;
+        if(settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
+            autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
+        
+        
         // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
@@ -446,6 +458,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)enableInAppAlertNotification:(NSNumber*)enable {
     [[NSUserDefaults standardUserDefaults] setObject:enable forKey:@"ONESIGNAL_INAPP_ALERT"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (void)enableInAppLaunchURL:(NSNumber*)enable {
+    [[NSUserDefaults standardUserDefaults] setObject:enable forKey:@"ONESIGNAL_INAPP_LAUNCH_URL"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -734,12 +751,11 @@ bool nextRegistrationIsHighPriority = NO;
         
         inAppAlert = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"] boolValue];
         
+        [OneSignalHelper lastMessageReceived:messageDict];
+        
         if (inAppAlert) {
-            [OneSignalHelper lastMessageReceived:messageDict];
             
             NSArray<NSString*>* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
-            
-
             id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict];
             
             UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:titleAndBody[0] ? titleAndBody[0] : @""
@@ -747,7 +763,6 @@ bool nextRegistrationIsHighPriority = NO;
                                                                delegate:oneSignalAlertViewDelegate
                                                       cancelButtonTitle:@"Close"
                                                       otherButtonTitles:nil, nil];
-            
             //Add Buttons
             NSArray *additionalData = [OneSignalHelper getActionButtons];
             if (additionalData) {
@@ -762,6 +777,9 @@ bool nextRegistrationIsHighPriority = NO;
             
             return;
         }
+        
+        //App is active and a notification was received without inApp display. Display type is none
+        [OneSignalHelper handleNotificationReceived:None];
     }
     else {
         
@@ -820,7 +838,6 @@ bool nextRegistrationIsHighPriority = NO;
     [OneSignalHelper lastMessageReceived:messageDict];
     
     [self clearBadgeCount:true];
-    
     
     NSString* actionID = NULL;
     if (actionType == ActionTaken) {

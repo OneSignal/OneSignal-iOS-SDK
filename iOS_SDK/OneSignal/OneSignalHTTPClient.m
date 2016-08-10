@@ -47,10 +47,6 @@
 - (NSMutableURLRequest*) requestWithMethod:(NSString*)method
                                        path:(NSString*)path {
     
-    if([method containsString:@"on_focus"] || [method containsString:@"on_session"])
-        NSLog(@"Calling %@", method);
-    
-    
     NSURL* url = [NSURL URLWithString:path relativeToURL:self.baseURL];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     [request setHTTPMethod:method];

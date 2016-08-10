@@ -72,7 +72,11 @@ static NSMutableArray* delegateReference;
             NSMutableDictionary* customDict = [userInfo[@"custom"] mutableCopy];
             NSMutableDictionary* additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
             
-            additionalData[@"actionSelected"] = additionalData[@"actionButtons"][buttonIndex - 1][@"id"];
+            if([additionalData[@"actionButtons"] isKindOfClass:[NSArray class]])
+                additionalData[@"actionSelected"] = additionalData[@"actionButtons"][buttonIndex - 1][@"id"];
+                
+            else if([mMessageDict[@"o"] isKindOfClass:[NSArray class]])
+                additionalData[@"actionSelected"] = mMessageDict[@"o"][buttonIndex -1][@"i"];
             
             customDict[@"a"] = additionalData;
             userInfo[@"custom"] = customDict;

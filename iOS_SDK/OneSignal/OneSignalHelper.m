@@ -582,14 +582,15 @@ static OneSignal* singleInstance = nil;
 }
 
 + (void)handleJSONNSURLResponse:(NSURLResponse*) response data:(NSData*) data error:(NSError*) error onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
     NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
     NSInteger statusCode = [HTTPResponse statusCode];
-    NSError* jsonError;
+    NSError* jsonError = nil;
     NSMutableDictionary* innerJson;
     
     if (data != nil && [data length] > 0) {
         innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-        if (jsonError != nil) {
+        if (jsonError) {
             if (failureBlock != nil)
                 failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
             return;
@@ -616,13 +617,24 @@ static OneSignal* singleInstance = nil;
 
 + (void) displayWebView:(NSURL*)url {
     
-    if(!webVC)
-        webVC = [[OneSignalWebView alloc] init];
-    webVC.url = url;
-    [webVC showInApp];
+    //Check if in-app or safari
+    BOOL inAppLaunch = YES;
+    if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"]) {
+        [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"ONESIGNAL_INAPP_LAUNCH_URL"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
+    inAppLaunch = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"] boolValue];
+    
+    if(inAppLaunch) {
+        if(!webVC)
+            webVC = [[OneSignalWebView alloc] init];
+        webVC.url = url;
+        [webVC showInApp];
+    }
+    else [[UIApplication sharedApplication] openURL:url];
+    
 }
-
-
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop

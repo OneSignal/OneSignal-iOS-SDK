@@ -84,6 +84,9 @@ static Class delegateClass = nil;
 }
 
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
+    
+    if(![OneSignal app_id]) return;
+    
     [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
     if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
@@ -91,6 +94,9 @@ static Class delegateClass = nil;
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
+    
+    if(![OneSignal app_id]) return;
+    
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
     
     if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
@@ -98,6 +104,8 @@ static Class delegateClass = nil;
 }
 
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
+    
+    if(![OneSignal app_id]) return;
     
     [OneSignal updateNotificationTypes:notificationSettings.types];
     if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
@@ -108,6 +116,8 @@ static Class delegateClass = nil;
 // Notification opened! iOS 6 ONLY!
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     
+    if(![OneSignal app_id]) return;
+    
     [OneSignal notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
@@ -116,6 +126,8 @@ static Class delegateClass = nil;
 
 // User Tap on Notification while app was in background - OR - Notification received (silent or not, foreground or background) on iOS 7+
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
+    
+    if(![OneSignal app_id]) return;
     
     //Call notificationAction if app is active -> not a silent notification but rather user tap on notification
     if([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
@@ -135,6 +147,8 @@ static Class delegateClass = nil;
 
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
     
+    if(![OneSignal app_id]) return;
+    
     [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
     
     if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
@@ -144,6 +158,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
     
+    if(![OneSignal app_id]) return;
+    
     [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
     
     if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
@@ -151,6 +167,8 @@ static Class delegateClass = nil;
 }
 
 - (void)oneSignalApplicationWillResignActive:(UIApplication*)application {
+    
+    if(![OneSignal app_id]) return;
     
     [OneSignalTracker onFocus:YES];
     
@@ -160,6 +178,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
     
+    if(![OneSignal app_id]) return;
+    
     [OneSignalTracker onFocus:NO];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
@@ -167,6 +187,8 @@ static Class delegateClass = nil;
 }
 
 -(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+    
+    if(![OneSignal app_id]) return;
     
     [OneSignalTracker onFocus:YES];
     

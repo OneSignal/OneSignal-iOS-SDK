@@ -154,6 +154,9 @@ extern NSString * const kOSSettingsKeyAutoPrompt;
 /*Enable the default in-app alerts*/
 extern NSString * const kOSSettingsKeyInAppAlerts;
 
+/*Enable In-App display of Launch URLs*/
+extern NSString * const kOSSettingsKeyInAppLaunchURL;
+
 /**
  `OneSignal` provides a high level interface to interact with OneSignal's push service.
  
