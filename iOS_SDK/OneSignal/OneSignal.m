@@ -1061,6 +1061,8 @@ bool nextRegistrationIsHighPriority = NO;
                onFailure:nil];
 }
 
+#if XC8_AVAILABLE
+
 static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
 
 + (void) setNotificationCenterDelegate:(id<OSUserNotificationCenterDelegate>)delegate {
@@ -1163,6 +1165,7 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
         //Call the completion handler ourselves
         completionHandler(7);
 }
+#endif
 
 + (void)syncHashedEmail:(NSString *)email {
     
