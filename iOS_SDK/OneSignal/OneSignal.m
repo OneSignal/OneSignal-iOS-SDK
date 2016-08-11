@@ -81,7 +81,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020004";
+NSString* const ONESIGNAL_VERSION = @"020005";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
