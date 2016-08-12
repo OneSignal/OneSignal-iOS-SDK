@@ -35,12 +35,15 @@
 @implementation OneSignalWebView
 
 UINavigationController *navController;
+UIViewController *viewControllerForPresentation;
 
 -(void)viewDidLoad {
     
     _webView = [[UIWebView alloc] initWithFrame:self.view.frame];
     _webView.delegate = self;
     [self.view addSubview:_webView];
+    
+    [self.view setBackgroundColor:[UIColor blackColor]];
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismiss:)];
     
@@ -58,7 +61,12 @@ UINavigationController *navController;
 
 
 -(void)dismiss:(id)sender {
-    [self.navigationController dismissViewControllerAnimated:true completion:NULL];
+    [self.navigationController dismissViewControllerAnimated:true completion:^{
+        //clear web view
+        [_webView loadHTMLString:@"" baseURL:nil];
+        if(viewControllerForPresentation)
+           [viewControllerForPresentation.view removeFromSuperview];
+    }];
 }
 
 -(void)webViewDidStartLoad:(UIWebView *)webView {
@@ -79,16 +87,21 @@ UINavigationController *navController;
 -(void)showInApp {
     
     //if already presented, no need to present again
-    if(navController) {
-        [self viewDidAppear:false];
-        return;
+    if(!navController) {
+        navController = [[UINavigationController alloc] initWithRootViewController:self];
+        navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
     }
-    
-    navController = [[UINavigationController alloc] initWithRootViewController:self];
-    
-    UIViewController* root = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-    if(root)
-       [root presentViewController:navController animated:YES completion:NULL];
+    if(!viewControllerForPresentation) {
+        viewControllerForPresentation = [[UIViewController alloc] init];
+        [[viewControllerForPresentation view] setBackgroundColor:[UIColor clearColor]];
+        [[viewControllerForPresentation view] setOpaque:FALSE];
+    }
+
+    UIWindow* mainWindow = [[UIApplication sharedApplication] keyWindow];
+    if(!viewControllerForPresentation.view.superview)
+        [mainWindow addSubview:[viewControllerForPresentation view]];
+
+    [viewControllerForPresentation presentViewController:navController animated:YES completion:NULL];
 }
 
 

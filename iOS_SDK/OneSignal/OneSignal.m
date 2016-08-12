@@ -813,29 +813,36 @@ bool nextRegistrationIsHighPriority = NO;
     messageId = [customDict objectForKey:@"i"];
     openUrl = [customDict objectForKey:@"u"];
     
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
-    
-    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+    //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
+    //Keep track of the Id for the last message sent
+    NSString * lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
+    //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
+    if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
+        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
+        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                              app_id, @"app_id",
                              mUserId, @"player_id",
                              @(YES), @"opened",
                              nil];
     
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
+        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+        [request setHTTPBody:postData];
+        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
+        [[NSUserDefaults standardUserDefaults] setObject:messageId forKey:@"GT_LAST_MESSAGE_OPENED_"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
     
-    [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
-    
-    if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive && openUrl) {
-        
+    //Should always open a URL if passed, unless user opted out of InAppAlerts
+    NSNumber* enabledInAppAlerts =  [[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"];
+    if (openUrl && (!enabledInAppAlerts || [enabledInAppAlerts boolValue])) {
         if ([OneSignalHelper verifyURL:openUrl])
-        dispatch_async(dispatch_get_main_queue(), ^{
+            //Create a dleay to allow alertview to dismiss before showing anything or going to safari
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             NSURL *url = [NSURL URLWithString:openUrl];
             [OneSignalHelper displayWebView:url];
         });
     }
     
-    [OneSignalHelper lastMessageReceived:messageDict];
     
     [self clearBadgeCount:true];
     
@@ -848,7 +855,8 @@ bool nextRegistrationIsHighPriority = NO;
         
     }
     
-     [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+    [OneSignalHelper lastMessageReceived:messageDict];
+    [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
 }
     
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened {

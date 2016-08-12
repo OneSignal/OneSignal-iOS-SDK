@@ -196,8 +196,10 @@ static Class delegateClass = nil;
         [self oneSignalApplicationWillTerminate:application];
 }
 
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
-    method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setOneSignalDelegate:)));
+    if (!SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
+        method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setOneSignalDelegate:)));
 }
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
@@ -206,6 +208,7 @@ static Class delegateClass = nil;
         [self setOneSignalDelegate:delegate];
         return;
     }
+
     
     delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
     
