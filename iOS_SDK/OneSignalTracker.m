@@ -31,10 +31,12 @@
 #import "OneSignal.h"
 
 @interface OneSignal ()
+
 + (void)registerUser;
 + (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm;
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
+
 @end
 
 @implementation OneSignalTracker

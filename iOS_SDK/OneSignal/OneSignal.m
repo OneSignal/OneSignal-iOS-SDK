@@ -81,7 +81,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020007";
+NSString* const ONESIGNAL_VERSION = @"020008";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
@@ -110,11 +110,11 @@ bool mSubscriptionSet;
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
@@ -741,6 +741,10 @@ bool nextRegistrationIsHighPriority = NO;
     
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
     
+    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
+    if (!customDict)
+        customDict = [messageDict objectForKey:@"custom"];
+    
     BOOL inAppAlert = false;
     if (isActive) {
         
@@ -772,17 +776,22 @@ bool nextRegistrationIsHighPriority = NO;
             
             [alertView show];
             
-            //message received that was displayed (Foreground + InAppAlert is true)
+            //Message received that was displayed (Foreground + InAppAlert is true)
+            //Call Received Block
             [OneSignalHelper handleNotificationReceived:InAppAlert];
             
             return;
         }
         
         //App is active and a notification was received without inApp display. Display type is none
+        //Call Received Block
         [OneSignalHelper handleNotificationReceived:None];
+        
+        // Notify backend that user opened the notifiation
+        NSString* messageId = [customDict objectForKey:@"i"];
+        [OneSignal submitNotificationOpened:messageId];
     }
     else {
-        
         
         //app was in background and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
@@ -796,6 +805,7 @@ bool nextRegistrationIsHighPriority = NO;
             type = ActionTaken;
         }
         
+        //Call Action Block
         [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:Notification];
         [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:Notification];
     }
@@ -804,45 +814,17 @@ bool nextRegistrationIsHighPriority = NO;
     
 + (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive actionType : (OSNotificationActionType)actionType displayType:(OSNotificationDisplayType)displayType{
     
-    NSString *messageId, *openUrl;
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (customDict == nil)
         customDict = [messageDict objectForKey:@"custom"];
     
-    messageId = [customDict objectForKey:@"i"];
-    openUrl = [customDict objectForKey:@"u"];
+    // Notify backend that user opened the notifiation
+    NSString* messageId = [customDict objectForKey:@"i"];
+    [OneSignal submitNotificationOpened:messageId];
     
-    //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
-    //Keep track of the Id for the last message sent
-    NSString * lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
-    //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
-    if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
-        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             app_id, @"app_id",
-                             mUserId, @"player_id",
-                             @(YES), @"opened",
-                             nil];
-    
-        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-        [request setHTTPBody:postData];
-        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
-        [[NSUserDefaults standardUserDefaults] setObject:messageId forKey:@"GT_LAST_MESSAGE_OPENED_"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
-    
-    //Should always open a URL if passed, unless user opted out of InAppAlerts
-    NSNumber* enabledInAppAlerts =  [[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"];
-    if (openUrl && (!enabledInAppAlerts || [enabledInAppAlerts boolValue])) {
-        if ([OneSignalHelper verifyURL:openUrl])
-            //Create a dleay to allow alertview to dismiss before showing anything or going to safari
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            NSURL *url = [NSURL URLWithString:openUrl];
-            [OneSignalHelper displayWebView:url];
-        });
-    }
-    
+    //Try to fetch the open url to launch
+    [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
     
     [self clearBadgeCount:true];
     
@@ -851,12 +833,45 @@ bool nextRegistrationIsHighPriority = NO;
         actionID = messageDict[@"custom"][@"a"][@"actionSelected"];
         if(!actionID)
             actionID = messageDict[@"actionSelected"];
-        
-        
     }
     
+    //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
     [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+}
+
++ (void)launchWebURL:(NSString*)openUrl {
+
+    if (openUrl) {
+        if ([OneSignalHelper verifyURL:openUrl])
+            //Create a dleay to allow alertview to dismiss before showing anything or going to safari
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                NSURL *url = [NSURL URLWithString:openUrl];
+                [OneSignalHelper displayWebView:url];
+            });
+    }
+    
+}
+
++ (void)submitNotificationOpened:(NSString*)messageId {
+    //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
+    //Keep track of the Id for the last message sent
+    NSString * lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
+    //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
+    if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
+        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
+        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 app_id, @"app_id",
+                                 mUserId, @"player_id",
+                                 @(YES), @"opened",
+                                 nil];
+        
+        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+        [request setHTTPBody:postData];
+        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
+        [[NSUserDefaults standardUserDefaults] setObject:messageId forKey:@"GT_LAST_MESSAGE_OPENED_"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
 }
     
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened {
@@ -933,7 +948,7 @@ bool nextRegistrationIsHighPriority = NO;
         data = userInfo;
     
     // - TEMP until server sends special field for attachments
-    else if (userInfo[@"custom"][@"a"])
+    else if (userInfo[@"custom"][@"at"])
         data = userInfo;
     
     //If buttons -> Data is buttons
@@ -955,9 +970,13 @@ bool nextRegistrationIsHighPriority = NO;
         }
         
     }
-    
-    else if (application.applicationState != UIApplicationStateBackground)
-        [OneSignal notificationOpened:userInfo isActive:YES];
+    //Method was called due to a tap on a notification
+    else if (application.applicationState != UIApplicationStateBackground) {
+        [OneSignalHelper lastMessageReceived:userInfo];
+        [OneSignalHelper handleNotificationReceived:Notification];
+        [OneSignal notificationOpened:userInfo isActive:NO];
+        return;
+    }
     
     /* Handle the notification reception*/
     [OneSignalHelper lastMessageReceived:userInfo];
