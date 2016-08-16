@@ -183,6 +183,11 @@ bool mSubscriptionSet;
         if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
         
+        // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
+        // If autoprompt disabled, get a token from APNS for silent notifications until user calls regsiterForPushNotifications to request push permissions from user.
+        else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        
         [OneSignalTracker onFocus:NO];
     }
     
