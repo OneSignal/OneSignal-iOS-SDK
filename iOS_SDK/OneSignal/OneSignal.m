@@ -45,6 +45,7 @@
 #import <sys/sysctl.h>
 #import <objc/runtime.h>
 
+#define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
 #define NOTIFICATION_TYPE_ALERT 4
@@ -81,7 +82,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020008";
+NSString* const ONESIGNAL_VERSION = @"020009";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
@@ -181,11 +182,6 @@ bool mSubscriptionSet;
             autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
-        
-        
-        // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
-        else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
         
         [OneSignalTracker onFocus:NO];
     }
@@ -287,11 +283,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
+//Block not assigned if userID nil and there is a device token
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
-    if (mUserId)
-        idsAvailableBlock(mUserId, [self getUsableDeviceToken]);
     
-    if (mUserId == nil || [self getUsableDeviceToken] == nil)
+    if (mUserId)
+        idsAvailableBlock(mUserId, mDeviceToken);
+    
+    if (!mUserId || !mDeviceToken)
         idsAvailableBlockWhenReady = idsAvailableBlock;
 }
 
@@ -476,7 +474,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     mSubscriptionSet = enable;
     
-    [OneSignal sendNotificationTypesUpdateIsConfirmed:false];
+    [OneSignal sendNotificationTypesUpdate:false];
 }
 
 + (void) promptLocation {
@@ -492,17 +490,20 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
+    // Do not block next registration as there's a new token in hand
+    nextRegistrationIsHighPriority = YES;
+    
     if (mUserId == nil) {
         mDeviceToken = deviceToken;
         tokenUpdateSuccessBlock = successBlock;
         tokenUpdateFailureBlock = failureBlock;
         
-        // iOS 8 - We get a token right away but give the user 20 sec to responsed to the system prompt.
+        // iOS 8 - We get a token right away but give the user 10 sec to responsed to the system prompt.
         // Also check mNotificationTypes so there is no waiting if user has already answered the system prompt.
         // The goal is to only have 1 server call.
         if ([OneSignalHelper isCapableOfGettingNotificationTypes] && mNotificationTypes == -1) {
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-            [self performSelector:@selector(registerUser) withObject:nil afterDelay:20.0f];
+            [self performSelector:@selector(registerUser) withObject:nil afterDelay:10.0f];
         }
         else
             [OneSignal registerUser];
@@ -534,17 +535,19 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if (idsAvailableBlockWhenReady) {
         mNotificationTypes = [self getNotificationTypes];
-        if ([self getUsableDeviceToken])
-        idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
-        idsAvailableBlockWhenReady = nil;
+        if (mDeviceToken) {
+            idsAvailableBlockWhenReady(mUserId, mDeviceToken);
+            idsAvailableBlockWhenReady = nil;
+        }
     }
+    
 }
 
-//Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the 1 hour timer delay
+//Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
 bool nextRegistrationIsHighPriority = NO;
 
 + (BOOL)isHighPriorityCall {
-    return mUserId == nil || (mDeviceToken == nil && mNotificationTypes > 0) || nextRegistrationIsHighPriority;
+    return mUserId == nil || (mDeviceToken == nil && mNotificationTypes > NOTIFICATION_TYPE_NONE) || nextRegistrationIsHighPriority;
 }
 
 +(BOOL)shouldRegisterNow {
@@ -569,7 +572,6 @@ bool nextRegistrationIsHighPriority = NO;
     // Make sure we only call create or on_session once per open of the app.
     if (waitingForOneSReg || ![self shouldRegisterNow])
         return;
-    
     
     waitingForOneSReg = true;
     
@@ -676,9 +678,9 @@ bool nextRegistrationIsHighPriority = NO;
             }
             
             if (idsAvailableBlockWhenReady) {
-                idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
-                if ([self getUsableDeviceToken])
-                idsAvailableBlockWhenReady = nil;
+                idsAvailableBlockWhenReady(mUserId, mDeviceToken);
+                if (mDeviceToken)
+                    idsAvailableBlockWhenReady = nil;
             }
         }
     } onFailure:^(NSError* error) {
@@ -689,16 +691,12 @@ bool nextRegistrationIsHighPriority = NO;
         nextRegistrationIsHighPriority = YES;
     }];
 }
+
+//Updates the server with the new user's notification Types
++ (void) sendNotificationTypesUpdate:(BOOL)isNewType {
     
-+(NSString*) getUsableDeviceToken {
-    if (mNotificationTypes > 0)
-        return mDeviceToken;
-    return nil;
-}
-    
-+ (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm {
     // User changed notification settings for the app.
-    if (mNotificationTypes != -1 && mUserId && (isConfirm || mNotificationTypes != [self getNotificationTypes])) {
+    if (mNotificationTypes != -1 && mUserId && (isNewType || mNotificationTypes != [self getNotificationTypes])) {
         mNotificationTypes = [self getNotificationTypes];
         NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
         
@@ -712,8 +710,8 @@ bool nextRegistrationIsHighPriority = NO;
         
         [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
         
-        if ([self getUsableDeviceToken] && idsAvailableBlockWhenReady) {
-            idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
+        if (mDeviceToken && idsAvailableBlockWhenReady) {
+            idsAvailableBlockWhenReady(mUserId, mDeviceToken);
             idsAvailableBlockWhenReady = nil;
         }
     }
@@ -910,20 +908,21 @@ bool nextRegistrationIsHighPriority = NO;
 
 // iOS 8.0+ only
 + (void) updateNotificationTypes:(int)notificationTypes {
+    
     if (mNotificationTypes == -2)
-    return;
+        return;
     
     BOOL changed = (mNotificationTypes != notificationTypes);
     
     mNotificationTypes = notificationTypes;
     
-    if (mUserId == nil && mDeviceToken)
+    if (!mUserId && mDeviceToken)
         [OneSignal registerUser];
     else if (mDeviceToken)
-        [self sendNotificationTypesUpdateIsConfirmed:changed];
+        [self sendNotificationTypesUpdate:changed];
     
-    if (idsAvailableBlockWhenReady && mUserId && [self getUsableDeviceToken])
-    idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
+    if (idsAvailableBlockWhenReady && mUserId && mDeviceToken)
+        idsAvailableBlockWhenReady(mUserId, mDeviceToken);
 }
 
 + (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {

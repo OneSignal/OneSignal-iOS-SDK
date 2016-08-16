@@ -85,9 +85,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    if([OneSignal app_id])
+        [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
     if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
         [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
@@ -95,9 +94,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
+    if([OneSignal app_id])
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
     
     if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
@@ -105,9 +103,9 @@ static Class delegateClass = nil;
 
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
     
-    if(![OneSignal app_id]) return;
+    if([OneSignal app_id])
+        [OneSignal updateNotificationTypes:notificationSettings.types];
     
-    [OneSignal updateNotificationTypes:notificationSettings.types];
     if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
         [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
 }
@@ -116,9 +114,8 @@ static Class delegateClass = nil;
 // Notification opened! iOS 6 ONLY!
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignal notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
+    if([OneSignal app_id])
+        [OneSignal notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
@@ -127,12 +124,14 @@ static Class delegateClass = nil;
 // User Tap on Notification while app was in background - OR - Notification received (silent or not, foreground or background) on iOS 7+
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     
-    if(![OneSignal app_id]) return;
+    if([OneSignal app_id]) {
     
     //Call notificationAction if app is active -> not a silent notification but rather user tap on notification
     if([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
         [OneSignal notificationOpened:userInfo isActive:YES];
     else [OneSignal remoteSilentNotification:application UserInfo:userInfo];
+        
+    }
     
     if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)]) {
         [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
@@ -147,9 +146,8 @@ static Class delegateClass = nil;
 
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
+    if([OneSignal app_id])
+        [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
     
     if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
         [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
@@ -158,9 +156,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
+    if([OneSignal app_id])
+        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
     
     if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
         [self oneSignalLocalNotificationOpened:application notification:notification];
@@ -168,9 +165,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalApplicationWillResignActive:(UIApplication*)application {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignalTracker onFocus:YES];
+    if([OneSignal app_id])
+        [OneSignalTracker onFocus:YES];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationWillResignActive:)])
         [self oneSignalApplicationWillResignActive:application];
@@ -178,9 +174,8 @@ static Class delegateClass = nil;
 
 - (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignalTracker onFocus:NO];
+    if([OneSignal app_id])
+        [OneSignalTracker onFocus:NO];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
         [self oneSignalApplicationDidBecomeActive:application];
@@ -188,9 +183,8 @@ static Class delegateClass = nil;
 
 -(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
     
-    if(![OneSignal app_id]) return;
-    
-    [OneSignalTracker onFocus:YES];
+    if([OneSignal app_id])
+        [OneSignalTracker onFocus:YES];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationWillTerminate:)])
         [self oneSignalApplicationWillTerminate:application];

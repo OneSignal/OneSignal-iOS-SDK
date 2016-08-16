@@ -33,7 +33,7 @@
 @interface OneSignal ()
 
 + (void)registerUser;
-+ (void) sendNotificationTypesUpdateIsConfirmed:(BOOL)isConfirm;
++ (void) sendNotificationTypesUpdate:(BOOL)isNewType;
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
 
@@ -71,7 +71,7 @@ BOOL lastOnFocusWasToBackground = YES;
     
     if (!toBackground) {
         lastOpenedTime = now;
-        [OneSignal sendNotificationTypesUpdateIsConfirmed:false];
+        [OneSignal sendNotificationTypesUpdate:false];
         wasBadgeSet = [OneSignal clearBadgeCount:false];
         [OneSignal registerUser];
     }

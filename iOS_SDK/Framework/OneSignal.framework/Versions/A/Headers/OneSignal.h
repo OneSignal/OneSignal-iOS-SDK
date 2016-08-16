@@ -25,6 +25,27 @@
  * THE SOFTWARE.
  */
 
+/***
+ 
+ ### Setting up the SDK ###
+ Follow the documentation from https://documentation.onesignal.com/docs/installing-the-onesignal-ios-sdk to setup OneSignal in your app.
+ 
+ ### API Reference ###
+ Follow the documentation from https://documentation.onesignal.com/docs/ios-sdk-api for a detailed explanation of the API.
+ 
+ ### FAQ & Troubleshoot ###
+ FAQ: https://documentation.onesignal.com/docs/frequently-asked-questions-1
+ Troubleshoot: https://documentation.onesignal.com/docs/common-problems-1
+ 
+ For help on how to upgrade your code from 1.* SDK to 2.*: https://documentation.onesignal.com/docs/upgrading-to-sdk-20
+ 
+ ### More ###
+ iOS Configuration: https://documentation.onesignal.com/docs/generating-an-ios-push-certificate
+ REST API: https://documentation.onesignal.com/docs/server-api-overview
+ Create Notification API: https://documentation.onesignal.com/docs/notifications-create-notification
+ 
+***/
+
 #import <Foundation/Foundation.h>
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
@@ -158,17 +179,11 @@ extern NSString * const kOSSettingsKeyInAppAlerts;
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
 
 /**
- `OneSignal` provides a high level interface to interact with OneSignal's push service.
- 
- `OneSignal` exposes a defaultClient for applications which use a globally available client to share configuration settings.
- 
- Include `#import "OneSignal/OneSignal.h"` in your application files to access OneSignal's methods.
- 
- ### Setting up the SDK ###
- 
- Follow the documentation from http://documentation.gamethrive.com/v1.0/docs/installing-the-gamethrive-ios-sdk to setup with your game.
- 
- */
+    OneSignal provides a high level interface to interact with OneSignal's push service.
+    OneSignal is a singleton for applications which use a globally available client to share configuration settings.
+    You should avoid creating instances of this class at all costs. Instead, access its instance methods.
+    Include `#import <OneSignal/OneSignal.h>` in your application files to access OneSignal's methods.
+ **/
 @interface OneSignal : NSObject
 
 extern NSString* const ONESIGNAL_VERSION;
