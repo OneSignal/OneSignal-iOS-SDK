@@ -292,9 +292,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
     
     if (mUserId)
-        idsAvailableBlock(mUserId, mDeviceToken);
+        idsAvailableBlock(mUserId, [self getUsableDeviceToken]);
     
-    if (!mUserId || !mDeviceToken)
+    if (!mUserId || ![self getUsableDeviceToken])
         idsAvailableBlockWhenReady = idsAvailableBlock;
 }
 
@@ -540,8 +540,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if (idsAvailableBlockWhenReady) {
         mNotificationTypes = [self getNotificationTypes];
-        if (mDeviceToken) {
-            idsAvailableBlockWhenReady(mUserId, mDeviceToken);
+        if ([self getUsableDeviceToken]) {
+            idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
             idsAvailableBlockWhenReady = nil;
         }
     }
@@ -683,7 +683,7 @@ bool nextRegistrationIsHighPriority = NO;
             }
             
             if (idsAvailableBlockWhenReady) {
-                idsAvailableBlockWhenReady(mUserId, mDeviceToken);
+                idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
                 if (mDeviceToken)
                     idsAvailableBlockWhenReady = nil;
             }
@@ -695,6 +695,10 @@ bool nextRegistrationIsHighPriority = NO;
         //If the failed regiatration is priority, force the next one to be a high priority
         nextRegistrationIsHighPriority = YES;
     }];
+}
+
++(NSString*) getUsableDeviceToken {
+    return (mNotificationTypes > 0) ? mDeviceToken : NULL;
 }
 
 //Updates the server with the new user's notification Types
@@ -715,8 +719,8 @@ bool nextRegistrationIsHighPriority = NO;
         
         [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
         
-        if (mDeviceToken && idsAvailableBlockWhenReady) {
-            idsAvailableBlockWhenReady(mUserId, mDeviceToken);
+        if ([self getUsableDeviceToken] && idsAvailableBlockWhenReady) {
+            idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
             idsAvailableBlockWhenReady = nil;
         }
     }
@@ -926,8 +930,8 @@ bool nextRegistrationIsHighPriority = NO;
     else if (mDeviceToken)
         [self sendNotificationTypesUpdate:changed];
     
-    if (idsAvailableBlockWhenReady && mUserId && mDeviceToken)
-        idsAvailableBlockWhenReady(mUserId, mDeviceToken);
+    if (idsAvailableBlockWhenReady && mUserId && [self getUsableDeviceToken])
+        idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
 }
 
 + (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
