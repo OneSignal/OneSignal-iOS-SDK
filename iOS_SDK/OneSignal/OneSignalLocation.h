@@ -28,8 +28,25 @@
 #ifndef OneSignalLocation_h
 #define OneSignalLocation_h
 
+typedef struct os_location_coordinate {
+    double latitude;
+    double longitude;
+} os_location_coordinate;
+
+typedef struct os_last_location {
+    os_location_coordinate cords;
+    double verticalAccuracy;
+    double horizontalAccuracy;
+} os_last_location;
+
+
 @interface OneSignalLocation : NSObject
-+ (void) getLocation:(id)delegate prompt:(bool)prompt;
++ (void) getLocation:(bool)prompt;
++ (void) sendLocation;
++ (os_last_location*)lastLocation;
++ (void)clearLastLocation;
++ (void)onfocus:(BOOL)isActive;
+
 @end
 
 #endif /* OneSignalLocation_h */
