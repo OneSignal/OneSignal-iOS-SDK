@@ -26,11 +26,27 @@
  */
 
 #import "OneSignalLocation.h"
+#import "OneSignalHTTPClient.h"
+#import "OneSignalHelper.h"
+#import "OneSignal.h"
 #import <CoreLocation/CoreLocation.h>
+
+@interface OneSignal ()
+void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
++ (NSString*)mUserId;
+@end
 
 @implementation OneSignalLocation
 
-static id locationManager;
+//Track time until next location fire event
+const NSTimeInterval foregroundSendLocationWaitTime = 5 * 60.0;
+const NSTimeInterval backgroundSendLocationWaitTime = 9.75 * 60.0;
+NSTimer* sendLocationTimer = nil;
+os_last_location *lastLocation;
+bool initialLocationSent = false;
+UIBackgroundTaskIdentifier fcTask;
+
+static id locationManager = nil;
 static bool started = false;
 static bool hasDelayed = false;
 
@@ -44,20 +60,93 @@ static bool hasDelayed = false;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
-+ (void) getLocation:(id)delegate prompt:(bool)prompt {
+static OneSignalLocation* singleInstance = nil;
++(OneSignalLocation*) sharedInstance {
+    @synchronized( singleInstance ) {
+        if( !singleInstance ) {
+            singleInstance = [[OneSignalLocation alloc] init];
+        }
+    }
+    
+    return singleInstance;
+}
+
++ (os_last_location*)lastLocation {
+    return lastLocation;
+}
++ (void)clearLastLocation {
+    lastLocation = nil;
+}
+
++ (void) getLocation:(bool)prompt {
     if (hasDelayed)
-        [OneSignalLocation internalGetLocation:delegate prompt:prompt];
+        [OneSignalLocation internalGetLocation:prompt];
     else {
         // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not statically linked.
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 2.0 * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
             hasDelayed = true;
-            [OneSignalLocation internalGetLocation:delegate prompt:prompt];
+            [OneSignalLocation internalGetLocation:prompt];
         });
+    }
+    
+    //Listen to app going to and from background
+}
+
++ (void)onfocus:(BOOL)isActive {
+    
+    if(!locationManager || !started) return;
+    
+    /**
+     We have a state switch
+     - If going to active: keep timer going
+     - If going to background:
+        1. Make sure that we can track background location
+            -> continue timer to send location otherwise set location to nil
+        Otherwise set timer to NULL
+    **/
+    
+    
+    NSTimeInterval remainingTimerTime = sendLocationTimer.fireDate.timeIntervalSinceNow;
+    NSTimeInterval requiredWaitTime = isActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime ;
+    NSTimeInterval adjustedTime = remainingTimerTime > 0 ? remainingTimerTime : requiredWaitTime;
+
+    if(isActive) {
+        if(sendLocationTimer && initialLocationSent) {
+            //Keep timer going with the remaining time
+            [sendLocationTimer invalidate];
+            sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:adjustedTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
+            NSLog(@"Scheduled send Loc Adjusted Time: %f", adjustedTime);
+        }
+    }
+    else {
+        
+        //Check if always granted
+        if( (int)[NSClassFromString(@"CLLocationManager") performSelector:@selector(authorizationStatus)] == 3) {
+            [OneSignalLocation beginTask];
+            [sendLocationTimer invalidate];
+            sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:adjustedTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
+            [[NSRunLoop mainRunLoop] addTimer:sendLocationTimer forMode:NSRunLoopCommonModes];
+            NSLog(@"Scheduled send Loc Adjusted Time: %f", adjustedTime);
+        }
+        else sendLocationTimer = NULL;
     }
 }
 
-+ (void) internalGetLocation:(id)delegate prompt:(bool)prompt {
++ (void) beginTask {
+    fcTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [OneSignalLocation endTask];
+    }];
+}
+
++ (void) endTask {
+    [[UIApplication sharedApplication] endBackgroundTask: fcTask];
+    fcTask = UIBackgroundTaskInvalid;
+}
+
+
+
++ (void) internalGetLocation:(bool)prompt {
     if (started)
         return;
     
@@ -71,16 +160,104 @@ static bool hasDelayed = false;
         return;
     
     locationManager = [[clLocationManagerClass alloc] init];
-    [locationManager setValue:delegate forKey:@"delegate"];
+    [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
     
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
-        [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+        
+        //Check info plist for request descriptions
+        //LocationAlways > LocationWhenInUse > No entry (Log error)
+        //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
+        NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+        NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"];
+        if(backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription) {
+            [locationManager performSelector:@selector(requestAlwaysAuthorization)];
+            [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
+        }
+        
+        else if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"])
+            [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+        
+        else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+    }
     
     // iOS 6 and 7 prompts for location here.
     [locationManager performSelector:@selector(startUpdatingLocation)];
     
+    
+    
     started = true;
 }
+
+#pragma mark CLLocationManagerDelegate
+
+- (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
+    
+    [manager performSelector:@selector(stopUpdatingLocation)];
+    
+    id location = locations.lastObject;
+    
+    SEL cord_selector = NSSelectorFromString(@"coordinate");
+    os_location_coordinate cords;
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[location class] instanceMethodSignatureForSelector:cord_selector]];
+    
+    [invocation setTarget:locations.lastObject];
+    [invocation setSelector:cord_selector];
+    [invocation invoke];
+    [invocation getReturnValue:&cords];
+    
+    os_last_location *currentLocation = (os_last_location*)malloc(sizeof(os_last_location));
+    currentLocation->verticalAccuracy = [[location valueForKey:@"verticalAccuracy"] doubleValue];
+    currentLocation->horizontalAccuracy = [[location valueForKey:@"horizontalAccuracy"] doubleValue];
+    currentLocation->cords = cords;
+    
+    lastLocation = currentLocation;
+    
+    if(!sendLocationTimer)
+        [OneSignalLocation resetSendTimer];
+    
+    if(!initialLocationSent)
+        [OneSignalLocation sendLocation];
+
+}
+
++ (void)resetSendTimer {
+    NSTimeInterval requiredWaitTime = [UIApplication sharedApplication].applicationState == UIApplicationStateActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime ;
+    sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:requiredWaitTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
+    NSLog(@"Scheduled send Loc in %f sec", requiredWaitTime);
+}
+
++ (void) sendLocation {
+    NSLog(@"sendLocation");
+    if (!lastLocation || ![OneSignal mUserId]) return;
+    
+    //Fired from timer and not initial location fetched
+    if(initialLocationSent)
+        [OneSignalLocation resetSendTimer];
+    
+    initialLocationSent = YES;
+    
+    NSMutableURLRequest* request = [[[OneSignalHTTPClient alloc] init] requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", [OneSignal mUserId]]];
+    
+    BOOL logBG = [UIApplication sharedApplication].applicationState != UIApplicationStateActive;
+    
+    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             [OneSignal app_id], @"app_id",
+                             @(lastLocation->cords.latitude), @"lat",
+                             @(lastLocation->cords.longitude), @"long",
+                             @(lastLocation->verticalAccuracy), @"loc_acc_vert",
+                             @(lastLocation->horizontalAccuracy), @"loc_acc",
+                             [OneSignalHelper getNetType], @"net_type",
+                             @(logBG), @"loc_bg",
+                             nil];
+    
+    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+    [request setHTTPBody:postData];
+    
+    [OneSignalHelper enqueueRequest:request
+                          onSuccess:nil
+                          onFailure:nil];
+}
+
 
 #pragma clang diagnostic pop
 #pragma GCC diagnostic pop

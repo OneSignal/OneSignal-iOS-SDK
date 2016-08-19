@@ -500,7 +500,6 @@ static OneSignal* singleInstance = nil;
     //Check if media attached
     //!! TEMP : Until Server implements Media Dict, use additional data dict as key val media
     NSMutableArray *attachments = [NSMutableArray new];
-    
     NSDictionary * att = userInfo[@"custom"][@"at"];
     if(!attachments)
         attachments = userInfo[@"os_data"][@"at"];

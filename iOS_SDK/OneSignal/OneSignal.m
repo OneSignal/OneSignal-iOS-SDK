@@ -57,17 +57,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-typedef struct os_location_coordinate {
-    double latitude;
-    double longitude;
-} os_location_coordinate;
-
-typedef struct os_last_location {
-    os_location_coordinate cords;
-    double verticalAccuracy;
-    double horizontalAccuracy;
-} os_last_location;
-
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
@@ -82,15 +71,13 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020009";
+NSString* const ONESIGNAL_VERSION = @"020010";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
 NSMutableDictionary* tagsToSend;
-os_last_location *lastLocation;
-BOOL location_event_fired;
 NSString* mUserId;
 NSString* mDeviceToken;
 OneSignalHTTPClient *httpClient;
@@ -132,7 +119,7 @@ bool mSubscriptionSet;
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
-    [OneSignalLocation getLocation:[OneSignalHelper sharedInstance] prompt:false];
+    [OneSignalLocation getLocation:false];
     
     if (self) {
         
@@ -483,7 +470,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void) promptLocation {
-    [OneSignalLocation getLocation:[OneSignalHelper sharedInstance] prompt:true];
+    [OneSignalLocation getLocation:true];
 }
     
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -642,12 +629,12 @@ bool nextRegistrationIsHighPriority = NO;
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
-    if (lastLocation) {
-        dataDic[@"lat"] = [NSNumber numberWithDouble:lastLocation->cords.latitude];
-        dataDic[@"long"] = [NSNumber numberWithDouble:lastLocation->cords.longitude];
-        dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:lastLocation->verticalAccuracy];
-        dataDic[@"loc_acc"] = [NSNumber numberWithDouble:lastLocation->horizontalAccuracy];
-        lastLocation = nil;
+    if ([OneSignalLocation lastLocation]) {
+        dataDic[@"lat"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
+        dataDic[@"long"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
+        dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
+        dataDic[@"loc_acc"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
+        [OneSignalLocation clearLastLocation];
     }
     
     [OneSignalHelper enqueueRequest:request onSuccess:^(NSDictionary* results) {
@@ -672,10 +659,8 @@ bool nextRegistrationIsHighPriority = NO;
                 tagsToSend = nil;
             }
             
-            if (lastLocation) {
-                [self sendLocation:lastLocation];
-                lastLocation = nil;
-            }
+            //try to send location
+            [OneSignalLocation sendLocation];
             
             if (emailToSet) {
                 [OneSignal syncHashedEmail:emailToSet];
@@ -1036,64 +1021,6 @@ bool nextRegistrationIsHighPriority = NO;
         [self handleNotificationOpened:userInfo isActive:isActive actionType:ActionTaken displayType:Notification];
     }
     
-}
-
-
-- (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-    [manager performSelector:@selector(stopUpdatingLocation)];
-#pragma clang diagnostic pop
-    
-    if (location_event_fired)
-        return;
-    
-    location_event_fired = true;
-    
-    id location = locations.lastObject;
-    
-    SEL cord_selector = NSSelectorFromString(@"coordinate");
-    os_location_coordinate cords;
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[[location class] instanceMethodSignatureForSelector:cord_selector]];
-    
-    [invocation setTarget:locations.lastObject];
-    [invocation setSelector:cord_selector];
-    [invocation invoke];
-    [invocation getReturnValue:&cords];
-    
-    os_last_location *currentLocation = (os_last_location*)malloc(sizeof(os_last_location));
-    currentLocation->verticalAccuracy = [[location valueForKey:@"verticalAccuracy"] doubleValue];
-    currentLocation->horizontalAccuracy = [[location valueForKey:@"horizontalAccuracy"] doubleValue];
-    currentLocation->cords = cords;
-    
-    if (mUserId == nil) {
-        lastLocation = currentLocation;
-        return;
-    }
-    
-    [OneSignal sendLocation:currentLocation];
-}
-    
-+ (void) sendLocation:(os_last_location*)location {
-    
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-    
-    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             app_id, @"app_id",
-                             [NSNumber numberWithDouble:location->cords.latitude], @"lat",
-                             [NSNumber numberWithDouble:location->cords.longitude], @"long",
-                             [NSNumber numberWithDouble:location->verticalAccuracy], @"loc_acc_vert",
-                             [NSNumber numberWithDouble:location->horizontalAccuracy], @"loc_acc",
-                             [OneSignalHelper getNetType], @"net_type",
-                             nil];
-    
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
-    
-    [OneSignalHelper enqueueRequest:request
-               onSuccess:nil
-               onFailure:nil];
 }
 
 #if XC8_AVAILABLE

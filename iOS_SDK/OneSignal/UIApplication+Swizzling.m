@@ -28,6 +28,7 @@
 #import <objc/runtime.h>
 
 #import "OneSignal.h"
+#import "OneSignalLocation.h"
 #import "OneSignalTracker.h"
 #import "OneSignalHelper.h"
 #import "NSObject+Extras.h"
@@ -37,6 +38,12 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+static BOOL checkIfInstanceOverridesSelector(Class instance, SEL selector) {
+    Class instSuperClass = [instance superclass];
+    return [instance instanceMethodForSelector: selector] != [instSuperClass instanceMethodForSelector: selector];
+}
+
 
 static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
     if (!class_conformsToProtocol(searchClass, protocolToFind)) {
@@ -54,7 +61,6 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
     Method newMeth = class_getInstanceMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
     const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
-    
     BOOL successful = class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
     
     if (!successful) {
@@ -63,6 +69,49 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
         Method orgMeth = class_getInstanceMethod(addToClass, makeLikeSel);
         method_exchangeImplementations(orgMeth, newMeth);
     }
+}
+
+//Try to find out which class to inject to
+static void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass) {
+    
+    // Find out if we should inject in delegateClass or one of its subclasses.
+    //CANNOT use the respondsToSelector method as it returns TRUE to both implementing and inheriting a method
+    //We need to make sure the class actually implements the method (overrides) and not inherits it to properly perform the call
+    //Start with subclasses then the delegateClass
+    
+    for(Class subclass in delegateSubclasses)
+        if(checkIfInstanceOverridesSelector(subclass, makeLikeSel)) {
+            injectSelector(myClass, newSel, subclass, makeLikeSel);
+            return;
+        }
+    
+    //No subclass overrides the method, try to inject in delegate class
+    injectSelector(myClass, newSel, delegateClass, makeLikeSel);
+    
+}
+
+static NSArray* ClassGetSubclasses(Class parentClass) {
+    
+    int numClasses = objc_getClassList(NULL, 0);
+    Class *classes = NULL;
+    
+    classes = (Class *)malloc(sizeof(Class) * numClasses);
+    numClasses = objc_getClassList(classes, numClasses);
+    
+    NSMutableArray *result = [NSMutableArray array];
+    for (NSInteger i = 0; i < numClasses; i++) {
+        Class superClass = classes[i];
+        do {
+            superClass = class_getSuperclass(superClass);
+        } while(superClass && superClass != parentClass);
+        
+        if (superClass == nil) continue;
+        [result addObject:classes[i]];
+    }
+    
+    free(classes);
+    
+    return result;
 }
 
 @interface OneSignal ()
@@ -79,6 +128,11 @@ static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL mak
 
 @implementation UIApplication (Swizzling)
 static Class delegateClass = nil;
+
+// Store an array of all UIAppDelegate subclasses to iterate over in cases where UIAppDelegate swizzled methods are not overriden in main AppDelegate
+//But rather in one of the subclasses
+static NSArray* delegateSubclasses = nil;
+
 +(Class)delegateClass {
     return delegateClass;
 }
@@ -137,6 +191,7 @@ static Class delegateClass = nil;
         [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
         return;
     }
+
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
@@ -151,7 +206,8 @@ static Class delegateClass = nil;
     
     if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
         [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    else completionHandler();
+
+    completionHandler();
 }
 
 - (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
@@ -172,10 +228,21 @@ static Class delegateClass = nil;
         [self oneSignalApplicationWillResignActive:application];
 }
 
-- (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
+- (void) oneSignalApplicationDidEnterBackground:(UIApplication*)application {
     
     if([OneSignal app_id])
+        [OneSignalLocation onfocus:NO];
+    
+    if ([self respondsToSelector:@selector(oneSignalApplicationDidEnterBackground:)])
+        [self oneSignalApplicationDidEnterBackground:application];
+}
+
+- (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
+    
+    if([OneSignal app_id]) {
         [OneSignalTracker onFocus:NO];
+        [OneSignalLocation onfocus:YES];
+    }
     
     if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
         [self oneSignalApplicationDidBecomeActive:application];
@@ -192,8 +259,11 @@ static Class delegateClass = nil;
 
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
-    if (!SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
-        method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setOneSignalDelegate:)));
+    if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
+        return;
+    
+    //Swizzle App delegate
+    method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setOneSignalDelegate:)));
 }
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
@@ -202,46 +272,42 @@ static Class delegateClass = nil;
         [self setOneSignalDelegate:delegate];
         return;
     }
-
     
     delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
+    delegateSubclasses = ClassGetSubclasses(delegateClass);
+
+    injectToProperClass(@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
+                   @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, self.class, delegateClass);
     
+    injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
+                        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, self.class, delegateClass);
     
-    injectSelector(self.class, @selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
-                   delegateClass, @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:));
+    injectToProperClass(@selector(oneSignalDidFailRegisterForRemoteNotification:error:),
+                        @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, self.class, delegateClass);
     
-    injectSelector(self.class, @selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-                   delegateClass, @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:));
-    
-    injectSelector(self.class, @selector(oneSignalDidFailRegisterForRemoteNotification:error:),
-                   delegateClass, @selector(application:didFailToRegisterForRemoteNotificationsWithError:));
-    
-    injectSelector(self.class, @selector(oneSignalDidRegisterUserNotifications:settings:),
-                   delegateClass, @selector(application:didRegisterUserNotificationSettings:));
+    injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
+                        @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, self.class, delegateClass);
     
     if (NSClassFromString(@"CoronaAppDelegate")) {
         [self setOneSignalDelegate:delegate];
         return;
     }
     
-    injectSelector(self.class, @selector(oneSignalReceivedRemoteNotification:userInfo:),
-                   delegateClass, @selector(application:didReceiveRemoteNotification:));
+    injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:), @selector(application:didReceiveRemoteNotification:), delegateSubclasses, self.class, delegateClass);
     
-    injectSelector(self.class, @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:),
-                   delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
+    injectToProperClass(@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:), @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), delegateSubclasses, self.class, delegateClass);
     
-    injectSelector(self.class, @selector(oneSignalLocalNotificationOpened:notification:),
-                   delegateClass, @selector(application:didReceiveLocalNotification:));
+    injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:), @selector(application:didReceiveLocalNotification:), delegateSubclasses, self.class, delegateClass);
     
-    injectSelector(self.class, @selector(oneSignalApplicationWillResignActive:),
-                   delegateClass, @selector(applicationWillResignActive:));
+    injectToProperClass(@selector(oneSignalApplicationWillResignActive:), @selector(applicationWillResignActive:), delegateSubclasses, self.class, delegateClass);
     
-    injectSelector(self.class, @selector(oneSignalApplicationDidBecomeActive:),
-                   delegateClass, @selector(applicationDidBecomeActive:));
+    //Required for background location
+    injectToProperClass(@selector(oneSignalApplicationDidEnterBackground:), @selector(applicationDidEnterBackground:), delegateSubclasses, self.class, delegateClass);
+    
+    injectToProperClass(@selector(oneSignalApplicationDidBecomeActive:), @selector(applicationDidBecomeActive:), delegateSubclasses, self.class, delegateClass);
     
     //Used to track how long the app has been closed
-    injectSelector(self.class, @selector(oneSignalApplicationWillTerminate:),
-                   delegateClass, @selector(applicationWillTerminate:));
+    injectToProperClass(@selector(oneSignalApplicationWillTerminate:), @selector(applicationWillTerminate:), delegateSubclasses, self.class, delegateClass);
     
     
     /* iOS 10.0: UNUserNotificationCenterDelegate instead of UIApplicationDelegate for methods handling opening app from notification
