@@ -101,7 +101,12 @@ UIViewController *viewControllerForPresentation;
     if(!viewControllerForPresentation.view.superview)
         [mainWindow addSubview:[viewControllerForPresentation view]];
 
+        @try {
     [viewControllerForPresentation presentViewController:navController animated:YES completion:NULL];
+        }
+    @catch(NSException* exception) {
+        NSLog(@"%@", exception);
+    }
 }
 
 

@@ -12,8 +12,8 @@
 
 @implementation OneSignalMobileProvision
 
-/** embedded.mobileprovision plist format:
- 
+/** 
+ embedded.mobileprovision plist format:
  AppIDName, // string - TextDetective
  ApplicationIdentifierPrefix[],  // [ string - 66PK3K3KEV ]
  CreationData, // date - 2013-01-17T14:18:05Z

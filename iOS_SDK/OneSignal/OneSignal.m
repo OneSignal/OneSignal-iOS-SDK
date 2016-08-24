@@ -71,7 +71,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020010";
+NSString* const ONESIGNAL_VERSION = @"020011";
 
 static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
@@ -177,8 +177,14 @@ bool mSubscriptionSet;
         
         [OneSignalTracker onFocus:NO];
     }
+ 
+    /*
+     * No need to call the handleNotificationOpened:userInfo as it will be called from the
+     * application:didReceiveRemoteNotification:fetchCompletionHandler / userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (i10)
+     */
     
     //If app opened from tap on notification or action
+/*    
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if(userInfo) {
         OSNotificationActionType type = Opened;
@@ -186,7 +192,7 @@ bool mSubscriptionSet;
             type = ActionTaken;
         [self handleNotificationOpened:userInfo isActive:NO actionType:type displayType:Notification];
     }
-    
+*/
     [self clearBadgeCount:false];
     
     if ([OneSignalTrackIAP canTrack])
@@ -785,7 +791,7 @@ bool nextRegistrationIsHighPriority = NO;
     }
     else {
         
-        //app was in background and opened due to a tap on a notification or an action check what type
+        //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
         OSNotificationActionType type = Opened;
         if(messageDict[@"custom"][@"a"][@"actionSelected"]) {
@@ -835,12 +841,11 @@ bool nextRegistrationIsHighPriority = NO;
 + (void)launchWebURL:(NSString*)openUrl {
 
     if (openUrl) {
-        if ([OneSignalHelper verifyURL:openUrl])
+        if ([OneSignalHelper verifyURL:openUrl]) {
             //Create a dleay to allow alertview to dismiss before showing anything or going to safari
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                NSURL *url = [NSURL URLWithString:openUrl];
-                [OneSignalHelper displayWebView:url];
-            });
+            NSURL *url = [NSURL URLWithString:openUrl];
+            [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
+        }
     }
     
 }
