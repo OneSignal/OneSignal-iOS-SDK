@@ -192,8 +192,8 @@ static NSArray* delegateSubclasses = nil;
         return;
     }
 
-    
-    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
+    //Make sure not a cold start from tap on notification (OS doesn't call didReceiveRemoteNotification)
+    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)] && ![[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
     
     completionHandler(UIBackgroundFetchResultNewData);

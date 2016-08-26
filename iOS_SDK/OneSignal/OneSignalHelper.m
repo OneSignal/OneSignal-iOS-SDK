@@ -160,9 +160,32 @@
     return self;
 }
 
+- (NSString*)stringify {
+    NSDictionary * obj = @{@"payload" : @{@"notificationID" : self.payload.notificationID ? self.payload.notificationID : @"",
+                                          @"contentAvailable" : self.payload.contentAvailable ? @(self.payload.contentAvailable) : @(0),
+                                          @"badge" : self.payload.badge ? @(self.payload.badge) : @0,
+                                          @"sound" : self.payload.sound ? self.payload.sound : @"",
+                                          @"title" : self.payload.title ? self.payload.title : @"",
+                                          @"body" : self.payload.body ? self.payload.body : @"",
+                                          @"subtitle" : self.payload.subtitle ? self.payload.subtitle : @"",
+                                          @"launchURL" : self.payload.launchURL ? self.payload.launchURL : @"",
+                                          @"additionalData" : self.payload.additionalData ? self.payload.additionalData : @"",
+                                          @"actionButtons" : self.payload.actionButtons ? self.payload.actionButtons : @"",
+                                          @"rawPayload" : self.payload.rawPayload ? self.payload.rawPayload : @{}
+                                          },
+                           @"displayType" : self.displayType ? @(self.displayType) : @(0),
+                           @"shown" : @(self.shown),
+                           @"silentNotification" : @(self.silentNotification),
+                           };
+    //Convert obj into a serialized
+    NSError * err;
+    NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
 @end
 
-@implementation OSNotificationResult
+@implementation OSNotificationOpenedResult
 @synthesize notification = _notification, action = _action;
 
 - (id)initWithNotification:(OSNotification*)notification action:(OSNotificationAction*)action {
@@ -172,6 +195,27 @@
         _action = action;
     }
     return self;
+}
+
+- (NSString*)stringify {
+    
+    NSError * jsonError = nil;
+    NSData *objectData = [[self.notification stringify] dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *notifDict = [NSJSONSerialization JSONObjectWithData:objectData
+                                                              options:NSJSONReadingMutableContainers
+                                                                error:&jsonError];
+    
+    
+    NSDictionary * obj = @{@"action" : @{@"actionID" : self.action.actionID ? self.action.actionID : @"",
+                                         @"type" : @(self.action.type)
+                                         },
+                           @"notification" : notifDict ? notifDict : @{}
+                           };
+    
+    //Convert obj into a serialized
+    NSError * err;
+    NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
 @end
@@ -269,7 +313,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
     OSNotificationPayload *payload = [[OSNotificationPayload alloc] initWithRawMessage:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    OSNotificationResult * result = [[OSNotificationResult alloc] initWithNotification:notification action:action];
+    OSNotificationOpenedResult * result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
     
     //Prevent duplicate calls to same action
     static NSString* lastMessageID = @"";

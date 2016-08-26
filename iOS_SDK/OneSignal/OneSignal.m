@@ -71,9 +71,10 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020011";
-
-static bool registeredWithApple = false; //Has attempted to register for push notifications with Apple.
+NSString* const ONESIGNAL_VERSION = @"020012";
+static NSString* mSDKType = @"native";
+static BOOL coldStartFromTapOnNotification = NO;
+static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
@@ -85,9 +86,8 @@ OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 int mNotificationTypes = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
-NSString* mSDKType = @"native";
-bool disableBadgeClearing = NO;
-bool mSubscriptionSet;
+BOOL disableBadgeClearing = NO;
+BOOL mSubscriptionSet;
     
 + (NSString*)app_id {
     return app_id;
@@ -95,6 +95,17 @@ bool mSubscriptionSet;
 
 + (NSString*)mUserId {
     return mUserId;
+}
+
++ (void) setMSDKType:(NSString*)type {
+    mSDKType = type;
+}
+
+//Set to false as soon as it's read.
++ (BOOL)coldStartFromTapOnNotification {
+    BOOL val = coldStartFromTapOnNotification;
+    coldStartFromTapOnNotification = NO;
+    return val;
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
@@ -183,16 +194,11 @@ bool mSubscriptionSet;
      * application:didReceiveRemoteNotification:fetchCompletionHandler / userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (i10)
      */
     
-    //If app opened from tap on notification or action
-/*    
+    //Cold start from tap on a remote notification
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    if(userInfo) {
-        OSNotificationActionType type = Opened;
-        if(userInfo[@"custom"][@"a"][@"actionSelected"] || userInfo[@"actionSelected"])
-            type = ActionTaken;
-        [self handleNotificationOpened:userInfo isActive:NO actionType:type displayType:Notification];
-    }
-*/
+    if(userInfo)
+        coldStartFromTapOnNotification = YES;
+
     [self clearBadgeCount:false];
     
     if ([OneSignalTrackIAP canTrack])
@@ -873,7 +879,11 @@ bool nextRegistrationIsHighPriority = NO;
     
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened {
     
-    disableBadgeClearing = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_disable_badge_clearing"];
+    NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_disable_badge_clearing"];
+    
+    if(disableBadgeNumber)
+        disableBadgeClearing = [disableBadgeNumber boolValue];
+    else disableBadgeClearing = NO;
     
     if (disableBadgeClearing || mNotificationTypes == -1 || (mNotificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
     return false;
@@ -1163,6 +1173,7 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     
 }
 
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop
 @end
+
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop

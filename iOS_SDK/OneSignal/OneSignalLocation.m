@@ -116,7 +116,6 @@ static OneSignalLocation* singleInstance = nil;
             //Keep timer going with the remaining time
             [sendLocationTimer invalidate];
             sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:adjustedTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
-            NSLog(@"Scheduled send Loc Adjusted Time: %f", adjustedTime);
         }
     }
     else {
@@ -127,7 +126,6 @@ static OneSignalLocation* singleInstance = nil;
             [sendLocationTimer invalidate];
             sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:adjustedTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
             [[NSRunLoop mainRunLoop] addTimer:sendLocationTimer forMode:NSRunLoopCommonModes];
-            NSLog(@"Scheduled send Loc Adjusted Time: %f", adjustedTime);
         }
         else sendLocationTimer = NULL;
     }
@@ -223,11 +221,9 @@ static OneSignalLocation* singleInstance = nil;
 + (void)resetSendTimer {
     NSTimeInterval requiredWaitTime = [UIApplication sharedApplication].applicationState == UIApplicationStateActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime ;
     sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:requiredWaitTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
-    NSLog(@"Scheduled send Loc in %f sec", requiredWaitTime);
 }
 
 + (void) sendLocation {
-    NSLog(@"sendLocation");
     if (!lastLocation || ![OneSignal mUserId]) return;
     
     //Fired from timer and not initial location fetched
