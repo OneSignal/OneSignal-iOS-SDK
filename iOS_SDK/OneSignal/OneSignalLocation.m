@@ -160,7 +160,8 @@ static OneSignalLocation* singleInstance = nil;
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
     
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+    float deviceOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (deviceOSVersion >= 8.0) {
         
         //Check info plist for request descriptions
         //LocationAlways > LocationWhenInUse > No entry (Log error)
@@ -169,7 +170,9 @@ static OneSignalLocation* singleInstance = nil;
         NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"];
         if(backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription) {
             [locationManager performSelector:@selector(requestAlwaysAuthorization)];
-            [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
+            if (deviceOSVersion >= 9.0) {
+                [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
+            }
         }
         
         else if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"])
