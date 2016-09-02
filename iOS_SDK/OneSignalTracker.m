@@ -28,6 +28,7 @@
 #import "OneSignalTracker.h"
 #import "OneSignalHelper.h"
 #import "OneSignalHTTPClient.h"
+#import "OneSignalWebView.h"
 #import "OneSignal.h"
 
 @interface OneSignal ()
@@ -74,6 +75,11 @@ BOOL lastOnFocusWasToBackground = YES;
         [OneSignal sendNotificationTypesUpdate:false];
         wasBadgeSet = [OneSignal clearBadgeCount:false];
         [OneSignal registerUser];
+        
+        //Make sure webview dismissed if came back from deep link
+        OneSignalWebView *webVC = [OneSignalHelper webVC];
+        if(webVC)
+            [webVC dismiss:self];
     }
     else {
 

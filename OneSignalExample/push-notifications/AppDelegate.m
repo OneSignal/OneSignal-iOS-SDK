@@ -37,7 +37,7 @@
     
     [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
-    } handleNotificationAction:^(OSNotificationResult *result) {
+    } handleNotificationAction:^(OSNotificationOpenedResult *result) {
         
         // This block gets called when the user reacts to a notification received
         OSNotificationPayload* payload = result.notification.payload;
@@ -49,8 +49,6 @@
             
             if(payload.title)
                 messageTitle = payload.title;
-            
-            NSDictionary* additionalData = payload.additionalData;
             
             if (result.action.actionID)
                 fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionID]];

@@ -26,6 +26,7 @@
  */
 
 #import "OneSignal.h"
+#import "OneSignalWebView.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -33,6 +34,7 @@
 @interface OneSignalHelper : NSObject
 
 // - Web
++ (OneSignalWebView*)webVC;
 + (void) displayWebView:(NSURL*)url;
 
 // - Notification Opened
@@ -44,15 +46,18 @@
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
 
 // - iOS 10
++ (BOOL)isiOS10Plus;
+#if XC8_AVAILABLE
++ (void)registerAsUNNotificationCenterDelegate;
 + (void) requestAuthorization;
 + (void)conformsToUNProtocol;
-+ (void)registerAsUNNotificationCenterDelegate;
 + (void)clearCachedMedia;
++ (id)prepareUNNotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo;
+#endif
 
 // - Notifications
 + (BOOL) isCapableOfGettingNotificationTypes;
 + (UILocalNotification*)prepareUILocalNotification:(NSDictionary*)data :(NSDictionary*)userInfo;
-+ (id)prepareUNNotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo;
 + (BOOL)verifyURL:(NSString *)urlString;
 + (BOOL) isRemoteSilentNotification:(NSDictionary*)msg;
 

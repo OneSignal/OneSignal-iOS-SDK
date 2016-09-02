@@ -71,7 +71,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020100";
+NSString* const ONESIGNAL_VERSION = @"020101";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -205,8 +205,10 @@ BOOL mSubscriptionSet;
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
     if (NSClassFromString(@"UNUserNotificationCenter")) {
+        #if XC8_AVAILABLE
         [OneSignalHelper registerAsUNNotificationCenterDelegate];
         [OneSignalHelper clearCachedMedia];
+        #endif
     }
     
     return self;
@@ -263,8 +265,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 // "registerForRemoteNotifications*" calls didRegisterForRemoteNotificationsWithDeviceToken
 // in the implementation UIApplication(OneSignalPush) below after contacting Apple's server.
 + (void)registerForPushNotifications {
-
+    
+    #if XC8_AVAILABLE
     [OneSignalHelper requestAuthorization];
+    #endif
     
     // For iOS 8 devices
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
@@ -761,7 +765,8 @@ bool nextRegistrationIsHighPriority = NO;
         
         [OneSignalHelper lastMessageReceived:messageDict];
         
-        if (inAppAlert) {
+        //Make sure it is not a silent one do display, if inAppAlerts are enabled
+        if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
             
             NSArray<NSString*>* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
             id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict];
@@ -950,13 +955,8 @@ bool nextRegistrationIsHighPriority = NO;
     // If 'm' present then the notification has action buttons attached to it.
     NSDictionary* data = nil;
     
-    if (userInfo[@"os_data"])
-        data = userInfo[@"os_data"][@"buttons"];
-    else if (userInfo[@"m"])
-        data = userInfo;
-    
-    // - TEMP until server sends special field for attachments
-    else if (userInfo[@"custom"][@"at"])
+    // Check for buttons or attachments
+    if (userInfo[@"os_data"][@"buttons"] || userInfo[@"at"] || userInfo[@"o"])
         data = userInfo;
     
     //If buttons -> Data is buttons

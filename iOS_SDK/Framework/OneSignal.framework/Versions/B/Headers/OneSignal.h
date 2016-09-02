@@ -144,6 +144,12 @@ typedef enum : NSUInteger {
  requires remote-notification within UIBackgroundModes array of the Info.plist */
 @property(readonly, getter=isSilentNotification)BOOL silentNotification;
 
+/* iOS 10+: Indicates wether or not the received notification has mutableContent : 1 assigned to its payload
+ Used for UNNotificationServiceExtension to launch extension.
+*/
+#if XC8_AVAILABLE
+@property(readonly, getter=hasMutableContent)BOOL mutableContent;
+#endif
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString*)stringify;
@@ -241,7 +247,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
 
 // - Alerting
-// + (void)enableInAppAlertNotification:(BOOL)enable;
 + (void)setSubscription:(BOOL)enable;
 
 // - Posting Notification
