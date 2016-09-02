@@ -488,6 +488,8 @@ static OneSignal* singleInstance = nil;
                 [content setValue:data[@"m"][@"title"] forKey:@"title"];
             if(data[@"m"][@"body"])
                 [content setValue:data[@"m"][@"body"] forKey:@"body"];
+            if(data[@"m"][@"subtitle"])
+                [content setValue:data[@"m"][@"subtitle"] forKey:@"subtitle"];
         }
         else [content setValue:data[@"m"] forKey:@"body"];
     }
@@ -496,6 +498,7 @@ static OneSignal* singleInstance = nil;
         if([data[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]]) {
             [content setValue:data[@"aps"][@"alert"][@"title"] forKey:@"title"];
             [content setValue:data[@"aps"][@"alert"][@"body"] forKey:@"body"];
+            [content setValue:data[@"aps"][@"alert"][@"subtitle"] forKey:@"subtitle"];
         }
         else [content setValue:data[@"aps"][@"alert"] forKey:@"body"];
     }
