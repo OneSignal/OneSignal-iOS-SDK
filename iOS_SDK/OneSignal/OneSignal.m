@@ -71,7 +71,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020101";
+NSString* const ONESIGNAL_VERSION = @"020102";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -185,6 +185,11 @@ BOOL mSubscriptionSet;
         // If autoprompt disabled, get a token from APNS for silent notifications until user calls regsiterForPushNotifications to request push permissions from user.
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
+        
+        if (mUserId != nil)
+            [self registerUser];
+        else // Fall back incase Apple does not responsed in time.
+            [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
         
         [OneSignalTracker onFocus:NO];
     }
@@ -506,12 +511,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         tokenUpdateSuccessBlock = successBlock;
         tokenUpdateFailureBlock = failureBlock;
         
-        // iOS 8 - We get a token right away but give the user 10 sec to responsed to the system prompt.
+        // iOS 8 - We get a token right away but give the user 30 sec to responsed to the system prompt.
         // Also check mNotificationTypes so there is no waiting if user has already answered the system prompt.
         // The goal is to only have 1 server call.
         if ([OneSignalHelper isCapableOfGettingNotificationTypes] && mNotificationTypes == -1) {
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-            [self performSelector:@selector(registerUser) withObject:nil afterDelay:10.0f];
+            [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
         }
         else
             [OneSignal registerUser];

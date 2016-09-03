@@ -74,7 +74,6 @@ BOOL lastOnFocusWasToBackground = YES;
         lastOpenedTime = now;
         [OneSignal sendNotificationTypesUpdate:false];
         wasBadgeSet = [OneSignal clearBadgeCount:false];
-        [OneSignal registerUser];
         
         //Make sure webview dismissed if came back from deep link
         OneSignalWebView *webVC = [OneSignalHelper webVC];

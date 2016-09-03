@@ -98,15 +98,19 @@ UIViewController *viewControllerForPresentation;
     }
 
     UIWindow* mainWindow = [[UIApplication sharedApplication] keyWindow];
+    
+    if (navController.isViewLoaded && navController.view.window) {
+        // navController is visible only refresh webview
+        if(_url)
+            [_webView loadRequest:[NSURLRequest requestWithURL:_url]];
+        return;
+    }
+    
     if(!viewControllerForPresentation.view.superview)
         [mainWindow addSubview:[viewControllerForPresentation view]];
 
-        @try {
-    [viewControllerForPresentation presentViewController:navController animated:YES completion:NULL];
-        }
-    @catch(NSException* exception) {
-        NSLog(@"%@", exception);
-    }
+    @try { [viewControllerForPresentation presentViewController:navController animated:YES completion:NULL]; }
+    @catch(NSException* exception) { }
 }
 
 
