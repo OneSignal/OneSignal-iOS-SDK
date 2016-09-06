@@ -71,7 +71,7 @@ NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020102";
+NSString* const ONESIGNAL_VERSION = @"020103";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -1157,8 +1157,8 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     }
     
     const NSString* lowEmail = [email lowercaseString];
-    const NSString* md5 = [lowEmail md5];
-    const NSString* sha1 = [lowEmail sha1];
+    const NSString* md5 = [lowEmail hashUsingMD5];
+    const NSString* sha1 = [lowEmail hashUsingSha1];
     
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"%@ - MD5: %@, SHA1:%@", lowEmail, md5, sha1]);
     

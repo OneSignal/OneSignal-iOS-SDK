@@ -29,7 +29,7 @@
 
 @interface NSString (Hash)
 
-- (NSString*)sha1;
-- (NSString*)md5;
+- (NSString*)hashUsingSha1;
+- (NSString*)hashUsingMD5;
 
 @end

@@ -31,7 +31,7 @@
 
 @implementation NSString (Hash)
 
-- (NSString*)sha1 {
+- (NSString*)hashUsingSha1 {
     const char *cstr = [self UTF8String];
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
     CC_SHA1(cstr, (CC_LONG)strlen(cstr), digest);
@@ -41,7 +41,7 @@
     return output;
 }
 
-- (NSString*)md5 {
+- (NSString*)hashUsingMD5 {
     const char *cstr = [self UTF8String];
     uint8_t digest[CC_MD5_DIGEST_LENGTH];
     CC_MD5(cstr, (CC_LONG)strlen(cstr), digest);
