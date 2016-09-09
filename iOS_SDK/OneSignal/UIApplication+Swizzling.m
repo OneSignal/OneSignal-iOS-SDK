@@ -260,8 +260,7 @@ static NSArray* delegateSubclasses = nil;
 
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
-    
-    NSLog(@"----- LOOOOGGGGG ------");
+
     if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
         return;
     
