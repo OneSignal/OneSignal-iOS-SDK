@@ -173,22 +173,35 @@
 }
 
 - (NSString*)stringify {
-    NSDictionary * obj = @{@"payload" : @{@"notificationID" : self.payload.notificationID ? self.payload.notificationID : @"",
-                                          @"contentAvailable" : self.payload.contentAvailable ? @(self.payload.contentAvailable) : @(0),
-                                          @"badge" : self.payload.badge ? @(self.payload.badge) : @0,
-                                          @"sound" : self.payload.sound ? self.payload.sound : @"",
-                                          @"title" : self.payload.title ? self.payload.title : @"",
-                                          @"body" : self.payload.body ? self.payload.body : @"",
-                                          @"subtitle" : self.payload.subtitle ? self.payload.subtitle : @"",
-                                          @"launchURL" : self.payload.launchURL ? self.payload.launchURL : @"",
-                                          @"additionalData" : self.payload.additionalData ? self.payload.additionalData : @"",
-                                          @"actionButtons" : self.payload.actionButtons ? self.payload.actionButtons : @"",
-                                          @"rawPayload" : self.payload.rawPayload ? self.payload.rawPayload : @{}
-                                          },
-                           @"displayType" : self.displayType ? @(self.displayType) : @(0),
-                           @"shown" : @(self.shown),
-                           @"silentNotification" : @(self.silentNotification),
+    
+    NSDictionary * obj = @{@"payload" : @{@"notificationID" : self.payload.notificationID,
+                                          @"sound" : self.payload.sound,
+                                          @"title" : self.payload.title,
+                                          @"body" : self.payload.body,
+                                          @"subtitle" : self.payload.subtitle,
+                                          @"launchURL" : self.payload.launchURL,
+                                          @"additionalData" : self.payload.additionalData,
+                                          @"actionButtons" : self.payload.actionButtons,
+                                          @"rawPayload" : self.payload.rawPayload
+                                          }
                            };
+    
+    if(self.payload.contentAvailable)
+        [obj[@"payload"] setValue:@(self.payload.contentAvailable) forKey: @"contentAvailable"];
+    
+    if(self.payload.badge)
+        [obj[@"payload"] setValue:@(self.payload.badge) forKey: @"badge"];
+    
+    if(self.displayType)
+        [obj setValue:@(self.displayType) forKey: @"displayType"];
+    
+    if(self.shown)
+        [obj setValue:@(self.shown) forKey: @"shown"];
+    
+    if(self.silentNotification)
+        [obj setValue:@(self.silentNotification) forKey: @"silentNotification"];
+    
+
     //Convert obj into a serialized
     NSError * err;
     NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
@@ -218,11 +231,13 @@
                                                                 error:&jsonError];
     
     
-    NSDictionary * obj = @{@"action" : @{@"actionID" : self.action.actionID ? self.action.actionID : @"",
-                                         @"type" : @(self.action.type)
+    NSDictionary * obj = @{@"action" : @{@"actionID" : self.action.actionID
                                          },
-                           @"notification" : notifDict ? notifDict : @{}
+                           @"notification" : notifDict
                            };
+    
+    if(self.action.type)
+        [obj[@"action"] setValue:@(self.action.type) forKey: @"type"];
     
     //Convert obj into a serialized
     NSError * err;
