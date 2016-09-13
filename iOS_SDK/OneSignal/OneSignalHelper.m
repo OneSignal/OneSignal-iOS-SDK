@@ -31,6 +31,7 @@
 
 #import <objc/runtime.h>
 
+
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -457,7 +458,7 @@ static OneSignal* singleInstance = nil;
 #if XC8_AVAILABLE
 
 + (void)requestAuthorization {
-    [[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:7 completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
+    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] requestAuthorizationWithOptions:7 completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
 }
 
 + (void)conformsToUNProtocol {
@@ -469,7 +470,7 @@ static OneSignal* singleInstance = nil;
 + (void)registerAsUNNotificationCenterDelegate {
     
     if(!NSClassFromString(@"UNUserNotificationCenter")) return;
-    [UNUserNotificationCenter currentNotificationCenter].delegate = [self sharedInstance];
+    [NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter].delegate = [self sharedInstance];
     
 }
 
@@ -481,18 +482,18 @@ static OneSignal* singleInstance = nil;
     for( NSDictionary* button in data[@"o"]) {
         NSString* title = button[@"n"] != NULL ? button[@"n"] : @"";
         NSString* buttonID = button[@"i"] != NULL ? button[@"i"] : title;
-        UNNotificationAction* action = [UNNotificationAction actionWithIdentifier:buttonID title:title options:UNNotificationActionOptionForeground];
+        id action = [NSClassFromString(@"UNNotificationAction") actionWithIdentifier:buttonID title:title options:UNNotificationActionOptionForeground];
         [actionArray addObject:action];
     }
     
     if ([actionArray count] == 2)
         actionArray = (NSMutableArray*)[[actionArray reverseObjectEnumerator] allObjects];
     
-    UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category = [NSClassFromString(@")UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
     
     NSSet* set = [[NSSet alloc] initWithArray:@[category]];
     
-    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:set];
+    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] setNotificationCategories:set];
     
     id content = [[NSClassFromString(@"UNMutableNotificationContent") alloc] init];
     [content setValue:@"__dynamic__" forKey:@"categoryIdentifier"];
@@ -549,7 +550,7 @@ static OneSignal* singleInstance = nil;
             NSString*filePath = [paths[0] stringByAppendingPathComponent:name];
             NSURL * url = [NSURL fileURLWithPath:filePath];
             NSError * error;
-            id attachment = [UNNotificationAttachment attachmentWithIdentifier:key URL:url options:0 error:&error];
+            id attachment = [NSClassFromString(@"UNNotificationAttachment") attachmentWithIdentifier:key URL:url options:0 error:&error];
             if (attachment)
                 [attachments addObject:attachment];
         }
@@ -564,7 +565,7 @@ static OneSignal* singleInstance = nil;
             NSURL * url = [[NSBundle mainBundle] URLForResource:name withExtension:extension];
             if (url) {
                 NSError *error;
-                id attachment = [UNNotificationAttachment attachmentWithIdentifier:key URL:url options:0 error:&error];
+                id attachment = [NSClassFromString(@"UNNotificationAttachment") attachmentWithIdentifier:key URL:url options:0 error:&error];
                 if (attachment)
                     [attachments addObject:attachment];
             }
@@ -573,16 +574,16 @@ static OneSignal* singleInstance = nil;
     
     [content setValue:attachments forKey:@"attachments"];
     
-    UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.25 repeats:NO];
+    id trigger = [NSClassFromString(@"UNTimeIntervalNotificationTrigger") triggerWithTimeInterval:0.25 repeats:NO];
     
-    return [UNNotificationRequest requestWithIdentifier:@"__dynamic__"content:content trigger:trigger];
+    return [NSClassFromString(@"UNNotificationRequest") requestWithIdentifier:@"__dynamic__"content:content trigger:trigger];
 }
 
 + (void)addnotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo {
     if(!NSClassFromString(@"UNUserNotificationCenter")) return;
     
     id notificationRequest = [OneSignalHelper prepareUNNotificationRequest:data :userInfo];
-    [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:notificationRequest withCompletionHandler:^(NSError * _Nullable error) {}];
+    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] addNotificationRequest:notificationRequest withCompletionHandler:^(NSError * _Nullable error) {}];
 }
 
 //Synchroneously downloads a media
