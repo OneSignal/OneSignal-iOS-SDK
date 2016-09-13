@@ -488,7 +488,7 @@ static OneSignal* singleInstance = nil;
     if ([actionArray count] == 2)
         actionArray = (NSMutableArray*)[[actionArray reverseObjectEnumerator] allObjects];
     
-    id category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    UNNotificationCategory* category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
     
     NSSet* set = [[NSSet alloc] initWithArray:@[category]];
     

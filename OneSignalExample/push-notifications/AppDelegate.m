@@ -70,6 +70,23 @@
         }
     }];
     
+    /*
+    // iOS 10 ONLY - Add category for the OSContentExtension
+    // Make sure to add UserNotifications framework in the Linked Frameworks & Libraries.
+     
+    [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
+        
+        UNNotificationAction* myAction = [UNNotificationAction actionWithIdentifier:@"action0" title:@"Hit Me!" options:UNNotificationActionOptionForeground];
+        UNNotificationCategory* myCategory = [UNNotificationCategory categoryWithIdentifier:@"myOSContentCategory" actions:@[myAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+        NSSet* mySet = [[NSSet alloc] initWithArray:@[myCategory]];
+        
+        //Add existing cateogories
+        mySet = [mySet setByAddingObjectsFromSet:categories];
+        
+        [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:mySet];
+    }];
+    */
+    
     return YES;
 }
 

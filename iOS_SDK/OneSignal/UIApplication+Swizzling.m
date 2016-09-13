@@ -182,7 +182,7 @@ static NSArray* delegateSubclasses = nil;
     
     //Call notificationAction if app is active -> not a silent notification but rather user tap on notification
         //Unless iOS 10+ then call remoteSilentNotification instead.
-    if([UIApplication sharedApplication].applicationState == UIApplicationStateActive && ![OneSignalHelper isiOS10Plus])
+    if([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
         [OneSignal notificationOpened:userInfo isActive:YES];
     else [OneSignal remoteSilentNotification:application UserInfo:userInfo];
         

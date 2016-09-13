@@ -17,22 +17,22 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
     }
     
-    private func appDelegate() -> AppDelegate? {
-        return UIApplication.sharedApplication().delegate as? AppDelegate
+    fileprivate func appDelegate() -> AppDelegate? {
+        return UIApplication.shared.delegate as? AppDelegate
     }
 
-    @IBAction func sentTags(sender : AnyObject) {
+    @IBAction func sentTags(_ sender : AnyObject) {
         
         OneSignal.sendTags(["some_key" : "some_value"], onSuccess: { (result) in
             print("success!")
             }) { (error) in
-                print("Error sending tags - \(error.localizedDescription)")
+                print("Error sending tags - \(error?.localizedDescription)")
         }
     }
     
-    @IBAction func getIds(sender : AnyObject) {
+    @IBAction func getIds(_ sender : AnyObject) {
         
-        OneSignal.IdsAvailable { (userId, pushToken) in
+        OneSignal.idsAvailable { (userId, pushToken) in
             
             if pushToken != nil {
                 self.textMultiLine1.text = "PlayerId:\n\(userId)\n\nPushToken:\n\(pushToken)\n"
