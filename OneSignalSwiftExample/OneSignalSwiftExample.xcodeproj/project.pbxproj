@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E20C84D1D8787B6004ACDEA /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EFB1D877EF200E5845A /* UserNotifications.framework */; };
 		3EA62F231D87807F00E5845A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EFB1D877EF200E5845A /* UserNotifications.framework */; };
 		3EA62F241D87807F00E5845A /* UserNotificationsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EFD1D877EF200E5845A /* UserNotificationsUI.framework */; };
 		3EA62F271D87807F00E5845A /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA62F261D87807F00E5845A /* NotificationViewController.swift */; };
@@ -98,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E20C84D1D8787B6004ACDEA /* UserNotifications.framework in Frameworks */,
 				918ECE441C75252700A8358F /* SystemConfiguration.framework in Frameworks */,
 				918ECE421C75250300A8358F /* OneSignal.framework in Frameworks */,
 			);
@@ -578,6 +580,7 @@
 				3EA62F311D87807F00E5845A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3EA62F3E1D8780A800E5845A /* Build configuration list for PBXNativeTarget "OSServiceExtension" */ = {
 			isa = XCConfigurationList;
@@ -586,6 +589,7 @@
 				3EA62F401D8780A800E5845A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		91E4D5081C7521DE00025BA8 /* Build configuration list for PBXProject "OneSignalSwiftExample" */ = {
 			isa = XCConfigurationList;

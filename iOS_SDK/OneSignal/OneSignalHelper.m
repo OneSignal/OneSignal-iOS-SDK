@@ -155,9 +155,9 @@
         
         _silentNotification = [OneSignalHelper isRemoteSilentNotification:payload.rawPayload];
         
-        #if XC8_AVAILABLE
+#if XC8_AVAILABLE
         _mutableContent = payload.rawPayload[@"aps"][@"mutable-content"] && [payload.rawPayload[@"aps"][@"mutable-content"] isEqual: @YES];
-        #endif
+#endif
         
         _shown = true;
         
@@ -201,7 +201,7 @@
     if(self.silentNotification)
         [obj setValue:@(self.silentNotification) forKey: @"silentNotification"];
     
-
+    
     //Convert obj into a serialized
     NSError * err;
     NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];

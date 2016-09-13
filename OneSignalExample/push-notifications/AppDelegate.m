@@ -28,6 +28,10 @@
 #import "AppDelegate.h"
 #import <OneSignal/OneSignal.h>
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
+    #import <UserNotifications/UserNotifications.h>
+#endif
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
