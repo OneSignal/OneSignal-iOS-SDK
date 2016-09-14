@@ -25,6 +25,9 @@
  * THE SOFTWARE.
  */
 
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
 #import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
 #import "NSObject+Extras.h"
@@ -175,32 +178,49 @@
 
 - (NSString*)stringify {
     
-    NSDictionary * obj = @{@"payload" : @{@"notificationID" : self.payload.notificationID,
-                                          @"sound" : self.payload.sound,
-                                          @"title" : self.payload.title,
-                                          @"body" : self.payload.body,
-                                          @"subtitle" : self.payload.subtitle,
-                                          @"launchURL" : self.payload.launchURL,
-                                          @"additionalData" : self.payload.additionalData,
-                                          @"actionButtons" : self.payload.actionButtons,
-                                          @"rawPayload" : self.payload.rawPayload
-                                          }
-                           };
+    NSMutableDictionary * obj = [NSMutableDictionary new];
+    [obj setObject:[NSMutableDictionary new] forKeyedSubscript:@"payload"];
+    if(self.payload.notificationID)
+        [obj[@"payload"] setObject:self.payload.notificationID forKeyedSubscript: @"notificationID"];
+    
+    if(self.payload.sound)
+        [obj[@"payload"] setObject:self.payload.sound forKeyedSubscript: @"sound"];
+    
+    if(self.payload.title)
+        [obj[@"payload"] setObject:self.payload.title forKeyedSubscript: @"title"];
+    
+    if(self.payload.body)
+        [obj[@"payload"] setObject:self.payload.body forKeyedSubscript: @"body"];
+    
+    if(self.payload.subtitle)
+        [obj[@"payload"] setObject:self.payload.subtitle forKeyedSubscript: @"subtitle"];
+    
+    if(self.payload.additionalData)
+        [obj[@"payload"] setObject:self.payload.additionalData forKeyedSubscript: @"additionalData"];
+    
+    if(self.payload.actionButtons)
+        [obj[@"payload"] setObject:self.payload.actionButtons forKeyedSubscript: @"actionButtons"];
+    
+    if(self.payload.rawPayload)
+        [obj[@"payload"] setObject:self.payload.rawPayload forKeyedSubscript: @"rawPayload"];
+    
+    if(self.payload.launchURL)
+        [obj[@"payload"] setObject:self.payload.launchURL forKeyedSubscript: @"launchURL"];
     
     if(self.payload.contentAvailable)
-        [obj[@"payload"] setValue:@(self.payload.contentAvailable) forKey: @"contentAvailable"];
+        [obj[@"payload"] setObject:@(self.payload.contentAvailable) forKeyedSubscript: @"contentAvailable"];
     
     if(self.payload.badge)
-        [obj[@"payload"] setValue:@(self.payload.badge) forKey: @"badge"];
+        [obj[@"payload"] setObject:@(self.payload.badge) forKeyedSubscript: @"badge"];
     
     if(self.displayType)
-        [obj setValue:@(self.displayType) forKey: @"displayType"];
+        [obj setObject:@(self.displayType) forKeyedSubscript: @"displayType"];
     
     if(self.shown)
-        [obj setValue:@(self.shown) forKey: @"shown"];
+        [obj setObject:@(self.shown) forKeyedSubscript: @"shown"];
     
     if(self.silentNotification)
-        [obj setValue:@(self.silentNotification) forKey: @"silentNotification"];
+        [obj setObject:@(self.silentNotification) forKeyedSubscript: @"silentNotification"];
     
     
     //Convert obj into a serialized
@@ -231,14 +251,13 @@
                                                               options:NSJSONReadingMutableContainers
                                                                 error:&jsonError];
     
-    
-    NSDictionary * obj = @{@"action" : @{@"actionID" : self.action.actionID
-                                         },
-                           @"notification" : notifDict
-                           };
-    
+    NSMutableDictionary* obj = [NSMutableDictionary new];
+    NSMutableDictionary* action = [NSMutableDictionary new];
+    [action setObject:self.action.actionID forKeyedSubscript:@"actionID"];
+    [obj setObject:action forKeyedSubscript:@"action"];
+    [obj setObject:notifDict forKeyedSubscript:@"notification"];
     if(self.action.type)
-        [obj[@"action"] setValue:@(self.action.type) forKey: @"type"];
+        [obj[@"action"] setObject:@(self.action.type) forKeyedSubscript: @"type"];
     
     //Convert obj into a serialized
     NSError * err;

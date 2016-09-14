@@ -25,6 +25,8 @@
  * THE SOFTWARE.
  */
 
+#import <UIKit/UIKit.h>
+
 #import "OneSignalTracker.h"
 #import "OneSignalHelper.h"
 #import "OneSignalHTTPClient.h"

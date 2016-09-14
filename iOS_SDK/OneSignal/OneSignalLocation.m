@@ -25,11 +25,12 @@
  * THE SOFTWARE.
  */
 
+#import <UIKit/UIKit.h>
+
 #import "OneSignalLocation.h"
 #import "OneSignalHTTPClient.h"
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
-#import <CoreLocation/CoreLocation.h>
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);

@@ -28,6 +28,8 @@
 #ifndef OneSignalLocation_h
 #define OneSignalLocation_h
 
+#import <Foundation/Foundation.h>
+
 typedef struct os_location_coordinate {
     double latitude;
     double longitude;

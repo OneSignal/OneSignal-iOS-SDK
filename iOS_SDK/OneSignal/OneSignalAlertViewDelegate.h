@@ -26,6 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface OneSignalAlertViewDelegate : NSObject <UIAlertViewDelegate>
 - (id)initWithMessageDict:(NSDictionary*)messageDict;

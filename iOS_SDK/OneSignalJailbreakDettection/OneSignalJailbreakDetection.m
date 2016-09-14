@@ -22,6 +22,8 @@
 
 // Renamed DTTJailbreakDetection.m to OneSignalJailbreakDetection.m to avoid conflicts with other libraries.
 
+#import <UIKit/UIKit.h>
+
 #import "OneSignalJailbreakDetection.h"
 
 @implementation OneSignalJailbreakDetection

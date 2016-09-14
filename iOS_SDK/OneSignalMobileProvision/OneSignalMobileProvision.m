@@ -5,6 +5,8 @@
 //  Created by kaolin fire on 2013-06-24.
 //  Copyright (c) 2013 The Blindsight Corporation. All rights reserved.
 //  Released under the BSD 2-Clause License (see LICENSE)
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 #import "OneSignalMobileProvision.h"
 #import "TargetConditionals.h"

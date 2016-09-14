@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
 #import "OneSignalHTTPClient.h"
 
 #define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
