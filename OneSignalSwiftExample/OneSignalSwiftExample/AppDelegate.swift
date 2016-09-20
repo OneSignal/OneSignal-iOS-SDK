@@ -26,6 +26,7 @@
  */
 
 import UIKit
+import OneSignal
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

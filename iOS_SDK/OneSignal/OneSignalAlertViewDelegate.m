@@ -58,11 +58,11 @@ static NSMutableArray* delegateReference;
 
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     
-    OSNotificationActionType actionType = Opened;
+    OSNotificationActionType actionType = OSNotificationActionTypeOpened;
     
     if (buttonIndex != 0) {
         
-        actionType = ActionTaken;
+        actionType = OSNotificationActionTypeActionTaken;
         
         NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
 
@@ -85,7 +85,7 @@ static NSMutableArray* delegateReference;
         mMessageDict = userInfo;
     }
     
-    [OneSignal handleNotificationOpened:mMessageDict isActive:YES actionType:actionType displayType:InAppAlert];
+    [OneSignal handleNotificationOpened:mMessageDict isActive:YES actionType:actionType displayType:OSNotificationDisplayTypeInAppAlert];
     
     [delegateReference removeObject:self];
 }

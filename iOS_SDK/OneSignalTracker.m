@@ -31,7 +31,6 @@
 #import "OneSignalHelper.h"
 #import "OneSignalHTTPClient.h"
 #import "OneSignalWebView.h"
-#import "OneSignal.h"
 
 @interface OneSignal ()
 

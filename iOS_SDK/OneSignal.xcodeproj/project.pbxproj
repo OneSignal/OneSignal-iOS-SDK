@@ -24,8 +24,6 @@
 		3E464ED51D88ED0C00DCF7E9 /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84001D4936F9008F135D /* NSObject+Extras.m */; };
 		3E464ED61D88ED0C00DCF7E9 /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84031D49416A008F135D /* NSString+Hash.m */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
-		3E464ED81D88ED2400DCF7E9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
-		3E464EDA1D88EE6A00DCF7E9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E464ED91D88EE6A00DCF7E9 /* Foundation.framework */; };
 		3E464EDB1D88EF0B00DCF7E9 /* UIApplication+Swizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */; };
 		3E464EDC1D88EF3C00DCF7E9 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */; };
 		3E464EDD1D88F48C00DCF7E9 /* OneSignalHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD83FD1D49364E008F135D /* OneSignalHelper.m */; };
@@ -34,6 +32,7 @@
 		3E464EE11D88F4B500DCF7E9 /* OneSignalMobileProvision.m in Sources */ = {isa = PBXBuildFile; fileRef = 37D6E07D1B1EAE6500EC3624 /* OneSignalMobileProvision.m */; };
 		3E464EE21D88F4B900DCF7E9 /* OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E277031ACB940000D49C8D /* OneSignal.m */; };
 		3E464EE31D88F4BF00DCF7E9 /* OneSignalTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EB26DBE1D5121D000E51BD4 /* OneSignalTracker.m */; };
+		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		3E84C6231D4AE53500ED8557 /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84001D4936F9008F135D /* NSObject+Extras.m */; };
 		3E8998B61D37268F0066A9ED /* OneSignal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; };
 		3EB26DBF1D5121D000E51BD4 /* OneSignalTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EB26DBE1D5121D000E51BD4 /* OneSignalTracker.m */; };
@@ -106,8 +105,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3E464EDA1D88EE6A00DCF7E9 /* Foundation.framework in Frameworks */,
-				3E464ED81D88ED2400DCF7E9 /* SystemConfiguration.framework in Frameworks */,
+				3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */,
 				3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -529,7 +527,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
 			};
@@ -542,7 +540,7 @@
 				GCC_PREFIX_HEADER = "OneSignal/OneSignal-Prefix.pch";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-fembed-bitcode";
-				OTHER_LDFLAGS = "-all_load";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
 			};
@@ -568,6 +566,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;
@@ -598,6 +597,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = YES;

@@ -45,6 +45,8 @@
 #import <sys/sysctl.h>
 #import <objc/runtime.h>
 
+#import "UIApplication+Swizzling.m"
+
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -68,10 +70,12 @@ NSString * const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
 /*Enable the default in-app launch urls*/
 NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
+/* Set InFocusDisplayOption value must be an OSNotificationDisplayType enum*/
+NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisplayOption";
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020109";
+NSString* const ONESIGNAL_VERSION = @"020110";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -164,11 +168,6 @@ BOOL mSubscriptionSet;
         mSubscriptionSet = [[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
         mNotificationTypes = [self getNotificationTypes];
         
-        //Check if in-app setting passed assigned
-        if(settings[kOSSettingsKeyInAppAlerts] && [settings[kOSSettingsKeyInAppAlerts] isKindOfClass:[NSNumber class]])
-            [self enableInAppAlertNotification:settings[kOSSettingsKeyInAppAlerts]];
-        else [self enableInAppAlertNotification:@YES];
-        
         //Check if disabled in-app launch url if passed a NO
         if(settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
             [self enableInAppLaunchURL:settings[kOSSettingsKeyInAppLaunchURL]];
@@ -180,12 +179,32 @@ BOOL mSubscriptionSet;
             autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
-        
         // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
         // If autoprompt disabled, get a token from APNS for silent notifications until user calls regsiterForPushNotifications to request push permissions from user.
         else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
             [[UIApplication sharedApplication] registerForRemoteNotifications];
         
+        
+        /*Check if in-app setting passed assigned
+            LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
+            Priority for kOSSettingsKeyInFocusDisplayOption.
+        */
+        
+        NSNumber * IAASetting = settings[kOSSettingsKeyInAppAlerts];
+        BOOL inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
+        
+        NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
+        BOOL inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue >-1 && IFDSetting.integerValue < 3;
+        
+        if(!inAppAlertsPassed && !inFocusDisplayPassed)
+            [self setNotificationDisplayOptions:@(OSNotificationDisplayTypeInAppAlert)];
+        
+        else if(!inAppAlertsPassed || (inFocusDisplayPassed && [OneSignalHelper isiOS10Plus]))
+            [self setNotificationDisplayOptions:IFDSetting];
+        
+        else [self setNotificationDisplayOptions:IAASetting];
+        
+
         if (mUserId != nil)
             [self registerUser];
         else // Fall back incase Apple does not responsed in time.
@@ -467,8 +486,15 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
-+ (void)enableInAppAlertNotification:(NSNumber*)enable {
-    [[NSUserDefaults standardUserDefaults] setObject:enable forKey:@"ONESIGNAL_INAPP_ALERT"];
+/* Option:0, 1 or 2 */
++ (void)setNotificationDisplayOptions:(NSNumber*)option {
+   
+    // Special Case: If iOS version < 10 && Option passed is 2, default to inAppAlerts.
+    NSInteger op = option.integerValue;
+    if(![OneSignalHelper isiOS10Plus] && OSNotificationDisplayTypeNotification == op)
+        op = OSNotificationDisplayTypeInAppAlert;
+    
+    [[NSUserDefaults standardUserDefaults] setObject:@(op) forKey:@"ONESIGNAL_ALERT_OPTION"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -761,12 +787,12 @@ bool nextRegistrationIsHighPriority = NO;
     BOOL inAppAlert = false;
     if (isActive) {
         
-        if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"]) {
-            [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"ONESIGNAL_INAPP_ALERT"];
+        if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
+            [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
             [[NSUserDefaults standardUserDefaults] synchronize];
         }
         
-        inAppAlert = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_ALERT"] boolValue];
+        inAppAlert = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] == OSNotificationDisplayTypeInAppAlert;
         
         [OneSignalHelper lastMessageReceived:messageDict];
         
@@ -792,14 +818,14 @@ bool nextRegistrationIsHighPriority = NO;
             
             //Message received that was displayed (Foreground + InAppAlert is true)
             //Call Received Block
-            [OneSignalHelper handleNotificationReceived:InAppAlert];
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert];
             
             return;
         }
         
         //App is active and a notification was received without inApp display. Display type is none
         //Call Received Block
-        [OneSignalHelper handleNotificationReceived:None];
+        [OneSignalHelper handleNotificationReceived:[[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue]];
         
         // Notify backend that user opened the notifiation
         NSString* messageId = [customDict objectForKey:@"i"];
@@ -809,19 +835,19 @@ bool nextRegistrationIsHighPriority = NO;
         
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
-        OSNotificationActionType type = Opened;
+        OSNotificationActionType type = OSNotificationActionTypeOpened;
         if(messageDict[@"custom"][@"a"][@"actionSelected"]) {
             actionSelected = messageDict[@"custom"][@"a"][@"actionSelected"];
-            type = ActionTaken;
+            type = OSNotificationActionTypeActionTaken;
         }
         if(messageDict[@"actionSelected"]) {
             actionSelected = messageDict[@"actionSelected"];
-            type = ActionTaken;
+            type = OSNotificationActionTypeActionTaken;
         }
         
         //Call Action Block
-        [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:Notification];
-        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:Notification];
+        [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:OSNotificationDisplayTypeNotification];
+        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
     }
     
 }
@@ -843,7 +869,7 @@ bool nextRegistrationIsHighPriority = NO;
     [self clearBadgeCount:true];
     
     NSString* actionID = NULL;
-    if (actionType == ActionTaken) {
+    if (actionType == OSNotificationActionTypeActionTaken) {
         actionID = messageDict[@"custom"][@"a"][@"actionSelected"];
         if(!actionID)
             actionID = messageDict[@"actionSelected"];
@@ -986,7 +1012,7 @@ bool nextRegistrationIsHighPriority = NO;
     //Method was called due to a tap on a notification
     else if (application.applicationState != UIApplicationStateBackground) {
         [OneSignalHelper lastMessageReceived:userInfo];
-        [OneSignalHelper handleNotificationReceived:Notification];
+        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
         [OneSignal notificationOpened:userInfo isActive:NO];
         return;
     }
@@ -994,8 +1020,8 @@ bool nextRegistrationIsHighPriority = NO;
     /* Handle the notification reception*/
     [OneSignalHelper lastMessageReceived:userInfo];
     if([OneSignalHelper isRemoteSilentNotification:userInfo])
-        [OneSignalHelper handleNotificationReceived:None];
-    else [OneSignalHelper handleNotificationReceived:Notification];
+        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
+    else [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
 }
     
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
@@ -1038,7 +1064,7 @@ bool nextRegistrationIsHighPriority = NO;
         BOOL isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
         [OneSignal notificationOpened:userInfo isActive:isActive];
         //Notification Tapped or notification Action Tapped
-        [self handleNotificationOpened:userInfo isActive:isActive actionType:ActionTaken displayType:Notification];
+        [self handleNotificationOpened:userInfo isActive:isActive actionType:OSNotificationActionTypeActionTaken displayType:OSNotificationDisplayTypeNotification];
     }
     
 }
@@ -1059,7 +1085,8 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     return notificationCenterDelegate;
 }
 
-- (void)userNotificationCenter:(id)center didReceiveNotificationResponse:(id)response withCompletionHandler:(void (^)())completionHandler {
+
+- (void)userNotificationCenter:(id)center didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler {
     
     NSDictionary* usrInfo = [[[[response performSelector:@selector(notification)] valueForKey:@"request"] valueForKey:@"content"] valueForKey:@"userInfo"];
     if (!usrInfo || [usrInfo count] == 0) {
@@ -1140,12 +1167,33 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
 }
 
 -(void)userNotificationCenter:(id)center willPresentNotification:(id)notification withCompletionHandler:(void (^)(NSUInteger options))completionHandler {
-    /* Nothing interesting to do here, proxy to user only */
+    
+    // Proxy to user if listening to delegate and overrides the method.
     if ([[OneSignal notificationCenterDelegate] respondsToSelector:@selector(userNotificationCenter:willPresentNotification:withCompletionHandler:)])
-        [[OneSignal notificationCenterDelegate] userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];        
-    else
-        //Call the completion handler ourselves
-        completionHandler(7);
+        [[OneSignal notificationCenterDelegate] userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
+    else {
+        //Set the completionHandler options based on the ONESIGNAL_ALERT_OPTION value.
+        NSUInteger completionHandlerOptions = 0;
+        if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
+            [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        }
+        
+        NSInteger alert_option = ((NSNumber*)[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]).integerValue;
+        switch (alert_option) {
+            case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break;
+            case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 1; break;
+            case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break;
+            default: break;
+        }
+        
+        completionHandler(completionHandlerOptions);
+     
+        //Call notificationOpened if no alert (MSB not set)
+        NSDictionary* usrInfo = [[[notification valueForKey:@"request"] valueForKey:@"content"] valueForKey:@"userInfo"];
+        [OneSignal notificationOpened:usrInfo isActive:YES];
+        
+    }
 }
 #endif
 

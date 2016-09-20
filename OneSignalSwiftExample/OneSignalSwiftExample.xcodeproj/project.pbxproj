@@ -75,7 +75,6 @@
 		91E4D5171C7521DE00025BA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		91E4D51A1C7521DE00025BA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		91E4D51C1C7521DE00025BA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		91E4D5241C7522D700025BA8 /* OneSignalSwiftExample-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OneSignalSwiftExample-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,7 +167,6 @@
 				91E4D5171C7521DE00025BA8 /* Assets.xcassets */,
 				91E4D5191C7521DE00025BA8 /* LaunchScreen.storyboard */,
 				91E4D51C1C7521DE00025BA8 /* Info.plist */,
-				91E4D5241C7522D700025BA8 /* OneSignalSwiftExample-Bridging-Header.h */,
 			);
 			path = OneSignalSwiftExample;
 			sourceTree = "<group>";
@@ -549,7 +547,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalSwiftExample/OneSignalSwiftExample-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -565,7 +563,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalSwiftExample/OneSignalSwiftExample-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

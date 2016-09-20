@@ -610,7 +610,7 @@
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../iOS_SDK/Framework\"/**";
 				INFOPLIST_FILE = "push-notifications/OneSignalExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = OneSignalExample;
 				PROVISIONING_PROFILE = "";
@@ -633,7 +633,7 @@
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../iOS_SDK/Framework\"/**";
 				INFOPLIST_FILE = "push-notifications/OneSignalExample-Info.plist";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = OneSignalExample;
 				PROVISIONING_PROFILE = "";

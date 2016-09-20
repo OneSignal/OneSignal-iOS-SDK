@@ -169,7 +169,7 @@
         
         //If remote silent -> shown = false
         //If app is active and in-app alerts are not enabled -> shown = false
-        if(_silentNotification || (isActive && ![[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_INAPP_ALERT"]))
+        if(_silentNotification || (isActive && [[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_ALERT_OPTION"] == OSNotificationDisplayTypeNone))
             _shown = false;
         
     }
@@ -508,7 +508,7 @@ static OneSignal* singleInstance = nil;
     if ([actionArray count] == 2)
         actionArray = (NSMutableArray*)[[actionArray reverseObjectEnumerator] allObjects];
     
-    id category = [NSClassFromString(@")UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
     
     NSSet* set = [[NSSet alloc] initWithArray:@[category]];
     

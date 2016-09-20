@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import OneSignal
 
 class ViewController: UIViewController {
     
