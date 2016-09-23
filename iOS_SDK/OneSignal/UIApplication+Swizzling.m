@@ -122,6 +122,7 @@ static NSArray* ClassGetSubclasses(Class parentClass) {
 + (void) updateNotificationTypes:(int)notificationTypes;
 + (void) notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
++ (void) setErrorNotificationType;
 @end
 
 @interface OneSignalTracker ()
@@ -150,7 +151,13 @@ static NSArray* delegateSubclasses = nil;
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     
-    if([OneSignal app_id])
+    if(err.code == 3000 && [(NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey] containsString:@"no valid 'aps-environment'"]) {
+        //User did not enable push notification capability
+        [OneSignal setErrorNotificationType];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"'Push Notification' capability not turned on. Make sure it is enabled by going to your Project Target -> Capability."];
+    }
+    
+    else if([OneSignal app_id])
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
     
     if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
@@ -184,7 +191,7 @@ static NSArray* delegateSubclasses = nil;
     
     //Call notificationAction if app is active -> not a silent notification but rather user tap on notification
         //Unless iOS 10+ then call remoteSilentNotification instead.
-    if([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
+    if([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
         [OneSignal notificationOpened:userInfo isActive:YES];
     else [OneSignal remoteSilentNotification:application UserInfo:userInfo];
         

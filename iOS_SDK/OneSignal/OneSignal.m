@@ -45,13 +45,13 @@
 #import <sys/sysctl.h>
 #import <objc/runtime.h>
 
-#import "UIApplication+Swizzling.m"
-
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
 #define NOTIFICATION_TYPE_ALERT 4
 #define NOTIFICATION_TYPE_ALL 7
+
+#define ERROR_PUSH_CAPABLILITY_DISABLED -13
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -75,7 +75,7 @@ NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDis
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020110";
+NSString* const ONESIGNAL_VERSION = @"020111";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -719,6 +719,10 @@ bool nextRegistrationIsHighPriority = NO;
                 if (mDeviceToken)
                     idsAvailableBlockWhenReady = nil;
             }
+            
+            //If we got a userId after the notificationTypes were set to error -13, update server
+            if(mNotificationTypes == ERROR_PUSH_CAPABLILITY_DISABLED)
+                [self setErrorNotificationType];
         }
     } onFailure:^(NSError* error) {
         waitingForOneSReg = false;
@@ -740,12 +744,10 @@ bool nextRegistrationIsHighPriority = NO;
     if (mNotificationTypes != -1 && mUserId && (isNewType || mNotificationTypes != [self getNotificationTypes])) {
         mNotificationTypes = [self getNotificationTypes];
         NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-        
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                  app_id, @"app_id",
-                                 [NSNumber numberWithInt:mNotificationTypes], @"notification_types",
+                                 @(mNotificationTypes), @"notification_types",
                                  nil];
-        
         NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
         [request setHTTPBody:postData];
         
@@ -938,8 +940,12 @@ bool nextRegistrationIsHighPriority = NO;
 }
     
 + (int) getNotificationTypes {
+    
+    if(mNotificationTypes == ERROR_PUSH_CAPABLILITY_DISABLED)
+        return mNotificationTypes;
+    
     if (!mSubscriptionSet)
-    return -2;
+        return -2;
     
     if (mDeviceToken) {
         if ([OneSignalHelper isCapableOfGettingNotificationTypes])
@@ -949,6 +955,22 @@ bool nextRegistrationIsHighPriority = NO;
     }
     
     return -1;
+}
+
++ (void)setErrorNotificationType {
+    mNotificationTypes = ERROR_PUSH_CAPABLILITY_DISABLED;
+    
+    if([self mUserId]) {
+        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
+        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             app_id, @"app_id",
+                             @(mNotificationTypes), @"notification_types",
+                             nil];
+        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
+        [request setHTTPBody:postData];
+    
+        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
+    }
 }
 
 // iOS 8.0+ only
