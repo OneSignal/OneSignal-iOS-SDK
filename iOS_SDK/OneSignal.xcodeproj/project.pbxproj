@@ -16,7 +16,6 @@
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3E14F6341D3DB0E7008BF4E2 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */; };
 		3E2400401D4FFC39008BDE70 /* OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = 37E277041ACB940000D49C8D /* OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		3E3414621D42F1A200EB2546 /* UIApplication+Swizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */; };
 		3E464ECA1D88ED0C00DCF7E9 /* OneSignalAlertViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ECE8FDC1D39829300742055 /* OneSignalAlertViewDelegate.m */; };
 		3E464ECB1D88ED0C00DCF7E9 /* OneSignalLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */; };
 		3E464ECC1D88ED0C00DCF7E9 /* OneSignalTrackIAP.m in Sources */ = {isa = PBXBuildFile; fileRef = 371FDED819F1A486001479B7 /* OneSignalTrackIAP.m */; };
@@ -24,7 +23,6 @@
 		3E464ED51D88ED0C00DCF7E9 /* NSObject+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84001D4936F9008F135D /* NSObject+Extras.m */; };
 		3E464ED61D88ED0C00DCF7E9 /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84031D49416A008F135D /* NSString+Hash.m */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
-		3E464EDB1D88EF0B00DCF7E9 /* UIApplication+Swizzling.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */; };
 		3E464EDC1D88EF3C00DCF7E9 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */; };
 		3E464EDD1D88F48C00DCF7E9 /* OneSignalHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD83FD1D49364E008F135D /* OneSignalHelper.m */; };
 		3E464EDF1D88F4A400DCF7E9 /* OneSignalReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 37668EE81AA80B7E0095D813 /* OneSignalReachability.m */; };
@@ -76,7 +74,6 @@
 		3E14F6331D3DB0E7008BF4E2 /* OneSignalWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalWebView.m; sourceTree = "<group>"; };
 		3E2400381D4FFC31008BDE70 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E24003B1D4FFC31008BDE70 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIApplication+Swizzling.m"; path = "OneSignal/UIApplication+Swizzling.m"; sourceTree = "<group>"; };
 		3E464ED91D88EE6A00DCF7E9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3EB26DBD1D5121D000E51BD4 /* OneSignalTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalTracker.h; sourceTree = "<group>"; };
 		3EB26DBE1D5121D000E51BD4 /* OneSignalTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalTracker.m; sourceTree = "<group>"; };
@@ -252,7 +249,6 @@
 				3EBD84001D4936F9008F135D /* NSObject+Extras.m */,
 				3EBD84021D49416A008F135D /* NSString+Hash.h */,
 				3EBD84031D49416A008F135D /* NSString+Hash.m */,
-				3E3414611D42F1A200EB2546 /* UIApplication+Swizzling.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -387,7 +383,6 @@
 				3ECE8FDD1D39829300742055 /* OneSignalAlertViewDelegate.m in Sources */,
 				371FDED919F1A486001479B7 /* OneSignalTrackIAP.m in Sources */,
 				3EBD83FE1D49364E008F135D /* OneSignalHelper.m in Sources */,
-				3E3414621D42F1A200EB2546 /* UIApplication+Swizzling.m in Sources */,
 				3E84C6231D4AE53500ED8557 /* NSObject+Extras.m in Sources */,
 				3724485819F6D1DE00573B5A /* OneSignalJailbreakDetection.m in Sources */,
 				37747FC51914837300558FAD /* OneSignalHTTPClient.m in Sources */,
@@ -412,7 +407,6 @@
 				3E464EDF1D88F4A400DCF7E9 /* OneSignalReachability.m in Sources */,
 				3E464EDD1D88F48C00DCF7E9 /* OneSignalHelper.m in Sources */,
 				3E464EDC1D88EF3C00DCF7E9 /* OneSignalWebView.m in Sources */,
-				3E464EDB1D88EF0B00DCF7E9 /* UIApplication+Swizzling.m in Sources */,
 				3E464ECA1D88ED0C00DCF7E9 /* OneSignalAlertViewDelegate.m in Sources */,
 				3E464ECB1D88ED0C00DCF7E9 /* OneSignalLocation.m in Sources */,
 				3E464ECC1D88ED0C00DCF7E9 /* OneSignalTrackIAP.m in Sources */,
