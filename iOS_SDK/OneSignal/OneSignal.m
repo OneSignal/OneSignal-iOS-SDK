@@ -75,7 +75,7 @@ NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDis
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020114";
+NSString* const ONESIGNAL_VERSION = @"020115";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -794,7 +794,8 @@ bool nextRegistrationIsHighPriority = NO;
             [[NSUserDefaults standardUserDefaults] synchronize];
         }
         
-        inAppAlert = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] == OSNotificationDisplayTypeInAppAlert;
+        int iaaoption = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue];
+        inAppAlert = iaaoption == OSNotificationDisplayTypeInAppAlert;
         
         [OneSignalHelper lastMessageReceived:messageDict];
         
@@ -825,7 +826,7 @@ bool nextRegistrationIsHighPriority = NO;
             return;
         }
         
-        //App is active and a notification was received without inApp display. Display type is none
+        //App is active and a notification was received without inApp display. Display type is none or notification
         //Call Received Block
         [OneSignalHelper handleNotificationReceived:[[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue]];
         
@@ -1142,7 +1143,8 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     }
     
     else {
-        BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
+        BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
+        [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
         [OneSignal notificationOpened:usrInfo isActive:isActive];
         [OneSignal tunnelToDelegate:center :response :completionHandler];
         return;
@@ -1173,7 +1175,9 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
             userInfo[@"aps"] = @{ @"alert" : userInfo[@"m"] };
     }
 
-    BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
+    BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
+    [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
+
     
     [OneSignal notificationOpened:userInfo isActive:isActive];
     [OneSignal tunnelToDelegate:center :response :completionHandler];
