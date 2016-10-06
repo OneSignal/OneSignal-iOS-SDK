@@ -75,7 +75,7 @@ NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDis
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020115";
+NSString* const ONESIGNAL_VERSION = @"020116";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
@@ -199,10 +199,10 @@ BOOL mSubscriptionSet;
         if(!inAppAlertsPassed && !inFocusDisplayPassed)
             [self setNotificationDisplayOptions:@(OSNotificationDisplayTypeInAppAlert)];
         
-        else if(!inAppAlertsPassed || (inFocusDisplayPassed && [OneSignalHelper isiOS10Plus]))
-            [self setNotificationDisplayOptions:IFDSetting];
+        else if(!inFocusDisplayPassed)
+            [self setNotificationDisplayOptions:IAASetting];
         
-        else [self setNotificationDisplayOptions:IAASetting];
+        else [self setNotificationDisplayOptions:IFDSetting];
         
 
         if (mUserId != nil)
