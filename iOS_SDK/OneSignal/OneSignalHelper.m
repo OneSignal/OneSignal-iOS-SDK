@@ -595,7 +595,7 @@ static OneSignal* singleInstance = nil;
     
     id trigger = [NSClassFromString(@"UNTimeIntervalNotificationTrigger") triggerWithTimeInterval:0.25 repeats:NO];
     
-    return [NSClassFromString(@"UNNotificationRequest") requestWithIdentifier:@"__dynamic__"content:content trigger:trigger];
+    return [NSClassFromString(@"UNNotificationRequest") requestWithIdentifier:[self randomStringWithLength:16] content:content trigger:trigger];
 }
 
 + (void)addnotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo {
