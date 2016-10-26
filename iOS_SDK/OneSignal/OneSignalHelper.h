@@ -50,7 +50,6 @@
 #if XC8_AVAILABLE
 + (void)registerAsUNNotificationCenterDelegate;
 + (void) requestAuthorization;
-+ (void)conformsToUNProtocol;
 + (void)clearCachedMedia;
 + (id)prepareUNNotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo;
 #endif

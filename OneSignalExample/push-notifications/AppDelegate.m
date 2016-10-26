@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2015 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,16 +28,12 @@
 #import "AppDelegate.h"
 #import <OneSignal/OneSignal.h>
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
-    #import <UserNotifications/UserNotifications.h>
-#endif
-
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
     
     // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
-    [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_INFO];
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_INFO];
     
     [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
@@ -65,7 +61,7 @@
                                                   otherButtonTitles:nil, nil];
         [alertView show];
 
-    } settings:@{kOSSettingsKeyInAppAlerts : @NO, kOSSettingsKeyAutoPrompt : @NO}];
+    } settings:@{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @NO}];
     
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         if(pushToken) {

@@ -14,12 +14,10 @@
 		37F9CA1D19D9CBAD0084DB7F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37F9CA1C19D9CBAD0084DB7F /* UIKit.framework */; };
 		3EA62ED41D877A9600E5845A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EA62ED31D877A9600E5845A /* NotificationService.m */; };
 		3EA62ED81D877A9600E5845A /* OSServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3EA62ED01D877A9600E5845A /* OSServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		3EA62EE21D877B1100E5845A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EE11D877B1100E5845A /* UserNotifications.framework */; };
-		3EA62EE41D877B1100E5845A /* UserNotificationsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EE31D877B1100E5845A /* UserNotificationsUI.framework */; };
 		3EA62EE81D877B1100E5845A /* NotificationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EA62EE71D877B1100E5845A /* NotificationViewController.m */; };
 		3EA62EEB1D877B1100E5845A /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3EA62EE91D877B1100E5845A /* MainInterface.storyboard */; };
 		3EA62EEF1D877B1100E5845A /* OSContentExension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3EA62EE01D877B1100E5845A /* OSContentExension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		3EA62EF41D877E0400E5845A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EE11D877B1100E5845A /* UserNotifications.framework */; };
+		913D1E191DC052D30060EB25 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 913D1E181DC052D30060EB25 /* UserNotifications.framework */; };
 		DE4BCB72161638D4003F4A66 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE4BCB70161638D4003F4A66 /* InfoPlist.strings */; };
 		DE4BCB74161638D4003F4A66 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4BCB73161638D4003F4A66 /* main.m */; };
 		DE4BCB78161638D4003F4A66 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4BCB77161638D4003F4A66 /* AppDelegate.m */; };
@@ -71,12 +69,13 @@
 		3EA62ED31D877A9600E5845A /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
 		3EA62ED51D877A9600E5845A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3EA62EE01D877B1100E5845A /* OSContentExension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OSContentExension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		3EA62EE11D877B1100E5845A /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
-		3EA62EE31D877B1100E5845A /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
 		3EA62EE61D877B1100E5845A /* NotificationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationViewController.h; sourceTree = "<group>"; };
 		3EA62EE71D877B1100E5845A /* NotificationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationViewController.m; sourceTree = "<group>"; };
 		3EA62EEA1D877B1100E5845A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		3EA62EEC1D877B1100E5845A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		913D1E181DC052D30060EB25 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		91D311361DB9A996001B7365 /* OneSignalExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalExample.entitlements; sourceTree = "<group>"; };
+		91D684CE1DC2D7FB00D09C41 /* OSServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OSServiceExtension.entitlements; sourceTree = "<group>"; };
 		DE4BCB63161638D4003F4A66 /* OneSignalExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE4BCB6F161638D4003F4A66 /* OneSignalExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OneSignalExample-Info.plist"; sourceTree = "<group>"; };
 		DE4BCB71161638D4003F4A66 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -102,8 +101,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3EA62EE41D877B1100E5845A /* UserNotificationsUI.framework in Frameworks */,
-				3EA62EE21D877B1100E5845A /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,7 +108,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3EA62EF41D877E0400E5845A /* UserNotifications.framework in Frameworks */,
+				913D1E191DC052D30060EB25 /* UserNotifications.framework in Frameworks */,
 				37E277221ACBB40100D49C8D /* OneSignal.framework in Frameworks */,
 				37668EEB1AA810740095D813 /* SystemConfiguration.framework in Frameworks */,
 				37F9CA1D19D9CBAD0084DB7F /* UIKit.framework in Frameworks */,
@@ -124,6 +121,7 @@
 		3EA62ED11D877A9600E5845A /* OSServiceExtension */ = {
 			isa = PBXGroup;
 			children = (
+				91D684CE1DC2D7FB00D09C41 /* OSServiceExtension.entitlements */,
 				3EA62ED21D877A9600E5845A /* NotificationService.h */,
 				3EA62ED31D877A9600E5845A /* NotificationService.m */,
 				3EA62ED51D877A9600E5845A /* Info.plist */,
@@ -145,6 +143,7 @@
 		DE4BCB58161638D4003F4A66 = {
 			isa = PBXGroup;
 			children = (
+				91D311361DB9A996001B7365 /* OneSignalExample.entitlements */,
 				373D19141ACCC60F00BBAB2E /* AppIcon.xcassets */,
 				37D0A469192B077E009DC9F4 /* notification.wav */,
 				DE4BCB6D161638D4003F4A66 /* push-notifications */,
@@ -168,11 +167,10 @@
 		DE4BCB66161638D4003F4A66 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				913D1E181DC052D30060EB25 /* UserNotifications.framework */,
 				37E277211ACBB40100D49C8D /* OneSignal.framework */,
 				37668EEA1AA810740095D813 /* SystemConfiguration.framework */,
 				37F9CA1C19D9CBAD0084DB7F /* UIKit.framework */,
-				3EA62EE11D877B1100E5845A /* UserNotifications.framework */,
-				3EA62EE31D877B1100E5845A /* UserNotificationsUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -273,6 +271,11 @@
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = 99SW8E36CT;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 0;
+							};
+						};
 					};
 					3EA62EDF1D877B1100E5845A = {
 						CreatedOnToolsVersion = 8.0;
@@ -284,6 +287,9 @@
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -422,7 +428,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "iOS Distribution: Lilomi Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -449,7 +455,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "iOS Distribution: Lilomi Inc.";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 99SW8E36CT;
@@ -599,8 +605,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iOS Distribution: Lilomi Inc.";
+				CODE_SIGN_ENTITLEMENTS = OneSignalExample.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../iOS_SDK/Framework\"/**",
@@ -622,8 +630,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iOS Distribution: Lilomi Inc.";
+				CODE_SIGN_ENTITLEMENTS = OneSignalExample.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../iOS_SDK/Framework\"/**",
