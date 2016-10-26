@@ -1355,7 +1355,7 @@ static NSArray* delegateSubclasses = nil;
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     
-    if(err.code == 3000 && [(NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey] containsString:@"no valid 'aps-environment'"]) {
+    if(err.code == 3000 && [((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
         //User did not enable push notification capability
         [OneSignal setErrorNotificationType];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"'Push Notification' capability not turned on. Make sure it is enabled by going to your Project Target -> Capability."];
