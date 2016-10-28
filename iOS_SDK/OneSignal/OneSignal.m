@@ -77,7 +77,7 @@ NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDis
 
 @implementation OneSignal
     
-NSString* const ONESIGNAL_VERSION = @"020116";
+NSString* const ONESIGNAL_VERSION = @"020200";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
