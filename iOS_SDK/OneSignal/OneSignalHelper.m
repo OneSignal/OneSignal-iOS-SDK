@@ -480,17 +480,13 @@ static OneSignal* singleInstance = nil;
     [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] requestAuthorizationWithOptions:7 completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
 }
 
-+ (void)conformsToUNProtocol {
-    if (class_conformsToProtocol([UIApplication delegateClass], NSProtocolFromString(@"UNUserNotificationCenterDelegate"))) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Implementing iOS 10's UNUserNotificationCenterDelegate protocol will result in unexpected outcome. Instead, conform to our similar OSUserNotificationCenterDelegate protocol."];
-    }
-}
-
 + (void)registerAsUNNotificationCenterDelegate {
+    Class UNNofiCenterClass = NSClassFromString(@"UNUserNotificationCenter");
+    if (!UNNofiCenterClass) return;
     
-    if(!NSClassFromString(@"UNUserNotificationCenter")) return;
-    [NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter].delegate = [self sharedInstance];
-    
+    UNUserNotificationCenter *curNotifCenter = [UNNofiCenterClass currentNotificationCenter];
+    if (!curNotifCenter.delegate)
+        curNotifCenter.delegate = [self sharedInstance];
 }
 
 + (id)prepareUNNotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo {

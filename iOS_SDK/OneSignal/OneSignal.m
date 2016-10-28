@@ -37,6 +37,8 @@
 #import "OneSignalHelper.h"
 #import "NSObject+Extras.h"
 #import "NSString+Hash.h"
+#import "UNUserNotificationCenter+OneSignal.h"
+#import "OneSignalSelectorHelpers.h"
 
 #import <stdlib.h>
 #import <stdio.h>
@@ -228,12 +230,11 @@ BOOL mSubscriptionSet;
     if ([OneSignalTrackIAP canTrack])
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
+    #if XC8_AVAILABLE
     if (NSClassFromString(@"UNUserNotificationCenter")) {
-        #if XC8_AVAILABLE
-        [OneSignalHelper registerAsUNNotificationCenterDelegate];
-        [OneSignalHelper clearCachedMedia];
-        #endif
+       [OneSignalHelper clearCachedMedia];
     }
+    #endif
     
     return self;
 }
@@ -1093,11 +1094,10 @@ bool nextRegistrationIsHighPriority = NO;
 }
 
 #if XC8_AVAILABLE
-
 static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
 
 + (void) setNotificationCenterDelegate:(id<OSUserNotificationCenterDelegate>)delegate {
-    if(!NSClassFromString(@"UNNotification")) {
+    if (!NSClassFromString(@"UNNotification")) {
         onesignal_Log(ONE_S_LL_ERROR, @"Cannot assign delegate. Please make sure you are running on iOS 10+.");
         return;
     }
@@ -1108,119 +1108,6 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     return notificationCenterDelegate;
 }
 
-
-- (void)userNotificationCenter:(id)center didReceiveNotificationResponse:(id)response withCompletionHandler:(void(^)())completionHandler {
-    
-    NSDictionary* usrInfo = [[[[response performSelector:@selector(notification)] valueForKey:@"request"] valueForKey:@"content"] valueForKey:@"userInfo"];
-    if (!usrInfo || [usrInfo count] == 0) {
-        [OneSignal tunnelToDelegate:center :response :completionHandler];
-        return;
-    }
-    
-    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init],
-    *customDict = [[NSMutableDictionary alloc] init],
-    *additionalData = [[NSMutableDictionary alloc] init];
-    NSMutableArray *optionsDict = [[NSMutableArray alloc] init];
-    
-    NSMutableDictionary* buttonsDict = usrInfo[@"os_data"][@"buttons"];
-    NSMutableDictionary* custom = usrInfo[@"custom"];
-    if (buttonsDict) {
-        [userInfo addEntriesFromDictionary:usrInfo];
-        NSArray* o = buttonsDict[@"o"];
-        if (o)
-            [optionsDict addObjectsFromArray:o];
-    }
-    
-    else if (custom) {
-        [userInfo addEntriesFromDictionary:usrInfo];
-        [customDict addEntriesFromDictionary:custom];
-        NSDictionary *a = customDict[@"a"];
-        NSArray *o = userInfo[@"o"];
-        if (a)
-            [additionalData addEntriesFromDictionary:a];
-        if (o)
-            [optionsDict addObjectsFromArray:o];
-    }
-    
-    else {
-        BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
-        [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
-        [OneSignal notificationOpened:usrInfo isActive:isActive];
-        [OneSignal tunnelToDelegate:center :response :completionHandler];
-        return;
-    }
-    
-    NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
-    for (NSDictionary* button in optionsDict) {
-        NSString * text = button[@"n"] != nil ? button[@"n"] : @"";
-        NSString * buttonID = button[@"i"] != nil ? button[@"i"] : text;
-        NSDictionary * buttonToAppend = [[NSDictionary alloc] initWithObjects:@[text, buttonID] forKeys:@[@"text", @"id"]];
-        [buttonArray addObject:buttonToAppend];
-    }
-    
-    additionalData[@"actionSelected"] = [response valueForKey:@"actionIdentifier"];
-    additionalData[@"actionButtons"] = buttonArray;
-    
-    NSDictionary* os_data = usrInfo[@"os_data"];
-    if (os_data) {
-        [userInfo addEntriesFromDictionary:os_data];
-        if(userInfo[@"os_data"][@"buttons"][@"m"])
-            userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
-        [userInfo addEntriesFromDictionary:additionalData];
-    }
-    else {
-        customDict[@"a"] = additionalData;
-        userInfo[@"custom"] = customDict;
-        if(userInfo[@"m"])
-            userInfo[@"aps"] = @{ @"alert" : userInfo[@"m"] };
-    }
-
-    BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
-    [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
-
-    
-    [OneSignal notificationOpened:userInfo isActive:isActive];
-    [OneSignal tunnelToDelegate:center :response :completionHandler];
-    
-}
-
-+ (void)tunnelToDelegate:(id)center :(id)response :(void (^)())handler {
-
-    if ([[OneSignal notificationCenterDelegate] respondsToSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
-        [[OneSignal notificationCenterDelegate] userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:handler];
-    else
-        handler();
-}
-
--(void)userNotificationCenter:(id)center willPresentNotification:(id)notification withCompletionHandler:(void (^)(NSUInteger options))completionHandler {
-    
-    // Proxy to user if listening to delegate and overrides the method.
-    if ([[OneSignal notificationCenterDelegate] respondsToSelector:@selector(userNotificationCenter:willPresentNotification:withCompletionHandler:)])
-        [[OneSignal notificationCenterDelegate] userNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
-    else {
-        //Set the completionHandler options based on the ONESIGNAL_ALERT_OPTION value.
-        NSUInteger completionHandlerOptions = 0;
-        if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
-            [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }
-        
-        NSInteger alert_option = ((NSNumber*)[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]).integerValue;
-        switch (alert_option) {
-            case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break;
-            case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 1; break;
-            case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break;
-            default: break;
-        }
-        
-        completionHandler(completionHandlerOptions);
-     
-        //Call notificationOpened if no alert (MSB not set)
-        NSDictionary* usrInfo = [[[notification valueForKey:@"request"] valueForKey:@"content"] valueForKey:@"userInfo"];
-        [OneSignal notificationOpened:usrInfo isActive:YES];
-        
-    }
-}
 #endif
 
 + (void)syncHashedEmail:(NSString *)email {
@@ -1254,80 +1141,8 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
 
 @end
 
-static BOOL checkIfInstanceOverridesSelector(Class instance, SEL selector) {
-    Class instSuperClass = [instance superclass];
-    return [instance instanceMethodForSelector: selector] != [instSuperClass instanceMethodForSelector: selector];
-}
 
 
-static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
-    if (!class_conformsToProtocol(searchClass, protocolToFind)) {
-        if ([searchClass superclass] == nil)
-            return nil;
-        Class foundClass = getClassWithProtocolInHierarchy([searchClass superclass], protocolToFind);
-        if (foundClass)
-            return foundClass;
-        return searchClass;
-    }
-    return searchClass;
-}
-
-static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
-    Method newMeth = class_getInstanceMethod(newClass, newSel);
-    IMP imp = method_getImplementation(newMeth);
-    const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
-    BOOL successful = class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
-    
-    if (!successful) {
-        class_addMethod(addToClass, newSel, imp, methodTypeEncoding);
-        newMeth = class_getInstanceMethod(addToClass, newSel);
-        Method orgMeth = class_getInstanceMethod(addToClass, makeLikeSel);
-        method_exchangeImplementations(orgMeth, newMeth);
-    }
-}
-
-//Try to find out which class to inject to
-static void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass) {
-    
-    // Find out if we should inject in delegateClass or one of its subclasses.
-    //CANNOT use the respondsToSelector method as it returns TRUE to both implementing and inheriting a method
-    //We need to make sure the class actually implements the method (overrides) and not inherits it to properly perform the call
-    //Start with subclasses then the delegateClass
-    
-    for(Class subclass in delegateSubclasses)
-        if(checkIfInstanceOverridesSelector(subclass, makeLikeSel)) {
-            injectSelector(myClass, newSel, subclass, makeLikeSel);
-            return;
-        }
-    
-    //No subclass overrides the method, try to inject in delegate class
-    injectSelector(myClass, newSel, delegateClass, makeLikeSel);
-    
-}
-
-static NSArray* ClassGetSubclasses(Class parentClass) {
-    
-    int numClasses = objc_getClassList(NULL, 0);
-    Class *classes = NULL;
-    
-    classes = (Class *)malloc(sizeof(Class) * numClasses);
-    numClasses = objc_getClassList(classes, numClasses);
-    
-    NSMutableArray *result = [NSMutableArray array];
-    for (NSInteger i = 0; i < numClasses; i++) {
-        Class superClass = classes[i];
-        do {
-            superClass = class_getSuperclass(superClass);
-        } while(superClass && superClass != parentClass);
-        
-        if (superClass == nil) continue;
-        [result addObject:classes[i]];
-    }
-    
-    free(classes);
-    
-    return result;
-}
 
 @interface OneSignalTracker ()
 + (void)onFocus:(BOOL)toBackground;
@@ -1337,7 +1152,7 @@ static NSArray* ClassGetSubclasses(Class parentClass) {
 static Class delegateClass = nil;
 
 // Store an array of all UIAppDelegate subclasses to iterate over in cases where UIAppDelegate swizzled methods are not overriden in main AppDelegate
-//But rather in one of the subclasses
+// But rather in one of the subclasses
 static NSArray* delegateSubclasses = nil;
 
 +(Class)delegateClass {
@@ -1477,10 +1292,23 @@ static NSArray* delegateSubclasses = nil;
     if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
         return;
     
-    NSLog(@"Loaded");
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(Swizzling) Loaded!"];
     
-    //Swizzle App delegate
+    // Swizzle UIApplication delegate
     method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setOneSignalDelegate:)));
+    
+    
+    #if XC8_AVAILABLE
+    // Swizzle UNUserNotificationCenter delegate
+    Class UNUserNotificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
+    if (!UNUserNotificationCenterClass)
+        return;
+    
+    injectToProperClass(@selector(setOneSignalUNDelegate:),
+                        @selector(setDelegate:), @[], [sizzleUNUserNotif class], UNUserNotificationCenterClass);
+    
+    [OneSignalHelper registerAsUNNotificationCenterDelegate];
+    #endif
 }
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
@@ -1526,14 +1354,6 @@ static NSArray* delegateSubclasses = nil;
     //Used to track how long the app has been closed
     injectToProperClass(@selector(oneSignalApplicationWillTerminate:), @selector(applicationWillTerminate:), delegateSubclasses, self.class, delegateClass);
     
-    
-    /* iOS 10.0: UNUserNotificationCenterDelegate instead of UIApplicationDelegate for methods handling opening app from notification
-     Make sure AppDelegate does not conform to this protocol */
-#if XC8_AVAILABLE
-    if([OneSignalHelper isiOS10Plus])
-        [OneSignalHelper conformsToUNProtocol];
-#endif
-    
     [self setOneSignalDelegate:delegate];
 }
 
@@ -1554,6 +1374,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 @end
+
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
