@@ -669,9 +669,6 @@ static OneSignal* singleInstance = nil;
 }
 
 + (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
-    
-    NSLog(@"HERE!!!!!!!!!");
-    NSLog(@"%@", [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]);
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]];
     
     if (isSynchronous) {
