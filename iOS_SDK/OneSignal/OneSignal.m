@@ -1206,14 +1206,13 @@ static NSArray* delegateSubclasses = nil;
 // User Tap on Notification while app was in background - OR - Notification received (silent or not, foreground or background) on iOS 7+
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     
-    if([OneSignal app_id]) {
-        
-        //Call notificationAction if app is active -> not a silent notification but rather user tap on notification
-        //Unless iOS 10+ then call remoteSilentNotification instead.
-        if([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
+    if ([OneSignal app_id]) {
+        // Call notificationAction if app is active -> not a silent notification but rather user tap on notification
+        // Unless iOS 10+ then call remoteSilentNotification instead.
+        if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
             [OneSignal notificationOpened:userInfo isActive:YES];
-        else [OneSignal remoteSilentNotification:application UserInfo:userInfo];
-        
+        else
+            [OneSignal remoteSilentNotification:application UserInfo:userInfo];
     }
     
     if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)]) {
@@ -1221,7 +1220,7 @@ static NSArray* delegateSubclasses = nil;
         return;
     }
     
-    //Make sure not a cold start from tap on notification (OS doesn't call didReceiveRemoteNotification)
+    // Make sure not a cold start from tap on notification (OS doesn't call didReceiveRemoteNotification)
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)] && ![[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
     
