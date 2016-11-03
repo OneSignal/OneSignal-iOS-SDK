@@ -45,6 +45,13 @@
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
 @end
 
+// This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
+// - userNotificationCenter:willPresentNotification:withCompletionHandler:
+//   - Reads kOSSettingsKeyInFocusDisplayOption to respect it's setting.
+// - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
+//   - Used to process opening a notifications.
+//   - The presents of this selector tells iOS to no longer fire `application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+//       We call this to maintain existing behavior.
 
 @implementation sizzleUNUserNotif
 
@@ -119,7 +126,7 @@ static NSArray* delegateUNSubclasses = nil;
     
     NSDictionary* usrInfo = [[[[response performSelector:@selector(notification)] valueForKey:@"request"] valueForKey:@"content"] valueForKey:@"userInfo"];
     if (!usrInfo || [usrInfo count] == 0) {
-        [sizzleUNUserNotif tunnelToDelegate:center :response :completionHandler];
+        [sizzleUNUserNotif tunnelToDelegate:center response:response handler:completionHandler];
         return;
     }
     
@@ -150,7 +157,7 @@ static NSArray* delegateUNSubclasses = nil;
         BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
         [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
         [OneSignal notificationOpened:usrInfo isActive:isActive];
-        [sizzleUNUserNotif tunnelToDelegate:center :response :completionHandler];
+        [sizzleUNUserNotif tunnelToDelegate:center response:response handler:completionHandler];
         return;
     }
     
@@ -179,18 +186,31 @@ static NSArray* delegateUNSubclasses = nil;
             userInfo[@"aps"] = @{ @"alert" : userInfo[@"m"] };
     }
     
-    BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
+    UIApplication *sharedApp = [UIApplication sharedApplication];
+    
+    BOOL isActive = sharedApp.applicationState == UIApplicationStateActive &&
     [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
     
+    if ([OneSignal app_id])
+       [OneSignal notificationOpened:userInfo isActive:isActive];
+    [sizzleUNUserNotif tunnelToDelegate:center response:response handler:completionHandler];
     
-    [OneSignal notificationOpened:userInfo isActive:isActive];
-    [sizzleUNUserNotif tunnelToDelegate:center :response :completionHandler];
-    
+    // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
         [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+    else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
+        // Call depercated pre-iOS 10 selector if one as set on the AppDelegate.
+        //   NOTE: Should always be true as our AppDelegate swizzling should be there unless something else unsizzled it.
+        [sharedApp.delegate application:sharedApp didReceiveRemoteNotification:usrInfo fetchCompletionHandler:^(UIBackgroundFetchResult result) {
+            // Call iOS 10's compleationHandler from iOS 9's completion handler.
+            completionHandler();
+        }];
+    }
 }
 
-+ (void)tunnelToDelegate:(id)center :(id)response :(void (^)())handler {
+// Depercated - [OneSignal notificationCenterDelegate] - Now handled by swizzling.
+//   Just need to keep the `handler();` call
++ (void)tunnelToDelegate:(id)center response:(id)response handler:(void (^)())handler {
     
     if ([[OneSignal notificationCenterDelegate] respondsToSelector:@selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
         [[OneSignal notificationCenterDelegate] userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:handler];

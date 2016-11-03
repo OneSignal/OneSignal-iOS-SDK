@@ -148,6 +148,9 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
  Set to false when app is in focus and in-app alerts are disabled, or the remote notification is silent. */
 @property(readonly, getter=wasShown)BOOL shown;
 
+/* Set to true if the app was in focus when the notification  */
+@property(readonly, getter=wasAppInFocus)BOOL isAppInFocus;
+
 /* Set to true when the received notification is silent
  Silent means there is no alert, sound, or badge payload in the aps dictionary
  requires remote-notification within UIBackgroundModes array of the Info.plist */

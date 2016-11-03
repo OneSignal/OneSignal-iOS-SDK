@@ -144,7 +144,7 @@
 @end
 
 @implementation OSNotification
-@synthesize payload = _payload, shown = _shown, silentNotification = _silentNotification, displayType = _displayType;
+@synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType;
 
 #if XC8_AVAILABLE
 @synthesize mutableContent = _mutableContent;
@@ -165,11 +165,12 @@
         
         _shown = true;
         
-        BOOL isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+        _isAppInFocus = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
         
         //If remote silent -> shown = false
         //If app is active and in-app alerts are not enabled -> shown = false
-        if(_silentNotification || (isActive && [[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_ALERT_OPTION"] == OSNotificationDisplayTypeNone))
+        if (_silentNotification ||
+            (_isAppInFocus && [[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_ALERT_OPTION"] == OSNotificationDisplayTypeNone))
             _shown = false;
         
     }
@@ -216,10 +217,11 @@
     if(self.displayType)
         [obj setObject:@(self.displayType) forKeyedSubscript: @"displayType"];
     
-    if(self.shown)
-        [obj setObject:@(self.shown) forKeyedSubscript: @"shown"];
     
-    if(self.silentNotification)
+    [obj setObject:@(self.shown) forKeyedSubscript: @"shown"];
+    [obj setObject:@(self.isAppInFocus) forKeyedSubscript: @"isAppInFocus"];
+    
+    if (self.silentNotification)
         [obj setObject:@(self.silentNotification) forKeyedSubscript: @"silentNotification"];
     
     
@@ -494,7 +496,7 @@ static OneSignal* singleInstance = nil;
     if(!NSClassFromString(@"UNNotificationAction") || !NSClassFromString(@"UNNotificationRequest")) return NULL;
     
     NSMutableArray * actionArray = [[NSMutableArray alloc] init];
-    for( NSDictionary* button in data[@"o"]) {
+    for(NSDictionary* button in data[@"o"]) {
         NSString* title = button[@"n"] != NULL ? button[@"n"] : @"";
         NSString* buttonID = button[@"i"] != NULL ? button[@"i"] : title;
         id action = [NSClassFromString(@"UNNotificationAction") actionWithIdentifier:buttonID title:title options:UNNotificationActionOptionForeground];
@@ -668,6 +670,8 @@ static OneSignal* singleInstance = nil;
 
 + (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
     
+    NSLog(@"HERE!!!!!!!!!");
+    NSLog(@"%@", [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]);
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]];
     
     if (isSynchronous) {
