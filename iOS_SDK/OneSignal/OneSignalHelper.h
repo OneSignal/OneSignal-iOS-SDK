@@ -38,7 +38,7 @@
 + (void) displayWebView:(NSURL*)url;
 
 // - Notification Opened
-+ (NSArray<NSString*>*)getPushTitleBody:(NSDictionary*)messageDict;
++ (NSDictionary*)getPushTitleBody:(NSDictionary*)messageDict;
 + (NSArray*)getActionButtons;
 + (void)lastMessageReceived:(NSDictionary*)message;
 + (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;

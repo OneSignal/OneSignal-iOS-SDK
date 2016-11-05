@@ -782,6 +782,8 @@ bool nextRegistrationIsHighPriority = NO;
 }
     
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    // Should be called first, other methods relay on this global state below.
+    [OneSignalHelper lastMessageReceived:messageDict];
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (!customDict)
@@ -789,8 +791,7 @@ bool nextRegistrationIsHighPriority = NO;
     
     BOOL inAppAlert = false;
     if (isActive) {
-        
-        if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
+        if (![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
             [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
             [[NSUserDefaults standardUserDefaults] synchronize];
         }
@@ -798,20 +799,18 @@ bool nextRegistrationIsHighPriority = NO;
         int iaaoption = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue];
         inAppAlert = iaaoption == OSNotificationDisplayTypeInAppAlert;
         
-        [OneSignalHelper lastMessageReceived:messageDict];
-        
         //Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
             
-            NSArray<NSString*>* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
+            NSDictionary* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
             id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict];
             
-            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:titleAndBody[0] ? titleAndBody[0] : @""
-                                                                message:titleAndBody[1] ? titleAndBody[1] : @""
+            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:titleAndBody[@"title"]
+                                                                message:titleAndBody[@"body"]
                                                                delegate:oneSignalAlertViewDelegate
                                                       cancelButtonTitle:@"Close"
                                                       otherButtonTitles:nil, nil];
-            //Add Buttons
+            // Add Buttons
             NSArray *additionalData = [OneSignalHelper getActionButtons];
             if (additionalData) {
                 for(id button in additionalData)
@@ -820,8 +819,8 @@ bool nextRegistrationIsHighPriority = NO;
             
             [alertView show];
             
-            //Message received that was displayed (Foreground + InAppAlert is true)
-            //Call Received Block
+            // Message received that was displayed (Foreground + InAppAlert is true)
+            // Call Received Block
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert];
             
             return;
@@ -844,12 +843,12 @@ bool nextRegistrationIsHighPriority = NO;
             actionSelected = messageDict[@"custom"][@"a"][@"actionSelected"];
             type = OSNotificationActionTypeActionTaken;
         }
-        if(messageDict[@"actionSelected"]) {
+        if (messageDict[@"actionSelected"]) {
             actionSelected = messageDict[@"actionSelected"];
             type = OSNotificationActionTypeActionTaken;
         }
         
-        //Call Action Block
+        // Call Action Block
         [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:OSNotificationDisplayTypeNotification];
         [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
     }
