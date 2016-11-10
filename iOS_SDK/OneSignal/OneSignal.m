@@ -1303,7 +1303,7 @@ static NSArray* delegateSubclasses = nil;
         return;
     
     injectToProperClass(@selector(setOneSignalUNDelegate:),
-                        @selector(setDelegate:), @[], [sizzleUNUserNotif class], UNUserNotificationCenterClass);
+                        @selector(setDelegate:), @[], [swizzleUNUserNotif class], UNUserNotificationCenterClass);
     
     [OneSignalHelper registerAsUNNotificationCenterDelegate];
     #endif
