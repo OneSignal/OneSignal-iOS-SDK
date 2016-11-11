@@ -31,7 +31,7 @@
 #import "OneSignal.h"
 
 #if XC8_AVAILABLE
-@interface sizzleUNUserNotif : NSObject
+@interface swizzleUNUserNotif : NSObject
 @end
 #endif
 
