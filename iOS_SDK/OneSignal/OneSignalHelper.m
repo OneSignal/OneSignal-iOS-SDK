@@ -306,44 +306,82 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return NULL;
 }
 
-+ (NSArray*)getActionButtons {
++ (NSArray*)getActionButtons:(NSDictionary*)messageDict {
+    if (messageDict[@"os_data"] && [messageDict[@"os_data"] isKindOfClass:[NSDictionary class]])
+        return messageDict[@"os_data"][@"buttons"][@"o"];
     
-    if(!lastMessageReceived) return NULL;
-    
-    if(lastMessageReceived[@"os_data"] && [lastMessageReceived[@"os_data"] isKindOfClass:[NSDictionary class]]) {
-        return lastMessageReceived[@"os_data"][@"buttons"][@"o"];
-    }
-    
-    return lastMessageReceived[@"o"];
+    return messageDict[@"o"];
 }
 
 + (NSDictionary*)getPushTitleBody:(NSDictionary*)messageDict {
     
-    NSString *title  = messageDict[@"m"][@"title"];
+    NSString *title;
+    if ([messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
+        title = messageDict[@"aps"][@"alert"][@"title"];
+    else
+        title = messageDict[@"aps"][@"alert"];
+    
     if (!title) {
-        if ([messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
-            title = messageDict[@"aps"][@"alert"][@"title"];
-        else
-            title = messageDict[@"aps"][@"alert"];
+        if ([messageDict[@"m"] isKindOfClass:[NSDictionary class]])
+            title = messageDict[@"m"][@"title"];
     }
     
-    if (!title)
-        title = messageDict[@"os_data"][@"buttons"][@"m"][@"title"];
+    if (!title) {
+        if ([messageDict[@"os_data"][@"buttons"][@"m"] isKindOfClass:[NSDictionary class]])
+            title = messageDict[@"os_data"][@"buttons"][@"m"][@"title"];
+    }
+    
     if (!title)
         title = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleNameKey];
     if (!title)
         title = @"";
     
     
-    NSString *body  = messageDict[@"m"][@"body"];
-    if (!body && [messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
+    NSString *subtitle;
+    if ([messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
+        subtitle = messageDict[@"aps"][@"alert"][@"subtitle"];
+    else
+        subtitle = messageDict[@"aps"][@"alert"];
+    
+    if (!subtitle) {
+        if ([messageDict[@"m"] isKindOfClass:[NSDictionary class]])
+            subtitle = messageDict[@"m"][@"subtitle"];
+    }
+    
+    if (!subtitle) {
+        if ([messageDict[@"os_data"][@"buttons"][@"m"] isKindOfClass:[NSDictionary class]])
+            subtitle = messageDict[@"os_data"][@"buttons"][@"m"][@"subtitle"];
+    }
+    
+    if (!subtitle)
+        subtitle = @"";
+    
+    
+    
+    NSString *body;
+    if ([messageDict[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]])
         body = messageDict[@"aps"][@"alert"][@"body"];
-    if (!body)
-        body = messageDict[@"os_data"][@"buttons"][@"m"][@"body"];
+    else
+        body = messageDict[@"aps"][@"alert"];
+    
+    if (!body) {
+        if ([messageDict[@"m"] isKindOfClass:[NSDictionary class]])
+            body = messageDict[@"m"][@"body"];
+        else
+            body = messageDict[@"m"];
+    }
+    
+    if (!body) {
+        if ([messageDict[@"os_data"][@"buttons"][@"m"] isKindOfClass:[NSDictionary class]])
+            body = messageDict[@"os_data"][@"buttons"][@"m"][@"body"];
+        else
+            body = messageDict[@"os_data"][@"buttons"][@"m"];
+    }
+    
     if (!body)
         body = @"";
     
-    return @{@"title" : title, @"body": body};
+    return @{@"title" : title, @"subtitle": subtitle, @"body": body};
 }
 
 // Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
@@ -408,7 +446,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     Class UIMutableUserNotificationActionClass = NSClassFromString(@"UIMutableUserNotificationAction");
     NSMutableArray* actionArray = [[NSMutableArray alloc] init];
-    for (NSDictionary* button in data[@"o"]) {
+    for (NSDictionary* button in [OneSignalHelper getActionButtons:data]) {
         id action = [[UIMutableUserNotificationActionClass alloc] init];
         [action setTitle:button[@"n"]];
         [action setIdentifier:button[@"i"] ? button[@"i"] : [action title]];
@@ -428,9 +466,10 @@ OSHandleNotificationActionBlock handleNotificationAction;
     NSUInteger notificationTypes = NOTIFICATION_TYPE_ALL;
     
     NSSet* currentCategories = [[[UIApplication sharedApplication] currentUserNotificationSettings] categories];
-    if(currentCategories)
+    if (currentCategories)
         currentCategories = [currentCategories setByAddingObject:category];
-    else currentCategories = [NSSet setWithObject:category];
+    else
+        currentCategories = [NSSet setWithObject:category];
     
     [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:currentCategories]];
     notification.category = [category identifier];
@@ -509,7 +548,7 @@ static OneSignal* singleInstance = nil;
         return NULL;
     
     NSMutableArray * actionArray = [[NSMutableArray alloc] init];
-    for(NSDictionary* button in data[@"o"]) {
+    for(NSDictionary* button in [OneSignalHelper getActionButtons:data]) {
         NSString* title = button[@"n"] != NULL ? button[@"n"] : @"";
         NSString* buttonID = button[@"i"] != NULL ? button[@"i"] : title;
         id action = [NSClassFromString(@"UNNotificationAction") actionWithIdentifier:buttonID title:title options:UNNotificationActionOptionForeground];
@@ -528,28 +567,10 @@ static OneSignal* singleInstance = nil;
     id content = [[NSClassFromString(@"UNMutableNotificationContent") alloc] init];
     [content setValue:@"__dynamic__" forKey:@"categoryIdentifier"];
     
-    if (data[@"m"]) {
-        if([data[@"m"] isKindOfClass:[NSDictionary class]]) {
-            if(data[@"m"][@"title"])
-                [content setValue:data[@"m"][@"title"] forKey:@"title"];
-            if(data[@"m"][@"body"])
-                [content setValue:data[@"m"][@"body"] forKey:@"body"];
-            if(data[@"m"][@"subtitle"])
-                [content setValue:data[@"m"][@"subtitle"] forKey:@"subtitle"];
-        }
-        else
-            [content setValue:data[@"m"] forKey:@"body"];
-    }
-    
-    else if(data[@"aps"][@"alert"]) {
-        if ([data[@"aps"][@"alert"] isKindOfClass:[NSDictionary class]]) {
-            [content setValue:data[@"aps"][@"alert"][@"title"] forKey:@"title"];
-            [content setValue:data[@"aps"][@"alert"][@"body"] forKey:@"body"];
-            [content setValue:data[@"aps"][@"alert"][@"subtitle"] forKey:@"subtitle"];
-        }
-        else
-            [content setValue:data[@"aps"][@"alert"] forKey:@"body"];
-    }
+    NSDictionary* alertDict = [OneSignalHelper getPushTitleBody:data];
+    [content setValue:alertDict[@"title"] forKey:@"title"];
+    [content setValue:alertDict[@"subtitle"] forKey:@"subtitle"];
+    [content setValue:alertDict[@"body"] forKey:@"body"];
     
     [content setValue:userInfo forKey:@"userInfo"];
     

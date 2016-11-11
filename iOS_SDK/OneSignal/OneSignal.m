@@ -811,10 +811,10 @@ bool nextRegistrationIsHighPriority = NO;
                                                       cancelButtonTitle:@"Close"
                                                       otherButtonTitles:nil, nil];
             // Add Buttons
-            NSArray *additionalData = [OneSignalHelper getActionButtons];
-            if (additionalData) {
-                for(id button in additionalData)
-                [alertView addButtonWithTitle:button[@"n"]];
+            NSArray *actionButons = [OneSignalHelper getActionButtons:messageDict];
+            if (actionButons) {
+                for(id button in actionButons)
+                   [alertView addButtonWithTitle:button[@"n"]];
             }
             
             [alertView show];
@@ -1016,8 +1016,7 @@ bool nextRegistrationIsHighPriority = NO;
     //If buttons -> Data is buttons
     //Otherwise if titles or body or attachment -> data is everything
     if (data) {
-        
-        if(NSClassFromString(@"UNUserNotificationCenter")) {
+        if (NSClassFromString(@"UNUserNotificationCenter")) {
             if([[OneSignalHelper class] respondsToSelector:NSSelectorFromString(@"addnotificationRequest::")]) {
                 SEL selector = NSSelectorFromString(@"addnotificationRequest::");
                 typedef void(*func)(id, SEL, NSDictionary*, NSDictionary*);
@@ -1042,9 +1041,10 @@ bool nextRegistrationIsHighPriority = NO;
     
     /* Handle the notification reception*/
     [OneSignalHelper lastMessageReceived:userInfo];
-    if([OneSignalHelper isRemoteSilentNotification:userInfo])
+    if ([OneSignalHelper isRemoteSilentNotification:userInfo])
         [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
-    else [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
+    else
+        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
 }
     
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
@@ -1062,7 +1062,8 @@ bool nextRegistrationIsHighPriority = NO;
             additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
             optionsDict = userInfo[@"o"];
         }
-        else return;
+        else
+            return;
         
         NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
         for (NSDictionary* button in optionsDict) {
