@@ -94,6 +94,7 @@ int mNotificationTypes = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mSubscriptionSet;
+BOOL mShareLocation = YES;
     
 + (NSString*)app_id {
     return app_id;
@@ -136,7 +137,9 @@ BOOL mSubscriptionSet;
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
-    [OneSignalLocation getLocation:false];
+    if (mShareLocation) {
+        [OneSignalLocation getLocation:false];
+    }
     
     if (self) {
         
@@ -520,6 +523,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void) promptLocation {
     [OneSignalLocation getLocation:true];
 }
+
++ (void)setLocationShared:(BOOL)enable {
+    mShareLocation = enable;
+}
     
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     [self updateDeviceToken:inDeviceToken onSuccess:successBlock onFailure:failureBlock];
@@ -677,7 +684,7 @@ bool nextRegistrationIsHighPriority = NO;
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];
     
-    if ([OneSignalLocation lastLocation]) {
+    if (mShareLocation && [OneSignalLocation lastLocation]) {
         dataDic[@"lat"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
         dataDic[@"long"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
         dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
