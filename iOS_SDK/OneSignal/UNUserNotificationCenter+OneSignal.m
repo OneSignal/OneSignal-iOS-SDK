@@ -126,8 +126,35 @@ static NSArray* delegateUNSubclasses = nil;
                   withCompletionHandler:(void(^)())completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
     
+    [swizzleUNUserNotif processiOS10Open:response];
+    
+    // For depercated OSUserNotificationCenterDelegate
+    [swizzleUNUserNotif tunnelToDelegate:center response:response handler:completionHandler];
+    
+    // Call orginal selector if one was set.
+    if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
+        [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+    // Or call a legacy selector AppDelegate selector
+    else if (![swizzleUNUserNotif isDismissEvent:response]) // iOS 9 did not have a dismiss event
+        [swizzleUNUserNotif callLegacyAppDeletegateSelector:response withCompletionHandler:completionHandler];
+    else
+        completionHandler();
+}
+
++ (BOOL) isDismissEvent:(UNNotificationResponse *)response {
+    return [@"com.apple.UNNotificationDismissActionIdentifier" isEqual:response.actionIdentifier];
+}
+
++ (void) processiOS10Open:(UNNotificationResponse *)response {
+    if (![OneSignal app_id])
+        return;
+    
+    if ([swizzleUNUserNotif isDismissEvent:response])
+        return;
+    
     BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
-        [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
+                    [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
+    
     
     NSDictionary* remoteUserInfo = response.notification.request.content.userInfo;
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init],
@@ -179,17 +206,7 @@ static NSArray* delegateUNSubclasses = nil;
             userInfo[@"aps"] = @{ @"alert": userInfo[@"m"] };
     }
     
-    if ([OneSignal app_id])
-       [OneSignal notificationOpened:userInfo isActive:isActive];
-    
-    // For depercated OSUserNotificationCenterDelegate
-    [swizzleUNUserNotif tunnelToDelegate:center response:response handler:completionHandler];
-    
-    // Call orginal selector if one was set.
-    if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
-        [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
-    else
-        [swizzleUNUserNotif callLegacyAppDeletegateSelector:response withCompletionHandler:completionHandler];
+    [OneSignal notificationOpened:userInfo isActive:isActive];
 }
 
 // Depercated - [OneSignal notificationCenterDelegate] - Now handled by swizzling.
@@ -203,6 +220,7 @@ static NSArray* delegateUNSubclasses = nil;
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.
+//   Even though they are deperated in iOS 10 they should still be called in iOS 10
 // - application:didReceiveLocalNotification:
 // - application:didReceiveRemoteNotification:fetchCompletionHandler:
 // - application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:

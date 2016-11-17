@@ -37,6 +37,7 @@
 		3EBD83FE1D49364E008F135D /* OneSignalHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD83FD1D49364E008F135D /* OneSignalHelper.m */; };
 		3EBD84041D49416A008F135D /* NSString+Hash.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD84031D49416A008F135D /* NSString+Hash.m */; };
 		3ECE8FDD1D39829300742055 /* OneSignalAlertViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ECE8FDC1D39829300742055 /* OneSignalAlertViewDelegate.m */; };
+		9139AF5B1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */; };
 		918416271DC2E32500D458A5 /* OneSignalSelectorHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 918416261DC2E32500D458A5 /* OneSignalSelectorHelpers.m */; };
 		918416281DC2E80A00D458A5 /* OneSignalSelectorHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 918416261DC2E32500D458A5 /* OneSignalSelectorHelpers.m */; };
 		91D684CC1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 91D684CB1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m */; };
@@ -89,6 +90,8 @@
 		3EBD84031D49416A008F135D /* NSString+Hash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+Hash.m"; path = "OneSignal/NSString+Hash.m"; sourceTree = "<group>"; };
 		3ECE8FDB1D39829300742055 /* OneSignalAlertViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OneSignalAlertViewDelegate.h; path = OneSignal/OneSignalAlertViewDelegate.h; sourceTree = "<group>"; };
 		3ECE8FDC1D39829300742055 /* OneSignalAlertViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OneSignalAlertViewDelegate.m; path = OneSignal/OneSignalAlertViewDelegate.m; sourceTree = "<group>"; };
+		9139AF591DDECB4200642ED5 /* UIApplicationDelegate+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "UIApplicationDelegate+OneSignal.h"; path = "OneSignal/UIApplicationDelegate+OneSignal.h"; sourceTree = "<group>"; };
+		9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIApplicationDelegate+OneSignal.m"; path = "OneSignal/UIApplicationDelegate+OneSignal.m"; sourceTree = "<group>"; };
 		918416251DC2E30500D458A5 /* OneSignalSelectorHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OneSignalSelectorHelpers.h; path = OneSignal/OneSignalSelectorHelpers.h; sourceTree = "<group>"; };
 		918416261DC2E32500D458A5 /* OneSignalSelectorHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OneSignalSelectorHelpers.m; path = OneSignal/OneSignalSelectorHelpers.m; sourceTree = "<group>"; };
 		91D684C91DC2D5F200D09C41 /* UNUserNotificationCenter+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UNUserNotificationCenter+OneSignal.h"; path = "OneSignal/UNUserNotificationCenter+OneSignal.h"; sourceTree = "<group>"; };
@@ -259,6 +262,8 @@
 				3EBD84031D49416A008F135D /* NSString+Hash.m */,
 				91D684C91DC2D5F200D09C41 /* UNUserNotificationCenter+OneSignal.h */,
 				91D684CB1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m */,
+				9139AF591DDECB4200642ED5 /* UIApplicationDelegate+OneSignal.h */,
+				9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -394,6 +399,7 @@
 			files = (
 				3ECE8FDD1D39829300742055 /* OneSignalAlertViewDelegate.m in Sources */,
 				371FDED919F1A486001479B7 /* OneSignalTrackIAP.m in Sources */,
+				9139AF5B1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				3EBD83FE1D49364E008F135D /* OneSignalHelper.m in Sources */,
 				3E84C6231D4AE53500ED8557 /* NSObject+Extras.m in Sources */,
 				3724485819F6D1DE00573B5A /* OneSignalJailbreakDetection.m in Sources */,
