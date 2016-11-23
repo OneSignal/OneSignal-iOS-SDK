@@ -75,43 +75,61 @@ static NSArray* delegateSubclasses = nil;
         return;
     }
     
+    
+    // UNUserNotificationCenter will already handle recieved / open events on iOS 10 so don't swizzle the deprecated ones.
+    BOOL notIos10 = !NSClassFromString(@"UNUserNotificationCenter");
+    
     Class newClass = [OneSignalAppDelegate class];
     
     delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
     delegateSubclasses = ClassGetSubclasses(delegateClass);
     
+    // Need to keep this one for iOS 10 for content-available notifiations.
+    //   iOS 10 doesn't fire a selector on UNUserNotificationCenter as
+    //   UNNotificationServiceExtension (mutable-content) and UNNotificationContentExtension (with category) replaced it.
     injectToProperClass(@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
                         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, newClass, delegateClass);
     
-    injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-                        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, newClass, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalDidFailRegisterForRemoteNotification:error:),
-                        @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, newClass, delegateClass);
+    if (notIos10) {
+        injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
+                            @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, newClass, delegateClass);
+    }
     
     injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
                         @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, newClass, delegateClass);
+    
+    injectToProperClass(@selector(oneSignalDidFailRegisterForRemoteNotification:error:),
+                        @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, newClass, delegateClass);
     
     if (NSClassFromString(@"CoronaAppDelegate")) {
         [self setOneSignalDelegate:delegate];
         return;
     }
     
-    injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:), @selector(application:didReceiveRemoteNotification:), delegateSubclasses, newClass, delegateClass);
+    injectToProperClass(@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:),
+                        @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), delegateSubclasses, newClass, delegateClass);
     
-    injectToProperClass(@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:), @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), delegateSubclasses, newClass, delegateClass);
+    if (notIos10) {
+        injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:),
+                            @selector(application:didReceiveRemoteNotification:), delegateSubclasses, newClass, delegateClass);
+        
+        injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:),
+                            @selector(application:didReceiveLocalNotification:), delegateSubclasses, newClass, delegateClass);
+    }
     
-    injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:), @selector(application:didReceiveLocalNotification:), delegateSubclasses, newClass, delegateClass);
+    injectToProperClass(@selector(oneSignalApplicationWillResignActive:),
+                        @selector(applicationWillResignActive:), delegateSubclasses, newClass, delegateClass);
     
-    injectToProperClass(@selector(oneSignalApplicationWillResignActive:), @selector(applicationWillResignActive:), delegateSubclasses, newClass, delegateClass);
+    // Required for background location
+    injectToProperClass(@selector(oneSignalApplicationDidEnterBackground:),
+                        @selector(applicationDidEnterBackground:), delegateSubclasses, newClass, delegateClass);
     
-    //Required for background location
-    injectToProperClass(@selector(oneSignalApplicationDidEnterBackground:), @selector(applicationDidEnterBackground:), delegateSubclasses, newClass, delegateClass);
+    injectToProperClass(@selector(oneSignalApplicationDidBecomeActive:),
+                        @selector(applicationDidBecomeActive:), delegateSubclasses, newClass, delegateClass);
     
-    injectToProperClass(@selector(oneSignalApplicationDidBecomeActive:), @selector(applicationDidBecomeActive:), delegateSubclasses, newClass, delegateClass);
-    
-    //Used to track how long the app has been closed
-    injectToProperClass(@selector(oneSignalApplicationWillTerminate:), @selector(applicationWillTerminate:), delegateSubclasses, newClass, delegateClass);
+    // Used to track how long the app has been closed
+    injectToProperClass(@selector(oneSignalApplicationWillTerminate:),
+                        @selector(applicationWillTerminate:), delegateSubclasses, newClass, delegateClass);
     
     [self setOneSignalDelegate:delegate];
 }

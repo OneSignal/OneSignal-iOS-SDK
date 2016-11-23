@@ -61,7 +61,7 @@
                                                   otherButtonTitles:nil, nil];
         [alertView show];
         
-    } settings:@{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @NO}];
+    } settings:@{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @YES}];
     
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         if(pushToken) {

@@ -799,7 +799,13 @@ static BOOL waitingForOneSReg = false;
                onSuccess:nil
                onFailure:nil];
 }
-    
+
+
+// Entry point for the following:
+//  - 1. (iOS all) - Opening notifications
+//  - 2. Notification received
+//    - 2A. iOS 9  - Notification received while app is in focus.
+//    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
@@ -818,7 +824,7 @@ static BOOL waitingForOneSReg = false;
         int iaaoption = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue];
         inAppAlert = iaaoption == OSNotificationDisplayTypeInAppAlert;
         
-        //Make sure it is not a silent one do display, if inAppAlerts are enabled
+        // Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
             
             NSDictionary* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
@@ -845,8 +851,8 @@ static BOOL waitingForOneSReg = false;
             return;
         }
         
-        //App is active and a notification was received without inApp display. Display type is none or notification
-        //Call Received Block
+        // App is active and a notification was received without inApp display. Display type is none or notification
+        // Call Received Block
         [OneSignalHelper handleNotificationReceived:[[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue]];
         
         // Notify backend that user opened the notifiation
@@ -917,7 +923,7 @@ static BOOL waitingForOneSReg = false;
 + (void)submitNotificationOpened:(NSString*)messageId {
     //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
     //Keep track of the Id for the last message sent
-    NSString * lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
+    NSString* lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
         NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
@@ -1065,47 +1071,19 @@ static BOOL waitingForOneSReg = false;
         [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
 }
 
+// iOS 8-9 - Entry point when OneSignal action button notifiation is displayed or opened.
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
     if (notification.userInfo) {
-        NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
         
-        if (notification.userInfo[@"os_data"][@"buttons"]) {
-            userInfo = [notification.userInfo mutableCopy];
-            additionalData = [NSMutableDictionary dictionary];
-            optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
-        }
-        else if (notification.userInfo[@"custom"]) {
-            userInfo = [notification.userInfo mutableCopy];
-            customDict = [userInfo[@"custom"] mutableCopy];
-            additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
-            optionsDict = userInfo[@"o"];
-        }
-        else
+        NSMutableDictionary* userInfo = [OneSignalHelper formatApsPayloadIntoStandard:notification.userInfo identifier:identifier];
+        
+        if (!userInfo)
             return;
-        
-        NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
-        for (NSDictionary* button in optionsDict) {
-            [buttonArray addObject: @{@"text" : button[@"n"],
-                                      @"id" : (button[@"i"] ? button[@"i"] : button[@"n"])}];
-        }
-        additionalData[@"actionSelected"] = identifier;
-        additionalData[@"actionButtons"] = buttonArray;
-        
-        if (notification.userInfo[@"os_data"]) {
-            [userInfo addEntriesFromDictionary:additionalData];
-            userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
-        }
-        else {
-            customDict[@"a"] = additionalData;
-            userInfo[@"custom"] = customDict;
-            
-            if(userInfo[@"m"])
-                userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
-        }
         
         BOOL isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
         [OneSignal notificationOpened:userInfo isActive:isActive];
-        //Notification Tapped or notification Action Tapped
+        
+        // Notification Tapped or notification Action Tapped
         [self handleNotificationOpened:userInfo isActive:isActive actionType:OSNotificationActionTypeActionTaken displayType:OSNotificationDisplayTypeNotification];
     }
     

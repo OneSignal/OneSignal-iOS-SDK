@@ -384,6 +384,48 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return @{@"title" : title, @"subtitle": subtitle, @"body": body};
 }
 
+
++ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier {
+    NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
+    
+    if (remoteUserInfo[@"os_data"][@"buttons"]) {
+        userInfo = [remoteUserInfo mutableCopy];
+        additionalData = [NSMutableDictionary dictionary];
+        optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
+    }
+    else if (remoteUserInfo[@"custom"]) {
+        userInfo = [remoteUserInfo mutableCopy];
+        customDict = [userInfo[@"custom"] mutableCopy];
+        additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+        optionsDict = userInfo[@"o"];
+    }
+    else
+        return nil;
+    
+    NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
+    for (NSDictionary* button in optionsDict) {
+        [buttonArray addObject: @{@"text" : button[@"n"],
+                                  @"id" : (button[@"i"] ? button[@"i"] : button[@"n"])}];
+    }
+    additionalData[@"actionSelected"] = identifier;
+    additionalData[@"actionButtons"] = buttonArray;
+    
+    if (remoteUserInfo[@"os_data"]) {
+        [userInfo addEntriesFromDictionary:additionalData];
+        userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
+    }
+    else {
+        customDict[@"a"] = additionalData;
+        userInfo[@"custom"] = customDict;
+        
+        if(userInfo[@"m"])
+            userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
+    }
+    
+    return userInfo;
+}
+
+
 // Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
 + (BOOL)isOneSignalPayload {
     if (!lastMessageReceived)
@@ -534,9 +576,6 @@ static OneSignal* singleInstance = nil;
 
 + (void)registerAsUNNotificationCenterDelegate {
     Class UNNofiCenterClass = NSClassFromString(@"UNUserNotificationCenter");
-    if (!UNNofiCenterClass)
-        return;
-    
     UNUserNotificationCenter *curNotifCenter = [UNNofiCenterClass currentNotificationCenter];
     if (!curNotifCenter.delegate)
         curNotifCenter.delegate = (id)[self sharedInstance];

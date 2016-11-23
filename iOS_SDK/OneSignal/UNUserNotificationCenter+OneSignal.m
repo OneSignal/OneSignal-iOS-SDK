@@ -30,6 +30,7 @@
 
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignal.h"
+#import "OneSignalHelper.h"
 #import "OneSignalSelectorHelpers.h"
 
 
@@ -156,55 +157,8 @@ static NSArray* delegateUNSubclasses = nil;
                     [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
     
     
-    NSDictionary* remoteUserInfo = response.notification.request.content.userInfo;
-    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init],
-    *customDict = [[NSMutableDictionary alloc] init],
-    *additionalData = [[NSMutableDictionary alloc] init];
-    NSMutableArray *optionsDict = [[NSMutableArray alloc] init];
-    
-    NSMutableDictionary* buttonsDict = remoteUserInfo[@"os_data"][@"buttons"];
-    NSMutableDictionary* custom = remoteUserInfo[@"custom"];
-    if (buttonsDict) {
-        [userInfo addEntriesFromDictionary:remoteUserInfo];
-        NSArray* o = buttonsDict[@"o"];
-        if (o)
-            [optionsDict addObjectsFromArray:o];
-    }
-    else if (custom) {
-        [userInfo addEntriesFromDictionary:remoteUserInfo];
-        [customDict addEntriesFromDictionary:custom];
-        NSDictionary *a = customDict[@"a"];
-        NSArray *o = userInfo[@"o"];
-        if (a)
-            [additionalData addEntriesFromDictionary:a];
-        if (o)
-            [optionsDict addObjectsFromArray:o];
-    }
-    
-    NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
-    for (NSDictionary* button in optionsDict) {
-        NSString * text = button[@"n"] != nil ? button[@"n"] : @"";
-        NSString * buttonID = button[@"i"] != nil ? button[@"i"] : text;
-        NSDictionary * buttonToAppend = [[NSDictionary alloc] initWithObjects:@[text, buttonID] forKeys:@[@"text", @"id"]];
-        [buttonArray addObject:buttonToAppend];
-    }
-    
-    additionalData[@"actionSelected"] = [response valueForKey:@"actionIdentifier"];
-    additionalData[@"actionButtons"] = buttonArray;
-    
-    NSDictionary* os_data = remoteUserInfo[@"os_data"];
-    if (os_data) {
-        [userInfo addEntriesFromDictionary:os_data];
-        if (userInfo[@"os_data"][@"buttons"][@"m"])
-            userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
-        [userInfo addEntriesFromDictionary:additionalData];
-    }
-    else {
-        customDict[@"a"] = additionalData;
-        userInfo[@"custom"] = customDict;
-        if (userInfo[@"m"])
-            userInfo[@"aps"] = @{ @"alert": userInfo[@"m"] };
-    }
+    NSMutableDictionary *userInfo;
+    userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo identifier:[response valueForKey:@"actionIdentifier"]];
     
     [OneSignal notificationOpened:userInfo isActive:isActive];
 }
@@ -234,7 +188,7 @@ static NSArray* delegateUNSubclasses = nil;
     BOOL isTextReply = [response isKindOfClass:NSClassFromString(@"UNTextInputNotificationResponse")];
     BOOL isLegacyLocalNotif = [response.notification.request.trigger isKindOfClass:NSClassFromString(@"UNLegacyNotificationTrigger")];
     BOOL isCustomAction = ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:response.actionIdentifier];
-   // BOOL isRemote = [response.notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
+    BOOL isRemote = [response.notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
     
     if (isLegacyLocalNotif) {
         UILocalNotification *localNotif = [NSClassFromString(@"UIConcreteLocalNotification") alloc];
@@ -275,7 +229,7 @@ static NSArray* delegateUNSubclasses = nil;
         else
             completionHandler();
     }
-    else {
+    else if (isRemote) {
         NSDictionary* remoteUserInfo = response.notification.request.content.userInfo;
         
         if (isTextReply &&
