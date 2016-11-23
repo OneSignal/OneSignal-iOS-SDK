@@ -25,13 +25,8 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalSelectorHelpers_h
-#define OneSignalSelectorHelpers_h
-
-BOOL checkIfInstanceOverridesSelector(Class instance, SEL selector);
-Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind);
-NSArray* ClassGetSubclasses(Class parentClass);
-void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass);
-BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
-
-#endif /* OneSignalSelectorHelpers_h */
+#ifndef UIApplicationDelegate_OneSignal_h
+#define UIApplicationDelegate_OneSignal_h
+@interface OneSignalAppDelegate : NSObject
+@end
+#endif /* UIApplicationDelegate_OneSignal_h */

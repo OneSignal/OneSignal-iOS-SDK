@@ -39,6 +39,7 @@
 #import "NSString+Hash.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
+#import "UIApplicationDelegate+OneSignal.h"
 
 #import <stdlib.h>
 #import <stdio.h>
@@ -46,6 +47,7 @@
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
 #import <objc/runtime.h>
+#import <UIKit/UIKit.h>
 
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
@@ -173,7 +175,8 @@ BOOL mSubscriptionSet;
         //Check if disabled in-app launch url if passed a NO
         if(settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
             [self enableInAppLaunchURL:settings[kOSSettingsKeyInAppLaunchURL]];
-        else [self enableInAppLaunchURL:@YES];
+        else
+            [self enableInAppLaunchURL:@YES];
         
         // Register this device with Apple's APNS server if enabled auto-prompt or not passed a NO
         BOOL autoPrompt = YES;
@@ -222,7 +225,7 @@ BOOL mSubscriptionSet;
     
     //Cold start from tap on a remote notification
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    if(userInfo)
+    if (userInfo)
         coldStartFromTapOnNotification = YES;
 
     [self clearBadgeCount:false];
@@ -240,6 +243,7 @@ BOOL mSubscriptionSet;
 }
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
+    NSLog(@"ONESIGNAL - Setting log level: %d", (int)nsLogLevel);
     _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
 }
 
@@ -284,12 +288,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
                                                   otherButtonTitles:nil, nil];
         [alertView show];
     }
-    
 }
 
 // "registerForRemoteNotifications*" calls didRegisterForRemoteNotificationsWithDeviceToken
 // in the implementation UIApplication(OneSignalPush) below after contacting Apple's server.
 + (void)registerForPushNotifications {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerForPushNotifications Called!"];
     
     #if XC8_AVAILABLE
     [OneSignalHelper requestAuthorization];
@@ -316,9 +320,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
-//Block not assigned if userID nil and there is a device token
+// Block not assigned if userID nil and there is a device token
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
-    
     if (mUserId)
         idsAvailableBlock(mUserId, [self getUsableDeviceToken]);
     
@@ -520,15 +523,28 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void) promptLocation {
     [OneSignalLocation getLocation:true];
 }
-    
+
+
++ (void) handleDidFailRegisterForRemoteNotification:(NSError*)err {
+    if (err.code == 3000 && [((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
+        //User did not enable push notification capability
+        [OneSignal setErrorNotificationType];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"'Push Notification' capability not turned on. Make sure it is enabled by going to your Project Target -> Capability."];
+    }
+    else
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
+}
+
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     [self updateDeviceToken:inDeviceToken onSuccess:successBlock onFailure:failureBlock];
     
     [[NSUserDefaults standardUserDefaults] setObject:mDeviceToken forKey:@"GT_DEVICE_TOKEN"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
-    
+
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
     
     // Do not block next registration as there's a new token in hand
     nextRegistrationIsHighPriority = YES;
@@ -590,9 +606,14 @@ bool nextRegistrationIsHighPriority = NO;
     return mUserId == nil || (mDeviceToken == nil && mNotificationTypes > NOTIFICATION_TYPE_NONE) || nextRegistrationIsHighPriority;
 }
 
+static BOOL waitingForOneSReg = false;
+
 +(BOOL)shouldRegisterNow {
+    if (waitingForOneSReg)
+        return false;
     
-    if ([self isHighPriorityCall]) return YES;
+    if ([self isHighPriorityCall])
+        return true;
     
     //Figure out if should pass or not
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
@@ -604,14 +625,12 @@ bool nextRegistrationIsHighPriority = NO;
     NSTimeInterval delta = now - lastTimeClosed;
     return delta > minTimeThreshold;
 }
-    
+
 + (void)registerUser {
-    
-    static BOOL waitingForOneSReg = NO;
-    
     // Make sure we only call create or on_session once per open of the app.
-    if (waitingForOneSReg || ![self shouldRegisterNow])
+    if (![self shouldRegisterNow])
         return;
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     
     waitingForOneSReg = true;
     
@@ -663,9 +682,9 @@ bool nextRegistrationIsHighPriority = NO;
     if (ASIdentifierManagerClass) {
         id asIdManager = [ASIdentifierManagerClass valueForKey:@"sharedManager"];
         if ([[asIdManager valueForKey:@"advertisingTrackingEnabled"] isEqual:[NSNumber numberWithInt:1]])
-        dataDic[@"as_id"] = [[asIdManager valueForKey:@"advertisingIdentifier"] UUIDString];
+            dataDic[@"as_id"] = [[asIdManager valueForKey:@"advertisingIdentifier"] UUIDString];
         else
-        dataDic[@"as_id"] = @"OptedOut";
+            dataDic[@"as_id"] = @"OptedOut";
     }
     
     UIApplicationReleaseMode releaseMode = [OneSignalMobileProvision releaseMode];
@@ -689,7 +708,7 @@ bool nextRegistrationIsHighPriority = NO;
         
         waitingForOneSReg = false;
         
-        //Success, no more high priority
+        // Success, no more high priority
         nextRegistrationIsHighPriority = NO;
         
         if ([results objectForKey:@"id"] != nil) {
@@ -699,7 +718,7 @@ bool nextRegistrationIsHighPriority = NO;
             [[NSUserDefaults standardUserDefaults] synchronize];
             
             if (mDeviceToken)
-            [self updateDeviceToken:mDeviceToken onSuccess:tokenUpdateSuccessBlock onFailure:tokenUpdateFailureBlock];
+               [self updateDeviceToken:mDeviceToken onSuccess:tokenUpdateSuccessBlock onFailure:tokenUpdateFailureBlock];
             
             
             if (tagsToSend) {
@@ -721,8 +740,8 @@ bool nextRegistrationIsHighPriority = NO;
                     idsAvailableBlockWhenReady = nil;
             }
             
-            //If we got a userId after the notificationTypes were set to error -13, update server
-            if(mNotificationTypes == ERROR_PUSH_CAPABLILITY_DISABLED)
+            // If we got a userId after the notificationTypes were set to error -13, update server
+            if (mNotificationTypes == ERROR_PUSH_CAPABLILITY_DISABLED)
                 [self setErrorNotificationType];
         }
     } onFailure:^(NSError* error) {
@@ -764,7 +783,7 @@ bool nextRegistrationIsHighPriority = NO;
     
 + (void)sendPurchases:(NSArray*)purchases {
     if (mUserId == nil)
-    return;
+        return;
     
     NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_purchase", mUserId]];
     
@@ -961,12 +980,12 @@ bool nextRegistrationIsHighPriority = NO;
 + (void)setErrorNotificationType {
     mNotificationTypes = ERROR_PUSH_CAPABLILITY_DISABLED;
     
-    if([self mUserId]) {
+    if ([self mUserId]) {
         NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             app_id, @"app_id",
-                             @(mNotificationTypes), @"notification_types",
-                             nil];
+                                 app_id, @"app_id",
+                                 @(mNotificationTypes), @"notification_types",
+                                 nil];
         NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
         [request setHTTPBody:postData];
     
@@ -1029,9 +1048,8 @@ bool nextRegistrationIsHighPriority = NO;
             UILocalNotification* notification = [OneSignalHelper prepareUILocalNotification:data :userInfo];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
-        
     }
-    //Method was called due to a tap on a notification
+    // Method was called due to a tap on a notification
     else if (application.applicationState != UIApplicationStateBackground) {
         [OneSignalHelper lastMessageReceived:userInfo];
         [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
@@ -1039,14 +1057,14 @@ bool nextRegistrationIsHighPriority = NO;
         return;
     }
     
-    /* Handle the notification reception*/
+    /* Handle the notification reception */
     [OneSignalHelper lastMessageReceived:userInfo];
     if ([OneSignalHelper isRemoteSilentNotification:userInfo])
         [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
     else
         [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
 }
-    
+
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
     if (notification.userInfo) {
         NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
@@ -1136,240 +1154,49 @@ static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
     [OneSignalHelper enqueueRequest:request
                 onSuccess:nil
                onFailure:nil];
-    
 }
 
 @end
 
-
-
-
-@interface OneSignalTracker ()
-+ (void)onFocus:(BOOL)toBackground;
-@end
-
-@implementation UIApplication (Swizzling)
-static Class delegateClass = nil;
-
-// Store an array of all UIAppDelegate subclasses to iterate over in cases where UIAppDelegate swizzled methods are not overriden in main AppDelegate
-// But rather in one of the subclasses
-static NSArray* delegateSubclasses = nil;
-
-+(Class)delegateClass {
-    return delegateClass;
-}
-
-- (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
-    
-    if([OneSignal app_id])
-        [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
-    
-    if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
-        [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
-}
-
-- (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
-    
-    if(err.code == 3000 && [((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
-        //User did not enable push notification capability
-        [OneSignal setErrorNotificationType];
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"'Push Notification' capability not turned on. Make sure it is enabled by going to your Project Target -> Capability."];
-    }
-    
-    else if([OneSignal app_id])
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
-    
-    if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
-        [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
-}
-
-- (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
-    
-    if([OneSignal app_id])
-        [OneSignal updateNotificationTypes:notificationSettings.types];
-    
-    if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
-        [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
-}
-
-
-// Notification opened! iOS 6 ONLY!
-- (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
-    
-    if([OneSignal app_id])
-        [OneSignal notificationOpened:userInfo isActive:[application applicationState] == UIApplicationStateActive];
-    
-    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
-        [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
-}
-
-// User Tap on Notification while app was in background - OR - Notification received (silent or not, foreground or background) on iOS 7+
-- (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
-    
-    if ([OneSignal app_id]) {
-        // Call notificationAction if app is active -> not a silent notification but rather user tap on notification
-        // Unless iOS 10+ then call remoteSilentNotification instead.
-        if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
-            [OneSignal notificationOpened:userInfo isActive:YES];
-        else
-            [OneSignal remoteSilentNotification:application UserInfo:userInfo];
-    }
-    
-    if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)]) {
-        [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
-        return;
-    }
-    
-    // Make sure not a cold start from tap on notification (OS doesn't call didReceiveRemoteNotification)
-    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)] && ![[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
-        [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
-    
-    completionHandler(UIBackgroundFetchResultNewData);
-}
-
-- (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
-    
-    if([OneSignal app_id])
-        [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
-    
-    if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
-        [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    
-    completionHandler();
-}
-
-- (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
-    
-    if([OneSignal app_id])
-        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
-    
-    if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
-        [self oneSignalLocalNotificationOpened:application notification:notification];
-}
-
-- (void)oneSignalApplicationWillResignActive:(UIApplication*)application {
-    
-    if([OneSignal app_id])
-        [OneSignalTracker onFocus:YES];
-    
-    if ([self respondsToSelector:@selector(oneSignalApplicationWillResignActive:)])
-        [self oneSignalApplicationWillResignActive:application];
-}
-
-- (void) oneSignalApplicationDidEnterBackground:(UIApplication*)application {
-    
-    if([OneSignal app_id])
-        [OneSignalLocation onfocus:NO];
-    
-    if ([self respondsToSelector:@selector(oneSignalApplicationDidEnterBackground:)])
-        [self oneSignalApplicationDidEnterBackground:application];
-}
-
-- (void)oneSignalApplicationDidBecomeActive:(UIApplication*)application {
-    
-    if([OneSignal app_id]) {
-        [OneSignalTracker onFocus:NO];
-        [OneSignalLocation onfocus:YES];
-    }
-    
-    if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
-        [self oneSignalApplicationDidBecomeActive:application];
-}
-
--(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
-    
-    if([OneSignal app_id])
-        [OneSignalTracker onFocus:YES];
-    
-    if ([self respondsToSelector:@selector(oneSignalApplicationWillTerminate:)])
-        [self oneSignalApplicationWillTerminate:application];
-}
-
+// Swizzles UIApplication class to swizzling the other following classes:
+//   - UIApplication - setDelegate: - Used to swizzle all UIApplicationDelegate selectors on the passed in class.
+//       - Normally this the AppDelegate class but since UIApplicationDelegate is a "interface" this could be any class.
+//   - UNUserNotificationCenter - setDelegate: - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
+//       -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
+//
+//  Note1: Do NOT move this category to it's own file. This is requried so when the app developer calls OneSignal.initWithLaunchOptions this load+
+//            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.
+//  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will orcur.
+//            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
+@implementation UIApplication (OneSignal)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
     if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
         return;
+
+    // Double loading of class detection.
+    BOOL existing = injectSelector([OneSignalAppDelegate class], @selector(oneSignalLoadedTagSelector:), self, @selector(oneSignalLoadedTagSelector:));
+    if (existing) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
+        return;
+    }
+
+    // Swizzle - UIApplication delegate
+    injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(Swizzling) Loaded!"];
-    
-    // Swizzle UIApplication delegate
-    method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setOneSignalDelegate:)));
-    
-    
+    // Swizzle - iOS 10 - UNUserNotificationCenter delegate
     #if XC8_AVAILABLE
-    // Swizzle UNUserNotificationCenter delegate
     Class UNUserNotificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
     if (!UNUserNotificationCenterClass)
         return;
     
-    injectToProperClass(@selector(setOneSignalUNDelegate:),
-                        @selector(setDelegate:), @[], [swizzleUNUserNotif class], UNUserNotificationCenterClass);
+    injectToProperClass(@selector(setOneSignalUNDelegate:), @selector(setDelegate:), @[], [swizzleUNUserNotif class], UNUserNotificationCenterClass);
     
+    // Set our own delegate if one hasn't been set already from something else.
     [OneSignalHelper registerAsUNNotificationCenterDelegate];
     #endif
-}
-
-- (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
-    
-    if (delegateClass) {
-        [self setOneSignalDelegate:delegate];
-        return;
-    }
-    
-    delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
-    delegateSubclasses = ClassGetSubclasses(delegateClass);
-    
-    injectToProperClass(@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
-                        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-                        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalDidFailRegisterForRemoteNotification:error:),
-                        @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
-                        @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, self.class, delegateClass);
-    
-    if (NSClassFromString(@"CoronaAppDelegate")) {
-        [self setOneSignalDelegate:delegate];
-        return;
-    }
-    
-    injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:), @selector(application:didReceiveRemoteNotification:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:), @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:), @selector(application:didReceiveLocalNotification:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalApplicationWillResignActive:), @selector(applicationWillResignActive:), delegateSubclasses, self.class, delegateClass);
-    
-    //Required for background location
-    injectToProperClass(@selector(oneSignalApplicationDidEnterBackground:), @selector(applicationDidEnterBackground:), delegateSubclasses, self.class, delegateClass);
-    
-    injectToProperClass(@selector(oneSignalApplicationDidBecomeActive:), @selector(applicationDidBecomeActive:), delegateSubclasses, self.class, delegateClass);
-    
-    //Used to track how long the app has been closed
-    injectToProperClass(@selector(oneSignalApplicationWillTerminate:), @selector(applicationWillTerminate:), delegateSubclasses, self.class, delegateClass);
-    
-    [self setOneSignalDelegate:delegate];
-}
-
-+(UIViewController*)topmostController:(UIViewController*)base {
-    
-    UINavigationController *baseNav = (UINavigationController*) base;
-    UITabBarController *baseTab = (UITabBarController*) base;
-    if (baseNav)
-        return [UIApplication topmostController:baseNav.visibleViewController];
-    
-    else if (baseTab.selectedViewController)
-        return [UIApplication topmostController:baseTab.selectedViewController];
-    
-    else if (base.presentedViewController)
-        return [UIApplication topmostController:baseNav.presentedViewController];
-    
-    return base;
 }
 
 @end
