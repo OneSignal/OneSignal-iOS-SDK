@@ -199,15 +199,14 @@ BOOL mSubscriptionSet;
         BOOL inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
         
         NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
-        BOOL inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue >-1 && IFDSetting.integerValue < 3;
+        BOOL inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
         
-        if(!inAppAlertsPassed && !inFocusDisplayPassed)
+        if (!inAppAlertsPassed && !inFocusDisplayPassed)
             [self setNotificationDisplayOptions:@(OSNotificationDisplayTypeInAppAlert)];
-        
-        else if(!inFocusDisplayPassed)
+        else if (!inFocusDisplayPassed)
             [self setNotificationDisplayOptions:IAASetting];
-        
-        else [self setNotificationDisplayOptions:IFDSetting];
+        else
+            [self setNotificationDisplayOptions:IFDSetting];
         
 
         if (mUserId != nil)
@@ -1030,7 +1029,7 @@ static BOOL waitingForOneSReg = false;
     
 }
     
-+ (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo {
++ (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     // If 'm' present then the notification has action buttons attached to it.
     NSDictionary* data = nil;
     
@@ -1042,13 +1041,9 @@ static BOOL waitingForOneSReg = false;
     //Otherwise if titles or body or attachment -> data is everything
     if (data) {
         if (NSClassFromString(@"UNUserNotificationCenter")) {
-            if([[OneSignalHelper class] respondsToSelector:NSSelectorFromString(@"addnotificationRequest::")]) {
-                SEL selector = NSSelectorFromString(@"addnotificationRequest::");
-                typedef void(*func)(id, SEL, NSDictionary*, NSDictionary*);
-                func methodToCall;
-                methodToCall = (func)[[OneSignalHelper class] methodForSelector:selector];
-                methodToCall([OneSignalHelper class], selector, data, userInfo);
-            }
+            #if XC8_AVAILABLE
+            [OneSignalHelper addnotificationRequest:data userInfo:userInfo completionHandler:completionHandler];
+            #endif
         }
         else {
             UILocalNotification* notification = [OneSignalHelper prepareUILocalNotification:data :userInfo];

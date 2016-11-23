@@ -275,6 +275,22 @@
 
 @implementation OneSignalHelper
 
+UIBackgroundTaskIdentifier mediaBackgroundTask;
+
++ (void) beginBackgroundMediaTask {
+    mediaBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [OneSignalHelper endBackgroundMediaTask];
+    }];
+}
+
++ (void) endBackgroundMediaTask {
+    [[UIApplication sharedApplication] endBackgroundTask: mediaBackgroundTask];
+    mediaBackgroundTask = UIBackgroundTaskInvalid;
+}
+
+
+
+
 OneSignalWebView *webVC;
 NSDictionary* lastMessageReceived;
 OSHandleNotificationReceivedBlock handleNotificationReceived;
@@ -635,11 +651,12 @@ static OneSignal* singleInstance = nil;
         if ([self verifyURL:URI]) {
             /* Synchroneously download file and chache it */
             NSString* name = [OneSignalHelper downloadMediaAndSaveInBundle:URI];
-            if (!name) continue;
+            if (!name)
+                continue;
             NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-            NSString*filePath = [paths[0] stringByAppendingPathComponent:name];
-            NSURL * url = [NSURL fileURLWithPath:filePath];
-            NSError * error;
+            NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
+            NSURL* url = [NSURL fileURLWithPath:filePath];
+            NSError* error;
             id attachment = [NSClassFromString(@"UNNotificationAttachment") attachmentWithIdentifier:key URL:url options:0 error:&error];
             if (attachment)
                 [attachments addObject:attachment];
@@ -669,26 +686,35 @@ static OneSignal* singleInstance = nil;
     return [NSClassFromString(@"UNNotificationRequest") requestWithIdentifier:[self randomStringWithLength:16] content:content trigger:trigger];
 }
 
-+ (void)addnotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo {
-    if(!NSClassFromString(@"UNUserNotificationCenter")) return;
++ (void)addnotificationRequest:(NSDictionary *)data userInfo:(NSDictionary *)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    if (!NSClassFromString(@"UNUserNotificationCenter"))
+        return;
     
-    id notificationRequest = [OneSignalHelper prepareUNNotificationRequest:data :userInfo];
-    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] addNotificationRequest:notificationRequest withCompletionHandler:^(NSError * _Nullable error) {}];
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [OneSignalHelper beginBackgroundMediaTask];
+        id notificationRequest = [OneSignalHelper prepareUNNotificationRequest:data :userInfo];
+        [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] addNotificationRequest:notificationRequest withCompletionHandler:^(NSError * _Nullable error) {}];
+        completionHandler(UIBackgroundFetchResultNewData);
+        [OneSignalHelper endBackgroundMediaTask];
+    });
+
 }
 
-//Synchroneously downloads a media
-//On success returns bundle resource name, otherwise returns nil
+// Synchroneously downloads a media
+// On success returns bundle resource name, otherwise returns nil
 +(NSString*) downloadMediaAndSaveInBundle:(NSString*) url {
     
     NSArray<NSString*>* supportedExtensions = @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"];
     NSArray* components = [url componentsSeparatedByString:@"."];
     
-    //URL is not to a file
-    if ([components count] < 2) return NULL;
-    NSString * extension = [components lastObject];
+    // URL is not to a file
+    if ([components count] < 2)
+        return NULL;
+    NSString* extension = [components lastObject];
     
-    //Unrecognized extention
-    if(![supportedExtensions containsObject:extension]) return NULL;
+    // Unrecognized extention
+    if (![supportedExtensions containsObject:extension])
+        return NULL;
     
     NSURL * URL = [NSURL URLWithString:url];
     NSData * data = [NSData dataWithContentsOfURL:URL];
@@ -703,7 +729,8 @@ static OneSignal* singleInstance = nil;
         appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
         [appendedCache addObject:name];
     }
-    else appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
+    else
+        appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
     
     [[NSUserDefaults standardUserDefaults] setObject:appendedCache forKey:@"CACHED_MEDIA"];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -711,10 +738,8 @@ static OneSignal* singleInstance = nil;
 }
 
 +(void)clearCachedMedia {
-    
-    NSArray * cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
-    if(cachedFiles) {
-        
+    NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
+    if (cachedFiles) {
         NSArray * paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         for (NSString* file in cachedFiles) {
             NSString* filePath = [paths[0] stringByAppendingPathComponent:file];

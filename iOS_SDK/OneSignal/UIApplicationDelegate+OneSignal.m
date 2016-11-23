@@ -39,7 +39,7 @@
 + (void) updateNotificationTypes:(int)notificationTypes;
 + (NSString*) app_id;
 + (void) notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
-+ (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo;
++ (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
@@ -189,7 +189,7 @@ static NSArray* delegateSubclasses = nil;
         if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
             [OneSignal notificationOpened:userInfo isActive:YES];
         else
-            [OneSignal remoteSilentNotification:application UserInfo:userInfo];
+            [OneSignal remoteSilentNotification:application UserInfo:userInfo completionHandler:completionHandler];
     }
     
     if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)]) {
