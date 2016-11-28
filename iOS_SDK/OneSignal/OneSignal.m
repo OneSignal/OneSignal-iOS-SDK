@@ -860,7 +860,7 @@ static BOOL waitingForOneSReg = false;
         
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
-        [OneSignalHelper handleNotificationReceived:[[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue]];
+        [OneSignalHelper handleNotificationReceived:iaaoption];
         
         // Notify backend that user opened the notifiation
         NSString* messageId = [customDict objectForKey:@"i"];
@@ -1091,23 +1091,6 @@ static BOOL waitingForOneSReg = false;
     }
     
 }
-
-#if XC8_AVAILABLE
-static id<OSUserNotificationCenterDelegate> notificationCenterDelegate;
-
-+ (void) setNotificationCenterDelegate:(id<OSUserNotificationCenterDelegate>)delegate {
-    if (!NSClassFromString(@"UNNotification")) {
-        onesignal_Log(ONE_S_LL_ERROR, @"Cannot assign delegate. Please make sure you are running on iOS 10+.");
-        return;
-    }
-    notificationCenterDelegate = delegate;
-}
-
-+ (id<OSUserNotificationCenterDelegate>)notificationCenterDelegate {
-    return notificationCenterDelegate;
-}
-
-#endif
 
 + (void)syncHashedEmail:(NSString *)email {
     
