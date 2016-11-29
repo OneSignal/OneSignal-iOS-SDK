@@ -690,7 +690,7 @@ static OneSignal* singleInstance = nil;
     if (!NSClassFromString(@"UNUserNotificationCenter"))
         return;
     
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignalHelper beginBackgroundMediaTask];
         id notificationRequest = [OneSignalHelper prepareUNNotificationRequest:data :userInfo];
         [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] addNotificationRequest:notificationRequest withCompletionHandler:^(NSError * _Nullable error) {}];
@@ -844,6 +844,13 @@ static OneSignal* singleInstance = nil;
     }
     else [[UIApplication sharedApplication] openURL:url];
     
+}
+
++ (void) runOnMainThread:(void(^)())block {
+    if ([NSThread isMainThread])
+        block();
+    else
+        dispatch_sync(dispatch_get_main_queue(), block);
 }
 
 #pragma clang diagnostic pop

@@ -283,12 +283,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         NSLog(@"%@", [levelString stringByAppendingString:message]);
     
     if (logLevel <= _visualLogLevel) {
-        UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:levelString
-                                                            message:message
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"Close"
-                                                  otherButtonTitles:nil, nil];
-        [alertView show];
+        [OneSignalHelper runOnMainThread:^{
+            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:levelString
+                                                                message:message
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"Close"
+                                                      otherButtonTitles:nil, nil];
+            [alertView show];
+        }];
     }
 }
 
