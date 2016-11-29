@@ -43,6 +43,7 @@
 		91D684CC1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 91D684CB1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m */; };
 		91D684CD1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 91D684CB1DC2D60E00D09C41 /* UNUserNotificationCenter+OneSignal.m */; };
 		91F2D1031C94D10F00DE95D0 /* OneSignalLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */; };
+		91FC4BDB1DED20B100EDFD75 /* UIApplicationDelegate+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -432,6 +433,7 @@
 				3E464ECA1D88ED0C00DCF7E9 /* OneSignalAlertViewDelegate.m in Sources */,
 				3E464ECB1D88ED0C00DCF7E9 /* OneSignalLocation.m in Sources */,
 				3E464ECC1D88ED0C00DCF7E9 /* OneSignalTrackIAP.m in Sources */,
+				91FC4BDB1DED20B100EDFD75 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				3E464ECD1D88ED0C00DCF7E9 /* OneSignalHTTPClient.m in Sources */,
 				3E464ED51D88ED0C00DCF7E9 /* NSObject+Extras.m in Sources */,
 				3E464ED61D88ED0C00DCF7E9 /* NSString+Hash.m in Sources */,
