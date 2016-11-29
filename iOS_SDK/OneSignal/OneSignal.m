@@ -816,12 +816,21 @@ static BOOL waitingForOneSReg = false;
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
-    // Should be called first, other methods relay on this global state below.
-    [OneSignalHelper lastMessageReceived:messageDict];
-    
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (!customDict)
         customDict = [messageDict objectForKey:@"custom"];
+    
+    // Prevent duplicate calls
+    static NSString* lastMessageID = @"";
+    if (customDict && customDict[@"i"]) {
+        NSString* currentNotificationId = customDict[@"i"];
+        if ([currentNotificationId isEqualToString:lastMessageID])
+            return;
+        lastMessageID = customDict[@"i"];
+    }
+    
+    // Should be called first, other methods relay on this global state below.
+    [OneSignalHelper lastMessageReceived:messageDict];
     
     BOOL inAppAlert = false;
     if (isActive) {
@@ -869,7 +878,6 @@ static BOOL waitingForOneSReg = false;
         [OneSignal submitNotificationOpened:messageId];
     }
     else {
-        
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
         OSNotificationActionType type = OSNotificationActionTypeOpened;
@@ -1047,8 +1055,7 @@ static BOOL waitingForOneSReg = false;
     if (userInfo[@"os_data"][@"buttons"] || userInfo[@"at"] || userInfo[@"o"])
         data = userInfo;
     
-    //If buttons -> Data is buttons
-    //Otherwise if titles or body or attachment -> data is everything
+    // Genergate local notification for action button and/or attachments.
     if (data) {
         if (NSClassFromString(@"UNUserNotificationCenter")) {
             #if XC8_AVAILABLE
@@ -1060,20 +1067,22 @@ static BOOL waitingForOneSReg = false;
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
     }
-    // Method was called due to a tap on a notification
+    // Method was called due to a tap on a notification - Fire open notification
     else if (application.applicationState != UIApplicationStateBackground) {
         [OneSignalHelper lastMessageReceived:userInfo];
-        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
+        if (application.applicationState == UIApplicationStateActive)
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
         [OneSignal notificationOpened:userInfo isActive:NO];
         return;
     }
-    
-    /* Handle the notification reception */
-    [OneSignalHelper lastMessageReceived:userInfo];
-    if ([OneSignalHelper isRemoteSilentNotification:userInfo])
-        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
-    else
-        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
+    // content-available notification received in the background - Fire handleNotificationReceived block in app
+    else {
+        [OneSignalHelper lastMessageReceived:userInfo];
+        if ([OneSignalHelper isRemoteSilentNotification:userInfo])
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
+        else
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
+    }
 }
 
 // iOS 8-9 - Entry point when OneSignal action button notifiation is displayed or opened.
@@ -1125,10 +1134,14 @@ static BOOL waitingForOneSReg = false;
 @end
 
 // Swizzles UIApplication class to swizzling the other following classes:
-//   - UIApplication - setDelegate: - Used to swizzle all UIApplicationDelegate selectors on the passed in class.
-//       - Normally this the AppDelegate class but since UIApplicationDelegate is a "interface" this could be any class.
-//   - UNUserNotificationCenter - setDelegate: - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
-//       -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
+//   - UIApplication
+//      - setDelegate:
+//        - Used to swizzle all UIApplicationDelegate selectors on the passed in class.
+//        - Almost always this is the AppDelegate class but since UIApplicationDelegate is an "interface" this could be any class.
+//   - UNUserNotificationCenter
+//     - setDelegate:
+//        - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
+//         -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
 //
 //  Note1: Do NOT move this category to it's own file. This is requried so when the app developer calls OneSignal.initWithLaunchOptions this load+
 //            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.

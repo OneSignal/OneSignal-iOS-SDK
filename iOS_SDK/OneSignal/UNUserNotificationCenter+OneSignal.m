@@ -32,6 +32,7 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalSelectorHelpers.h"
+#import "UIApplicationDelegate+OneSignal.h"
 
 
 #if XC8_AVAILABLE
@@ -117,6 +118,7 @@ static NSArray* delegateUNSubclasses = nil;
                                                 isTextReply:false
                                            actionIdentifier:nil
                                                    userText:nil
+                                    fromPresentNotification:true
                                       withCompletionHandler:^() {}];
     }
     
@@ -147,6 +149,7 @@ static NSArray* delegateUNSubclasses = nil;
                                                 isTextReply:isTextReply
                                            actionIdentifier:response.actionIdentifier
                                                    userText:userText
+                                    fromPresentNotification:false
                                       withCompletionHandler:completionHandler];
     }
     else
@@ -187,6 +190,7 @@ static NSArray* delegateUNSubclasses = nil;
                             isTextReply:(BOOL)isTextReply
                        actionIdentifier:(NSString*)actionIdentifier
                                userText:(NSString*)userText
+                fromPresentNotification:(BOOL)fromPresentNotification
                   withCompletionHandler:(void(^)())completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"callLegacyAppDeletegateSelector:withCompletionHandler: Fired!"];
     
@@ -252,8 +256,12 @@ static NSArray* delegateUNSubclasses = nil;
             [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forRemoteNotification:remoteUserInfo completionHandler:^() {
                 completionHandler();
             }];
-        else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
-            //   NOTE: Should always be true as our AppDelegate swizzling should be there unless something else unswizzled it.
+        // Always trigger selector for open events and for non-content-available receive events.
+        //  content-available seema to be an odd expection to iOS 10's fallback rules for legacy selectors.
+        else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)] &&
+                 (!fromPresentNotification ||
+                 ![[notification.request.trigger valueForKey:@"_isContentAvailable"] boolValue])) {
+            // NOTE: Should always be true as our AppDelegate swizzling should be there unless something else unswizzled it.
             [sharedApp.delegate application:sharedApp didReceiveRemoteNotification:remoteUserInfo fetchCompletionHandler:^(UIBackgroundFetchResult result) {
                 // Call iOS 10's compleationHandler from iOS 9's completion handler.
                 completionHandler();
@@ -262,6 +270,8 @@ static NSArray* delegateUNSubclasses = nil;
         else
             completionHandler();
     }
+    else
+        completionHandler();
 }
 
 @end
