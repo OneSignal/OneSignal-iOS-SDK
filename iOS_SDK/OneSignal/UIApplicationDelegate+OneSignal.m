@@ -26,6 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OneSignal.h"
