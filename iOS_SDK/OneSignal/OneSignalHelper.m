@@ -456,7 +456,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     OSNotificationPayload *payload = [[OSNotificationPayload alloc] initWithRawMessage:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
     
-    //Prevent duplicate calls to same action
+    // Prevent duplicate calls to same receive event
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
@@ -474,7 +474,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
     OSNotificationOpenedResult * result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
     
-    //Prevent duplicate calls to same action
+    // Prevent duplicate calls to same action
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
