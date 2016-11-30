@@ -85,8 +85,8 @@ static NSArray* delegateSubclasses = nil;
     delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
     delegateSubclasses = ClassGetSubclasses(delegateClass);
     
-    // Need to keep this one for iOS 10 for content-available notifiations.
-    //   iOS 10 doesn't fire a selector on UNUserNotificationCenter as
+    // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
+    //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
     //   UNNotificationServiceExtension (mutable-content) and UNNotificationContentExtension (with category) replaced it.
     injectToProperClass(@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
                         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, newClass, delegateClass);
