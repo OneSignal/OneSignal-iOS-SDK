@@ -52,12 +52,6 @@
 #define XC8_AVAILABLE 1
 #import <UserNotifications/UserNotifications.h>
 
-@protocol OSUserNotificationCenterDelegate <NSObject>
-@optional
-- (void)userNotificationCenter:(id)center willPresentNotification:(id)notification withCompletionHandler:(void (^)(NSUInteger options))completionHandler __deprecated_msg("Can use your own delegate as normal.");
-- (void)userNotificationCenter:(id)center didReceiveNotificationResponse:(id)response withCompletionHandler:(void (^)())completionHandler __deprecated_msg("Can use your own delegate as normal.");
-@end
-
 #endif
 
 /* The action type associated to an OSNotificationAction object */
@@ -80,9 +74,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 
 
-/* iOS 10+
+/*
  Used as value type for `kOSSettingsKeyInFocusDisplayOption`
- for setting the display option of a notification received while the app was in focus
+   for setting the display option of a notification received while the app was in focus.
  */
 typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
@@ -236,10 +230,10 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)erceivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
++ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 
 + (NSString*)app_id;
-    
+
 // Only use if you passed FALSE to autoRegister
 + (void)registerForPushNotifications;
 
@@ -279,11 +273,5 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // - Sends the MD5 and SHA1 of the provided email
 // Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
 + (void)syncHashedEmail:(NSString*)email;
-
-// - iOS 10 features currently only available on XCode 8 & iOS 10.0+
-#if XC8_AVAILABLE
-+ (void)setNotificationCenterDelegate:(id<OSUserNotificationCenterDelegate>)delegate __deprecated_msg("Can use your own delegate as normal.");
-+ (id<OSUserNotificationCenterDelegate>)notificationCenterDelegate __deprecated_msg("Can use your own delegate as normal.");
-#endif
 
 @end
