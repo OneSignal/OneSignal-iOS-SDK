@@ -59,6 +59,7 @@
 #define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
 #define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
 #define ERROR_PUSH_UNKOWN_APNS_ERROR       -16
+#define ERROR_PUSH_OTHER_3000_ERROR        -17
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -555,10 +556,16 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void) handleDidFailRegisterForRemoteNotification:(NSError*)err {
     waitingForApnsResponse = false;
     
-    if (err.code == 3000 && [((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
-        // User did not enable push notification capability
-        [OneSignal setSubscriptionStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"ERROR! 'Push Notification' capability not turned on! Enable it in Xcode under 'Project Target' -> Capability."];
+    if (err.code == 3000) {
+        if ([((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
+            // User did not enable push notification capability
+            [OneSignal setSubscriptionStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"ERROR! 'Push Notification' capability not turned on! Enable it in Xcode under 'Project Target' -> Capability."];
+        }
+        else {
+            [OneSignal setSubscriptionStatus:ERROR_PUSH_OTHER_3000_ERROR];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"ERROR! Unkown 3000 error returned from APNs when getting a push token: %@", err]];
+        }
     }
     else if (err.code == 3010) {
         [OneSignal setSubscriptionStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
