@@ -28,9 +28,10 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
+#import <CommonCrypto/CommonDigest.h>
+
 #import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
-#import "NSObject+Extras.h"
 
 #import <objc/runtime.h>
 
@@ -849,6 +850,37 @@ static OneSignal* singleInstance = nil;
         block();
     else
         dispatch_sync(dispatch_get_main_queue(), block);
+}
+
++ (BOOL) isValidEmail:(NSString*)email {
+    NSError *error = NULL;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$"
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:&error];
+    NSUInteger numberOfMatches = [regex numberOfMatchesInString:email
+                                                        options:0
+                                                          range:NSMakeRange(0, [email length])];
+    return numberOfMatches != 0;
+}
+
++ (NSString*)hashUsingSha1:(NSString*)string {
+    const char *cstr = [string UTF8String];
+    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(cstr, (CC_LONG)strlen(cstr), digest);
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++)
+        [output appendFormat:@"%02x", digest[i]];
+    return output;
+}
+
++ (NSString*)hashUsingMD5:(NSString*)string {
+    const char *cstr = [string UTF8String];
+    uint8_t digest[CC_MD5_DIGEST_LENGTH];
+    CC_MD5(cstr, (CC_LONG)strlen(cstr), digest);
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    for (int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
+        [output appendFormat:@"%02x", digest[i]];
+    return output;
 }
 
 #pragma clang diagnostic pop

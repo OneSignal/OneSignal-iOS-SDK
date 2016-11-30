@@ -70,5 +70,10 @@
 // Threading
 + (void) runOnMainThread:(void(^)())block;
 
+// Other
++ (BOOL) isValidEmail:(NSString*)email;
++ (NSString*)hashUsingSha1:(NSString*)string;
++ (NSString*)hashUsingMD5:(NSString*)string;
+
 #pragma clang diagnostic pop
 @end

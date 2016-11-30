@@ -35,8 +35,6 @@
 #import "OneSignalMobileProvision.h"
 #import "OneSignalAlertViewDelegate.h"
 #import "OneSignalHelper.h"
-#import "NSObject+Extras.h"
-#import "NSString+Hash.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
@@ -784,9 +782,7 @@ static BOOL waitingForOneSReg = false;
                     idsAvailableBlockWhenReady = nil;
             }
             
-            // If we got a userId after the notificationTypes were set to an error registering status, update server
-            if (mSubscriptionStatus < -9)
-                [self setSubscriptionStatus:mSubscriptionStatus];
+            [self sendNotificationTypesUpdate];
         }
     } onFailure:^(NSError* error) {
         waitingForOneSReg = false;
@@ -1132,15 +1128,22 @@ static BOOL waitingForOneSReg = false;
 }
 
 + (void)syncHashedEmail:(NSString *)email {
+    if (!email)
+        return;
     
-    if(mUserId == nil) {
+    NSString *trimmedEmail = [email stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    if (![OneSignalHelper isValidEmail:trimmedEmail])
+        return;
+    
+    if (mUserId == nil) {
         emailToSet = email;
         return;
     }
     
-    const NSString* lowEmail = [email lowercaseString];
-    const NSString* md5 = [lowEmail hashUsingMD5];
-    const NSString* sha1 = [lowEmail hashUsingSha1];
+    NSString* lowEmail = [trimmedEmail lowercaseString];
+    NSString* md5 = [OneSignalHelper hashUsingMD5:lowEmail];
+    NSString* sha1 = [OneSignalHelper hashUsingSha1:lowEmail];
     
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"%@ - MD5: %@, SHA1:%@", lowEmail, md5, sha1]);
     
