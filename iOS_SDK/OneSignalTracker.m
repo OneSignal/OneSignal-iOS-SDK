@@ -35,7 +35,7 @@
 @interface OneSignal ()
 
 + (void)registerUser;
-+ (void) sendNotificationTypesUpdate:(BOOL)isNewType;
++ (void) sendNotificationTypesUpdate;
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
 
@@ -73,7 +73,7 @@ BOOL lastOnFocusWasToBackground = YES;
     
     if (!toBackground) {
         lastOpenedTime = now;
-        [OneSignal sendNotificationTypesUpdate:false];
+        [OneSignal sendNotificationTypesUpdate];
         wasBadgeSet = [OneSignal clearBadgeCount:false];
         
         //Make sure webview dismissed if came back from deep link

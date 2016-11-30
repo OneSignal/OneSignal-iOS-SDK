@@ -586,10 +586,6 @@ static OneSignal* singleInstance = nil;
 
 #if XC8_AVAILABLE
 
-+ (void)requestAuthorization {
-    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] requestAuthorizationWithOptions:7 completionHandler:^(BOOL granted, NSError * _Nullable error) {}];
-}
-
 + (void)registerAsUNNotificationCenterDelegate {
     Class UNNofiCenterClass = NSClassFromString(@"UNUserNotificationCenter");
     UNUserNotificationCenter *curNotifCenter = [UNNofiCenterClass currentNotificationCenter];
@@ -767,7 +763,8 @@ static OneSignal* singleInstance = nil;
 }
 
 + (void)enqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"request.body: %@", [[NSString alloc]initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network request to: %@", request.URL]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"request.body: %@", [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]];
     
     if (isSynchronous) {
         NSURLResponse* response = nil;
@@ -800,6 +797,7 @@ static OneSignal* singleInstance = nil;
     
     if (data != nil && [data length] > 0) {
         innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response: %@", innerJson]];
         if (jsonError) {
             if (failureBlock != nil)
                 failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);

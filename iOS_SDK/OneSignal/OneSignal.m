@@ -55,7 +55,10 @@
 #define NOTIFICATION_TYPE_ALERT 4
 #define NOTIFICATION_TYPE_ALL 7
 
-#define ERROR_PUSH_CAPABLILITY_DISABLED -13
+#define ERROR_PUSH_CAPABLILITY_DISABLED    -13
+#define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
+#define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
+#define ERROR_PUSH_UNKOWN_APNS_ERROR       -16
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -82,7 +85,13 @@ NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDis
 NSString* const ONESIGNAL_VERSION = @"020203";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
-static BOOL registeredWithApple = NO; //Has attempted to register for push notifications with Apple.
+
+// Has attempted to register for push notifications with Apple since app was installed.
+static BOOL registeredWithApple = NO;
+
+// UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
+static BOOL waitingForApnsResponse = false;
+
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
@@ -92,7 +101,10 @@ NSString* mDeviceToken;
 OneSignalHTTPClient *httpClient;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
-int mNotificationTypes = -1;
+
+int mLastNotificationTypes = -1;
+int mSubscriptionStatus = -1;
+
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mSubscriptionSet;
@@ -144,6 +156,8 @@ BOOL mShareLocation = YES;
     }
     
     if (self) {
+        UIApplication* sharedApp = [UIApplication sharedApplication];
+        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
@@ -159,24 +173,23 @@ BOOL mShareLocation = YES;
         
         // Handle changes to the app id. This might happen on a developer's device when testing.
         if (app_id == nil)
-            app_id  = [[NSUserDefaults standardUserDefaults] stringForKey:@"GT_APP_ID"];
-        else if (![app_id isEqualToString:[[NSUserDefaults standardUserDefaults] stringForKey:@"GT_APP_ID"]]) {
-            [[NSUserDefaults standardUserDefaults] setObject:app_id forKey:@"GT_APP_ID"];
-            [[NSUserDefaults standardUserDefaults] setObject:nil forKey:@"GT_PLAYER_ID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
+        else if (![app_id isEqualToString:[userDefaults stringForKey:@"GT_APP_ID"]]) {
+            [userDefaults setObject:app_id forKey:@"GT_APP_ID"];
+            [userDefaults setObject:nil forKey:@"GT_PLAYER_ID"];
+            [userDefaults synchronize];
         }
         
-        mUserId = [[NSUserDefaults standardUserDefaults] stringForKey:@"GT_PLAYER_ID"];
-        mDeviceToken = [[NSUserDefaults standardUserDefaults] stringForKey:@"GT_DEVICE_TOKEN"];
-        if (([[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]))
-            registeredWithApple = [[UIApplication sharedApplication] currentUserNotificationSettings].types != (NSUInteger)nil;
+        mUserId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
+        mDeviceToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"];
+        if (([sharedApp respondsToSelector:@selector(currentUserNotificationSettings)]))
+            registeredWithApple = [sharedApp currentUserNotificationSettings].types != (NSUInteger)nil;
         else
-            registeredWithApple = mDeviceToken != nil || [[NSUserDefaults standardUserDefaults] boolForKey:@"GT_REGISTERED_WITH_APPLE"];
-        mSubscriptionSet = [[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
-        mNotificationTypes = [self getNotificationTypes];
+            registeredWithApple = mDeviceToken != nil || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
+        mSubscriptionSet = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
         
-        //Check if disabled in-app launch url if passed a NO
-        if(settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
+        // Check if disabled in-app launch url if passed a NO
+        if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
             [self enableInAppLaunchURL:settings[kOSSettingsKeyInAppLaunchURL]];
         else
             [self enableInAppLaunchURL:@YES];
@@ -189,11 +202,13 @@ BOOL mShareLocation = YES;
             [self registerForPushNotifications];
         // iOS 8 - Register for remote notifications to get a token now since registerUserNotificationSettings is what shows the prompt.
         // If autoprompt disabled, get a token from APNS for silent notifications until user calls regsiterForPushNotifications to request push permissions from user.
-        else if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerForRemoteNotifications)])
-            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        else if ([sharedApp respondsToSelector:@selector(registerForRemoteNotifications)]) {
+            waitingForApnsResponse = true;
+            [sharedApp registerForRemoteNotifications];
+        }
         
         
-        /*Check if in-app setting passed assigned
+        /* Check if in-app setting passed assigned
             LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
             Priority for kOSSettingsKeyInFocusDisplayOption.
         */
@@ -221,11 +236,12 @@ BOOL mShareLocation = YES;
     }
  
     /*
-     * No need to call the handleNotificationOpened:userInfo as it will be called from the
-     * application:didReceiveRemoteNotification:fetchCompletionHandler / userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (i10)
+     * No need to call the handleNotificationOpened:userInfo as it will be called from one of the folloing selectors
+     *  - application:didReceiveRemoteNotification:fetchCompletionHandler
+     *  - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (iOS10)
      */
     
-    //Cold start from tap on a remote notification
+    // Cold start from tap on a remote notification
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if (userInfo)
         coldStartFromTapOnNotification = YES;
@@ -236,9 +252,8 @@ BOOL mShareLocation = YES;
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
     #if XC8_AVAILABLE
-    if (NSClassFromString(@"UNUserNotificationCenter")) {
+    if (NSClassFromString(@"UNUserNotificationCenter"))
        [OneSignalHelper clearCachedMedia];
-    }
     #endif
     
     return self;
@@ -298,10 +313,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 // in the implementation UIApplication(OneSignalPush) below after contacting Apple's server.
 + (void)registerForPushNotifications {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerForPushNotifications Called!"];
+    waitingForApnsResponse = true;
     
-    #if XC8_AVAILABLE
-    [OneSignalHelper requestAuthorization];
-    #endif
+    // iOS 10 devices
+    // registerUserNotificationSettings is currently not deprecated. May need to switch to this in the future however.
+    // [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] requestAuthorizationWithOptions:7 completionHandler:^(
+    //     BOOL granted, NSError * _Nullable error) {
+    // }];
     
     // For iOS 8 devices
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
@@ -521,7 +539,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     mSubscriptionSet = enable;
     
-    [OneSignal sendNotificationTypesUpdate:false];
+    [OneSignal sendNotificationTypesUpdate];
 }
 
 
@@ -535,16 +553,26 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 
 + (void) handleDidFailRegisterForRemoteNotification:(NSError*)err {
+    waitingForApnsResponse = false;
+    
     if (err.code == 3000 && [((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
-        //User did not enable push notification capability
-        [OneSignal setErrorNotificationType];
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"'Push Notification' capability not turned on. Make sure it is enabled by going to your Project Target -> Capability."];
+        // User did not enable push notification capability
+        [OneSignal setSubscriptionStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"ERROR! 'Push Notification' capability not turned on! Enable it in Xcode under 'Project Target' -> Capability."];
     }
-    else
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering for Apple push notifications. Error: %@", err]];
+    else if (err.code == 3010) {
+        [OneSignal setSubscriptionStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
+    }
+    else {
+        [OneSignal setSubscriptionStatus:ERROR_PUSH_UNKOWN_APNS_ERROR];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
+    }
 }
 
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    waitingForApnsResponse = false;
+    
     [self updateDeviceToken:inDeviceToken onSuccess:successBlock onFailure:failureBlock];
     
     [[NSUserDefaults standardUserDefaults] setObject:mDeviceToken forKey:@"GT_DEVICE_TOKEN"];
@@ -564,9 +592,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         tokenUpdateFailureBlock = failureBlock;
         
         // iOS 8 - We get a token right away but give the user 30 sec to responsed to the system prompt.
-        // Also check mNotificationTypes so there is no waiting if user has already answered the system prompt.
+        // Also check notifiation types so there is no waiting if user has already answered the system prompt.
         // The goal is to only have 1 server call.
-        if ([OneSignalHelper isCapableOfGettingNotificationTypes] && mNotificationTypes == -1) {
+        if ([OneSignalHelper isCapableOfGettingNotificationTypes] && [[UIApplication sharedApplication] currentUserNotificationSettings].types == 0) {
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
             [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
         }
@@ -599,7 +627,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignalHelper enqueueRequest:request onSuccess:successBlock onFailure:failureBlock];
     
     if (idsAvailableBlockWhenReady) {
-        mNotificationTypes = [self getNotificationTypes];
         if ([self getUsableDeviceToken]) {
             idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
             idsAvailableBlockWhenReady = nil;
@@ -608,11 +635,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
 }
 
-//Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
+// Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
 bool nextRegistrationIsHighPriority = NO;
 
 + (BOOL)isHighPriorityCall {
-    return mUserId == nil || (mDeviceToken == nil && mNotificationTypes > NOTIFICATION_TYPE_NONE) || nextRegistrationIsHighPriority;
+    return mUserId == nil || (mDeviceToken == nil && [self getNotificationTypes] > NOTIFICATION_TYPE_NONE) || nextRegistrationIsHighPriority;
 }
 
 static BOOL waitingForOneSReg = false;
@@ -639,6 +666,7 @@ static BOOL waitingForOneSReg = false;
     // Make sure we only call create or on_session once per open of the app.
     if (![self shouldRegisterNow])
         return;
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     
     waitingForOneSReg = true;
@@ -671,7 +699,7 @@ static BOOL waitingForOneSReg = false;
     if (build)
         dataDic[@"game_version"] = build;
     
-    mNotificationTypes = [self getNotificationTypes];
+    int notificationTypes = [self getNotificationTypes];
     
     if ([OneSignalJailbreakDetection isJailbroken])
         dataDic[@"rooted"] = @YES;
@@ -684,8 +712,8 @@ static BOOL waitingForOneSReg = false;
     }
     
     
-    if (mNotificationTypes != -1)
-        dataDic[@"notification_types"] = [NSNumber numberWithInt:mNotificationTypes];
+    if (notificationTypes != -1)
+        dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
     
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
     if (ASIdentifierManagerClass) {
@@ -735,7 +763,7 @@ static BOOL waitingForOneSReg = false;
                 tagsToSend = nil;
             }
             
-            //try to send location
+            // try to send location
             [OneSignalLocation sendLocation];
             
             if (emailToSet) {
@@ -749,9 +777,9 @@ static BOOL waitingForOneSReg = false;
                     idsAvailableBlockWhenReady = nil;
             }
             
-            // If we got a userId after the notificationTypes were set to error -13, update server
-            if (mNotificationTypes == ERROR_PUSH_CAPABLILITY_DISABLED)
-                [self setErrorNotificationType];
+            // If we got a userId after the notificationTypes were set to an error registering status, update server
+            if (mSubscriptionStatus < -9)
+                [self setSubscriptionStatus:mSubscriptionStatus];
         }
     } onFailure:^(NSError* error) {
         waitingForOneSReg = false;
@@ -763,19 +791,25 @@ static BOOL waitingForOneSReg = false;
 }
 
 +(NSString*) getUsableDeviceToken {
-    return (mNotificationTypes > 0) ? mDeviceToken : NULL;
+    if (mSubscriptionStatus < -1)
+        return NULL;
+    
+    if (![OneSignalHelper isCapableOfGettingNotificationTypes])
+        return mDeviceToken;
+    
+    return ([[UIApplication sharedApplication] currentUserNotificationSettings].types > 0) ? mDeviceToken : NULL;
 }
 
-//Updates the server with the new user's notification Types
-+ (void) sendNotificationTypesUpdate:(BOOL)isNewType {
+// Updates the server with the new user's notification setting or subscription status changes
++ (void) sendNotificationTypesUpdate {
     
     // User changed notification settings for the app.
-    if (mNotificationTypes != -1 && mUserId && (isNewType || mNotificationTypes != [self getNotificationTypes])) {
-        mNotificationTypes = [self getNotificationTypes];
+    if ([self getNotificationTypes] != -1 && mUserId && mLastNotificationTypes != [self getNotificationTypes]) {
+        mLastNotificationTypes = [self getNotificationTypes];
         NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                  app_id, @"app_id",
-                                 @(mNotificationTypes), @"notification_types",
+                                 @([self getNotificationTypes]), @"notification_types",
                                  nil];
         NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
         [request setHTTPBody:postData];
@@ -962,17 +996,19 @@ static BOOL waitingForOneSReg = false;
     
     NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_disable_badge_clearing"];
     
-    if(disableBadgeNumber)
+    if (disableBadgeNumber)
         disableBadgeClearing = [disableBadgeNumber boolValue];
-    else disableBadgeClearing = NO;
+    else
+        disableBadgeClearing = NO;
     
-    if (disableBadgeClearing || mNotificationTypes == -1 || (mNotificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
-    return false;
+    if (disableBadgeClearing ||
+        ([OneSignalHelper isCapableOfGettingNotificationTypes] && [[UIApplication sharedApplication] currentUserNotificationSettings].types & NOTIFICATION_TYPE_BADGE) == 0)
+        return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
     
     if ((!(NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_7_1) && fromNotifOpened) || wasBadgeSet) {
-        // Clear bages and nofiications from this app.
+        // Clear badges and nofiications from this app.
         // Setting to 1 then 0 was needed to clear the notifications on iOS 6 & 7. (Otherwise you can click the notification multiple times.)
         // iOS 8+ auto dismisses the notificaiton you tap on so only clear the badge (and notifications [side-effect]) if it was set.
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
@@ -983,53 +1019,39 @@ static BOOL waitingForOneSReg = false;
 }
     
 + (int) getNotificationTypes {
+    if (waitingForApnsResponse && !mDeviceToken)
+        return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
-    if(mNotificationTypes == ERROR_PUSH_CAPABLILITY_DISABLED)
-        return mNotificationTypes;
+    if (mSubscriptionStatus < -9)
+        return mSubscriptionStatus;
     
     if (!mSubscriptionSet)
         return -2;
     
     if (mDeviceToken) {
         if ([OneSignalHelper isCapableOfGettingNotificationTypes])
-        return [[UIApplication sharedApplication] currentUserNotificationSettings].types;
+            return [[UIApplication sharedApplication] currentUserNotificationSettings].types;
         else
-        return NOTIFICATION_TYPE_ALL;
+            return NOTIFICATION_TYPE_ALL;
     }
     
     return -1;
 }
 
-+ (void)setErrorNotificationType {
-    mNotificationTypes = ERROR_PUSH_CAPABLILITY_DISABLED;
-    
-    if ([self mUserId]) {
-        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 app_id, @"app_id",
-                                 @(mNotificationTypes), @"notification_types",
-                                 nil];
-        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-        [request setHTTPBody:postData];
-    
-        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
-    }
++ (void)setSubscriptionStatus:(int)errorType {
+    mSubscriptionStatus = errorType;
+    [self sendNotificationTypesUpdate];
 }
 
-// iOS 8.0+ only
+// iOS 8.0+ only - Call from AppDelegate only
 + (void) updateNotificationTypes:(int)notificationTypes {
-    
-    if (mNotificationTypes == -2)
+    if (mSubscriptionStatus == -2)
         return;
-    
-    BOOL changed = (mNotificationTypes != notificationTypes);
-    
-    mNotificationTypes = notificationTypes;
     
     if (!mUserId && mDeviceToken)
         [OneSignal registerUser];
     else if (mDeviceToken)
-        [self sendNotificationTypesUpdate:changed];
+        [self sendNotificationTypesUpdate];
     
     if (idsAvailableBlockWhenReady && mUserId && [self getUsableDeviceToken])
         idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
@@ -1044,7 +1066,6 @@ static BOOL waitingForOneSReg = false;
     } onFailure:^(NSError* error) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error in OneSignal Registration: %@", error]];
     }];
-    
 }
     
 + (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {

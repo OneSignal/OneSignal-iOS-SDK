@@ -50,7 +50,6 @@
 + (BOOL)isiOS10Plus;
 #if XC8_AVAILABLE
 + (void)registerAsUNNotificationCenterDelegate;
-+ (void) requestAuthorization;
 + (void)clearCachedMedia;
 + (id)prepareUNNotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo;
 + (void)addnotificationRequest:(NSDictionary *)data userInfo:(NSDictionary *)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
