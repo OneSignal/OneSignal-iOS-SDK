@@ -122,7 +122,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @property(readonly)NSDictionary* attachments;
 
 /* Action buttons passed */
-@property(readonly)NSDictionary *actionButtons;
+@property(readonly)NSArray *actionButtons;
 
 /* Holds the original payload received
  Keep the raw value for users that would like to root the push */
