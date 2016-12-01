@@ -1,7 +1,9 @@
 OneSignal iOS Push Notification Plugin
 ====================================
 
-[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![CocoaPods](https://img.shields.io/cocoapods/v/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![CocoaPods](https://img.shields.io/cocoapods/dm/OneSignal.svg)](https://cocoapods.org/pods/OneSignal)
+
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage)
 
 OneSignal is a free push notification service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
 
