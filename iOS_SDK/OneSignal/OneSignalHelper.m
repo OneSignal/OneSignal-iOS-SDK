@@ -684,14 +684,12 @@ static OneSignal* singleInstance = nil;
 }
 
 + (void)addnotificationRequest:(NSDictionary *)data userInfo:(NSDictionary *)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    if (!NSClassFromString(@"UNUserNotificationCenter"))
-        return;
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignalHelper beginBackgroundMediaTask];
         id notificationRequest = [OneSignalHelper prepareUNNotificationRequest:data :userInfo];
         [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] addNotificationRequest:notificationRequest withCompletionHandler:^(NSError * _Nullable error) {}];
-        completionHandler(UIBackgroundFetchResultNewData);
+        if (completionHandler)
+            completionHandler(UIBackgroundFetchResultNewData);
         [OneSignalHelper endBackgroundMediaTask];
     });
 

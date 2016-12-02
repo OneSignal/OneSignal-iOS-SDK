@@ -40,7 +40,7 @@
 + (void) updateNotificationTypes:(int)notificationTypes;
 + (NSString*) app_id;
 + (void) notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
-+ (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
++ (BOOL) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
@@ -180,29 +180,36 @@ static NSArray* delegateSubclasses = nil;
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
 }
 
-// User Tap on Notification while app was in background - OR - Notification received (silent or not, foreground or background) on iOS 7+
+// Fires when a notication is opened or recieved while the app is in focus.
+//   - Also fires when the app is in the background and a notificaiton with content-available=1 is received.
+// NOTE: completionHandler must only be called once!
+//          iOS 10 - This crashes the app if it is called twice! Crash will happen when the app is resumed.
+//          iOS 9  - Does not have this issue.
 - (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:"];
     
+    BOOL callExistingSelector = [self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)];
+    BOOL startedBackgroundJob = false;
+    
     if ([OneSignal app_id]) {
-        // Call notificationAction if app is active -> not a silent notification but rather user tap on notification
-        // Unless iOS 10+ then call remoteSilentNotification instead.
         if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
             [OneSignal notificationOpened:userInfo isActive:YES];
         else
-            [OneSignal remoteSilentNotification:application UserInfo:userInfo completionHandler:completionHandler];
+            startedBackgroundJob = [OneSignal remoteSilentNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
     }
     
-    if ([self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)]) {
+    if (callExistingSelector) {
         [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
         return;
     }
     
     // Make sure not a cold start from tap on notification (OS doesn't call didReceiveRemoteNotification)
-    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)] && ![[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
+    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)]
+        && ![[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
     
-    completionHandler(UIBackgroundFetchResultNewData);
+    if (!startedBackgroundJob)
+        completionHandler(UIBackgroundFetchResultNewData);
 }
 
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {

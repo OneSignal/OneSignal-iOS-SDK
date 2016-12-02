@@ -257,7 +257,7 @@ static NSArray* delegateUNSubclasses = nil;
                 completionHandler();
             }];
         // Always trigger selector for open events and for non-content-available receive events.
-        //  content-available seema to be an odd expection to iOS 10's fallback rules for legacy selectors.
+        //  content-available seems to be an odd expection to iOS 10's fallback rules for legacy selectors.
         else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)] &&
                  (!fromPresentNotification ||
                  ![[notification.request.trigger valueForKey:@"_isContentAvailable"] boolValue])) {

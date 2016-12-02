@@ -1071,7 +1071,9 @@ static BOOL waitingForOneSReg = false;
     }];
 }
     
-+ (void) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
++ (BOOL) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    BOOL startedBackgroundJob = false;
+    
     // If 'm' present then the notification has action buttons attached to it.
     NSDictionary* data = nil;
     
@@ -1082,6 +1084,7 @@ static BOOL waitingForOneSReg = false;
     // Genergate local notification for action button and/or attachments.
     if (data) {
         if (NSClassFromString(@"UNUserNotificationCenter")) {
+            startedBackgroundJob = true;
             #if XC8_AVAILABLE
             [OneSignalHelper addnotificationRequest:data userInfo:userInfo completionHandler:completionHandler];
             #endif
@@ -1097,7 +1100,7 @@ static BOOL waitingForOneSReg = false;
         if (application.applicationState == UIApplicationStateActive)
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
         [OneSignal notificationOpened:userInfo isActive:NO];
-        return;
+        return startedBackgroundJob;
     }
     // content-available notification received in the background - Fire handleNotificationReceived block in app
     else {
@@ -1107,6 +1110,8 @@ static BOOL waitingForOneSReg = false;
         else
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
     }
+    
+    return startedBackgroundJob;
 }
 
 // iOS 8-9 - Entry point when OneSignal action button notifiation is displayed or opened.
