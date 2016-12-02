@@ -473,7 +473,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:@"notifications"];
+    NSMutableURLRequest* request = [httpClient requestWithMethod:@"GET" path:@"notifications"];
     
     NSMutableDictionary* dataDic = [[NSMutableDictionary alloc] initWithDictionary:jsonData];
     dataDic[@"app_id"] = app_id;
@@ -506,9 +506,28 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (jsonError == nil && jsonData != nil)
         [self postNotification:jsonData onSuccess:successBlock onFailure:failureBlock];
     else {
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]);
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]);
+        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]);
+        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]);
     }
+}
+
++ (NSString*)parseNSErrorAsJsonString:(NSError*)error {
+    NSString* jsonResponse;
+    
+    if (error.userInfo && error.userInfo[@"returned"]) {
+        @try {
+            NSData* jsonData = [NSJSONSerialization dataWithJSONObject:error.userInfo[@"returned"] options:0 error:nil];
+            jsonResponse = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } @catch(NSException* e) {
+            onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@", e]);
+            onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@",  [NSThread callStackSymbols]]);
+            jsonResponse = @"{\"error\": \"Unkown error parsing error response.\"}";
+        }
+    }
+    else
+        jsonResponse = @"{\"error\": \"HTTP no response error\"}";
+    
+    return jsonResponse;
 }
 
 /* Option:0, 1 or 2 */

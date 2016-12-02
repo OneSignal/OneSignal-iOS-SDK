@@ -265,6 +265,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)postNotification:(NSDictionary*)jsonData;
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 + (void)postNotificationWithJsonString:(NSString*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
++ (NSString*)parseNSErrorAsJsonString:(NSError*)error;
 
 // - Request and track user's location
 + (void)promptLocation;
