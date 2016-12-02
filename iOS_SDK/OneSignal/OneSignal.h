@@ -169,6 +169,8 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 @property(readonly)OSNotificationAction *action;
 
+@property(readonly)NSString* userText;
+
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString*)stringify;
 

@@ -40,11 +40,11 @@
 // - Notification Opened
 + (NSDictionary*)getPushTitleBody:(NSDictionary*)messageDict;
 + (NSArray*)getActionButtons:(NSDictionary*)messageDict;
-+ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier;
++ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier userText:(NSString *)userText;
 + (void)lastMessageReceived:(NSDictionary*)message;
 + (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID userText:(NSString*)userText displayType:(OSNotificationDisplayType)displayType;
 
 // - iOS 10
 + (BOOL)isiOS10Plus;

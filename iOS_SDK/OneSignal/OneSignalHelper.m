@@ -239,13 +239,14 @@
 @end
 
 @implementation OSNotificationOpenedResult
-@synthesize notification = _notification, action = _action;
+@synthesize notification = _notification, action = _action, userText = _userText;
 
-- (id)initWithNotification:(OSNotification*)notification action:(OSNotificationAction*)action {
+- (id)initWithNotification:(OSNotification*)notification action:(OSNotificationAction*)action userText:(NSString*)userText {
     self = [super init];
     if(self) {
         _notification = notification;
         _action = action;
+		_userText = userText;
     }
     return self;
 }
@@ -263,6 +264,8 @@
     [action setObject:self.action.actionID forKeyedSubscript:@"actionID"];
     [obj setObject:action forKeyedSubscript:@"action"];
     [obj setObject:notifDict forKeyedSubscript:@"notification"];
+	if(self.userText)
+		[obj setObject:self.userText forKeyedSubscript:@"userText"];
     if(self.action.type)
         [obj[@"action"] setObject:@(self.action.type) forKeyedSubscript: @"type"];
     
@@ -401,8 +404,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return @{@"title" : title, @"subtitle": subtitle, @"body": body};
 }
 
-
-+ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier {
++ (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier userText:(NSString *)userText {
     NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
     
     if (remoteUserInfo[@"os_data"][@"buttons"]) {
@@ -426,7 +428,10 @@ OSHandleNotificationActionBlock handleNotificationAction;
     }
     additionalData[@"actionSelected"] = identifier;
     additionalData[@"actionButtons"] = buttonArray;
-    
+	if (userText) {
+		additionalData[@"actionUserText"] = identifier;
+	}
+	
     if (remoteUserInfo[@"os_data"]) {
         [userInfo addEntriesFromDictionary:additionalData];
         userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
@@ -466,15 +471,15 @@ OSHandleNotificationActionBlock handleNotificationAction;
     handleNotificationReceived(notification);
 }
 
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID userText:(NSString*)userText displayType:(OSNotificationDisplayType)displayType {
     if (!handleNotificationAction || ![self isOneSignalPayload])
         return;
     
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
     OSNotificationPayload *payload = [[OSNotificationPayload alloc] initWithRawMessage:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    OSNotificationOpenedResult * result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
-    
+	OSNotificationOpenedResult * result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action userText:userText];
+	
     // Prevent duplicate calls to same action
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])

@@ -172,8 +172,12 @@ static NSArray* delegateUNSubclasses = nil;
     
     
     NSMutableDictionary *userInfo;
-    userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo identifier:[response valueForKey:@"actionIdentifier"]];
-    
+	BOOL isTextReply = [response isKindOfClass:NSClassFromString(@"UNTextInputNotificationResponse")];
+	NSString* userText = isTextReply ? [response valueForKey:@"userText"] : nil;
+	userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
+												  identifier:[response valueForKey:@"actionIdentifier"]
+													userText:userText];
+	
     [OneSignal notificationOpened:userInfo isActive:isActive];
 }
 

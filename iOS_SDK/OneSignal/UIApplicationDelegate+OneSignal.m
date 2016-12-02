@@ -41,7 +41,7 @@
 + (NSString*) app_id;
 + (void) notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
 + (BOOL) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
-+ (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
++ (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier userText:(NSString *)userText;
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
 
@@ -92,10 +92,12 @@ static NSArray* delegateSubclasses = nil;
                         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, newClass, delegateClass);
     
     if (notIos10) {
-        injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-                            @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, newClass, delegateClass);
+        injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:),
+                            @selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:), delegateSubclasses, newClass, delegateClass);
+		injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
+							@selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, newClass, delegateClass);
     }
-    
+	
     injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
                         @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, newClass, delegateClass);
     
@@ -212,11 +214,27 @@ static NSArray* delegateSubclasses = nil;
         completionHandler(UIBackgroundFetchResultNewData);
 }
 
+- (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void(^)()) completionHandler {
+	
+	[OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:withResponseInfo:forLocalNotification:completionHandler:"];
+	
+	NSString *userText = responseInfo[UIUserNotificationActionResponseTypedTextKey];
+	if ([OneSignal app_id])
+		[OneSignal processLocalActionBasedNotification:notification identifier:identifier userText:userText];
+	
+	if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)])
+		[self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:responseInfo completionHandler:completionHandler];
+	else if (userText == nil && [self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
+		[self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+	
+	completionHandler();
+}
+
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
     
     if ([OneSignal app_id])
-        [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
+        [OneSignal processLocalActionBasedNotification:notification identifier:identifier userText:nil];
     
     if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
         [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
@@ -228,7 +246,7 @@ static NSArray* delegateSubclasses = nil;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:notification:"];
     
     if ([OneSignal app_id])
-        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
+        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__" userText:nil];
     
     if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
         [self oneSignalLocalNotificationOpened:application notification:notification];

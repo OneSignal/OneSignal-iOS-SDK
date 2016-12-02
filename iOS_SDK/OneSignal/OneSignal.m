@@ -945,18 +945,21 @@ static BOOL waitingForOneSReg = false;
         
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
+		NSString* userText = NULL;
         OSNotificationActionType type = OSNotificationActionTypeOpened;
         if (messageDict[@"custom"][@"a"][@"actionSelected"]) {
             actionSelected = messageDict[@"custom"][@"a"][@"actionSelected"];
+			userText = messageDict[@"custom"][@"a"][@"actionUserText"];
             type = OSNotificationActionTypeActionTaken;
         }
         if (messageDict[@"actionSelected"]) {
             actionSelected = messageDict[@"actionSelected"];
+			userText = messageDict[@"actionUserText"];
             type = OSNotificationActionTypeActionTaken;
         }
         
         // Call Action Block
-        [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:OSNotificationDisplayTypeNotification];
+		[OneSignalHelper handleNotificationAction:type actionID:actionSelected userText:userText displayType:OSNotificationDisplayTypeNotification];
         [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
     }
 }
@@ -989,15 +992,21 @@ static BOOL waitingForOneSReg = false;
     [self clearBadgeCount:true];
     
     NSString* actionID = NULL;
+	NSString* userText = NULL;
     if (actionType == OSNotificationActionTypeActionTaken) {
         actionID = messageDict[@"custom"][@"a"][@"actionSelected"];
-        if(!actionID)
+		if(!actionID) {
             actionID = messageDict[@"actionSelected"];
+			userText = messageDict[@"actionUserText"];
+		}
+		else {
+			userText = messageDict[@"custom"][@"a"][@"actionUserText"];
+		}
     }
     
     //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
-    [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+	[OneSignalHelper handleNotificationAction:actionType actionID:actionID userText:userText displayType:displayType];
 }
 
 + (void)launchWebURL:(NSString*)openUrl {
@@ -1152,11 +1161,11 @@ static BOOL waitingForOneSReg = false;
 }
 
 // iOS 8-9 - Entry point when OneSignal action button notifiation is displayed or opened.
-+ (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
++ (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier userText:(NSString *)userText {
     if (notification.userInfo) {
         
-        NSMutableDictionary* userInfo = [OneSignalHelper formatApsPayloadIntoStandard:notification.userInfo identifier:identifier];
-        
+		NSMutableDictionary* userInfo = [OneSignalHelper formatApsPayloadIntoStandard:notification.userInfo identifier:identifier userText:userText];
+		
         if (!userInfo)
             return;
         
