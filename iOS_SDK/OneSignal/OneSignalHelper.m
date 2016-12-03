@@ -824,22 +824,29 @@ static OneSignal* singleInstance = nil;
 
 + (void) displayWebView:(NSURL*)url {
     
-    //Check if in-app or safari
+    // Check if in-app or safari
     BOOL inAppLaunch = YES;
-    if(![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"]) {
+    if( ![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"]) {
         [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"ONESIGNAL_INAPP_LAUNCH_URL"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
     
     inAppLaunch = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"] boolValue];
+    NSString* urlScheme = [url.scheme lowercaseString];
+    BOOL isWWWScheme = [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
     
-    if(inAppLaunch) {
-        if(!webVC)
+    if (inAppLaunch && isWWWScheme) {
+        if (!webVC)
             webVC = [[OneSignalWebView alloc] init];
         webVC.url = url;
         [webVC showInApp];
     }
-    else [[UIApplication sharedApplication] openURL:url];
+    else {
+        // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:url];
+        });
+    }
     
 }
 

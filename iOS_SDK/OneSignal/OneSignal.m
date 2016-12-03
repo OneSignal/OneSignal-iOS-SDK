@@ -983,12 +983,11 @@ static BOOL waitingForOneSReg = false;
 
 + (void)launchWebURL:(NSString*)openUrl {
 
-    if (openUrl) {
-        if ([OneSignalHelper verifyURL:openUrl]) {
-            //Create a dleay to allow alertview to dismiss before showing anything or going to safari
-            NSURL *url = [NSURL URLWithString:openUrl];
-            [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
-        }
+    if (openUrl && [OneSignalHelper verifyURL:openUrl]) {
+        NSURL *url = [NSURL URLWithString:openUrl];
+        // Give the app resume animation time to finish when tapping on a notificaion from the notificaiton center.
+        // Isn't a requiremnt but improves visual flow.
+        [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
     }
     
 }
