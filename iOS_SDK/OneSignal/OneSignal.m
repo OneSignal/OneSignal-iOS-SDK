@@ -81,7 +81,7 @@ NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDis
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020301";
+NSString* const ONESIGNAL_VERSION = @"020302";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -473,7 +473,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"GET" path:@"notifications"];
+    NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:@"notifications"];
     
     NSMutableDictionary* dataDic = [[NSMutableDictionary alloc] initWithDictionary:jsonData];
     dataDic[@"app_id"] = app_id;
