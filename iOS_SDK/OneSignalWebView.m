@@ -110,7 +110,7 @@ UIViewController *viewControllerForPresentation;
         [mainWindow addSubview:[viewControllerForPresentation view]];
 
     @try {
-       [viewControllerForPresentation presentViewController:navController animated:NO completion:nil];
+       [viewControllerForPresentation presentViewController:navController animated:YES completion:nil];
     }
     @catch(NSException* exception) { }
 }

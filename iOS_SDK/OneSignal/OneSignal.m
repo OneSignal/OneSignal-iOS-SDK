@@ -872,24 +872,25 @@ static BOOL waitingForOneSReg = false;
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
+    
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (!customDict)
         customDict = [messageDict objectForKey:@"custom"];
-    
-    // Prevent duplicate calls
-    static NSString* lastMessageID = @"";
-    if (customDict && customDict[@"i"]) {
-        NSString* currentNotificationId = customDict[@"i"];
-        if ([currentNotificationId isEqualToString:lastMessageID])
-            return;
-        lastMessageID = customDict[@"i"];
-    }
     
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
     
     BOOL inAppAlert = false;
     if (isActive) {
+        // Prevent duplicate calls
+        static NSString* lastAppActiveMessageId = @"";
+        NSString* newId = [self checkForProcessedDups:customDict lastMessageId:lastAppActiveMessageId];
+        if ([@"dup" isEqualToString:newId])
+            return;
+        if (newId)
+            lastAppActiveMessageId = newId;
+        
         if (![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
             [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
             [[NSUserDefaults standardUserDefaults] synchronize];
@@ -934,10 +935,18 @@ static BOOL waitingForOneSReg = false;
         [OneSignal submitNotificationOpened:messageId];
     }
     else {
+        // Prevent duplicate calls
+        static NSString* lastnonActiveMessageId = @"";
+        NSString* newId = [self checkForProcessedDups:customDict lastMessageId:lastnonActiveMessageId];
+        if ([@"dup" isEqualToString:newId])
+            return;
+        if (newId)
+            lastnonActiveMessageId = newId;
+        
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
         OSNotificationActionType type = OSNotificationActionTypeOpened;
-        if(messageDict[@"custom"][@"a"][@"actionSelected"]) {
+        if (messageDict[@"custom"][@"a"][@"actionSelected"]) {
             actionSelected = messageDict[@"custom"][@"a"][@"actionSelected"];
             type = OSNotificationActionTypeActionTaken;
         }
@@ -950,9 +959,19 @@ static BOOL waitingForOneSReg = false;
         [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:OSNotificationDisplayTypeNotification];
         [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
     }
-    
 }
-    
+
++ (NSString*) checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {
+    if (customDict && customDict[@"i"]) {
+        NSString* currentNotificationId = customDict[@"i"];
+        if ([currentNotificationId isEqualToString:lastMessageId])
+            return @"dup";
+        return customDict[@"i"];
+    }
+    return nil;
+}
+
+
 + (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive actionType : (OSNotificationActionType)actionType displayType:(OSNotificationDisplayType)displayType{
     
     
@@ -1145,7 +1164,8 @@ static BOOL waitingForOneSReg = false;
         [OneSignal notificationOpened:userInfo isActive:isActive];
         
         // Notification Tapped or notification Action Tapped
-        [self handleNotificationOpened:userInfo isActive:isActive actionType:OSNotificationActionTypeActionTaken displayType:OSNotificationDisplayTypeNotification];
+        if (!isActive)
+            [self handleNotificationOpened:userInfo isActive:isActive actionType:OSNotificationActionTypeActionTaken displayType:OSNotificationDisplayTypeNotification];
     }
     
 }
