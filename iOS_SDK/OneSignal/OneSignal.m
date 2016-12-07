@@ -68,20 +68,23 @@
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
-NSString * const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
+NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
 
-/*Enable the default in-app alerts*/
-NSString * const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
+/* Enable the default in-app alerts*/
+NSString* const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
 
-/*Enable the default in-app launch urls*/
-NSString * const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
+/* Enable the default in-app launch urls*/
+NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
 /* Set InFocusDisplayOption value must be an OSNotificationDisplayType enum*/
-NSString * const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisplayOption";
+NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisplayOption";
+
+/* Omit no app_id error logging, for use with wrapper SDKs. */
+NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020302";
+NSString* const ONESIGNAL_VERSION = @"020303";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -140,6 +143,8 @@ BOOL mShareLocation = YES;
     return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: settings];
 }
 
+// NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
+//         Ensure a 2nd call can be made later with the appId from the developer's code.
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
     
     if (![[NSUUID alloc] initWithUUIDString:appId]) {
@@ -150,33 +155,40 @@ BOOL mShareLocation = YES;
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
-    if (mShareLocation) {
+    if (mShareLocation)
        [OneSignalLocation getLocation:false];
-    }
     
     if (self) {
         UIApplication* sharedApp = [UIApplication sharedApplication];
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+        
+        httpClient = [[OneSignalHTTPClient alloc] init];
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
         if (appId)
             app_id = appId;
         else {
-            app_id =[[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
+            // Read from .plist if not passed in with this method call.
+            app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
             if (app_id == nil)
                 app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
         }
-        
-        httpClient = [[OneSignalHTTPClient alloc] init];
         
         // Handle changes to the app id. This might happen on a developer's device when testing.
         if (app_id == nil)
             app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
         else if (![app_id isEqualToString:[userDefaults stringForKey:@"GT_APP_ID"]]) {
+            // Will run the first time OneSignal is initialized or if the dev changes the app_id.
             [userDefaults setObject:app_id forKey:@"GT_APP_ID"];
             [userDefaults setObject:nil forKey:@"GT_PLAYER_ID"];
             [userDefaults synchronize];
+        }
+        
+        if (!app_id) {
+            if (!settings[kOSSettingsKeyInAppLaunchURL])
+                onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
+            return self;
         }
         
         mUserId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
@@ -195,7 +207,7 @@ BOOL mShareLocation = YES;
         
         // Register this device with Apple's APNS server if enabled auto-prompt or not passed a NO
         BOOL autoPrompt = YES;
-        if(settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
+        if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
             autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
