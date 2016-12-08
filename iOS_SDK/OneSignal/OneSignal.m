@@ -186,7 +186,6 @@ BOOL mShareLocation = YES;
         }
         
         if (!app_id) {
-            NSLog(@"settings[kOSSettingsKeyInOmitNoAppIdLogging]: %@", settings[kOSSettingsKeyInOmitNoAppIdLogging]);
             if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
                 onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
             return self;
