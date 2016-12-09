@@ -92,7 +92,7 @@ static NSArray* delegateUNSubclasses = nil;
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     // If OneSignal has not been initialized there is no reason to proceed with all the code below this if statement
     // since delaying method swizzling past + [UIApplication load] is dangerous this check is in place.
-    // For more details see: https://github.com/OneSignal/OneSignal-iOS-SDK/pull/155
+    // For more details see: https://github.com/OneSignal/OneSignal-iOS-SDK/pull/156
     if (![OneSignal app_id]) {
         [swizzleUNUserNotif callLegacyAppDeletegateSelector:notification
                                                 isTextReply:false
