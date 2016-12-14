@@ -547,7 +547,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
    
     // Special Case: If iOS version < 10 && Option passed is 2, default to inAppAlerts.
     NSInteger op = option.integerValue;
-    if(![OneSignalHelper isiOS10Plus] && OSNotificationDisplayTypeNotification == op)
+    if (![OneSignalHelper isiOS10Plus] && OSNotificationDisplayTypeNotification == op)
         op = OSNotificationDisplayTypeInAppAlert;
     
     [[NSUserDefaults standardUserDefaults] setObject:@(op) forKey:@"ONESIGNAL_ALERT_OPTION"];
@@ -884,6 +884,9 @@ static BOOL waitingForOneSReg = false;
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    if (!app_id)
+        return;
+    
     onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];

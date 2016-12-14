@@ -107,7 +107,8 @@ static NSArray* delegateUNSubclasses = nil;
         default: break;
     }
     
-    [OneSignal notificationOpened:notification.request.content.userInfo isActive:YES];
+    if ([OneSignal app_id])
+        [OneSignal notificationOpened:notification.request.content.userInfo isActive:YES];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])

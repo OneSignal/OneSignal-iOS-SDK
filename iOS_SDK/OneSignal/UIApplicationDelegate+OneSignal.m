@@ -152,7 +152,8 @@ static NSArray* delegateSubclasses = nil;
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
-    [OneSignal handleDidFailRegisterForRemoteNotification:err];
+    if ([OneSignal app_id])
+        [OneSignal handleDidFailRegisterForRemoteNotification:err];
     
     if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
