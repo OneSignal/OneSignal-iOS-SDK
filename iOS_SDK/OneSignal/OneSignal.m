@@ -240,14 +240,14 @@ BOOL mShareLocation = YES;
 
         if (mUserId != nil)
             [self registerUser];
-        else // Fall back incase Apple does not responsed in time.
+        else // Fall back in case Apple does not responds in time.
             [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
         
         [OneSignalTracker onFocus:NO];
     }
  
     /*
-     * No need to call the handleNotificationOpened:userInfo as it will be called from one of the folloing selectors
+     * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
      *  - application:didReceiveRemoteNotification:fetchCompletionHandler
      *  - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (iOS10)
      */
@@ -627,8 +627,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         tokenUpdateSuccessBlock = successBlock;
         tokenUpdateFailureBlock = failureBlock;
         
-        // iOS 8 - We get a token right away but give the user 30 sec to responsed to the system prompt.
-        // Also check notifiation types so there is no waiting if user has already answered the system prompt.
+        // iOS 8 - We get a token right away but give the user 30 sec to respond to the system prompt.
+        // Also check notification types so there is no waiting if user has already answered the system prompt.
         // The goal is to only have 1 server call.
         if ([OneSignalHelper isCapableOfGettingNotificationTypes] && [[UIApplication sharedApplication] currentUserNotificationSettings].types == 0) {
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
@@ -819,7 +819,7 @@ static BOOL waitingForOneSReg = false;
         waitingForOneSReg = false;
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering with OneSignal: %@", error]];
         
-        //If the failed regiatration is priority, force the next one to be a high priority
+        //If the failed registration is priority, force the next one to be a high priority
         nextRegistrationIsHighPriority = YES;
     }];
 }
@@ -945,7 +945,7 @@ static BOOL waitingForOneSReg = false;
         // Call Received Block
         [OneSignalHelper handleNotificationReceived:iaaoption];
         
-        // Notify backend that user opened the notifiation
+        // Notify backend that user opened the notification
         NSString* messageId = [customDict objectForKey:@"i"];
         [OneSignal submitNotificationOpened:messageId];
     }
@@ -994,7 +994,7 @@ static BOOL waitingForOneSReg = false;
     if (customDict == nil)
         customDict = [messageDict objectForKey:@"custom"];
     
-    // Notify backend that user opened the notifiation
+    // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
     [OneSignal submitNotificationOpened:messageId];
     
@@ -1019,8 +1019,8 @@ static BOOL waitingForOneSReg = false;
 
     if (openUrl && [OneSignalHelper verifyURL:openUrl]) {
         NSURL *url = [NSURL URLWithString:openUrl];
-        // Give the app resume animation time to finish when tapping on a notificaion from the notificaiton center.
-        // Isn't a requiremnt but improves visual flow.
+        // Give the app resume animation time to finish when tapping on a notification from the notification center.
+        // Isn't a requirement but improves visual flow.
         [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
     }
     
@@ -1063,9 +1063,9 @@ static BOOL waitingForOneSReg = false;
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
     
     if ((!(NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_7_1) && fromNotifOpened) || wasBadgeSet) {
-        // Clear badges and nofiications from this app.
+        // Clear badges and notifications from this app.
         // Setting to 1 then 0 was needed to clear the notifications on iOS 6 & 7. (Otherwise you can click the notification multiple times.)
-        // iOS 8+ auto dismisses the notificaiton you tap on so only clear the badge (and notifications [side-effect]) if it was set.
+        // iOS 8+ auto dismisses the notification you tap on so only clear the badge (and notifications [side-effect]) if it was set.
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
     }
@@ -1133,7 +1133,7 @@ static BOOL waitingForOneSReg = false;
     if (userInfo[@"os_data"][@"buttons"] || userInfo[@"at"] || userInfo[@"o"])
         data = userInfo;
     
-    // Genergate local notification for action button and/or attachments.
+    // Generate local notification for action button and/or attachments.
     if (data) {
         if (NSClassFromString(@"UNUserNotificationCenter")) {
             startedBackgroundJob = true;
@@ -1166,7 +1166,7 @@ static BOOL waitingForOneSReg = false;
     return startedBackgroundJob;
 }
 
-// iOS 8-9 - Entry point when OneSignal action button notifiation is displayed or opened.
+// iOS 8-9 - Entry point when OneSignal action button notification is displayed or opened.
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
     if (notification.userInfo) {
         
@@ -1232,9 +1232,9 @@ static BOOL waitingForOneSReg = false;
 //        - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
 //         -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
 //
-//  Note1: Do NOT move this category to it's own file. This is requried so when the app developer calls OneSignal.initWithLaunchOptions this load+
+//  Note1: Do NOT move this category to it's own file. This is required so when the app developer calls OneSignal.initWithLaunchOptions this load+
 //            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.
-//  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will orcur.
+//  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
 //            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
 @implementation UIApplication (OneSignal)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
