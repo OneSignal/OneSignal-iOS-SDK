@@ -57,6 +57,12 @@ NSMutableDictionary* skusToTrack;
     return self;
 }
 
+- (void)dealloc {
+  if (skPaymentQueue) {
+    [[skPaymentQueue performSelector:@selector(defaultQueue)] performSelector:@selector(removeTransactionObserver:) withObject:self];
+  }
+}
+
 - (void)paymentQueue:(id)queue updatedTransactions:(NSArray*)transactions {
     skusToTrack = [NSMutableDictionary new];
     id skPayment;
