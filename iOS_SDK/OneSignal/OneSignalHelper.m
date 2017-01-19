@@ -78,8 +78,9 @@
             _contentAvailable = NO;
         
         if (_rawPayload[@"aps"][@"badge"])
-            _badge = (int)_rawPayload[@"aps"][@"badge"];
-        else _badge = (int)_rawPayload[@"badge"];
+            _badge = [_rawPayload[@"aps"][@"badge"] intValue];
+        else
+            _badge = [_rawPayload[@"badge"] intValue];
         
         _actionButtons = _rawPayload[@"o"];
         if (!_actionButtons)
