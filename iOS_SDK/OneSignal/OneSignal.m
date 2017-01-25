@@ -259,7 +259,7 @@ BOOL mShareLocation = YES;
 
     [self clearBadgeCount:false];
     
-    if ([OneSignalTrackIAP canTrack])
+    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
     #if XC8_AVAILABLE
