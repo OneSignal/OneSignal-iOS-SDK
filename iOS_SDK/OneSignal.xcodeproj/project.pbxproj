@@ -33,6 +33,11 @@
 		3EB26DBF1D5121D000E51BD4 /* OneSignalTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EB26DBE1D5121D000E51BD4 /* OneSignalTracker.m */; };
 		3EBD83FE1D49364E008F135D /* OneSignalHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBD83FD1D49364E008F135D /* OneSignalHelper.m */; };
 		3ECE8FDD1D39829300742055 /* OneSignalAlertViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ECE8FDC1D39829300742055 /* OneSignalAlertViewDelegate.m */; };
+		911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 911E2CBC1E398AB3003112A4 /* UnitTests.m */; };
+		911E2CBF1E398AB3003112A4 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37747F9319147D6500558FAD /* libOneSignal.a */; };
+		911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
+		911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
+		911E2CC81E399834003112A4 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 911E2CC71E399834003112A4 /* UserNotifications.framework */; };
 		9139AF5B1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */; };
 		918416271DC2E32500D458A5 /* OneSignalSelectorHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 918416261DC2E32500D458A5 /* OneSignalSelectorHelpers.m */; };
 		918416281DC2E80A00D458A5 /* OneSignalSelectorHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 918416261DC2E32500D458A5 /* OneSignalSelectorHelpers.m */; };
@@ -41,6 +46,16 @@
 		91F2D1031C94D10F00DE95D0 /* OneSignalLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F2D1021C94D10F00DE95D0 /* OneSignalLocation.m */; };
 		91FC4BDC1DED233800EDFD75 /* UIApplicationDelegate+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		911E2CC01E398AB3003112A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 37747F9219147D6500558FAD;
+			remoteInfo = OneSignal;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		37747F9119147D6500558FAD /* CopyFiles */ = {
@@ -83,6 +98,10 @@
 		3EBD83FD1D49364E008F135D /* OneSignalHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OneSignalHelper.m; path = OneSignal/OneSignalHelper.m; sourceTree = "<group>"; };
 		3ECE8FDB1D39829300742055 /* OneSignalAlertViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OneSignalAlertViewDelegate.h; path = OneSignal/OneSignalAlertViewDelegate.h; sourceTree = "<group>"; };
 		3ECE8FDC1D39829300742055 /* OneSignalAlertViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OneSignalAlertViewDelegate.m; path = OneSignal/OneSignalAlertViewDelegate.m; sourceTree = "<group>"; };
+		911E2CBA1E398AB3003112A4 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		911E2CBC1E398AB3003112A4 /* UnitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTests.m; sourceTree = "<group>"; };
+		911E2CBE1E398AB3003112A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		911E2CC71E399834003112A4 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		9139AF591DDECB4200642ED5 /* UIApplicationDelegate+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "UIApplicationDelegate+OneSignal.h"; path = "OneSignal/UIApplicationDelegate+OneSignal.h"; sourceTree = "<group>"; };
 		9139AF5A1DDECB6300642ED5 /* UIApplicationDelegate+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIApplicationDelegate+OneSignal.m"; path = "OneSignal/UIApplicationDelegate+OneSignal.m"; sourceTree = "<group>"; };
 		918416251DC2E30500D458A5 /* OneSignalSelectorHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OneSignalSelectorHelpers.h; path = OneSignal/OneSignalSelectorHelpers.h; sourceTree = "<group>"; };
@@ -108,6 +127,17 @@
 			files = (
 				3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */,
 				3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		911E2CB71E398AB3003112A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				911E2CC81E399834003112A4 /* UserNotifications.framework in Frameworks */,
+				911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */,
+				911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */,
+				911E2CBF1E398AB3003112A4 /* libOneSignal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,6 +179,7 @@
 				37747F9819147D6500558FAD /* OneSignal */,
 				3E3B6F301D494DBB008ED274 /* Categories */,
 				3E2400391D4FFC31008BDE70 /* OneSignal-Dynamic */,
+				911E2CBB1E398AB3003112A4 /* UnitTests */,
 				37747F9519147D6500558FAD /* Frameworks */,
 				37747F9419147D6500558FAD /* Products */,
 			);
@@ -159,6 +190,7 @@
 			children = (
 				37747F9319147D6500558FAD /* libOneSignal.a */,
 				3E2400381D4FFC31008BDE70 /* OneSignal.framework */,
+				911E2CBA1E398AB3003112A4 /* UnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -166,6 +198,7 @@
 		37747F9519147D6500558FAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				911E2CC71E399834003112A4 /* UserNotifications.framework */,
 				3E464ED91D88EE6A00DCF7E9 /* Foundation.framework */,
 				3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */,
 				37E6B2BA19D9CAF300D0C601 /* UIKit.framework */,
@@ -270,6 +303,15 @@
 			name = Helper;
 			sourceTree = "<group>";
 		};
+		911E2CBB1E398AB3003112A4 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				911E2CBC1E398AB3003112A4 /* UnitTests.m */,
+				911E2CBE1E398AB3003112A4 /* Info.plist */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -320,6 +362,24 @@
 			productReference = 3E2400381D4FFC31008BDE70 /* OneSignal.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		911E2CB91E398AB3003112A4 /* UnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 911E2CC41E398AB3003112A4 /* Build configuration list for PBXNativeTarget "UnitTests" */;
+			buildPhases = (
+				911E2CB61E398AB3003112A4 /* Sources */,
+				911E2CB71E398AB3003112A4 /* Frameworks */,
+				911E2CB81E398AB3003112A4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				911E2CC11E398AB3003112A4 /* PBXTargetDependency */,
+			);
+			name = UnitTests;
+			productName = UnitTests;
+			productReference = 911E2CBA1E398AB3003112A4 /* UnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -333,6 +393,11 @@
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = 99SW8E36CT;
 						DevelopmentTeamName = "Lilomi Inc.";
+						ProvisioningStyle = Automatic;
+					};
+					911E2CB91E398AB3003112A4 = {
+						CreatedOnToolsVersion = 8.1;
+						DevelopmentTeam = 99SW8E36CT;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -351,12 +416,20 @@
 			targets = (
 				37747F9219147D6500558FAD /* OneSignal */,
 				3E2400371D4FFC31008BDE70 /* OneSignal-Dynamic */,
+				911E2CB91E398AB3003112A4 /* UnitTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3E2400361D4FFC31008BDE70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		911E2CB81E398AB3003112A4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -424,7 +497,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		911E2CB61E398AB3003112A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		911E2CC11E398AB3003112A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 37747F9219147D6500558FAD /* OneSignal */;
+			targetProxy = 911E2CC01E398AB3003112A4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		37747FB419147D6500558FAD /* Debug */ = {
@@ -609,6 +698,47 @@
 			};
 			name = Release;
 		};
+		911E2CC21E398AB3003112A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				INFOPLIST_FILE = UnitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.UnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		911E2CC31E398AB3003112A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_SUSPICIOUS_MOVES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				INFOPLIST_FILE = UnitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.UnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -638,6 +768,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		911E2CC41E398AB3003112A4 /* Build configuration list for PBXNativeTarget "UnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				911E2CC21E398AB3003112A4 /* Debug */,
+				911E2CC31E398AB3003112A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
