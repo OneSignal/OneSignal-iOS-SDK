@@ -73,8 +73,9 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 
 
 
-
-@implementation NSBundleOverrider : NSObject
+@interface NSBundleOverrider : NSObject
+@end
+@implementation NSBundleOverrider
 
 + (void)load {
     injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
@@ -86,7 +87,10 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 
 @end
 
-@implementation UNUserNotificationCenterOverrider : NSObject
+
+@interface UNUserNotificationCenterOverrider : NSObject
+@end
+@implementation UNUserNotificationCenterOverrider
 
 + (void)load {
     injectToProperClass(@selector(overrideInitWithBundleIdentifier:), @selector(initWithBundleIdentifier:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
@@ -97,11 +101,16 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 }
 
 @end
-    
-@implementation UIApplicationOverrider : NSObject
 
-//if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-//}
+
+
+static int notifTypesOverride = 7;
+
+@interface UIApplicationOverrider : NSObject
+@end
+@implementation UIApplicationOverrider
+
+
 
 + (void)load {
    injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
@@ -116,14 +125,16 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
     id app = [UIApplication sharedApplication];
     id appDelegate = [[UIApplication sharedApplication] delegate];
     
-    const char bytes[] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    char bytes[32];
+    memset(bytes, 0, 32);
+    
     id deviceToken = [NSData dataWithBytes:bytes length:32];
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
 
 - (UIUserNotificationSettings*) overrideCurrentUserNotificationSettings {
-    return [UIUserNotificationSettings settingsForTypes:7 categories:nil];
+    return [UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil];
 }
 
 @end
@@ -131,7 +142,9 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 
 static NSDictionary* lastHTTPRequset;
 
-@implementation OneSignalHelperOverrider : NSObject
+@interface OneSignalHelperOverrider : NSObject
+@end
+@implementation OneSignalHelperOverrider
 
 + (void)load {
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
@@ -184,23 +197,43 @@ static NSDictionary* lastHTTPRequset;
 @interface UnitTests : XCTestCase
 @end
 
+
+static BOOL setupUIApplicationDelegate = false;
+
 @implementation UnitTests
 
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    
+    // This works but doesn't it has an internal loop.
+    //    Just overwrote _run to work around this.
+    if (!setupUIApplicationDelegate) {
+        UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
+        setupUIApplicationDelegate = true;
+    }
+
+    // Remove all saved state stored on disk.
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
+    [NSUserDefaults resetStandardUserDefaults];
+    [NSUserDefaults standardUserDefaults];
+    
+    // The above doesn't seem to be removing all keys.
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"GT_LAST_CLOSED_TIME"];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+    
+    lastHTTPRequset = nil;
 }
 
 
 
-- (void)testExample {
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-    
+- (void)testBasicInitTest {
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
     // This should fire the swizzled setDelegate in UIApplicationDelegate+OneSignal but it does not for some reason.
@@ -211,25 +244,35 @@ static NSDictionary* lastHTTPRequset;
     // id appDelegate = [AppDelegate new];
     // [[UIApplication sharedApplication] setOneSignalDelegate:appDelegate];
     
-    // This works but doesn't it has an internal loop.
-    //    Just overwrote _run to work around this.
-    UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
+    notifTypesOverride = 7;
     
-    // DumpObjcMethods([UIApplication class]);
-
-    
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], [NSNumber numberWithInt:7]);
+    XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], [NSNumber numberWithInt:0]);
+    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en");
     
+    // 2nd init call should not fire another on_session call.
+    lastHTTPRequset = nil;
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    XCTAssertNil(lastHTTPRequset);
     
-    // There seems to be 2 network calls for some reason.
-    // This should eval correctly but it does not.
-    //XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
+    // NSLog(@"Sleeping for debugging");
+    // [NSThread sleepForTimeInterval:1000];
+}
+
+- (void)testBasicInitTestNotAcceptingNotifications {
+    notifTypesOverride = 0;
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
-    NSLog(@"Sleeping for debugging");
-    //[NSThread sleepForTimeInterval:1000];
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], [NSNumber numberWithInt:0]);
+    XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], [NSNumber numberWithInt:0]);
+    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en");
+
 }
 
 - (void)testPerformanceExample {
