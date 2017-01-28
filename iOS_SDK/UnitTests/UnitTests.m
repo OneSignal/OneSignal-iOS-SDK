@@ -151,7 +151,6 @@ static NSDictionary* lastHTTPRequset;
 }
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
-    NSLog(@"HERe!!!!!");
     NSError *error = nil;
     NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
     NSLog(@"parameters: %@", parameters);
@@ -273,6 +272,17 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], [NSNumber numberWithInt:0]);
     XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en");
 
+}
+
+- (void)testSendTags {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    [OneSignal sendTag:@"key" value:@"value"];
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
+    
+    [OneSignal sendTags:@{@"key1": @"value1", @"key2": @"value2"}];
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key1"], @"value1");
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
 }
 
 - (void)testPerformanceExample {
