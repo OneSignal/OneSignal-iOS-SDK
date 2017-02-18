@@ -275,4 +275,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
 + (void)syncHashedEmail:(NSString*)email;
 
+// Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
++ (void)setMSDKType:(NSString*)type;
+
 @end
