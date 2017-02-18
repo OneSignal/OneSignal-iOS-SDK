@@ -320,8 +320,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
-// "registerForRemoteNotifications*" calls didRegisterForRemoteNotificationsWithDeviceToken
-// in the implementation UIApplication(OneSignalPush) below after contacting Apple's server.
+// "registerForRemoteNotifications*" calls didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate
 + (void)registerForPushNotifications {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerForPushNotifications Called!"];
     waitingForApnsResponse = true;
@@ -616,11 +615,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
     onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
     
     // Do not block next registration as there's a new token in hand
-    nextRegistrationIsHighPriority = YES;
+    nextRegistrationIsHighPriority = ![deviceToken isEqualToString:mDeviceToken] || [self getNotificationTypes] != mLastNotificationTypes;
     
     if (mUserId == nil) {
         mDeviceToken = deviceToken;
@@ -641,7 +639,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if ([deviceToken isEqualToString:mDeviceToken]) {
         if (successBlock)
-        successBlock(nil);
+            successBlock(nil);
         return;
     }
     
@@ -675,25 +673,35 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 bool nextRegistrationIsHighPriority = NO;
 
 + (BOOL)isHighPriorityCall {
-    return mUserId == nil || (mDeviceToken == nil && [self getNotificationTypes] > NOTIFICATION_TYPE_NONE) || nextRegistrationIsHighPriority;
+    return mUserId == nil || nextRegistrationIsHighPriority;
 }
 
 static BOOL waitingForOneSReg = false;
+
+
++ (void) updateLastSessionDateTime {
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    [[NSUserDefaults standardUserDefaults] setDouble:now forKey:@"GT_LAST_CLOSED_TIME"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
 +(BOOL)shouldRegisterNow {
     if (waitingForOneSReg)
         return false;
     
-    if ([self isHighPriorityCall])
-        return true;
-    
     //Figure out if should pass or not
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GT_LAST_CLOSED_TIME"];
-    if(!lastTimeClosed) return YES;
+    if (!lastTimeClosed) {
+        [self updateLastSessionDateTime];
+        return YES;
+    }
     
-    //Make sure last time we closed app was more than 30 secs ago
-    const NSTimeInterval minTimeThreshold = 30;
+    if ([self isHighPriorityCall])
+        return true;
+    
+    // Make sure last time we closed app was more than 30 secs ago
+    const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
     return delta > minTimeThreshold;
 }
@@ -748,6 +756,8 @@ static BOOL waitingForOneSReg = false;
     }
     
     
+    
+    mLastNotificationTypes = notificationTypes;
     if (notificationTypes != -1)
         dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
     
@@ -783,6 +793,8 @@ static BOOL waitingForOneSReg = false;
         
         // Success, no more high priority
         nextRegistrationIsHighPriority = NO;
+        
+        [self updateLastSessionDateTime];
         
         if ([results objectForKey:@"id"] != nil) {
             
