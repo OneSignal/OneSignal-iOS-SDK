@@ -140,6 +140,7 @@ static int notifTypesOverride = 7;
 @end
 
 
+static NSString* lastUrl;
 static NSDictionary* lastHTTPRequset;
 
 @interface OneSignalHelperOverrider : NSObject
@@ -152,9 +153,12 @@ static NSDictionary* lastHTTPRequset;
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
     NSError *error = nil;
+    id url = [request URL];
     NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
+    NSLog(@"url: %@", url);
     NSLog(@"parameters: %@", parameters);
     
+    lastUrl = [url absoluteString];
     lastHTTPRequset = parameters;
     
     if (successBlock)
@@ -171,7 +175,7 @@ static NSDictionary* lastHTTPRequset;
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
-
+    
     return true;
 }
 
@@ -187,12 +191,6 @@ static NSDictionary* lastHTTPRequset;
 
 
 
-
-
-
-
-
-
 @interface UnitTests : XCTestCase
 @end
 
@@ -201,32 +199,58 @@ static BOOL setupUIApplicationDelegate = false;
 
 @implementation UnitTests
 
+- (void) clearNSUserDefaults {
+    /*
+     id nsDefaults = [NSUserDefaults standardUserDefaults];
+     
+     // Remove all saved state stored on disk.
+     [nsDefaults removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
+     [NSUserDefaults resetStandardUserDefaults];
+     [NSUserDefaults standardUserDefaults];
+     [nsDefaults synchronize];
+     
+     
+     // Manually list and remove all keys
+     id allKeys = [[nsDefaults dictionaryRepresentation] allKeys];
+     for (NSString *key in allKeys) {
+     NSLog(@"Deleting key: %@", key);
+     // This line seems to break future builds from running the simulator.
+     // [nsDefaults setObject:@"" forKey:key];
+     // Remove doesn't seem to have an effect.
+     //   Might be due to a domain preceding it.
+     //   https://developer.apple.com/reference/foundation/nsuserdefaults/1411182-removeobjectforkey?language=objc
+     [nsDefaults removeObjectForKey:key];
+     }
+     [nsDefaults synchronize];
+     */
+    
+    // Need to clear each key manally since the above doesn't work.
+    [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:@"GT_LAST_MESSAGE_OPENED_"];
+    [[NSUserDefaults standardUserDefaults] setDouble:0 forKey:@"GT_LAST_CLOSED_TIME"];
+}
+
+// Called before each test.
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    notifTypesOverride = 7;
+    
+    [self clearNSUserDefaults];
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     
-    // This works but doesn't it has an internal loop.
-    //    Just overwrote _run to work around this.
     if (!setupUIApplicationDelegate) {
+        // Normally this just loops internally, overwrote _run to work around this.
         UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
         setupUIApplicationDelegate = true;
     }
-
-    // Remove all saved state stored on disk.
-    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
-    [NSUserDefaults resetStandardUserDefaults];
-    [NSUserDefaults standardUserDefaults];
-    
-    // The above doesn't seem to be removing all keys.
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"GT_LAST_CLOSED_TIME"];
 }
 
+// Called after each test.
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
-    
+ 
+    lastUrl = nil;
     lastHTTPRequset = nil;
 }
 
@@ -242,8 +266,6 @@ static BOOL setupUIApplicationDelegate = false;
     // I really have no idea why this doesn't work.
     // id appDelegate = [AppDelegate new];
     // [[UIApplication sharedApplication] setOneSignalDelegate:appDelegate];
-    
-    notifTypesOverride = 7;
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
@@ -268,10 +290,58 @@ static BOOL setupUIApplicationDelegate = false;
     
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], [NSNumber numberWithInt:0]);
-    XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
-    XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], [NSNumber numberWithInt:0]);
-    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en");
+}
 
+// Tests that a normal notification opened on iOS 10 triggers the handleNotificationAction.
+- (void)testNotificationOpen {
+    notifTypesOverride = 7;
+    
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertNil(result.notification.payload.additionalData);
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
+        XCTAssertNil(result.action.actionID);
+        openedWasFire = true;
+    }];
+    
+    // Setting response.notification.request.content.userInfo
+    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+    // Normal tap on notification
+    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
+    
+    id userInfo = @{@"custom": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                    }};
+    
+    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
+    UNNotification *unNotif = [UNNotification alloc];
+    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    [notifResponse setValue:unNotif forKeyPath:@"notification"];
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotifContent setValue:userInfo forKey:@"userInfo"];
+    
+
+    // Call iOS 10 selector entry point for a notification that was opened.
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    // Make sure open tracking network call was made.
+    XCTAssertEqual(openedWasFire, true);
+    XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"opened"], @1);
+    
+    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    lastUrl = nil;
+    lastHTTPRequset = nil;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    XCTAssertNil(lastUrl);
+    XCTAssertNil(lastHTTPRequset);
 }
 
 - (void)testSendTags {

@@ -414,19 +414,24 @@ OSHandleNotificationActionBlock handleNotificationAction;
     else if (remoteUserInfo[@"custom"]) {
         userInfo = [remoteUserInfo mutableCopy];
         customDict = [userInfo[@"custom"] mutableCopy];
-        additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+        if (customDict[@"a"])
+            additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
         optionsDict = userInfo[@"o"];
     }
     else
         return nil;
     
-    NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
-    for (NSDictionary* button in optionsDict) {
-        [buttonArray addObject: @{@"text" : button[@"n"],
-                                  @"id" : (button[@"i"] ? button[@"i"] : button[@"n"])}];
+    if (optionsDict) {
+        NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
+        for (NSDictionary* button in optionsDict) {
+            [buttonArray addObject: @{@"text" : button[@"n"],
+                                      @"id" : (button[@"i"] ? button[@"i"] : button[@"n"])}];
+        }
+        additionalData[@"actionButtons"] = buttonArray;
     }
-    additionalData[@"actionSelected"] = identifier;
-    additionalData[@"actionButtons"] = buttonArray;
+    
+    if (![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:identifier])
+        additionalData[@"actionSelected"] = identifier;
     
     if (remoteUserInfo[@"os_data"]) {
         [userInfo addEntriesFromDictionary:additionalData];
@@ -662,7 +667,8 @@ static OneSignal* singleInstance = nil;
         /* Local in bundle resources */
         else {
             NSMutableArray* files = [[NSMutableArray alloc] initWithArray:[URI componentsSeparatedByString:@"."]];
-            if ([files count] < 2) continue;
+            if ([files count] < 2)
+                continue;
             NSString* extension = [files lastObject];
             [files removeLastObject];
             NSString * name = [files componentsJoinedByString:@"."];
