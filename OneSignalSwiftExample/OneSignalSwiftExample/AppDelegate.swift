@@ -52,7 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 print(fullMessage)
                 
-            }, settings: [kOSSettingsKeyAutoPrompt : false, kOSSettingsKeyInAppAlerts : false])
+            }, settings: [kOSSettingsKeyAutoPrompt : true,
+                          kOSSettingsKeyInFocusDisplayOption : OSNotificationDisplayType.notification.rawValue])
         
         OneSignal.idsAvailable({ (userId, pushToken) in
             print("UserId:%@", userId);
