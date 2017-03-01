@@ -498,7 +498,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return @1;
 }
 
-+ (BOOL) isCapableOfGettingNotificationTypes {
++ (BOOL) canGetNotificationTypes {
     return [[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)];
 }
 

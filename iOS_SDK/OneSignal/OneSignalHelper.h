@@ -56,7 +56,7 @@
 #endif
 
 // - Notifications
-+ (BOOL)isCapableOfGettingNotificationTypes;
++ (BOOL)canGetNotificationTypes;
 + (UILocalNotification*)prepareUILocalNotification:(NSDictionary*)data :(NSDictionary*)userInfo;
 + (BOOL)verifyURL:(NSString *)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
