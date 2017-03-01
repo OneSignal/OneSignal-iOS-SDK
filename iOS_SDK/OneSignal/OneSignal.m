@@ -205,7 +205,7 @@ BOOL mShareLocation = YES;
         
         mUserId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
         mDeviceToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"];
-        if (([sharedApp respondsToSelector:@selector(currentUserNotificationSettings)]))
+        if ([OneSignalHelper canGetNotificationTypes])
             registeredWithApple = [self accpetedNotificationPermission];
         else
             registeredWithApple = mDeviceToken != nil || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -1145,9 +1145,13 @@ static BOOL waitingForOneSReg = false;
 + (void)userAnsweredNotificationPrompt:(void (^)(BOOL anwsered))completionHandler {
    if ([OneSignalHelper isiOS10Plus]) {
        Class unUserNotifClass = NSClassFromString(@"UNUserNotificationCenter");
-        [[unUserNotifClass currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(id settings) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"getNotificationSettingsWithCompletionHandler Called: %@", settings]];
-            completionHandler([settings authorizationStatus] != 0);
+       [[unUserNotifClass currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(id settings) {
+           // Trigger callback on the main thread.
+           // Prevents any possiblitity creating thread locks by callling currentUserNotification from this block.
+           dispatch_async(dispatch_get_main_queue(), ^{
+               [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"getNotificationSettingsWithCompletionHandler Called: %@", settings]];
+               completionHandler([settings authorizationStatus] != 0);
+           });
         }];
     }
     else {

@@ -44,9 +44,6 @@ void DumpObjcMethods(Class clz) {
     free(methods);
 }
 
-
-
-
 BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getClassMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
@@ -71,6 +68,8 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
     return existing;
 }
 
+
+// START - Selector Shadowing
 
 @interface NSObjectOverrider : NSObject
 @end
@@ -274,14 +273,8 @@ static NSDictionary* lastHTTPRequset;
 
 @end
 
-/*
-@interface UIApplication (UN_extra)
-- (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate;
-@end
 
-*/
-
-
+// END - Selector Shadowing
 
 
 @interface UnitTests : XCTestCase
@@ -308,9 +301,6 @@ static BOOL setupUIApplicationDelegate = false;
     // TODO: Keep commented out for now, might need this later.
     // [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
-    //[OneSignal setValue:@-1 forKey:@"_mSubscriptionStatus"];
-    //[OneSignal setValue:-1 forKeyPath:@"mSubscriptionStatus"];
-    
     [NSUserDefaultsOverrider clearInternalDictionary];
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
@@ -333,18 +323,15 @@ static BOOL setupUIApplicationDelegate = false;
     [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil]];
 }
 
+- (void)runBackgroundThreads {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+}
+
 - (void)testBasicInitTest {
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
-    // This should fire the swizzled setDelegate in UIApplicationDelegate+OneSignal but it does not for some reason.
-    // id appDelegate = [AppDelegate new];
-    // [[UIApplication sharedApplication] setDelegate:appDelegate];
-    
-    // I really have no idea why this doesn't work.
-    // id appDelegate = [AppDelegate new];
-    // [[UIApplication sharedApplication] setOneSignalDelegate:appDelegate];
-    
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
@@ -405,6 +392,8 @@ static BOOL setupUIApplicationDelegate = false;
         idsAvailable1Called = true;
     }];
     
+    [self runBackgroundThreads];
+    
     [OneSignal registerForPushNotifications];
     
     [self pressDontAllowOnNotifiationPrompt];
@@ -419,7 +408,6 @@ static BOOL setupUIApplicationDelegate = false;
     __block BOOL idsAvailable2Called = false;
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         idsAvailable2Called = true;
-        NSLog(@"22222222HERE idsAvaialble!: %@, %@", userId, pushToken);
     }];
     
     XCTAssertTrue(idsAvailable2Called);
@@ -437,6 +425,7 @@ static BOOL setupUIApplicationDelegate = false;
         XCTAssertNil(result.action.actionID);
         openedWasFire = true;
     }];
+    [self runBackgroundThreads];
     
     // Setting response.notification.request.content.userInfo
     UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
@@ -478,6 +467,7 @@ static BOOL setupUIApplicationDelegate = false;
 
 - (void)testSendTags {
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [self runBackgroundThreads];
     
     [OneSignal sendTag:@"key" value:@"value"];
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
