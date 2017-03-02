@@ -141,6 +141,24 @@ static NSMutableDictionary* defaultsDictionary;
 @end
 
 
+@interface NSDateOverrider : NSObject
+@end
+@implementation NSDateOverrider
+
+static NSTimeInterval timeOffset;
+
++ (void)load {
+    injectToProperClass(@selector(overrideTimeIntervalSince1970), @selector(timeIntervalSince1970), @[], [NSDateOverrider class], [NSDate class]);
+}
+
+- (NSTimeInterval) overrideTimeIntervalSince1970 {
+    NSTimeInterval current = [self overrideTimeIntervalSince1970];
+    return current + timeOffset;
+}
+
+@end
+
+
 @interface NSBundleOverrider : NSObject
 @end
 @implementation NSBundleOverrider
@@ -231,19 +249,21 @@ static BOOL shouldFireDeviceToken = true;
 
 @end
 
-
-static NSString* lastUrl;
-static NSDictionary* lastHTTPRequset;
-
 @interface OneSignalHelperOverrider : NSObject
 @end
 @implementation OneSignalHelperOverrider
+
+static NSString* lastUrl;
+static NSDictionary* lastHTTPRequset;
+static int networkRequestCount;
 
 + (void)load {
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
 }
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
+    networkRequestCount++;
+    
     NSError *error = nil;
     id url = [request URL];
     NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
@@ -289,6 +309,8 @@ static BOOL setupUIApplicationDelegate = false;
 - (void)setUp {
     [super setUp];
     
+    timeOffset = 0;
+    networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequset = nil;
     
@@ -317,10 +339,23 @@ static BOOL setupUIApplicationDelegate = false;
     [super tearDown];
 }
 
+- (void)backgroundModesDisabledInXcode {
+    nsbundleDictionary = @{};
+}
 
 - (void)pressDontAllowOnNotifiationPrompt {
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil]];
+}
+
+- (void)backgroundApp {
+    UIApplication *sharedApp = [UIApplication sharedApplication];
+    [sharedApp.delegate applicationWillResignActive:sharedApp];
+}
+
+- (void)resumeApp {
+    UIApplication *sharedApp = [UIApplication sharedApplication];
+    [sharedApp.delegate applicationDidBecomeActive:sharedApp];
 }
 
 - (void)runBackgroundThreads {
@@ -334,6 +369,7 @@ static BOOL setupUIApplicationDelegate = false;
     [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
     XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
@@ -343,6 +379,8 @@ static BOOL setupUIApplicationDelegate = false;
     lastHTTPRequset = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     XCTAssertNil(lastHTTPRequset);
+    
+    XCTAssertEqual(networkRequestCount, 1);
     
     // NSLog(@"Sleeping for debugging");
     // [NSThread sleepForTimeInterval:1000];
@@ -366,7 +404,7 @@ static BOOL setupUIApplicationDelegate = false;
 
 - (void)testNotAcceptingNotificationsWithoutBackgroundModes {
     notifTypesOverride = 0;
-    nsbundleDictionary = @{};
+    [self backgroundModesDisabledInXcode];
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
@@ -381,7 +419,7 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @0);
 }
 
-- (void)testgetIdsAvailableNotAcceptingNotifications {
+- (void)testIdsAvailableNotAcceptingNotifications {
     notifTypesOverride = 0;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -463,6 +501,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     XCTAssertNil(lastUrl);
     XCTAssertNil(lastHTTPRequset);
+    XCTAssertEqual(networkRequestCount, 2);
 }
 
 - (void)testSendTags {
@@ -475,6 +514,60 @@ static BOOL setupUIApplicationDelegate = false;
     [OneSignal sendTags:@{@"key1": @"value1", @"key2": @"value2"}];
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key1"], @"value1");
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
+    
+    // TODO: Optimization: This could be 1 network call if we delay the request in init and sendTags
+    XCTAssertEqual(networkRequestCount, 3);
+}
+
+- (void)testFirstInitWithNotificationsAlreadyDeclined {
+    [self backgroundModesDisabledInXcode];
+    notifTypesOverride = 0;
+    authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @0);
+    XCTAssertEqual(networkRequestCount, 1);
+}
+
+- (void)testPermissionChangedInSettingsOutsideOfApp {
+    [self backgroundModesDisabledInXcode];
+    notifTypesOverride = 0;
+    authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @0);
+    XCTAssertNil(lastHTTPRequset[@"identifier"]);
+    
+    [self backgroundApp];
+    notifTypesOverride = 7;
+    [self resumeApp];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
+    XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqual(networkRequestCount, 2);
+}
+
+- (void) testOnSessionWhenResuming {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [self runBackgroundThreads];
+    
+    // Don't make an on_session call if only out of the app for 20 secounds
+    [self backgroundApp];
+    timeOffset = 20;
+    [self resumeApp];
+    XCTAssertEqual(networkRequestCount, 1);
+    
+    // Anything over 30 secounds should count as a session.
+    [self backgroundApp];
+    timeOffset += 31;
+    [self resumeApp];
+    
+    XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
+    XCTAssertEqual(networkRequestCount, 2);
 }
 
 - (void)testPerformanceExample {

@@ -82,6 +82,15 @@ NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisp
 /* Omit no app_id error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
+
+@interface OSSubcscriptionStatus : NSObject
+ @property BOOL anwseredPrompt;
+ @property BOOL accepted;
+@end
+
+@implementation OSSubcscriptionStatus
+@end
+
 @implementation OneSignal
 
 NSString* const ONESIGNAL_VERSION = @"020305";
@@ -171,7 +180,6 @@ BOOL mShareLocation = YES;
        [OneSignalLocation getLocation:false];
     
     if (self) {
-        UIApplication* sharedApp = [UIApplication sharedApplication];
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         
         httpClient = [[OneSignalHTTPClient alloc] init];
@@ -247,10 +255,14 @@ BOOL mShareLocation = YES;
 
         if (mUserId != nil)
             [self registerUser];
-        else // Fall back in case Apple does not responds in time.
-            [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
-        
-        [OneSignalTracker onFocus:NO];
+        else {
+            [self userAnsweredNotificationPrompt:^(OSSubcscriptionStatus *status) {
+                if (status.anwseredPrompt)
+                    [self registerUser];
+                else
+                    [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
+            }];
+        }
     }
  
     /*
@@ -655,8 +667,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // iOS 8 - We get a token right away but give the user 30 sec to respond to the system prompt.
         // Also check notification types so there is no waiting if user has already answered the system prompt.
         // The goal is to only have 1 server call.
-        [self userAnsweredNotificationPrompt:^(BOOL anwsered) {
-            if (anwsered)
+        [self userAnsweredNotificationPrompt:^(OSSubcscriptionStatus *status) {
+            if (status.anwseredPrompt)
                 [OneSignal registerUser];
             else {
                 [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
@@ -677,9 +689,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSMutableURLRequest* request;
     request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
     
+    int notificationTypes = [self getNotificationTypes];
+    
     NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                              app_id, @"app_id",
                              deviceToken, @"identifier",
+                             [NSNumber numberWithInt:notificationTypes], @"notification_types",
                              nil];
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT updated pushToken!"];
@@ -718,12 +733,12 @@ static BOOL waitingForOneSReg = false;
     if (waitingForOneSReg)
         return false;
     
-    //Figure out if should pass or not
+    // Figure out if should pass or not
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GT_LAST_CLOSED_TIME"];
     if (!lastTimeClosed) {
         [self updateLastSessionDateTime];
-        return YES;
+        return true;
     }
     
     if ([self isHighPriorityCall])
@@ -881,10 +896,14 @@ static BOOL waitingForOneSReg = false;
 }
 
 // Updates the server with the new user's notification setting or subscription status changes
-+ (void) sendNotificationTypesUpdate {
-    
++ (BOOL) sendNotificationTypesUpdate {
     // User changed notification settings for the app.
     if ([self getNotificationTypes] != -1 && mUserId && mLastNotificationTypes != [self getNotificationTypes]) {
+        if (mDeviceToken == nil) {
+            [self registerForAPNsToken];
+            return true;
+        }
+        
         mLastNotificationTypes = [self getNotificationTypes];
         NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -900,8 +919,11 @@ static BOOL waitingForOneSReg = false;
             idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
             idsAvailableBlockWhenReady = nil;
         }
+        
+        return true;
     }
     
+    return false;
 }
     
 + (void)sendPurchases:(NSArray*)purchases {
@@ -1127,12 +1149,10 @@ static BOOL waitingForOneSReg = false;
     if (!mSubscriptionSet)
         return -2;
     
-    if (mDeviceToken) {
-        if ([OneSignalHelper canGetNotificationTypes])
-            return [[UIApplication sharedApplication] currentUserNotificationSettings].types;
-        else
-            return NOTIFICATION_TYPE_ALL;
-    }
+    if ([OneSignalHelper canGetNotificationTypes])
+        return [[UIApplication sharedApplication] currentUserNotificationSettings].types;
+    else if (mDeviceToken)
+        return NOTIFICATION_TYPE_ALL;
     
     return 0;
 }
@@ -1142,7 +1162,7 @@ static BOOL waitingForOneSReg = false;
     [self sendNotificationTypesUpdate];
 }
 
-+ (void)userAnsweredNotificationPrompt:(void (^)(BOOL anwsered))completionHandler {
++ (void)userAnsweredNotificationPrompt:(void (^)(OSSubcscriptionStatus *anwsered))completionHandler {
    if ([OneSignalHelper isiOS10Plus]) {
        Class unUserNotifClass = NSClassFromString(@"UNUserNotificationCenter");
        [[unUserNotifClass currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(id settings) {
@@ -1150,13 +1170,26 @@ static BOOL waitingForOneSReg = false;
            // Prevents any possiblitity creating thread locks by callling currentUserNotification from this block.
            dispatch_async(dispatch_get_main_queue(), ^{
                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"getNotificationSettingsWithCompletionHandler Called: %@", settings]];
-               completionHandler([settings authorizationStatus] != 0);
+               OSSubcscriptionStatus *status = [OSSubcscriptionStatus alloc];
+               status.anwseredPrompt = [settings authorizationStatus] != 0;
+               status.accepted = [settings authorizationStatus] == 2;
+               completionHandler(status);
            });
         }];
     }
     else {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        completionHandler([userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"]);
+        OSSubcscriptionStatus *status = [OSSubcscriptionStatus alloc];
+        status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+        
+        if ([OneSignalHelper canGetNotificationTypes]) {
+            status.accepted = [[UIApplication sharedApplication] currentUserNotificationSettings].types > 0;
+            completionHandler(status);
+        }
+        else {
+            status.accepted = mDeviceToken != nil;
+            completionHandler(status);
+        }
     }
 }
 
