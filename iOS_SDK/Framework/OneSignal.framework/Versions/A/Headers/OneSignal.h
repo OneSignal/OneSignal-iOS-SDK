@@ -150,7 +150,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
  requires remote-notification within UIBackgroundModes array of the Info.plist */
 @property(readonly, getter=isSilentNotification)BOOL silentNotification;
 
-/* iOS 10+: Indicates wether or not the received notification has mutableContent : 1 assigned to its payload
+/* iOS 10+: Indicates whether or not the received notification has mutableContent : 1 assigned to its payload
  Used for UNNotificationServiceExtension to launch extension.
 */
 #if XC8_AVAILABLE
@@ -177,7 +177,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
-/*Block for notifying avalability of the User's ID and push token*/
+/*Block for notifying availability of the User's ID and push token*/
 typedef void (^OSIdsAvailableBlock)(NSString* userId, NSString* pushToken);
 
 /*Block for handling the reception of a remote notification */
@@ -186,9 +186,9 @@ typedef void (^OSHandleNotificationReceivedBlock)(OSNotification* notification);
 /*Block for handling a user reaction to a notification*/
 typedef void (^OSHandleNotificationActionBlock)(OSNotificationOpenedResult * result);
 
-/*Dictionary of keys to pass alongside the init serttings*/
+/*Dictionary of keys to pass alongside the init settings*/
     
-/*Let OneSignal directly promt for push notifications on init*/
+/*Let OneSignal directly prompt for push notifications on init*/
 extern NSString * const kOSSettingsKeyAutoPrompt;
     
 /*Enable the default in-app alerts*/
@@ -198,7 +198,7 @@ extern NSString * const kOSSettingsKeyInAppAlerts;
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
 
 /* iOS10+ - 
- Set notificaion's in-focus display option.
+ Set notification's in-focus display option.
  Value must be an OSNotificationDisplayType enum
 */
 extern NSString * const kOSSettingsKeyInFocusDisplayOption;
@@ -274,5 +274,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // - Sends the MD5 and SHA1 of the provided email
 // Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
 + (void)syncHashedEmail:(NSString*)email;
+
+// Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
++ (void)setMSDKType:(NSString*)type;
 
 @end
