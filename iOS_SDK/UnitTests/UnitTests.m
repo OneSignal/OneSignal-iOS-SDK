@@ -362,6 +362,34 @@ static BOOL setupUIApplicationDelegate = false;
     [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
 }
 
+
+- (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
+    // Mocking an iOS 10 notification
+    // Setting response.notification.request.content.userInfo
+    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+    // Normal tap on notification
+    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
+    
+    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
+    UNNotification *unNotif = [UNNotification alloc];
+    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    [notifResponse setValue:unNotif forKeyPath:@"notification"];
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotifContent setValue:userInfo forKey:@"userInfo"];
+    
+    return notifResponse;
+}
+                                                                          
+- (UNNotificationResponse*)createBasiciOSNotificationResponse {
+  id userInfo = @{@"custom": @{
+                          @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                          }};
+  
+  return [self createBasiciOSNotificationResponseWithPayload:userInfo];
+}
+
 - (void)testBasicInitTest {
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
@@ -453,8 +481,6 @@ static BOOL setupUIApplicationDelegate = false;
 
 // Tests that a normal notification opened on iOS 10 triggers the handleNotificationAction.
 - (void)testNotificationOpen {
-    notifTypesOverride = 7;
-    
     __block BOOL openedWasFire = false;
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
@@ -465,27 +491,10 @@ static BOOL setupUIApplicationDelegate = false;
     }];
     [self runBackgroundThreads];
     
-    // Setting response.notification.request.content.userInfo
-    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
-    // Normal tap on notification
-    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
-    
-    id userInfo = @{@"custom": @{
-                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
-                    }};
-    
-    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
-    UNNotification *unNotif = [UNNotification alloc];
-    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
-    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
-    [notifResponse setValue:unNotif forKeyPath:@"notification"];
-    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
-    [unNotifContent setValue:userInfo forKey:@"userInfo"];
-
-    // Call iOS 10 selector entry point for a notification that was opened.
+    id notifResponse = [self createBasiciOSNotificationResponse];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     id notifCenterDelegate = notifCenter.delegate;
-
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
     // Make sure open tracking network call was made.
@@ -502,6 +511,48 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastUrl);
     XCTAssertNil(lastHTTPRequset);
     XCTAssertEqual(networkRequestCount, 2);
+}
+
+- (void)testOpeningWithAdditionalData {
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"foo"], @"bar");
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
+        XCTAssertNil(result.action.actionID);
+        openedWasFire = true;
+    }];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"custom": @{
+                      @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"a": @{ @"foo": @"bar" }
+                  }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    XCTAssertEqual(openedWasFire, true);
+    
+    
+    // Part 2 - New paylaod test
+    // Current mocking isn't able to setup this test correctly.
+    // In an app AppDelete selectors fire instead of UNUserNotificationCenter
+    // SDK could also used some refactoring as this should't have an effect.
+    /*
+    openedWasFire = false;
+    userInfo = @{@"alert": @"body",
+                 @"os_data": @{
+                         @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bc"
+                         },
+                 @"foo": @"bar"};
+    notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    XCTAssertEqual(openedWasFire, true);
+    */
 }
 
 - (void)testSendTags {
