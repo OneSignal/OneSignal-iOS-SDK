@@ -96,7 +96,7 @@ BOOL lastOnFocusWasToBackground = YES;
         BOOL firedUpdate = [OneSignal sendNotificationTypesUpdate];
         
         // on_session tracking when resumming app.
-        if (!firedUpdate)
+        if (!firedUpdate && [OneSignal mUserId])
             [OneSignal registerUser];
         wasBadgeSet = [OneSignal clearBadgeCount:false];
     }

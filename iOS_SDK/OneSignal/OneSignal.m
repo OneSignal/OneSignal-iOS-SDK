@@ -117,21 +117,16 @@ OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 
 int mLastNotificationTypes = -1;
-int mSubscriptionStatus = -1;
+static int mSubscriptionStatus = -1;
 
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mSubscriptionSet;
 BOOL mShareLocation = YES;
 
-+ (void) clearStatics {
-    waitingForApnsResponse = false;
-    registeredWithApple = NO;
-    
-    mLastNotificationTypes = -1;
-    mSubscriptionStatus = -1;
++ (void) setMSubscriptionStatus:(NSNumber*)status {
+    mSubscriptionStatus = [status intValue];
 }
-
     
 + (NSString*)app_id {
     return app_id;
@@ -342,8 +337,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 
 // iOS 8+, only tries to register for an APNs token if one is true:
-//    - UIBackground > remote-notification" modes are on
-//    - The user already accepted notification permssion
 + (BOOL)registerForAPNsToken {
     if (waitingForApnsResponse)
         return true;
@@ -351,11 +344,19 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     id backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
     backgroundModesEnabled = (backgroundModes && [backgroundModes containsObject:@"remote-notification"]);
     
+    // Only try to register for a pushToken if:
+    //  - The user accepted notifications
+    //  - Background Modes > Remote Notifications are enabled in Xcode
     if (![self accpetedNotificationPermission] && !backgroundModesEnabled)
+        return false;
+    
+    // Don't attempt to register again if the was non-recoverable error.
+    if (mSubscriptionStatus < -9)
         return false;
     
     waitingForApnsResponse = true;
     [[UIApplication sharedApplication] registerForRemoteNotifications];
+    
     return true;
 }
 
@@ -393,11 +394,25 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // Block not assigned if userID nil and there is a device token
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
-    if (mUserId)
-        idsAvailableBlock(mUserId, [self getUsableDeviceToken]);
+    idsAvailableBlockWhenReady = idsAvailableBlock;
+    [self fireIdsAvailableCallback];
+}
+
++ (void) fireIdsAvailableCallback {
+    if (!idsAvailableBlockWhenReady)
+        return;
+    if (!mUserId)
+        return;
     
-    if (!mUserId || ![self getUsableDeviceToken])
-        idsAvailableBlockWhenReady = idsAvailableBlock;
+    // Ensure we are on the main thread incase app developer updates UI from the callback.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id pushToken = [self getUsableDeviceToken];
+        if (!idsAvailableBlockWhenReady)
+            return;
+        idsAvailableBlockWhenReady(mUserId, pushToken);
+        if (pushToken)
+           idsAvailableBlockWhenReady = nil;
+    });
 }
 
 + (void)sendTagsWithJsonString:(NSString*)jsonString {
@@ -626,20 +641,20 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (err.code == 3000) {
         if ([((NSString*)[err.userInfo objectForKey:NSLocalizedDescriptionKey]) rangeOfString:@"no valid 'aps-environment'"].location != NSNotFound) {
             // User did not enable push notification capability
-            [OneSignal setSubscriptionStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
+            [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"ERROR! 'Push Notification' capability not turned on! Enable it in Xcode under 'Project Target' -> Capability."];
         }
         else {
-            [OneSignal setSubscriptionStatus:ERROR_PUSH_OTHER_3000_ERROR];
+            [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_OTHER_3000_ERROR];
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"ERROR! Unkown 3000 error returned from APNs when getting a push token: %@", err]];
         }
     }
     else if (err.code == 3010) {
-        [OneSignal setSubscriptionStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
+        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
     }
     else {
-        [OneSignal setSubscriptionStatus:ERROR_PUSH_UNKOWN_APNS_ERROR];
+        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKOWN_APNS_ERROR];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
 }
@@ -704,13 +719,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     [OneSignalHelper enqueueRequest:request onSuccess:successBlock onFailure:failureBlock];
     
-    if (idsAvailableBlockWhenReady) {
-        if ([self getUsableDeviceToken]) {
-            idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
-            idsAvailableBlockWhenReady = nil;
-        }
-    }
-    
+    [self fireIdsAvailableCallback];
 }
 
 // Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
@@ -861,11 +870,7 @@ static BOOL waitingForOneSReg = false;
                 emailToSet = nil;
             }
             
-            if (idsAvailableBlockWhenReady) {
-                idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
-                if (mDeviceToken)
-                    idsAvailableBlockWhenReady = nil;
-            }
+            [self fireIdsAvailableCallback];
             
             [self sendNotificationTypesUpdate];
         }
@@ -900,8 +905,8 @@ static BOOL waitingForOneSReg = false;
     // User changed notification settings for the app.
     if ([self getNotificationTypes] != -1 && mUserId && mLastNotificationTypes != [self getNotificationTypes]) {
         if (mDeviceToken == nil) {
-            [self registerForAPNsToken];
-            return true;
+            if ([self registerForAPNsToken])
+               return true;
         }
         
         mLastNotificationTypes = [self getNotificationTypes];
@@ -915,17 +920,15 @@ static BOOL waitingForOneSReg = false;
         
         [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
         
-        if ([self getUsableDeviceToken] && idsAvailableBlockWhenReady) {
-            idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
-            idsAvailableBlockWhenReady = nil;
-        }
+        if ([self getUsableDeviceToken])
+            [self fireIdsAvailableCallback];
         
         return true;
     }
     
     return false;
 }
-    
+
 + (void)sendPurchases:(NSArray*)purchases {
     if (mUserId == nil)
         return;
@@ -1162,9 +1165,12 @@ static NSString *_lastnonActiveMessageId;
     return 0;
 }
 
-+ (void)setSubscriptionStatus:(int)errorType {
++ (void)setSubscriptionErrorStatus:(int)errorType {
     mSubscriptionStatus = errorType;
-    [self sendNotificationTypesUpdate];
+    if (mUserId)
+        [self sendNotificationTypesUpdate];
+    else
+        [self registerUser];
 }
 
 + (void)userAnsweredNotificationPrompt:(void (^)(OSSubcscriptionStatus *anwsered))completionHandler {
@@ -1218,8 +1224,8 @@ static NSString *_lastnonActiveMessageId;
     else if (mDeviceToken)
         [self sendNotificationTypesUpdate];
     
-    if (idsAvailableBlockWhenReady && mUserId && [self getUsableDeviceToken])
-        idsAvailableBlockWhenReady(mUserId, [self getUsableDeviceToken]);
+    if ([self getUsableDeviceToken])
+        [self fireIdsAvailableCallback];
 }
 
 + (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
