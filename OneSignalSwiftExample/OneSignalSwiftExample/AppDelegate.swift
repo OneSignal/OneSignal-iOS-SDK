@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                           kOSSettingsKeyInFocusDisplayOption : OSNotificationDisplayType.notification.rawValue])
         
         OneSignal.idsAvailable({ (userId, pushToken) in
-            print("UserId:%@", userId);
+            print("UserId = \(userId)")
             if (pushToken != nil) {
                 NSLog("Sending Test Noification to this device now");
                 OneSignal.postNotification(["contents": ["en": "Test Message"], "include_player_ids": [userId]]);
