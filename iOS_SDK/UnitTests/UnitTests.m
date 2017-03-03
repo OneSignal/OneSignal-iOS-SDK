@@ -314,6 +314,12 @@ static BOOL setupUIApplicationDelegate = false;
     lastUrl = nil;
     lastHTTPRequset = nil;
     
+    [OneSignalHelper lastMessageReceived:nil];
+    OneSignalHelper.lastMessageIdFromAction = nil;
+    [OneSignal setValue:nil forKeyPath:@"lastAppActiveMessageId"];
+    [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
+    
+    
     notifTypesOverride = 7;
     authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     

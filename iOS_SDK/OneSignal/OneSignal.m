@@ -946,6 +946,13 @@ static BOOL waitingForOneSReg = false;
 }
 
 
+static NSString *_lastAppActiveMessageId;
++ (void)setLastAppActiveMessageId:(NSString*)value { _lastAppActiveMessageId = value; }
+
+static NSString *_lastnonActiveMessageId;
++ (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
+
+
 // Entry point for the following:
 //  - 1. (iOS all) - Opening notifications
 //  - 2. Notification received
@@ -967,12 +974,11 @@ static BOOL waitingForOneSReg = false;
     BOOL inAppAlert = false;
     if (isActive) {
         // Prevent duplicate calls
-        static NSString* lastAppActiveMessageId = @"";
-        NSString* newId = [self checkForProcessedDups:customDict lastMessageId:lastAppActiveMessageId];
+        NSString* newId = [self checkForProcessedDups:customDict lastMessageId:_lastAppActiveMessageId];
         if ([@"dup" isEqualToString:newId])
             return;
         if (newId)
-            lastAppActiveMessageId = newId;
+            _lastAppActiveMessageId = newId;
         
         if (![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
             [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
@@ -1019,12 +1025,11 @@ static BOOL waitingForOneSReg = false;
     }
     else {
         // Prevent duplicate calls
-        static NSString* lastnonActiveMessageId = @"";
-        NSString* newId = [self checkForProcessedDups:customDict lastMessageId:lastnonActiveMessageId];
+        NSString* newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
         if ([@"dup" isEqualToString:newId])
             return;
         if (newId)
-            lastnonActiveMessageId = newId;
+            _lastnonActiveMessageId = newId;
         
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;

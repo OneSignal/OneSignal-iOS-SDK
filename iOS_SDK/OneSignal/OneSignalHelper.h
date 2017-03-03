@@ -60,6 +60,7 @@
 + (UILocalNotification*)prepareUILocalNotification:(NSDictionary*)data :(NSDictionary*)userInfo;
 + (BOOL)verifyURL:(NSString *)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
+@property (class) NSString *lastMessageIdFromAction;
 
 // - Networking
 + (NSNumber*)getNetType;

@@ -472,6 +472,9 @@ OSHandleNotificationActionBlock handleNotificationAction;
     handleNotificationReceived(notification);
 }
 
+static NSString *_lastMessageIdFromAction;
++ (void)setLastMessageIdFromAction:(NSString*)value { _lastMessageIdFromAction = value; }
+
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
     if (!handleNotificationAction || ![self isOneSignalPayload])
         return;
@@ -482,10 +485,9 @@ OSHandleNotificationActionBlock handleNotificationAction;
     OSNotificationOpenedResult * result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
     
     // Prevent duplicate calls to same action
-    static NSString* lastMessageID = @"";
-    if ([payload.notificationID isEqualToString:lastMessageID])
+    if ([payload.notificationID isEqualToString:_lastMessageIdFromAction])
         return;
-    lastMessageID = payload.notificationID;
+    _lastMessageIdFromAction = payload.notificationID;
     
     handleNotificationAction(result);
 }
