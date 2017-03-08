@@ -278,4 +278,9 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
+// iOS 10 only
+// Process from Notification Service Extension.
+// Used for iOS Media Attachemtns and Action Buttons.
++ (UNMutableNotificationContent*)didReceiveNotificatioExtensionnRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+
 @end

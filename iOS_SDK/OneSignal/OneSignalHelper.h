@@ -75,6 +75,8 @@
 + (BOOL) isValidEmail:(NSString*)email;
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
++ (void)addAttachments:(NSDictionary*)attachments toNotificationContent:(id)content;
++ (void)addActionButtons:(NSArray*)buttonsPayloadList toNotificationContent:(id)content;
 
 #pragma clang diagnostic pop
 @end

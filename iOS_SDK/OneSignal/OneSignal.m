@@ -47,6 +47,8 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
+#import <UserNotifications/UserNotifications.h>
+
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -1251,13 +1253,14 @@ static NSString *_lastnonActiveMessageId;
     
     // Generate local notification for action button and/or attachments.
     if (data) {
+        // iOS 10
         if (NSClassFromString(@"UNUserNotificationCenter")) {
             startedBackgroundJob = true;
             #if XC8_AVAILABLE
             [OneSignalHelper addnotificationRequest:data userInfo:userInfo completionHandler:completionHandler];
             #endif
         }
-        else {
+        else { // Pre-iOS 10
             UILocalNotification* notification = [OneSignalHelper prepareUILocalNotification:data :userInfo];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
@@ -1334,6 +1337,30 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper enqueueRequest:request
                 onSuccess:nil
                onFailure:nil];
+}
+
+// Call from your Notification Service Extension
++ (UNMutableNotificationContent*)didReceiveNotificatioExtensionnRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    if (!replacementContent)
+        replacementContent = [request.content mutableCopy];
+    
+    // Media Attachments
+    NSDictionary* attachments = request.content.userInfo[@"os_data"][@"att"];
+    if (!attachments)
+        attachments = request.content.userInfo[@"att"];
+    if (attachments)
+        [OneSignalHelper addAttachments:attachments toNotificationContent:replacementContent];
+    
+    
+    // Action Buttons
+    NSArray* buttonsPayloadList = request.content.userInfo[@"os_data"][@"buttons"];
+    if (!buttonsPayloadList)
+        buttonsPayloadList = request.content.userInfo[@"buttons"];
+    
+    if (buttonsPayloadList)
+        [OneSignalHelper addActionButtons:buttonsPayloadList toNotificationContent:replacementContent];
+    
+    return replacementContent;
 }
 
 @end

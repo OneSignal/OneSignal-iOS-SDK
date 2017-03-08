@@ -1,9 +1,9 @@
 //
 //  NotificationService.h
-//  OSServiceExtension
+//  NotificationServiceExtension
 //
-//  Created by Joseph Kalash on 9/12/16.
-//  Copyright © 2016 OneSignal. All rights reserved.
+//  Created by Kasten on 3/7/17.
+//  Copyright © 2017 OneSignal. All rights reserved.
 //
 
 #import <UserNotifications/UserNotifications.h>

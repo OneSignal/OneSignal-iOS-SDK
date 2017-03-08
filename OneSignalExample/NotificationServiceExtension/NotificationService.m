@@ -1,10 +1,12 @@
 //
 //  NotificationService.m
-//  OSServiceExtension
+//  NotificationServiceExtension
 //
-//  Created by Joseph Kalash on 9/12/16.
-//  Copyright © 2016 OneSignal. All rights reserved.
+//  Created by Kasten on 3/7/17.
+//  Copyright © 2017 OneSignal. All rights reserved.
 //
+
+#import <OneSignal/OneSignal.h>
 
 #import "NotificationService.h"
 
@@ -18,12 +20,16 @@
 @implementation NotificationService
 
 - (void)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
-    
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
     
+    [OneSignal didReceiveNotificatioExtensionnRequest:request withMutableNotificationContent:self.bestAttemptContent];
+    
     // Modify the notification content here...
-    self.bestAttemptContent.title = [NSString stringWithFormat:@"[Modified-thorugh-OneSignal] %@", self.bestAttemptContent.title];
+    self.bestAttemptContent.title = [NSString stringWithFormat:@"%@ [modified]", self.bestAttemptContent.title];
+    
+    
+    //self.bestAttemptContent.categoryIdentifier = @"myNotificationCategory";
     
     self.contentHandler(self.bestAttemptContent);
 }
@@ -31,6 +37,9 @@
 - (void)serviceExtensionTimeWillExpire {
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
+    
+    // TODO: Add OneSignal call here with the same name.
+    //         It should add action buttons if they are set and skip the attachments if it can't finish in time.
     self.contentHandler(self.bestAttemptContent);
 }
 

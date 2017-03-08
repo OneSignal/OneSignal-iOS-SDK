@@ -693,7 +693,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
-    timeOffset = 20;
+    timeOffset = 10;
     [self resumeApp];
     XCTAssertEqual(networkRequestCount, 1);
     
