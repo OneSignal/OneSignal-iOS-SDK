@@ -17,6 +17,7 @@
 #import "OneSignal.h"
 
 #import "OneSignalHelper.h"
+#import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
 
 
@@ -336,12 +337,13 @@ static BOOL setupUIApplicationDelegate = false;
     [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
     [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
     
+    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
     
     notifTypesOverride = 7;
     authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     
     shouldFireDeviceToken = true;
-    didFailRegistarationErrorCode = nil;
+    didFailRegistarationErrorCode = 0;
     nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
     // TODO: Keep commented out for now, might need this later.
@@ -606,6 +608,104 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 2);
 }
 
+// Testing iOS 10 - old pre-2.4.0 button fromat - with original aps payload format
+- (void)testNotificationOpenFromButtonPress {
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
+        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        openedWasFire = true;
+    }];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"m": @"alert body only",
+                    @"o": @[@{@"i": @"id1", @"n": @"text1"}],
+                    @"custom": @{
+                                @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            }
+                    };
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    // Make sure open tracking network call was made.
+    XCTAssertEqual(openedWasFire, true);
+    XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"opened"], @1);
+    
+    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    lastUrl = nil;
+    lastHTTPRequset = nil;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    XCTAssertNil(lastUrl);
+    XCTAssertNil(lastHTTPRequset);
+    XCTAssertEqual(networkRequestCount, 2);
+}
+
+
+
+
+
+
+// Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
+- (void)testNotificationOpenFromButtonPressWithNewformat {
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
+        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        openedWasFire = true;
+    }];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                    },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                    }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    // Make sure open tracking network call was made.
+    XCTAssertEqual(openedWasFire, true);
+    XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"opened"], @1);
+    
+    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    lastUrl = nil;
+    lastHTTPRequset = nil;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    XCTAssertNil(lastUrl);
+    XCTAssertNil(lastHTTPRequset);
+    XCTAssertEqual(networkRequestCount, 2);
+}
+
+
+// Testing iOS 10 - with original aps payload format
 - (void)testOpeningWithAdditionalData {
     __block BOOL openedWasFire = false;
     
@@ -648,6 +748,8 @@ static BOOL setupUIApplicationDelegate = false;
     */
 }
 
+
+// Testing iOS 10 - pre-2.4.0 button fromat - with os_data aps payload format
 - (void)testRecievedCallbackWithButtons {
     __block BOOL recievedWasFire = false;
     
@@ -655,7 +757,7 @@ static BOOL setupUIApplicationDelegate = false;
         recievedWasFire = true;
         id actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
         // TODO: Fix code so it don't use the shortened format.
-        XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
+        // XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
     } handleNotificationAction:nil settings:nil];
     [self runBackgroundThreads];
     

@@ -72,6 +72,8 @@
     if (self && message) {
         _rawPayload = [NSDictionary dictionaryWithDictionary:message];
         
+        BOOL is2dot4Format = [_rawPayload[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
+        
         if (_rawPayload[@"aps"][@"content-available"])
             _contentAvailable = (BOOL)_rawPayload[@"aps"][@"content-available"];
         else
@@ -83,14 +85,18 @@
             _badge = [_rawPayload[@"badge"] intValue];
         
         _actionButtons = _rawPayload[@"o"];
-        if (!_actionButtons)
-            _actionButtons = _rawPayload[@"os_data"][@"buttons"][@"o"];
+        if (!_actionButtons) {
+            if (is2dot4Format)
+                _actionButtons = _rawPayload[@"os_data"][@"buttons"];
+            else
+                _actionButtons = _rawPayload[@"os_data"][@"buttons"][@"o"];
+        }
         
         if(_rawPayload[@"aps"][@"sound"])
             _sound = _rawPayload[@"aps"][@"sound"];
         else if(_rawPayload[@"s"])
             _sound = _rawPayload[@"s"];
-        else
+        else if (!is2dot4Format)
             _sound = _rawPayload[@"os_data"][@"buttons"][@"s"];
         
         if(_rawPayload[@"custom"]) {
@@ -113,8 +119,14 @@
             _notificationID = os_data[@"i"];
             _launchURL = os_data[@"u"];
             
-            if(os_data[@"buttons"][@"at"])
-                _attachments = [os_data[@"buttons"][@"at"] copy];
+            if (is2dot4Format) {
+                if (os_data[@"att"])
+                    _attachments = [os_data[@"att"] copy];
+            }
+            else {
+                if (os_data[@"buttons"][@"at"])
+                    _attachments = [os_data[@"buttons"][@"at"] copy];
+            }
         }
         
         if(_rawPayload[@"m"]) {
@@ -413,17 +425,25 @@ OSHandleNotificationActionBlock handleNotificationAction;
 
 + (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier {
     NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
+    BOOL is2dot4Format = false;
     
     if (remoteUserInfo[@"os_data"][@"buttons"]) {
         userInfo = [remoteUserInfo mutableCopy];
         additionalData = [NSMutableDictionary dictionary];
-        optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
+        
+        is2dot4Format = [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
+        if (is2dot4Format)
+            optionsDict = userInfo[@"os_data"][@"buttons"];
+        else
+           optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
     }
     else if (remoteUserInfo[@"custom"]) {
         userInfo = [remoteUserInfo mutableCopy];
         customDict = [userInfo[@"custom"] mutableCopy];
         if (customDict[@"a"])
             additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+        else
+            additionalData = [[NSMutableDictionary alloc] init];
         optionsDict = userInfo[@"o"];
     }
     else
@@ -441,15 +461,19 @@ OSHandleNotificationActionBlock handleNotificationAction;
     if (![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:identifier])
         additionalData[@"actionSelected"] = identifier;
     
+    if ([additionalData count] == 0)
+        additionalData = nil;
+    
     if (remoteUserInfo[@"os_data"]) {
         [userInfo addEntriesFromDictionary:additionalData];
-        userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
+        if (!is2dot4Format)
+            userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
     }
     else {
         customDict[@"a"] = additionalData;
         userInfo[@"custom"] = customDict;
         
-        if(userInfo[@"m"])
+        if (userInfo[@"m"])
             userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
     }
     
