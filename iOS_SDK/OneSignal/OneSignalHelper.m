@@ -94,7 +94,7 @@
             _sound = _rawPayload[@"os_data"][@"buttons"][@"s"];
         
         if(_rawPayload[@"custom"]) {
-            NSDictionary * custom = _rawPayload[@"custom"];
+            NSDictionary* custom = _rawPayload[@"custom"];
             if (custom[@"a"])
                 _additionalData = [custom[@"a"] copy];
             _notificationID = custom[@"i"];
@@ -138,10 +138,14 @@
                 _body = a;
         }
         else if(_rawPayload[@"os_data"][@"buttons"][@"m"]) {
-            NSDictionary * m = _rawPayload[@"os_data"][@"buttons"][@"m"];
-            _body = m[@"body"];
-            _title = m[@"title"];
-            _subtitle = m[@"subtitle"];
+            id m = _rawPayload[@"os_data"][@"buttons"][@"m"];
+            if ([m isKindOfClass:[NSDictionary class]]) {
+                _body = m[@"body"];
+                _title = m[@"title"];
+                _subtitle = m[@"subtitle"];
+            }
+            else
+                _body = m;
         }
     }
     
@@ -331,6 +335,10 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return messageDict[@"o"];
 }
 
++ (NSString*)getAppName {
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleNameKey];
+}
+
 + (NSDictionary*)getPushTitleBody:(NSDictionary*)messageDict {
     
     NSString *title;
@@ -350,7 +358,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     }
     
     if (!title)
-        title = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleNameKey];
+        title = [self getAppName];
     if (!title)
         title = @"";
     

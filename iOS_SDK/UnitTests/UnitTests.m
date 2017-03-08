@@ -167,9 +167,12 @@ static NSDictionary* nsbundleDictionary;
 
 + (void)load {
     [NSBundleOverrider sizzleBundleIdentifier];
+    
     injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
+    
+    // Doesn't work to swizzle for mocking. Both an NSDictionary and NSMutableDictionarys both throw odd selecotor not found errors.
+    // injectToProperClass(@selector(overrideInfoDictionary), @selector(infoDictionary), @[], [NSBundleOverrider class], [NSBundle class]);
 }
-
 
 + (void)sizzleBundleIdentifier {
     injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
@@ -267,6 +270,11 @@ static int networkRequestCount;
 
 + (void)load {
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
+    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
+}
+
++ (NSString*) overrideGetAppName {
+    return @"App Name";
 }
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
@@ -419,7 +427,7 @@ static BOOL setupUIApplicationDelegate = false;
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
   id userInfo = @{@"custom": @{
-                          @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
                           }};
   
   return [self createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -579,7 +587,7 @@ static BOOL setupUIApplicationDelegate = false;
     id notifResponse = [self createBasiciOSNotificationResponse];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     id notifCenterDelegate = notifCenter.delegate;
-    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
     // Make sure open tracking network call was made.
@@ -639,6 +647,38 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(openedWasFire, true);
     */
 }
+
+- (void)testRecievedCallbackWithButtons {
+    __block BOOL recievedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+        recievedWasFire = true;
+        id actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
+        // TODO: Fix code so it don't use the shortened format.
+        XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
+    } handleNotificationAction:nil settings:nil];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @{
+                            @"m": @"alert body only",
+                            @"o": @[@{@"i": @"id1", @"n": @"text1"}]
+                        }
+                    }
+                };
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    //iOS 10 calls  UNUserNotificationCenterDelegate method directly when a notification is received while the app is in focus.
+    [notifCenterDelegate userNotificationCenter:notifCenter willPresentNotification:[notifResponse notification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    
+    XCTAssertEqual(recievedWasFire, true);
+}
+
 
 - (void)testSendTags {
     [self initOneSignal];
