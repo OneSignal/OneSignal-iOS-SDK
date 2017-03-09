@@ -17,6 +17,7 @@
 #import "OneSignal.h"
 
 #import "OneSignalHelper.h"
+#import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
 
 
@@ -140,6 +141,23 @@ static NSMutableDictionary* defaultsDictionary;
 
 @end
 
+@interface NSDataOverrider : NSObject
+@end
+@implementation NSDataOverrider
++ (void)load {
+    injectStaticSelector([NSDataOverrider class], @selector(overrideDataWithContentsOfURL:), [NSData class], @selector(dataWithContentsOfURL:));
+}
+
+// Mock data being downloaded from a remote URL.
++ (NSData*) overrideDataWithContentsOfURL:(NSURL *)url {
+    char bytes[32];
+    memset(bytes, 1, 32);
+    
+    return [NSData dataWithBytes:bytes length:32];
+}
+
+@end
+
 
 @interface NSDateOverrider : NSObject
 @end
@@ -167,9 +185,12 @@ static NSDictionary* nsbundleDictionary;
 
 + (void)load {
     [NSBundleOverrider sizzleBundleIdentifier];
+    
     injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
+    
+    // Doesn't work to swizzle for mocking. Both an NSDictionary and NSMutableDictionarys both throw odd selecotor not found errors.
+    // injectToProperClass(@selector(overrideInfoDictionary), @selector(infoDictionary), @[], [NSBundleOverrider class], [NSBundle class]);
 }
-
 
 + (void)sizzleBundleIdentifier {
     injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
@@ -267,6 +288,11 @@ static int networkRequestCount;
 
 + (void)load {
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
+    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
+}
+
++ (NSString*) overrideGetAppName {
+    return @"App Name";
 }
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
@@ -328,12 +354,13 @@ static BOOL setupUIApplicationDelegate = false;
     [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
     [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
     
+    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
     
     notifTypesOverride = 7;
     authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     
     shouldFireDeviceToken = true;
-    didFailRegistarationErrorCode = nil;
+    didFailRegistarationErrorCode = 0;
     nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
     // TODO: Keep commented out for now, might need this later.
@@ -348,6 +375,10 @@ static BOOL setupUIApplicationDelegate = false;
         UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
         setupUIApplicationDelegate = true;
     }
+    
+    // Uncomment to simulate slow travis-CI runs.
+    // NSLog(@"Sleeping for debugging");
+    // [NSThread sleepForTimeInterval:15];
 }
 
 // Called after each test.
@@ -402,12 +433,15 @@ static BOOL setupUIApplicationDelegate = false;
     // Mocking an iOS 10 notification
     // Setting response.notification.request.content.userInfo
     UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+    
     // Normal tap on notification
     [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
     
     UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
     UNNotification *unNotif = [UNNotification alloc];
     UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    // Set as remote push type
+    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
     
     [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
     [notifResponse setValue:unNotif forKeyPath:@"notification"];
@@ -419,7 +453,7 @@ static BOOL setupUIApplicationDelegate = false;
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
   id userInfo = @{@"custom": @{
-                          @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
                           }};
   
   return [self createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -451,9 +485,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
-    
-    // NSLog(@"Sleeping for debugging");
-    // [NSThread sleepForTimeInterval:1000];
 }
 
 - (void)testInitOnSimulator {
@@ -478,9 +509,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
-    
-    // NSLog(@"Sleeping for debugging");
-    // [NSThread sleepForTimeInterval:1000];
 }
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
@@ -579,7 +607,7 @@ static BOOL setupUIApplicationDelegate = false;
     id notifResponse = [self createBasiciOSNotificationResponse];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     id notifCenterDelegate = notifCenter.delegate;
-    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
     // Make sure open tracking network call was made.
@@ -598,6 +626,100 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 2);
 }
 
+// Testing iOS 10 - old pre-2.4.0 button fromat - with original aps payload format
+- (void)testNotificationOpenFromButtonPress {
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
+        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        openedWasFire = true;
+    }];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"m": @"alert body only",
+                    @"o": @[@{@"i": @"id1", @"n": @"text1"}],
+                    @"custom": @{
+                                @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            }
+                    };
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    // Make sure open tracking network call was made.
+    XCTAssertEqual(openedWasFire, true);
+    XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"opened"], @1);
+    
+    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    lastUrl = nil;
+    lastHTTPRequset = nil;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    XCTAssertNil(lastUrl);
+    XCTAssertNil(lastHTTPRequset);
+    XCTAssertEqual(networkRequestCount, 2);
+}
+
+
+// Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
+- (void)testNotificationOpenFromButtonPressWithNewformat {
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
+        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        openedWasFire = true;
+    }];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                    },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                    }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    // Make sure open tracking network call was made.
+    XCTAssertEqual(openedWasFire, true);
+    XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"opened"], @1);
+    
+    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    lastUrl = nil;
+    lastHTTPRequset = nil;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    XCTAssertNil(lastUrl);
+    XCTAssertNil(lastHTTPRequset);
+    XCTAssertEqual(networkRequestCount, 2);
+}
+
+
+// Testing iOS 10 - with original aps payload format
 - (void)testOpeningWithAdditionalData {
     __block BOOL openedWasFire = false;
     
@@ -639,6 +761,40 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(openedWasFire, true);
     */
 }
+
+
+// Testing iOS 10 - pre-2.4.0 button fromat - with os_data aps payload format
+- (void)testRecievedCallbackWithButtons {
+    __block BOOL recievedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+        recievedWasFire = true;
+        id actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
+        // TODO: Fix code so it don't use the shortened format.
+        // XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
+    } handleNotificationAction:nil settings:nil];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @{
+                            @"m": @"alert body only",
+                            @"o": @[@{@"i": @"id1", @"n": @"text1"}]
+                        }
+                    }
+                };
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    //iOS 10 calls  UNUserNotificationCenterDelegate method directly when a notification is received while the app is in focus.
+    [notifCenterDelegate userNotificationCenter:notifCenter willPresentNotification:[notifResponse notification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    
+    XCTAssertEqual(recievedWasFire, true);
+}
+
 
 - (void)testSendTags {
     [self initOneSignal];
@@ -693,7 +849,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
-    timeOffset = 20;
+    timeOffset = 10;
     [self resumeApp];
     XCTAssertEqual(networkRequestCount, 1);
     
@@ -705,6 +861,79 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
     XCTAssertEqual(networkRequestCount, 2);
 }
+
+// iOS 10 - Notification Service Extension test
+- (void) testDidReceiveNotificatioExtensionRequest {
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                    },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                        @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                    }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    // Make sure butons were added.
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    // Make sure attachments were added.
+    XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
+    XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+// iOS 10 - Notification Service Extension test
+- (void) testDidReceiveNotificatioExtensionnRequestDontOverrideCateogory {
+    id userInfo = @{@"aps": @{
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body"
+                            },
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                            @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                            }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    // Make sure butons were added.
+    XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
+    // Make sure attachments were added.
+    XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
+    XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+// iOS 10 - Notification Service Extension test
+- (void) testServiceExtensionTimeWillExpireRequest {
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                        },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                        @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                    }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    // Make sure butons were added.
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    // Make sure attachments were NOT added.
+    //   We should not try to download attachemts as iOS is about to kill the extension and this will take to much time.
+    XCTAssertNil(content.attachments);
+
+}
+    
 
 - (void)testPerformanceExample {
     // This is an example of a performance test case.

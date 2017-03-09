@@ -25,15 +25,8 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
-#import <CoreData/CoreData.h>
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 #import <UserNotifications/UserNotifications.h>
-#endif
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, UNUserNotificationCenterDelegate>
-
-@property (strong, nonatomic) UIWindow* window;
+@interface NotificationService : UNNotificationServiceExtension
 
 @end

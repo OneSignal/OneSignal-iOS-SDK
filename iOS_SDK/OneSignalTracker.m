@@ -43,10 +43,20 @@
 
 @implementation OneSignalTracker
 
-NSNumber* unSentActiveTime;
-UIBackgroundTaskIdentifier focusBackgroundTask;
-NSTimeInterval lastOpenedTime;
-BOOL lastOnFocusWasToBackground = YES;
+static NSNumber* unSentActiveTime;
+static UIBackgroundTaskIdentifier focusBackgroundTask;
+static NSTimeInterval lastOpenedTime;
+static BOOL lastOnFocusWasToBackground = YES;
+
+
++ (void)resetLocals {
+    unSentActiveTime = nil;
+    focusBackgroundTask = nil;
+    lastOpenedTime = 0;
+    lastOnFocusWasToBackground = YES;
+}
+
+
 
 + (void) beginBackgroundFocusTask {
     focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{

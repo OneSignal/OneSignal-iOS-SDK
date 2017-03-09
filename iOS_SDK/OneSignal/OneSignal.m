@@ -47,6 +47,8 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
+#import <UserNotifications/UserNotifications.h>
+
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
 #define NOTIFICATION_TYPE_SOUND 2
@@ -1242,22 +1244,22 @@ static NSString *_lastnonActiveMessageId;
 + (BOOL) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     BOOL startedBackgroundJob = false;
     
-    // If 'm' present then the notification has action buttons attached to it.
     NSDictionary* data = nil;
     
-    // Check for buttons or attachments
-    if (userInfo[@"os_data"][@"buttons"] || userInfo[@"at"] || userInfo[@"o"])
+    // Check for buttons or attachments pre-2.4.0 version
+    if ((userInfo[@"os_data"][@"buttons"] && [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]]) || userInfo[@"at"] || userInfo[@"o"])
         data = userInfo;
     
     // Generate local notification for action button and/or attachments.
     if (data) {
+        // iOS 10
         if (NSClassFromString(@"UNUserNotificationCenter")) {
             startedBackgroundJob = true;
             #if XC8_AVAILABLE
             [OneSignalHelper addnotificationRequest:data userInfo:userInfo completionHandler:completionHandler];
             #endif
         }
-        else {
+        else { // Pre-iOS 10
             UILocalNotification* notification = [OneSignalHelper prepareUILocalNotification:data :userInfo];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
@@ -1336,9 +1338,51 @@ static NSString *_lastnonActiveMessageId;
                onFailure:nil];
 }
 
++ (void)addActionButtonsToExtentionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    if (request.content.categoryIdentifier && ![request.content.categoryIdentifier isEqualToString:@""])
+        return;
+    
+    NSArray* buttonsPayloadList = request.content.userInfo[@"os_data"][@"buttons"];
+    if (!buttonsPayloadList)
+        buttonsPayloadList = request.content.userInfo[@"buttons"];
+    
+    if (buttonsPayloadList)
+        [OneSignalHelper addActionButtons:buttonsPayloadList toNotificationContent:replacementContent];
+}
+
+// Called from the app's Notification Service Extension
++ (UNMutableNotificationContent*)didReceiveNotificatioExtensionnRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    if (!replacementContent)
+        replacementContent = [request.content mutableCopy];
+    
+    // Action Buttons
+    [self addActionButtonsToExtentionRequest:request withMutableNotificationContent:replacementContent];
+    
+    // Media Attachments
+    NSDictionary* attachments = request.content.userInfo[@"os_data"][@"att"];
+    if (!attachments)
+        attachments = request.content.userInfo[@"att"];
+    if (attachments)
+        [OneSignalHelper addAttachments:attachments toNotificationContent:replacementContent];
+    
+    return replacementContent;
+}
+
+
+// Called from the app's Notification Service Extension
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    if (!replacementContent)
+        replacementContent = [request.content mutableCopy];
+    
+    [self addActionButtonsToExtentionRequest:request withMutableNotificationContent:replacementContent];
+    
+    return replacementContent;
+}
+
+
 @end
 
-// Swizzles UIApplication class to swizzling the other following classes:
+// Swizzles UIApplication class to swizzling the following:
 //   - UIApplication
 //      - setDelegate:
 //        - Used to swizzle all UIApplicationDelegate selectors on the passed in class.
