@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,21 +28,18 @@
 /***
  
  ### Setting up the SDK ###
- Follow the documentation from https://documentation.onesignal.com/docs/installing-the-onesignal-ios-sdk to setup OneSignal in your app.
+ Follow the documentation from https://documentation.onesignal.com/docs/ios-sdk-setupto setup OneSignal in your app.
  
  ### API Reference ###
  Follow the documentation from https://documentation.onesignal.com/docs/ios-sdk-api for a detailed explanation of the API.
  
- ### FAQ & Troubleshoot ###
- FAQ: https://documentation.onesignal.com/docs/frequently-asked-questions-1
- Troubleshoot: https://documentation.onesignal.com/docs/common-problems-1
+ ### Troubleshoot ###
+ Follow the documentation from https://documentation.onesignal.com/docs/troubleshooting-ios to fix common problems.
  
- For help on how to upgrade your code from 1.* SDK to 2.*: https://documentation.onesignal.com/docs/upgrading-to-sdk-20
+ For help on how to upgrade your code from 1.* SDK to 2.*: https://documentation.onesignal.com/docs/upgrading-to-ios-sdk-20
  
  ### More ###
- iOS Configuration: https://documentation.onesignal.com/docs/generating-an-ios-push-certificate
- REST API: https://documentation.onesignal.com/docs/server-api-overview
- Create Notification API: https://documentation.onesignal.com/docs/notifications-create-notification
+ iOS Push Cert: https://documentation.onesignal.com/docs/generating-an-ios-push-certificate
  
 ***/
 
@@ -278,10 +275,13 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
+
+#ifdef XC8_AVAILABLE
 // iOS 10 only
 // Process from Notification Service Extension.
 // Used for iOS Media Attachemtns and Action Buttons.
 + (UNMutableNotificationContent*)didReceiveNotificatioExtensionnRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+#endif
 
 @end

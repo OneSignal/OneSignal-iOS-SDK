@@ -32,16 +32,16 @@
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
     
-    // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
-    // Remove before
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_INFO];
+    // (Optional) - Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
+    // Remove setLogLevel in the production version of your app.
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_WARN];
     
-    // Create block the will fire when a notification is recieved while the app is in focus. (Optional)
+    // (Optional) - Create block the will fire when a notification is recieved while the app is in focus.
     id notificationRecievedBlock = ^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
     };
     
-    // Create block that will fire when a notification is tapped on. (Optional)
+    // (Optional) - Create block that will fire when a notification is tapped on.
     id notificationOpenedBlock = ^(OSNotificationOpenedResult *result) {
         OSNotificationPayload* payload = result.notification.payload;
         
@@ -65,25 +65,17 @@
         [alertView show];
     };
     
-    // Configuration options for OneSignal settings.
+    // (Optional) - Configuration options for OneSignal settings.
     id oneSignalSetting = @{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @YES};
     
-    // Initializes OneSignal
+    
+    
+    // (REQUIRED) - Initializes OneSignal
     [OneSignal initWithLaunchOptions:launchOptions
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
           handleNotificationReceived:notificationRecievedBlock
             handleNotificationAction:notificationOpenedBlock
                             settings:oneSignalSetting];
-    
-    // Block is called when the device is registered with OneSignal and Apple.
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        if(pushToken) {
-            NSLog(@"Received push token - %@", pushToken);
-            NSLog(@"User ID - %@", userId);
-        }
-    }];
-    
-    
     return YES;
 }
 
