@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,13 +33,16 @@
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
     
     // Eanble logging to help debug issues. visualLevel will show alert dialog boxes.
+    // Remove before
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_INFO];
     
-    [OneSignal initWithLaunchOptions:launchOptions appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+    // Create block the will fire when a notification is recieved while the app is in focus. (Optional)
+    id notificationRecievedBlock = ^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
-    } handleNotificationAction:^(OSNotificationOpenedResult *result) {
-        
-        // This block gets called when the user reacts to a notification received
+    };
+    
+    // Create block that will fire when a notification is tapped on. (Optional)
+    id notificationOpenedBlock = ^(OSNotificationOpenedResult *result) {
         OSNotificationPayload* payload = result.notification.payload;
         
         NSString* messageTitle = @"OneSignal Example";
@@ -47,7 +50,7 @@
         
         if (payload.additionalData) {
             
-            if(payload.title)
+            if (payload.title)
                 messageTitle = payload.title;
             
             if (result.action.actionID)
@@ -60,9 +63,19 @@
                                                   cancelButtonTitle:@"Close"
                                                   otherButtonTitles:nil, nil];
         [alertView show];
-        
-    } settings:@{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @YES}];
+    };
     
+    // Configuration options for OneSignal settings.
+    id oneSignalSetting = @{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @YES};
+    
+    // Initializes OneSignal
+    [OneSignal initWithLaunchOptions:launchOptions
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+          handleNotificationReceived:notificationRecievedBlock
+            handleNotificationAction:notificationOpenedBlock
+                            settings:oneSignalSetting];
+    
+    // Block is called when the device is registered with OneSignal and Apple.
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         if(pushToken) {
             NSLog(@"Received push token - %@", pushToken);
@@ -70,22 +83,6 @@
         }
     }];
     
-    /*
-     // iOS 10 ONLY - Add category for the OSContentExtension
-     // Make sure to add UserNotifications framework in the Linked Frameworks & Libraries.
-     
-     [[UNUserNotificationCenter currentNotificationCenter] getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> * _Nonnull categories) {
-     
-     UNNotificationAction* myAction = [UNNotificationAction actionWithIdentifier:@"action0" title:@"Hit Me!" options:UNNotificationActionOptionForeground];
-     UNNotificationCategory* myCategory = [UNNotificationCategory categoryWithIdentifier:@"myOSContentCategory" actions:@[myAction] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
-     NSSet* mySet = [[NSSet alloc] initWithArray:@[myCategory]];
-     
-     //Add existing cateogories
-     mySet = [mySet setByAddingObjectsFromSet:categories];
-     
-     [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:mySet];
-     }];
-     */
     
     return YES;
 }

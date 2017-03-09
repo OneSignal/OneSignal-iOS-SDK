@@ -15,7 +15,6 @@
 		91172A5D1E6F6D6700D13B84 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E277211ACBB40100D49C8D /* OneSignal.framework */; };
 		91172A5E1E6F6DC200D13B84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37F9CA1C19D9CBAD0084DB7F /* UIKit.framework */; };
 		91172A5F1E6F6DDB00D13B84 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37668EEA1AA810740095D813 /* SystemConfiguration.framework */; };
-		913D1E191DC052D30060EB25 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 913D1E181DC052D30060EB25 /* UserNotifications.framework */; };
 		916B37141E6F520E00CEE4AA /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 916B37131E6F520E00CEE4AA /* NotificationService.m */; };
 		916B37181E6F520E00CEE4AA /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 916B37101E6F520D00CEE4AA /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DE4BCB72161638D4003F4A66 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DE4BCB70161638D4003F4A66 /* InfoPlist.strings */; };
@@ -57,7 +56,6 @@
 		37E277211ACBB40100D49C8D /* OneSignal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OneSignal.framework; path = ../iOS_SDK/Framework/OneSignal.framework; sourceTree = "<group>"; };
 		37F9CA1C19D9CBAD0084DB7F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		91172A4D1E6F5DD100D13B84 /* UserNotificationsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotificationsUI.framework; path = System/Library/Frameworks/UserNotificationsUI.framework; sourceTree = SDKROOT; };
-		913D1E181DC052D30060EB25 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		916B37101E6F520D00CEE4AA /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		916B37121E6F520E00CEE4AA /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		916B37131E6F520E00CEE4AA /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
@@ -91,7 +89,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				913D1E191DC052D30060EB25 /* UserNotifications.framework in Frameworks */,
 				37E277221ACBB40100D49C8D /* OneSignal.framework in Frameworks */,
 				37668EEB1AA810740095D813 /* SystemConfiguration.framework in Frameworks */,
 				37F9CA1D19D9CBAD0084DB7F /* UIKit.framework in Frameworks */,
@@ -136,7 +133,6 @@
 		DE4BCB66161638D4003F4A66 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				913D1E181DC052D30060EB25 /* UserNotifications.framework */,
 				37E277211ACBB40100D49C8D /* OneSignal.framework */,
 				37668EEA1AA810740095D813 /* SystemConfiguration.framework */,
 				37F9CA1C19D9CBAD0084DB7F /* UIKit.framework */,

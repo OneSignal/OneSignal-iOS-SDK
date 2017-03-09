@@ -141,6 +141,23 @@ static NSMutableDictionary* defaultsDictionary;
 
 @end
 
+@interface NSDataOverrider : NSObject
+@end
+@implementation NSDataOverrider
++ (void)load {
+    injectStaticSelector([NSDataOverrider class], @selector(overrideDataWithContentsOfURL:), [NSData class], @selector(dataWithContentsOfURL:));
+}
+
+// Mock data being downloaded from a remote URL.
++ (NSData*) overrideDataWithContentsOfURL:(NSURL *)url {
+    char bytes[32];
+    memset(bytes, 1, 32);
+    
+    return [NSData dataWithBytes:bytes length:32];
+}
+
+@end
+
 
 @interface NSDateOverrider : NSObject
 @end
@@ -358,6 +375,10 @@ static BOOL setupUIApplicationDelegate = false;
         UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
         setupUIApplicationDelegate = true;
     }
+    
+    // Uncomment to simulate slow travis-CI runs.
+    // NSLog(@"Sleeping for debugging");
+    // [NSThread sleepForTimeInterval:15];
 }
 
 // Called after each test.
@@ -412,12 +433,15 @@ static BOOL setupUIApplicationDelegate = false;
     // Mocking an iOS 10 notification
     // Setting response.notification.request.content.userInfo
     UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+    
     // Normal tap on notification
     [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
     
     UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
     UNNotification *unNotif = [UNNotification alloc];
     UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    // Set as remote push type
+    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
     
     [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
     [notifResponse setValue:unNotif forKeyPath:@"notification"];
@@ -461,9 +485,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
-    
-    // NSLog(@"Sleeping for debugging");
-    // [NSThread sleepForTimeInterval:1000];
 }
 
 - (void)testInitOnSimulator {
@@ -488,9 +509,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
-    
-    // NSLog(@"Sleeping for debugging");
-    // [NSThread sleepForTimeInterval:1000];
 }
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
@@ -652,10 +670,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     XCTAssertEqual(networkRequestCount, 2);
 }
-
-
-
-
 
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
@@ -847,6 +861,79 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
     XCTAssertEqual(networkRequestCount, 2);
 }
+
+// iOS 10 - Notification Service Extension test
+- (void) testDidReceiveNotificatioExtensionRequest {
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                    },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                        @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                    }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    // Make sure butons were added.
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    // Make sure attachments were added.
+    XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
+    XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+// iOS 10 - Notification Service Extension test
+- (void) testDidReceiveNotificatioExtensionnRequestDontOverrideCateogory {
+    id userInfo = @{@"aps": @{
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body"
+                            },
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                            @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                            }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    // Make sure butons were added.
+    XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
+    // Make sure attachments were added.
+    XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
+    XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+// iOS 10 - Notification Service Extension test
+- (void) testServiceExtensionTimeWillExpireRequest {
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                        },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                        @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                    }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    // Make sure butons were added.
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    // Make sure attachments were NOT added.
+    //   We should not try to download attachemts as iOS is about to kill the extension and this will take to much time.
+    XCTAssertNil(content.attachments);
+
+}
+    
 
 - (void)testPerformanceExample {
     // This is an example of a performance test case.
