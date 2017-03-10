@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="OneSignalSwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WD8-YY-nEy" userLabel="Button - SendTags">
+                                <rect key="frame" x="232" y="81" width="137" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="137" id="idC-Cc-OKo"/>
+                                    <constraint firstAttribute="height" constant="44" id="yPr-8c-5iL"/>
+                                </constraints>
+                                <state key="normal" title="Send Tags">
+                                    <color key="titleColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="sentTags:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VJW-Ne-E0t"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hna-sn-G8t">
+                                <rect key="frame" x="20" y="252" width="560" height="328"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="328" id="Gu6-zs-gxT"/>
+                                </constraints>
+                                <color key="textColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e5C-8e-CQz" userLabel="Button - GetIds">
+                                <rect key="frame" x="232" y="133" width="137" height="44"/>
+                                <state key="normal" title="Get IDs">
+                                    <color key="titleColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="getIds:" destination="BYZ-38-t0r" eventType="touchUpInside" id="65v-VT-59z"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="e5C-8e-CQz" firstAttribute="top" secondItem="WD8-YY-nEy" secondAttribute="bottom" constant="8" symbolic="YES" id="4q7-fE-08a"/>
+                            <constraint firstItem="hna-sn-G8t" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="Ad5-Y2-1Qb"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="hna-sn-G8t" secondAttribute="bottom" constant="20" id="I5B-2h-wU0"/>
+                            <constraint firstItem="WD8-YY-nEy" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="61" id="LIE-1P-5fI"/>
+                            <constraint firstAttribute="trailing" secondItem="hna-sn-G8t" secondAttribute="trailing" constant="20" id="LiE-LG-T8i"/>
+                            <constraint firstItem="hna-sn-G8t" firstAttribute="top" secondItem="e5C-8e-CQz" secondAttribute="bottom" constant="75" id="eXz-5L-4aj"/>
+                            <constraint firstItem="WD8-YY-nEy" firstAttribute="leading" secondItem="e5C-8e-CQz" secondAttribute="leading" id="iV8-N9-z0M"/>
+                            <constraint firstItem="e5C-8e-CQz" firstAttribute="centerX" secondItem="hna-sn-G8t" secondAttribute="centerX" id="jN6-ip-trm"/>
+                            <constraint firstItem="WD8-YY-nEy" firstAttribute="trailing" secondItem="e5C-8e-CQz" secondAttribute="trailing" id="ob3-Xa-NoT"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="textMultiLine1" destination="hna-sn-G8t" id="abH-jq-eGR"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-124" y="592"/>
+        </scene>
+    </scenes>
+</document>

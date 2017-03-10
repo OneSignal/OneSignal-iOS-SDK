@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="5">
+            <objects>
+                <viewController id="2" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="lNN-rF-qeX"/>
+                        <viewControllerLayoutGuide type="bottom" id="OLK-hH-chJ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="3">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vqd-2h-uMC" userLabel="Button - SendTags">
+                                <rect key="frame" x="92" y="103" width="137" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="D9r-Q4-gli"/>
+                                </constraints>
+                                <state key="normal" title="Send Tags">
+                                    <color key="titleColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="sendTags:" destination="2" eventType="touchUpInside" id="G2T-n3-qI8"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="53l-0A-gF8">
+                                <rect key="frame" x="16" y="207" width="288" height="228"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="textColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ydU-g8-hha" userLabel="Button - GetIds">
+                                <rect key="frame" x="92" y="155" width="137" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="Dx9-Xu-S1j"/>
+                                </constraints>
+                                <state key="normal" title="Get IDs">
+                                    <color key="titleColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="getIds:" destination="2" eventType="touchUpInside" id="3LU-UZ-rDV"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="ydU-g8-hha" firstAttribute="top" secondItem="Vqd-2h-uMC" secondAttribute="bottom" constant="8" symbolic="YES" id="9hp-ur-C9J"/>
+                            <constraint firstItem="Vqd-2h-uMC" firstAttribute="top" secondItem="lNN-rF-qeX" secondAttribute="bottom" constant="83" id="FwO-1X-WfW"/>
+                            <constraint firstItem="Vqd-2h-uMC" firstAttribute="leading" secondItem="ydU-g8-hha" secondAttribute="leading" id="MSc-ZY-adU"/>
+                            <constraint firstItem="ydU-g8-hha" firstAttribute="centerX" secondItem="53l-0A-gF8" secondAttribute="centerX" id="NnL-B3-Osb"/>
+                            <constraint firstItem="53l-0A-gF8" firstAttribute="top" secondItem="ydU-g8-hha" secondAttribute="bottom" constant="8" symbolic="YES" id="Tqm-aG-Vql"/>
+                            <constraint firstItem="OLK-hH-chJ" firstAttribute="top" secondItem="53l-0A-gF8" secondAttribute="bottom" constant="45" id="fFj-ft-koR"/>
+                            <constraint firstItem="Vqd-2h-uMC" firstAttribute="trailing" secondItem="ydU-g8-hha" secondAttribute="trailing" id="mOQ-BF-Bnn"/>
+                            <constraint firstItem="Vqd-2h-uMC" firstAttribute="leading" secondItem="3" secondAttribute="leadingMargin" constant="76" id="od7-uL-JA7"/>
+                            <constraint firstItem="53l-0A-gF8" firstAttribute="leading" secondItem="3" secondAttribute="leadingMargin" id="wzp-iC-QNj"/>
+                            <constraint firstItem="53l-0A-gF8" firstAttribute="trailing" secondItem="3" secondAttribute="trailingMargin" id="z8B-lr-sNq"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="textMultiLine1" destination="53l-0A-gF8" id="4qe-mc-Myq"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="130" y="432"/>
+        </scene>
+    </scenes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination"/>
+    </simulatedMetricsContainer>
+</document>
