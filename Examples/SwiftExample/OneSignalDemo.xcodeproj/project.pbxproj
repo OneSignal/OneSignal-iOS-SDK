@@ -12,6 +12,9 @@
 		3E20C84D1D8787B6004ACDEA /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EA62EFB1D877EF200E5845A /* UserNotifications.framework */; };
 		9112E8B01E725C1E0022A1CB /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8AF1E725C1E0022A1CB /* NotificationService.swift */; };
 		9112E8B41E725C1E0022A1CB /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9112E8AD1E725C1E0022A1CB /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9150E7691E734F6E00C5D46A /* GreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9150E7671E734F6E00C5D46A /* GreenViewController.swift */; };
+		9150E76A1E734F6E00C5D46A /* RedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9150E7681E734F6E00C5D46A /* RedViewController.swift */; };
+		9150E76D1E73556A00C5D46A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9150E76C1E73556A00C5D46A /* CoreLocation.framework */; };
 		91C3CFD91E7266F600D9EA80 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C3CFD11E7266F600D9EA80 /* AppDelegate.swift */; };
 		91C3CFDA1E7266F600D9EA80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFD21E7266F600D9EA80 /* Assets.xcassets */; };
 		91C3CFDB1E7266F600D9EA80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFD31E7266F600D9EA80 /* LaunchScreen.storyboard */; };
@@ -52,6 +55,10 @@
 		9112E8AD1E725C1E0022A1CB /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9112E8AF1E725C1E0022A1CB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		9112E8B11E725C1E0022A1CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9150E7671E734F6E00C5D46A /* GreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GreenViewController.swift; sourceTree = "<group>"; };
+		9150E7681E734F6E00C5D46A /* RedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedViewController.swift; sourceTree = "<group>"; };
+		9150E76B1E734FB000C5D46A /* OneSignalDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalDemo.entitlements; sourceTree = "<group>"; };
+		9150E76C1E73556A00C5D46A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		91C3CFD11E7266F600D9EA80 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91C3CFD21E7266F600D9EA80 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		91C3CFD41E7266F600D9EA80 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -77,6 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9150E76D1E73556A00C5D46A /* CoreLocation.framework in Frameworks */,
 				3E20C84D1D8787B6004ACDEA /* UserNotifications.framework in Frameworks */,
 				378310DE5E74831CBC5C833C /* Pods_OneSignalDemo.framework in Frameworks */,
 			);
@@ -99,6 +107,7 @@
 		3EA62EFA1D877EF200E5845A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9150E76C1E73556A00C5D46A /* CoreLocation.framework */,
 				3EA62EFB1D877EF200E5845A /* UserNotifications.framework */,
 				6DE881DDE387B7869A75E56A /* Pods_OneSignalDemo.framework */,
 				7D32C4978E51F05AA82FC597 /* libPods-OneSignalNotificationServiceExtension.a */,
@@ -118,6 +127,9 @@
 		91C3CFD01E7266F600D9EA80 /* OneSignalDemo */ = {
 			isa = PBXGroup;
 			children = (
+				9150E76B1E734FB000C5D46A /* OneSignalDemo.entitlements */,
+				9150E7671E734F6E00C5D46A /* GreenViewController.swift */,
+				9150E7681E734F6E00C5D46A /* RedViewController.swift */,
 				91C3CFD11E7266F600D9EA80 /* AppDelegate.swift */,
 				91C3CFD21E7266F600D9EA80 /* Assets.xcassets */,
 				91C3CFD31E7266F600D9EA80 /* LaunchScreen.storyboard */,
@@ -213,6 +225,9 @@
 						LastSwiftMigration = 0800;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.Push = {
 								enabled = 1;
 							};
 						};
@@ -350,6 +365,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9150E76A1E734F6E00C5D46A /* RedViewController.swift in Sources */,
+				9150E7691E734F6E00C5D46A /* GreenViewController.swift in Sources */,
 				91C3CFDE1E7266F600D9EA80 /* ViewController.swift in Sources */,
 				91C3CFD91E7266F600D9EA80 /* AppDelegate.swift in Sources */,
 			);
@@ -513,6 +530,7 @@
 			baseConfigurationReference = FBF7B1679DAECB1F8823DFA8 /* Pods-OneSignalDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OneSignalDemo/OneSignalDemo.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				INFOPLIST_FILE = "$(SRCROOT)/OneSignalDemo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -528,6 +546,7 @@
 			baseConfigurationReference = 2F2B914C976A118DAE4F0182 /* Pods-OneSignalDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OneSignalDemo/OneSignalDemo.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				INFOPLIST_FILE = "$(SRCROOT)/OneSignalDemo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
