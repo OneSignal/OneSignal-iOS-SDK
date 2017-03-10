@@ -1,0 +1,7 @@
+target 'OneSignalDemo' do
+  pod 'OneSignal', '~> 2.0'
+end
+
+target 'NotificationServiceExtension' do
+  pod 'OneSignal', '~> 2.0'
+end
