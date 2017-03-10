@@ -1,10 +1,30 @@
-//
-//  ViewController.swift
-//  OneSignalSwiftExample
-//
-//  Created by Kasten on 2/17/16.
-//  Copyright © 2016 OneSignal. All rights reserved.
-//
+/**
+ * Modified MIT License
+ *
+ * Copyright 2017 OneSignal
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * 2. All copies of substantial portions of the Software may only be used in connection
+ * with services provided by OneSignal.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 
 import UIKit
 import OneSignal
@@ -128,7 +148,7 @@ class ViewController: UIViewController {
                     // Attachments: https://documentation.onesignal.com/reference#section-attachments
                     "data": ["key1" : "value1"],
                     "url": "https://google.com",
-                    "ios_attachments": ["id1" : "https://cdn.pixabay.com/photo/2017/01/16/15/17/hot-air-balloons-1984308_1280.jpg"],
+                    "ios_attachments": ["id" : "https://cdn.pixabay.com/photo/2017/01/16/15/17/hot-air-balloons-1984308_1280.jpg"],
                     "ios_badgeType": "Increase",
                     "ios_badgeCount": 1
                     
@@ -143,11 +163,11 @@ class ViewController: UIViewController {
     @IBAction func onSendNotificationButton2(_ sender: UIButton) {
         
         let notifiation2Content: [AnyHashable : Any] = [
-            "include_player_ids": ["42485ae8-a1c0-475d-854b-745840690548"],
-            "contents": ["en": "Notification 2"], // Required unless "content_available": true or "template_id" is set
-            
+            // Update the following id to your OneSignal plyaer / user id.
+            "include_player_ids": ["c01ffec0-a42b-4907-8dcc-63dec0fd002b"],
+            "contents": ["en": "Notification 2"],
             // Action Buttons: https://documentation.onesignal.com/reference#section-action-buttons
-            "buttons": [["id": "id1", "text": "WOW1"], ["id": "id2", "DUDE2": "button2"]]
+            "buttons": [["id": "id1", "text": "GREEN"], ["id": "id2", "text": "RED"]]
         ]
         
         OneSignal.postNotification(notifiation2Content, onSuccess: { result in

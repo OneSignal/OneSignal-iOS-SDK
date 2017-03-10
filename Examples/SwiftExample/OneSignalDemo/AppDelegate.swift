@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,8 +42,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // For debugging
         OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
 
-        // Replace 'd368162e-7c4e-48b0-bc7c-b82ba80d4981' with your OneSignal App ID
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "d368162e-7c4e-48b0-bc7c-b82ba80d4981",
+        // Replace 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba' with your OneSignal App ID
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
             handleNotificationReceived: {
                 // OSHandleNotificationRecevedBlock - Function to be called when a notification is received
               notification in
@@ -83,8 +83,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     
                     // For presenting a ViewController from push notification action button
                     let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                    let instantiateRedViewController : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedViewControllerID") as UIViewController
-                    let instantiatedGreenViewController: UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "GreenViewControllerID") as UIViewController
+                    let instantiateRedViewController : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedVCID") as UIViewController
+                    let instantiatedGreenViewController: UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "GreenVCID") as UIViewController
                     self.window = UIWindow(frame: UIScreen.main.bounds)
                     
                     print("actionID = \(actionID)")
