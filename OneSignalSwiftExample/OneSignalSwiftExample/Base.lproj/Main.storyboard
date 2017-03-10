@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -14,64 +19,195 @@
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WD8-YY-nEy" userLabel="Button - SendTags">
-                                <rect key="frame" x="232" y="81" width="137" height="44"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="137" id="idC-Cc-OKo"/>
-                                    <constraint firstAttribute="height" constant="44" id="yPr-8c-5iL"/>
-                                </constraints>
-                                <state key="normal" title="Send Tags">
-                                    <color key="titleColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="sentTags:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VJW-Ne-E0t"/>
-                                </connections>
-                            </button>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hna-sn-G8t">
-                                <rect key="frame" x="20" y="252" width="560" height="328"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="bnb-7j-Txm">
+                                <rect key="frame" x="16" y="28" width="343" height="350"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NoN-j4-eys">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Register For Push Notifications"/>
+                                        <connections>
+                                            <action selector="onRegisterForPushNotificationsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6lH-KH-rt5"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="scp-Od-j8b">
+                                        <rect key="frame" x="0.0" y="40" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Send Tags"/>
+                                        <connections>
+                                            <action selector="onSendTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cGF-Q7-gMF"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MMG-pT-YBb">
+                                        <rect key="frame" x="0.0" y="80" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Get Tags"/>
+                                        <connections>
+                                            <action selector="onGetTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImV-Jb-wUi"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v8N-J4-GZS">
+                                        <rect key="frame" x="0.0" y="120" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Delete or Update Tags"/>
+                                        <connections>
+                                            <action selector="onDeleteOrUpdateTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="j6P-bS-AUL"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e0d-lw-fVn">
+                                        <rect key="frame" x="0.0" y="160" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Get IDs Available"/>
+                                        <connections>
+                                            <action selector="onGetIDsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qmZ-7K-zxl"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z6a-jZ-De4">
+                                        <rect key="frame" x="0.0" y="200" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Sync Email"/>
+                                        <connections>
+                                            <action selector="onSyncEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Fvx-7o-H1W"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ebf-52-A41">
+                                        <rect key="frame" x="0.0" y="240" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Prompt Location"/>
+                                        <connections>
+                                            <action selector="onPromptLocationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8jw-Kp-dne"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yZR-mo-rso">
+                                        <rect key="frame" x="0.0" y="280" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Send Notification 1"/>
+                                        <connections>
+                                            <action selector="onSendNotificationButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ayt-X8-Kb8"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Ye-re-geG">
+                                        <rect key="frame" x="0.0" y="320" width="343" height="30"/>
+                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Send Notification 2"/>
+                                        <connections>
+                                            <action selector="onSendNotificationButton2:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6ql-PC-jCC"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="KEj-eg-d7y">
+                                <rect key="frame" x="36" y="388" width="303" height="31"/>
+                                <subviews>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uKa-sC-xZ3">
+                                        <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="onAllowNotificationsSwitch:" destination="BYZ-38-t0r" eventType="valueChanged" id="9gF-vS-Dpc"/>
+                                        </connections>
+                                    </switch>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Set Subscription?" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ljh-6a-4qh">
+                                        <rect key="frame" x="69" y="0.0" width="234" height="31"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Ev6-VI-BvV">
+                                <rect key="frame" x="26" y="429" width="323" height="228"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="328" id="Gu6-zs-gxT"/>
-                                </constraints>
-                                <color key="textColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e5C-8e-CQz" userLabel="Button - GetIds">
-                                <rect key="frame" x="232" y="133" width="137" height="44"/>
-                                <state key="normal" title="Get IDs">
-                                    <color key="titleColor" red="0.86274509799999999" green="0.1960784314" blue="0.22352941179999999" alpha="1" colorSpace="calibratedRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="getIds:" destination="BYZ-38-t0r" eventType="touchUpInside" id="65v-VT-59z"/>
-                                </connections>
-                            </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="e5C-8e-CQz" firstAttribute="top" secondItem="WD8-YY-nEy" secondAttribute="bottom" constant="8" symbolic="YES" id="4q7-fE-08a"/>
-                            <constraint firstItem="hna-sn-G8t" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="Ad5-Y2-1Qb"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="hna-sn-G8t" secondAttribute="bottom" constant="20" id="I5B-2h-wU0"/>
-                            <constraint firstItem="WD8-YY-nEy" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="61" id="LIE-1P-5fI"/>
-                            <constraint firstAttribute="trailing" secondItem="hna-sn-G8t" secondAttribute="trailing" constant="20" id="LiE-LG-T8i"/>
-                            <constraint firstItem="hna-sn-G8t" firstAttribute="top" secondItem="e5C-8e-CQz" secondAttribute="bottom" constant="75" id="eXz-5L-4aj"/>
-                            <constraint firstItem="WD8-YY-nEy" firstAttribute="leading" secondItem="e5C-8e-CQz" secondAttribute="leading" id="iV8-N9-z0M"/>
-                            <constraint firstItem="e5C-8e-CQz" firstAttribute="centerX" secondItem="hna-sn-G8t" secondAttribute="centerX" id="jN6-ip-trm"/>
-                            <constraint firstItem="WD8-YY-nEy" firstAttribute="trailing" secondItem="e5C-8e-CQz" secondAttribute="trailing" id="ob3-Xa-NoT"/>
+                            <constraint firstItem="KEj-eg-d7y" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="2N3-IR-SD7"/>
+                            <constraint firstItem="bnb-7j-Txm" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="BTQ-lp-aBs"/>
+                            <constraint firstItem="bnb-7j-Txm" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="R6Q-5R-LeJ"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Ev6-VI-BvV" secondAttribute="bottom" constant="10" id="SMn-SP-PgL"/>
+                            <constraint firstItem="Ev6-VI-BvV" firstAttribute="top" secondItem="KEj-eg-d7y" secondAttribute="bottom" constant="10" id="UbK-ee-LU4"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="bnb-7j-Txm" secondAttribute="trailing" id="Y6f-bt-wzj"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Ev6-VI-BvV" secondAttribute="trailing" constant="10" id="bzO-lO-CGI"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="KEj-eg-d7y" secondAttribute="trailing" constant="20" id="hJM-HP-3b2"/>
+                            <constraint firstItem="KEj-eg-d7y" firstAttribute="top" secondItem="bnb-7j-Txm" secondAttribute="bottom" constant="10" id="pIX-jI-sOZ"/>
+                            <constraint firstItem="Ev6-VI-BvV" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="sQk-fY-DAe"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="textMultiLine1" destination="hna-sn-G8t" id="abH-jq-eGR"/>
+                        <outlet property="allowNotificationsSwitch" destination="uKa-sC-xZ3" id="Efd-Ht-6Ia"/>
+                        <outlet property="setSubscriptionLabel" destination="ljh-6a-4qh" id="ZvJ-iv-Urz"/>
+                        <outlet property="textView" destination="Ev6-VI-BvV" id="dp4-QG-HGP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-124" y="592"/>
+            <point key="canvasLocation" x="-124" y="591.45427286356824"/>
+        </scene>
+        <!--Red View Controller-->
+        <scene sceneID="wsv-XR-6cJ">
+            <objects>
+                <viewController storyboardIdentifier="RedVCID" id="HOQ-QO-dEV" customClass="RedViewController" customModule="OneSignalSwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="l1F-yi-Naj"/>
+                        <viewControllerLayoutGuide type="bottom" id="5Uv-gA-8Xe"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="LCh-mQ-Rz8">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rCf-Gn-vSP">
+                                <rect key="frame" x="145" y="312" width="85" height="43"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Back"/>
+                                <connections>
+                                    <segue destination="BYZ-38-t0r" kind="show" id="peM-GC-T4B"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="thk-mn-Vch" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="776.79999999999995" y="375.56221889055473"/>
+        </scene>
+        <!--Green View Controller-->
+        <scene sceneID="ze2-vP-7wk">
+            <objects>
+                <viewController storyboardIdentifier="GreenVCID" id="mEE-ii-fyP" customClass="GreenViewController" customModule="OneSignalSwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="OUS-26-2Va"/>
+                        <viewControllerLayoutGuide type="bottom" id="9En-82-DSz"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="0Vj-ip-glP">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vw3-18-254">
+                                <rect key="frame" x="133" y="300" width="109" height="67"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Back"/>
+                                <connections>
+                                    <segue destination="BYZ-38-t0r" kind="show" id="rh8-e5-vth"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="NF8-Db-0Yh" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="776.79999999999995" y="1082.608695652174"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="rh8-e5-vth"/>
+    </inferredMetricsTieBreakers>
 </document>
