@@ -9,6 +9,7 @@ build/
 *.perspectivev3
 !default.perspectivev3
 *.xcworkspace
+!OneSignalSDK.xcworkspace
 !default.xcworkspace
 xcuserdata
 profile
