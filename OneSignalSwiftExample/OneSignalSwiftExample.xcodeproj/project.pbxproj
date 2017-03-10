@@ -22,6 +22,8 @@
 		91E4D5161C7521DE00025BA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4D5141C7521DE00025BA8 /* Main.storyboard */; };
 		91E4D5181C7521DE00025BA8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91E4D5171C7521DE00025BA8 /* Assets.xcassets */; };
 		91E4D51B1C7521DE00025BA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91E4D5191C7521DE00025BA8 /* LaunchScreen.storyboard */; };
+		C5C060E61E726B0D0017E7FC /* RedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C060E51E726B0D0017E7FC /* RedViewController.swift */; };
+		C5C060E81E726B1A0017E7FC /* GreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C060E71E726B1A0017E7FC /* GreenViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +77,8 @@
 		91E4D5171C7521DE00025BA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		91E4D51A1C7521DE00025BA8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		91E4D51C1C7521DE00025BA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5C060E51E726B0D0017E7FC /* RedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedViewController.swift; sourceTree = "<group>"; };
+		C5C060E71E726B1A0017E7FC /* GreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GreenViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +168,8 @@
 				91E4D5101C7521DE00025BA8 /* AppDelegate.swift */,
 				91E4D5121C7521DE00025BA8 /* ViewController.swift */,
 				91E4D5141C7521DE00025BA8 /* Main.storyboard */,
+				C5C060E51E726B0D0017E7FC /* RedViewController.swift */,
+				C5C060E71E726B1A0017E7FC /* GreenViewController.swift */,
 				91E4D5171C7521DE00025BA8 /* Assets.xcassets */,
 				91E4D5191C7521DE00025BA8 /* LaunchScreen.storyboard */,
 				91E4D51C1C7521DE00025BA8 /* Info.plist */,
@@ -235,7 +241,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = OneSignal;
 				TargetAttributes = {
 					3EA62F211D87807F00E5845A = {
@@ -329,7 +335,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5C060E81E726B1A0017E7FC /* GreenViewController.swift in Sources */,
 				91E4D5131C7521DE00025BA8 /* ViewController.swift in Sources */,
+				C5C060E61E726B0D0017E7FC /* RedViewController.swift in Sources */,
 				91E4D5111C7521DE00025BA8 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -466,8 +474,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -511,8 +521,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -531,6 +543,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
