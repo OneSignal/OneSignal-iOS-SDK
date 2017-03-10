@@ -83,8 +83,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     
                     // For presenting a ViewController from push notification action button
                     let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                    let instantiateRedViewController : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedViewControllerID") as UIViewController
-                    let instantiatedGreenViewController: UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "GreenViewControllerID") as UIViewController
+                    let instantiateRedViewController : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedVCID") as UIViewController
+                    let instantiatedGreenViewController: UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "GreenVCID") as UIViewController
                     self.window = UIWindow(frame: UIScreen.main.bounds)
                     
                     print("actionID = \(actionID)")
