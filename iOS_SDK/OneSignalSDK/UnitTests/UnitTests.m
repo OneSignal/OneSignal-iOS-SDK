@@ -244,10 +244,13 @@ static NSDictionary* nsbundleDictionary;
 @implementation UNUserNotificationCenterOverrider
 
 static NSNumber *authorizationStatus;
+static NSSet<UNNotificationCategory *>* lastSetCategories;
 
 + (void)load {
     injectToProperClass(@selector(overrideInitWithBundleIdentifier:), @selector(initWithBundleIdentifier:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
     injectToProperClass(@selector(overrideGetNotificationSettingsWithCompletionHandler:), @selector(getNotificationSettingsWithCompletionHandler:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideSetNotificationCategories:), @selector(setNotificationCategories:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideGetNotificationCategoriesWithCompletionHandler:), @selector(getNotificationCategoriesWithCompletionHandler:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
 }
 
 - (id) overrideInitWithBundleIdentifier:(NSString*) bundle {
@@ -258,6 +261,14 @@ static NSNumber *authorizationStatus;
     id retSettings = [UNNotificationSettings alloc];
     [retSettings setValue:authorizationStatus forKeyPath:@"authorizationStatus"];
     completionHandler(retSettings);
+}
+
+- (void)overrideSetNotificationCategories:(NSSet<UNNotificationCategory *> *)categories {
+    lastSetCategories = categories;
+}
+
+- (void)overrideGetNotificationCategoriesWithCompletionHandler:(void(^)(NSSet<id> *categories))completionHandler {
+    completionHandler(lastSetCategories);
 }
 
 @end
@@ -379,6 +390,8 @@ static BOOL setupUIApplicationDelegate = false;
     networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequset = nil;
+    
+    lastSetCategories = nil;
     
     [OneSignalHelper lastMessageReceived:nil];
     OneSignalHelper.lastMessageIdFromAction = nil;
@@ -945,6 +958,13 @@ static BOOL setupUIApplicationDelegate = false;
 
 // iOS 10 - Notification Service Extension test
 - (void) testDidReceiveNotificatioExtensionRequest {
+    // Example of a pre-existing category a developer setup. + possibly an existing "__dynamic__" category of ours.
+    id category = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"some_category" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category2 = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category3 = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"some_category2" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    
+    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] setNotificationCategories:[[NSMutableSet alloc] initWithArray:@[category, category2, category3]]];
+    
     id userInfo = @{@"aps": @{
                         @"mutable-content": @1,
                         @"alert": @"Message Body"
@@ -964,6 +984,23 @@ static BOOL setupUIApplicationDelegate = false;
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
     XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+    
+    
+    // Run again with different buttons.
+    userInfo = @{@"aps": @{
+                         @"mutable-content": @1,
+                         @"alert": @"Message Body"
+                         },
+                 @"os_data": @{
+                         @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                         @"buttons": @[@{@"i": @"id2", @"n": @"text2"}],
+                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                         }};
+    
+    notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    XCTAssertEqual([lastSetCategories count], 3);
 }
 
 // iOS 10 - Notification Service Extension test
@@ -984,7 +1021,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
-    // Make sure butons were added.
+    // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");

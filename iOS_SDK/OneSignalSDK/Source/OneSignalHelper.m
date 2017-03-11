@@ -698,8 +698,16 @@ static OneSignal* singleInstance = nil;
     
     id category = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
     
-    if (allCategories)
-        [allCategories addObject:category];
+    if (allCategories) {
+        NSMutableSet* newCategorySet = [[NSMutableSet alloc] init];
+        for(id existingCategory in allCategories) {
+            if (![[existingCategory identifier] isEqualToString:@"__dynamic__"])
+                [newCategorySet addObject:existingCategory];
+        }
+        
+        [newCategorySet addObject:category];
+        allCategories = newCategorySet;
+    }
     else
         allCategories = [[NSMutableSet alloc] initWithArray:@[category]];
     

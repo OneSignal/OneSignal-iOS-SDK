@@ -69,5 +69,13 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
 }
 
+// Remote
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    
+    NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
+    completionHandler(nil);
+}
 
 @end
