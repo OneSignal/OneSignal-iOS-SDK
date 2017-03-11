@@ -370,6 +370,25 @@ static int networkRequestCount;
 
 @end
 
+@interface NSLocaleOverrider : NSObject
+@end
+
+@implementation NSLocaleOverrider
+
+static NSArray* preferredLanguagesArray;
+
++ (void)load {
+    injectStaticSelector([NSLocaleOverrider class], @selector(overriderPreferredLanguages), [NSLocale class], @selector(preferredLanguages));
+}
+
++ (NSArray<NSString*> *) overriderPreferredLanguages {
+    return preferredLanguagesArray;
+}
+
+@end
+
+
+
 
 // END - Selector Shadowing
 
@@ -392,6 +411,8 @@ static BOOL setupUIApplicationDelegate = false;
     lastHTTPRequset = nil;
     
     lastSetCategories = nil;
+    
+    preferredLanguagesArray = @[@"en-US"];
     
     [OneSignalHelper lastMessageReceived:nil];
     OneSignalHelper.lastMessageIdFromAction = nil;
@@ -525,7 +546,7 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
     XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
-    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en");
+    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
     lastHTTPRequset = nil;
@@ -533,6 +554,13 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
+}
+
+// Seen a few rare crash reports where [NSLocale preferredLanguages] resturns an empty array
+- (void)testInitWithEmptyPreferredLanguages {
+    preferredLanguagesArray = @[];
+    [self initOneSignal];
+    [self runBackgroundThreads];
 }
 
 - (void)testInitOnSimulator {
@@ -549,7 +577,7 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @-15);
     XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
-    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en");
+    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
     lastHTTPRequset = nil;

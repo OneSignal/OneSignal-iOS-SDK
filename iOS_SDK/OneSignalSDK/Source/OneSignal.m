@@ -826,7 +826,6 @@ static BOOL waitingForOneSReg = false;
                                     app_id, @"app_id",
                                     deviceModel, @"device_model",
                                     [[UIDevice currentDevice] systemVersion], @"device_os",
-                                    [[NSLocale preferredLanguages] objectAtIndex:0], @"language",
                                     [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
                                     [NSNumber numberWithInt:0], @"device_type",
                                     [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
@@ -849,6 +848,10 @@ static BOOL waitingForOneSReg = false;
         dataDic[@"ios_bundle"] = [[NSBundle mainBundle] bundleIdentifier];
     }
     
+    
+    NSArray* preferredLanguages = [NSLocale preferredLanguages];
+    if (preferredLanguages && [preferredLanguages count] > 0)
+        dataDic[@"language"] = [preferredLanguages objectAtIndex:0];
     
     mLastNotificationTypes = notificationTypes;
     dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
