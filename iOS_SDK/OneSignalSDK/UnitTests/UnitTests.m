@@ -72,19 +72,51 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 
 // START - Selector Shadowing
 
+
+@interface SelectorToRun : NSObject
+@property NSObject* runOn;
+@property SEL selector;
+@property NSObject* withObject;
+@end
+
+
+@implementation SelectorToRun
+@end
+
 @interface NSObjectOverrider : NSObject
 @end
+
 @implementation NSObjectOverrider
 
-static BOOL enabledPerformSelectorAfterDelay = true;
+static NSMutableArray* selectorsToRun;
+static BOOL instantRunPerformSelectorAfterDelay;
 
 + (void)load {
     injectToProperClass(@selector(overridePerformSelector:withObject:afterDelay:), @selector(performSelector:withObject:afterDelay:), @[], [NSObjectOverrider class], [NSObject class]);
+    injectToProperClass(@selector(overridePerformSelector:withObject:), @selector(performSelector:withObject:), @[], [NSObjectOverrider class], [NSObject class]);
 }
 
 - (void)overridePerformSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay {
-    if (enabledPerformSelectorAfterDelay)
-        [self overridePerformSelector:aSelector withObject:nil afterDelay:delay];
+    if (instantRunPerformSelectorAfterDelay)
+        [self performSelector:aSelector withObject:anArgument];
+    else {
+        SelectorToRun* selectorToRun = [SelectorToRun alloc];
+        selectorToRun.runOn = self;
+        selectorToRun.selector = aSelector;
+        selectorToRun.withObject = anArgument;
+        [selectorsToRun addObject:selectorToRun];
+    }
+}
+
+- (void)overridePerformSelector:(SEL)aSelector withObject:(nullable id)anArgument {
+    [self overridePerformSelector:aSelector withObject:anArgument];
+}
+
++ (void)runPendingSelectors {
+    for(SelectorToRun* selectorToRun in selectorsToRun)
+        [selectorToRun.runOn performSelector:selectorToRun.selector withObject:selectorToRun.withObject];
+    
+    [selectorsToRun removeAllObjects];
 }
 
 @end
@@ -362,6 +394,9 @@ static BOOL setupUIApplicationDelegate = false;
     shouldFireDeviceToken = true;
     didFailRegistarationErrorCode = 0;
     nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
+    
+    instantRunPerformSelectorAfterDelay = false;
+    selectorsToRun = [[NSMutableArray alloc] init];
     
     // TODO: Keep commented out for now, might need this later.
     // [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
@@ -799,16 +834,62 @@ static BOOL setupUIApplicationDelegate = false;
 - (void)testSendTags {
     [self initOneSignal];
     [self runBackgroundThreads];
+    XCTAssertEqual(networkRequestCount, 1);
     
+    // Simple test with a sendTag and sendTags call.
     [OneSignal sendTag:@"key" value:@"value"];
-    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
-    
     [OneSignal sendTags:@{@"key1": @"value1", @"key2": @"value2"}];
+    
+    // Make sure all 3 sets of tags where send in 1 network call.
+    [NSObjectOverrider runPendingSelectors];
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key1"], @"value1");
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
+    XCTAssertEqual(networkRequestCount, 2);
     
-    // TODO: Optimization: This could be 1 network call if we delay the request in init and sendTags
+    
+    // More advanced test with callbacks.
+    __block BOOL didRunSuccess1, didRunSuccess2, didRunSuccess3;
+    [OneSignal sendTag:@"key10" value:@"value10" onSuccess:^(NSDictionary *result) {
+        didRunSuccess1 = true;
+    } onFailure:^(NSError *error) {}];
+    [OneSignal sendTags:@{@"key11": @"value11", @"key12": @"value12"} onSuccess:^(NSDictionary *result) {
+        didRunSuccess2 = true;
+    } onFailure:^(NSError *error) {}];
+    
+    instantRunPerformSelectorAfterDelay = true;
+    [OneSignal sendTag:@"key13" value:@"value13" onSuccess:^(NSDictionary *result) {
+        didRunSuccess3 = true;
+    } onFailure:^(NSError *error) {}];
+    
+    [NSObjectOverrider runPendingSelectors];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key10"], @"value10");
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key11"], @"value11");
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key12"], @"value12");
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key13"], @"value13");
     XCTAssertEqual(networkRequestCount, 3);
+    
+    XCTAssertEqual(didRunSuccess1, true);
+    XCTAssertEqual(didRunSuccess2, true);
+    XCTAssertEqual(didRunSuccess3, true);
+}
+
+- (void)testDeleteTags {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    XCTAssertEqual(networkRequestCount, 1);
+    
+    // send 2 tags and delete 1 before they get sent off.
+    [OneSignal sendTag:@"key" value:@"value"];
+    [OneSignal sendTag:@"key2" value:@"value2"];
+    [OneSignal deleteTag:@"key"];
+    
+    // Make sure only 1 network call is made and only key2 gets sent.
+    [NSObjectOverrider runPendingSelectors];
+    XCTAssertNil(lastHTTPRequset[@"tags"][@"key"]);
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
+    XCTAssertEqual(networkRequestCount, 2);
 }
 
 - (void)testFirstInitWithNotificationsAlreadyDeclined {

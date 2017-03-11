@@ -93,11 +93,21 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 @implementation OSSubcscriptionStatus
 @end
 
+@interface OSPendingCallbacks : NSObject
+ @property OSResultSuccessBlock successBlock;
+ @property OSFailureBlock failureBlock;
+@end
+
+@implementation OSPendingCallbacks
+@end
+
 @implementation OneSignal
 
 NSString* const ONESIGNAL_VERSION = @"020400";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
+
+static NSMutableArray* pendingSendTagCallbacks;
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
@@ -436,19 +446,42 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
    
-    if (mUserId == nil) {
-        if (tagsToSend == nil)
-            tagsToSend = [keyValuePair mutableCopy];
-        else
-            [tagsToSend addEntriesFromDictionary:keyValuePair];
-        return;
+    if (tagsToSend == nil)
+        tagsToSend = [keyValuePair mutableCopy];
+    else
+        [tagsToSend addEntriesFromDictionary:keyValuePair];
+    
+    if (successBlock || failureBlock) {
+        if (!pendingSendTagCallbacks)
+            pendingSendTagCallbacks = [[NSMutableArray alloc] init];
+        OSPendingCallbacks* pendingCallbacks = [OSPendingCallbacks alloc];
+        pendingCallbacks.successBlock = successBlock;
+        pendingCallbacks.failureBlock = failureBlock;
+        [pendingSendTagCallbacks addObject:pendingCallbacks];
     }
+    
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendTagsToServer) object:nil];
+    [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
+}
+
+// Called only with a delay to batch network calls.
++ (void) sendTagsToServer {
+    if (!tagsToSend)
+        return;
+    
+    NSDictionary* nowSendingTags = tagsToSend;
+    tagsToSend = nil;
+    
+    NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
+    pendingSendTagCallbacks = nil;
+    
     
     NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
     
     NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                              app_id, @"app_id",
-                             keyValuePair, @"tags",
+                             nowSendingTags, @"tags",
                              [OneSignalHelper getNetType], @"net_type",
                              nil];
     
@@ -456,8 +489,22 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [request setHTTPBody:postData];
     
     [OneSignalHelper enqueueRequest:request
-               onSuccess:successBlock
-               onFailure:failureBlock];
+                          onSuccess:^(NSDictionary *result) {
+                              if (nowProcessingCallbacks) {
+                                  for(OSPendingCallbacks* callbackSet in nowProcessingCallbacks) {
+                                      if (callbackSet.successBlock)
+                                          callbackSet.successBlock(result);
+                                  }
+                              }
+                          }
+                          onFailure:^(NSError *error) {
+                              if (nowProcessingCallbacks) {
+                                  for(OSPendingCallbacks* callbackSet in nowProcessingCallbacks) {
+                                      if (callbackSet.failureBlock)
+                                          callbackSet.failureBlock(error);
+                                  }
+                              }
+                          }];
 }
 
 + (void)sendTag:(NSString*)key value:(NSString*)value {
@@ -494,29 +541,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [self deleteTags:@[key] onSuccess:nil onFailure:nil];
 }
 
-+ (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
-    if (mUserId == nil)
-        return;
-    
-    NSMutableURLRequest* request;
-    request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", mUserId]];
-    
-    NSMutableDictionary* deleteTagsDict = [NSMutableDictionary dictionary];
-    for(id key in keys)
-        [deleteTagsDict setObject:@"" forKey:key];
-    
-    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             app_id, @"app_id",
-                             deleteTagsDict, @"tags",
-                             nil];
-    
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
-    
-    [OneSignalHelper enqueueRequest:request onSuccess:successBlock onFailure:failureBlock];
-}
-
 + (void)deleteTags:(NSArray*)keys {
     [self deleteTags:keys onSuccess:nil onFailure:nil];
 }
@@ -532,6 +556,21 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]);
         onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]);
     }
+}
+
++ (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
+    
+    for(NSString* key in keys) {
+        if (tagsToSend && tagsToSend[key]) {
+            if (![tagsToSend[key] isEqualToString:@""])
+                [tagsToSend removeObjectForKey:key];
+        }
+        else
+            tags[key] = @"";
+    }
+    
+    [self sendTags:tags onSuccess:successBlock onFailure:failureBlock];
 }
 
 

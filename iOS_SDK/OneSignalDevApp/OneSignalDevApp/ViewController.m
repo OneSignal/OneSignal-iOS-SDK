@@ -30,6 +30,8 @@
 
 #import "ViewController.h"
 
+#import <OneSignal/OneSignal.h>
+
 @interface ViewController ()
 
 @end
@@ -41,6 +43,18 @@
     // Do any additional setup after loading the view, typically from a nib.
 }
 
+- (IBAction)sendTagButton:(id)sender {
+    [OneSignal sendTag:@"key1"
+                 value:@"value1"
+             onSuccess:^(NSDictionary *result) {
+                 static int successes = 0;
+                 NSLog(@"successes: %d", ++successes);
+    }
+             onFailure:^(NSError *error) {
+                 static int failures = 0;
+                 NSLog(@"failures: %d", ++failures);
+    }];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
