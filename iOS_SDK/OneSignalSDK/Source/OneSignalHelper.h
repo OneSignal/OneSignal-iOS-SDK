@@ -47,7 +47,7 @@
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
 
 // - iOS 10
-+ (BOOL)isiOS10Plus;
++ (BOOL)isIOSVersionGreaterOrEqual:(float)version;
 #if XC8_AVAILABLE
 + (void)registerAsUNNotificationCenterDelegate;
 + (void)clearCachedMedia;

@@ -532,21 +532,20 @@ static NSString *_lastMessageIdFromAction;
     return @1;
 }
 
+// Can call currentUserNotificationSettings
 + (BOOL) canGetNotificationTypes {
-    return [[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)];
+    return [OneSignalHelper isIOSVersionGreaterOrEqual:8];
 }
 
 + (UILocalNotification*)createUILocalNotification:(NSDictionary*)data {
+    UILocalNotification* notification = [[UILocalNotification alloc] init];
     
-    UILocalNotification * notification = [[UILocalNotification alloc] init];
-    
-    id category = [[NSClassFromString(@"UIMutableUserNotificationCategory") alloc] init];
+    UIMutableUserNotificationCategory* category = [[UIMutableUserNotificationCategory alloc] init];
     [category setIdentifier:@"__dynamic__"];
     
-    Class UIMutableUserNotificationActionClass = NSClassFromString(@"UIMutableUserNotificationAction");
     NSMutableArray* actionArray = [[NSMutableArray alloc] init];
     for (NSDictionary* button in [OneSignalHelper getActionButtons:data]) {
-        id action = [[UIMutableUserNotificationActionClass alloc] init];
+        id action = [[UIMutableUserNotificationAction alloc] init];
         [action setTitle:button[@"n"]];
         [action setIdentifier:button[@"i"] ? button[@"i"] : [action title]];
         [action setActivationMode:UIUserNotificationActivationModeForeground];
@@ -561,16 +560,13 @@ static NSString *_lastMessageIdFromAction;
     
     [category setActions:actionArray forContext:UIUserNotificationActionContextDefault];
     
-    Class uiUserNotificationSettings = NSClassFromString(@"UIUserNotificationSettings");
-    NSUInteger notificationTypes = NOTIFICATION_TYPE_ALL;
-    
     NSSet* currentCategories = [[[UIApplication sharedApplication] currentUserNotificationSettings] categories];
     if (currentCategories)
         currentCategories = [currentCategories setByAddingObject:category];
     else
         currentCategories = [NSSet setWithObject:category];
     
-    [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:currentCategories]];
+    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:NOTIFICATION_TYPE_ALL categories:currentCategories]];
     notification.category = [category identifier];
     return notification;
 }
@@ -580,6 +576,7 @@ static NSString *_lastMessageIdFromAction;
     UILocalNotification *notification = [self createUILocalNotification:data];
     
     if ([data[@"m"] isKindOfClass:[NSDictionary class]]) {
+        // alertTitle was added in iOS 8.2
         if ([notification respondsToSelector:NSSelectorFromString(@"alertTitle")])
             notification.alertTitle = data[@"m"][@"title"];
         notification.alertBody = data[@"m"][@"body"];
@@ -609,8 +606,8 @@ static OneSignal* singleInstance = nil;
     return singleInstance;
 }
 
-+ (BOOL)isiOS10Plus {
-    return [[[UIDevice currentDevice] systemVersion] floatValue] >= 10.0 ;
++ (BOOL)isIOSVersionGreaterOrEqual:(float)version {
+    return [[[UIDevice currentDevice] systemVersion] floatValue] >= version;
 }
 
 +(NSString*)randomStringWithLength:(int)length {

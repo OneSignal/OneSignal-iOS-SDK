@@ -281,6 +281,7 @@ static int notifTypesOverride = 7;
 @end
 @implementation UIApplicationOverrider
 
+static BOOL calledRegisterForRemoteNotifications;
 static NSInteger didFailRegistarationErrorCode;
 static BOOL shouldFireDeviceToken;
 
@@ -288,12 +289,13 @@ static BOOL shouldFireDeviceToken;
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideCurrentUserNotificationSettings), @selector(currentUserNotificationSettings), @[], [UIApplicationOverrider class], [UIApplication class]);
+    injectToProperClass(@selector(overrideRegisterForRemoteNotificationTypes:), @selector(registerForRemoteNotificationTypes:), @[], [UIApplicationOverrider class], [UIApplication class]);
 }
 
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
 - (void) override_run {}
 
-- (void) overrideRegisterForRemoteNotifications {
++ (void) helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
     id app = [UIApplication sharedApplication];
     id appDelegate = [[UIApplication sharedApplication] delegate];
     
@@ -305,13 +307,25 @@ static BOOL shouldFireDeviceToken;
     
     if (!shouldFireDeviceToken)
         return;
-
+    
     
     char bytes[32];
     memset(bytes, 0, 32);
     
     id deviceToken = [NSData dataWithBytes:bytes length:32];
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+
+}
+
+// Called on iOS 8+
+- (void) overrideRegisterForRemoteNotifications {
+    calledRegisterForRemoteNotifications = true;
+    [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
+}
+
+// iOS 7
+- (void)overrideRegisterForRemoteNotificationTypes:(UIRemoteNotificationType)types {
+   [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
 
 
@@ -329,9 +343,12 @@ static NSString* lastUrl;
 static NSDictionary* lastHTTPRequset;
 static int networkRequestCount;
 
+static float mockIOSVersion;
+
 + (void)load {
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
+    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterOrEqual:));
 }
 
 + (NSString*) overrideGetAppName {
@@ -352,6 +369,10 @@ static int networkRequestCount;
     
     if (successBlock)
         successBlock(@{@"id": @"1234"});
+}
+
++ (BOOL)overrideIsIOSVersionGreaterOrEqual:(float)version {
+   return mockIOSVersion >= version;
 }
 
 @end
@@ -405,6 +426,8 @@ static BOOL setupUIApplicationDelegate = false;
 - (void)setUp {
     [super setUp];
     
+    mockIOSVersion = 10;
+    
     timeOffset = 0;
     networkRequestCount = 0;
     lastUrl = nil;
@@ -426,6 +449,7 @@ static BOOL setupUIApplicationDelegate = false;
     authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     
     shouldFireDeviceToken = true;
+    calledRegisterForRemoteNotifications = false;
     didFailRegistarationErrorCode = 0;
     nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
@@ -521,13 +545,14 @@ static BOOL setupUIApplicationDelegate = false;
 }
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
-  id userInfo = @{@"custom": @{
-                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
-                          }};
+  id userInfo = @{@"custom":
+                      @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"}
+                  };
   
   return [self createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
+// Helper used to simpify tests below.
 - (void)initOneSignal {
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
@@ -554,6 +579,29 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
+}
+
+- (void)testRegisterationOniOS7 {
+    mockIOSVersion = 7;
+    
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
+    XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
+    XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en-US");
+    
+    // 2nd init call should not fire another on_session call.
+    lastHTTPRequset = nil;
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    XCTAssertNil(lastHTTPRequset);
+    
+    XCTAssertEqual(networkRequestCount, 1);
+    // Make sure calledRegisterForRemoteNotifications didn't fire as this isn't available on iOS 7
+    XCTAssertFalse(calledRegisterForRemoteNotifications);
 }
 
 // Seen a few rare crash reports where [NSLocale preferredLanguages] resturns an empty array

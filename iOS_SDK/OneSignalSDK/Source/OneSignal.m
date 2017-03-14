@@ -232,10 +232,12 @@ BOOL mShareLocation = YES;
         else
             [self enableInAppLaunchURL:@YES];
         
-        // Register this device with Apple's APNS server if enabled auto-prompt or not passed a NO
+        
         BOOL autoPrompt = YES;
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
             autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
+        
+        // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
         if (autoPrompt || registeredWithApple)
             [self registerForPushNotifications];
         else
@@ -348,8 +350,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 
-// iOS 8+, only tries to register for an APNs token if one is true:
+// iOS 8+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {
+    if (![OneSignalHelper isIOSVersionGreaterOrEqual:8])
+        return false;
+    
     if (waitingForApnsResponse)
         return true;
     
@@ -358,11 +363,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // Only try to register for a pushToken if:
     //  - The user accepted notifications
-    //  - Background Modes > Remote Notifications are enabled in Xcode
+    //  - "Background Modes" > "Remote Notifications" are enabled in Xcode
     if (![self accpetedNotificationPermission] && !backgroundModesEnabled)
         return false;
     
-    // Don't attempt to register again if the was non-recoverable error.
+    // Don't attempt to register again if there was a non-recoverable error.
     if (mSubscriptionStatus < -9)
         return false;
     
@@ -383,19 +388,17 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     //     BOOL granted, NSError * _Nullable error) {
     // }];
     
-    // For iOS 8 devices
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        // ClassFromString to work around pre Xcode 6 link errors when building an app using the OneSignal framework.
-        Class uiUserNotificationSettings = NSClassFromString(@"UIUserNotificationSettings");
-        NSUInteger notificationTypes = NOTIFICATION_TYPE_ALL;
+    UIApplication* shardApp = [UIApplication sharedApplication];
+    
+    if ([OneSignalHelper isIOSVersionGreaterOrEqual:8]) {
+        // Get all current Categories so we don't remove any of the app developer's.
+        NSSet* categories = [[shardApp currentUserNotificationSettings] categories];
         
-        NSSet* categories = [[[UIApplication sharedApplication] currentUserNotificationSettings] categories];
-        
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[uiUserNotificationSettings settingsForTypes:notificationTypes categories:categories]];
+        [shardApp registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:NOTIFICATION_TYPE_ALL categories:categories]];
         [self registerForAPNsToken];
     }
     else { // For iOS 6 & 7 devices
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert];
+        [shardApp registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert];
         if (!registeredWithApple) {
             waitingForApnsResponse = true;
             [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -641,7 +644,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
    
     // Special Case: If iOS version < 10 && Option passed is 2, default to inAppAlerts.
     NSInteger op = option.integerValue;
-    if (![OneSignalHelper isiOS10Plus] && OSNotificationDisplayTypeNotification == op)
+    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10] && OSNotificationDisplayTypeNotification == op)
         op = OSNotificationDisplayTypeInAppAlert;
     
     [[NSUserDefaults standardUserDefaults] setObject:@(op) forKey:@"ONESIGNAL_ALERT_OPTION"];
@@ -1218,7 +1221,8 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)userAnsweredNotificationPrompt:(void (^)(OSSubcscriptionStatus *anwsered))completionHandler {
-   if ([OneSignalHelper isiOS10Plus]) {
+    
+    if ([OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
        Class unUserNotifClass = NSClassFromString(@"UNUserNotificationCenter");
        [[unUserNotifClass currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(id settings) {
            // Trigger callback on the main thread.
@@ -1232,19 +1236,25 @@ static NSString *_lastnonActiveMessageId;
            });
         }];
     }
-    else {
+    else { // Pre-iOS 10
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         OSSubcscriptionStatus *status = [OSSubcscriptionStatus alloc];
         status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
         
-        if ([OneSignalHelper canGetNotificationTypes]) {
+        // iOS 8+
+        if ([OneSignalHelper canGetNotificationTypes])
             status.accepted = [[UIApplication sharedApplication] currentUserNotificationSettings].types > 0;
-            completionHandler(status);
-        }
-        else {
+        else { // iOS 7
             status.accepted = mDeviceToken != nil;
-            completionHandler(status);
+            
+            // No other iOS 7 event will trigger an awnsered event so do so here.
+            if (!status.anwseredPrompt && status.accepted) {
+                [userDefaults setBool:true forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+                [userDefaults synchronize];
+            }
         }
+        
+        completionHandler(status);
     }
 }
 
@@ -1252,7 +1262,7 @@ static NSString *_lastnonActiveMessageId;
 //    User just responed to the iOS native notification permission prompt.
 //    Also extra calls to registerUserNotificationSettings will fire this without prompting again.
 + (void) updateNotificationTypes:(int)notificationTypes {
-   if (![OneSignalHelper isiOS10Plus]) {
+   if (![OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         [userDefaults setBool:true forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
         [userDefaults synchronize];
