@@ -33,6 +33,7 @@
 #import "OneSignalTracker.h"
 #import "OneSignalLocation.h"
 #import "OneSignalSelectorHelpers.h"
+#import "OneSignalHelper.h"
 
 @interface OneSignal (UN_extra)
 + (void) didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken;
@@ -78,7 +79,7 @@ static NSArray* delegateSubclasses = nil;
     
     
     // UNUserNotificationCenter will already handle recieved / open events on iOS 10 so don't swizzle the deprecated ones.
-    BOOL notIos10 = !NSClassFromString(@"UNUserNotificationCenter");
+    BOOL notIos10 = [OneSignalHelper isIOSVersionGreaterOrEqual:10];
     
     Class newClass = [OneSignalAppDelegate class];
     
@@ -94,11 +95,11 @@ static NSArray* delegateSubclasses = nil;
     if (notIos10) {
         injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
                             @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, newClass, delegateClass);
+        
+        injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
+                            @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, newClass, delegateClass);
     }
-    
-    injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
-                        @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, newClass, delegateClass);
-    
+
     injectToProperClass(@selector(oneSignalDidFailRegisterForRemoteNotification:error:),
                         @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, newClass, delegateClass);
     
@@ -114,6 +115,7 @@ static NSArray* delegateSubclasses = nil;
         injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:),
                             @selector(application:didReceiveRemoteNotification:), delegateSubclasses, newClass, delegateClass);
         
+        // iOS 10 requestAuthorizationWithOptions has it's own callback
         injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:),
                             @selector(application:didReceiveLocalNotification:), delegateSubclasses, newClass, delegateClass);
     }
@@ -137,8 +139,6 @@ static NSArray* delegateSubclasses = nil;
 
 
 
-
-
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
@@ -159,6 +159,7 @@ static NSArray* delegateSubclasses = nil;
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
 }
 
+// iOS 8 & 9 Only
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterUserNotifications:settings:"];
     

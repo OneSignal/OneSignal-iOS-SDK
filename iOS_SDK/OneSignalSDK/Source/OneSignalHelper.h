@@ -69,6 +69,8 @@
 
 // Threading
 + (void) runOnMainThread:(void(^)())block;
++ (void) dispatch_async_on_main_queue:(void(^)())block;
++ (void)performSelector:(SEL)aSelector onMainThreadOnObject:(nullable id)targetObj withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay;
 
 // Other
 + (BOOL) isValidEmail:(NSString*)email;

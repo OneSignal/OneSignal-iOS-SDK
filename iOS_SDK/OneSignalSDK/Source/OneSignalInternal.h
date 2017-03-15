@@ -25,15 +25,20 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
 
-@interface OneSignalWebView : UIViewController <UIWebViewDelegate>
+// Internal selectors to the OneSignal SDK to be shared by other Classes.
 
-@property(nonatomic, copy)NSURL *url;
-@property(nonatomic)UIWebView *webView;
-@property(nonatomic)UIActivityIndicatorView *uiBusy;
+#ifndef OneSignalInternal_h
+#define OneSignalInternal_h
 
--(void)dismiss:(id)sender;
--(void)showInApp;
+#import "OneSignal.h"
 
+@interface OneSignal (UN_extra)
++ (NSString*)getDeviceToken;
++ (void)updateNotificationTypes:(int)notificationTypes;
++ (BOOL)registerForAPNsToken;
++ (void)setWaitingForApnsResponse:(BOOL)value;
 @end
+
+
+#endif /* OneSignalInternal_h */

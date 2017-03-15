@@ -14,13 +14,20 @@
 #import <CoreData/CoreData.h>
 #import <UserNotifications/UserNotifications.h>
 
+
+#import "UncaughtExceptionHandler.h"
+
+
 #import "OneSignal.h"
 
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
 
+#include <pthread.h>
+#include <mach/mach.h>
 
+static XCTestCase* currentTestInstance;
 
 // Just for debugging
 void DumpObjcMethods(Class clz) {
@@ -70,6 +77,10 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 }
 
 
+@interface OneSignal (UN_extra)
++ (dispatch_queue_t) getRegisterQueue;
+@end
+
 // START - Selector Shadowing
 
 
@@ -90,6 +101,7 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
 
 static NSMutableArray* selectorsToRun;
 static BOOL instantRunPerformSelectorAfterDelay;
+static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 
 + (void)load {
     injectToProperClass(@selector(overridePerformSelector:withObject:afterDelay:), @selector(performSelector:withObject:afterDelay:), @[], [NSObjectOverrider class], [NSObject class]);
@@ -97,8 +109,16 @@ static BOOL instantRunPerformSelectorAfterDelay;
 }
 
 - (void)overridePerformSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay {
-    if (instantRunPerformSelectorAfterDelay)
+    // TOOD: Add && for calling from our unit test queue looper.
+    /*
+    if (![[NSThread mainThread] isEqual:[NSThread currentThread]])
+        _XCTPrimitiveFail(currentTestInstance);
+     */
+    
+    if (instantRunPerformSelectorAfterDelay || [selectorNamesForInstantOnlyForFirstRun containsObject:NSStringFromSelector(aSelector)]) {
+        [selectorNamesForInstantOnlyForFirstRun removeObject:NSStringFromSelector(aSelector)];
         [self performSelector:aSelector withObject:anArgument];
+    }
     else {
         SelectorToRun* selectorToRun = [SelectorToRun alloc];
         selectorToRun.runOn = self;
@@ -106,10 +126,6 @@ static BOOL instantRunPerformSelectorAfterDelay;
         selectorToRun.withObject = anArgument;
         [selectorsToRun addObject:selectorToRun];
     }
-}
-
-- (void)overridePerformSelector:(SEL)aSelector withObject:(nullable id)anArgument {
-    [self overridePerformSelector:aSelector withObject:anArgument];
 }
 
 + (void)runPendingSelectors {
@@ -239,6 +255,9 @@ static NSDictionary* nsbundleDictionary;
 @end
 
 
+static int notifTypesOverride = 7;
+
+
 @interface UNUserNotificationCenterOverrider : NSObject
 @end
 @implementation UNUserNotificationCenterOverrider
@@ -246,11 +265,30 @@ static NSDictionary* nsbundleDictionary;
 static NSNumber *authorizationStatus;
 static NSSet<UNNotificationCategory *>* lastSetCategories;
 
+static dispatch_queue_t serialQueue;
+
+static int getNotificationSettingsWithCompletionHandlerStackCount;
+
 + (void)load {
-    injectToProperClass(@selector(overrideInitWithBundleIdentifier:), @selector(initWithBundleIdentifier:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideGetNotificationSettingsWithCompletionHandler:), @selector(getNotificationSettingsWithCompletionHandler:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideSetNotificationCategories:), @selector(setNotificationCategories:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideGetNotificationCategoriesWithCompletionHandler:), @selector(getNotificationCategoriesWithCompletionHandler:), @[], [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    getNotificationSettingsWithCompletionHandlerStackCount =  0;
+    
+    serialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
+    
+    injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
+                        @selector(initWithBundleIdentifier:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideGetNotificationSettingsWithCompletionHandler:),
+                        @selector(getNotificationSettingsWithCompletionHandler:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideSetNotificationCategories:),
+                        @selector(setNotificationCategories:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideGetNotificationCategoriesWithCompletionHandler:),
+                        @selector(getNotificationCategoriesWithCompletionHandler:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideRequestAuthorizationWithOptions:completionHandler:),
+                        @selector(requestAuthorizationWithOptions:completionHandler:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
 }
 
 - (id) overrideInitWithBundleIdentifier:(NSString*) bundle {
@@ -258,9 +296,26 @@ static NSSet<UNNotificationCategory *>* lastSetCategories;
 }
 
 - (void)overrideGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
+    getNotificationSettingsWithCompletionHandlerStackCount++;
+    
     id retSettings = [UNNotificationSettings alloc];
     [retSettings setValue:authorizationStatus forKeyPath:@"authorizationStatus"];
-    completionHandler(retSettings);
+    
+    if (notifTypesOverride >= 7) {
+        [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"badgeSetting"];
+        [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"soundSetting"];
+        [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"alertSetting"];
+        [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"lockScreenSetting"];
+    }
+    
+    // Simulates running on a sequential serial queue like iOS does.
+    dispatch_async(serialQueue, ^{
+        //if (getNotificationSettingsWithCompletionHandlerStackCount > 1)
+        //    _XCTPrimitiveFail(currentTestInstance);
+        //[NSThread sleepForTimeInterval:0.01];
+        completionHandler(retSettings);
+        getNotificationSettingsWithCompletionHandlerStackCount--;
+    });
 }
 
 - (void)overrideSetNotificationCategories:(NSSet<UNNotificationCategory *> *)categories {
@@ -271,17 +326,21 @@ static NSSet<UNNotificationCategory *>* lastSetCategories;
     completionHandler(lastSetCategories);
 }
 
+- (void)overrideRequestAuthorizationWithOptions:(UNAuthorizationOptions)options
+                              completionHandler:(void (^)(BOOL granted, NSError *error))completionHandler {
+    if (authorizationStatus != [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined])
+        completionHandler(authorizationStatus == [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized], nil);
+}
+
 @end
-
-
-
-static int notifTypesOverride = 7;
 
 @interface UIApplicationOverrider : NSObject
 @end
 @implementation UIApplicationOverrider
 
 static BOOL calledRegisterForRemoteNotifications;
+static BOOL calledCurrentUserNotificationSettings;
+
 static NSInteger didFailRegistarationErrorCode;
 static BOOL shouldFireDeviceToken;
 
@@ -290,10 +349,13 @@ static BOOL shouldFireDeviceToken;
     injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideCurrentUserNotificationSettings), @selector(currentUserNotificationSettings), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterForRemoteNotificationTypes:), @selector(registerForRemoteNotificationTypes:), @[], [UIApplicationOverrider class], [UIApplication class]);
+    injectToProperClass(@selector(overrideRegisterUserNotificationSettings:), @selector(registerUserNotificationSettings:), @[], [UIApplicationOverrider class], [UIApplication class]);
 }
 
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
-- (void) override_run {}
+- (void) override_run {
+    NSLog(@"override_run!!!!!!");
+}
 
 + (void) helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
     id app = [UIApplication sharedApplication];
@@ -329,8 +391,19 @@ static BOOL shouldFireDeviceToken;
 }
 
 
+// iOS 8 & 9 Only
 - (UIUserNotificationSettings*) overrideCurrentUserNotificationSettings {
+    calledCurrentUserNotificationSettings = true;
+    
+    // Check for this as it will create thread locks on a real device.
+    if (getNotificationSettingsWithCompletionHandlerStackCount > 0)
+        _XCTPrimitiveFail(currentTestInstance);
+    
     return [UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil];
+}
+
+// KEEP - Used to prevent xctest from fowarding to the iOS 10 equivalent.
+- (void)overrideRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
 }
 
 @end
@@ -343,12 +416,17 @@ static NSString* lastUrl;
 static NSDictionary* lastHTTPRequset;
 static int networkRequestCount;
 
+static dispatch_queue_t serialMockMainLooper;
+
 static float mockIOSVersion;
 
 + (void)load {
+    serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
+    
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterOrEqual:));
+    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
 }
 
 + (NSString*) overrideGetAppName {
@@ -373,6 +451,10 @@ static float mockIOSVersion;
 
 + (BOOL)overrideIsIOSVersionGreaterOrEqual:(float)version {
    return mockIOSVersion >= version;
+}
+
++ (void) overrideDispatch_async_on_main_queue:(void(^)())block {
+    dispatch_async(serialMockMainLooper, block);
 }
 
 @end
@@ -414,6 +496,7 @@ static NSArray* preferredLanguagesArray;
 // END - Selector Shadowing
 
 
+
 @interface UnitTests : XCTestCase
 @end
 
@@ -425,6 +508,8 @@ static BOOL setupUIApplicationDelegate = false;
 // Called before each test.
 - (void)setUp {
     [super setUp];
+    
+    currentTestInstance = self;
     
     mockIOSVersion = 10;
     
@@ -451,14 +536,15 @@ static BOOL setupUIApplicationDelegate = false;
     
     shouldFireDeviceToken = true;
     calledRegisterForRemoteNotifications = false;
+    calledCurrentUserNotificationSettings = false;
     didFailRegistarationErrorCode = 0;
     nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
     instantRunPerformSelectorAfterDelay = false;
+    selectorNamesForInstantOnlyForFirstRun = [@[] mutableCopy];
     selectorsToRun = [[NSMutableArray alloc] init];
     
-    // TODO: Keep commented out for now, might need this later.
-    // [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
+    [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
     [NSUserDefaultsOverrider clearInternalDictionary];
     
@@ -468,23 +554,27 @@ static BOOL setupUIApplicationDelegate = false;
         // Normally this just loops internally, overwrote _run to work around this.
         UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
         setupUIApplicationDelegate = true;
+      // InstallUncaughtExceptionHandler();
     }
     
     // Uncomment to simulate slow travis-CI runs.
-    // NSLog(@"Sleeping for debugging");
-    // [NSThread sleepForTimeInterval:15];
+    /*float minRange = 0, maxRange = 15;
+    float random = ((float)arc4random() / 0x100000000 * (maxRange - minRange)) + minRange;
+    NSLog(@"Sleeping for debugging: %f", random);
+    [NSThread sleepForTimeInterval:random];*/
 }
 
 // Called after each test.
 - (void)tearDown {
     [super tearDown];
+    [self runBackgroundThreads];
 }
 
 - (void)backgroundModesDisabledInXcode {
     nsbundleDictionary = @{};
 }
 
-- (void)setsetCurrentNotificationPermissionAsUnanwsered {
+- (void)setCurrentNotificationPermissionAsUnanwsered {
     notifTypesOverride = 0;
     authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
 }
@@ -519,7 +609,22 @@ static BOOL setupUIApplicationDelegate = false;
 
 // Runs any blocks passed to dispatch_async()
 - (void)runBackgroundThreads {
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+
+    NSLog(@"START runBackgroundThreads");
+    
+    dispatch_queue_t registerUserQueue;
+    for(int i = 0; i < 2; i++) {
+        dispatch_sync(serialMockMainLooper, ^{});
+        
+        registerUserQueue = [OneSignal getRegisterQueue];
+        if (registerUserQueue) {
+            dispatch_sync(registerUserQueue, ^{});
+        }
+        
+        dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
+    }
+    
+    NSLog(@"END runBackgroundThreads");
 }
 
 
@@ -569,7 +674,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
-    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @15);
     XCTAssertEqualObjects(lastHTTPRequset[@"device_model"], @"x86_64");
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
     XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en-US");
@@ -601,8 +706,10 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
-    // Make sure calledRegisterForRemoteNotifications didn't fire as this isn't available on iOS 7
+    
+    // Make the following methods were not called as they are not available on iOS 7
     XCTAssertFalse(calledRegisterForRemoteNotifications);
+    XCTAssertFalse(calledCurrentUserNotificationSettings);
 }
 
 // Seen a few rare crash reports where [NSLocale preferredLanguages] resturns an empty array
@@ -613,11 +720,12 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 - (void)testInitOnSimulator {
-    [self setCurrentNotificationPermission:false];
+    [self setCurrentNotificationPermissionAsUnanwsered];
     [self backgroundModesDisabledInXcode];
     didFailRegistarationErrorCode = 3010;
     
     [self initOneSignal];
+    [self runBackgroundThreads];
     [self anwserNotifiationPrompt:true];
     [self runBackgroundThreads];
     
@@ -639,20 +747,20 @@ static BOOL setupUIApplicationDelegate = false;
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];
     didFailRegistarationErrorCode = 3000;
-    [self setsetCurrentNotificationPermissionAsUnanwsered];
+    [self setCurrentNotificationPermissionAsUnanwsered];
     
     [self initOneSignal];
     XCTAssertNil(lastHTTPRequset);
     
     [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @-13);
     XCTAssertEqual(networkRequestCount, 1);
 }
 
 - (void)testPromptedButNeverAnwserNotificationPrompt {
-    notifTypesOverride = 0;
-    authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
+    [self setCurrentNotificationPermissionAsUnanwsered];
     
     [self initOneSignal];
     
@@ -661,13 +769,43 @@ static BOOL setupUIApplicationDelegate = false;
     
     // Triggers the 30 fallback to register device right away.
     [OneSignal performSelector:NSSelectorFromString(@"registerUser")];
+    [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @0);
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @-19);
+}
+
+- (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
+    mockIOSVersion = 8;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
+}
+
+
+- (void)testNeverPromptedStatus {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [self runBackgroundThreads];
+    // Triggers the 30 fallback to register device right away.
+    [NSObjectOverrider runPendingSelectors];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @-18);
 }
 
 - (void)testNotAcceptingNotificationsWithoutBackgroundModes {
-    notifTypesOverride = 0;
+    [self setCurrentNotificationPermissionAsUnanwsered];
     [self backgroundModesDisabledInXcode];
     
     [self initOneSignal];
@@ -676,6 +814,7 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     [self anwserNotifiationPrompt:false];
+    [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/players");
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
@@ -982,6 +1121,30 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 2);
 }
 
+- (void)testSendTagsBeforeRegisterComplete {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    selectorNamesForInstantOnlyForFirstRun = [@[@"sendTagsToServer"] mutableCopy];
+    
+    [OneSignal sendTag:@"key" value:@"value"];
+    [self runBackgroundThreads];
+    
+    // Do not try to send tag update yet as there isn't a player_id yet.
+    XCTAssertEqual(networkRequestCount, 0);
+    
+    [self anwserNotifiationPrompt:false];
+    [self runBackgroundThreads];
+    
+    // A single POST player create call should be made with tags included.
+    XCTAssertEqual(networkRequestCount, 1);
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @0);
+    XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+}
+
 - (void)testFirstInitWithNotificationsAlreadyDeclined {
     [self backgroundModesDisabledInXcode];
     notifTypesOverride = 0;
@@ -1006,10 +1169,10 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset[@"identifier"]);
     
     [self backgroundApp];
-    notifTypesOverride = 7;
+    [self setCurrentNotificationPermission:true];
     [self resumeApp];
     
-    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @7);
+    XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @15);
     XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqual(networkRequestCount, 2);
 }
@@ -1022,12 +1185,14 @@ static BOOL setupUIApplicationDelegate = false;
     [self backgroundApp];
     timeOffset = 10;
     [self resumeApp];
+    [self runBackgroundThreads];
     XCTAssertEqual(networkRequestCount, 1);
     
     // Anything over 30 secounds should count as a session.
     [self backgroundApp];
     timeOffset += 31;
     [self resumeApp];
+    [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
     XCTAssertEqual(networkRequestCount, 2);
@@ -1082,6 +1247,12 @@ static BOOL setupUIApplicationDelegate = false;
 
 // iOS 10 - Notification Service Extension test
 - (void) testDidReceiveNotificationExtensionRequestDontOverrideCateogory {
+    
+    
+   /* void (*nullFunction)() = NULL;
+    nullFunction(); */
+    
+    
     id userInfo = @{@"aps": @{
                             @"mutable-content": @1,
                             @"alert": @"Message Body"
@@ -1127,14 +1298,6 @@ static BOOL setupUIApplicationDelegate = false;
     //   We should not try to download attachemts as iOS is about to kill the extension and this will take to much time.
     XCTAssertNil(content.attachments);
 
-}
-    
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
 }
 
 @end
