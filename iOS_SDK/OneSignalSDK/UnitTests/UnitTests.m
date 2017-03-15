@@ -1053,7 +1053,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure butons were added.
     XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
@@ -1074,13 +1074,13 @@ static BOOL setupUIApplicationDelegate = false;
                          }};
     
     notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
-    [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     XCTAssertEqual([lastSetCategories count], 3);
 }
 
 // iOS 10 - Notification Service Extension test
-- (void) testDidReceiveNotificatioExtensionnRequestDontOverrideCateogory {
+- (void) testDidReceiveNotificationExtensionRequestDontOverrideCateogory {
     id userInfo = @{@"aps": @{
                             @"mutable-content": @1,
                             @"alert": @"Message Body"
@@ -1095,7 +1095,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificatioExtensionnRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");

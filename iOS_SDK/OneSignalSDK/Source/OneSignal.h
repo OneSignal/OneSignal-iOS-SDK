@@ -280,7 +280,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // iOS 10 only
 // Process from Notification Service Extension.
 // Used for iOS Media Attachemtns and Action Buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificatioExtensionnRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 #endif
 

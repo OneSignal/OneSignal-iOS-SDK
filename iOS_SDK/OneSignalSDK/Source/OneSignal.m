@@ -1403,7 +1403,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 // Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)didReceiveNotificatioExtensionnRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
