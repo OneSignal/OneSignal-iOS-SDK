@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,15 +25,29 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
+#ifndef OneSignalNotificationSettings_h
+#define OneSignalNotificationSettings_h
 
-@interface OneSignalWebView : UIViewController <UIWebViewDelegate>
+#import <Foundation/Foundation.h>
 
-@property(nonatomic, copy)NSURL *url;
-@property(nonatomic)UIWebView *webView;
-@property(nonatomic)UIActivityIndicatorView *uiBusy;
+@interface OSPermissionStatus : NSObject
 
--(void)dismiss:(id)sender;
--(void)showInApp;
+@property (nonatomic) BOOL hasPrompted;
+@property (nonatomic) BOOL anwseredPrompt;
+@property BOOL accepted;
+@property int notificationTypes;
 
 @end
+
+
+
+@protocol OneSignalNotificationSettings <NSObject>
+
+- (int) getNotificationTypes;
+- (OSPermissionStatus*)getNotificationPermissionStatus;
+- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler;
+- (void)promptForNotifications;
+
+@end
+
+#endif /* OneSignaNotificationSettings_h */

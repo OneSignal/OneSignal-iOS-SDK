@@ -44,6 +44,8 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
+    [OneSignal registerForPushNotifications];
+    
     [OneSignal sendTag:@"key1"
                  value:@"value1"
              onSuccess:^(NSDictionary *result) {
@@ -54,6 +56,11 @@
                  static int failures = 0;
                  NSLog(@"failures: %d", ++failures);
     }];
+    
+    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
+        NSLog(@"IdsAvailable Fired");
+    }];
+    
 }
 
 - (void)didReceiveMemoryWarning {

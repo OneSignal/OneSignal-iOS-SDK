@@ -791,9 +791,9 @@ static OneSignal* singleInstance = nil;
     if (![supportedExtensions containsObject:extension])
         return NULL;
     
-    NSURL * URL = [NSURL URLWithString:url];
-    NSData * data = [NSData dataWithContentsOfURL:URL];
-    NSString *name = [[self randomStringWithLength:10] stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
+    NSURL* URL = [NSURL URLWithString:url];
+    NSData* data = [NSData dataWithContentsOfURL:URL];
+    NSString* name = [[self randomStringWithLength:10] stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     NSError* error;
@@ -923,9 +923,9 @@ static OneSignal* singleInstance = nil;
     }
     else {
         // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
-        dispatch_async(dispatch_get_main_queue(), ^{
+         [OneSignalHelper dispatch_async_on_main_queue: ^{
             [[UIApplication sharedApplication] openURL:url];
-        });
+        }];
     }
     
 }
@@ -935,6 +935,16 @@ static OneSignal* singleInstance = nil;
         block();
     else
         dispatch_sync(dispatch_get_main_queue(), block);
+}
+
++ (void) dispatch_async_on_main_queue:(void(^)())block {
+    dispatch_async(dispatch_get_main_queue(), block);
+}
+
++ (void)performSelector:(SEL)aSelector onMainThreadOnObject:(nullable id)targetObj withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay {
+    [self dispatch_async_on_main_queue:^{
+        [targetObj performSelector:aSelector withObject:anArgument afterDelay:delay];
+    }];
 }
 
 + (BOOL) isValidEmail:(NSString*)email {
