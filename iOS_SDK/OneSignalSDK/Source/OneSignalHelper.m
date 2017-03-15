@@ -293,6 +293,11 @@
 
 @implementation OneSignalHelper
 
++ (void) resetLocals {
+    [OneSignalHelper lastMessageReceived:nil];
+    _lastMessageIdFromAction = nil;
+}
+
 UIBackgroundTaskIdentifier mediaBackgroundTask;
 
 + (void) beginBackgroundMediaTask {
@@ -505,7 +510,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
 }
 
 static NSString *_lastMessageIdFromAction;
-+ (void)setLastMessageIdFromAction:(NSString*)value { _lastMessageIdFromAction = value; }
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
     if (!handleNotificationAction || ![self isOneSignalPayload])

@@ -437,8 +437,9 @@ static BOOL setupUIApplicationDelegate = false;
     
     preferredLanguagesArray = @[@"en-US"];
     
-    [OneSignalHelper lastMessageReceived:nil];
-    OneSignalHelper.lastMessageIdFromAction = nil;
+    [OneSignalHelper performSelector:NSSelectorFromString(@"resetLocals")];
+    
+    
     [OneSignal setValue:nil forKeyPath:@"lastAppActiveMessageId"];
     [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
     [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];

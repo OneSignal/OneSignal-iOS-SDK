@@ -51,7 +51,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)resetLocals {
     unSentActiveTime = nil;
-    focusBackgroundTask = nil;
+    focusBackgroundTask = 0;
     lastOpenedTime = 0;
     lastOnFocusWasToBackground = YES;
 }
