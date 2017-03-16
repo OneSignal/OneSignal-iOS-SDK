@@ -230,6 +230,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 
 + (NSString*)app_id;
++ (NSString*)sdk_version_raw;
++ (NSString*)sdk_semantic_version;
 
 // Only use if you passed FALSE to autoRegister
 + (void)registerForPushNotifications;
