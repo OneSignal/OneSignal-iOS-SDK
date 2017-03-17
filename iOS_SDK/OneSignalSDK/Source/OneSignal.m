@@ -177,18 +177,13 @@ NSObject<OneSignalNotificationSettings>* osNotificationSettings;
 + (NSString*)sdk_semantic_version {
 
 	// examples:
-	// ONESIGNAL_VERSION = @"020402"
-	// ONESIGNAL_VERSION = @"020116"
+	// ONESIGNAL_VERSION = @"020402" returns 2.4.2
+	// ONESIGNAL_VERSION = @"001000" returns 0.10.0
 	// so that's 6 digits, where the first two are the major version
 	// the second two are the minor version and that last two, the patch.
 	// c.f. http://semver.org/
 
-	if(ONESIGNAL_VERSION.length != 6){
-		return @"UNKNOWN";
-	}
-	else{
-		return [ONESIGNAL_VERSION one_getSemanticVersion];
-	}
+	return [ONESIGNAL_VERSION one_getSemanticVersion];
 }
 
 + (NSString*)mUserId {
