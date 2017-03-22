@@ -126,7 +126,7 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020402";
+NSString* const ONESIGNAL_VERSION = @"020403";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -846,12 +846,9 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUser {
-    if (!serialQueue) {
-        NSLog(@"creating com.onesignal.regiseruser!!!");
+    if (!serialQueue)
         serialQueue = dispatch_queue_create("com.onesignal.regiseruser", DISPATCH_QUEUE_SERIAL);
-    }
    
-    NSLog(@"Adding registerUserInternal to queue");
    dispatch_async(serialQueue, ^{
         [self registerUserInternal];
     });

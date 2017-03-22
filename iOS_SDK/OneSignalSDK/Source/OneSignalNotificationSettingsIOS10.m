@@ -87,7 +87,7 @@ OSPermissionStatus *cachedStatus;
 // Prompt then run updateNotificationTypes on the main thread with the response.
 - (void)promptForNotifications {
     
-    id responseBlock = ^(BOOL granted, NSError * _Nullable error) {
+    id responseBlock = ^(BOOL granted, NSError* error) {
         [OneSignalHelper dispatch_async_on_main_queue: ^{
             if (cachedStatus) {
                 cachedStatus.anwseredPrompt = true;
