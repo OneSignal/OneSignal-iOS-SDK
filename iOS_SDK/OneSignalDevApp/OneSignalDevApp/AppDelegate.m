@@ -48,6 +48,8 @@
             handleNotificationAction:^(OSNotificationOpenedResult *result) {}
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
+    [OneSignal sendTag:@"someKey1122" value:@"03222017"];
+    
     return YES;
 }
 

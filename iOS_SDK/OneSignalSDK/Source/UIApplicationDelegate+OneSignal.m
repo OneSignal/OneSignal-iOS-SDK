@@ -79,7 +79,7 @@ static NSArray* delegateSubclasses = nil;
     
     
     // UNUserNotificationCenter will already handle recieved / open events on iOS 10 so don't swizzle the deprecated ones.
-    BOOL notIos10 = [OneSignalHelper isIOSVersionGreaterOrEqual:10];
+    BOOL notIos10 = ![OneSignalHelper isIOSVersionGreaterOrEqual:10];
     
     Class newClass = [OneSignalAppDelegate class];
     
@@ -96,6 +96,7 @@ static NSArray* delegateSubclasses = nil;
         injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
                             @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, newClass, delegateClass);
         
+        // iOS 10 requestAuthorizationWithOptions has it's own callback
         injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
                             @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, newClass, delegateClass);
     }
@@ -115,7 +116,6 @@ static NSArray* delegateSubclasses = nil;
         injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:),
                             @selector(application:didReceiveRemoteNotification:), delegateSubclasses, newClass, delegateClass);
         
-        // iOS 10 requestAuthorizationWithOptions has it's own callback
         injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:),
                             @selector(application:didReceiveLocalNotification:), delegateSubclasses, newClass, delegateClass);
     }

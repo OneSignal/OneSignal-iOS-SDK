@@ -34,7 +34,9 @@
 #import "OneSignalNotificationSettingsIOS7.h"
 
 
-@implementation OneSignalNotificationSettingsIOS7
+@implementation OneSignalNotificationSettingsIOS7 {
+    void (^notificationPromptReponseCallback)(BOOL);
+}
 
 - (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler {
     OSPermissionStatus *status = [OSPermissionStatus alloc];
@@ -66,7 +68,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-- (void)promptForNotifications {
+- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert];
     [OneSignal setWaitingForApnsResponse:true];
     [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -74,5 +76,17 @@
 }
 
 #pragma GCC diagnostic pop
+
+// Only iOS 8 & 9
+- (void)onNotificationPromptResponse:(int)notificationTypes {}
+
+// Only iOS 7
+- (void)onAPNsResponse:(BOOL)success {
+    if (notificationPromptReponseCallback) {
+        notificationPromptReponseCallback(success);
+        notificationPromptReponseCallback = nil;
+    }
+}
+
 
 @end

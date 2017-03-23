@@ -33,7 +33,7 @@
 
 #import "OneSignal.h"
 
-@interface OneSignal (UN_extra)
+@interface OneSignal (OneSignalInternal)
 + (NSString*)getDeviceToken;
 + (void)updateNotificationTypes:(int)notificationTypes;
 + (BOOL)registerForAPNsToken;

@@ -85,15 +85,18 @@ OSPermissionStatus *cachedStatus;
 }
 
 // Prompt then run updateNotificationTypes on the main thread with the response.
-- (void)promptForNotifications {
+- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
     
     id responseBlock = ^(BOOL granted, NSError* error) {
+        // Run callback on main / UI thread
         [OneSignalHelper dispatch_async_on_main_queue: ^{
             if (cachedStatus) {
                 cachedStatus.anwseredPrompt = true;
                 cachedStatus.accepted = granted;
             }
             [OneSignal updateNotificationTypes: granted ? 15 : 0];
+            if (completionHandler)
+                completionHandler(granted);
         }];
     };
     
@@ -103,5 +106,11 @@ OSPermissionStatus *cachedStatus;
     
     [OneSignal registerForAPNsToken];
 }
+
+// Ignore these 2 events, promptForNotifications: already takes care of this.
+// Only iOS 8 & 9
+- (void)onNotificationPromptResponse:(int)notificationTypes { }
+// Only iOS 7
+- (void)onAPNsResponse:(BOOL)success {}
 
 @end

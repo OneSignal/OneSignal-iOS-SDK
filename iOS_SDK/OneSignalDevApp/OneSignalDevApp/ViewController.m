@@ -44,7 +44,11 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-    [OneSignal registerForPushNotifications];
+    //[OneSignal registerForPushNotifications];
+    
+    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+        NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationWithUserResponse: %d", accepted);
+    }];
     
     [OneSignal sendTag:@"key1"
                  value:@"value1"

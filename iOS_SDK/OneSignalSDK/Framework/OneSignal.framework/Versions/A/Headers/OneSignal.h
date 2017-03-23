@@ -88,6 +88,9 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 @end
 
+
+// #### Notification Payload Received Object
+
 @interface OSNotificationPayload : NSObject
 
 /* Unique Message Identifier */
@@ -171,6 +174,38 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 @end;
 
+
+@interface OSSubscriptionState : NSObject
+
+@property (nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property NSString* userId;    // AKA OneSignal PlayerId
+@property NSString* pushToken; // AKA Apple Device Token
+
+@end
+
+@interface OSPermissionStatus : NSObject
+
+@property (nonatomic) BOOL hasPrompted;
+@property (nonatomic) BOOL anwseredPrompt;
+@property BOOL accepted;
+@property int notificationTypes;
+
+@end
+
+@interface OSPermisionSubscriptionState : NSObject
+
+@property OSPermissionStatus* permissionStatus;
+@property OSSubscriptionState* subscriptionStatus;
+
+@end
+
+// TODO: Add classes that inherit the above added changed* flag properites
+
+
+
+
+
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
@@ -194,18 +229,13 @@ extern NSString * const kOSSettingsKeyInAppAlerts;
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
 
-/* iOS10+ - 
+/* iOS10 +
  Set notification's in-focus display option.
  Value must be an OSNotificationDisplayType enum
 */
 extern NSString * const kOSSettingsKeyInFocusDisplayOption;
 
-/**
-    OneSignal provides a high level interface to interact with OneSignal's push service.
-    OneSignal is a singleton for applications which use a globally available client to share configuration settings.
-    You should avoid creating instances of this class at all costs. Instead, access its instance methods.
-    Include `#import <OneSignal/OneSignal.h>` in your application files to access OneSignal's methods.
- **/
+
 @interface OneSignal : NSObject
 
 extern NSString* const ONESIGNAL_VERSION;
@@ -214,9 +244,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
     ONE_S_LL_NONE, ONE_S_LL_FATAL, ONE_S_LL_ERROR, ONE_S_LL_WARN, ONE_S_LL_INFO, ONE_S_LL_DEBUG, ONE_S_LL_VERBOSE
 };
 
-///--------------------
-/// @name Initialize`
-///--------------------
 
 /**
  Initialize OneSignal. Sends push token to OneSignal so you can later send notifications.
@@ -231,8 +258,9 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 + (NSString*)app_id;
 
-// Only use if you passed FALSE to autoRegister
+// Only use if you set kOSSettingsKeyAutoPrompt to false
 + (void)registerForPushNotifications;
++ (void)promptForPushNotificationWithUserResponse:(void(^)(BOOL accepted))completionHandler;
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
@@ -252,11 +280,18 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)deleteTags:(NSArray*)keys;
 + (void)deleteTagsWithJsonString:(NSString*)jsonString;
 
+// - Sends the MD5 and SHA1 of the provided email
+// Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
++ (void)syncHashedEmail:(NSString*)email;
+
 // - Get user ID & Push Token
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
++ (OSPermisionSubscriptionState*)getPermisionSubscriptionState;
 
-// - Alerting
+// - Subscription
 + (void)setSubscription:(BOOL)enable;
+
+
 
 // - Posting Notification
 + (void)postNotification:(NSDictionary*)jsonData;
@@ -268,20 +303,15 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)promptLocation;
 + (void)setLocationShared:(BOOL)enable;
 
-// - Sends the MD5 and SHA1 of the provided email
-// Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
-+ (void)syncHashedEmail:(NSString*)email;
 
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
 
-#ifdef XC8_AVAILABLE
 // iOS 10 only
 // Process from Notification Service Extension.
 // Used for iOS Media Attachemtns and Action Buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
-#endif
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 
 @end

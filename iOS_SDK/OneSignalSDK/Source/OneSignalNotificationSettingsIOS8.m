@@ -31,8 +31,11 @@
 
 #import "OneSignalInternal.h"
 
+#define NOTIFICATION_TYPE_ALL 7
 
-@implementation OneSignalNotificationSettingsIOS8
+@implementation OneSignalNotificationSettingsIOS8 {
+    void (^notificationPromptReponseCallback)(BOOL);
+}
 
 - (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler {
     OSPermissionStatus *status = [OSPermissionStatus alloc];
@@ -63,14 +66,26 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-- (void)promptForNotifications {
+- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
     UIApplication* shardApp = [UIApplication sharedApplication];
     
     NSSet* categories = [[shardApp currentUserNotificationSettings] categories];
     [shardApp registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:NOTIFICATION_TYPE_ALL categories:categories]];
     
+    notificationPromptReponseCallback = completionHandler;
+    
     [OneSignal registerForAPNsToken];
 }
+
+- (void)onNotificationPromptResponse:(int)notificationTypes {
+    if (notificationPromptReponseCallback) {
+        notificationPromptReponseCallback(notificationTypes > 0);
+        notificationPromptReponseCallback = nil;
+    }
+}
+
+// Only iOS 7 - The above is used for iOS 8 & 9
+- (void)onAPNsResponse:(BOOL)success {}
 
 #pragma GCC diagnostic pop
 

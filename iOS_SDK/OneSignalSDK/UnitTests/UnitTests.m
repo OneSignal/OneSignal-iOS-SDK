@@ -310,6 +310,8 @@ static dispatch_queue_t serialQueue;
 
 static int getNotificationSettingsWithCompletionHandlerStackCount;
 
+static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *error);
+
 + (void)load {
     getNotificationSettingsWithCompletionHandlerStackCount =  0;
     
@@ -371,6 +373,8 @@ static int getNotificationSettingsWithCompletionHandlerStackCount;
                               completionHandler:(void (^)(BOOL granted, NSError *error))completionHandler {
     if (authorizationStatus != [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined])
         completionHandler(authorizationStatus == [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized], nil);
+    else
+        lastRequestAuthorizationWithOptionsBlock = completionHandler;
 }
 
 @end
@@ -635,8 +639,12 @@ static BOOL setupUIApplicationDelegate = false;
 - (void)anwserNotifiationPrompt:(BOOL)accept {
     [self setCurrentNotificationPermission:accept];
     
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil]];
+    if (mockIOSVersion > 9)
+        lastRequestAuthorizationWithOptionsBlock([NSNumber numberWithInteger:UNAuthorizationStatusAuthorized], nil);
+    else {
+        UIApplication *sharedApp = [UIApplication sharedApplication];
+        [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil]];
+    }
 }
 
 - (void)backgroundApp {
@@ -957,7 +965,7 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 - (void)testIdsAvailableNotAcceptingNotifications {
-    notifTypesOverride = 0;
+    [self setCurrentNotificationPermissionAsUnanwsered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];

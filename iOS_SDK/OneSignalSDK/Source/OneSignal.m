@@ -447,16 +447,24 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     return true;
 }
 
-// This registers for a push token and prompts the user for notifiations permisions
-//    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
-+ (void)registerForPushNotifications {
+
+
+
++ (void)promptForPushNotificationWithUserResponse:(void(^)(BOOL accepted))completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", waitingForApnsResponse]];
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setBool:true forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
     [userDefaults synchronize];
     
-    [osNotificationSettings promptForNotifications];
+    [osNotificationSettings promptForNotifications:completionHandler];
+}
+
+
+// This registers for a push token and prompts the user for notifiations permisions
+//    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
++ (void)registerForPushNotifications {
+    [self promptForPushNotificationWithUserResponse:nil];
 }
 
 // Block not assigned if userID nil and there is a device token
@@ -755,6 +763,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKOWN_APNS_ERROR];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
+    
+    // iOS 7
+    [osNotificationSettings onAPNsResponse:false];
 }
 
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -768,6 +779,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
+    
+    // iOS 7
+    [osNotificationSettings onAPNsResponse:true];
     
     // Do not block next registration as there's a new token in hand
     nextRegistrationIsHighPriority = ![deviceToken isEqualToString:mDeviceToken] || [self getNotificationTypes] != mLastNotificationTypes;
@@ -1303,6 +1317,8 @@ static NSString *_lastnonActiveMessageId;
     BOOL startedRegister = [self registerForAPNsToken];
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startedRegister: %d", startedRegister]];
+    
+    [osNotificationSettings onNotificationPromptResponse:notificationTypes];
     
     if (mSubscriptionStatus == -2)
         return;
