@@ -17,9 +17,12 @@
 		9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		9150E7761E73BEDD00C5D46A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 9150E7751E73BEDD00C5D46A /* NotificationService.m */; };
 		9150E77A1E73BEDD00C5D46A /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9150E7721E73BEDC00C5D46A /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		91A7F0AE1E73C1780055AA50 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A31E724DCB0022A1CB /* libOneSignal.a */; };
-		91A7F0AF1E73C1A20055AA50 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
-		91A7F0B01E73C1A80055AA50 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9150E7821E73BFB600C5D46A /* UIKit.framework */; };
+		91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
+		91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
+		91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9150E7821E73BFB600C5D46A /* UIKit.framework */; };
+		91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A31E724DCB0022A1CB /* libOneSignal.a */; };
+		91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
+		91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +69,8 @@
 		9150E7771E73BEDD00C5D46A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9150E77F1E73BF5B00C5D46A /* OneSignal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OneSignal.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/OneSignalSDK-gokrmgmincuokwdzxidzbpukovwj/Build/Products/Debug-iphoneos/OneSignal.framework"; sourceTree = "<group>"; };
 		9150E7821E73BFB600C5D46A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		91B6EA051E83215000B5CF01 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		91B6EA091E834B1700B5CF01 /* sentImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sentImage.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,9 +87,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91A7F0B01E73C1A80055AA50 /* UIKit.framework in Frameworks */,
-				91A7F0AF1E73C1A20055AA50 /* SystemConfiguration.framework in Frameworks */,
-				91A7F0AE1E73C1780055AA50 /* libOneSignal.a in Frameworks */,
+				91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */,
+				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,
+				91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */,
+				91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +100,7 @@
 		9112E8791E724C320022A1CB = {
 			isa = PBXGroup;
 			children = (
+				91B6EA091E834B1700B5CF01 /* sentImage.jpg */,
 				9112E8841E724C320022A1CB /* OneSignalDevApp */,
 				9150E7731E73BEDD00C5D46A /* OneSignalNotificationServiceExtension */,
 				9112E8831E724C320022A1CB /* Products */,
@@ -138,6 +145,7 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				91B6EA051E83215000B5CF01 /* UserNotifications.framework */,
 				9150E7821E73BFB600C5D46A /* UIKit.framework */,
 				9150E77F1E73BF5B00C5D46A /* OneSignal.framework */,
 				9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */,
@@ -249,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9112E8951E724C320022A1CB /* LaunchScreen.storyboard in Resources */,
+				91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */,
 				9112E8921E724C320022A1CB /* Assets.xcassets in Resources */,
 				9112E8901E724C320022A1CB /* Main.storyboard in Resources */,
 			);
@@ -258,6 +267,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

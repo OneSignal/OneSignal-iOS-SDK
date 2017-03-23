@@ -235,6 +235,7 @@ static NSDictionary* nsbundleDictionary;
     [NSBundleOverrider sizzleBundleIdentifier];
     
     injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
+    injectToProperClass(@selector(overrideURLForResource:withExtension:), @selector(URLForResource:withExtension:), @[], [NSBundleOverrider class], [NSBundle class]);
     
     // Doesn't work to swizzle for mocking. Both an NSDictionary and NSMutableDictionarys both throw odd selecotor not found errors.
     // injectToProperClass(@selector(overrideInfoDictionary), @selector(infoDictionary), @[], [NSBundleOverrider class], [NSBundle class]);
@@ -250,6 +251,45 @@ static NSDictionary* nsbundleDictionary;
 
 - (nullable id)overrideObjectForInfoDictionaryKey:(NSString*)key {
     return nsbundleDictionary[key];
+}
+
+- (NSURL*)overrideURLForResource:(NSString*)name withExtension:(NSString*)ext {
+    NSString *content = @"File Contents";
+    NSData *fileContents = [content dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString* nameWithExt = [name stringByAppendingString:[@"." stringByAppendingString:ext]];
+    NSString* fullpath = [paths[0] stringByAppendingPathComponent:nameWithExt];
+    
+    [[NSFileManager defaultManager] createFileAtPath:fullpath
+                                            contents:fileContents
+                                          attributes:nil];
+    
+    NSLog(@"fullpath: %@", fullpath);
+    return [NSURL URLWithString:[@"file://" stringByAppendingString:fullpath]];
+}
+
+@end
+
+
+@interface NSURLConnectionOverrider : NSObject
+@end
+@implementation NSURLConnectionOverrider
+
++ (void)load {
+    // Swizzle an injected method defined in OneSignalHelper
+    injectStaticSelector([NSURLConnectionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLConnection class], @selector(downloadItemAtURL:toFile:error:));
+}
+
+// Override downloading of media attachment
++ (BOOL)overrideDownloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError*)error {
+    NSString *content = @"File Contents";
+    NSData *fileContents = [content dataUsingEncoding:NSUTF8StringEncoding];
+    [[NSFileManager defaultManager] createFileAtPath:localPath
+                                            contents:fileContents
+                                          attributes:nil];
+    
+    return true;
 }
 
 @end
@@ -1246,13 +1286,7 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 // iOS 10 - Notification Service Extension test
-- (void) testDidReceiveNotificationExtensionRequestDontOverrideCateogory {
-    
-    
-   /* void (*nullFunction)() = NULL;
-    nullFunction(); */
-    
-    
+- (void) testDidReceiveNotificationExtensionRequestDontOverrideCateogory {    
     id userInfo = @{@"aps": @{
                             @"mutable-content": @1,
                             @"alert": @"Message Body"
@@ -1271,6 +1305,27 @@ static BOOL setupUIApplicationDelegate = false;
     
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
+    // Make sure attachments were added.
+    XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
+    XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+
+// iOS 10 - Notification Service Extension test - local file
+- (void) testDidReceiveNotificationExtensionRequestLocalFile {
+    id userInfo = @{@"aps": @{
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body"
+                            },
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"att": @{ @"id": @"file.jpg" }
+                            }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
     XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");

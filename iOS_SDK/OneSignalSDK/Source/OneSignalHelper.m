@@ -46,6 +46,86 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+
+
+@interface DirectDownloadDelegate : NSObject {
+    NSError* error;
+    NSURLResponse* response;
+    BOOL done;
+    NSFileHandle* outputHandle;
+}
+@property (readonly, getter=isDone) BOOL done;
+@property (readonly) NSError* error;
+@property (readonly) NSURLResponse* response;
+
+@end
+
+@implementation DirectDownloadDelegate
+@synthesize error, response, done;
+
+- (id)initWithFilePath:(NSString*)path {
+    if (self = [super init]) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+            [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+        
+        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+        outputHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+    }
+    return self;
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError*)anError {
+    error = anError;
+    [self connectionDidFinishLoading:connection];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData*)someData {
+    [outputHandle writeData:someData];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse*)aResponse {
+    response = aResponse;
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+    done = YES;
+    [outputHandle closeFile];
+}
+@end
+
+
+
+@interface NSURLConnection (DirectDownload)
++ (BOOL)downloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError*)error;
+@end
+
+@implementation NSURLConnection (DirectDownload)
+
++ (BOOL)downloadItemAtURL:(NSURL*)url toFile:(NSString *)localPath error:(NSError*)error {
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:url];
+    
+    DirectDownloadDelegate* delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
+    [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
+    
+    while ([delegate isDone] == NO) {
+        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+    }
+    
+    NSError* downloadError = [delegate error];
+    if (downloadError != nil) {
+        if (error != nil)
+            error = downloadError;
+        return NO;
+    }
+    
+    return YES;
+}
+@end
+
+
+
+
+
 @interface UIApplication (Swizzling)
 +(Class)delegateClass;
 @end
@@ -718,15 +798,16 @@ static OneSignal* singleInstance = nil;
     [content setValue:@"__dynamic__" forKey:@"categoryIdentifier"];
 }
 
-+ (void)addAttachments:(NSDictionary*)attachments toNotificationContent:(id)content {
++ (void)addAttachments:(NSDictionary*)attachments toNotificationContent:(UNMutableNotificationContent*)content {
     NSMutableArray *unAttachments = [NSMutableArray new];
     
     for(id key in attachments) {
-        NSString * URI = [attachments valueForKey:key];
-        
-        /* Remote Object */
-        if ([self verifyURL:URI]) {
-            /* Synchroneously download file and chache it */
+        NSString* URI = [attachments valueForKey:key];
+        NSURL* nsURL = [NSURL URLWithString:URI];
+
+        // Remote media attachment */
+        if (nsURL && [self isWWWScheme:nsURL]) {
+            // Synchroneously download file and chache it
             NSString* name = [OneSignalHelper downloadMediaAndSaveInBundle:URI];
             if (!name)
                 continue;
@@ -734,30 +815,31 @@ static OneSignal* singleInstance = nil;
             NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
             NSURL* url = [NSURL fileURLWithPath:filePath];
             NSError* error;
-            id attachment = [NSClassFromString(@"UNNotificationAttachment") attachmentWithIdentifier:key URL:url options:0 error:&error];
+            id attachment = [UNNotificationAttachment attachmentWithIdentifier:key URL:url options:0 error:&error];
             if (attachment)
                 [unAttachments addObject:attachment];
         }
-        /* Local in bundle resources */
+        // Local in bundle resources
         else {
             NSMutableArray* files = [[NSMutableArray alloc] initWithArray:[URI componentsSeparatedByString:@"."]];
             if ([files count] < 2)
                 continue;
             NSString* extension = [files lastObject];
             [files removeLastObject];
-            NSString * name = [files componentsJoinedByString:@"."];
+            NSString* name = [files componentsJoinedByString:@"."];
+            
             //Make sure resource exists
-            NSURL * url = [[NSBundle mainBundle] URLForResource:name withExtension:extension];
+            NSURL* url = [[NSBundle mainBundle] URLForResource:name withExtension:extension];
             if (url) {
                 NSError *error;
-                id attachment = [NSClassFromString(@"UNNotificationAttachment") attachmentWithIdentifier:key URL:url options:0 error:&error];
+                id attachment = [UNNotificationAttachment attachmentWithIdentifier:key URL:url options:0 error:&error];
                 if (attachment)
                     [unAttachments addObject:attachment];
             }
         }
     }
     
-    [content setValue:unAttachments forKey:@"attachments"];
+    content.attachments = unAttachments;
 }
 
 + (void)addnotificationRequest:(NSDictionary *)data userInfo:(NSDictionary *)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
@@ -777,7 +859,7 @@ static OneSignal* singleInstance = nil;
 
 // Synchroneously downloads a media
 // On success returns bundle resource name, otherwise returns nil
-+(NSString*) downloadMediaAndSaveInBundle:(NSString*) url {
++ (NSString*)downloadMediaAndSaveInBundle:(NSString*)url {
     
     NSArray<NSString*>* supportedExtensions = @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"];
     NSArray* components = [url componentsSeparatedByString:@"."];
@@ -792,13 +874,15 @@ static OneSignal* singleInstance = nil;
         return NULL;
     
     NSURL* URL = [NSURL URLWithString:url];
-    NSData* data = [NSData dataWithContentsOfURL:URL];
+    
+    
     NSString* name = [[self randomStringWithLength:10] stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
-    NSError* error;
-    [data writeToFile:filePath options:NSDataWritingAtomic error:&error];
-    NSArray * cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
+    
+    NSError* error = nil;
+    [NSURLConnection downloadItemAtURL:URL toFile:filePath error:error];
+    NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
     NSMutableArray* appendedCache;
     if (cachedFiles) {
         appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
@@ -813,6 +897,7 @@ static OneSignal* singleInstance = nil;
 }
 
 +(void)clearCachedMedia {
+    /*
     NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
     if (cachedFiles) {
         NSArray * paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -823,6 +908,7 @@ static OneSignal* singleInstance = nil;
         }
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"CACHED_MEDIA"];
     }
+     */
 }
 
 #endif
@@ -902,6 +988,11 @@ static OneSignal* singleInstance = nil;
     }
 }
 
++ (BOOL)isWWWScheme:(NSURL*)url {
+    NSString* urlScheme = [url.scheme lowercaseString];
+    return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
+}
+
 + (void) displayWebView:(NSURL*)url {
     
     // Check if in-app or safari
@@ -912,10 +1003,8 @@ static OneSignal* singleInstance = nil;
     }
     
     inAppLaunch = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"] boolValue];
-    NSString* urlScheme = [url.scheme lowercaseString];
-    BOOL isWWWScheme = [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
     
-    if (inAppLaunch && isWWWScheme) {
+    if (inAppLaunch && [self isWWWScheme:url]) {
         if (!webVC)
             webVC = [[OneSignalWebView alloc] init];
         webVC.url = url;
