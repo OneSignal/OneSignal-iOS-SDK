@@ -23,6 +23,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
+#import "NSString+OneSignal.h"
 
 #include <pthread.h>
 #include <mach/mach.h>
@@ -561,7 +562,8 @@ static BOOL setupUIApplicationDelegate = false;
     lastSetCategories = nil;
     
     preferredLanguagesArray = @[@"en-US"];
-    
+
+
     [OneSignalHelper performSelector:NSSelectorFromString(@"resetLocals")];
     
     
@@ -725,6 +727,98 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
+}
+
+- (void)testVersionStringLength{
+
+	[self initOneSignal];
+	[self runBackgroundThreads];
+
+	XCTAssertEqual(ONESIGNAL_VERSION.length, 6, @"ONESIGNAL_VERSION length is not 6: length is %lu", (unsigned long)ONESIGNAL_VERSION.length);
+	XCTAssertEqual([OneSignal sdk_version_raw].length, 6, @"OneSignal sdk_version_raw length is not 6: length is %lu", (unsigned long)[OneSignal sdk_version_raw].length);
+
+
+}
+
+- (void)testSymanticVersioning {
+
+	[self initOneSignal];
+	[self runBackgroundThreads];
+
+	NSDictionary *versions = @{
+							   @"011001" : @"1.10.1",
+							   @"011006" : @"1.10.6",
+							   @"011100" : @"1.11.0",
+							   @"011101" : @"1.11.1",
+							   @"011103" : @"1.11.3",
+							   @"011200" : @"1.12.0",
+							   @"011201" : @"1.12.1",
+							   @"011202" : @"1.12.2",
+							   @"011300" : @"1.13.0",
+							   @"011301" : @"1.13.1",
+							   @"011302" : @"1.13.2",
+							   @"011303" : @"1.13.3",
+							   @"020000" : @"2.0.0",
+							   @"020001" : @"2.0.1",
+							   @"020002" : @"2.0.2",
+							   @"020004" : @"2.0.4",
+							   @"020005" : @"2.0.5",
+							   @"020007" : @"2.0.7",
+							   @"020008" : @"2.0.8",
+							   @"020009" : @"2.0.9",
+							   @"020010" : @"2.0.10",
+							   @"020011" : @"2.0.11",
+							   @"020012" : @"2.0.12",
+							   @"020100" : @"2.1.0",
+							   @"020101" : @"2.1.1",
+							   @"020102" : @"2.1.2",
+							   @"020103" : @"2.1.3",
+							   @"020104" : @"2.1.4",
+							   @"020105" : @"2.1.5",
+							   @"020106" : @"2.1.6",
+							   @"020107" : @"2.1.7",
+							   @"020109" : @"2.1.9",
+							   @"020110" : @"2.1.10",
+							   @"020111" : @"2.1.11",
+							   @"020112" : @"2.1.12",
+							   @"020114" : @"2.1.14",
+							   @"020115" : @"2.1.15",
+							   @"020116" : @"2.1.16",
+							   @"020200" : @"2.2.0",
+							   @"020201" : @"2.2.1",
+							   @"020202" : @"2.2.2",
+							   @"020203" : @"2.2.3",
+							   @"020300" : @"2.3.0",
+							   @"020301" : @"2.3.1",
+							   @"020302" : @"2.3.2",
+							   @"020303" : @"2.3.3",
+							   @"020304" : @"2.3.4",
+							   @"020305" : @"2.3.5",
+							   @"020306" : @"2.3.6",
+							   @"020307" : @"2.3.7",
+							   @"020400" : @"2.4.0",
+							   @"000400" : @"0.4.0",
+							   @"000000" : @"0.0.0",
+							   @"020401" : @"2.4.1",
+							   @"020402" : @"2.4.2"};
+
+
+	[versions enumerateKeysAndObjectsUsingBlock:^(NSString* raw, NSString* semantic, BOOL* stop) {
+		XCTAssertEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are not equal %@ %@", semantic, [raw one_getSemanticVersion] );
+	}];
+
+	NSDictionary *versionsThatFail = @{
+							   @"011001" : @"1.0.1",
+							   @"011086" : @"1.10.6",
+							   @"011140" : @"1.11.0",
+							   @"011106" : @"1.11.1",
+							   @"091103" : @"1.11.3"};
+
+
+	[versionsThatFail enumerateKeysAndObjectsUsingBlock:^(NSString* raw, NSString* semantic, BOOL* stop) {
+		XCTAssertNotEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are equal %@ %@", semantic, [raw one_getSemanticVersion] );
+	}];
+
 }
 
 - (void)testRegisterationOniOS7 {

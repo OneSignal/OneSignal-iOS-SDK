@@ -38,6 +38,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "NSString+OneSignal.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -167,6 +168,22 @@ NSObject<OneSignalNotificationSettings>* osNotificationSettings;
     
 + (NSString*)app_id {
     return app_id;
+}
+
++ (NSString*)sdk_version_raw {
+	return ONESIGNAL_VERSION;
+}
+
++ (NSString*)sdk_semantic_version {
+
+	// examples:
+	// ONESIGNAL_VERSION = @"020402" returns 2.4.2
+	// ONESIGNAL_VERSION = @"001000" returns 0.10.0
+	// so that's 6 digits, where the first two are the major version
+	// the second two are the minor version and that last two, the patch.
+	// c.f. http://semver.org/
+
+	return [ONESIGNAL_VERSION one_getSemanticVersion];
 }
 
 + (NSString*)mUserId {
