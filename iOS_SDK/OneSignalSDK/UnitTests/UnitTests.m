@@ -744,6 +744,16 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
     XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en-US");
     
+    OSPermisionSubscriptionState* status = [OneSignal getPermisionSubscriptionState];
+    XCTAssertTrue(status.permissionStatus.accepted);
+    XCTAssertTrue(status.permissionStatus.hasPrompted);
+    XCTAssertTrue(status.permissionStatus.anwseredPrompt);
+    
+    XCTAssertEqual(status.subscriptionStatus.subscribed, true);
+    XCTAssertEqual(status.subscriptionStatus.userSubscriptionSetting, true);
+    XCTAssertEqual(status.subscriptionStatus.userId, @"1234");
+    XCTAssertEqualObjects(status.subscriptionStatus.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
+    
     // 2nd init call should not fire another on_session call.
     lastHTTPRequset = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];

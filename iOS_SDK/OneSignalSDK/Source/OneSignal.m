@@ -97,6 +97,15 @@ NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisp
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
 
+
+@implementation OSSubscriptionState
+
+- (BOOL)subscribed {
+    return _userId && _pushToken && _userSubscriptionSetting;
+}
+
+@end
+
 @implementation OSPermissionStatus
 // Override Getters
 // Returns logical turths so the comsumer of the object don't have to check more than one property
@@ -116,6 +125,11 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 }
 
 @end
+
+@implementation OSPermisionSubscriptionState
+@end
+
+
 
 @interface OSPendingCallbacks : NSObject
  @property OSResultSuccessBlock successBlock;
@@ -465,6 +479,22 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 //    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
 + (void)registerForPushNotifications {
     [self promptForPushNotificationWithUserResponse:nil];
+}
+
+
++ (OSPermisionSubscriptionState*)getPermisionSubscriptionState {
+    OSPermisionSubscriptionState* status = [OSPermisionSubscriptionState alloc];
+    
+    status.permissionStatus = [osNotificationSettings getNotificationPermissionStatus];
+    
+    status.subscriptionStatus = [OSSubscriptionState alloc];
+    status.subscriptionStatus.userId = mUserId;
+    status.subscriptionStatus.pushToken = mDeviceToken;
+    status.subscriptionStatus.userSubscriptionSetting = mSubscriptionSet;
+    
+    // TODO: Consider adding subscribing state for OneSignal and Apns
+    
+    return status;
 }
 
 // Block not assigned if userID nil and there is a device token

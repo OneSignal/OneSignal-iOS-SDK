@@ -127,8 +127,9 @@ static NSArray* delegateSubclasses = nil;
     injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
                         @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
     
-    // TODO: May need to keep so we can catch events from other SDKs /
     // iOS 10 requestAuthorizationWithOptions has it's own callback
+    //   We also check the permssion status from applicationDidBecomeActive: each time.
+    //   Keeping for fallback in case of a race condidion where the focus event fires to soon.
     injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
                         @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
 }
@@ -177,7 +178,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 
-// Notification opened! iOS 6 ONLY!
+// Fallback method - Normally this would not fire as oneSignalRemoteSilentNotification below will fire instead. Was needed for iOS 6 support in the past.
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalReceivedRemoteNotification:userInfo:"];
     
