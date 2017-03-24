@@ -69,6 +69,7 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 - (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
+    notificationPromptReponseCallback = completionHandler;
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert];
     [OneSignal setWaitingForApnsResponse:true];
     [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"GT_REGISTERED_WITH_APPLE"];

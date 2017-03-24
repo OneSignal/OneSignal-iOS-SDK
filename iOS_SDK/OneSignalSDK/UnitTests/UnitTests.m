@@ -24,6 +24,7 @@
 #import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
 #import "NSString+OneSignal.h"
+#import "UIApplicationDelegate+OneSignal.h"
 
 #include <pthread.h>
 #include <mach/mach.h>
@@ -402,7 +403,7 @@ static BOOL shouldFireDeviceToken;
     NSLog(@"override_run!!!!!!");
 }
 
-+ (void) helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
++ (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
     id app = [UIApplication sharedApplication];
     id appDelegate = [[UIApplication sharedApplication] delegate];
     
@@ -550,6 +551,23 @@ static BOOL setupUIApplicationDelegate = false;
 
 @implementation UnitTests
 
+- (void)beforeAllTest {
+    if (setupUIApplicationDelegate)
+        return;
+    
+    // Normally this just loops internally, overwrote _run to work around this.
+    UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
+    setupUIApplicationDelegate = true;
+    // InstallUncaughtExceptionHandler();
+    
+    
+    // Force swizzle in all methods for tests.
+    mockIOSVersion = 8;
+    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
+    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
+    mockIOSVersion = 10;
+}
+
 // Called before each test.
 - (void)setUp {
     [super setUp];
@@ -596,12 +614,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     
-    if (!setupUIApplicationDelegate) {
-        // Normally this just loops internally, overwrote _run to work around this.
-        UIApplicationMain(0, nil, nil, NSStringFromClass([AppDelegate class]));
-        setupUIApplicationDelegate = true;
-      // InstallUncaughtExceptionHandler();
-    }
+    [self beforeAllTest];
     
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
@@ -641,10 +654,12 @@ static BOOL setupUIApplicationDelegate = false;
     
     if (mockIOSVersion > 9)
         lastRequestAuthorizationWithOptionsBlock([NSNumber numberWithInteger:UNAuthorizationStatusAuthorized], nil);
-    else {
+    else if (mockIOSVersion > 7) {
         UIApplication *sharedApp = [UIApplication sharedApplication];
         [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:notifTypesOverride categories:nil]];
     }
+    else // iOS 7 - Only support accepted for now.
+        [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
 
 - (void)backgroundApp {
@@ -900,6 +915,52 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @-13);
     XCTAssertEqual(networkRequestCount, 1);
 }
+
+
+- (void)testPromptForPushNotificationWithUserResponse {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    
+    [self initOneSignal];
+    
+    __block BOOL didAccept;
+    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+        didAccept = accepted;
+    }];
+    [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    XCTAssertTrue(didAccept);
+}
+
+- (void)testPromptForPushNotificationWithUserResponseOnIOS8 {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    mockIOSVersion = 8;
+    
+    [self initOneSignal];
+    
+    __block BOOL didAccept;
+    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+        didAccept = accepted;
+    }];
+    [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    XCTAssertTrue(didAccept);
+}
+
+- (void)testPromptForPushNotificationWithUserResponseOnIOS7 {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    mockIOSVersion = 7;
+    
+    [self initOneSignal];
+    
+    __block BOOL didAccept;
+    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+        didAccept = accepted;
+    }];
+    [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    XCTAssertTrue(didAccept);
+}
+
 
 - (void)testPromptedButNeverAnwserNotificationPrompt {
     [self setCurrentNotificationPermissionAsUnanwsered];
