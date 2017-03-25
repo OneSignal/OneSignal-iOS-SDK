@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,33 +25,18 @@
  * THE SOFTWARE.
  */
 
+#ifndef OSObservable_h
+#define OSObservable_h
 
-// Internal selectors to the OneSignal SDK to be shared by other Classes.
 
-#ifndef OneSignalInternal_h
-#define OneSignalInternal_h
-
-#import "OneSignal.h"
-#import "OSObservable.h"
-#import "OneSignalNotificationSettings.h"
-
-typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*> ObserablePermissionStateChangesType;
-
-@interface OneSignal (OneSignalInternal)
-+ (NSString*)getDeviceToken;
-+ (void)updateNotificationTypes:(int)notificationTypes;
-+ (BOOL)registerForAPNsToken;
-+ (void)setWaitingForApnsResponse:(BOOL)value;
-
-@property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
-
-@property (class) OSPermissionState* lastPermissionState;
-@property (class) OSPermissionState* currentPermissionState;
-
-// Used to manage observers added by the app developer.
-@property (class) ObserablePermissionStateChangesType* permissionStateChangesObserver;
-
+@protocol OSObserver
+- (void)onChanged:(id)state;
 @end
 
+@interface OSObservable<__covariant ObserverType, __covariant ObjectType> : NSObject
+- (void)addObserver:(ObserverType)observer;
+- (void)removeObserver:(ObserverType)observer;
+- (BOOL)notifyChange:(ObjectType)state;
+@end
 
-#endif /* OneSignalInternal_h */
+#endif /* OSObservable_h */

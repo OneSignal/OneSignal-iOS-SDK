@@ -34,54 +34,68 @@
 
 #import "OneSignalHelper.h"
 
-@implementation OneSignalNotificationSettingsIOS10
+@implementation OneSignalNotificationSettingsIOS10 {
 
 // Used as both an optimization and to prevent queue deadlocks.
 // This doesn't seem to be required for the latter at this time. (2.4.3)
-OSPermissionStatus *cachedStatus;
+BOOL useCachedStatus;
+}
 
-- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler {
-    if (cachedStatus) {
-        completionHandler(cachedStatus);
+// Used to run all calls to getNotificationSettingsWithCompletionHandler sequentially
+//   This prevents any possible deadlocks due to race condiditions.
+static dispatch_queue_t serialQueue;
++(dispatch_queue_t)getQueue {
+    return serialQueue;
+}
+
+- (instancetype)init {
+    serialQueue = dispatch_queue_create("com.onesignal.notification.settings.ios10", DISPATCH_QUEUE_SERIAL);
+    return [super init];
+}
+
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
+    if (useCachedStatus) {
+        completionHandler(OneSignal.currentPermissionState);
         return;
     }
     
     // NOTE1: Never call currentUserNotificationSettings from the callback below! It will lock the main thread.
     // NOTE2: Apple runs the callback on a background serial queue
-    [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
-        __block OSPermissionStatus* status = [OSPermissionStatus alloc];
-        
-        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-        status.anwseredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
-        status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized;
-        status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
-                                 + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
-                                 + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
-                                 + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
-        cachedStatus = status;
-        completionHandler(status);
-        cachedStatus = nil;
-    }];
+    dispatch_async(serialQueue, ^{
+        [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
+            OSPermissionState* status = OneSignal.currentPermissionState;
+            
+            NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+            status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
+            status.anwseredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
+            status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized;
+            status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
+                                     + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
+                                     + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
+                                     + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
+            useCachedStatus = true;
+            completionHandler(status);
+            useCachedStatus = false;
+        }];
+    });
 }
 
-- (OSPermissionStatus*)getNotificationPermissionStatus {
-    if (cachedStatus)
-        return cachedStatus;
+- (OSPermissionState*)getNotificationPermissionState {
+    if (useCachedStatus)
+        return OneSignal.currentPermissionState;
     
-    __block OSPermissionStatus* returnStatus = [OSPermissionStatus alloc];
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    [self getNotificationPermissionStatus:^(OSPermissionStatus *status) {
-        returnStatus = status;
-        dispatch_semaphore_signal(semaphore);
-    }];
+    __block OSPermissionState* returnStatus;
+    dispatch_sync(serialQueue, ^{
+        [self getNotificationPermissionState:^(OSPermissionState *status) {
+            returnStatus = status;
+        }];
+    });
     
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     return returnStatus;
 }
 
-- (int) getNotificationTypes {
-    return [self getNotificationPermissionStatus].notificationTypes;
+- (int)getNotificationTypes {
+    return [self getNotificationPermissionState].notificationTypes;
 }
 
 // Prompt then run updateNotificationTypes on the main thread with the response.
@@ -90,10 +104,8 @@ OSPermissionStatus *cachedStatus;
     id responseBlock = ^(BOOL granted, NSError* error) {
         // Run callback on main / UI thread
         [OneSignalHelper dispatch_async_on_main_queue: ^{
-            if (cachedStatus) {
-                cachedStatus.anwseredPrompt = true;
-                cachedStatus.accepted = granted;
-            }
+            OneSignal.currentPermissionState.anwseredPrompt = true;
+            OneSignal.currentPermissionState.accepted = granted;
             [OneSignal updateNotificationTypes: granted ? 15 : 0];
             if (completionHandler)
                 completionHandler(granted);
@@ -107,7 +119,7 @@ OSPermissionStatus *cachedStatus;
     [OneSignal registerForAPNsToken];
 }
 
-// Ignore these 2 events, promptForNotifications: already takes care of this.
+// Ignore these 2 events, promptForNotifications: already takes care of these.
 // Only iOS 8 & 9
 - (void)onNotificationPromptResponse:(int)notificationTypes { }
 // Only iOS 7

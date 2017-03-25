@@ -26,6 +26,8 @@
 #import "NSString+OneSignal.h"
 #import "UIApplicationDelegate+OneSignal.h"
 
+#import "OneSignalNotificationSettingsIOS10.h"
+
 #include <pthread.h>
 #include <mach/mach.h>
 
@@ -543,6 +545,25 @@ static NSArray* preferredLanguagesArray;
 
 
 
+
+// START - Test Classes
+@interface OSPermissionStateTestObserver : NSObject<OSPermissionObserver>
+@end
+
+@implementation OSPermissionStateTestObserver
+
+static OSPermissionStateChanges* lastOSPermissionStateChanges;
+
+- (void)onChanged:(OSPermissionStateChanges*)stateChanges {
+    lastOSPermissionStateChanges = stateChanges;
+}
+
+@end
+
+// END - Test Classes
+
+
+
 @interface UnitTests : XCTestCase
 @end
 
@@ -677,14 +698,17 @@ static BOOL setupUIApplicationDelegate = false;
 
     NSLog(@"START runBackgroundThreads");
     
-    dispatch_queue_t registerUserQueue;
-    for(int i = 0; i < 2; i++) {
+    dispatch_queue_t registerUserQueue, notifSettingsQueue;
+    for(int i = 0; i < 10; i++) {
         dispatch_sync(serialMockMainLooper, ^{});
         
+        notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
+        if (notifSettingsQueue)
+            dispatch_sync(notifSettingsQueue, ^{});
+        
         registerUserQueue = [OneSignal getRegisterQueue];
-        if (registerUserQueue) {
+        if (registerUserQueue)
             dispatch_sync(registerUserQueue, ^{});
-        }
         
         dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
     }
@@ -744,7 +768,7 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"device_type"], @0);
     XCTAssertEqualObjects(lastHTTPRequset[@"language"], @"en-US");
     
-    OSPermisionSubscriptionState* status = [OneSignal getPermisionSubscriptionState];
+    OSPermissionSubscriptionState* status = [OneSignal getPermisionSubscriptionState];
     XCTAssertTrue(status.permissionStatus.accepted);
     XCTAssertTrue(status.permissionStatus.hasPrompted);
     XCTAssertTrue(status.permissionStatus.anwseredPrompt);
@@ -909,6 +933,21 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
+}
+
+- (void)testPermissionChangeObserver {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [OneSignal addPermissionObserver:[OSPermissionStateTestObserver alloc]];
+    [OneSignal registerForPushNotifications];
+    [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqual(lastOSPermissionStateChanges.from.accepted, false);
+    XCTAssertEqual(lastOSPermissionStateChanges.to.accepted, true);
 }
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {

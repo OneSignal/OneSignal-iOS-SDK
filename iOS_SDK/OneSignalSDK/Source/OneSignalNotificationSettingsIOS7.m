@@ -38,8 +38,8 @@
     void (^notificationPromptReponseCallback)(BOOL);
 }
 
-- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler {
-    OSPermissionStatus *status = [OSPermissionStatus alloc];
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
+    OSPermissionState *status = [OSPermissionState alloc];
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
@@ -50,14 +50,14 @@
     completionHandler(status);
 }
 
-- (OSPermissionStatus*)getNotificationPermissionStatus {
-    __block OSPermissionStatus* returnStatus = [OSPermissionStatus alloc];
+- (OSPermissionState*)getNotificationPermissionState {
+    __block OSPermissionState* returnState = [OSPermissionState alloc];
     
-    [self getNotificationPermissionStatus:^(OSPermissionStatus *status) {
-        returnStatus = status;
+    [self getNotificationPermissionState:^(OSPermissionState *state) {
+        returnState = state;
     }];
     
-    return returnStatus;
+    return returnState;
 }
 
 - (int) getNotificationTypes {

@@ -35,8 +35,8 @@
 @protocol OneSignalNotificationSettings <NSObject>
 
 - (int) getNotificationTypes;
-- (OSPermissionStatus*)getNotificationPermissionStatus;
-- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler;
+- (OSPermissionState*)getNotificationPermissionState;
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionState))completionHandler;
 - (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler;
 
 // Only used for iOS 8 & 9

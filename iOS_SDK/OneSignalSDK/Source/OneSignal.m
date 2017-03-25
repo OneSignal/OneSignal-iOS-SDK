@@ -26,6 +26,7 @@
  */
 
 #import "OneSignal.h"
+#import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
 #import "OneSignalHTTPClient.h"
 #import "OneSignalTrackIAP.h"
@@ -44,6 +45,8 @@
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OneSignalNotificationSettingsIOS8.h"
 #import "OneSignalNotificationSettingsIOS7.h"
+
+#import "OSObservable.h"
 
 #import <stdlib.h>
 #import <stdio.h>
@@ -98,37 +101,223 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 
 
-@implementation OSSubscriptionState
+
+// OSSubscription.subscribed has a depency on OSPermission.
+//   They need to both need a has-a then?
+
+
+
+
+
+
+@protocol OSSubscriptionStateObserver
+-(void)changedEvent:(OSSubscriptionState*)state;
+@end
+
+@interface OSSubscriptionStateChanges (Internal)
+- (void)changedEvent;
+@end
+
+@interface OSSubscriptionState (Internal)
+- (void)setAccepted:(BOOL)inAccpeted;
+@end
+
+
+@implementation OSSubscriptionState {
+    @package NSObject<OSSubscriptionStateObserver> *observer;
+    BOOL accpeted;
+}
+
+- (id)initAsToWithPermision:(BOOL)permission {
+    accpeted = permission;
+    
+    return self;
+}
+
+- (id)initAsFromWithPermision:(BOOL)permission {
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    _userId = [userDefaults stringForKey:@"GT_PLAYER_ID_LAST"];
+    _pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN_LAST"];
+    _userSubscriptionSetting = [userDefaults boolForKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
+    
+    accpeted = permission;
+    
+    return self;
+}
+
+- (void)setUserId:(NSString*)userId {
+    BOOL changed = ![[NSString stringWithString:userId] isEqualToString:_userId];
+    _userId = userId;
+    if (observer && changed)
+        [observer changedEvent:self];
+}
+
+- (void)setPushToken:(NSString *)pushToken {
+    BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
+    _pushToken = pushToken;
+    if (observer && changed)
+        [observer changedEvent:self];
+}
+
+- (void)setUserSubscriptionSetting:(BOOL)userSubscriptionSetting {
+    BOOL changed = userSubscriptionSetting != _userSubscriptionSetting;
+    _userSubscriptionSetting = userSubscriptionSetting;
+    if (observer && changed)
+        [observer changedEvent:self];
+}
+
+- (void)setAccepted:(BOOL)inAccpeted {
+    BOOL lastSubscribed = self.subscribed;
+    accpeted = inAccpeted;
+    if (lastSubscribed != self.subscribed)
+        [observer changedEvent:self];
+}
 
 - (BOOL)subscribed {
-    return _userId && _pushToken && _userSubscriptionSetting;
+    return _userId && _pushToken && _userSubscriptionSetting && accpeted;
 }
 
 @end
 
-@implementation OSPermissionStatus
-// Override Getters
-// Returns logical turths so the comsumer of the object don't have to check more than one property
 
-- (BOOL) hasPrompted {
+
+// Permission Start
+
+@protocol OSPermissionStateObserver<NSObject>
+- (void)onChanged:(OSPermissionState*)state;
+@end
+
+typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> ObserablePermissionStateType;
+
+@implementation OSPermissionState {
+    ObserablePermissionStateType* _observable;
+}
+
+- (ObserablePermissionStateType*)observable {
+    if (!_observable)
+        _observable = [[OSObservable alloc] init];
+    return _observable;
+}
+
+- (instancetype)initAsTo {
+    [OneSignal.osNotificationSettings getNotificationPermissionState];
+    
+    return self;
+}
+
+- (instancetype)initAsFrom {
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    _hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"];
+    _anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"];
+    _accepted  = [userDefaults boolForKey:@"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"];
+    
+    return self;
+}
+
+- (BOOL)hasPrompted {
     // If we know they anwsered turned notificaitons on then were prompted at some point.
-    if (self.anwseredPrompt) // self. calls getter method below
+    if (self.anwseredPrompt) // self. triggers getter
         return true;
     return _hasPrompted;
 }
 
-- (BOOL) anwseredPrompt {
+- (BOOL)anwseredPrompt {
     // If we got an accepted permission then they anwsered the prompt.
     if (_accepted)
         return true;
     return _anwseredPrompt;
 }
 
+- (void)setAccepted:(BOOL)accepted {
+    BOOL changed = _accepted != accepted;
+    _accepted = accepted;
+    if (changed)
+        [self.observable notifyChange:self];
+}
+
 @end
 
-@implementation OSPermisionSubscriptionState
+
+@implementation OSPermissionStateChanges
+
+- (instancetype)init {
+    return self;
+}
+
 @end
 
+
+@interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>
+@end
+
+@implementation OSPermissionChangedInternalObserver
+
+- (void)onChanged:(OSPermissionState*)state {
+    OSPermissionStateChanges* stateChanges = [OSPermissionStateChanges alloc];
+    // TODO: set stateChanges.from
+    stateChanges.from = OneSignal.lastPermissionState;
+    stateChanges.to = state;
+    
+    [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
+    
+    // TODO: Call [OneSignal fireInternalPermissionChanged] which should be implmented with.
+    //    - see if it should fire developer's addPermissionObserver
+    //    - update currentSubscriptionState.setAccepted
+    
+    // TODO: Update and save from values
+}
+
+@end
+
+
+// Permission End
+
+
+
+
+@implementation OSSubscriptionStateChanges {
+    @public void (^changedHandler)(OSSubscriptionStateChanges* subscriptionStatus);
+}
+
+-(id)initWithToState:(OSSubscriptionState*)state withPermission:(BOOL)accpeted {
+    if (self = [super init]) {
+        _to = state;
+    }
+    
+    return self;
+}
+
+- (void)changedEvent {
+    changedHandler(self);
+    [self saveLasts];
+}
+
+- (BOOL)hasChanged {
+   // _from = [[OSSubscriptionState alloc] initAsFrom];
+    return ![_to isEqual:_from];
+}
+
+- (void)saveLasts {
+    if (![_to isEqual:_from]) {
+        _from = [_to copy];
+        
+        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+        
+        [userDefaults setObject:_from.userId forKey:@"GT_PLAYER_ID_LAST"];
+        [userDefaults setObject:_from.pushToken forKey:@"GT_DEVICE_TOKEN_LAST"];
+        [userDefaults setBool:_from.userSubscriptionSetting forKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
+        
+        [userDefaults synchronize];
+    }
+}
+
+@end
+
+
+@implementation OSPermissionSubscriptionState
+@end
 
 
 @interface OSPendingCallbacks : NSObject
@@ -174,7 +363,65 @@ BOOL disableBadgeClearing = NO;
 BOOL mSubscriptionSet;
 BOOL mShareLocation = YES;
 
-NSObject<OneSignalNotificationSettings>* osNotificationSettings;
+void (^subscriptionChangedCallback)(OSSubscriptionStateChanges* subscriptionStatus);
+
+OSSubscriptionStateChanges* currentOSSubscriptionStateChanges;
+
+// iOS version implemation
+static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
++ (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
+    if (!_osNotificationSettings) {
+        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10])
+            _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
+        else if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
+            _osNotificationSettings = [OneSignalNotificationSettingsIOS8 new];
+        else
+            _osNotificationSettings = [OneSignalNotificationSettingsIOS7 new];
+    }
+    return _osNotificationSettings;
+}
+
+
+// static property def for currentPermissionState
+static OSPermissionState* _currentPermissionState;
++ (OSPermissionState*)currentPermissionState {
+    if (!_currentPermissionState) {
+        _currentPermissionState = [OSPermissionState alloc];
+        _currentPermissionState = [_currentPermissionState initAsTo];
+        self.lastPermissionState; // Trigger creation
+        [_currentPermissionState.observable addObserver:[OSPermissionChangedInternalObserver alloc]];
+    }
+    return _currentPermissionState;
+}
+
+// static property def for prevous OSSubscriptionState
+static OSPermissionState* _lastPermissionState;
++ (OSPermissionState*)lastPermissionState {
+    if (!_lastPermissionState) {
+        _lastPermissionState = [[OSPermissionState alloc] initAsFrom];
+    }
+    return _lastPermissionState;
+}
+
+
+// static property def for current OSSubscriptionState
+static OSSubscriptionState* _currentOSSubscriptionState;
++ (OSSubscriptionState*)currentOSSubscriptionStateChanges {
+    if (!_currentOSSubscriptionState)
+        _currentOSSubscriptionState = [OSSubscriptionState alloc];
+    return _currentOSSubscriptionState;
+}
+
+// static property def to add developer's OSPermissionStateChanges observers to.
+static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
++ (ObserablePermissionStateChangesType*)permissionStateChangesObserver {
+    if (!_permissionStateChangesObserver)
+        _permissionStateChangesObserver = [[OSObservable alloc] init];
+    return _permissionStateChangesObserver;
+}
+
+
+
 
 + (void) setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
@@ -217,7 +464,7 @@ NSObject<OneSignalNotificationSettings>* osNotificationSettings;
 }
 
 +(void)clearStatics {
-    osNotificationSettings = nil;
+    _osNotificationSettings = nil;
     waitingForApnsResponse = false;
 }
 
@@ -251,16 +498,6 @@ NSObject<OneSignalNotificationSettings>* osNotificationSettings;
     
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
-    
-    
-    if (!osNotificationSettings) {
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10])
-            osNotificationSettings = [OneSignalNotificationSettingsIOS10 alloc];
-        else if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
-            osNotificationSettings = [OneSignalNotificationSettingsIOS8 alloc];
-        else
-            osNotificationSettings = [OneSignalNotificationSettingsIOS7 alloc];
-    }
     
     if (mShareLocation)
        [OneSignalLocation getLocation:false];
@@ -297,16 +534,16 @@ NSObject<OneSignalNotificationSettings>* osNotificationSettings;
             return self;
         }
         
-        mUserId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
-        mDeviceToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"];
+        /*
+        self.currentSubscriptionState.userId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
+        self.currentSubscriptionState.pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"];
+        self.currentSubscriptionState.userSubscriptionSetting = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
+         */
         
         if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
-            registeredWithApple = [osNotificationSettings getNotificationPermissionStatus].accepted;
+            registeredWithApple = [self.osNotificationSettings getNotificationPermissionState].accepted;
         else
             registeredWithApple = mDeviceToken != nil || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
-        
-        
-        mSubscriptionSet = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
         
         // Check if disabled in-app launch url if passed a NO
         if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
@@ -347,8 +584,8 @@ NSObject<OneSignalNotificationSettings>* osNotificationSettings;
         if (mUserId != nil)
             [self registerUser];
         else {
-            [osNotificationSettings getNotificationPermissionStatus:^(OSPermissionStatus *status) {
-                if (status.anwseredPrompt)
+            [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
+                if (state.anwseredPrompt)
                     [self registerUser];
                 else
                     [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
@@ -446,7 +683,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // Only try to register for a pushToken if:
     //  - The user accepted notifications
     //  - "Background Modes" > "Remote Notifications" are enabled in Xcode
-    if (![osNotificationSettings getNotificationPermissionStatus].accepted && !backgroundModesEnabled)
+    if (![self.osNotificationSettings getNotificationPermissionState].accepted && !backgroundModesEnabled)
         return false;
     
     // Don't attempt to register again if there was a non-recoverable error.
@@ -471,7 +708,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [userDefaults setBool:true forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
     [userDefaults synchronize];
     
-    [osNotificationSettings promptForNotifications:completionHandler];
+    [self.osNotificationSettings promptForNotifications:completionHandler];
 }
 
 
@@ -482,10 +719,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 
-+ (OSPermisionSubscriptionState*)getPermisionSubscriptionState {
-    OSPermisionSubscriptionState* status = [OSPermisionSubscriptionState alloc];
++ (OSPermissionSubscriptionState*)getPermisionSubscriptionState {
+    OSPermissionSubscriptionState* status = [OSPermissionSubscriptionState alloc];
     
-    status.permissionStatus = [osNotificationSettings getNotificationPermissionStatus];
+    status.permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
     
     status.subscriptionStatus = [OSSubscriptionState alloc];
     status.subscriptionStatus.userId = mUserId;
@@ -496,6 +733,47 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     return status;
 }
+
+
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
+    [self.permissionStateChangesObserver addObserver:observer];
+   // [[self getPermissionStateChangesObserver] addObserver:observer];
+}
+
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
+    [self.permissionStateChangesObserver removeObserver:observer];
+}
+
+
+
+// onSubscriptionChanged should only fire if something changed.
+
++ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
+    
+    
+    
+   // currentSubscriptionState
+    
+    
+   // subscriptionChangedCallback = completionHandler;
+    
+    // TODO: Read previous values stored here. Compare and fire event right away if different.
+    
+    if (!currentOSSubscriptionStateChanges)
+        currentOSSubscriptionStateChanges = [[OSSubscriptionStateChanges alloc] init];
+    
+    //currentOSSubscriptionStateChanges->changedHandler = completionHandler;
+    
+    [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *subcscriptionStatus) {
+        OSSubscriptionStateChanges* changedSubscriptionState = [OSSubscriptionStateChanges alloc];
+    }];
+}
+
++ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
+    
+}
+
+
 
 // Block not assigned if userID nil and there is a device token
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
@@ -795,7 +1073,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
     
     // iOS 7
-    [osNotificationSettings onAPNsResponse:false];
+    [self.osNotificationSettings onAPNsResponse:false];
 }
 
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -811,7 +1089,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
     
     // iOS 7
-    [osNotificationSettings onAPNsResponse:true];
+    [self.osNotificationSettings onAPNsResponse:true];
     
     // Do not block next registration as there's a new token in hand
     nextRegistrationIsHighPriority = ![deviceToken isEqualToString:mDeviceToken] || [self getNotificationTypes] != mLastNotificationTypes;
@@ -823,7 +1101,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         
         // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
         // The goal is to only have 1 server call.
-        [osNotificationSettings getNotificationPermissionStatus:^(OSPermissionStatus *status) {
+        [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
             if (status.anwseredPrompt)
                 [OneSignal registerUser];
             else {
@@ -873,7 +1151,7 @@ bool nextRegistrationIsHighPriority = NO;
 static BOOL waitingForOneSReg = false;
 
 
-+ (void) updateLastSessionDateTime {
++ (void)updateLastSessionDateTime {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     [[NSUserDefaults standardUserDefaults] setDouble:now forKey:@"GT_LAST_CLOSED_TIME"];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -1048,7 +1326,7 @@ static dispatch_queue_t serialQueue;
     if (mSubscriptionStatus < -1)
         return NULL;
     
-    return [osNotificationSettings getNotificationPermissionStatus].accepted ? mDeviceToken : NULL;
+    return [self.osNotificationSettings getNotificationPermissionState].accepted ? mDeviceToken : NULL;
 }
 
 // Updates the server with the new user's notification setting or subscription status changes
@@ -1282,7 +1560,7 @@ static NSString *_lastnonActiveMessageId;
         disableBadgeClearing = NO;
     
     if (disableBadgeClearing ||
-        ([OneSignalHelper isIOSVersionGreaterOrEqual:8] && [osNotificationSettings getNotificationPermissionStatus].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+        ([OneSignalHelper isIOSVersionGreaterOrEqual:8] && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
@@ -1307,7 +1585,7 @@ static NSString *_lastnonActiveMessageId;
     if (waitingForApnsResponse && !mDeviceToken)
         return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
-    OSPermissionStatus* permissionStatus = [osNotificationSettings getNotificationPermissionStatus];
+    OSPermissionState* permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
     
     if (!permissionStatus.hasPrompted)
         return ERROR_PUSH_NEVER_PROMPTED;
@@ -1348,7 +1626,7 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startedRegister: %d", startedRegister]];
     
-    [osNotificationSettings onNotificationPromptResponse:notificationTypes];
+    [self.osNotificationSettings onNotificationPromptResponse:notificationTypes];
     
     if (mSubscriptionStatus == -2)
         return;

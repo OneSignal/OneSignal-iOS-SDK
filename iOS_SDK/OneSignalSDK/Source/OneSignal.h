@@ -166,7 +166,6 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @interface OSNotificationOpenedResult : NSObject
 
 @property(readonly)OSNotification* notification;
-
 @property(readonly)OSNotificationAction *action;
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
@@ -175,32 +174,77 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @end;
 
 
-@interface OSSubscriptionState : NSObject
 
-@property (nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
-@property NSString* userId;    // AKA OneSignal PlayerId
-@property NSString* pushToken; // AKA Apple Device Token
 
-@end
+// TODO: Test that state proprites are read-only at the app level.
+// TODO: Check tenses (past vs present)
 
-@interface OSPermissionStatus : NSObject
+
+// Permission Classes
+@interface OSPermissionState : NSObject
 
 @property (nonatomic) BOOL hasPrompted;
+
+// TODO: Combine has anwseredPrompt and accepted into enum
+//    Need to keep internal bools for backing however.
 @property (nonatomic) BOOL anwseredPrompt;
-@property BOOL accepted;
+@property (nonatomic) BOOL accepted;
+
+// TDOO: Make this internal only
 @property int notificationTypes;
 
 @end
 
-@interface OSPermisionSubscriptionState : NSObject
+@interface OSPermissionStateChanges : NSObject
 
-@property OSPermissionStatus* permissionStatus;
+@property OSPermissionState* to;
+@property OSPermissionState* from;
+@property (nonatomic) BOOL justEnabled;
+@property (nonatomic) BOOL justDisabled;
+
+@end
+
+// TODO: Change public interface from to onOSPermissionChanged:
+@protocol OSPermissionObserver <NSObject>
+- (void)onChanged:(OSPermissionStateChanges*)stateChanges;
+@end
+
+
+// Subscription Classes
+@interface OSSubscriptionState : NSObject
+
+@property (nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (nonatomic) NSString* userId;    // AKA OneSignal PlayerId
+@property (nonatomic) NSString* pushToken; // AKA Apple Device Token
+
+@end
+
+@interface OSSubscriptionStateChanges : NSObject
+
+@property OSSubscriptionState* to;
+@property OSSubscriptionState* from;
+@property BOOL becameSubscribed;
+@property BOOL becameUnsubscribed;
+
+@end
+
+// TODO: Change public interface from to onOSSubscriptionChanged:
+@protocol OSSubscriptionObserver <NSObject>
+- (void)onChanged:(OSSubscriptionStateChanges*)stateChanges;
+@end
+
+
+
+
+// Permission+Subscription Classes
+@interface OSPermissionSubscriptionState : NSObject
+
+@property OSPermissionState* permissionStatus;
 @property OSSubscriptionState* subscriptionStatus;
 
 @end
 
-// TODO: Add classes that inherit the above added changed* flag properites
 
 
 
@@ -286,11 +330,17 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
 + (void)syncHashedEmail:(NSString*)email;
 
-// - Get user ID & Push Token
+// - Subscription and Permissions
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
-+ (OSPermisionSubscriptionState*)getPermisionSubscriptionState;
++ (OSPermissionSubscriptionState*)getPermisionSubscriptionState;
 
-// - Subscription
+// + (void)addSubscriptionChanged:(void(^)(OSSubscriptionStateChanges* subscriptionStatus))completionHandler;
++ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
+
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
+
 + (void)setSubscription:(BOOL)enable;
 
 
