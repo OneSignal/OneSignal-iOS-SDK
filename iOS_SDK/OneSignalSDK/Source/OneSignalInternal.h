@@ -48,6 +48,8 @@ typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*>
 @property (class) OSPermissionState* lastPermissionState;
 @property (class) OSPermissionState* currentPermissionState;
 
+@property (class) NSObject<OSSubscriptionState>* currentSubscriptionState;
+
 // Used to manage observers added by the app developer.
 @property (class) ObserablePermissionStateChangesType* permissionStateChangesObserver;
 

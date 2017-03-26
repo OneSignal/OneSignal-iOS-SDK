@@ -84,12 +84,15 @@ static dispatch_queue_t serialQueue;
     if (useCachedStatus)
         return OneSignal.currentPermissionState;
     
-    __block OSPermissionState* returnStatus;
+    __block OSPermissionState* returnStatus = OneSignal.currentPermissionState;
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     dispatch_sync(serialQueue, ^{
         [self getNotificationPermissionState:^(OSPermissionState *status) {
             returnStatus = status;
+            dispatch_semaphore_signal(semaphore);
         }];
     });
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
     return returnStatus;
 }

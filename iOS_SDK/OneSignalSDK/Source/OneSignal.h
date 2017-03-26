@@ -211,7 +211,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 
 // Subscription Classes
-@interface OSSubscriptionState : NSObject
+@protocol OSSubscriptionState<NSObject>
 
 @property (nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
 @property (nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
@@ -222,8 +222,8 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 @interface OSSubscriptionStateChanges : NSObject
 
-@property OSSubscriptionState* to;
-@property OSSubscriptionState* from;
+@property NSObject<OSSubscriptionState>* to;
+@property NSObject<OSSubscriptionState>* from;
 @property BOOL becameSubscribed;
 @property BOOL becameUnsubscribed;
 
@@ -241,7 +241,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @interface OSPermissionSubscriptionState : NSObject
 
 @property OSPermissionState* permissionStatus;
-@property OSSubscriptionState* subscriptionStatus;
+@property NSObject<OSSubscriptionState>* subscriptionStatus;
 
 @end
 
