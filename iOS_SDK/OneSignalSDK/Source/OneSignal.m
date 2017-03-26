@@ -113,11 +113,11 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 
 @protocol OSSubscriptionStateObserver
--(void)changedEvent:(NSObject<OSSubscriptionState>*)state;
+-(void)onChanged:(NSObject<OSSubscriptionState>*)state;
 @end
 
 @interface OSSubscriptionStateChanges (Internal)
-- (void)changedEvent;
+- (void)onChanged;
 @end
 
 @interface OSSubscriptionStateInternal : NSObject<OSSubscriptionState, OSPermissionStateObserver>
@@ -130,9 +130,17 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 @end
 
 
+typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, NSObject<OSSubscriptionState>*> ObserableSubscriptionStateType;
+
 @implementation OSSubscriptionStateInternal {
-    @package NSObject<OSSubscriptionStateObserver> *observer;
+    ObserableSubscriptionStateType* _observable;
     BOOL accpeted;
+}
+
+- (ObserableSubscriptionStateType*)observable {
+    if (!_observable)
+        _observable = [[OSObservable alloc] init];
+    return _observable;
 }
 
 - (id)initAsToWithPermision:(BOOL)permission {
@@ -164,33 +172,53 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 - (void)setUserId:(NSString*)userId {
     BOOL changed = ![[NSString stringWithString:userId] isEqualToString:_userId];
     _userId = userId;
-    if (observer && changed)
-        [observer changedEvent:self];
+    if (self.observable && changed)
+        [self.observable notifyChange:self];
 }
 
 - (void)setPushToken:(NSString *)pushToken {
     BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
     _pushToken = pushToken;
-    if (observer && changed)
-        [observer changedEvent:self];
+    if (self.observable && changed)
+        [self.observable notifyChange:self];
 }
 
 - (void)setUserSubscriptionSetting:(BOOL)userSubscriptionSetting {
     BOOL changed = userSubscriptionSetting != _userSubscriptionSetting;
     _userSubscriptionSetting = userSubscriptionSetting;
-    if (observer && changed)
-        [observer changedEvent:self];
+    if (self.observable && changed)
+        [self.observable notifyChange:self];
 }
 
 - (void)setAccepted:(BOOL)inAccpeted {
     BOOL lastSubscribed = self.subscribed;
     accpeted = inAccpeted;
     if (lastSubscribed != self.subscribed)
-        [observer changedEvent:self];
+        [self.observable notifyChange:self];
 }
 
 - (BOOL)subscribed {
     return _userId && _pushToken && _userSubscriptionSetting && accpeted;
+}
+
+@end
+
+
+
+@interface OSSubscriptionChangedInternalObserver : NSObject<OSSubscriptionStateObserver>
+@end
+
+@implementation OSSubscriptionChangedInternalObserver
+
+- (void)onChanged:(NSObject<OSSubscriptionState>*)state {
+    OSSubscriptionStateChanges* stateChanges = [OSSubscriptionStateChanges alloc];
+    stateChanges.from = OneSignal.lastSubscriptionState;
+    stateChanges.to = state;
+    
+    [OneSignal.subscriptionStateChangesObserver notifyChange:stateChanges];
+    
+    // TODO:
+    //[stateChanges.from persist];
 }
 
 @end
@@ -225,6 +253,16 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
     _accepted  = [userDefaults boolForKey:@"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"];
     
     return self;
+}
+
+- (void)persist {
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    [userDefaults setBool:_hasPrompted forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"];
+    [userDefaults setBool:_anwseredPrompt forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"];
+    [userDefaults setBool:_accepted forKey:@"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"];
+    
+    [userDefaults synchronize];
 }
 
 - (BOOL)hasPrompted {
@@ -267,17 +305,12 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 
 - (void)onChanged:(OSPermissionState*)state {
     OSPermissionStateChanges* stateChanges = [OSPermissionStateChanges alloc];
-    // TODO: set stateChanges.from
     stateChanges.from = OneSignal.lastPermissionState;
     stateChanges.to = state;
     
     [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
     
-    // TODO: Call [OneSignal fireInternalPermissionChanged] which should be implmented with.
-    //    - see if it should fire developer's addPermissionObserver
-    //    - update currentSubscriptionState.setAccepted
-    
-    // TODO: Update and save from values
+    [stateChanges.from persist];
 }
 
 @end
@@ -420,9 +453,20 @@ static OSSubscriptionStateInternal* _currentSubscriptionState;
         _currentSubscriptionState = [OSSubscriptionStateInternal alloc];
         _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:self.currentPermissionState.accepted];
         [self.currentPermissionState.observable addObserver:_currentSubscriptionState];
+        [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
     }
     return _currentSubscriptionState;
 }
+
+static OSSubscriptionStateInternal* _lastSubscriptionState;
++ (OSSubscriptionStateInternal*)lastSubscriptionState {
+    if (!_lastSubscriptionState) {
+        _lastSubscriptionState = [OSSubscriptionStateInternal alloc];
+        _lastSubscriptionState = [_lastSubscriptionState initAsFromWithPermision:self.currentPermissionState.accepted];
+    }
+    return _lastSubscriptionState;
+}
+
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -434,6 +478,12 @@ static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
 
 
 
+static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
++ (ObserableSubscriptionStateChangesType*)subscriptionStateChangesObserver {
+    if (!_subscriptionStateChangesObserver)
+        _subscriptionStateChangesObserver = [[OSObservable alloc] init];
+    return _subscriptionStateChangesObserver;
+}
 
 + (void) setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
@@ -482,7 +532,7 @@ static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
     _lastPermissionState = nil;
     _currentPermissionState = nil;
     
-    //_lastSubscriptionState = nil;
+    _lastSubscriptionState = nil;
     _currentSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
@@ -753,42 +803,24 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 
+// onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver addObserver:observer];
-   // [[self getPermissionStateChangesObserver] addObserver:observer];
+    // TODO: Read previous values stored here. Compare and fire event right away if different.
 }
-
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver removeObserver:observer];
 }
 
 
 
-// onSubscriptionChanged should only fire if something changed.
-
+// onOSSubscriptionChanged should only fire if something changed.
 + (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
-    
-    
-    
-   // currentSubscriptionState
-    
-    
-   // subscriptionChangedCallback = completionHandler;
-    
+    [self.subscriptionStateChangesObserver addObserver:observer];
     // TODO: Read previous values stored here. Compare and fire event right away if different.
-    
-    if (!currentOSSubscriptionStateChanges)
-        currentOSSubscriptionStateChanges = [[OSSubscriptionStateChanges alloc] init];
-    
-    //currentOSSubscriptionStateChanges->changedHandler = completionHandler;
-    
-    [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *subcscriptionStatus) {
-        OSSubscriptionStateChanges* changedSubscriptionState = [OSSubscriptionStateChanges alloc];
-    }];
 }
-
 + (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
-    
+    [self.subscriptionStateChangesObserver removeObserver:observer];
 }
 
 

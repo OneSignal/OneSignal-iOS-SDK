@@ -551,14 +551,23 @@ static NSArray* preferredLanguagesArray;
 @end
 
 @implementation OSPermissionStateTestObserver
-
 static OSPermissionStateChanges* lastOSPermissionStateChanges;
-
 - (void)onChanged:(OSPermissionStateChanges*)stateChanges {
     lastOSPermissionStateChanges = stateChanges;
 }
-
 @end
+
+
+@interface OSSubscriptionStateTestObserver : NSObject<OSSubscriptionObserver>
+@end
+
+@implementation OSSubscriptionStateTestObserver
+static OSSubscriptionStateChanges* lastOSSubscriptionStateChanges;
+- (void)onChanged:(OSSubscriptionStateChanges*)stateChanges {
+    lastOSSubscriptionStateChanges = stateChanges;
+}
+@end
+
 
 // END - Test Classes
 
@@ -935,6 +944,8 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 1);
 }
 
+
+
 - (void)testPermissionChangeObserver {
     [self setCurrentNotificationPermissionAsUnanwsered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
@@ -949,6 +960,25 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(lastOSPermissionStateChanges.from.accepted, false);
     XCTAssertEqual(lastOSPermissionStateChanges.to.accepted, true);
 }
+
+
+- (void)testSubscriptionChangeObserver {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [OneSignal addSubscriptionObserver:[OSSubscriptionStateTestObserver alloc]];
+    [OneSignal registerForPushNotifications];
+    [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqual(lastOSSubscriptionStateChanges.from.subscribed, false);
+    XCTAssertEqual(lastOSSubscriptionStateChanges.to.subscribed, true);
+}
+
+
+
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];

@@ -36,6 +36,7 @@
 #import "OneSignalNotificationSettings.h"
 
 typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*> ObserablePermissionStateChangesType;
+typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChanges*> ObserableSubscriptionStateChangesType;
 
 @interface OneSignal (OneSignalInternal)
 + (NSString*)getDeviceToken;
@@ -48,10 +49,12 @@ typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*>
 @property (class) OSPermissionState* lastPermissionState;
 @property (class) OSPermissionState* currentPermissionState;
 
+@property (class) NSObject<OSSubscriptionState>* lastSubscriptionState;
 @property (class) NSObject<OSSubscriptionState>* currentSubscriptionState;
 
 // Used to manage observers added by the app developer.
 @property (class) ObserablePermissionStateChangesType* permissionStateChangesObserver;
+@property (class) ObserableSubscriptionStateChangesType* subscriptionStateChangesObserver;
 
 @end
 
