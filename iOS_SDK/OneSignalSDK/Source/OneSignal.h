@@ -174,62 +174,56 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @end;
 
 
-
-
-// TODO: Test that state proprites are read-only at the app level.
 // TODO: Check tenses (past vs present)
 
 
 // Permission Classes
 @interface OSPermissionState : NSObject
 
-@property (nonatomic) BOOL hasPrompted;
+@property (nonatomic, readonly) BOOL hasPrompted;
 
 // TODO: Combine has anwseredPrompt and accepted into enum
 //    Need to keep internal bools for backing however.
-@property (nonatomic) BOOL anwseredPrompt;
-@property (nonatomic) BOOL accepted;
-
-// TDOO: Make this internal only
-@property int notificationTypes;
+//    Check with Swift. See what can be done without needing rawValue. Considering this to be a deal breaker due to crashings without it.
+//       This might be ok with a non-Int type Enum?
+@property (nonatomic, readonly) BOOL anwseredPrompt;
+@property (nonatomic, readonly) BOOL accepted;
 
 @end
 
 @interface OSPermissionStateChanges : NSObject
 
-@property OSPermissionState* to;
-@property OSPermissionState* from;
-@property (nonatomic) BOOL justEnabled;
-@property (nonatomic) BOOL justDisabled;
+@property (readonly) OSPermissionState* to;
+@property (readonly) OSPermissionState* from;
+@property (readonly, nonatomic) BOOL justEnabled;
+@property (readonly, nonatomic) BOOL justDisabled;
 
 @end
 
-// TODO: Change public interface from to onOSPermissionChanged:
 @protocol OSPermissionObserver <NSObject>
 - (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges;
 @end
 
 
 // Subscription Classes
-@protocol OSSubscriptionState<NSObject>
+@interface OSSubscriptionState : NSObject
 
-@property (nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
-@property (nonatomic) NSString* userId;    // AKA OneSignal PlayerId
-@property (nonatomic) NSString* pushToken; // AKA Apple Device Token
+@property (nonatomic, readonly) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (nonatomic, readonly) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (nonatomic, readonly) NSString* userId;    // AKA OneSignal PlayerId
+@property (nonatomic, readonly) NSString* pushToken; // AKA Apple Device Token
 
 @end
 
 @interface OSSubscriptionStateChanges : NSObject
 
-@property NSObject<OSSubscriptionState>* to;
-@property NSObject<OSSubscriptionState>* from;
-@property BOOL becameSubscribed;
-@property BOOL becameUnsubscribed;
+@property (readonly) OSSubscriptionState* to;
+@property (readonly) OSSubscriptionState* from;
+@property (readonly) BOOL becameSubscribed;
+@property (readonly) BOOL becameUnsubscribed;
 
 @end
 
-// TODO: Change public interface from to onOSSubscriptionChanged:
 @protocol OSSubscriptionObserver <NSObject>
 - (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
 @end
@@ -240,8 +234,8 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 // Permission+Subscription Classes
 @interface OSPermissionSubscriptionState : NSObject
 
-@property OSPermissionState* permissionStatus;
-@property NSObject<OSSubscriptionState>* subscriptionStatus;
+@property (readonly) OSPermissionState* permissionStatus;
+@property (readonly) OSSubscriptionState* subscriptionStatus;
 
 @end
 

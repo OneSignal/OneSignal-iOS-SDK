@@ -35,6 +35,82 @@
 #import "OSObservable.h"
 #import "OneSignalNotificationSettings.h"
 
+
+
+// Redefines are done so we can make properites writeable and backed internal variables accesiable to the SDK.
+// Basicly the C# equivlent of a public gettter with an internal settter.
+
+
+// Redefine OSPermissionState
+@interface OSPermissionState ()
+
+@property (readwrite, nonatomic) BOOL hasPrompted;
+@property (readwrite, nonatomic) BOOL anwseredPrompt;
+@property (readwrite, nonatomic) BOOL accepted;
+@property int notificationTypes;
+
+- (void) persistAsFrom;
+
+@end
+
+// Redefine OSSubscriptionState
+@interface OSSubscriptionState () {
+@protected BOOL _userSubscriptionSetting;
+@protected NSString* _userId;
+@protected NSString* _pushToken;
+}
+
+@property (readwrite, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (readwrite, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (readwrite, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
+@property (readwrite, nonatomic) NSString* pushToken; // AKA Apple Device Token
+
+@end
+
+// Redefine OSSubscriptionState
+@interface OSPermissionStateChanges ()
+
+@property (readwrite) OSPermissionState* to;
+@property (readwrite) OSPermissionState* from;
+@property (readwrite, nonatomic) BOOL justEnabled;
+@property (readwrite, nonatomic) BOOL justDisabled;
+
+@end
+
+
+// Redefine OSPermissionSubscriptionState
+@interface OSPermissionSubscriptionState ()
+
+@property (readwrite) OSPermissionState* permissionStatus;
+@property (readwrite) OSSubscriptionState* subscriptionStatus;
+
+@end
+
+// Redefine OSSubscriptionStateChanges
+@interface OSSubscriptionStateChanges ()
+
+@property (readwrite) OSSubscriptionState* to;
+@property (readwrite) OSSubscriptionState* from;
+@property (readwrite) BOOL becameSubscribed;
+@property (readwrite) BOOL becameUnsubscribed;
+
+@end
+
+
+@protocol OSPermissionStateObserver<NSObject>
+- (void)onChanged:(OSPermissionState*)state;
+@end
+
+@interface OSSubscriptionStateInternal : OSSubscriptionState<OSPermissionStateObserver>
+
+@property (nonatomic) BOOL accpeted;
+
+
+- (void)setAccepted:(BOOL)inAccpeted;
+- (void)persistAsFrom;
+- (BOOL)compareWithFrom:(OSSubscriptionStateInternal*)from;
+@end
+
 typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*> ObserablePermissionStateChangesType;
 typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChanges*> ObserableSubscriptionStateChangesType;
 
@@ -49,8 +125,8 @@ typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChang
 @property (class) OSPermissionState* lastPermissionState;
 @property (class) OSPermissionState* currentPermissionState;
 
-@property (class) NSObject<OSSubscriptionState>* lastSubscriptionState;
-@property (class) NSObject<OSSubscriptionState>* currentSubscriptionState;
+@property (class) OSSubscriptionStateInternal* lastSubscriptionState;
+@property (class) OSSubscriptionStateInternal* currentSubscriptionState;
 
 // Used to manage observers added by the app developer.
 @property (class) ObserablePermissionStateChangesType* permissionStateChangesObserver;

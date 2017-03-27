@@ -975,6 +975,11 @@ static BOOL setupUIApplicationDelegate = false;
     
     XCTAssertEqual(lastOSSubscriptionStateChanges.from.subscribed, false);
     XCTAssertEqual(lastOSSubscriptionStateChanges.to.subscribed, true);
+    
+    [OneSignal setSubscription:false];
+    
+    XCTAssertEqual(lastOSSubscriptionStateChanges.from.subscribed, true);
+    XCTAssertEqual(lastOSSubscriptionStateChanges.to.subscribed, false);
 }
 
 

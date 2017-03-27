@@ -102,6 +102,7 @@ static dispatch_queue_t serialQueue;
 }
 
 // Prompt then run updateNotificationTypes on the main thread with the response.
+// FUTURE: Add a 2nd seloctor with 'withOptions' for UNAuthorizationOptions*'s
 - (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
     
     id responseBlock = ^(BOOL granted, NSError* error) {
