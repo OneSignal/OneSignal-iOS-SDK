@@ -552,7 +552,7 @@ static NSArray* preferredLanguagesArray;
 
 @implementation OSPermissionStateTestObserver
 static OSPermissionStateChanges* lastOSPermissionStateChanges;
-- (void)onChanged:(OSPermissionStateChanges*)stateChanges {
+- (void)onOSPermissionChanged:(OSPermissionStateChanges *)stateChanges{
     lastOSPermissionStateChanges = stateChanges;
 }
 @end
@@ -563,7 +563,7 @@ static OSPermissionStateChanges* lastOSPermissionStateChanges;
 
 @implementation OSSubscriptionStateTestObserver
 static OSSubscriptionStateChanges* lastOSSubscriptionStateChanges;
-- (void)onChanged:(OSSubscriptionStateChanges*)stateChanges {
+- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
     lastOSSubscriptionStateChanges = stateChanges;
 }
 @end

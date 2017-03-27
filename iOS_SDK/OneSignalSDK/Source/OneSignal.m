@@ -223,6 +223,26 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, NSObject<OSSubscrip
 
 @end
 
+// Maps generic onChanged observer to specific onOSSubscriptionChanged selector.
+@interface OSSubscriptionStateObserverWrapper : NSObject<OSObserver>
+- (instancetype)initWithOSSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
+@end
+
+@implementation OSSubscriptionStateObserverWrapper {
+    NSObject<OSSubscriptionObserver>* _observer;
+}
+
+- (instancetype)initWithOSSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
+    _observer = observer;
+    return self;
+}
+
+- (void)onChanged:(id)state {
+    [_observer onOSSubscriptionChanged:state];
+}
+
+@end
+
 
 
 // Permission Start
@@ -311,6 +331,26 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
     [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
     
     [stateChanges.from persist];
+}
+
+@end
+
+// Maps generic onChanged observer to specific onOSPermissionChanged selector.
+@interface OSPermissionStateObserverWrapper : NSObject<OSObserver>
+- (instancetype)initWithOSPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
+@end
+
+@implementation OSPermissionStateObserverWrapper {
+    NSObject<OSPermissionObserver>* _observer;
+}
+
+- (instancetype)initWithOSPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
+    _observer = observer;
+    return self;
+}
+
+- (void)onChanged:(id)state {
+    [_observer onOSPermissionChanged:state];
 }
 
 @end
@@ -805,7 +845,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    [self.permissionStateChangesObserver addObserver:observer];
+    
+    id wrapperObserver = [[OSPermissionStateObserverWrapper alloc] initWithOSPermissionObserver:observer];
+    
+    [self.permissionStateChangesObserver addObserver:wrapperObserver];
     // TODO: Read previous values stored here. Compare and fire event right away if different.
 }
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
@@ -816,7 +859,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // onOSSubscriptionChanged should only fire if something changed.
 + (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
-    [self.subscriptionStateChangesObserver addObserver:observer];
+    id wrapperObserver = [[OSSubscriptionStateObserverWrapper alloc] initWithOSSubscriptionObserver:observer];
+    [self.subscriptionStateChangesObserver addObserver:wrapperObserver];
     // TODO: Read previous values stored here. Compare and fire event right away if different.
 }
 + (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {

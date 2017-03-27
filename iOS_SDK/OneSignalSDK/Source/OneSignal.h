@@ -206,7 +206,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 // TODO: Change public interface from to onOSPermissionChanged:
 @protocol OSPermissionObserver <NSObject>
-- (void)onChanged:(OSPermissionStateChanges*)stateChanges;
+- (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges;
 @end
 
 
@@ -231,7 +231,7 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 // TODO: Change public interface from to onOSSubscriptionChanged:
 @protocol OSSubscriptionObserver <NSObject>
-- (void)onChanged:(OSSubscriptionStateChanges*)stateChanges;
+- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
 @end
 
 
