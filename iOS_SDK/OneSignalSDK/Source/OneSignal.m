@@ -275,6 +275,7 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     _currentSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
+    _subscriptionStateChangesObserver = nil;
 }
 
 //Set to false as soon as it's read.

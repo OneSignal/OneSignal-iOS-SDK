@@ -644,6 +644,9 @@ static BOOL setupUIApplicationDelegate = false;
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     
+    lastOSPermissionStateChanges = nil;
+    lastOSSubscriptionStateChanges = nil;
+    
     [self beforeAllTest];
     
     // Uncomment to simulate slow travis-CI runs.
@@ -944,9 +947,7 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 1);
 }
 
-
-
-- (void)testPermissionChangeObserver {
+- (void)testPermissionChangeObserverBasic {
     [self setCurrentNotificationPermissionAsUnanwsered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -962,7 +963,10 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 
-- (void)testSubscriptionChangeObserver {
+// TODO: Add test when user press NO on permission prompt.
+
+
+- (void)testSubscriptionChangeObserverBasic {
     [self setCurrentNotificationPermissionAsUnanwsered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -982,6 +986,37 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(lastOSSubscriptionStateChanges.to.subscribed, false);
 }
 
+- (void)testSubscriptionChangeObserverDontFireWithOnlyPushToken {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [OneSignal addSubscriptionObserver:[OSSubscriptionStateTestObserver alloc]];
+    
+    XCTAssertNil(lastOSSubscriptionStateChanges);
+    
+    // Triggers the 30 fallback to register device right away.
+    [self runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    [self runBackgroundThreads];
+    
+    XCTAssertNil(lastOSSubscriptionStateChanges.from.userId);
+    XCTAssertEqualObjects(lastOSSubscriptionStateChanges.to.userId, @"1234");
+    
+    [OneSignal setSubscription:false];
+    
+    XCTAssertEqual(lastOSSubscriptionStateChanges.from.userSubscriptionSetting, true);
+    XCTAssertEqual(lastOSSubscriptionStateChanges.to.userSubscriptionSetting, false);
+    // Device registered with OneSignal so now make pushToken available.
+    XCTAssertEqualObjects(lastOSSubscriptionStateChanges.to.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
+    
+    XCTAssertEqual(lastOSSubscriptionStateChanges.from.subscribed, false);
+    XCTAssertEqual(lastOSSubscriptionStateChanges.to.subscribed, false);
+}
+
+
+// TODO: Permision changed from system Settings with app code restart.
 
 
 

@@ -30,12 +30,6 @@
 
 #import "AppDelegate.h"
 
-#import <OneSignal/OneSignal.h>
-
-@interface AppDelegate ()
-
-@end
-
 @implementation AppDelegate
 
 
@@ -50,7 +44,20 @@
     
     [OneSignal sendTag:@"someKey1122" value:@"03222017"];
     
+    [OneSignal addPermissionObserver:self];
+    [OneSignal addSubscriptionObserver:self];
+    
     return YES;
+}
+
+- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
+    NSLog(@"onOSSubscriptionChanged.to.subscribed: %d", stateChanges.to.subscribed);
+    NSLog(@"onOSSubscriptionChanged.to.userId: %@", stateChanges.to.userId);
+    NSLog(@"onOSSubscriptionChanged.to.pushToken: %@", stateChanges.to.pushToken);
+}
+
+- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
+    NSLog(@"onOSPermissionChanged: %@", stateChanges);
 }
 
 

@@ -29,8 +29,9 @@
 // This project exisits to make testing OneSignal SDK changes.
 
 #import <UIKit/UIKit.h>
+#import <OneSignal/OneSignal.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver>
 
 @property (strong, nonatomic) UIWindow *window;
 

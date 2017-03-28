@@ -134,7 +134,7 @@
 - (void)onChanged:(OSSubscriptionState*)state {
     OSSubscriptionStateChanges* stateChanges = [OSSubscriptionStateChanges alloc];
     stateChanges.from = OneSignal.lastSubscriptionState;
-    stateChanges.to = state;
+    stateChanges.to = [state copy];
     
     [OneSignal.subscriptionStateChangesObserver notifyChange:stateChanges];
     
@@ -153,7 +153,17 @@
     return self;
 }
 
-- (void)onChanged:(id)state {
+- (void)onChanged:(OSSubscriptionStateChanges*)state {
+    // Don't fire for pushToken that is autotmaticly retreived.
+    if (state.to.pushToken && !state.from.pushToken && !state.to.userId)
+        return;
+    
+    if (!state.to.userId)
+        state.to->_pushToken = nil;
+    
+    if (!state.from.userId)
+        state.from->_pushToken = nil;
+    
     [_observer onOSSubscriptionChanged:state];
 }
 
