@@ -952,7 +952,7 @@ static BOOL setupUIApplicationDelegate = false;
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
-    [OneSignal addPermissionObserver:[OSPermissionStateTestObserver alloc]];
+    [OneSignal addPermissionObserver:[OSPermissionStateTestObserver new]];
     [OneSignal registerForPushNotifications];
     [self anwserNotifiationPrompt:true];
     [self runBackgroundThreads];
@@ -1452,6 +1452,8 @@ static BOOL setupUIApplicationDelegate = false;
     [self initOneSignal];
     [self runBackgroundThreads];
     
+    [OneSignal addPermissionObserver:[OSPermissionStateTestObserver new]];
+    
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @0);
     XCTAssertNil(lastHTTPRequset[@"identifier"]);
     
@@ -1462,6 +1464,9 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @15);
     XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqual(networkRequestCount, 2);
+    
+    XCTAssertEqual(lastOSPermissionStateChanges.from.accepted, false);
+    XCTAssertEqual(lastOSPermissionStateChanges.to.accepted, true);
 }
 
 - (void) testOnSessionWhenResuming {

@@ -101,14 +101,13 @@
 - (void)onChanged:(OSPermissionState*)state;
 @end
 
-@interface OSSubscriptionStateInternal : OSSubscriptionState<OSPermissionStateObserver>
+@interface OSSubscriptionState () <OSPermissionStateObserver>
 
 @property (nonatomic) BOOL accpeted;
 
-
 - (void)setAccepted:(BOOL)inAccpeted;
 - (void)persistAsFrom;
-- (BOOL)compareWithFrom:(OSSubscriptionStateInternal*)from;
+- (BOOL)compareWithFrom:(OSSubscriptionState*)from;
 @end
 
 typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*> ObserablePermissionStateChangesType;
@@ -125,8 +124,8 @@ typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChang
 @property (class) OSPermissionState* lastPermissionState;
 @property (class) OSPermissionState* currentPermissionState;
 
-@property (class) OSSubscriptionStateInternal* lastSubscriptionState;
-@property (class) OSSubscriptionStateInternal* currentSubscriptionState;
+@property (class) OSSubscriptionState* lastSubscriptionState;
+@property (class) OSSubscriptionState* currentSubscriptionState;
 
 // Used to manage observers added by the app developer.
 @property (class) ObserablePermissionStateChangesType* permissionStateChangesObserver;

@@ -180,14 +180,14 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 // Permission Classes
 @interface OSPermissionState : NSObject
 
-@property (nonatomic, readonly) BOOL hasPrompted;
+@property (readonly, nonatomic) BOOL hasPrompted;
 
 // TODO: Combine has anwseredPrompt and accepted into enum
 //    Need to keep internal bools for backing however.
 //    Check with Swift. See what can be done without needing rawValue. Considering this to be a deal breaker due to crashings without it.
 //       This might be ok with a non-Int type Enum?
-@property (nonatomic, readonly) BOOL anwseredPrompt;
-@property (nonatomic, readonly) BOOL accepted;
+@property (readonly, nonatomic) BOOL anwseredPrompt;
+@property (readonly, nonatomic) BOOL accepted;
 
 @end
 
@@ -208,10 +208,10 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
-@property (nonatomic, readonly) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (nonatomic, readonly) BOOL userSubscriptionSetting; // returns setSubscription state.
-@property (nonatomic, readonly) NSString* userId;    // AKA OneSignal PlayerId
-@property (nonatomic, readonly) NSString* pushToken; // AKA Apple Device Token
+@property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (readonly, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (readonly, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
+@property (readonly, nonatomic) NSString* pushToken; // AKA Apple Device Token
 
 @end
 
@@ -227,7 +227,6 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @protocol OSSubscriptionObserver <NSObject>
 - (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
 @end
-
 
 
 
@@ -320,8 +319,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)deleteTags:(NSArray*)keys;
 + (void)deleteTagsWithJsonString:(NSString*)jsonString;
 
-// - Sends the MD5 and SHA1 of the provided email
 // Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
+// Sends as MD5 and SHA1 of the provided email
 + (void)syncHashedEmail:(NSString*)email;
 
 // - Subscription and Permissions

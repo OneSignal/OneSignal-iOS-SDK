@@ -113,18 +113,12 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 @end
 
 @protocol OSSubscriptionStateObserver
--(void)onChanged:(OSSubscriptionStateInternal*)state;
+-(void)onChanged:(OSSubscriptionState*)state;
 @end
 
-typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionStateInternal*> ObserableSubscriptionStateType;
+typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState*> ObserableSubscriptionStateType;
 
-
-// Abstract class
-@implementation OSSubscriptionState
-@end
-
-
-@implementation OSSubscriptionStateInternal {
+@implementation OSSubscriptionState {
     ObserableSubscriptionStateType* _observable;
 }
 
@@ -145,7 +139,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
     return self;
 }
 
-- (BOOL)compareWithFrom:(OSSubscriptionStateInternal*)from {
+- (BOOL)compareWithFrom:(OSSubscriptionState*)from {
     return self.userId != from.userId ||
     self.pushToken != from.pushToken ||
     self.userSubscriptionSetting != from.userSubscriptionSetting ||
@@ -175,7 +169,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 }
 
 - (instancetype)copyWithZone:(NSZone*)zone {
-    OSSubscriptionStateInternal* copy = [[[self class] alloc] init];
+    OSSubscriptionState* copy = [[[self class] alloc] init];
     
     if (copy) {
         copy->_userId = [_userId copy];
@@ -232,7 +226,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 
 @implementation OSSubscriptionChangedInternalObserver
 
-- (void)onChanged:(OSSubscriptionStateInternal*)state {
+- (void)onChanged:(OSSubscriptionState*)state {
     OSSubscriptionStateChanges* stateChanges = [OSSubscriptionStateChanges alloc];
     stateChanges.from = OneSignal.lastSubscriptionState;
     stateChanges.to = state;
@@ -307,6 +301,20 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
     [userDefaults synchronize];
 }
 
+
+- (instancetype)copyWithZone:(NSZone*)zone {
+    OSPermissionState* copy = [[[self class] alloc] init];
+    
+    if (copy) {
+        copy->_hasPrompted = _hasPrompted;
+        copy->_anwseredPrompt = _anwseredPrompt;
+        copy->_accepted = _accepted;
+    }
+    
+    return copy;
+}
+
+
 - (BOOL)hasPrompted {
     // If we know they anwsered turned notificaitons on then were prompted at some point.
     if (self.anwseredPrompt) // self. triggers getter
@@ -351,6 +359,9 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
     stateChanges.to = state;
     
     [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
+    
+    
+    OneSignal.lastPermissionState = [state copy];
     
     [OneSignal.lastPermissionState persistAsFrom];
 }
@@ -464,7 +475,6 @@ static int mSubscriptionStatus = -1;
 
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
-BOOL mSubscriptionSet;
 BOOL mShareLocation = YES;
 
 void (^subscriptionChangedCallback)(OSSubscriptionStateChanges* subscriptionStatus);
@@ -492,7 +502,7 @@ static OSPermissionState* _currentPermissionState;
     if (!_currentPermissionState) {
         _currentPermissionState = [OSPermissionState alloc];
         _currentPermissionState = [_currentPermissionState initAsTo];
-        self.lastPermissionState; // Trigger creation
+        [self lastPermissionState]; // Trigger creation
         [_currentPermissionState.observable addObserver:[OSPermissionChangedInternalObserver alloc]];
     }
     return _currentPermissionState;
@@ -501,18 +511,20 @@ static OSPermissionState* _currentPermissionState;
 // static property def for previous OSSubscriptionState
 static OSPermissionState* _lastPermissionState;
 + (OSPermissionState*)lastPermissionState {
-    if (!_lastPermissionState) {
+    if (!_lastPermissionState)
         _lastPermissionState = [[OSPermissionState alloc] initAsFrom];
-    }
     return _lastPermissionState;
+}
++ (void)setLastPermissionState:(OSPermissionState *)lastPermissionState {
+    _lastPermissionState = lastPermissionState;
 }
 
 
 // static property def for current OSSubscriptionState
-static OSSubscriptionStateInternal* _currentSubscriptionState;
-+ (OSSubscriptionStateInternal*)currentSubscriptionState {
+static OSSubscriptionState* _currentSubscriptionState;
++ (OSSubscriptionState*)currentSubscriptionState {
     if (!_currentSubscriptionState) {
-        _currentSubscriptionState = [OSSubscriptionStateInternal alloc];
+        _currentSubscriptionState = [OSSubscriptionState alloc];
         _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:self.currentPermissionState.accepted];
         [self.currentPermissionState.observable addObserver:_currentSubscriptionState];
         [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
@@ -520,15 +532,15 @@ static OSSubscriptionStateInternal* _currentSubscriptionState;
     return _currentSubscriptionState;
 }
 
-static OSSubscriptionStateInternal* _lastSubscriptionState;
-+ (OSSubscriptionStateInternal*)lastSubscriptionState {
+static OSSubscriptionState* _lastSubscriptionState;
++ (OSSubscriptionState*)lastSubscriptionState {
     if (!_lastSubscriptionState) {
-        _lastSubscriptionState = [OSSubscriptionStateInternal alloc];
+        _lastSubscriptionState = [OSSubscriptionState alloc];
         _lastSubscriptionState = [_lastSubscriptionState initAsFrom];
     }
     return _lastSubscriptionState;
 }
-+ (void)setLastSubscriptionState:(OSSubscriptionStateInternal*)lastSubscriptionState {
++ (void)setLastSubscriptionState:(OSSubscriptionState*)lastSubscriptionState {
     _lastSubscriptionState = lastSubscriptionState;
 }
 

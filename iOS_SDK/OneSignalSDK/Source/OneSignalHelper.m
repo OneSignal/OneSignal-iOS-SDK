@@ -105,6 +105,7 @@
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:url];
     
     DirectDownloadDelegate* delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
+    // TODO: Try cleaning up warning with connectionWithRequest
     [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
     
     while ([delegate isDone] == NO) {
