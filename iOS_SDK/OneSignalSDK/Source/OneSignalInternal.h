@@ -49,7 +49,6 @@
 
 
 @interface OneSignal (OneSignalInternal)
-+ (NSString*)getDeviceToken;
 + (void)updateNotificationTypes:(int)notificationTypes;
 + (BOOL)registerForAPNsToken;
 + (void)setWaitingForApnsResponse:(BOOL)value;

@@ -63,12 +63,12 @@ static dispatch_queue_t serialQueue;
     // NOTE2: Apple runs the callback on a background serial queue
     dispatch_async(serialQueue, ^{
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
+            NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
             OSPermissionState* status = OneSignal.currentPermissionState;
             
-            NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-            status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-            status.anwseredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized;
+            status.anwseredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
+            status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
                                      + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
@@ -108,8 +108,8 @@ static dispatch_queue_t serialQueue;
     id responseBlock = ^(BOOL granted, NSError* error) {
         // Run callback on main / UI thread
         [OneSignalHelper dispatch_async_on_main_queue: ^{
-            OneSignal.currentPermissionState.anwseredPrompt = true;
             OneSignal.currentPermissionState.accepted = granted;
+            OneSignal.currentPermissionState.anwseredPrompt = true;
             [OneSignal updateNotificationTypes: granted ? 15 : 0];
             if (completionHandler)
                 completionHandler(granted);

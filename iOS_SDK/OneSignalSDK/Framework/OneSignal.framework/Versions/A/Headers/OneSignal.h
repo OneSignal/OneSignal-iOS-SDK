@@ -55,7 +55,7 @@
 typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
     OSNotificationActionTypeOpened,
     OSNotificationActionTypeActionTaken
-} ;
+};
 
 /* The way a notification was displayed to the user */
 typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
@@ -67,7 +67,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     
     /*iOS native notification display*/
     OSNotificationDisplayTypeNotification
-} ;
+};
 
 
 
@@ -181,11 +181,6 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @interface OSPermissionState : NSObject
 
 @property (readonly, nonatomic) BOOL hasPrompted;
-
-// TODO: Combine has anwseredPrompt and accepted into enum
-//    Need to keep internal bools for backing however.
-//    Check with Swift. See what can be done without needing rawValue. Considering this to be a deal breaker due to crashings without it.
-//       This might be ok with a non-Int type Enum?
 @property (readonly, nonatomic) BOOL anwseredPrompt;
 @property (readonly, nonatomic) BOOL accepted;
 

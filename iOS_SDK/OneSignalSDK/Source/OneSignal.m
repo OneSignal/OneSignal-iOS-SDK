@@ -211,20 +211,18 @@ static OSSubscriptionState* _lastSubscriptionState;
 static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
 + (ObserablePermissionStateChangesType*)permissionStateChangesObserver {
     if (!_permissionStateChangesObserver)
-        _permissionStateChangesObserver = [[OSObservable alloc] init];
+        _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
 }
-
-
 
 static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
 + (ObserableSubscriptionStateChangesType*)subscriptionStateChangesObserver {
     if (!_subscriptionStateChangesObserver)
-        _subscriptionStateChangesObserver = [[OSObservable alloc] init];
+        _subscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSSubscriptionChanged:)];
     return _subscriptionStateChangesObserver;
 }
 
-+ (void) setMSubscriptionStatus:(NSNumber*)status {
++ (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
     
@@ -252,12 +250,8 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     return self.currentSubscriptionState.userId;
 }
 
-+ (void) setMSDKType:(NSString*)type {
++ (void)setMSDKType:(NSString*)type {
     mSDKType = type;
-}
-
-+ (NSString*)getDeviceToken {
-    return self.currentSubscriptionState.pushToken;
 }
 
 + (void) setWaitingForApnsResponse:(BOOL)value {
@@ -278,7 +272,7 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     _subscriptionStateChangesObserver = nil;
 }
 
-//Set to false as soon as it's read.
+// Set to false as soon as it's read.
 + (BOOL)coldStartFromTapOnNotification {
     BOOL val = coldStartFromTapOnNotification;
     coldStartFromTapOnNotification = NO;
@@ -532,8 +526,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    id wrapperObserver = [[OSPermissionStateObserverWrapper alloc] initWithOSPermissionObserver:observer];
-    [self.permissionStateChangesObserver addObserver:wrapperObserver];
+   // id wrapperObserver = [[OSPermissionStateObserverWrapper alloc] initWithOSPermissionObserver:observer];
+   // [self.permissionStateChangesObserver addObserver:wrapperObserver];
+    
+    [self.permissionStateChangesObserver addObserver:observer];
+    
     // TODO: Read previous values stored here. Compare and fire event right away if different.
 }
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
@@ -543,8 +540,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // onOSSubscriptionChanged should only fire if something changed.
 + (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
-    id wrapperObserver = [[OSSubscriptionStateObserverWrapper alloc] initWithOSSubscriptionObserver:observer];
-    [self.subscriptionStateChangesObserver addObserver:wrapperObserver];
+    [self.subscriptionStateChangesObserver addObserver:observer];
+    
     // TODO: Read previous values stored here. Compare and fire event right away if different.
 }
 + (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {

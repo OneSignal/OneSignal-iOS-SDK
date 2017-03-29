@@ -51,13 +51,12 @@
 }
 
 - (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-    NSLog(@"onOSSubscriptionChanged.to.subscribed: %d", stateChanges.to.subscribed);
-    NSLog(@"onOSSubscriptionChanged.to.userId: %@", stateChanges.to.userId);
-    NSLog(@"onOSSubscriptionChanged.to.pushToken: %@", stateChanges.to.pushToken);
+    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
 }
 
 - (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
     NSLog(@"onOSPermissionChanged: %@", stateChanges);
+    NSLog(@"HERE");
 }
 
 

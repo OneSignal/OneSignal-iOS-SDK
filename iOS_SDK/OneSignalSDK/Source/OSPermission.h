@@ -28,12 +28,10 @@
 #import <Foundation/Foundation.h>
 
 #import "OneSignal.h"
-
 #import "OSObservable.h"
 
 // Redefines are done so we can make properites writeable and backed internal variables accesiable to the SDK.
-// Basicly the C# equivlent of a public gettter with an internal settter.
-
+// Basicly the C# equivlent of a public gettter with an internal/protected settter.
 
 @protocol OSPermissionStateObserver<NSObject>
 - (void)onChanged:(OSPermissionState*)state;
@@ -43,8 +41,10 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 
 
 // Redefine OSPermissionState
-@interface OSPermissionState ()
-
+@interface OSPermissionState () {
+@protected BOOL _hasPrompted;
+@protected BOOL _anwseredPrompt;
+}
 @property (readwrite, nonatomic) BOOL hasPrompted;
 @property (readwrite, nonatomic) BOOL anwseredPrompt;
 @property (readwrite, nonatomic) BOOL accepted;
@@ -73,10 +73,6 @@ typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*>
 
 
 @interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>
-@end
-
-@interface OSPermissionStateObserverWrapper : NSObject<OSObserver>
-- (instancetype)initWithOSPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 @end
 
 @interface OneSignal (PermissionAdditions)

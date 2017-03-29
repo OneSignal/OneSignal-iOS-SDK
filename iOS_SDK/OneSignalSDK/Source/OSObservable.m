@@ -30,15 +30,23 @@
 
 @implementation OSObservable {
 NSHashTable* observers;
+SEL changeSelector;
+}
+
+- (instancetype)initWithChangeSelector:(SEL)selector {
+    if (self = [super init]) {
+        observers = [NSHashTable weakObjectsHashTable];
+        changeSelector = selector;
+    }
+    return self;
 }
 
 - (instancetype)init {
     if (self = [super init])
-        observers = [[NSHashTable alloc] init];
+        observers = [NSHashTable new];
     return self;
 }
 
-// TODO: Add setting to fire last onChanged on add
 - (void)addObserver:(id)observer {
     [observers addObject:observer];
 }
@@ -47,14 +55,22 @@ NSHashTable* observers;
     [observers removeObject:observer];
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 - (BOOL)notifyChange:(id)state {
     BOOL fired = false;
      for (id observer in observers) {
          fired = true;
-         [observer onChanged:state];
+         if (changeSelector)
+             [observer performSelector:changeSelector withObject:state];
+         else
+             [observer onChanged:state];
      }
     
     return fired;
 }
+
+#pragma clang diagnostic pop
 
 @end

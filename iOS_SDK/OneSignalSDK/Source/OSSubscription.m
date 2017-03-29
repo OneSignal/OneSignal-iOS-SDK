@@ -47,11 +47,11 @@
     return self;
 }
 
-- (BOOL)compareWithFrom:(OSSubscriptionState*)from {
+- (BOOL)compare:(OSSubscriptionState*)from {
     return self.userId != from.userId ||
-    self.pushToken != from.pushToken ||
-    self.userSubscriptionSetting != from.userSubscriptionSetting ||
-    self.accpeted != from.accpeted;
+           self.pushToken != from.pushToken ||
+           self.userSubscriptionSetting != from.userSubscriptionSetting ||
+           self.accpeted != from.accpeted;
 }
 
 - (instancetype)initAsFrom {
@@ -126,6 +126,11 @@
     return _userId && _pushToken && _userSubscriptionSetting && _accpeted;
 }
 
+- (NSString*)description {
+    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d>";
+    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed];
+}
+
 @end
 
 
@@ -144,31 +149,10 @@
 
 @end
 
-@implementation OSSubscriptionStateObserverWrapper {
-    NSObject<OSSubscriptionObserver>* _observer;
-}
-
-- (instancetype)initWithOSSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
-    _observer = observer;
-    return self;
-}
-
-- (void)onChanged:(OSSubscriptionStateChanges*)state {
-    // Don't fire for pushToken that is autotmaticly retreived.
-    if (state.to.pushToken && !state.from.pushToken && !state.to.userId)
-        return;
-    
-    if (!state.to.userId)
-        state.to->_pushToken = nil;
-    
-    if (!state.from.userId)
-        state.from->_pushToken = nil;
-    
-    [_observer onOSSubscriptionChanged:state];
-}
-
-@end
-
-
 @implementation OSSubscriptionStateChanges
+
+- (NSString*)description {
+    static NSString* format = @"<OSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
+    return [NSString stringWithFormat:format, _from, _to];
+}
 @end

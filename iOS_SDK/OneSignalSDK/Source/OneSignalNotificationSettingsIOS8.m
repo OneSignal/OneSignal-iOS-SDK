@@ -38,13 +38,13 @@
 }
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     OSPermissionState *status = [OSPermissionState alloc];
     
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-    status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     status.notificationTypes = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
     status.accepted = status.notificationTypes > 0;
+    status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
     
     completionHandler(status);
 }

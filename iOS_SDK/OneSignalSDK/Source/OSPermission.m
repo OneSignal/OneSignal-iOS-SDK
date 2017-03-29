@@ -33,7 +33,7 @@
 
 - (ObserablePermissionStateType*)observable {
     if (!_observable)
-        _observable = [[OSObservable alloc] init];
+        _observable = [OSObservable new];
     return _observable;
 }
 
@@ -65,7 +65,7 @@
 
 
 - (instancetype)copyWithZone:(NSZone*)zone {
-    OSPermissionState* copy = [[[self class] alloc] init];
+    OSPermissionState* copy = [[self class] new];
     
     if (copy) {
         copy->_hasPrompted = _hasPrompted;
@@ -76,12 +76,25 @@
     return copy;
 }
 
+- (void)setHasPrompted:(BOOL)inHasPrompted {
+    BOOL last = self.hasPrompted;
+    _hasPrompted = inHasPrompted;
+    if (last != self.hasPrompted)
+        [self.observable notifyChange:self];
+}
 
 - (BOOL)hasPrompted {
     // If we know they anwsered turned notificaitons on then were prompted at some point.
     if (self.anwseredPrompt) // self. triggers getter
         return true;
     return _hasPrompted;
+}
+
+- (void)setAnwseredPrompt:(BOOL)inAnwseredPrompt {
+    BOOL last = self.anwseredPrompt;
+    _anwseredPrompt = inAnwseredPrompt;
+    if (last != self.anwseredPrompt)
+        [self.observable notifyChange:self];
 }
 
 - (BOOL)anwseredPrompt {
@@ -98,10 +111,19 @@
         [self.observable notifyChange:self];
 }
 
+- (NSString*)description {
+    static NSString* format = @"<OSPermissionState: hasPrompted: %d, anwseredPrompt: %d, accepted: %d>";
+    return [NSString stringWithFormat:format, self.hasPrompted, self.anwseredPrompt, self.accepted];
+}
+
 @end
 
 
 @implementation OSPermissionStateChanges
+- (NSString*)description {
+    static NSString* format = @"<OSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
+    return [NSString stringWithFormat:format, _from, _to];
+}
 @end
 
 
@@ -114,26 +136,9 @@
     
     [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
     
-    
     OneSignal.lastPermissionState = [state copy];
     
     [OneSignal.lastPermissionState persistAsFrom];
-}
-
-@end
-
-
-@implementation OSPermissionStateObserverWrapper {
-    NSObject<OSPermissionObserver>* _observer;
-}
-
-- (instancetype)initWithOSPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    _observer = observer;
-    return self;
-}
-
-- (void)onChanged:(id)state {
-    [_observer onOSPermissionChanged:state];
 }
 
 @end

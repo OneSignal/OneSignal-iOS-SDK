@@ -46,7 +46,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @interface OSSubscriptionState () {
 @protected BOOL _userSubscriptionSetting;
 @protected NSString* _userId;
-@package NSString* _pushToken;
+@protected NSString* _pushToken;
 }
 
 // @property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
@@ -61,6 +61,16 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @end
 
 
+// Redefine OSSubscriptionState
+@interface OSSubscriptionState () <OSPermissionStateObserver>
+
+@property (nonatomic) BOOL accpeted;
+
+- (void)setAccepted:(BOOL)inAccpeted;
+- (void)persistAsFrom;
+- (BOOL)compare:(OSSubscriptionState*)from;
+@end
+
 // Redefine OSSubscriptionStateChanges
 @interface OSSubscriptionStateChanges ()
 
@@ -71,24 +81,11 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 
 @end
 
-@interface OSSubscriptionState () <OSPermissionStateObserver>
-
-@property (nonatomic) BOOL accpeted;
-
-- (void)setAccepted:(BOOL)inAccpeted;
-- (void)persistAsFrom;
-- (BOOL)compareWithFrom:(OSSubscriptionState*)from;
-@end
 
 typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChanges*> ObserableSubscriptionStateChangesType;
 
 
 @interface OSSubscriptionChangedInternalObserver : NSObject<OSSubscriptionStateObserver>
-@end
-
-// Maps generic onChanged observer to specific onOSSubscriptionChanged selector.
-@interface OSSubscriptionStateObserverWrapper : NSObject<OSObserver>
-- (instancetype)initWithOSSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
 @end
 
 @interface OneSignal (SubscriptionAdditions)
