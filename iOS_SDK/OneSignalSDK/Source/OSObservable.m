@@ -28,6 +28,8 @@
 #import <Foundation/Foundation.h>
 #import "OSObservable.h"
 
+#import "OneSignalHelper.h"
+
 @implementation OSObservable {
 NSHashTable* observers;
 SEL changeSelector;
@@ -62,8 +64,14 @@ SEL changeSelector;
     BOOL fired = false;
      for (id observer in observers) {
          fired = true;
-         if (changeSelector)
-             [observer performSelector:changeSelector withObject:state];
+         if (changeSelector) {
+             // Any Obserable setup to fire a custom selector with changeSelector
+             //  is external to our SDK. Run on the main thread in case the
+             //  app developer needs to update UI elements.
+             [OneSignalHelper dispatch_async_on_main_queue: ^{
+                 [observer performSelector:changeSelector withObject:state];
+             }];
+         }
          else
              [observer onChanged:state];
      }

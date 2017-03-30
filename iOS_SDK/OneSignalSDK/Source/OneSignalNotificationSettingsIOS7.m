@@ -40,7 +40,7 @@
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    OSPermissionState *status = [OSPermissionState alloc];
+    OSPermissionState* status = OneSignal.currentPermissionState;
     
     status.notificationTypes = [self getNotificationTypes];
     status.accepted = status.notificationTypes > 0;
@@ -86,6 +86,9 @@
         notificationPromptReponseCallback(success);
         notificationPromptReponseCallback = nil;
     }
+    
+    OneSignal.currentPermissionState.accepted = success;
+    OneSignal.currentPermissionState.anwseredPrompt = true;
 }
 
 

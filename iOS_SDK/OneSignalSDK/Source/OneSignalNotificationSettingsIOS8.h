@@ -30,6 +30,7 @@
 
 #import "OneSignalNotificationSettings.h"
 
+// Used for iOS 9 & 8
 @interface OneSignalNotificationSettingsIOS8 : NSObject <OneSignalNotificationSettings>
 
 @end

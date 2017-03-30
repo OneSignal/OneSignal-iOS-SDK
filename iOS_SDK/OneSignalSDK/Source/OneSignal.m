@@ -605,6 +605,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendTagsToServer) object:nil];
     
     // Can't send tags yet as their isn't a player_id.
+    //   tagsToSend will be sent with the POST create player call later in this case.
     if (self.currentSubscriptionState.userId)
         [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
 }

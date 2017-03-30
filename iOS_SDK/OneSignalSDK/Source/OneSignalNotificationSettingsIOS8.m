@@ -39,7 +39,7 @@
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    OSPermissionState *status = [OSPermissionState alloc];
+    OSPermissionState* status = OneSignal.currentPermissionState;
     
     status.notificationTypes = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
     status.accepted = status.notificationTypes > 0;
@@ -77,10 +77,15 @@
 }
 
 - (void)onNotificationPromptResponse:(int)notificationTypes {
+    BOOL accepted = notificationTypes > 0;
+    
     if (notificationPromptReponseCallback) {
-        notificationPromptReponseCallback(notificationTypes > 0);
+        notificationPromptReponseCallback(accepted);
         notificationPromptReponseCallback = nil;
     }
+    
+    OneSignal.currentPermissionState.accepted = accepted;
+    OneSignal.currentPermissionState.anwseredPrompt = true;
 }
 
 // Only iOS 7 - The above is used for iOS 8 & 9

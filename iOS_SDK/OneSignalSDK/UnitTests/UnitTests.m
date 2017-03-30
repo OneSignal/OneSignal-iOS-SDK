@@ -445,7 +445,9 @@ static BOOL shouldFireDeviceToken;
 
 // iOS 7
 - (void)overrideRegisterForRemoteNotificationTypes:(UIRemoteNotificationType)types {
-   [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
+    // Just using this flag to mimic the non-prompted behavoir
+    if (authorizationStatus != [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined])
+          [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
 
 
@@ -997,7 +999,20 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 1);
 }
 
-- (void)testPermissionChangeObserver {
+- (void)testPermissionChangeObserverIOS10 {
+    mockIOSVersion = 10;
+    [self sharedTestPermissionChangeObserver];
+}
+- (void)testPermissionChangeObserverIOS8 {
+    mockIOSVersion = 8;
+    [self sharedTestPermissionChangeObserver];
+}
+- (void)testPermissionChangeObserverIOS7 {
+    mockIOSVersion = 7;
+    [self sharedTestPermissionChangeObserver];
+}
+- (void)sharedTestPermissionChangeObserver {
+    
     [self setCurrentNotificationPermissionAsUnanwsered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -1007,6 +1022,8 @@ static BOOL setupUIApplicationDelegate = false;
     [OneSignal addPermissionObserver:observer];
     
     [self registerForPushNotifications];
+    [self runBackgroundThreads];
+    
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.anwseredPrompt, false);
     XCTAssertEqual(observer->last.to.hasPrompted, true);
@@ -1033,6 +1050,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
+    [self runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.anwseredPrompt, false);
@@ -1058,6 +1076,8 @@ static BOOL setupUIApplicationDelegate = false;
     // Added Observer should be notified of the change right away.
     observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
+    [self runBackgroundThreads];
+    
     XCTAssertEqual(observer->last.from.accepted, true);
     XCTAssertEqual(observer->last.to.accepted, false);
 }
@@ -1075,6 +1095,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
+    [self runBackgroundThreads];
 
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.anwseredPrompt, false);
@@ -1088,6 +1109,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
+    [self runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.subscribed, false);
     XCTAssertEqual(observer->last.to.subscribed, true);
@@ -1111,6 +1133,8 @@ static BOOL setupUIApplicationDelegate = false;
     // Added Observer should be notified of the change right away.
     observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
+    [self runBackgroundThreads];
+    
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
 }
@@ -1127,11 +1151,12 @@ static BOOL setupUIApplicationDelegate = false;
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
     
-    
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
                           completionHandler:^(BOOL granted, NSError* error) {}];
     [self backgroundApp];
+    [self runBackgroundThreads];
+    
     XCTAssertEqual(observer->fireCount, 1);
     XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 0, anwseredPrompt: 0, accepted: 0>,\nto:   <OSPermissionState: hasPrompted: 1, anwseredPrompt: 0, accepted: 0>\n>");
     
