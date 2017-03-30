@@ -57,6 +57,8 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 - (instancetype)initAsTo;
 - (instancetype)initAsFrom;
 
+- (BOOL)compare:(OSPermissionState*)from;
+
 @end
 
 // Redefine OSPermissionStateChanges
@@ -73,6 +75,7 @@ typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*>
 
 
 @interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>
++ (void)fireChangesObserver:(OSPermissionState*)state;
 @end
 
 @interface OneSignal (PermissionAdditions)

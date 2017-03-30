@@ -117,6 +117,12 @@
         [self.observable notifyChange:self];
 }
 
+- (BOOL)compare:(OSPermissionState*)from {
+    return self.accepted != from.accepted ||
+           self.anwseredPrompt != from.anwseredPrompt ||
+           self.hasPrompted != from.hasPrompted;
+}
+
 - (NSString*)description {
     static NSString* format = @"<OSPermissionState: hasPrompted: %d, anwseredPrompt: %d, accepted: %d>";
     return [NSString stringWithFormat:format, self.hasPrompted, self.anwseredPrompt, self.accepted];
@@ -125,26 +131,29 @@
 @end
 
 
+@implementation OSPermissionChangedInternalObserver
+
+- (void)onChanged:(OSPermissionState*)state {
+    [OSPermissionChangedInternalObserver fireChangesObserver:state];
+}
+
++ (void)fireChangesObserver:(OSPermissionState*)state  {
+    OSPermissionStateChanges* stateChanges = [OSPermissionStateChanges alloc];
+    stateChanges.from = OneSignal.lastPermissionState;
+    stateChanges.to = [state copy];
+    
+    BOOL hasReceiver = [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
+    if (hasReceiver) {
+        OneSignal.lastPermissionState = [state copy];
+        [OneSignal.lastPermissionState persistAsFrom];
+    }
+}
+
+@end
+
 @implementation OSPermissionStateChanges
 - (NSString*)description {
     static NSString* format = @"<OSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
     return [NSString stringWithFormat:format, _from, _to];
 }
-@end
-
-
-@implementation OSPermissionChangedInternalObserver
-
-- (void)onChanged:(OSPermissionState*)state {
-    OSPermissionStateChanges* stateChanges = [OSPermissionStateChanges alloc];
-    stateChanges.from = OneSignal.lastPermissionState;
-    stateChanges.to = state;
-    
-    [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
-    
-    OneSignal.lastPermissionState = [state copy];
-    
-    [OneSignal.lastPermissionState persistAsFrom];
-}
-
 @end

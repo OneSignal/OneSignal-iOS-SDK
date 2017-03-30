@@ -523,12 +523,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-   // id wrapperObserver = [[OSPermissionStateObserverWrapper alloc] initWithOSPermissionObserver:observer];
-   // [self.permissionStateChangesObserver addObserver:wrapperObserver];
-    
     [self.permissionStateChangesObserver addObserver:observer];
     
-    // TODO: Read previous values stored here. Compare and fire event right away if different.
+    if ([self.currentPermissionState compare:self.lastPermissionState])
+        [OSPermissionChangedInternalObserver fireChangesObserver:self.currentPermissionState];
 }
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver removeObserver:observer];
@@ -539,7 +537,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
     [self.subscriptionStateChangesObserver addObserver:observer];
     
-    // TODO: Read previous values stored here. Compare and fire event right away if different.
+    if ([self.currentSubscriptionState compare:self.lastSubscriptionState])
+        [OSSubscriptionChangedInternalObserver fireChangesObserver:self.currentSubscriptionState];
 }
 + (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
     [self.subscriptionStateChangesObserver removeObserver:observer];

@@ -48,8 +48,8 @@
 }
 
 - (BOOL)compare:(OSSubscriptionState*)from {
-    return self.userId != from.userId ||
-           self.pushToken != from.pushToken ||
+    return ![self.userId ?: @"" isEqualToString:from.userId ?: @""] ||
+           ![self.pushToken ?: @"" isEqualToString:from.pushToken ?: @""] ||
            self.userSubscriptionSetting != from.userSubscriptionSetting ||
            self.accpeted != from.accpeted;
 }
@@ -59,7 +59,7 @@
     
     _userId = [userDefaults stringForKey:@"GT_PLAYER_ID_LAST"];
     _pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN_LAST"];
-    _userSubscriptionSetting = [userDefaults boolForKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
+    _userSubscriptionSetting = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION_LAST"] == nil;
     _accpeted = [userDefaults boolForKey:@"ONESIGNAL_PERMISSION_ACCEPTED_LAST"];
     
     return self;
@@ -68,9 +68,13 @@
 - (void)persistAsFrom {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
+    NSString* strUserSubscriptionSetting = nil;
+    if (!_userSubscriptionSetting)
+        strUserSubscriptionSetting = @"no";
+    [userDefaults setObject:strUserSubscriptionSetting forKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
+    
     [userDefaults setObject:_userId forKey:@"GT_PLAYER_ID_LAST"];
     [userDefaults setObject:_pushToken forKey:@"GT_DEVICE_TOKEN_LAST"];
-    [userDefaults setBool:_userSubscriptionSetting forKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
     [userDefaults setBool:_accpeted forKey:@"ONESIGNAL_PERMISSION_ACCEPTED_LAST"];
     
     [userDefaults synchronize];
@@ -137,20 +141,24 @@
 @implementation OSSubscriptionChangedInternalObserver
 
 - (void)onChanged:(OSSubscriptionState*)state {
+    [OSSubscriptionChangedInternalObserver fireChangesObserver:state];
+}
+
++ (void)fireChangesObserver:(OSSubscriptionState*)state {
     OSSubscriptionStateChanges* stateChanges = [OSSubscriptionStateChanges alloc];
     stateChanges.from = OneSignal.lastSubscriptionState;
     stateChanges.to = [state copy];
     
-    [OneSignal.subscriptionStateChangesObserver notifyChange:stateChanges];
-    
-    OneSignal.lastSubscriptionState = [state copy];
-    [OneSignal.lastSubscriptionState persistAsFrom];
+    BOOL hasReceiver = [OneSignal.subscriptionStateChangesObserver notifyChange:stateChanges];
+    if (hasReceiver) {
+        OneSignal.lastSubscriptionState = [state copy];
+        [OneSignal.lastSubscriptionState persistAsFrom];
+    }
 }
 
 @end
 
 @implementation OSSubscriptionStateChanges
-
 - (NSString*)description {
     static NSString* format = @"<OSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
     return [NSString stringWithFormat:format, _from, _to];

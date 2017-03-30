@@ -86,6 +86,7 @@ typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChang
 
 
 @interface OSSubscriptionChangedInternalObserver : NSObject<OSSubscriptionStateObserver>
++ (void)fireChangesObserver:(OSSubscriptionState*)state;
 @end
 
 @interface OneSignal (SubscriptionAdditions)

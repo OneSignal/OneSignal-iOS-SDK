@@ -563,12 +563,9 @@ static NSArray* preferredLanguagesArray;
 }
 
 - (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"!!!!!!!!!!!!TEST onOSPermissionChanged Ran-----------------$$$$$$$$$$$$$$$$$$$$$$$$$$:\n%@", stateChanges);
+    NSLog(@"UnitTest:onOSPermissionChanged :\n%@", stateChanges);
     last = stateChanges;
     fireCount++;
-}
-- (void)someSelector:(NSObject*)test {
-    
 }
 
 @end
@@ -582,6 +579,7 @@ static NSArray* preferredLanguagesArray;
     @package int fireCount;
 }
 - (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
+    NSLog(@"UnitTest:onOSSubscriptionChanged:\n%@", stateChanges);
     last = stateChanges;
     fireCount++;
 }
@@ -617,16 +615,7 @@ static BOOL setupUIApplicationDelegate = false;
     mockIOSVersion = 10;
 }
 
-// Called before each test.
-- (void)setUp {
-    [super setUp];
-    
-    currentTestInstance = self;
-    
-    mockIOSVersion = 10;
-    
-    [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
-    
+- (void)clearStateForAppRestart {
     timeOffset = 0;
     networkRequestCount = 0;
     lastUrl = nil;
@@ -646,14 +635,12 @@ static BOOL setupUIApplicationDelegate = false;
     
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
     
-    notifTypesOverride = 7;
-    authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     
     shouldFireDeviceToken = true;
     calledRegisterForRemoteNotifications = false;
     calledCurrentUserNotificationSettings = false;
     didFailRegistarationErrorCode = 0;
-    nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
+    
     
     instantRunPerformSelectorAfterDelay = false;
     selectorNamesForInstantOnlyForFirstRun = [@[] mutableCopy];
@@ -661,9 +648,31 @@ static BOOL setupUIApplicationDelegate = false;
     
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
-    [NSUserDefaultsOverrider clearInternalDictionary];
+    
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+}
+
+// Called before each test.
+- (void)setUp {
+    [super setUp];
+    
+    currentTestInstance = self;
+    
+    mockIOSVersion = 10;
+    
+    [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
+    
+    notifTypesOverride = 7;
+    authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+    
+    nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
+    
+    [NSUserDefaultsOverrider clearInternalDictionary];
+    
+    
+    [self clearStateForAppRestart];
+
     
     [self beforeAllTest];
     
@@ -706,8 +715,6 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 - (void)anwserNotifiationPrompt:(BOOL)accept {
-    // TODO: Not sure if this happens before or after the above on a real device.
-    
     // iOS 10.2.1 Real device obserserved sequence of events:
     //   1. Call requestAuthorizationWithOptions to prompt for notifications.
     ///  2. App goes out of focus when the prompt is shown.
@@ -1020,7 +1027,96 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 
-// TODO: Will need to swizzle requestAuthorizationWithOptions to ensure this don't fire 2 events and create this iOS bug.
+- (void)testPermissionChangeObserverWhenAlreadyAccepted {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    
+    XCTAssertEqual(observer->last.from.hasPrompted, false);
+    XCTAssertEqual(observer->last.from.anwseredPrompt, false);
+    XCTAssertEqual(observer->last.from.accepted, false);
+    XCTAssertEqual(observer->last.to.accepted, true);
+    XCTAssertEqual(observer->fireCount, 1);
+}
+
+- (void)testPermissionChangeObserverFireAfterAppRestart {
+    // Setup app as accepted.
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    
+    
+    // User kills app, turns off notifications, then opnes it agian.
+    [self clearStateForAppRestart];
+    [self setCurrentNotificationPermission:false];
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    // Added Observer should be notified of the change right away.
+    observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    XCTAssertEqual(observer->last.from.accepted, true);
+    XCTAssertEqual(observer->last.to.accepted, false);
+}
+
+- (void)testPermissionChangeObserverDontLoseFromChanges {
+    [self setCurrentNotificationPermissionAsUnanwsered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [self runBackgroundThreads];
+    
+    [self registerForPushNotifications];
+    [self anwserNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    
+    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+
+    XCTAssertEqual(observer->last.from.hasPrompted, false);
+    XCTAssertEqual(observer->last.from.anwseredPrompt, false);
+    XCTAssertEqual(observer->last.from.accepted, false);
+    XCTAssertEqual(observer->last.to.accepted, true);
+}
+
+- (void)testSubscriptionChangeObserverWhenAlreadyAccepted {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    XCTAssertEqual(observer->last.from.subscribed, false);
+    XCTAssertEqual(observer->last.to.subscribed, true);
+    XCTAssertEqual(observer->fireCount, 1);
+}
+
+- (void)testSubscriptionChangeObserverFireAfterAppRestart {
+    // Setup app as accepted.
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    
+    // User kills app, turns off notifications, then opnes it agian.
+    [self clearStateForAppRestart];
+    [self setCurrentNotificationPermission:false];
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    // Added Observer should be notified of the change right away.
+    observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    XCTAssertEqual(observer->last.from.subscribed, true);
+    XCTAssertEqual(observer->last.to.subscribed, false);
+}
+
+
+
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
     [self setCurrentNotificationPermissionAsUnanwsered];
@@ -1101,6 +1197,7 @@ static BOOL setupUIApplicationDelegate = false;
 
 - (void)testPermissionAndSubscriptionChangeObserverRemove {
     [self setCurrentNotificationPermissionAsUnanwsered];
+    [self backgroundModesDisabledInXcode];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -1155,8 +1252,6 @@ static BOOL setupUIApplicationDelegate = false;
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
     
-    XCTAssertNil(observer->last);
-    
     // Triggers the 30 fallback to register device right away.
     [self runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
@@ -1190,11 +1285,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertFalse(observer->last.from.subscribed);
     XCTAssertTrue(observer->last.to.subscribed);
 }
-
-
-// TODO: Permision changed from system Settings with app code restart.
-
-
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];
