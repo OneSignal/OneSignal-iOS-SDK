@@ -39,7 +39,7 @@
 #import "OSSubscription.h"
 
 
-// Redefine OSPermissionSubscriptionState
+// Permission + Subscription - Redefine OSPermissionSubscriptionState
 @interface OSPermissionSubscriptionState ()
 
 @property (readwrite) OSPermissionState* permissionStatus;
@@ -54,6 +54,8 @@
 + (void)setWaitingForApnsResponse:(BOOL)value;
 
 @property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
+
+@property (class) OSPermissionState* currentPermissionState;
 
 @end
 

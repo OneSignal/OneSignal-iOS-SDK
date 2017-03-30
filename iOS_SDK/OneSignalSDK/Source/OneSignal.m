@@ -499,13 +499,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)promptForPushNotificationWithUserResponse:(void(^)(BOOL accepted))completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", waitingForApnsResponse]];
     
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setBool:true forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-    [userDefaults synchronize];
+    self.currentPermissionState.hasPrompted = true;
     
     [self.osNotificationSettings promptForNotifications:completionHandler];
 }
-
 
 // This registers for a push token and prompts the user for notifiations permisions
 //    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
@@ -1604,17 +1601,14 @@ static NSString *_lastnonActiveMessageId;
     // Swizzle - UIApplication delegate
     injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
-    // Swizzle - iOS 10 - UNUserNotificationCenter delegate
-    #if XC8_AVAILABLE
-    Class UNUserNotificationCenterClass = NSClassFromString(@"UNUserNotificationCenter");
-    if (!UNUserNotificationCenterClass)
+    // Swizzle - UNUserNotificationCenter delegate - iOS 10+
+    if (!NSClassFromString(@"UNUserNotificationCenter"))
         return;
     
-    injectToProperClass(@selector(setOneSignalUNDelegate:), @selector(setDelegate:), @[], [swizzleUNUserNotif class], UNUserNotificationCenterClass);
+    [OneSignalUNUserNotificationCenter swizzleSelectors];
     
     // Set our own delegate if one hasn't been set already from something else.
     [OneSignalHelper registerAsUNNotificationCenterDelegate];
-    #endif
 }
 
 @end

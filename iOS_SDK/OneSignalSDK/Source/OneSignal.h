@@ -48,7 +48,6 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 #define XC8_AVAILABLE 1
 #import <UserNotifications/UserNotifications.h>
-
 #endif
 
 /* The action type associated to an OSNotificationAction object */

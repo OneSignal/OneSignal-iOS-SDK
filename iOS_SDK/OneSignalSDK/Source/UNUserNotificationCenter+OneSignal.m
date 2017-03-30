@@ -27,9 +27,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignal.h"
+#import "OneSignalInternal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
@@ -58,7 +60,7 @@
 //       This ensures we don't produce any side effects to standard iOS API selectors.
 //       The `callLegacyAppDeletegateSelector` selector below takes care of this backwards compatibility handling.
 
-@implementation swizzleUNUserNotif
+@implementation OneSignalUNUserNotificationCenter
 
 static Class delegateUNClass = nil;
 
@@ -66,20 +68,68 @@ static Class delegateUNClass = nil;
 // But rather in one of the subclasses
 static NSArray* delegateUNSubclasses = nil;
 
++ (void)swizzleSelectors {
+    injectToProperClass(@selector(setOneSignalUNDelegate:), @selector(setDelegate:), @[], [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+    
+    // Overrides to work around 10.2.1 bug where getNotificationSettingsWithCompletionHandler: reports as declined if called before
+    //  requestAuthorizationWithOptions:'s completionHandler fires when the user accepts notifications.
+    injectToProperClass(@selector(onesignalRequestAuthorizationWithOptions:completionHandler:),
+                        @selector(requestAuthorizationWithOptions:completionHandler:), @[],
+                        [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(onesignalGetNotificationSettingsWithCompletionHandler:),
+                        @selector(getNotificationSettingsWithCompletionHandler:), @[],
+                        [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+}
+
+static BOOL useiOS10_2_workaround = true;
++ (void)setUseiOS10_2_workaround:(BOOL)enable {
+    useiOS10_2_workaround = enable;
+}
+static BOOL useCachedUNNotificationSettings;
+static UNNotificationSettings* cachedUNNotificationSettings;
+
+- (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
+    OneSignal.currentPermissionState.hasPrompted = true;
+    
+    useCachedUNNotificationSettings = true;
+    id wrapperBlock = ^(BOOL granted, NSError* error) {
+        useCachedUNNotificationSettings = false;
+        OneSignal.currentPermissionState.accepted = granted;
+        OneSignal.currentPermissionState.anwseredPrompt = true;
+        completionHandler(granted, error);
+    };
+    
+    [self onesignalRequestAuthorizationWithOptions:options completionHandler:wrapperBlock];
+}
+
+- (void)onesignalGetNotificationSettingsWithCompletionHandler:(void(^)(UNNotificationSettings *settings))completionHandler {
+    if (useCachedUNNotificationSettings && cachedUNNotificationSettings && useiOS10_2_workaround) {
+        completionHandler(cachedUNNotificationSettings);
+        return;
+    }
+    
+    id wrapperBlock = ^(UNNotificationSettings* settings) {
+        cachedUNNotificationSettings = settings;
+        completionHandler(settings);
+    };
+    
+    [self onesignalGetNotificationSettingsWithCompletionHandler:wrapperBlock];
+}
+
 // Take the received delegate and swizzle in our own hooks.
 //  - Selector will be called once if developer does not set a UNUserNotificationCenter delegate.
 //  - Selector will be called a 2nd time if the developer does set one.
 - (void) setOneSignalUNDelegate:(id)delegate {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"swizzleUNUserNotif setOneSignalUNDelegate Fired!"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
     
     delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
     delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
     
     injectToProperClass(@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:),
-                        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [swizzleUNUserNotif class], delegateUNClass);
+                        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
     
     injectToProperClass(@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
-                        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [swizzleUNUserNotif class], delegateUNClass);
+                        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
     
     [self setOneSignalUNDelegate:delegate];
 }
@@ -115,7 +165,7 @@ static NSArray* delegateUNSubclasses = nil;
         [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
     // Or call a legacy AppDelegate selector
     else {
-        [swizzleUNUserNotif callLegacyAppDeletegateSelector:notification
+        [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
                                                 isTextReply:false
                                            actionIdentifier:nil
                                                    userText:nil
@@ -136,17 +186,17 @@ static NSArray* delegateUNSubclasses = nil;
                   withCompletionHandler:(void(^)())completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
     
-    [swizzleUNUserNotif processiOS10Open:response];
+    [OneSignalUNUserNotificationCenter processiOS10Open:response];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
         [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
     // Or call a legacy AppDelegate selector
     //  - If not a dismiss event as their isn't a iOS 9 selector for it.
-    else if (![swizzleUNUserNotif isDismissEvent:response]) {
+    else if (![OneSignalUNUserNotificationCenter isDismissEvent:response]) {
         BOOL isTextReply = [response isKindOfClass:NSClassFromString(@"UNTextInputNotificationResponse")];
         NSString* userText = isTextReply ? [response valueForKey:@"userText"] : nil;
-        [swizzleUNUserNotif callLegacyAppDeletegateSelector:response.notification
+        [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:response.notification
                                                 isTextReply:isTextReply
                                            actionIdentifier:response.actionIdentifier
                                                    userText:userText
@@ -165,7 +215,7 @@ static NSArray* delegateUNSubclasses = nil;
     if (![OneSignal app_id])
         return;
     
-    if ([swizzleUNUserNotif isDismissEvent:response])
+    if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
         return;
     
     BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&

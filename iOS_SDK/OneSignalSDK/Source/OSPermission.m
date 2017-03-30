@@ -77,6 +77,12 @@
 }
 
 - (void)setHasPrompted:(BOOL)inHasPrompted {
+    if (_hasPrompted != inHasPrompted) {
+        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+        [userDefaults setBool:true forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
+        [userDefaults synchronize];
+    }
+    
     BOOL last = self.hasPrompted;
     _hasPrompted = inHasPrompted;
     if (last != self.hasPrompted)

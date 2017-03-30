@@ -25,6 +25,7 @@
 #import "OneSignalSelectorHelpers.h"
 #import "NSString+OneSignal.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "UNUserNotificationCenter+OneSignal.h"
 
 #import "OneSignalNotificationSettingsIOS10.h"
 
@@ -345,7 +346,7 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     return self;
 }
 
-- (void)overrideGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
++ (void)mockInteralGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
     getNotificationSettingsWithCompletionHandlerStackCount++;
     
     // Simulates running on a sequential serial queue like iOS does.
@@ -367,6 +368,10 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
         completionHandler(retSettings);
         getNotificationSettingsWithCompletionHandlerStackCount--;
     });
+}
+
+- (void)overrideGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
+    [UNUserNotificationCenterOverrider mockInteralGetNotificationSettingsWithCompletionHandler:completionHandler];
 }
 
 - (void)overrideSetNotificationCategories:(NSSet<UNNotificationCategory *> *)categories {
@@ -543,9 +548,6 @@ static NSArray* preferredLanguagesArray;
 
 @end
 
-
-
-
 // END - Selector Shadowing
 
 
@@ -561,7 +563,7 @@ static NSArray* preferredLanguagesArray;
 }
 
 - (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"!!!!!!!!!!!!TEST onOSPermissionChanged Ran-----------------$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    NSLog(@"!!!!!!!!!!!!TEST onOSPermissionChanged Ran-----------------$$$$$$$$$$$$$$$$$$$$$$$$$$:\n%@", stateChanges);
     last = stateChanges;
     fireCount++;
 }
@@ -622,6 +624,8 @@ static BOOL setupUIApplicationDelegate = false;
     currentTestInstance = self;
     
     mockIOSVersion = 10;
+    
+    [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
     timeOffset = 0;
     networkRequestCount = 0;
@@ -1032,21 +1036,22 @@ static BOOL setupUIApplicationDelegate = false;
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
                           completionHandler:^(BOOL granted, NSError* error) {}];
     [self backgroundApp];
+    XCTAssertEqual(observer->fireCount, 1);
+    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 0, anwseredPrompt: 0, accepted: 0>,\nto:   <OSPermissionState: hasPrompted: 1, anwseredPrompt: 0, accepted: 0>\n>");
+    
     [self anwserNotifiationPrompt:true];
     [self runBackgroundThreads];
     
-    XCTAssertEqual(observer->last.from.accepted, false);
-    XCTAssertEqual(observer->last.to.anwseredPrompt, true);
-    XCTAssertEqual(observer->last.to.accepted, true);
     // Make sure it doesn't fire for anwseredPrompt then again right away for accepted
-    XCTAssertEqual(observer->fireCount, 1);
-    
-    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 0, anwseredPrompt: 0, accepted: 0>,\nto:   <OSPermissionState: hasPrompted: 1, anwseredPrompt: 1, accepted: 1>\n>");
+    XCTAssertEqual(observer->fireCount, 2);
+    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, anwseredPrompt: 0, accepted: 0>,\nto:   <OSPermissionState: hasPrompted: 1, anwseredPrompt: 1, accepted: 1>\n>");
 }
 
-// Yes, we are testing our Unit Test behavior
-//  Making sure our helper functions can reproduce an iOS 10.2.1 bug.
+// Yes, this starts with testTest, we are testing our Unit Test behavior!
+//  Making sure our simulated methods using swizzling can reproduce an iOS 10.2.1 bug.
 - (void)testTestPermissionChangeObserverWithNativeiOS10PromptCall {
+    [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
+    
     [self setCurrentNotificationPermissionAsUnanwsered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -1063,7 +1068,7 @@ static BOOL setupUIApplicationDelegate = false;
     [self anwserNotifiationPrompt:true];
     [self runBackgroundThreads];
     
-    XCTAssertEqual(observer->fireCount, 2);
+    XCTAssertEqual(observer->fireCount, 3);
     
     XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, anwseredPrompt: 1, accepted: 0>,\nto:   <OSPermissionState: hasPrompted: 1, anwseredPrompt: 1, accepted: 1>\n>");
 }
