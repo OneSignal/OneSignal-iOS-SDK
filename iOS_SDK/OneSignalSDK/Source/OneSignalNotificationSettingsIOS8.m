@@ -31,25 +31,27 @@
 
 #import "OneSignalInternal.h"
 
+#define NOTIFICATION_TYPE_ALL 7
 
-@implementation OneSignalNotificationSettingsIOS8
+@implementation OneSignalNotificationSettingsIOS8 {
+    void (^notificationPromptReponseCallback)(BOOL);
+}
 
-- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler {
-    OSPermissionStatus *status = [OSPermissionStatus alloc];
-    
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-    status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    OSPermissionState* status = OneSignal.currentPermissionState;
+    
     status.notificationTypes = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
     status.accepted = status.notificationTypes > 0;
+    status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     
     completionHandler(status);
 }
 
-- (OSPermissionStatus*)getNotificationPermissionStatus {
-    __block OSPermissionStatus* returnStatus = [OSPermissionStatus alloc];
+- (OSPermissionState*)getNotificationPermissionState {
+    __block OSPermissionState* returnStatus = [OSPermissionState alloc];
     
-    [self getNotificationPermissionStatus:^(OSPermissionStatus *status) {
+    [self getNotificationPermissionState:^(OSPermissionState *status) {
         returnStatus = status;
     }];
     
@@ -63,14 +65,31 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-- (void)promptForNotifications {
+- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
     UIApplication* shardApp = [UIApplication sharedApplication];
     
     NSSet* categories = [[shardApp currentUserNotificationSettings] categories];
     [shardApp registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:NOTIFICATION_TYPE_ALL categories:categories]];
     
+    notificationPromptReponseCallback = completionHandler;
+    
     [OneSignal registerForAPNsToken];
 }
+
+- (void)onNotificationPromptResponse:(int)notificationTypes {
+    BOOL accepted = notificationTypes > 0;
+    
+    if (notificationPromptReponseCallback) {
+        notificationPromptReponseCallback(accepted);
+        notificationPromptReponseCallback = nil;
+    }
+    
+    OneSignal.currentPermissionState.accepted = accepted;
+    OneSignal.currentPermissionState.answeredPrompt = true;
+}
+
+// Only iOS 7 - The above is used for iOS 8 & 9
+- (void)onAPNsResponse:(BOOL)success {}
 
 #pragma GCC diagnostic pop
 

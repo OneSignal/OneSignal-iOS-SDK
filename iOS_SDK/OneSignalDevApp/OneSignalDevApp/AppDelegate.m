@@ -30,12 +30,6 @@
 
 #import "AppDelegate.h"
 
-#import <OneSignal/OneSignal.h>
-
-@interface AppDelegate ()
-
-@end
-
 @implementation AppDelegate
 
 
@@ -48,7 +42,21 @@
             handleNotificationAction:^(OSNotificationOpenedResult *result) {}
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
+    [OneSignal sendTag:@"someKey1122" value:@"03222017"];
+    
+    [OneSignal addPermissionObserver:self];
+    [OneSignal addSubscriptionObserver:self];
+    
     return YES;
+}
+
+- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
+    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
+}
+
+- (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
+    NSLog(@"onOSPermissionChanged: %@", stateChanges);
+    NSLog(@"HERE");
 }
 
 

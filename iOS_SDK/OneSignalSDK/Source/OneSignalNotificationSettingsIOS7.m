@@ -34,39 +34,41 @@
 #import "OneSignalNotificationSettingsIOS7.h"
 
 
-@implementation OneSignalNotificationSettingsIOS7
+@implementation OneSignalNotificationSettingsIOS7 {
+    void (^notificationPromptReponseCallback)(BOOL);
+}
 
-- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler {
-    OSPermissionStatus *status = [OSPermissionStatus alloc];
-    
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    status.hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-    status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    OSPermissionState* status = OneSignal.currentPermissionState;
+    
     status.notificationTypes = [self getNotificationTypes];
     status.accepted = status.notificationTypes > 0;
+    status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     
     completionHandler(status);
 }
 
-- (OSPermissionStatus*)getNotificationPermissionStatus {
-    __block OSPermissionStatus* returnStatus = [OSPermissionStatus alloc];
+- (OSPermissionState*)getNotificationPermissionState {
+    __block OSPermissionState* returnState = [OSPermissionState alloc];
     
-    [self getNotificationPermissionStatus:^(OSPermissionStatus *status) {
-        returnStatus = status;
+    [self getNotificationPermissionState:^(OSPermissionState *state) {
+        returnState = state;
     }];
     
-    return returnStatus;
+    return returnState;
 }
 
 - (int) getNotificationTypes {
-    return [OneSignal getDeviceToken] == nil ? 0 : 7;
+    return OneSignal.currentSubscriptionState.pushToken == nil ? 0 : 7;
 }
 
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-- (void)promptForNotifications {
+- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
+    notificationPromptReponseCallback = completionHandler;
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert];
     [OneSignal setWaitingForApnsResponse:true];
     [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -74,5 +76,20 @@
 }
 
 #pragma GCC diagnostic pop
+
+// Only iOS 8 & 9
+- (void)onNotificationPromptResponse:(int)notificationTypes {}
+
+// Only iOS 7
+- (void)onAPNsResponse:(BOOL)success {
+    if (notificationPromptReponseCallback) {
+        notificationPromptReponseCallback(success);
+        notificationPromptReponseCallback = nil;
+    }
+    
+    OneSignal.currentPermissionState.accepted = success;
+    OneSignal.currentPermissionState.answeredPrompt = true;
+}
+
 
 @end

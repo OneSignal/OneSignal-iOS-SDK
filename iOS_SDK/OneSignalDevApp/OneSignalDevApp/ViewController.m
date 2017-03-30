@@ -44,7 +44,15 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-    [OneSignal registerForPushNotifications];
+    [self promptForNotificationsWithNativeiOS10Code];
+    
+    //[OneSignal registerForPushNotifications];
+    
+    /*[OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+        NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationWithUserResponse: %d", accepted);
+    }];*/
+    
+    
     
     [OneSignal sendTag:@"key1"
                  value:@"value1"
@@ -61,6 +69,16 @@
         NSLog(@"IdsAvailable Fired");
     }];
     
+}
+
+- (void)promptForNotificationsWithNativeiOS10Code {
+    id responseBlock = ^(BOOL granted, NSError* error) {
+        NSLog(@"promptForNotificationsWithNativeiOS10Code: %d", granted);
+    };
+    
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
+                          completionHandler:responseBlock];
 }
 
 - (void)didReceiveMemoryWarning {

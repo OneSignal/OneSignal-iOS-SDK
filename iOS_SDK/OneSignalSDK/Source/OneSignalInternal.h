@@ -32,12 +32,31 @@
 #define OneSignalInternal_h
 
 #import "OneSignal.h"
+#import "OSObservable.h"
+#import "OneSignalNotificationSettings.h"
 
-@interface OneSignal (UN_extra)
-+ (NSString*)getDeviceToken;
+#import "OSPermission.h"
+#import "OSSubscription.h"
+
+
+// Permission + Subscription - Redefine OSPermissionSubscriptionState
+@interface OSPermissionSubscriptionState ()
+
+@property (readwrite) OSPermissionState* permissionStatus;
+@property (readwrite) OSSubscriptionState* subscriptionStatus;
+
+@end
+
+
+@interface OneSignal (OneSignalInternal)
 + (void)updateNotificationTypes:(int)notificationTypes;
 + (BOOL)registerForAPNsToken;
 + (void)setWaitingForApnsResponse:(BOOL)value;
+
+@property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
+
+@property (class) OSPermissionState* currentPermissionState;
+
 @end
 
 

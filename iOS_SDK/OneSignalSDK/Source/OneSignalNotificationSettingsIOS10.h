@@ -31,6 +31,7 @@
 #import "OneSignalNotificationSettings.h"
 
 @interface OneSignalNotificationSettingsIOS10 : NSObject <OneSignalNotificationSettings>
++(dispatch_queue_t)getQueue;
 @end
 
 #endif /* OneSignalNotificationSettingsIOS10_h */

@@ -28,25 +28,22 @@
 #ifndef OneSignalNotificationSettings_h
 #define OneSignalNotificationSettings_h
 
+#import "OneSignal.h"
+
 #import <Foundation/Foundation.h>
-
-@interface OSPermissionStatus : NSObject
-
-@property (nonatomic) BOOL hasPrompted;
-@property (nonatomic) BOOL anwseredPrompt;
-@property BOOL accepted;
-@property int notificationTypes;
-
-@end
-
-
 
 @protocol OneSignalNotificationSettings <NSObject>
 
 - (int) getNotificationTypes;
-- (OSPermissionStatus*)getNotificationPermissionStatus;
-- (void)getNotificationPermissionStatus:(void (^)(OSPermissionStatus *subcscriptionStatus))completionHandler;
-- (void)promptForNotifications;
+- (OSPermissionState*)getNotificationPermissionState;
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionState))completionHandler;
+- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler;
+
+// Only used for iOS 8 & 9
+- (void)onNotificationPromptResponse:(int)notificationTypes;
+
+// Only used for iOS 7
+- (void)onAPNsResponse:(BOOL)success;
 
 @end
 

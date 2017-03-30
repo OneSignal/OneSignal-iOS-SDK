@@ -419,7 +419,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				INFOPLIST_FILE = OneSignalDevApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -433,7 +433,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				INFOPLIST_FILE = OneSignalDevApp/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";

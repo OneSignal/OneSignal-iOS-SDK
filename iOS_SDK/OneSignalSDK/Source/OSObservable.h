@@ -25,14 +25,19 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettingsIOS8_h
-#define OneSignalNotificationSettingsIOS8_h
+#ifndef OSObservable_h
+#define OSObservable_h
 
-#import "OneSignalNotificationSettings.h"
 
-// Used for iOS 9 & 8
-@interface OneSignalNotificationSettingsIOS8 : NSObject <OneSignalNotificationSettings>
-
+@protocol OSObserver
+- (void)onChanged:(id)state;
 @end
 
-#endif /* OneSignalNotificationSettingsIOS8_h */
+@interface OSObservable<__covariant ObserverType, __covariant ObjectType> : NSObject
+- (instancetype)initWithChangeSelector:(SEL)selector;
+- (void)addObserver:(ObserverType)observer;
+- (void)removeObserver:(ObserverType)observer;
+- (BOOL)notifyChange:(ObjectType)state;
+@end
+
+#endif /* OSObservable_h */
