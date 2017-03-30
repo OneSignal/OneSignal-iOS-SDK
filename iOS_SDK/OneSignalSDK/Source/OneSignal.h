@@ -173,15 +173,24 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @end;
 
 
-// TODO: Check tenses (past vs present)
+typedef NS_ENUM(NSInteger, OSNotificationPermission) {
+    // The user has not yet made a choice regarding whether your app can show notifications.
+    OSNotificationPermissionNotDetermined = 0,
+    
+    // The application is not authorized to post user notifications.
+    OSNotificationPermissionDenied,
+    
+    // The application is authorized to post user notifications.
+    OSNotificationPermissionAuthorized
+};
+
 
 
 // Permission Classes
 @interface OSPermissionState : NSObject
 
 @property (readonly, nonatomic) BOOL hasPrompted;
-@property (readonly, nonatomic) BOOL anwseredPrompt;
-@property (readonly, nonatomic) BOOL accepted;
+@property (readonly, nonatomic) OSNotificationPermission status;
 
 @end
 
@@ -189,8 +198,6 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 @property (readonly) OSPermissionState* to;
 @property (readonly) OSPermissionState* from;
-@property (readonly, nonatomic) BOOL justEnabled;
-@property (readonly, nonatomic) BOOL justDisabled;
 
 @end
 

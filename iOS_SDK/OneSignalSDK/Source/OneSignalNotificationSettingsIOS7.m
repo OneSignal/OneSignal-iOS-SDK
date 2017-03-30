@@ -44,7 +44,7 @@
     
     status.notificationTypes = [self getNotificationTypes];
     status.accepted = status.notificationTypes > 0;
-    status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     
     completionHandler(status);
 }
@@ -88,7 +88,7 @@
     }
     
     OneSignal.currentPermissionState.accepted = success;
-    OneSignal.currentPermissionState.anwseredPrompt = true;
+    OneSignal.currentPermissionState.answeredPrompt = true;
 }
 
 

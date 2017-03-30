@@ -43,7 +43,7 @@
     
     status.notificationTypes = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
     status.accepted = status.notificationTypes > 0;
-    status.anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     
     completionHandler(status);
 }
@@ -85,7 +85,7 @@
     }
     
     OneSignal.currentPermissionState.accepted = accepted;
-    OneSignal.currentPermissionState.anwseredPrompt = true;
+    OneSignal.currentPermissionState.answeredPrompt = true;
 }
 
 // Only iOS 7 - The above is used for iOS 8 & 9

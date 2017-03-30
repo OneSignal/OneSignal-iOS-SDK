@@ -43,10 +43,10 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 // Redefine OSPermissionState
 @interface OSPermissionState () {
 @protected BOOL _hasPrompted;
-@protected BOOL _anwseredPrompt;
+@protected BOOL _answeredPrompt;
 }
 @property (readwrite, nonatomic) BOOL hasPrompted;
-@property (readwrite, nonatomic) BOOL anwseredPrompt;
+@property (readwrite, nonatomic) BOOL answeredPrompt;
 @property (readwrite, nonatomic) BOOL accepted;
 @property int notificationTypes;
 
@@ -66,8 +66,6 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 
 @property (readwrite) OSPermissionState* to;
 @property (readwrite) OSPermissionState* from;
-@property (readwrite, nonatomic) BOOL justEnabled;
-@property (readwrite, nonatomic) BOOL justDisabled;
 
 @end
 

@@ -74,7 +74,7 @@
 #define ERROR_PUSH_UNKOWN_APNS_ERROR       -16
 #define ERROR_PUSH_OTHER_3000_ERROR        -17
 #define ERROR_PUSH_NEVER_PROMPTED          -18
-#define ERROR_PUSH_PROMPT_NEVER_ANWSERED   -19
+#define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -383,7 +383,7 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
             [self registerUser];
         else {
             [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-                if (state.anwseredPrompt)
+                if (state.answeredPrompt)
                     [self registerUser];
                 else
                     [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
@@ -874,7 +874,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
         // The goal is to only have 1 server call.
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
-            if (status.anwseredPrompt)
+            if (status.answeredPrompt)
                 [OneSignal registerUser];
             else {
                 [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
@@ -1361,8 +1361,8 @@ static NSString *_lastnonActiveMessageId;
     
     if (!permissionStatus.hasPrompted)
         return ERROR_PUSH_NEVER_PROMPTED;
-    if (!permissionStatus.anwseredPrompt)
-        return ERROR_PUSH_PROMPT_NEVER_ANWSERED;
+    if (!permissionStatus.answeredPrompt)
+        return ERROR_PUSH_PROMPT_NEVER_ANSWERED;
     
     if (!self.currentSubscriptionState.userSubscriptionSetting)
         return -2;

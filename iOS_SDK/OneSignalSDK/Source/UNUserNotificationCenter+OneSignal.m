@@ -95,7 +95,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     id wrapperBlock = ^(BOOL granted, NSError* error) {
         useCachedUNNotificationSettings = false;
         OneSignal.currentPermissionState.accepted = granted;
-        OneSignal.currentPermissionState.anwseredPrompt = true;
+        OneSignal.currentPermissionState.answeredPrompt = true;
         completionHandler(granted, error);
     };
     

@@ -66,7 +66,7 @@ static dispatch_queue_t serialQueue;
             OSPermissionState* status = OneSignal.currentPermissionState;
             
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized;
-            status.anwseredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
+            status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
                                      + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
@@ -107,7 +107,7 @@ static dispatch_queue_t serialQueue;
         // Run callback on main / UI thread
         [OneSignalHelper dispatch_async_on_main_queue: ^{
             OneSignal.currentPermissionState.accepted = granted;
-            OneSignal.currentPermissionState.anwseredPrompt = true;
+            OneSignal.currentPermissionState.answeredPrompt = true;
             [OneSignal updateNotificationTypes: granted ? 15 : 0];
             if (completionHandler)
                 completionHandler(granted);

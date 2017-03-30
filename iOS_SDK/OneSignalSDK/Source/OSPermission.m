@@ -47,7 +47,7 @@
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
     _hasPrompted = [userDefaults boolForKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"];
-    _anwseredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"];
+    _answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"];
     _accepted  = [userDefaults boolForKey:@"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"];
     
     return self;
@@ -57,7 +57,7 @@
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
     [userDefaults setBool:_hasPrompted forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"];
-    [userDefaults setBool:_anwseredPrompt forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"];
+    [userDefaults setBool:_answeredPrompt forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"];
     [userDefaults setBool:_accepted forKey:@"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"];
     
     [userDefaults synchronize];
@@ -69,7 +69,7 @@
     
     if (copy) {
         copy->_hasPrompted = _hasPrompted;
-        copy->_anwseredPrompt = _anwseredPrompt;
+        copy->_answeredPrompt = _answeredPrompt;
         copy->_accepted = _accepted;
     }
     
@@ -90,24 +90,24 @@
 }
 
 - (BOOL)hasPrompted {
-    // If we know they anwsered turned notificaitons on then were prompted at some point.
-    if (self.anwseredPrompt) // self. triggers getter
+    // If we know they answered turned notificaitons on then were prompted at some point.
+    if (self.answeredPrompt) // self. triggers getter
         return true;
     return _hasPrompted;
 }
 
-- (void)setAnwseredPrompt:(BOOL)inAnwseredPrompt {
-    BOOL last = self.anwseredPrompt;
-    _anwseredPrompt = inAnwseredPrompt;
-    if (last != self.anwseredPrompt)
+- (void)setAnsweredPrompt:(BOOL)inansweredPrompt {
+    BOOL last = self.answeredPrompt;
+    _answeredPrompt = inansweredPrompt;
+    if (last != self.answeredPrompt)
         [self.observable notifyChange:self];
 }
 
-- (BOOL)anwseredPrompt {
-    // If we got an accepted permission then they anwsered the prompt.
+- (BOOL)answeredPrompt {
+    // If we got an accepted permission then they answered the prompt.
     if (_accepted)
         return true;
-    return _anwseredPrompt;
+    return _answeredPrompt;
 }
 
 - (void)setAccepted:(BOOL)accepted {
@@ -117,15 +117,36 @@
         [self.observable notifyChange:self];
 }
 
+- (OSNotificationPermission)status {
+    if (_accepted)
+        return OSNotificationPermissionAuthorized;
+    
+    if (self.answeredPrompt)
+        return OSNotificationPermissionDenied;
+    return OSNotificationPermissionNotDetermined;
+}
+
+- (NSString*)statusAsString {
+    switch(self.status) {
+        case OSNotificationPermissionNotDetermined:
+            return @"NotDetermined";
+        case OSNotificationPermissionAuthorized:
+            return @"Authorized";
+        case OSNotificationPermissionDenied:
+            return @"Denied";
+    }
+    return @"NotDetermined";
+}
+
 - (BOOL)compare:(OSPermissionState*)from {
     return self.accepted != from.accepted ||
-           self.anwseredPrompt != from.anwseredPrompt ||
+           self.answeredPrompt != from.answeredPrompt ||
            self.hasPrompted != from.hasPrompted;
 }
 
 - (NSString*)description {
-    static NSString* format = @"<OSPermissionState: hasPrompted: %d, anwseredPrompt: %d, accepted: %d>";
-    return [NSString stringWithFormat:format, self.hasPrompted, self.anwseredPrompt, self.accepted];
+    static NSString* format = @"<OSPermissionState: hasPrompted: %d, status: %@>";
+    return [NSString stringWithFormat:format, self.hasPrompted, self.statusAsString];
 }
 
 @end

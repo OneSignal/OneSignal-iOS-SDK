@@ -76,8 +76,6 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 
 @property (readwrite) OSSubscriptionState* to;
 @property (readwrite) OSSubscriptionState* from;
-@property (readwrite) BOOL becameSubscribed;
-@property (readwrite) BOOL becameUnsubscribed;
 
 @end
 
