@@ -427,10 +427,19 @@ OSHandleNotificationActionBlock handleNotificationAction;
 }
 
 + (NSArray*)getActionButtons:(NSDictionary*)messageDict {
-    if (messageDict[@"os_data"] && [messageDict[@"os_data"] isKindOfClass:[NSDictionary class]])
-        return messageDict[@"os_data"][@"buttons"][@"o"];
+    if (messageDict[@"os_data"]) {
+        if ([messageDict[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]])
+            return messageDict[@"os_data"][@"buttons"][@"o"];
+        return messageDict[@"os_data"][@"buttons"];
+    }
     
-    return messageDict[@"o"];
+    if (messageDict[@"o"])
+        return messageDict[@"o"];
+    
+    if (messageDict[@"actionButtons"])
+        return messageDict[@"actionButtons"];
+    
+    return messageDict[@"buttons"];
 }
 
 + (NSString*)getAppName {
@@ -473,7 +482,10 @@ OSHandleNotificationActionBlock handleNotificationAction;
     }
     
     if (!subtitle) {
-        if ([messageDict[@"os_data"][@"buttons"][@"m"] isKindOfClass:[NSDictionary class]])
+        id per2dot4buttons = messageDict[@"os_data"][@"buttons"];
+        if (per2dot4buttons &&
+            [per2dot4buttons isKindOfClass:[NSDictionary class]] &&
+            [per2dot4buttons[@"m"] isKindOfClass:[NSDictionary class]] )
             subtitle = messageDict[@"os_data"][@"buttons"][@"m"][@"subtitle"];
     }
     
@@ -657,24 +669,23 @@ static NSString *_lastMessageIdFromAction;
 }
 
 + (UILocalNotification*)prepareUILocalNotification:(NSDictionary*)data :(NSDictionary*)userInfo {
-    
     UILocalNotification *notification = [self createUILocalNotification:data];
     
-    if ([data[@"m"] isKindOfClass:[NSDictionary class]]) {
+    NSDictionary* titleAndBody = [OneSignalHelper getPushTitleBody:data];
+    
+    if (titleAndBody[@"title"] && [notification respondsToSelector:NSSelectorFromString(@"alertTitle")]) {
         // alertTitle was added in iOS 8.2
-        if ([notification respondsToSelector:NSSelectorFromString(@"alertTitle")])
-            notification.alertTitle = data[@"m"][@"title"];
-        notification.alertBody = data[@"m"][@"body"];
+        notification.alertTitle = titleAndBody[@"title"];
     }
-    else
-        notification.alertBody = data[@"m"];
+    
+    notification.alertBody = titleAndBody[@"body"];
     
     notification.userInfo = userInfo;
-    notification.soundName = data[@"s"];
+    notification.soundName = data[@"s"] ?: data[@"os_data"][@"buttons"][@"s"];
     if (notification.soundName == nil)
         notification.soundName = UILocalNotificationDefaultSoundName;
     if (data[@"b"])
-        notification.applicationIconBadgeNumber = [data[@"b"] intValue];
+        notification.applicationIconBadgeNumber = [(data[@"b"] ?: data[@"os_data"][@"buttons"][@"b"])intValue];
     
     return notification;
 }

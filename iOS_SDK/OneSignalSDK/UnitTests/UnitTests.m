@@ -404,12 +404,18 @@ static BOOL calledCurrentUserNotificationSettings;
 static NSInteger didFailRegistarationErrorCode;
 static BOOL shouldFireDeviceToken;
 
+static UIApplicationState currentUIApplicationState;
+
+static UILocalNotification* lastUILocalNotification;
+
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideCurrentUserNotificationSettings), @selector(currentUserNotificationSettings), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterForRemoteNotificationTypes:), @selector(registerForRemoteNotificationTypes:), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterUserNotificationSettings:), @selector(registerUserNotificationSettings:), @[], [UIApplicationOverrider class], [UIApplication class]);
+    injectToProperClass(@selector(overrideApplicationState), @selector(applicationState), @[], [UIApplicationOverrider class], [UIApplication class]);
+    injectToProperClass(@selector(overrideScheduleLocalNotification:), @selector(scheduleLocalNotification:), @[], [UIApplicationOverrider class], [UIApplication class]);
 }
 
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
@@ -466,6 +472,14 @@ static BOOL shouldFireDeviceToken;
 
 // KEEP - Used to prevent xctest from fowarding to the iOS 10 equivalent.
 - (void)overrideRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+}
+
+- (UIApplicationState) overrideApplicationState {
+    return currentUIApplicationState;
+}
+
+- (void)overrideScheduleLocalNotification:(UILocalNotification*)notification {
+    lastUILocalNotification = notification;
 }
 
 @end
@@ -552,6 +566,52 @@ static NSArray* preferredLanguagesArray;
 
 @end
 
+
+@interface UIAlertViewOverrider : NSObject
+@end
+
+@implementation UIAlertViewOverrider
+static NSMutableArray* uiAlertButtonArray;
+static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
+
++ (void)load {
+    injectToProperClass(@selector(overrideAddButtonWithTitle:), @selector(addButtonWithTitle:), @[], [UIAlertViewOverrider class], [UIAlertView class]);
+    
+    injectToProperClass(@selector(overrideInitWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:),
+                        @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:), @[],
+                        [UIAlertViewOverrider class], [UIAlertView class]);
+}
+
+- (NSInteger)overrideAddButtonWithTitle:(nullable NSString*)title {
+    [uiAlertButtonArray addObject:title];
+    return 0;
+}
+
+- (instancetype)overrideInitWithTitle:(nullable NSString *)title message:(nullable NSString *)message delegate:(nullable id /*<UIAlertViewDelegate>*/)delegate cancelButtonTitle:(nullable NSString *)cancelButtonTitle otherButtonTitles:(nullable NSString *)otherButtonTitles, ... {
+    lastUIAlertViewDelegate = delegate;
+    return self;
+}
+
+@end
+
+
+/*
+@interface OneSignalAlertViewDelegateOverrider : NSObject
+@end
+
+@implementation OneSignalAlertViewDelegateOverrider
+
++ (void)load {
+    injectToProperClass(@selector(overrideAlertView:clickedButtonAtIndex), @selector(alertView:clickedButtonAtIndex:), @[], [OneSignalAlertViewDelegateOverrider class], [OneSignalAlertViewDelegate class]);
+}
+
+- (void)overrideAlertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+}
+
+@end
+*/
+
 // END - Selector Shadowing
 
 
@@ -627,6 +687,8 @@ static BOOL setupUIApplicationDelegate = false;
     
     lastSetCategories = nil;
     
+    lastUILocalNotification = nil;
+    
     preferredLanguagesArray = @[@"en-US"];
 
 
@@ -652,7 +714,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
-    
+    uiAlertButtonArray = [NSMutableArray new];
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
 }
@@ -750,11 +812,13 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 - (void)backgroundApp {
+    currentUIApplicationState = UIApplicationStateInactive;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationWillResignActive:sharedApp];
 }
 
 - (void)resumeApp {
+    currentUIApplicationState = UIApplicationStateActive;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationDidBecomeActive:sharedApp];
 }
@@ -1462,6 +1526,7 @@ static BOOL setupUIApplicationDelegate = false;
         openedWasFire = true;
     }];
     [self runBackgroundThreads];
+    currentUIApplicationState = UIApplicationStateInactive;
     
     id userInfo = @{@"aps": @{@"content_available": @1},
                     @"m": @"alert body only",
@@ -1508,6 +1573,7 @@ static BOOL setupUIApplicationDelegate = false;
         openedWasFire = true;
     }];
     [self runBackgroundThreads];
+    currentUIApplicationState = UIApplicationStateInactive;
     
     id userInfo = @{@"aps": @{
                         @"mutable-content": @1,
@@ -1541,6 +1607,43 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastUrl);
     XCTAssertNil(lastHTTPRequset);
     XCTAssertEqual(networkRequestCount, 2);
+}
+
+
+
+
+// Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
+- (void)testNotificationAlertButtonsDisplayWithNewformat {
+    __block BOOL openedWasFire = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
+        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        openedWasFire = true;
+    }];
+    [self resumeApp];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{
+                            @"mutable-content": @1,
+                            @"alert": @{@"body": @"Message Body", @"title": @"title"}
+                            },
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf",
+                            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                            }};
+    
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    [notifCenterDelegate userNotificationCenter:notifCenter willPresentNotification:[notifResponse notification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    
+    XCTAssertEqual(uiAlertButtonArray.count, 1);
+    [lastUIAlertViewDelegate alertView:nil clickedButtonAtIndex:1];
+    XCTAssertEqual(openedWasFire, true);
 }
 
 
@@ -1619,6 +1722,63 @@ static BOOL setupUIApplicationDelegate = false;
     
     XCTAssertEqual(recievedWasFire, true);
 }
+
+
+// Testing iOS 8 - with os_data aps payload format
+- (void)testGeneratingLocalNotificationWithButtonsiOS8OS_data {
+    mockIOSVersion = 8;
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    [self backgroundApp];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"buttons": @{
+                                    @"m": @"alert body only",
+                                    @"o": @[@{@"i": @"id1", @"n": @"text1"}]
+                                    }
+                            }
+                    };
+    
+    
+    id appDelegate = [UIApplication sharedApplication].delegate;
+                      
+    [appDelegate application:[UIApplication sharedApplication]
+didReceiveRemoteNotification:userInfo
+      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
+    
+    XCTAssertEqualObjects(lastUILocalNotification.alertBody, @"alert body only");
+}
+
+
+// Testing iOS 8
+- (void)testGeneratingLocalNotificationWithButtonsiOS8 {
+    mockIOSVersion = 8;
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    [self backgroundApp];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"m": @"alert body only",
+                    @"o": @[@{@"i": @"id1", @"n": @"text1"}],
+                    @"custom": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            }
+                    };
+    
+    
+    id appDelegate = [UIApplication sharedApplication].delegate;
+    
+    [appDelegate application:[UIApplication sharedApplication]
+didReceiveRemoteNotification:userInfo
+      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
+    
+    XCTAssertEqualObjects(lastUILocalNotification.alertBody, @"alert body only");
+}
+
+
+
 
 
 - (void)testSendTags {

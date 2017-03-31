@@ -385,9 +385,9 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
         
         if (inAppAlertsPassed || inAppAlertsPassed) {
             if (!inFocusDisplayPassed)
-                self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting;
+                self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
             else
-                self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting;
+                self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
         }
 
         if (self.currentSubscriptionState.userId)
@@ -409,7 +409,7 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
      */
     
     // Cold start from tap on a remote notification
-    //  NOTE: launchOptions may be nil if tapping on an action button on a notification.
+    //  NOTE: launchOptions may be nil if tapping on a notification's action button.
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if (userInfo)
         coldStartFromTapOnNotification = YES;
@@ -1155,7 +1155,6 @@ static NSString *_lastAppActiveMessageId;
 static NSString *_lastnonActiveMessageId;
 + (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
-
 // Entry point for the following:
 //  - 1. (iOS all) - Opening notifications
 //  - 2. Notification received
@@ -1174,7 +1173,6 @@ static NSString *_lastnonActiveMessageId;
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
     
-    BOOL inAppAlert = false;
     if (isActive) {
         // Prevent duplicate calls
         NSString* newId = [self checkForProcessedDups:customDict lastMessageId:_lastAppActiveMessageId];
@@ -1183,39 +1181,17 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        int iaaoption = self.inFocusDisplayType;
-        inAppAlert = iaaoption == OSNotificationDisplayTypeInAppAlert;
+        BOOL inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
         
         // Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
-            
-            NSDictionary* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
-            id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict];
-            
-            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:titleAndBody[@"title"]
-                                                                message:titleAndBody[@"body"]
-                                                               delegate:oneSignalAlertViewDelegate
-                                                      cancelButtonTitle:@"Close"
-                                                      otherButtonTitles:nil, nil];
-            // Add Buttons
-            NSArray *actionButons = [OneSignalHelper getActionButtons:messageDict];
-            if (actionButons) {
-                for(id button in actionButons)
-                   [alertView addButtonWithTitle:button[@"n"]];
-            }
-            
-            [alertView show];
-            
-            // Message received that was displayed (Foreground + InAppAlert is true)
-            // Call Received Block
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert];
-            
+            [OneSignalAlertView showInAppAlert:messageDict];
             return;
         }
         
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
-        [OneSignalHelper handleNotificationReceived:iaaoption];
+        [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType];
         
         // Notify backend that user opened the notification
         NSString* messageId = [customDict objectForKey:@"i"];
@@ -1257,8 +1233,10 @@ static NSString *_lastnonActiveMessageId;
     return nil;
 }
 
-
-+ (void) handleNotificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive actionType : (OSNotificationActionType)actionType displayType:(OSNotificationDisplayType)displayType {
++ (void)handleNotificationOpened:(NSDictionary*)messageDict
+                        isActive:(BOOL)isActive
+                      actionType:(OSNotificationActionType)actionType
+                     displayType:(OSNotificationDisplayType)displayType {
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (customDict == nil)
         customDict = [messageDict objectForKey:@"custom"];
@@ -1427,14 +1405,11 @@ static NSString *_lastnonActiveMessageId;
     
     // Generate local notification for action button and/or attachments.
     if (data) {
-        // iOS 10
-        if (NSClassFromString(@"UNUserNotificationCenter")) {
+        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
             startedBackgroundJob = true;
-            #if XC8_AVAILABLE
             [OneSignalHelper addnotificationRequest:data userInfo:userInfo completionHandler:completionHandler];
-            #endif
         }
-        else { // Pre-iOS 10
+        else {
             UILocalNotification* notification = [OneSignalHelper prepareUILocalNotification:data :userInfo];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
