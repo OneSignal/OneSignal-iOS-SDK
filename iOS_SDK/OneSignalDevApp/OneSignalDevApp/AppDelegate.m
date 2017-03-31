@@ -37,6 +37,7 @@
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_WARN];
     
+    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeNotification;
     [OneSignal initWithLaunchOptions:launchOptions
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:^(OSNotificationOpenedResult *result) {}
@@ -52,6 +53,7 @@
 
 - (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
     NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
+    NSLog(@"HERE");
 }
 
 - (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {

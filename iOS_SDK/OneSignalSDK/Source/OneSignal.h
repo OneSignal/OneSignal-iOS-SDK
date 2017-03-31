@@ -233,9 +233,6 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 
 
-
-
-
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
@@ -266,6 +263,8 @@ extern NSString * const kOSSettingsKeyInAppLaunchURL;
 extern NSString * const kOSSettingsKeyInFocusDisplayOption;
 
 
+
+// ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
 extern NSString* const ONESIGNAL_VERSION;
@@ -276,8 +275,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 
 /**
- Initialize OneSignal. Sends push token to OneSignal so you can later send notifications.
- 
+ Initialize OneSignal.
+ Sends push token to OneSignal so you can later send notifications.
 */
 
 // - Initialization
@@ -285,6 +284,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
+
+@property (class) OSNotificationDisplayType inFocusDisplayType;
 
 + (NSString*)app_id;
 + (NSString*)sdk_version_raw;
@@ -328,8 +329,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
 
 + (void)setSubscription:(BOOL)enable;
-
-
 
 // - Posting Notification
 + (void)postNotification:(NSDictionary*)jsonData;

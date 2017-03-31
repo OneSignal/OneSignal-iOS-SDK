@@ -51,7 +51,7 @@
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
 // - userNotificationCenter:willPresentNotification:withCompletionHandler:
-//   - Reads kOSSettingsKeyInFocusDisplayOption to respect it's setting.
+//   - Reads OneSignal.inFocusDisplayType to respect it's setting.
 // - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
 //   - Used to process opening notifications.
 //
@@ -142,15 +142,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
-    // Set the completionHandler options based on the ONESIGNAL_ALERT_OPTION value.
-    if (![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
-        [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
-    
     NSUInteger completionHandlerOptions = 0;
-    NSInteger alert_option = [[NSUserDefaults standardUserDefaults] integerForKey:@"ONESIGNAL_ALERT_OPTION"];
-    switch (alert_option) {
+    switch (OneSignal.inFocusDisplayType) {
         case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
         case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
         case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
@@ -219,7 +212,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         return;
     
     BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
-                    [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue] != OSNotificationDisplayTypeNotification;
+                    OneSignal.inFocusDisplayType != OSNotificationDisplayTypeNotification;
     
     
     NSMutableDictionary *userInfo;

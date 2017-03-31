@@ -143,6 +143,18 @@ OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
 
+static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
++ (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
+    NSInteger op = value;
+    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10] && OSNotificationDisplayTypeNotification == op)
+        op = OSNotificationDisplayTypeInAppAlert;
+    
+    _inFocusDisplayType = op;
+}
++ (OSNotificationDisplayType)inFocusDisplayType {
+    return _inFocusDisplayType;
+}
+
 // iOS version implemation
 static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
@@ -360,24 +372,23 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
         else
             [self registerForAPNsToken];
         
+        
         /* Check if in-app setting passed assigned
             LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
             Priority for kOSSettingsKeyInFocusDisplayOption.
         */
-        
         NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
         BOOL inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
         
         NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
         BOOL inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
         
-        if (!inAppAlertsPassed && !inFocusDisplayPassed)
-            [self setNotificationDisplayOptions:@(OSNotificationDisplayTypeInAppAlert)];
-        else if (!inFocusDisplayPassed)
-            [self setNotificationDisplayOptions:IAASetting];
-        else
-            [self setNotificationDisplayOptions:IFDSetting];
-        
+        if (inAppAlertsPassed || inAppAlertsPassed) {
+            if (!inFocusDisplayPassed)
+                self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting;
+            else
+                self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting;
+        }
 
         if (self.currentSubscriptionState.userId)
             [self registerUser];
@@ -781,18 +792,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     return jsonResponse;
 }
 
-/* Option:0, 1 or 2 */
-+ (void)setNotificationDisplayOptions:(NSNumber*)option {
-   
-    // Special Case: If iOS version < 10 && Option passed is 2, default to inAppAlerts.
-    NSInteger op = option.integerValue;
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10] && OSNotificationDisplayTypeNotification == op)
-        op = OSNotificationDisplayTypeInAppAlert;
-    
-    [[NSUserDefaults standardUserDefaults] setObject:@(op) forKey:@"ONESIGNAL_ALERT_OPTION"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
 + (void)enableInAppLaunchURL:(NSNumber*)enable {
     [[NSUserDefaults standardUserDefaults] setObject:enable forKey:@"ONESIGNAL_INAPP_LAUNCH_URL"];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -1184,12 +1183,7 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        if (![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"]) {
-            [[NSUserDefaults standardUserDefaults] setObject:@(OSNotificationDisplayTypeInAppAlert) forKey:@"ONESIGNAL_ALERT_OPTION"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        }
-        
-        int iaaoption = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_ALERT_OPTION"] intValue];
+        int iaaoption = self.inFocusDisplayType;
         inAppAlert = iaaoption == OSNotificationDisplayTypeInAppAlert;
         
         // Make sure it is not a silent one do display, if inAppAlerts are enabled

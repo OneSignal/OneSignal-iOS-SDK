@@ -44,13 +44,13 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-    [self promptForNotificationsWithNativeiOS10Code];
+    //[self promptForNotificationsWithNativeiOS10Code];
     
     //[OneSignal registerForPushNotifications];
     
-    /*[OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
         NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationWithUserResponse: %d", accepted);
-    }];*/
+    }];
     
     
     
