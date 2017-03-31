@@ -738,7 +738,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:@"notifications"];
     
     NSMutableDictionary* dataDic = [[NSMutableDictionary alloc] initWithDictionary:jsonData];
-    dataDic[@"app_id"] = app_id;
+    dataDic[@"app_id"] = dataDic[@"app_id"] ?: app_id;
     
     NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
     [request setHTTPBody:postData];

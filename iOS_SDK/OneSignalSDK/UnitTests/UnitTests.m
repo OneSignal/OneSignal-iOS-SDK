@@ -1936,6 +1936,27 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
 }
 
+
+- (void)testPostNotification {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    XCTAssertEqual(networkRequestCount, 1);
+    
+    
+    // Normal post should auto add add_id.
+    [OneSignal postNotification:@{@"contents": @{@"en": @"message body"}}];
+    XCTAssertEqual(networkRequestCount, 2);
+    XCTAssertEqualObjects(lastHTTPRequset[@"contents"][@"en"], @"message body");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    
+    // Should allow overriding the app_id
+    [OneSignal postNotification:@{@"contents": @{@"en": @"message body"}, @"app_id": @"override_app_UUID"}];
+    XCTAssertEqual(networkRequestCount, 3);
+    XCTAssertEqualObjects(lastHTTPRequset[@"contents"][@"en"], @"message body");
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"override_app_UUID");
+}
+
+
 - (void)testFirstInitWithNotificationsAlreadyDeclined {
     [self backgroundModesDisabledInXcode];
     notifTypesOverride = 0;
