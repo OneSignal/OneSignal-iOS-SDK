@@ -83,6 +83,8 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
     return existing;
 }
 
+static dispatch_queue_t serialMockMainLooper;
+
 
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;
@@ -160,41 +162,51 @@ static NSMutableDictionary* defaultsDictionary;
     defaultsDictionary = [[NSMutableDictionary alloc] init];
     
     injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+    injectToProperClass(@selector(overrideSetString:forKey:), @selector(setString:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetDouble:forKey:), @selector(setDouble:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetBool:forKey:), @selector(setBool:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     
     injectToProperClass(@selector(overrideObjectForKey:), @selector(objectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+    injectToProperClass(@selector(overrideStringForKey:), @selector(stringForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideDoubleForKey:), @selector(doubleForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideBoolForKey:), @selector(boolForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
 }
 
-+(void) clearInternalDictionary {
++ (void)clearInternalDictionary {
     defaultsDictionary = [[NSMutableDictionary alloc] init];
 }
 
 // Sets
--(void) overrideSetObject:(id)value forKey:(NSString*)key {
+-(void)overrideSetObject:(id)value forKey:(NSString*)key {
     defaultsDictionary[key] = value;
 }
 
--(void) overrideSetDouble:(double)value forKey:(NSString*)key {
+-(void)overrideSetString:(NSString*)value forKey:(NSString*)key {
+    defaultsDictionary[key] = value;
+}
+
+- (void)overrideSetDouble:(double)value forKey:(NSString*)key {
     defaultsDictionary[key] = [NSNumber numberWithDouble:value];
 }
 
--(void) overrideSetBool:(BOOL)value forKey:(NSString*)key {
+- (void)overrideSetBool:(BOOL)value forKey:(NSString*)key {
     defaultsDictionary[key] = [NSNumber numberWithBool:value];
 }
 
 // Gets
--(id) overrideObjectForKey:(NSString*)key {
+- (id)overrideObjectForKey:(NSString*)key {
     return defaultsDictionary[key];
 }
 
--(double) overrideDoubleForKey:(NSString*)key {
+- (NSString*)overrideStringForKey:(NSString*)key {
+    return defaultsDictionary[key];
+}
+
+-( double)overrideDoubleForKey:(NSString*)key {
     return [defaultsDictionary[key] doubleValue];
 }
 
--(BOOL) overrideBoolForKey:(NSString*)key {
+- (BOOL)overrideBoolForKey:(NSString*)key {
     return [defaultsDictionary[key] boolValue];
 }
 
@@ -316,7 +328,8 @@ static int notifTypesOverride = 7;
 static NSNumber *authorizationStatus;
 static NSSet<UNNotificationCategory *>* lastSetCategories;
 
-static dispatch_queue_t serialQueue;
+// Serial queue that simulates how UNNotification center fires callbacks.
+static dispatch_queue_t unNotifiserialQueue;
 
 static int getNotificationSettingsWithCompletionHandlerStackCount;
 
@@ -325,7 +338,7 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
 + (void)load {
     getNotificationSettingsWithCompletionHandlerStackCount =  0;
     
-    serialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
+    unNotifiserialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
     
     injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
                         @selector(initWithBundleIdentifier:), @[],
@@ -352,7 +365,7 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     getNotificationSettingsWithCompletionHandlerStackCount++;
     
     // Simulates running on a sequential serial queue like iOS does.
-    dispatch_async(serialQueue, ^{
+    dispatch_async(unNotifiserialQueue, ^{
         
         id retSettings = [UNNotificationSettings alloc];
         [retSettings setValue:authorizationStatus forKeyPath:@"authorizationStatus"];
@@ -408,6 +421,8 @@ static UIApplicationState currentUIApplicationState;
 
 static UILocalNotification* lastUILocalNotification;
 
+static BOOL pendingRegiseterBlock;
+
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
@@ -436,13 +451,21 @@ static UILocalNotification* lastUILocalNotification;
     if (!shouldFireDeviceToken)
         return;
     
+    pendingRegiseterBlock = true;
+}
+
++ (void)callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken {
+    if (!pendingRegiseterBlock)
+        return;
+    pendingRegiseterBlock = false;
+    
+    id app = [UIApplication sharedApplication];
+    id appDelegate = [[UIApplication sharedApplication] delegate];
     
     char bytes[32];
     memset(bytes, 0, 32);
-    
     id deviceToken = [NSData dataWithBytes:bytes length:32];
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-
 }
 
 // Called on iOS 8+
@@ -491,8 +514,6 @@ static UILocalNotification* lastUILocalNotification;
 static NSString* lastUrl;
 static NSDictionary* lastHTTPRequset;
 static int networkRequestCount;
-
-static dispatch_queue_t serialMockMainLooper;
 
 static float mockIOSVersion;
 
@@ -680,6 +701,7 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 - (void)clearStateForAppRestart {
+    NSLog(@"=======  APP RESTART ======\n\n");
     timeOffset = 0;
     networkRequestCount = 0;
     lastUrl = nil;
@@ -688,6 +710,8 @@ static BOOL setupUIApplicationDelegate = false;
     lastSetCategories = nil;
     
     lastUILocalNotification = nil;
+    
+    pendingRegiseterBlock = false;
     
     preferredLanguagesArray = @[@"en-US"];
 
@@ -829,7 +853,7 @@ static BOOL setupUIApplicationDelegate = false;
     NSLog(@"START runBackgroundThreads");
     
     dispatch_queue_t registerUserQueue, notifSettingsQueue;
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 100; i++) {
         dispatch_sync(serialMockMainLooper, ^{});
         
         notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
@@ -840,7 +864,11 @@ static BOOL setupUIApplicationDelegate = false;
         if (registerUserQueue)
             dispatch_sync(registerUserQueue, ^{});
         
+        dispatch_sync(unNotifiserialQueue, ^{});
+        
         dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
+        
+        [UIApplicationOverrider callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken];
     }
     
     NSLog(@"END runBackgroundThreads");
@@ -1084,6 +1112,52 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(observer->last.from.accepted, true);
     XCTAssertEqual(observer->last.to.accepted, false);
 }
+
+
+- (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS10 {
+    mockIOSVersion = 10;
+    [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
+}
+- (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS8 {
+    mockIOSVersion = 8;
+    [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
+}
+- (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS7 {
+    mockIOSVersion = 7;
+    [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
+}
+- (void)sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart {
+    [self setCurrentNotificationPermissionAsUnanswered];
+    
+    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [self runBackgroundThreads];
+    
+    
+    [self answerNotifiationPrompt:true];
+    [self runBackgroundThreads];
+    
+    // Restart App
+    [self clearStateForAppRestart];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertNil(observer->last);
+}
+
+
+
 
 - (void)testPermissionChangeObserverDontLoseFromChanges {
     [self setCurrentNotificationPermissionAsUnanswered];
@@ -1388,6 +1462,7 @@ static BOOL setupUIApplicationDelegate = false;
     [self setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignal];
+    [self runBackgroundThreads];
     
     // Don't make a network call right away.
     XCTAssertNil(lastHTTPRequset);
@@ -1896,6 +1971,7 @@ didReceiveRemoteNotification:userInfo
     [self backgroundApp];
     [self setCurrentNotificationPermission:true];
     [self resumeApp];
+    [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastHTTPRequset[@"notification_types"], @15);
     XCTAssertEqualObjects(lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");

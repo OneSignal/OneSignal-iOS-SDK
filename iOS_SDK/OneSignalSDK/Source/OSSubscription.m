@@ -108,8 +108,13 @@
 - (void)setPushToken:(NSString*)pushToken {
     BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
     _pushToken = pushToken;
-    if (self.observable && changed)
-        [self.observable notifyChange:self];
+    if (changed) {
+        [[NSUserDefaults standardUserDefaults] setObject:_pushToken forKey:@"GT_DEVICE_TOKEN"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        if (self.observable)
+            [self.observable notifyChange:self];
+    }
 }
 
 - (void)setUserSubscriptionSetting:(BOOL)userSubscriptionSetting {

@@ -849,11 +849,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     waitingForApnsResponse = false;
-    
     [self updateDeviceToken:inDeviceToken onSuccess:successBlock onFailure:failureBlock];
-    
-    [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.pushToken forKey:@"GT_DEVICE_TOKEN"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -875,10 +871,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
             if (status.answeredPrompt)
                 [OneSignal registerUser];
-            else {
-                [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-                [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:30.0f];
-            }
+            else
+                [self registerUserAfterDelay];
         }];
         return;
     }
@@ -949,6 +943,12 @@ static BOOL waitingForOneSReg = false;
     return delta > minTimeThreshold;
 }
 
+
++ (void)registerUserAfterDelay {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
+    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:30.0f];
+}
+
 static dispatch_queue_t serialQueue;
 
 + (dispatch_queue_t) getRegisterQueue {
@@ -956,6 +956,11 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUser {
+    if (waitingForApnsResponse) {
+        [self registerUserAfterDelay];
+        return;
+    }
+    
     if (!serialQueue)
         serialQueue = dispatch_queue_create("com.onesignal.regiseruser", DISPATCH_QUEUE_SERIAL);
    

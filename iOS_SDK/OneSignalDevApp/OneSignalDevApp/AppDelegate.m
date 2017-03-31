@@ -37,10 +37,16 @@
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_WARN];
     
-    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeNotification;
+    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
+    
+    id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
+        NSLog(@"OSNotificationOpenedResult: %@", result);
+    };
+    
+    
     [OneSignal initWithLaunchOptions:launchOptions
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:^(OSNotificationOpenedResult *result) {}
+            handleNotificationAction:openNotificationHandler
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
     [OneSignal sendTag:@"someKey1122" value:@"03222017"];

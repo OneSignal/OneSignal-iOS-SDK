@@ -42,7 +42,8 @@
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     OSPermissionState* status = OneSignal.currentPermissionState;
     
-    status.notificationTypes = [self getNotificationTypes];
+    // Don't call getNotificationTypes as this will cause currentSubscriptionState to initialize before currentPermissionState
+    status.notificationTypes = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"] == nil ? 0 : 7;
     status.accepted = status.notificationTypes > 0;
     status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     
@@ -59,7 +60,7 @@
     return returnState;
 }
 
-- (int) getNotificationTypes {
+- (int)getNotificationTypes {
     return OneSignal.currentSubscriptionState.pushToken == nil ? 0 : 7;
 }
 
