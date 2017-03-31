@@ -455,7 +455,7 @@ static BOOL pendingRegiseterBlock;
 }
 
 + (void)callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken {
-    if (!pendingRegiseterBlock)
+    if (!pendingRegiseterBlock || currentUIApplicationState != UIApplicationStateActive)
         return;
     pendingRegiseterBlock = false;
     
@@ -740,6 +740,8 @@ static BOOL setupUIApplicationDelegate = false;
     
     uiAlertButtonArray = [NSMutableArray new];
     
+    currentUIApplicationState = UIApplicationStateActive;
+    
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
 }
 
@@ -836,7 +838,7 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 - (void)backgroundApp {
-    currentUIApplicationState = UIApplicationStateInactive;
+    currentUIApplicationState = UIApplicationStateBackground;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationWillResignActive:sharedApp];
 }
@@ -853,7 +855,7 @@ static BOOL setupUIApplicationDelegate = false;
     NSLog(@"START runBackgroundThreads");
     
     dispatch_queue_t registerUserQueue, notifSettingsQueue;
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 10; i++) {
         dispatch_sync(serialMockMainLooper, ^{});
         
         notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
@@ -1215,8 +1217,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
 }
-
-
 
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
@@ -1684,9 +1684,6 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertEqual(networkRequestCount, 2);
 }
 
-
-
-
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
 - (void)testNotificationAlertButtonsDisplayWithNewformat {
     __block BOOL openedWasFire = false;
@@ -1827,7 +1824,6 @@ didReceiveRemoteNotification:userInfo
 }
 
 
-// Testing iOS 8
 - (void)testGeneratingLocalNotificationWithButtonsiOS8 {
     mockIOSVersion = 8;
     [self initOneSignal];
@@ -1851,7 +1847,6 @@ didReceiveRemoteNotification:userInfo
     
     XCTAssertEqualObjects(lastUILocalNotification.alertBody, @"alert body only");
 }
-
 
 
 
@@ -2001,6 +1996,40 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
     XCTAssertEqual(networkRequestCount, 2);
 }
+
+
+
+// Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
+- (void)testContentAvailableDoesNotTriggerOpen  {
+    currentUIApplicationState = UIApplicationStateBackground;
+    __block BOOL receivedWasFire = false;
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+          handleNotificationReceived:^(OSNotification *result) {
+            receivedWasFire = true;
+          }
+                 handleNotificationAction:nil
+                            settings:nil];
+    [self runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"custom": @{
+                            @"i": @"b2f7f966-d8cc-11e4-1111-df8f05be55bb"
+                            }
+                    };
+    
+    
+    id appDelegate = [UIApplication sharedApplication].delegate;
+    [appDelegate application:[UIApplication sharedApplication]
+didReceiveRemoteNotification:userInfo
+      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertEqual(receivedWasFire, true);
+    XCTAssertEqual(networkRequestCount, 0);
+}
+
+
 
 // iOS 10 - Notification Service Extension test
 - (void) testDidReceiveNotificatioExtensionRequest {
