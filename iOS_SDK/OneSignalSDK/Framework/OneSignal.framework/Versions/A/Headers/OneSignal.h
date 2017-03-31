@@ -48,7 +48,6 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 #define XC8_AVAILABLE 1
 #import <UserNotifications/UserNotifications.h>
-
 #endif
 
 /* The action type associated to an OSNotificationAction object */
@@ -68,14 +67,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     /*iOS native notification display*/
     OSNotificationDisplayTypeNotification
 };
-
-
-
-/*
- Used as value type for `kOSSettingsKeyInFocusDisplayOption`
-   for setting the display option of a notification received while the app was in focus.
- */
-typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 
 @interface OSNotificationAction : NSObject
@@ -174,15 +165,24 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 @end;
 
 
-// TODO: Check tenses (past vs present)
+typedef NS_ENUM(NSInteger, OSNotificationPermission) {
+    // The user has not yet made a choice regarding whether your app can show notifications.
+    OSNotificationPermissionNotDetermined = 0,
+    
+    // The application is not authorized to post user notifications.
+    OSNotificationPermissionDenied,
+    
+    // The application is authorized to post user notifications.
+    OSNotificationPermissionAuthorized
+};
+
 
 
 // Permission Classes
 @interface OSPermissionState : NSObject
 
 @property (readonly, nonatomic) BOOL hasPrompted;
-@property (readonly, nonatomic) BOOL anwseredPrompt;
-@property (readonly, nonatomic) BOOL accepted;
+@property (readonly, nonatomic) OSNotificationPermission status;
 
 @end
 
@@ -190,8 +190,6 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 @property (readonly) OSPermissionState* to;
 @property (readonly) OSPermissionState* from;
-@property (readonly, nonatomic) BOOL justEnabled;
-@property (readonly, nonatomic) BOOL justDisabled;
 
 @end
 
@@ -235,9 +233,6 @@ typedef OSNotificationDisplayType OSInFocusDisplayOption;
 
 
 
-
-
-
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
@@ -268,6 +263,8 @@ extern NSString * const kOSSettingsKeyInAppLaunchURL;
 extern NSString * const kOSSettingsKeyInFocusDisplayOption;
 
 
+
+// ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
 extern NSString* const ONESIGNAL_VERSION;
@@ -278,8 +275,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 
 /**
- Initialize OneSignal. Sends push token to OneSignal so you can later send notifications.
- 
+ Initialize OneSignal.
+ Sends push token to OneSignal so you can later send notifications.
 */
 
 // - Initialization
@@ -288,7 +285,11 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 
+@property (class) OSNotificationDisplayType inFocusDisplayType;
+
 + (NSString*)app_id;
++ (NSString*)sdk_version_raw;
++ (NSString*)sdk_semantic_version;
 
 // Only use if you set kOSSettingsKeyAutoPrompt to false
 + (void)registerForPushNotifications;
@@ -318,18 +319,16 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 // - Subscription and Permissions
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
-+ (OSPermissionSubscriptionState*)getPermisionSubscriptionState;
 
-// + (void)addSubscriptionChanged:(void(^)(OSSubscriptionStateChanges* subscriptionStatus))completionHandler;
-+ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 
++ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
+
 + (void)setSubscription:(BOOL)enable;
-
-
 
 // - Posting Notification
 + (void)postNotification:(NSDictionary*)jsonData;
