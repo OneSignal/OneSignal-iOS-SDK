@@ -511,7 +511,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 
-+ (OSPermissionSubscriptionState*)getPermisionSubscriptionState {
++ (OSPermissionSubscriptionState*)getPermissionSubscriptionState {
     OSPermissionSubscriptionState* status = [OSPermissionSubscriptionState alloc];
     
     status.subscriptionStatus = self.currentSubscriptionState;

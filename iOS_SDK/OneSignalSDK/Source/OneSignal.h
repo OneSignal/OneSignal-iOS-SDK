@@ -69,14 +69,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 };
 
 
-
-/*
- Used as value type for `kOSSettingsKeyInFocusDisplayOption`
-   for setting the display option of a notification received while the app was in focus.
- */
-typedef OSNotificationDisplayType OSInFocusDisplayOption;
-
-
 @interface OSNotificationAction : NSObject
 
 /* The type of the notification action */
@@ -326,14 +318,14 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 // - Subscription and Permissions
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
-+ (OSPermissionSubscriptionState*)getPermisionSubscriptionState;
 
-// + (void)addSubscriptionChanged:(void(^)(OSSubscriptionStateChanges* subscriptionStatus))completionHandler;
-+ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
+
++ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
 
 + (void)setSubscription:(BOOL)enable;
 
