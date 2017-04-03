@@ -507,7 +507,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     return true;
 }
 
-+ (void)promptForPushNotificationWithUserResponse:(void(^)(BOOL accepted))completionHandler {
++ (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", waitingForApnsResponse]];
     
     self.currentPermissionState.hasPrompted = true;
@@ -518,7 +518,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 // This registers for a push token and prompts the user for notifiations permisions
 //    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
 + (void)registerForPushNotifications {
-    [self promptForPushNotificationWithUserResponse:nil];
+    [self promptForPushNotificationsWithUserResponse:nil];
 }
 
 

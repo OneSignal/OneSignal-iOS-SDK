@@ -1410,13 +1410,13 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 
-- (void)testPromptForPushNotificationWithUserResponse {
+- (void)testPromptForPushNotificationsWithUserResponse {
     [self setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignal];
     
     __block BOOL didAccept;
-    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         didAccept = accepted;
     }];
     [self backgroundApp];
@@ -1425,14 +1425,14 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertTrue(didAccept);
 }
 
-- (void)testPromptForPushNotificationWithUserResponseOnIOS8 {
+- (void)testPromptForPushNotificationsWithUserResponseOnIOS8 {
     [self setCurrentNotificationPermissionAsUnanswered];
     mockIOSVersion = 8;
     
     [self initOneSignal];
     
     __block BOOL didAccept;
-    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         didAccept = accepted;
     }];
     [self backgroundApp];
@@ -1441,14 +1441,14 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertTrue(didAccept);
 }
 
-- (void)testPromptForPushNotificationWithUserResponseOnIOS7 {
+- (void)testPromptForPushNotificationsWithUserResponseOnIOS7 {
     [self setCurrentNotificationPermissionAsUnanswered];
     mockIOSVersion = 7;
     
     [self initOneSignal];
     
     __block BOOL didAccept;
-    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
+    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         didAccept = accepted;
     }];
     [self backgroundApp];
