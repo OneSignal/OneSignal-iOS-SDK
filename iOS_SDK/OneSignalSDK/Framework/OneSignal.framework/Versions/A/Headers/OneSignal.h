@@ -292,7 +292,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (NSString*)sdk_semantic_version;
 
 // Only use if you set kOSSettingsKeyAutoPrompt to false
-+ (void)registerForPushNotifications;
++ (void)registerForPushNotifications __deprecated_msg("Please use promptForPushNotificationsWithUserResponse instead.");
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler;
 
 // - Logging
@@ -318,7 +318,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)syncHashedEmail:(NSString*)email;
 
 // - Subscription and Permissions
-+ (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock;
++ (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock __deprecated_msg("Please use getPermissionSubscriptionState or addSubscriptionObserver and addPermissionObserver instead.");
 
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
