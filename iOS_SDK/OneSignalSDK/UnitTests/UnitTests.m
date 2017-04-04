@@ -531,11 +531,18 @@ static float mockIOSVersion;
 }
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
+    NSError *error = nil;
+    NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
+    
+    // We should always send an app_id with every request.
+    if (!parameters[@"app_id"])
+        _XCTPrimitiveFail(currentTestInstance);
+    
     networkRequestCount++;
     
-    NSError *error = nil;
+
+    
     id url = [request URL];
-    NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
     NSLog(@"url: %@", url);
     NSLog(@"parameters: %@", parameters);
     
@@ -1030,6 +1037,38 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     
     XCTAssertEqual(networkRequestCount, 1);
+}
+
+
+
+- (void)testCallingMethodsBeforeInit {
+    [self setCurrentNotificationPermission:true];
+    
+    [OneSignal sendTag:@"key" value:@"value"];
+    [OneSignal setSubscription:true];
+    [OneSignal promptLocation];
+    [OneSignal promptForPushNotificationsWithUserResponse:nil];
+    [self runBackgroundThreads];
+    
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
+    XCTAssertEqual(networkRequestCount, 1);
+    
+    [self clearStateForAppRestart];
+    
+    [OneSignal sendTag:@"key" value:@"value"];
+    [OneSignal setSubscription:true];
+    [OneSignal promptLocation];
+    [OneSignal promptForPushNotificationsWithUserResponse:nil];
+    [self runBackgroundThreads];
+    
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    XCTAssertEqual(networkRequestCount, 0);
+    
 }
 
 - (void)testPermissionChangeObserverIOS10 {

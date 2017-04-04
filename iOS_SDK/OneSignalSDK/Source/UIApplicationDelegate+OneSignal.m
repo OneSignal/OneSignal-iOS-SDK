@@ -149,8 +149,7 @@ static NSArray* delegateSubclasses = nil;
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
-    if ([OneSignal app_id])
-        [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
     if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
         [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];

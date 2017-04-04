@@ -48,8 +48,8 @@
     
     //[OneSignal registerForPushNotifications];
     
-    [OneSignal promptForPushNotificationWithUserResponse:^(BOOL accepted) {
-        NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationWithUserResponse: %d", accepted);
+    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
+        NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationsWithUserResponse: %d", accepted);
     }];
     
     
@@ -59,7 +59,7 @@
              onSuccess:^(NSDictionary *result) {
                  static int successes = 0;
                  NSLog(@"successes: %d", ++successes);
-    }
+             }
              onFailure:^(NSError *error) {
                  static int failures = 0;
                  NSLog(@"failures: %d", ++failures);

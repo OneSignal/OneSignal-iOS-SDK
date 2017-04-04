@@ -132,7 +132,6 @@ static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
 NSMutableDictionary* tagsToSend;
-OneSignalHTTPClient *httpClient;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 
@@ -142,6 +141,15 @@ static int mSubscriptionStatus = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
+
+
+
+static OneSignalHTTPClient *_httpClient;
++ (OneSignalHTTPClient*)httpClient {
+    if (!_httpClient)
+        _httpClient = [OneSignalHTTPClient new];
+    return _httpClient;
+}
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -200,6 +208,7 @@ static OSSubscriptionState* _currentSubscriptionState;
     if (!_currentSubscriptionState) {
         _currentSubscriptionState = [OSSubscriptionState alloc];
         _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:self.currentPermissionState.accepted];
+        mLastNotificationTypes = _currentPermissionState.notificationTypes;
         [self.currentPermissionState.observable addObserver:_currentSubscriptionState];
         [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
     }
@@ -271,8 +280,11 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
 }
 
 + (void)clearStatics {
+    app_id = nil;
+    _httpClient = nil;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
+    mLastNotificationTypes = -1;
     
     _lastPermissionState = nil;
     _currentPermissionState = nil;
@@ -320,8 +332,6 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     
     if (self) {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        
-        httpClient = [[OneSignalHTTPClient alloc] init];
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
@@ -633,7 +643,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     pendingSendTagCallbacks = nil;
     
     
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
     
     NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                              app_id, @"app_id",
@@ -676,7 +686,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         return;
     
     NSMutableURLRequest* request;
-    request = [httpClient requestWithMethod:@"GET" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
+    request = [self.httpClient requestWithMethod:@"GET" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
     
     [OneSignalHelper enqueueRequest:request onSuccess:^(NSDictionary* results) {
         if ([results objectForKey:@"tags"] != nil)
@@ -735,7 +745,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:@"notifications"];
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"POST" path:@"notifications"];
     
     NSMutableDictionary* dataDic = [[NSMutableDictionary alloc] initWithDictionary:jsonData];
     dataDic[@"app_id"] = dataDic[@"app_id"] ?: app_id;
@@ -807,7 +817,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     self.currentSubscriptionState.userSubscriptionSetting = enable;
     
-    [OneSignal sendNotificationTypesUpdate];
+    if (app_id)
+        [OneSignal sendNotificationTypesUpdate];
 }
 
 
@@ -847,11 +858,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [self.osNotificationSettings onAPNsResponse:false];
 }
 
-+ (void)registerDeviceToken:(id)inDeviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    waitingForApnsResponse = false;
-    [self updateDeviceToken:inDeviceToken onSuccess:successBlock onFailure:failureBlock];
-}
-
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
     
@@ -886,7 +892,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     self.currentSubscriptionState.pushToken = deviceToken;
     
     NSMutableURLRequest* request;
-    request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
+    request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
     
     int notificationTypes = [self getNotificationTypes];
     
@@ -980,9 +986,9 @@ static dispatch_queue_t serialQueue;
     
     NSMutableURLRequest* request;
     if (!self.currentSubscriptionState.userId)
-        request = [httpClient requestWithMethod:@"POST" path:@"players"];
+        request = [self.httpClient requestWithMethod:@"POST" path:@"players"];
     else
-        request = [httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_session", self.currentSubscriptionState.userId]];
+        request = [self.httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_session", self.currentSubscriptionState.userId]];
     
     NSDictionary* infoDictionary = [[NSBundle mainBundle]infoDictionary];
     NSString* build = infoDictionary[(NSString*)kCFBundleVersionKey];
@@ -1115,11 +1121,12 @@ static dispatch_queue_t serialQueue;
         }
         
         mLastNotificationTypes = [self getNotificationTypes];
-        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
+        NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                  app_id, @"app_id",
                                  @([self getNotificationTypes]), @"notification_types",
                                  nil];
+        NSLog(@"dataDic: %@", dataDic);
         NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
         [request setHTTPBody:postData];
         
@@ -1138,7 +1145,7 @@ static dispatch_queue_t serialQueue;
     if (!self.currentSubscriptionState.userId)
         return;
     
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_purchase", self.currentSubscriptionState.userId]];
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_purchase", self.currentSubscriptionState.userId]];
     
     NSDictionary *dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                              app_id, @"app_id",
@@ -1284,7 +1291,7 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
+        NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"notifications/%@", messageId]];
         NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                                  app_id, @"app_id",
                                  self.currentSubscriptionState.userId, @"player_id",
@@ -1391,8 +1398,15 @@ static NSString *_lastnonActiveMessageId;
 + (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     NSString* trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     NSString* parsedDeviceToken = [[trimmedDeviceToken componentsSeparatedByString:@" "] componentsJoinedByString:@""];
+    
     [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
-    [OneSignal registerDeviceToken:parsedDeviceToken onSuccess:^(NSDictionary* results) {
+    
+    waitingForApnsResponse = false;
+    
+    if (!app_id)
+        return;
+    
+    [OneSignal updateDeviceToken:parsedDeviceToken onSuccess:^(NSDictionary* results) {
         [OneSignal onesignal_Log:ONE_S_LL_INFO message:[NSString stringWithFormat: @"Device Registered with OneSignal: %@", self.currentSubscriptionState.userId]];
     } onFailure:^(NSError* error) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error in OneSignal Registration: %@", error]];
@@ -1478,7 +1492,7 @@ static NSString *_lastnonActiveMessageId;
     
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"%@ - MD5: %@, SHA1:%@", lowEmail, md5, sha1]);
     
-    NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
     NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
                             app_id, @"app_id",
                             md5, @"em_m",
