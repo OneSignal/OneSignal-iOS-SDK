@@ -393,7 +393,7 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
         NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
         BOOL inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
         
-        if (inAppAlertsPassed || inAppAlertsPassed) {
+        if (inAppAlertsPassed || inFocusDisplayPassed) {
             if (!inFocusDisplayPassed)
                 self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
             else

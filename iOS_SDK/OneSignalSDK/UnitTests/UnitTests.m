@@ -1040,6 +1040,22 @@ static BOOL setupUIApplicationDelegate = false;
 }
 
 
+- (void)testFocusSettingsOnInit {
+    // Test old kOSSettingsKeyInFocusDisplayOption
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyInFocusDisplayOption: @(OSNotificationDisplayTypeNone)}];
+    
+    XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
+    
+    [self clearStateForAppRestart];
+
+    // Test old very old kOSSettingsKeyInAppAlerts
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyInAppAlerts: @(false)}];
+    XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
+}
 
 - (void)testCallingMethodsBeforeInit {
     [self setCurrentNotificationPermission:true];
