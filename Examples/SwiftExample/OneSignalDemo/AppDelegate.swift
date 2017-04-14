@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,9 @@ import OneSignal
 
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
+class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver { // Add OSPermissionObserver after UIApplicationDelegate
+    // Add OSSubscriptionObserver after UIApplicationDelegate
+    
     var window: UIWindow?
     
     let redViewController = RedViewController()
@@ -40,51 +41,47 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         // For debugging
-        OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
-
-        // Replace 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba' with your OneSignal App ID
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-            handleNotificationReceived: {
-                // OSHandleNotificationRecevedBlock - Function to be called when a notification is received
-              notification in
-
-                print("notificationID - \((notification?.payload.notificationID)!)")
-                print("launchURL = \(notification?.payload.launchURL)")
-
-                // content_available is NOT APPLICABLE IF APP HAS BEEN SWIPED AWAY
-                print("content_available = \(notification?.payload.contentAvailable)")
-        },
-            handleNotificationAction:
-            { // OSHandleNotificationActionBlock - Function to be called when a user reacts to a notification received
-              result in
+        //OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         
-                let displayType: OSNotificationDisplayType? = result?.notification.displayType
-                print("displayType = \(displayType!.rawValue)")
+        let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
+            
+            print("Received Notification: \(notification!.payload.notificationID)")
+            print("launchURL = \(notification?.payload.launchURL)")
+            print("content_available = \(notification?.payload.contentAvailable)")
+        }
+        
+        let notificationOpenedBlock: OSHandleNotificationActionBlock = { result in
+            // This block gets called when the user reacts to a notification received
+            let payload: OSNotificationPayload? = result?.notification.payload
+            
+            print("Message = \(payload!.body)")
+            print("badge number = \(payload?.badge)")
+            print("notification sound = \(payload?.sound)")
+            
+            if let additionalData = result!.notification.payload!.additionalData {
+                print("additionalData = \(additionalData)")
                 
-                let wasShown: Bool? = result?.notification.wasShown
-                print("wasShown = \(wasShown!)")
+                // DEEP LINK and open url in RedViewController
+                // Send notification with Additional Data > example key: "OpenURL" example value: "https://google.com"
+                let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+                let instantiateRedViewController : RedViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedViewControllerID") as! RedViewController
+                instantiateRedViewController.receivedURL = additionalData["OpenURL"] as! String!
+                self.window = UIWindow(frame: UIScreen.main.bounds)
+                self.window?.rootViewController = instantiateRedViewController
+                self.window?.makeKeyAndVisible()
                 
-                // https://documentation.onesignal.com/docs/ios-native-sdk#section--osnotificationpayload-
-                let payload: OSNotificationPayload? = result?.notification.payload
-
-                print("badge number = \(payload?.badge)")
-                print("notification sound = \(payload?.sound)")
-                
-                if let additionalData: [AnyHashable : Any]? = payload?.additionalData {
-                    print("additionalData = \(additionalData)")
-                }
                 
                 if let actionSelected = payload?.actionButtons {
                     print("actionSelected = \(actionSelected)")
                 }
                 
-        
+                // DEEP LINK from action buttons
                 if let actionID = result?.action.actionID {
                     
                     // For presenting a ViewController from push notification action button
                     let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                    let instantiateRedViewController : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedVCID") as UIViewController
-                    let instantiatedGreenViewController: UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "GreenVCID") as UIViewController
+                    let instantiateRedViewController : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedViewControllerID") as UIViewController
+                    let instantiatedGreenViewController: UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "GreenViewControllerID") as UIViewController
                     self.window = UIWindow(frame: UIScreen.main.bounds)
                     
                     print("actionID = \(actionID)")
@@ -93,26 +90,75 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         print("do something when button 2 is pressed")
                         self.window?.rootViewController = instantiateRedViewController
                         self.window?.makeKeyAndVisible()
-
-
+                        
+                        
                     } else if actionID == "id1" {
                         print("do something when button 1 is pressed")
                         self.window?.rootViewController = instantiatedGreenViewController
                         self.window?.makeKeyAndVisible()
-
+                        
                     }
                 }
-        },
-           settings: [
-            kOSSettingsKeyAutoPrompt : false, // automatically prompts users to Enable Notifications
-                
-            kOSSettingsKeyInFocusDisplayOption : OSNotificationDisplayType.notification.rawValue,
-            
-            kOSSettingsKeyInAppLaunchURL: true // true-default
-            ])
+            }
+        }
+        
+        let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true, ]
+        
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "<REPLACE_WITH_YOUR_ONESIGNAL_APP_ID", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
+        
+        OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
+        
+        // Add your AppDelegate as an obsserver
+        OneSignal.add(self as OSPermissionObserver)
+        
+        OneSignal.add(self as OSSubscriptionObserver)
         
         return true
     }
     
+    // Add this new method
+    func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges!) {
+        
+        // Example of detecting answering the permission prompt
+        if stateChanges.from.status == OSNotificationPermission.notDetermined {
+            if stateChanges.to.status == OSNotificationPermission.authorized {
+                print("Thanks for accepting notifications!")
+            } else if stateChanges.to.status == OSNotificationPermission.denied {
+                print("Notifications not accepted. You can turn them on later under your iOS settings.")
+            }
+        }
+        // prints out all properties
+        print("PermissionStateChanges: \n\(stateChanges)")
+    }
+    
+    // Output:
+    /*
+     Thanks for accepting notifications!
+     PermissionStateChanges:
+     Optional(<OSSubscriptionStateChanges:
+     from: <OSPermissionState: hasPrompted: 0, status: NotDetermined>,
+     to:   <OSPermissionState: hasPrompted: 1, status: Authorized>
+     >
+     */
+    
+    // TODO: update docs to change method name
+    // Add this new method
+    func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges!) {
+        if !stateChanges.from.subscribed && stateChanges.to.subscribed {
+            print("Subscribed for OneSignal push notifications!")
+        }
+        print("SubscriptionStateChange: \n\(stateChanges)")
+    }
+    
+    // Output:
+    
+    /*
+     Subscribed for OneSignal push notifications!
+     PermissionStateChanges:
+     Optional(<OSSubscriptionStateChanges:
+     from: <OSSubscriptionState: userId: (null), pushToken: 0000000000000000000000000000000000000000000000000000000000000000 userSubscriptionSetting: 1, subscribed: 0>,
+     to:   <OSSubscriptionState: userId: 11111111-222-333-444-555555555555, pushToken: 0000000000000000000000000000000000000000000000000000000000000000, userSubscriptionSetting: 1, subscribed: 1>
+     >
+     */
 }
 

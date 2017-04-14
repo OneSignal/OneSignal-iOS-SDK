@@ -19,7 +19,6 @@
 		91C3CFDA1E7266F600D9EA80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFD21E7266F600D9EA80 /* Assets.xcassets */; };
 		91C3CFDB1E7266F600D9EA80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFD31E7266F600D9EA80 /* LaunchScreen.storyboard */; };
 		91C3CFDC1E7266F600D9EA80 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFD51E7266F600D9EA80 /* Main.storyboard */; };
-		91C3CFDD1E7266F600D9EA80 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFD71E7266F600D9EA80 /* Info.plist */; };
 		91C3CFDE1E7266F600D9EA80 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C3CFD81E7266F600D9EA80 /* ViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -128,14 +127,14 @@
 			isa = PBXGroup;
 			children = (
 				9150E76B1E734FB000C5D46A /* OneSignalDemo.entitlements */,
+				91C3CFD11E7266F600D9EA80 /* AppDelegate.swift */,
+				91C3CFD81E7266F600D9EA80 /* ViewController.swift */,
 				9150E7671E734F6E00C5D46A /* GreenViewController.swift */,
 				9150E7681E734F6E00C5D46A /* RedViewController.swift */,
-				91C3CFD11E7266F600D9EA80 /* AppDelegate.swift */,
 				91C3CFD21E7266F600D9EA80 /* Assets.xcassets */,
 				91C3CFD31E7266F600D9EA80 /* LaunchScreen.storyboard */,
 				91C3CFD51E7266F600D9EA80 /* Main.storyboard */,
 				91C3CFD71E7266F600D9EA80 /* Info.plist */,
-				91C3CFD81E7266F600D9EA80 /* ViewController.swift */,
 			);
 			path = OneSignalDemo;
 			sourceTree = "<group>";
@@ -211,17 +210,17 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = OneSignal;
 				TargetAttributes = {
 					9112E8AC1E725C1E0022A1CB = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = 99SW8E36CT;
+						DevelopmentTeam = MGZJFP2D98;
 						ProvisioningStyle = Automatic;
 					};
 					91E4D50C1C7521DE00025BA8 = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = 99SW8E36CT;
+						DevelopmentTeam = MGZJFP2D98;
 						LastSwiftMigration = 0800;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -265,7 +264,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91C3CFDD1E7266F600D9EA80 /* Info.plist in Resources */,
 				91C3CFDC1E7266F600D9EA80 /* Main.storyboard in Resources */,
 				91C3CFDA1E7266F600D9EA80 /* Assets.xcassets in Resources */,
 				91C3CFDB1E7266F600D9EA80 /* LaunchScreen.storyboard in Resources */,
@@ -410,7 +408,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = MGZJFP2D98;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
@@ -430,7 +428,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = MGZJFP2D98;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
@@ -455,8 +453,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -500,8 +500,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -520,6 +522,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -531,7 +534,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDemo/OneSignalDemo.entitlements;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = MGZJFP2D98;
 				INFOPLIST_FILE = "$(SRCROOT)/OneSignalDemo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
@@ -547,7 +550,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDemo/OneSignalDemo.entitlements;
-				DEVELOPMENT_TEAM = 99SW8E36CT;
+				DEVELOPMENT_TEAM = MGZJFP2D98;
 				INFOPLIST_FILE = "$(SRCROOT)/OneSignalDemo/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;

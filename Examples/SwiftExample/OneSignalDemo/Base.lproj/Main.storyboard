@@ -13,7 +13,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="OneSignalSwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="OneSignalDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -25,16 +25,8 @@
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="bnb-7j-Txm">
                                 <rect key="frame" x="16" y="28" width="343" height="350"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NoN-j4-eys">
-                                        <rect key="frame" x="0.0" y="0.0" width="343" height="30"/>
-                                        <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" title="Register For Push Notifications"/>
-                                        <connections>
-                                            <action selector="onRegisterForPushNotificationsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6lH-KH-rt5"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="scp-Od-j8b">
-                                        <rect key="frame" x="0.0" y="40" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Send Tags"/>
                                         <connections>
@@ -42,7 +34,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MMG-pT-YBb">
-                                        <rect key="frame" x="0.0" y="80" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="40" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Get Tags"/>
                                         <connections>
@@ -50,7 +42,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v8N-J4-GZS">
-                                        <rect key="frame" x="0.0" y="120" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="80" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Delete or Update Tags"/>
                                         <connections>
@@ -58,7 +50,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e0d-lw-fVn">
-                                        <rect key="frame" x="0.0" y="160" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="120" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Get IDs Available"/>
                                         <connections>
@@ -66,7 +58,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z6a-jZ-De4">
-                                        <rect key="frame" x="0.0" y="200" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="160" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Sync Email"/>
                                         <connections>
@@ -74,7 +66,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ebf-52-A41">
-                                        <rect key="frame" x="0.0" y="240" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="200" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Prompt Location"/>
                                         <connections>
@@ -82,7 +74,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yZR-mo-rso">
-                                        <rect key="frame" x="0.0" y="280" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="240" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Send Notification 1"/>
                                         <connections>
@@ -90,11 +82,21 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Ye-re-geG">
-                                        <rect key="frame" x="0.0" y="320" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="280" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Send Notification 2"/>
                                         <connections>
                                             <action selector="onSendNotificationButton2:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6ql-PC-jCC"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NoN-j4-eys">
+                                        <rect key="frame" x="0.0" y="320" width="343" height="30"/>
+                                        <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <state key="normal" title="Register For Push Notifications">
+                                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="onRegisterForPushNotificationsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6lH-KH-rt5"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -102,7 +104,7 @@
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="KEj-eg-d7y">
                                 <rect key="frame" x="36" y="388" width="303" height="31"/>
                                 <subviews>
-                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uKa-sC-xZ3">
+                                    <switch opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uKa-sC-xZ3">
                                         <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
                                         <connections>
                                             <action selector="onAllowNotificationsSwitch:" destination="BYZ-38-t0r" eventType="valueChanged" id="9gF-vS-Dpc"/>
@@ -140,6 +142,7 @@
                     </view>
                     <connections>
                         <outlet property="allowNotificationsSwitch" destination="uKa-sC-xZ3" id="Efd-Ht-6Ia"/>
+                        <outlet property="registerForPushNotificationsButton" destination="NoN-j4-eys" id="r3k-Gg-ibX"/>
                         <outlet property="setSubscriptionLabel" destination="ljh-6a-4qh" id="ZvJ-iv-Urz"/>
                         <outlet property="textView" destination="Ev6-VI-BvV" id="dp4-QG-HGP"/>
                     </connections>
@@ -151,7 +154,7 @@
         <!--Red View Controller-->
         <scene sceneID="wsv-XR-6cJ">
             <objects>
-                <viewController storyboardIdentifier="RedVCID" id="HOQ-QO-dEV" customClass="RedViewController" customModule="OneSignalSwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="RedViewControllerID" id="HOQ-QO-dEV" customClass="RedViewController" customModule="OneSignalDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="l1F-yi-Naj"/>
                         <viewControllerLayoutGuide type="bottom" id="5Uv-gA-8Xe"/>
@@ -160,18 +163,36 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rCf-Gn-vSP">
-                                <rect key="frame" x="145" y="312" width="85" height="43"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RiD-te-s2Q">
+                                <rect key="frame" x="16" y="125" width="343" height="522"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </webView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LMN-CQ-rTX">
+                                <rect key="frame" x="16" y="20" width="100" height="60"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="Ixr-rd-I8S"/>
+                                    <constraint firstAttribute="width" constant="100" id="TYF-dF-eIK"/>
+                                </constraints>
                                 <state key="normal" title="Back"/>
                                 <connections>
-                                    <segue destination="BYZ-38-t0r" kind="show" id="peM-GC-T4B"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" id="kqH-07-4En"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="RiD-te-s2Q" firstAttribute="trailing" secondItem="LCh-mQ-Rz8" secondAttribute="trailingMargin" id="BMf-2W-OSL"/>
+                            <constraint firstItem="LMN-CQ-rTX" firstAttribute="leading" secondItem="LCh-mQ-Rz8" secondAttribute="leadingMargin" id="GUP-BG-mEx"/>
+                            <constraint firstItem="5Uv-gA-8Xe" firstAttribute="top" secondItem="RiD-te-s2Q" secondAttribute="bottom" constant="20" id="JbF-df-bon"/>
+                            <constraint firstItem="RiD-te-s2Q" firstAttribute="leading" secondItem="LCh-mQ-Rz8" secondAttribute="leadingMargin" id="KJQ-YB-g4c"/>
+                            <constraint firstItem="RiD-te-s2Q" firstAttribute="top" secondItem="LMN-CQ-rTX" secondAttribute="bottom" constant="45" id="WgF-bh-8MC"/>
+                            <constraint firstItem="LMN-CQ-rTX" firstAttribute="top" secondItem="l1F-yi-Naj" secondAttribute="bottom" id="iMW-mE-UJc"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="webView" destination="RiD-te-s2Q" id="4sd-i5-Myj"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="thk-mn-Vch" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -180,7 +201,7 @@
         <!--Green View Controller-->
         <scene sceneID="ze2-vP-7wk">
             <objects>
-                <viewController storyboardIdentifier="GreenVCID" id="mEE-ii-fyP" customClass="GreenViewController" customModule="OneSignalSwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="GreenViewControllerID" id="mEE-ii-fyP" customClass="GreenViewController" customModule="OneSignalDemo" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="OUS-26-2Va"/>
                         <viewControllerLayoutGuide type="bottom" id="9En-82-DSz"/>
@@ -195,7 +216,7 @@
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <state key="normal" title="Back"/>
                                 <connections>
-                                    <segue destination="BYZ-38-t0r" kind="show" id="rh8-e5-vth"/>
+                                    <segue destination="BYZ-38-t0r" kind="show" id="dS9-bu-QoW"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -208,6 +229,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="rh8-e5-vth"/>
+        <segue reference="kqH-07-4En"/>
     </inferredMetricsTieBreakers>
 </document>

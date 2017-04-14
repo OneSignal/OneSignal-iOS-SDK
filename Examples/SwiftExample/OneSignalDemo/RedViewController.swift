@@ -29,15 +29,25 @@
 import UIKit
 
 class RedViewController: UIViewController {
+    
+    var receivedURL: String?
 
+    @IBOutlet weak var webView: UIWebView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        if receivedURL != nil {
+            loadURL(url: receivedURL!)
+        }
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func loadURL(url: Any) {
+        
+        guard let URL = URL(string: url as! String)
+            
+            else { return }
+        
+        webView.loadRequest(URLRequest(url: URL))
     }
 }
