@@ -49,8 +49,10 @@
     [OneSignal initWithLaunchOptions:launchOptions
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:openNotificationHandler
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+                            settings:@{kOSSettingsKeyAutoPrompt: @false,
+                                       kOSSettingsKeyInAppLaunchURL: @false}];
     
+    [OneSignal promptLocation];
     [OneSignal sendTag:@"someKey1122" value:@"03222017"];
     
     [OneSignal addPermissionObserver:self];
