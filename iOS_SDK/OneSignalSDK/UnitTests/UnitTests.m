@@ -1965,6 +1965,10 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil(lastHTTPRequset[@"tags"][@"key"]);
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
     XCTAssertEqual(networkRequestCount, 2);
+    
+    
+    [OneSignal sendTags:@{@"someKey": @NO}];
+    [OneSignal deleteTag:@"someKey"];
 }
 
 - (void)testSendTagsBeforeRegisterComplete {

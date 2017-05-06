@@ -729,7 +729,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     for(NSString* key in keys) {
         if (tagsToSend && tagsToSend[key]) {
-            if (![tagsToSend[key] isEqualToString:@""])
+            if (![tagsToSend[key] isEqual:@""])
                 [tagsToSend removeObjectForKey:key];
         }
         else
