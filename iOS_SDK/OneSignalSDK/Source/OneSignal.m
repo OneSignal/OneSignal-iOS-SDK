@@ -118,6 +118,8 @@ static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
 static NSMutableArray* pendingSendTagCallbacks;
+static OSResultSuccessBlock pendingGetTagsSuccessBlock;
+static OSFailureBlock pendingGetTagsFailureBlock;
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
@@ -682,8 +684,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)getTags:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    if (!self.currentSubscriptionState.userId)
+    if (!self.currentSubscriptionState.userId) {
+        pendingGetTagsSuccessBlock = successBlock;
+        pendingGetTagsFailureBlock = failureBlock;
         return;
+    }
     
     NSMutableURLRequest* request;
     NSString* path = [NSString stringWithFormat:@"players/%@?app_id=%@", self.currentSubscriptionState.userId, self.app_id];
@@ -1094,6 +1099,13 @@ static dispatch_queue_t serialQueue;
             [self fireIdsAvailableCallback];
             
             [self sendNotificationTypesUpdate];
+            
+            if (pendingGetTagsSuccessBlock) {
+                [OneSignal getTags:pendingGetTagsSuccessBlock onFailure:pendingGetTagsFailureBlock];
+                pendingGetTagsSuccessBlock = nil;
+                pendingGetTagsFailureBlock = nil;
+            }
+            
         }
     } onFailure:^(NSError* error) {
         waitingForOneSReg = false;

@@ -1958,6 +1958,7 @@ didReceiveRemoteNotification:userInfo
         didRunSuccess3 = true;
     } onFailure:^(NSError *error) {}];
     
+    [self runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     [self runBackgroundThreads];
     
@@ -1977,13 +1978,17 @@ didReceiveRemoteNotification:userInfo
     [self runBackgroundThreads];
     XCTAssertEqual(networkRequestCount, 1);
     
+    NSLog(@"Calling sendTag and deleteTag");
     // send 2 tags and delete 1 before they get sent off.
     [OneSignal sendTag:@"key" value:@"value"];
     [OneSignal sendTag:@"key2" value:@"value2"];
     [OneSignal deleteTag:@"key"];
+    NSLog(@"Finished calling sendTag and deleteTag");
     
     // Make sure only 1 network call is made and only key2 gets sent.
     [NSObjectOverrider runPendingSelectors];
+    [self runBackgroundThreads];
+    
     XCTAssertNil(lastHTTPRequset[@"tags"][@"key"]);
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
     XCTAssertEqual(networkRequestCount, 2);
@@ -2012,10 +2017,28 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue(fireGetTags);
 }
 
-- (void)testGetTagsWithNestedDelete {
+- (void)testGetTagsBeforePlayerId {
     [self initOneSignal];
     [self runBackgroundThreads];
     XCTAssertEqual(networkRequestCount, 1);
+    
+    __block BOOL fireGetTags = false;
+    
+    [OneSignal getTags:^(NSDictionary *result) {
+        NSLog(@"getTags success HERE");
+        fireGetTags = true;
+    } onFailure:^(NSError *error) {
+        NSLog(@"getTags onFailure HERE");
+    }];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertTrue(fireGetTags);
+
+}
+
+- (void)testGetTagsWithNestedDelete {
+    [self initOneSignal];
     
     __block BOOL fireDeleteTags = false;
     
@@ -2031,9 +2054,14 @@ didReceiveRemoteNotification:userInfo
         NSLog(@"getTags onFailure HERE");
     }];
     
+    
+    [self runBackgroundThreads];
+    
     [self runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
+    // create, ge tags, then sendTags call.
+    XCTAssertEqual(networkRequestCount, 3);
     XCTAssertTrue(fireDeleteTags);
 }
 
