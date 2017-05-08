@@ -1287,9 +1287,10 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)launchWebURL:(NSString*)openUrl {
-
-    if (openUrl && [OneSignalHelper verifyURL:openUrl]) {
-        NSURL *url = [NSURL URLWithString:openUrl];
+    NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
+    
+    if (toOpenUrl && [OneSignalHelper verifyURL:toOpenUrl]) {
+        NSURL *url = [NSURL URLWithString:toOpenUrl];
         // Give the app resume animation time to finish when tapping on a notification from the notification center.
         // Isn't a requirement but improves visual flow.
         [OneSignalHelper performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
