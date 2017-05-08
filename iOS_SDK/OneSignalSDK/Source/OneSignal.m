@@ -628,7 +628,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // Can't send tags yet as their isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
     if (self.currentSubscriptionState.userId)
-        [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
+       [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
 
 // Called only with a delay to batch network calls.
@@ -686,11 +686,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         return;
     
     NSMutableURLRequest* request;
-    request = [self.httpClient requestWithMethod:@"GET" path:[NSString stringWithFormat:@"players/%@", self.currentSubscriptionState.userId]];
+    NSString* path = [NSString stringWithFormat:@"players/%@?app_id=%@", self.currentSubscriptionState.userId, self.app_id];
+    request = [self.httpClient requestWithMethod:@"GET" path:path];
     
     [OneSignalHelper enqueueRequest:request onSuccess:^(NSDictionary* results) {
-        if ([results objectForKey:@"tags"] != nil)
-            successBlock([results objectForKey:@"tags"]);
+        successBlock([results objectForKey:@"tags"]);
     } onFailure:failureBlock];
 }
 

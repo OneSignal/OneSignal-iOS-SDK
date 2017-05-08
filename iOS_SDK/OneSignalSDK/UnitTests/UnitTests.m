@@ -133,7 +133,9 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
         selectorToRun.runOn = self;
         selectorToRun.selector = aSelector;
         selectorToRun.withObject = anArgument;
-        [selectorsToRun addObject:selectorToRun];
+        @synchronized(selectorsToRun) {
+            [selectorsToRun addObject:selectorToRun];
+        }
     }
 }
 
@@ -142,10 +144,12 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 }
 
 + (void)runPendingSelectors {
-    for(SelectorToRun* selectorToRun in selectorsToRun)
-        [selectorToRun.runOn performSelector:selectorToRun.selector withObject:selectorToRun.withObject];
-    
-    [selectorsToRun removeAllObjects];
+    @synchronized(selectorsToRun) {
+        for(SelectorToRun* selectorToRun in selectorsToRun)
+            [selectorToRun.runOn performSelector:selectorToRun.selector withObject:selectorToRun.withObject];
+        
+        [selectorsToRun removeAllObjects];
+    }
 }
 
 @end
@@ -532,7 +536,21 @@ static float mockIOSVersion;
 
 + (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
     NSError *error = nil;
-    NSDictionary *parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
+    
+    NSLog(@"request.URL: %@", request.URL);
+    
+    NSMutableDictionary *parameters;
+    
+    NSData* httpData = [request HTTPBody];
+    if (httpData)
+         parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
+    else {
+        NSURLComponents *components = [NSURLComponents componentsWithString:request.URL.absoluteString];
+        parameters = [NSMutableDictionary new];
+        for(NSURLQueryItem *item in components.queryItems) {
+            parameters[item.name] = item.value;
+        }
+    }
     
     // We should always send an app_id with every request.
     if (!parameters[@"app_id"])
@@ -1917,6 +1935,9 @@ didReceiveRemoteNotification:userInfo
     
     // Make sure all 3 sets of tags where send in 1 network call.
     [NSObjectOverrider runPendingSelectors];
+    [self runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key"], @"value");
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key1"], @"value1");
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key2"], @"value2");
@@ -1938,6 +1959,7 @@ didReceiveRemoteNotification:userInfo
     } onFailure:^(NSError *error) {}];
     
     [NSObjectOverrider runPendingSelectors];
+    [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key10"], @"value10");
     XCTAssertEqualObjects(lastHTTPRequset[@"tags"][@"key11"], @"value11");
@@ -1969,6 +1991,50 @@ didReceiveRemoteNotification:userInfo
     
     [OneSignal sendTags:@{@"someKey": @NO}];
     [OneSignal deleteTag:@"someKey"];
+}
+
+- (void)testGetTags {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    XCTAssertEqual(networkRequestCount, 1);
+    
+    __block BOOL fireGetTags = false;
+    
+    [OneSignal getTags:^(NSDictionary *result) {
+        NSLog(@"getTags success HERE");
+        fireGetTags = true;
+    } onFailure:^(NSError *error) {
+        NSLog(@"getTags onFailure HERE");
+    }];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertTrue(fireGetTags);
+}
+
+- (void)testGetTagsWithNestedDelete {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    XCTAssertEqual(networkRequestCount, 1);
+    
+    __block BOOL fireDeleteTags = false;
+    
+    [OneSignal getTags:^(NSDictionary *result) {
+        NSLog(@"getTags success HERE");
+        [OneSignal deleteTag:@"tag" onSuccess:^(NSDictionary *result) {
+            fireDeleteTags = true;
+            NSLog(@"deleteTag onSuccess HERE");
+        } onFailure:^(NSError *error) {
+            NSLog(@"deleteTag onFailure HERE");
+        }];
+    } onFailure:^(NSError *error) {
+        NSLog(@"getTags onFailure HERE");
+    }];
+    
+    [self runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    XCTAssertTrue(fireDeleteTags);
 }
 
 - (void)testSendTagsBeforeRegisterComplete {
