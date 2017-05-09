@@ -482,7 +482,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:levelString
                                                                 message:message
                                                                delegate:nil
-                                                      cancelButtonTitle:@"Close"
+                                                      cancelButtonTitle:NSLocalizedString(@"Close", nil)
                                                       otherButtonTitles:nil, nil];
             [alertView show];
         }];
