@@ -101,6 +101,14 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 
 @implementation OSPermissionSubscriptionState
+- (NSString*)description {
+    static NSString* format = @"<OSPermissionSubscriptionState:\npermissionStatus: %@,\nsubscriptionStatus: %@\n>";
+    return [NSString stringWithFormat:format, _permissionStatus, _subscriptionStatus];
+}
+- (NSDictionary*)toDictionary {
+    return @{@"permissionStatus": [_permissionStatus toDictionary],
+             @"subscriptionStatus": [_subscriptionStatus toDictionary]};
+}
 @end
 
 @interface OSPendingCallbacks : NSObject
