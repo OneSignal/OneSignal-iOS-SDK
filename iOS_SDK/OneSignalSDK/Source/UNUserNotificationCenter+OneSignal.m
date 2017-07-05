@@ -89,31 +89,39 @@ static BOOL useCachedUNNotificationSettings;
 static UNNotificationSettings* cachedUNNotificationSettings;
 
 - (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
-    OneSignal.currentPermissionState.hasPrompted = true;
-    
-    useCachedUNNotificationSettings = true;
-    id wrapperBlock = ^(BOOL granted, NSError* error) {
-        useCachedUNNotificationSettings = false;
-        OneSignal.currentPermissionState.accepted = granted;
-        OneSignal.currentPermissionState.answeredPrompt = true;
-        completionHandler(granted, error);
-    };
-    
-    [self onesignalRequestAuthorizationWithOptions:options completionHandler:wrapperBlock];
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        OneSignal.currentPermissionState.hasPrompted = true;
+        
+        useCachedUNNotificationSettings = true;
+        id wrapperBlock = ^(BOOL granted, NSError* error) {
+            [OneSignalHelper dispatch_async_on_main_queue:^{
+                useCachedUNNotificationSettings = false;
+                OneSignal.currentPermissionState.accepted = granted;
+                OneSignal.currentPermissionState.answeredPrompt = true;
+                completionHandler(granted, error);
+            }];
+        };
+        
+        [self onesignalRequestAuthorizationWithOptions:options completionHandler:wrapperBlock];
+    }];
 }
 
 - (void)onesignalGetNotificationSettingsWithCompletionHandler:(void(^)(UNNotificationSettings *settings))completionHandler {
-    if (useCachedUNNotificationSettings && cachedUNNotificationSettings && useiOS10_2_workaround) {
-        completionHandler(cachedUNNotificationSettings);
-        return;
-    }
-    
-    id wrapperBlock = ^(UNNotificationSettings* settings) {
-        cachedUNNotificationSettings = settings;
-        completionHandler(settings);
-    };
-    
-    [self onesignalGetNotificationSettingsWithCompletionHandler:wrapperBlock];
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        if (useCachedUNNotificationSettings && cachedUNNotificationSettings && useiOS10_2_workaround) {
+            completionHandler(cachedUNNotificationSettings);
+            return;
+        }
+        
+        id wrapperBlock = ^(UNNotificationSettings* settings) {
+            [OneSignalHelper dispatch_async_on_main_queue:^{
+                cachedUNNotificationSettings = settings;
+                completionHandler(settings);
+            }];
+        };
+        
+        [self onesignalGetNotificationSettingsWithCompletionHandler:wrapperBlock];
+    }];
 }
 
 // Take the received delegate and swizzle in our own hooks.
