@@ -69,7 +69,10 @@ static Class delegateUNClass = nil;
 static NSArray* delegateUNSubclasses = nil;
 
 + (void)swizzleSelectors {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"%s called", __PRETTY_FUNCTION__]];
+    
     injectToProperClass(@selector(setOneSignalUNDelegate:), @selector(setDelegate:), @[], [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+    [OneSignalUNUserNotificationCenter swizzleUNUserNotificationCenterDelegateSelectors];
     
     // Overrides to work around 10.2.1 bug where getNotificationSettingsWithCompletionHandler: reports as declined if called before
     //  requestAuthorizationWithOptions:'s completionHandler fires when the user accepts notifications.
@@ -79,6 +82,23 @@ static NSArray* delegateUNSubclasses = nil;
     injectToProperClass(@selector(onesignalGetNotificationSettingsWithCompletionHandler:),
                         @selector(getNotificationSettingsWithCompletionHandler:), @[],
                         [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+}
+
+// Take the UNUserNotificationCenterDelegate and swizzle in our own hooks.
++ (void)swizzleUNUserNotificationCenterDelegateSelectors {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"%s called", __PRETTY_FUNCTION__]];
+    
+    Class newDelegateUNClass = getClassWithProtocolInHierarchy([[UNUserNotificationCenter currentNotificationCenter].delegate class], @protocol(UNUserNotificationCenterDelegate));
+    if (delegateUNClass != newDelegateUNClass) {
+        delegateUNClass = newDelegateUNClass;
+        delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
+        
+        injectToProperClass(@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:),
+                            @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
+        
+        injectToProperClass(@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
+                            @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
+    }
 }
 
 static BOOL useiOS10_2_workaround = true;
@@ -120,18 +140,9 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 //  - Selector will be called once if developer does not set a UNUserNotificationCenter delegate.
 //  - Selector will be called a 2nd time if the developer does set one.
 - (void) setOneSignalUNDelegate:(id)delegate {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
-    
-    delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
-    delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
-    
-    injectToProperClass(@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:),
-                        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
-    
-    injectToProperClass(@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
-                        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
-    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"%s fired!", __PRETTY_FUNCTION__]];
     [self setOneSignalUNDelegate:delegate];
+    [OneSignalUNUserNotificationCenter swizzleUNUserNotificationCenterDelegateSelectors];
 }
 
 // Apple's docs - Called when a notification is delivered to a foreground app.

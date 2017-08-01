@@ -720,8 +720,7 @@ static BOOL setupUIApplicationDelegate = false;
     
     // Force swizzle in all methods for tests.
     mockIOSVersion = 8;
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
+    [OneSignalAppDelegate swizzleSelectors];
     mockIOSVersion = 10;
 }
 

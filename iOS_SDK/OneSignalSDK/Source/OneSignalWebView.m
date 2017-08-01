@@ -39,6 +39,8 @@ UINavigationController *navController;
 UIViewController *viewControllerForPresentation;
 
 -(void)viewDidLoad {
+    [super viewDidLoad];
+    
     _webView = [[UIWebView alloc] initWithFrame:self.view.frame];
     _webView.delegate = self;
     [self.view addSubview:_webView];

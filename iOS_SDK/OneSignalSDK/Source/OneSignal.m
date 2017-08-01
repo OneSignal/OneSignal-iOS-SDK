@@ -370,6 +370,9 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
             return self;
         }
         
+        // Set up our UIApplicationDelegate + UNUserNotificationCenter swizzles
+        [self swizzleSelectors];
+
         if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
             registeredWithApple = self.currentPermissionState.accepted;
         else
@@ -1569,9 +1572,6 @@ static NSString *_lastnonActiveMessageId;
     return replacementContent;
 }
 
-
-@end
-
 // Swizzles UIApplication class to swizzling the following:
 //   - UIApplication
 //      - setDelegate:
@@ -1582,15 +1582,12 @@ static NSString *_lastnonActiveMessageId;
 //        - For iOS 10 only, swizzle all UNUserNotificationCenterDelegate selectors on the passed in class.
 //         -  This may or may not be set so we set our own now in registerAsUNNotificationCenterDelegate to an empty class.
 //
-//  Note1: Do NOT move this category to it's own file. This is required so when the app developer calls OneSignal.initWithLaunchOptions this load+
-//            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.
-//  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
-//            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
-@implementation UIApplication (OneSignal)
+//  Note1: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
+//            The oneSignalLoadedTagSelector: selector is used a flag to warn the developer that the UIApplicationDelegate selectors have already been swizzled.
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
-+ (void)load {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
-    
++ (void)swizzleSelectors {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"%s called", __PRETTY_FUNCTION__]];
+ 
     // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
@@ -1599,25 +1596,28 @@ static NSString *_lastnonActiveMessageId;
     
     if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
         return;
-
+    
     // Double loading of class detection.
-    BOOL existing = injectSelector([OneSignalAppDelegate class], @selector(oneSignalLoadedTagSelector:), self, @selector(oneSignalLoadedTagSelector:));
+    BOOL existing = injectSelector([OneSignalAppDelegate class], @selector(oneSignalLoadedTagSelector:), [UIApplication class], @selector(oneSignalLoadedTagSelector:));
     if (existing) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Already swizzled UIApplicationDelegate selectors."];
         return;
     }
-
-    // Swizzle - UIApplication delegate
-    injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
-    // Swizzle - UNUserNotificationCenter delegate - iOS 10+
-    if (!NSClassFromString(@"UNUserNotificationCenter"))
-        return;
-    
-    [OneSignalUNUserNotificationCenter swizzleSelectors];
-    
-    // Set our own delegate if one hasn't been set already from something else.
-    [OneSignalHelper registerAsUNNotificationCenterDelegate];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // Swizzle - UIApplication delegate
+        [OneSignalAppDelegate swizzleSelectors];
+        
+        // Swizzle - UNUserNotificationCenter delegate - iOS 10+
+        if (!NSClassFromString(@"UNUserNotificationCenter"))
+            return;
+        
+        [OneSignalUNUserNotificationCenter swizzleSelectors];
+        
+        // Set our own delegate if one hasn't been set already from something else.
+        [OneSignalHelper registerAsUNNotificationCenterDelegate];
+    });
 }
 
 @end
