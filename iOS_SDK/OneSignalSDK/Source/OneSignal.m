@@ -71,7 +71,7 @@
 #define ERROR_PUSH_CAPABLILITY_DISABLED    -13
 #define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
 #define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
-#define ERROR_PUSH_UNKOWN_APNS_ERROR       -16
+#define ERROR_PUSH_UNKNOWN_APNS_ERROR       -16
 #define ERROR_PUSH_OTHER_3000_ERROR        -17
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
@@ -806,7 +806,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         } @catch(NSException* e) {
             onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@", e]);
             onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@",  [NSThread callStackSymbols]]);
-            jsonResponse = @"{\"error\": \"Unkown error parsing error response.\"}";
+            jsonResponse = @"{\"error\": \"wn error parsing error response.\"}";
         }
     }
     else
@@ -855,7 +855,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         }
         else {
             [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_OTHER_3000_ERROR];
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"ERROR! Unkown 3000 error returned from APNs when getting a push token: %@", err]];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"ERROR! wn 3000 error returned from APNs when getting a push token: %@", err]];
         }
     }
     else if (err.code == 3010) {
@@ -863,7 +863,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
     }
     else {
-        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKOWN_APNS_ERROR];
+        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
     
