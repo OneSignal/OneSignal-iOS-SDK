@@ -806,7 +806,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         } @catch(NSException* e) {
             onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@", e]);
             onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@",  [NSThread callStackSymbols]]);
-            jsonResponse = @"{\"error\": \"wn error parsing error response.\"}";
+            jsonResponse = @"{\"error\": \"Unknown error parsing error response.\"}";
         }
     }
     else
@@ -855,7 +855,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         }
         else {
             [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_OTHER_3000_ERROR];
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"ERROR! wn 3000 error returned from APNs when getting a push token: %@", err]];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"ERROR! Unknown 3000 error returned from APNs when getting a push token: %@", err]];
         }
     }
     else if (err.code == 3010) {
