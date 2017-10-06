@@ -156,6 +156,26 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 
 
 
+
+@interface NSUUIDOverrider : NSObject
+@end
+
+@implementation NSUUIDOverrider
++ (void)load {
+    // Swizzling initWithUUIDString: doesn't seem possible
+    injectToProperClass(@selector(overrideInitWithUUIDString:), @selector(initWithUUIDString:), @[], [NSUUIDOverrider class], [NSUUID class]);
+}
+
+- (id)overrideInitWithUUIDString:(NSString*)string {
+    // Mimic iOS 11 logic
+    if (!string)
+       return nil;
+    
+    return [self overrideInitWithUUIDString:string];
+}
+@end
+
+
 @interface NSUserDefaultsOverrider : NSObject
 @end
 
@@ -274,6 +294,15 @@ static NSDictionary* nsbundleDictionary;
 
 - (NSString*)overrideBundleIdentifier {
     return @"com.onesignal.unittest";
+}
+                        
+- (NSURL*)overrideBundleURL {
+    NSURL* url = [NSURL URLWithString:@"file:///Users/hiro/Library/Developer/CoreSimulator/Devices/63A47DBE-D6F7-4BCF-82C4-5285C91CB22C/data/Containers/Bundle/Application/D5FDD051-990C-426E-89B1-E4C51429D29D/OneSignalDevApp.app/"];
+    
+ //   NSURL* url = [self overrideBundleURL];
+    NSLog(@"url: %@", url);
+    
+    return url;
 }
 
 - (nullable id)overrideObjectForInfoDictionaryKey:(NSString*)key {
@@ -1662,6 +1691,34 @@ static BOOL setupUIApplicationDelegate = false;
     XCTAssertNil(lastHTTPRequset);
     XCTAssertEqual(networkRequestCount, 2);
 }
+
+
+
+// Wrapper SDKs may not have the app_id available on cold starts.
+// Open event should still fire however so the event is not missed.
+- (void)testNotificationOpenOn2ndColdStartWithoutAppId {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+    
+    [self clearStateForAppRestart];
+    
+    __block BOOL openedWasFire = false;
+    [OneSignal initWithLaunchOptions:nil appId:nil handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        openedWasFire = true;
+    }];
+    [self runBackgroundThreads];
+    
+    id notifResponse = [self createBasiciOSNotificationResponse];
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    XCTAssertTrue(openedWasFire);
+}
+
+
+
 
 // Testing iOS 10 - old pre-2.4.0 button fromat - with original aps payload format
 - (void)testNotificationOpenFromButtonPress {
