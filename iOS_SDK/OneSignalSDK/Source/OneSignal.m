@@ -71,7 +71,7 @@
 #define ERROR_PUSH_CAPABLILITY_DISABLED    -13
 #define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
 #define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
-#define ERROR_PUSH_UNKNOWN_APNS_ERROR       -16
+#define ERROR_PUSH_UNKNOWN_APNS_ERROR      -16
 #define ERROR_PUSH_OTHER_3000_ERROR        -17
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
@@ -329,46 +329,18 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
 //         Ensure a 2nd call can be made later with the appId from the developer's code.
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
     
-    if (![[NSUUID alloc] initWithUUIDString:appId]) {
-        onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n");
-        return self;
-    }
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
-    if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
-        onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
+    bool success = [self initAppId:appId withUserDefaults:userDefaults withSettings:settings];
+    
+    if (!success)
+        return self;
     
     if (mShareLocation)
        [OneSignalLocation getLocation:false];
     
     if (self) {
-        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
-        
-        if (appId)
-            app_id = appId;
-        else {
-            // Read from .plist if not passed in with this method call.
-            app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
-            if (app_id == nil)
-                app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
-        }
-        
-        // Handle changes to the app id. This might happen on a developer's device when testing.
-        if (app_id == nil)
-            app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
-        else if (![app_id isEqualToString:[userDefaults stringForKey:@"GT_APP_ID"]]) {
-            // Will run the first time OneSignal is initialized or if the dev changes the app_id.
-            [userDefaults setObject:app_id forKey:@"GT_APP_ID"];
-            [userDefaults setObject:nil forKey:@"GT_PLAYER_ID"];
-            [userDefaults synchronize];
-        }
-        
-        if (!app_id) {
-            if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
-                onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
-            return self;
-        }
         
         if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
             registeredWithApple = self.currentPermissionState.accepted;
@@ -445,6 +417,40 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     #endif
     
     return self;
+}
+
++(bool)initAppId:(NSString*)appId withUserDefaults:(NSUserDefaults*)userDefaults withSettings:(NSDictionary*)settings {
+    if (appId)
+        app_id = appId;
+    else {
+        // Read from .plist if not passed in with this method call.
+        app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
+        if (app_id == nil)
+            app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
+    }
+    
+    if (!app_id) {
+        if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
+            onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
+        app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
+    }
+    else if (![app_id isEqualToString:[userDefaults stringForKey:@"GT_APP_ID"]]) {
+        // Handle changes to the app id. This might happen on a developer's device when testing
+        // Will also run the first time OneSignal is initialized
+        [userDefaults setObject:app_id forKey:@"GT_APP_ID"];
+        [userDefaults setObject:nil forKey:@"GT_PLAYER_ID"];
+        [userDefaults synchronize];
+    }
+    
+    if (!app_id || ![[NSUUID alloc] initWithUUIDString:app_id]) {
+        onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n");
+        return false;
+    }
+    
+    if ([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
+        onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
+    
+    return true;
 }
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
