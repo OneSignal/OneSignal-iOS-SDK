@@ -238,14 +238,12 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
     }
     
     @IBAction func onAllowNotificationsSwitch(_ sender: UISwitch) {
-        if allowNotificationsSwitch.isUserInteractionEnabled == true {
-            // turn off notifications
-            // IMPORTANT: user must have already accepted notifications for this to be called
-            if !allowNotificationsSwitch.isOn {
-                OneSignal.setSubscription(false)
-            } else {
-                OneSignal.setSubscription(true)
-            }
+        // turn off notifications
+        // IMPORTANT: user must have already accepted notifications for this to be called
+        if !allowNotificationsSwitch.isOn {
+            OneSignal.setSubscription(false)
+        } else {
+            OneSignal.setSubscription(true)
         }
     }
 }
