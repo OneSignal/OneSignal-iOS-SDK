@@ -205,7 +205,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
 @property (readonly, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
-@property (readonly, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
+@property (readonly, nonatomic, nullable) NSString* userId;    // AKA OneSignal PlayerId
 @property (readonly, nonatomic) NSString* pushToken; // AKA Apple Device Token
 - (NSDictionary*)toDictionary;
 
