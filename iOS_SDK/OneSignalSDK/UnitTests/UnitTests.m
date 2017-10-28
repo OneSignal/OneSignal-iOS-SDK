@@ -14,6 +14,8 @@
 #import <CoreData/CoreData.h>
 #import <UserNotifications/UserNotifications.h>
 
+//#import <MobileCoreServices/LSBundleProxy.h>
+
 
 #import "UncaughtExceptionHandler.h"
 
@@ -183,17 +185,17 @@ static NSMutableDictionary* defaultsDictionary;
 
 @implementation NSUserDefaultsOverrider
 + (void)load {
-    defaultsDictionary = [[NSMutableDictionary alloc] init];
-    
-    injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    injectToProperClass(@selector(overrideSetString:forKey:), @selector(setString:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    injectToProperClass(@selector(overrideSetDouble:forKey:), @selector(setDouble:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    injectToProperClass(@selector(overrideSetBool:forKey:), @selector(setBool:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    
-    injectToProperClass(@selector(overrideObjectForKey:), @selector(objectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    injectToProperClass(@selector(overrideStringForKey:), @selector(stringForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    injectToProperClass(@selector(overrideDoubleForKey:), @selector(doubleForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-    injectToProperClass(@selector(overrideBoolForKey:), @selector(boolForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    defaultsDictionary = [[NSMutableDictionary alloc] init];
+//
+//    injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    injectToProperClass(@selector(overrideSetString:forKey:), @selector(setString:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    injectToProperClass(@selector(overrideSetDouble:forKey:), @selector(setDouble:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    injectToProperClass(@selector(overrideSetBool:forKey:), @selector(setBool:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//
+//    injectToProperClass(@selector(overrideObjectForKey:), @selector(objectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    injectToProperClass(@selector(overrideStringForKey:), @selector(stringForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    injectToProperClass(@selector(overrideDoubleForKey:), @selector(doubleForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+//    injectToProperClass(@selector(overrideBoolForKey:), @selector(boolForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
 }
 
 + (void)clearInternalDictionary {
@@ -240,7 +242,7 @@ static NSMutableDictionary* defaultsDictionary;
 @end
 @implementation NSDataOverrider
 + (void)load {
-    injectStaticSelector([NSDataOverrider class], @selector(overrideDataWithContentsOfURL:), [NSData class], @selector(dataWithContentsOfURL:));
+//    injectStaticSelector([NSDataOverrider class], @selector(overrideDataWithContentsOfURL:), [NSData class], @selector(dataWithContentsOfURL:));
 }
 
 // Mock data being downloaded from a remote URL.
@@ -261,7 +263,7 @@ static NSMutableDictionary* defaultsDictionary;
 static NSTimeInterval timeOffset;
 
 + (void)load {
-    injectToProperClass(@selector(overrideTimeIntervalSince1970), @selector(timeIntervalSince1970), @[], [NSDateOverrider class], [NSDate class]);
+//    injectToProperClass(@selector(overrideTimeIntervalSince1970), @selector(timeIntervalSince1970), @[], [NSDateOverrider class], [NSDate class]);
 }
 
 - (NSTimeInterval) overrideTimeIntervalSince1970 {
@@ -272,6 +274,22 @@ static NSTimeInterval timeOffset;
 @end
 
 
+
+
+@interface LSBundleProxyOverrider : NSObject
+@end
+@implementation LSBundleProxyOverrider
++ (void)load {
+    //injectStaticSelector([LSBundleProxyOverrider class], @selector(overrideBundleProxyForURL:), NSClassFromString(@"LSBundleProxy"), @selector(bundleProxyForURL:));
+}
+
++ (id)overrideBundleProxyForURL:(id)arg1 {
+    NSLog(@"url: %@", arg1);
+    
+    return arg1;
+}
+@end
+
 @interface NSBundleOverrider : NSObject
 @end
 @implementation NSBundleOverrider
@@ -279,17 +297,17 @@ static NSTimeInterval timeOffset;
 static NSDictionary* nsbundleDictionary;
 
 + (void)load {
-    [NSBundleOverrider sizzleBundleIdentifier];
+    injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
+    injectToProperClass(@selector(overrideBundleURL), @selector(bundleURL), @[], [NSBundleOverrider class], [NSBundle class]);
+
+    //injectToProperClass(@selector(overrideBundleProxyForURL:), @selector(bundleProxyForURL:), @[], [NSBundleOverrider class], [NSBundle class]);
+    
     
     injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
     injectToProperClass(@selector(overrideURLForResource:withExtension:), @selector(URLForResource:withExtension:), @[], [NSBundleOverrider class], [NSBundle class]);
     
     // Doesn't work to swizzle for mocking. Both an NSDictionary and NSMutableDictionarys both throw odd selecotor not found errors.
     // injectToProperClass(@selector(overrideInfoDictionary), @selector(infoDictionary), @[], [NSBundleOverrider class], [NSBundle class]);
-}
-
-+ (void)sizzleBundleIdentifier {
-    injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
 }
 
 - (NSString*)overrideBundleIdentifier {
@@ -334,7 +352,7 @@ static NSDictionary* nsbundleDictionary;
 
 + (void)load {
     // Swizzle an injected method defined in OneSignalHelper
-    injectStaticSelector([NSURLConnectionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLConnection class], @selector(downloadItemAtURL:toFile:error:));
+//    injectStaticSelector([NSURLConnectionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLConnection class], @selector(downloadItemAtURL:toFile:error:));
 }
 
 // Override downloading of media attachment
@@ -373,6 +391,10 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     
     unNotifiserialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
     
+    injectToProperClass(@selector(overrideInitWithBundleProxy:),
+                        @selector(initWithBundleProxy:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    
     injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
                         @selector(initWithBundleIdentifier:), @[],
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
@@ -388,6 +410,11 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     injectToProperClass(@selector(overrideRequestAuthorizationWithOptions:completionHandler:),
                         @selector(requestAuthorizationWithOptions:completionHandler:), @[],
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+}
+
+- (id) overrideInitWithBundleProxy:(id)arg1 {
+    NSLog(@"arg1: %@", arg1);
+    return self;
 }
 
 - (id) overrideInitWithBundleIdentifier:(NSString*) bundle {
@@ -472,19 +499,21 @@ static BOOL pendingRegiseterBlock;
 }
 
 + (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
-    id app = [UIApplication sharedApplication];
-    id appDelegate = [[UIApplication sharedApplication] delegate];
-    
-    if (didFailRegistarationErrorCode) {
-        id error = [NSError errorWithDomain:@"any" code:didFailRegistarationErrorCode userInfo:nil];
-        [appDelegate application:app didFailToRegisterForRemoteNotificationsWithError:error];
-        return;
-    }
-    
-    if (!shouldFireDeviceToken)
-        return;
-    
-    pendingRegiseterBlock = true;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id app = [UIApplication sharedApplication];
+        id appDelegate = [[UIApplication sharedApplication] delegate];
+        
+        if (didFailRegistarationErrorCode) {
+            id error = [NSError errorWithDomain:@"any" code:didFailRegistarationErrorCode userInfo:nil];
+            [appDelegate application:app didFailToRegisterForRemoteNotificationsWithError:error];
+            return;
+        }
+        
+        if (!shouldFireDeviceToken)
+            return;
+        
+        pendingRegiseterBlock = true;
+    });
 }
 
 + (void)callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken {
@@ -650,11 +679,11 @@ static NSMutableArray* uiAlertButtonArray;
 static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
 
 + (void)load {
-    injectToProperClass(@selector(overrideAddButtonWithTitle:), @selector(addButtonWithTitle:), @[], [UIAlertViewOverrider class], [UIAlertView class]);
-    
-    injectToProperClass(@selector(overrideInitWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:),
-                        @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:), @[],
-                        [UIAlertViewOverrider class], [UIAlertView class]);
+//    injectToProperClass(@selector(overrideAddButtonWithTitle:), @selector(addButtonWithTitle:), @[], [UIAlertViewOverrider class], [UIAlertView class]);
+//
+//    injectToProperClass(@selector(overrideInitWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:),
+//                        @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:), @[],
+//                        [UIAlertViewOverrider class], [UIAlertView class]);
 }
 
 - (NSInteger)overrideAddButtonWithTitle:(nullable NSString*)title {
