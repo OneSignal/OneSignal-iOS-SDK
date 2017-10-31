@@ -123,7 +123,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
     
     delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
-    delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
+    delegateUNSubclasses = ClassGetSubclassesWithDebug(delegateUNClass);
     
     injectToProperClass(@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:),
                         @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);

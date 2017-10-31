@@ -82,7 +82,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
+static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_VERBOSE;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
