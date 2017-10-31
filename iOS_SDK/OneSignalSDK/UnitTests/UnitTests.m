@@ -14,6 +14,8 @@
 #import <CoreData/CoreData.h>
 #import <UserNotifications/UserNotifications.h>
 
+//#import <MobileCoreServices/LSBundleProxy.h>
+
 
 #import "UncaughtExceptionHandler.h"
 
@@ -184,12 +186,14 @@ static NSMutableDictionary* defaultsDictionary;
 @implementation NSUserDefaultsOverrider
 + (void)load {
     defaultsDictionary = [[NSMutableDictionary alloc] init];
-    
+
+    // Sets
     injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetString:forKey:), @selector(setString:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetDouble:forKey:), @selector(setDouble:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetBool:forKey:), @selector(setBool:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     
+    // Gets
     injectToProperClass(@selector(overrideObjectForKey:), @selector(objectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideStringForKey:), @selector(stringForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideDoubleForKey:), @selector(doubleForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
@@ -217,8 +221,15 @@ static NSMutableDictionary* defaultsDictionary;
     defaultsDictionary[key] = [NSNumber numberWithBool:value];
 }
 
+- (void)overrideSetInteger:(NSInteger)value forKey:(NSString*)key {
+    defaultsDictionary[key] = [NSNumber numberWithInteger:value];
+}
+
 // Gets
-- (id)overrideObjectForKey:(NSString*)key {
+- (nullable id)overrideObjectForKey:(NSString*)key {
+    if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
+        return [NSNumber numberWithInt:60];
+    
     return defaultsDictionary[key];
 }
 
@@ -226,14 +237,16 @@ static NSMutableDictionary* defaultsDictionary;
     return defaultsDictionary[key];
 }
 
--( double)overrideDoubleForKey:(NSString*)key {
+-(double)overrideDoubleForKey:(NSString*)key {
+    if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
+        return 60.0;
+    
     return [defaultsDictionary[key] doubleValue];
 }
 
 - (BOOL)overrideBoolForKey:(NSString*)key {
     return [defaultsDictionary[key] boolValue];
 }
-
 @end
 
 @interface NSDataOverrider : NSObject
@@ -271,7 +284,6 @@ static NSTimeInterval timeOffset;
 
 @end
 
-
 @interface NSBundleOverrider : NSObject
 @end
 @implementation NSBundleOverrider
@@ -279,8 +291,8 @@ static NSTimeInterval timeOffset;
 static NSDictionary* nsbundleDictionary;
 
 + (void)load {
-    [NSBundleOverrider sizzleBundleIdentifier];
-    
+    injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
+
     injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
     injectToProperClass(@selector(overrideURLForResource:withExtension:), @selector(URLForResource:withExtension:), @[], [NSBundleOverrider class], [NSBundle class]);
     
@@ -288,21 +300,8 @@ static NSDictionary* nsbundleDictionary;
     // injectToProperClass(@selector(overrideInfoDictionary), @selector(infoDictionary), @[], [NSBundleOverrider class], [NSBundle class]);
 }
 
-+ (void)sizzleBundleIdentifier {
-    injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
-}
-
 - (NSString*)overrideBundleIdentifier {
     return @"com.onesignal.unittest";
-}
-                        
-- (NSURL*)overrideBundleURL {
-    NSURL* url = [NSURL URLWithString:@"file:///Users/hiro/Library/Developer/CoreSimulator/Devices/63A47DBE-D6F7-4BCF-82C4-5285C91CB22C/data/Containers/Bundle/Application/D5FDD051-990C-426E-89B1-E4C51429D29D/OneSignalDevApp.app/"];
-    
- //   NSURL* url = [self overrideBundleURL];
-    NSLog(@"url: %@", url);
-    
-    return url;
 }
 
 - (nullable id)overrideObjectForInfoDictionaryKey:(NSString*)key {
@@ -373,6 +372,10 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     
     unNotifiserialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
     
+    injectToProperClass(@selector(overrideInitWithBundleProxy:),
+                        @selector(initWithBundleProxy:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    
     injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
                         @selector(initWithBundleIdentifier:), @[],
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
@@ -388,6 +391,11 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     injectToProperClass(@selector(overrideRequestAuthorizationWithOptions:completionHandler:),
                         @selector(requestAuthorizationWithOptions:completionHandler:), @[],
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+}
+
+// Called internally by currentNotificationCenter
+- (id) overrideInitWithBundleProxy:(id)arg1 {
+    return self;
 }
 
 - (id) overrideInitWithBundleIdentifier:(NSString*) bundle {
@@ -472,19 +480,21 @@ static BOOL pendingRegiseterBlock;
 }
 
 + (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
-    id app = [UIApplication sharedApplication];
-    id appDelegate = [[UIApplication sharedApplication] delegate];
-    
-    if (didFailRegistarationErrorCode) {
-        id error = [NSError errorWithDomain:@"any" code:didFailRegistarationErrorCode userInfo:nil];
-        [appDelegate application:app didFailToRegisterForRemoteNotificationsWithError:error];
-        return;
-    }
-    
-    if (!shouldFireDeviceToken)
-        return;
-    
-    pendingRegiseterBlock = true;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id app = [UIApplication sharedApplication];
+        id appDelegate = [[UIApplication sharedApplication] delegate];
+        
+        if (didFailRegistarationErrorCode) {
+            id error = [NSError errorWithDomain:@"any" code:didFailRegistarationErrorCode userInfo:nil];
+            [appDelegate application:app didFailToRegisterForRemoteNotificationsWithError:error];
+            return;
+        }
+        
+        if (!shouldFireDeviceToken)
+            return;
+        
+        pendingRegiseterBlock = true;
+    });
 }
 
 + (void)callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken {
@@ -651,7 +661,7 @@ static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
 
 + (void)load {
     injectToProperClass(@selector(overrideAddButtonWithTitle:), @selector(addButtonWithTitle:), @[], [UIAlertViewOverrider class], [UIAlertView class]);
-    
+
     injectToProperClass(@selector(overrideInitWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:),
                         @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:), @[],
                         [UIAlertViewOverrider class], [UIAlertView class]);
@@ -907,6 +917,8 @@ static BOOL setupUIApplicationDelegate = false;
 - (void)runBackgroundThreads {
 
     NSLog(@"START runBackgroundThreads");
+    
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
     
     dispatch_queue_t registerUserQueue, notifSettingsQueue;
     for(int i = 0; i < 10; i++) {
