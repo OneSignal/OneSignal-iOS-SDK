@@ -1,0 +1,165 @@
+/**
+ * Modified MIT License
+ *
+ * Copyright 2017 OneSignal
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * 2. All copies of substantial portions of the Software may only be used in connection
+ * with services provided by OneSignal.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+#import "UNUserNotificationCenterOverrider.h"
+
+#include <dispatch/dispatch.h>
+
+#import "OneSignalSelectorHelpers.h"
+
+@implementation UNUserNotificationCenterOverrider
+
+static int notifTypesOverride = 7;
+
+static NSNumber *authorizationStatus;
+static NSSet<UNNotificationCategory *>* lastSetCategories;
+
+// Serial queue that simulates how UNNotification center fires callbacks.
+static dispatch_queue_t unNotifiserialQueue;
+
+static int getNotificationSettingsWithCompletionHandlerStackCount;
+
+static XCTestCase* currentTestInstance;
+
+static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *error);
+
++ (void)load {
+    getNotificationSettingsWithCompletionHandlerStackCount =  0;
+    
+    unNotifiserialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
+    
+    injectToProperClass(@selector(overrideInitWithBundleProxy:),
+                        @selector(initWithBundleProxy:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    
+    injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
+                        @selector(initWithBundleIdentifier:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideGetNotificationSettingsWithCompletionHandler:),
+                        @selector(getNotificationSettingsWithCompletionHandler:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideSetNotificationCategories:),
+                        @selector(setNotificationCategories:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideGetNotificationCategoriesWithCompletionHandler:),
+                        @selector(getNotificationCategoriesWithCompletionHandler:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectToProperClass(@selector(overrideRequestAuthorizationWithOptions:completionHandler:),
+                        @selector(requestAuthorizationWithOptions:completionHandler:), @[],
+                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+}
+
++(void)reset:(XCTestCase*)testInstance {
+    currentTestInstance = testInstance;
+    lastSetCategories = nil;
+}
+
++(void) setNotifTypesOverride:(int)value {
+    notifTypesOverride = value;
+}
++(int) notifTypesOverride {
+    return notifTypesOverride;
+}
+
++(void) setAuthorizationStatus:(NSNumber*)value {
+    authorizationStatus = value;
+}
++(NSNumber*) authorizationStatus {
+    return authorizationStatus;
+}
+
++(int) lastSetCategoriesCount {
+    return [lastSetCategories count];
+}
+
++(void) fireLastRequestAuthorizationWithGranted:(BOOL)granted {
+    if (lastRequestAuthorizationWithOptionsBlock)
+        lastRequestAuthorizationWithOptionsBlock(granted, nil);
+}
+
++(void) runBackgroundThreads {
+   dispatch_sync(unNotifiserialQueue, ^{});
+}
+
+// Called internally by currentNotificationCenter
+- (id) overrideInitWithBundleProxy:(id)arg1 {
+    return self;
+}
+
+- (id) overrideInitWithBundleIdentifier:(NSString*) bundle {
+    return self;
+}
+
++ (void)mockInteralGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
+    getNotificationSettingsWithCompletionHandlerStackCount++;
+    
+    // Simulates running on a sequential serial queue like iOS does.
+    dispatch_async(unNotifiserialQueue, ^{
+        
+        id retSettings = [UNNotificationSettings alloc];
+        [retSettings setValue:authorizationStatus forKeyPath:@"authorizationStatus"];
+        
+        if (notifTypesOverride >= 7) {
+            [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"badgeSetting"];
+            [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"soundSetting"];
+            [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"alertSetting"];
+            [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"lockScreenSetting"];
+        }
+        
+        //if (getNotificationSettingsWithCompletionHandlerStackCount > 1)
+        //    _XCTPrimitiveFail(currentTestInstance);
+        //[NSThread sleepForTimeInterval:0.01];
+        completionHandler(retSettings);
+        getNotificationSettingsWithCompletionHandlerStackCount--;
+    });
+}
+
+- (void)overrideGetNotificationSettingsWithCompletionHandler:(void(^)(id settings))completionHandler {
+    [UNUserNotificationCenterOverrider mockInteralGetNotificationSettingsWithCompletionHandler:completionHandler];
+}
+
+- (void)overrideSetNotificationCategories:(NSSet<UNNotificationCategory *> *)categories {
+    lastSetCategories = categories;
+}
+
+- (void)overrideGetNotificationCategoriesWithCompletionHandler:(void(^)(NSSet<id> *categories))completionHandler {
+    completionHandler(lastSetCategories);
+}
+
+- (void)overrideRequestAuthorizationWithOptions:(UNAuthorizationOptions)options
+                              completionHandler:(void (^)(BOOL granted, NSError *error))completionHandler {
+    if (authorizationStatus != [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined])
+        completionHandler([authorizationStatus isEqual:[NSNumber numberWithInteger:UNAuthorizationStatusAuthorized]], nil);
+    else
+        lastRequestAuthorizationWithOptionsBlock = completionHandler;
+}
+
++ (void)failIfInNotificationSettingsWithCompletionHandler {
+    if (getNotificationSettingsWithCompletionHandlerStackCount > 0)
+        _XCTPrimitiveFail(currentTestInstance);
+}
+@end

@@ -14,6 +14,20 @@
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
+		4529DECB1FA43CDD00CEAB1D /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEC91FA43CD400CEAB1D /* MobileCoreServices.framework */; };
+		4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */; };
+		4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED41FA823B900CEAB1D /* TestHelperFunctions.m */; };
+		4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */; };
+		4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDA1FA8284E00CEAB1D /* NSDataOverrider.m */; };
+		4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */; };
+		4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */; };
+		4529DEE41FA82C6200CEAB1D /* NSURLConnectionOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE31FA82C6200CEAB1D /* NSURLConnectionOverrider.m */; };
+		4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */; };
+		4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE91FA8360C00CEAB1D /* UIApplicationOverrider.m */; };
+		4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */; };
+		4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEF1FA8433500CEAB1D /* NSLocaleOverrider.m */; };
+		4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEF21FA8440A00CEAB1D /* UIAlertViewOverrider.m */; };
+		4529DEF61FA8460C00CEAB1D /* UnitTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */; };
 		911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 911E2CBC1E398AB3003112A4 /* UnitTests.m */; };
 		911E2CBF1E398AB3003112A4 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37747F9319147D6500558FAD /* libOneSignal.a */; };
 		911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
@@ -138,6 +152,33 @@
 		3E2400381D4FFC31008BDE70 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E24003B1D4FFC31008BDE70 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3E464ED91D88EE6A00DCF7E9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		4529DEC91FA43CD400CEAB1D /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		4529DED01FA81EA800CEAB1D /* NSObjectOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSObjectOverrider.h; sourceTree = "<group>"; };
+		4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSObjectOverrider.m; sourceTree = "<group>"; };
+		4529DED31FA823B900CEAB1D /* TestHelperFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestHelperFunctions.h; sourceTree = "<group>"; };
+		4529DED41FA823B900CEAB1D /* TestHelperFunctions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestHelperFunctions.m; sourceTree = "<group>"; };
+		4529DED61FA8253D00CEAB1D /* NSUserDefaultsOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSUserDefaultsOverrider.h; sourceTree = "<group>"; };
+		4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsOverrider.m; sourceTree = "<group>"; };
+		4529DED91FA8284E00CEAB1D /* NSDataOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSDataOverrider.h; sourceTree = "<group>"; };
+		4529DEDA1FA8284E00CEAB1D /* NSDataOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSDataOverrider.m; sourceTree = "<group>"; };
+		4529DEDC1FA828E500CEAB1D /* NSDateOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSDateOverrider.h; sourceTree = "<group>"; };
+		4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSDateOverrider.m; sourceTree = "<group>"; };
+		4529DEDF1FA82AB300CEAB1D /* NSBundleOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSBundleOverrider.h; sourceTree = "<group>"; };
+		4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSBundleOverrider.m; sourceTree = "<group>"; };
+		4529DEE21FA82C6200CEAB1D /* NSURLConnectionOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSURLConnectionOverrider.h; sourceTree = "<group>"; };
+		4529DEE31FA82C6200CEAB1D /* NSURLConnectionOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSURLConnectionOverrider.m; sourceTree = "<group>"; };
+		4529DEE51FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UNUserNotificationCenterOverrider.h; sourceTree = "<group>"; };
+		4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UNUserNotificationCenterOverrider.m; sourceTree = "<group>"; };
+		4529DEE81FA8360C00CEAB1D /* UIApplicationOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIApplicationOverrider.h; sourceTree = "<group>"; };
+		4529DEE91FA8360C00CEAB1D /* UIApplicationOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIApplicationOverrider.m; sourceTree = "<group>"; };
+		4529DEEB1FA83C5D00CEAB1D /* OneSignalHelperOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalHelperOverrider.h; sourceTree = "<group>"; };
+		4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalHelperOverrider.m; sourceTree = "<group>"; };
+		4529DEEE1FA8433500CEAB1D /* NSLocaleOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSLocaleOverrider.h; sourceTree = "<group>"; };
+		4529DEEF1FA8433500CEAB1D /* NSLocaleOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSLocaleOverrider.m; sourceTree = "<group>"; };
+		4529DEF11FA8440A00CEAB1D /* UIAlertViewOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIAlertViewOverrider.h; sourceTree = "<group>"; };
+		4529DEF21FA8440A00CEAB1D /* UIAlertViewOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIAlertViewOverrider.m; sourceTree = "<group>"; };
+		4529DEF41FA8460C00CEAB1D /* UnitTestAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestAppDelegate.h; sourceTree = "<group>"; };
+		4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTestAppDelegate.m; sourceTree = "<group>"; };
 		911E2CBA1E398AB3003112A4 /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		911E2CBC1E398AB3003112A4 /* UnitTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTests.m; sourceTree = "<group>"; };
 		911E2CBE1E398AB3003112A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -201,9 +242,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91719A9C1E80839500DBE43C /* UserNotifications.framework in Frameworks */,
 				3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */,
 				3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */,
+				91719A9C1E80839500DBE43C /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +252,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4529DECB1FA43CDD00CEAB1D /* MobileCoreServices.framework in Frameworks */,
 				911E2CC81E399834003112A4 /* UserNotifications.framework in Frameworks */,
 				911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */,
 				911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */,
@@ -245,6 +287,7 @@
 		37747F9519147D6500558FAD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4529DEC91FA43CD400CEAB1D /* MobileCoreServices.framework */,
 				911E2CC71E399834003112A4 /* UserNotifications.framework */,
 				3E464ED91D88EE6A00DCF7E9 /* Foundation.framework */,
 				3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */,
@@ -261,13 +304,47 @@
 			path = "OneSignal-Dynamic";
 			sourceTree = "<group>";
 		};
+		4529DECD1FA81DE000CEAB1D /* Shadows */ = {
+			isa = PBXGroup;
+			children = (
+				4529DED01FA81EA800CEAB1D /* NSObjectOverrider.h */,
+				4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */,
+				4529DED61FA8253D00CEAB1D /* NSUserDefaultsOverrider.h */,
+				4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */,
+				4529DED91FA8284E00CEAB1D /* NSDataOverrider.h */,
+				4529DEDA1FA8284E00CEAB1D /* NSDataOverrider.m */,
+				4529DEDC1FA828E500CEAB1D /* NSDateOverrider.h */,
+				4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */,
+				4529DEDF1FA82AB300CEAB1D /* NSBundleOverrider.h */,
+				4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */,
+				4529DEE21FA82C6200CEAB1D /* NSURLConnectionOverrider.h */,
+				4529DEE31FA82C6200CEAB1D /* NSURLConnectionOverrider.m */,
+				4529DEE51FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.h */,
+				4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */,
+				4529DEE81FA8360C00CEAB1D /* UIApplicationOverrider.h */,
+				4529DEE91FA8360C00CEAB1D /* UIApplicationOverrider.m */,
+				4529DEEB1FA83C5D00CEAB1D /* OneSignalHelperOverrider.h */,
+				4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */,
+				4529DEEE1FA8433500CEAB1D /* NSLocaleOverrider.h */,
+				4529DEEF1FA8433500CEAB1D /* NSLocaleOverrider.m */,
+				4529DEF11FA8440A00CEAB1D /* UIAlertViewOverrider.h */,
+				4529DEF21FA8440A00CEAB1D /* UIAlertViewOverrider.m */,
+			);
+			path = Shadows;
+			sourceTree = "<group>";
+		};
 		911E2CBB1E398AB3003112A4 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				4529DECD1FA81DE000CEAB1D /* Shadows */,
 				911E2CBC1E398AB3003112A4 /* UnitTests.m */,
 				911E2CBE1E398AB3003112A4 /* Info.plist */,
 				91F60F7B1E80E49A00706E60 /* UncaughtExceptionHandler.h */,
 				91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */,
+				4529DED31FA823B900CEAB1D /* TestHelperFunctions.h */,
+				4529DED41FA823B900CEAB1D /* TestHelperFunctions.m */,
+				4529DEF41FA8460C00CEAB1D /* UnitTestAppDelegate.h */,
+				4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -580,27 +657,40 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4529DEF61FA8460C00CEAB1D /* UnitTestAppDelegate.m in Sources */,
 				91F58D8B1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
+				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
+				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
 				91F58D851E7C88230017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				912412491E73369800E41FD7 /* OneSignalHelper.m in Sources */,
+				4529DEE41FA82C6200CEAB1D /* NSURLConnectionOverrider.m in Sources */,
+				4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */,
 				912412341E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				912412101E73342200E41FD7 /* OneSignal.m in Sources */,
 				9124122C1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
+				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
 				91B6EA431E85D38F00B5CF01 /* OSObservable.m in Sources */,
 				9124121C1E73342200E41FD7 /* OneSignalHTTPClient.m in Sources */,
+				4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */,
 				912412401E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				1AF75EAF1E8569710097B315 /* NSString+OneSignal.m in Sources */,
+				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
+				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
+				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
+				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412141E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
+				4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */,
 				912412441E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				9124123C1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
+				4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */,
 				9129C6BA1E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				91F58D871E7C88250017D24D /* OneSignalNotificationSettingsIOS8.m in Sources */,
 			);
