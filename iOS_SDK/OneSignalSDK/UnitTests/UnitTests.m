@@ -187,20 +187,17 @@ static NSMutableDictionary* defaultsDictionary;
 + (void)load {
     defaultsDictionary = [[NSMutableDictionary alloc] init];
 
+    // Sets
     injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetString:forKey:), @selector(setString:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetDouble:forKey:), @selector(setDouble:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetBool:forKey:), @selector(setBool:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-//    injectToProperClass(@selector(overrideSetInteger:forKey:), @selector(setInteger:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     
-//
+    // Gets
     injectToProperClass(@selector(overrideObjectForKey:), @selector(objectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideStringForKey:), @selector(stringForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideDoubleForKey:), @selector(doubleForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideBoolForKey:), @selector(boolForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
-
-    
-    injectToProperClass(@selector(overrideRegisterDefaults:), @selector(registerDefaults:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
 }
 
 + (void)clearInternalDictionary {
@@ -210,8 +207,6 @@ static NSMutableDictionary* defaultsDictionary;
 // Sets
 -(void)overrideSetObject:(id)value forKey:(NSString*)key {
     defaultsDictionary[key] = value;
-    
-    [self overrideSetObject:value forKey:key];
 }
 
 -(void)overrideSetString:(NSString*)value forKey:(NSString*)key {
@@ -232,15 +227,10 @@ static NSMutableDictionary* defaultsDictionary;
 
 // Gets
 - (nullable id)overrideObjectForKey:(NSString*)key {
-    id mockedValue = defaultsDictionary[key];
-    id realVaulue = [self overrideObjectForKey:key];
-    
     if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
         return [NSNumber numberWithInt:60];
     
     return defaultsDictionary[key];
-//    return [self overrideObjectForKey:key];
-//    return nil;
 }
 
 - (NSString*)overrideStringForKey:(NSString*)key {
@@ -257,11 +247,6 @@ static NSMutableDictionary* defaultsDictionary;
 - (BOOL)overrideBoolForKey:(NSString*)key {
     return [defaultsDictionary[key] boolValue];
 }
-
-- (void)overrideRegisterDefaults:(NSDictionary<NSString *, id> *)registrationDictionary {
-    NSLog(@"registrationDictionary: %@", registrationDictionary);
-}
-
 @end
 
 @interface NSDataOverrider : NSObject
@@ -299,23 +284,6 @@ static NSTimeInterval timeOffset;
 
 @end
 
-
-
-
-@interface LSBundleProxyOverrider : NSObject
-@end
-@implementation LSBundleProxyOverrider
-+ (void)load {
-    //injectStaticSelector([LSBundleProxyOverrider class], @selector(overrideBundleProxyForURL:), NSClassFromString(@"LSBundleProxy"), @selector(bundleProxyForURL:));
-}
-
-+ (id)overrideBundleProxyForURL:(id)arg1 {
-    NSLog(@"url: %@", arg1);
-    
-    return arg1;
-}
-@end
-
 @interface NSBundleOverrider : NSObject
 @end
 @implementation NSBundleOverrider
@@ -324,11 +292,7 @@ static NSDictionary* nsbundleDictionary;
 
 + (void)load {
     injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
-//    injectToProperClass(@selector(overrideBundleURL), @selector(bundleURL), @[], [NSBundleOverrider class], [NSBundle class]);
 
-    //injectToProperClass(@selector(overrideBundleProxyForURL:), @selector(bundleProxyForURL:), @[], [NSBundleOverrider class], [NSBundle class]);
-    
-    
     injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
     injectToProperClass(@selector(overrideURLForResource:withExtension:), @selector(URLForResource:withExtension:), @[], [NSBundleOverrider class], [NSBundle class]);
     
@@ -338,15 +302,6 @@ static NSDictionary* nsbundleDictionary;
 
 - (NSString*)overrideBundleIdentifier {
     return @"com.onesignal.unittest";
-}
-                        
-- (NSURL*)overrideBundleURL {
-    NSURL* url = [NSURL URLWithString:@"file:///Users/hiro/Library/Developer/CoreSimulator/Devices/63A47DBE-D6F7-4BCF-82C4-5285C91CB22C/data/Containers/Bundle/Application/D5FDD051-990C-426E-89B1-E4C51429D29D/OneSignalDevApp.app/"];
-    
- //   NSURL* url = [self overrideBundleURL];
-    NSLog(@"url: %@", url);
-    
-    return url;
 }
 
 - (nullable id)overrideObjectForInfoDictionaryKey:(NSString*)key {
@@ -438,8 +393,8 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
 }
 
+// Called internally by currentNotificationCenter
 - (id) overrideInitWithBundleProxy:(id)arg1 {
-    NSLog(@"arg1: %@", arg1);
     return self;
 }
 
@@ -525,9 +480,6 @@ static BOOL pendingRegiseterBlock;
 }
 
 + (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken {
-    //serialMockMainLooper
-    // dispatch_get_main_queue()
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         id app = [UIApplication sharedApplication];
         id appDelegate = [[UIApplication sharedApplication] delegate];
@@ -1033,7 +985,6 @@ static BOOL setupUIApplicationDelegate = false;
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
     [self initOneSignal];
-    [self runBackgroundThreads];
     [self runBackgroundThreads];
     
     XCTAssertEqualObjects(lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
