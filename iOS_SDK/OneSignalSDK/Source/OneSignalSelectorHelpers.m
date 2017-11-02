@@ -90,8 +90,10 @@ void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasse
 }
 
 NSArray* ClassGetSubclasses(Class parentClass) {
+    NSLog(@"ClassGetSubclasses(%@)", parentClass);
     
     int numClasses = objc_getClassList(NULL, 0);
+    NSLog(@"Number of classes: %d", numClasses);
     
     if (numClasses > 0) {
         Class *classes = NULL;
@@ -103,7 +105,7 @@ NSArray* ClassGetSubclasses(Class parentClass) {
         
         for (NSInteger i = 0; i < numClasses; i++) {
             Class superClass = classes[i];
-            while(superClass && superClass != parentClass) {
+            while(superClass && superClass != Nil && superClass != parentClass) {
                 superClass = class_getSuperclass(superClass);
             }
             
