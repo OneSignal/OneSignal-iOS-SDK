@@ -1595,6 +1595,11 @@ static NSString *_lastnonActiveMessageId;
 @implementation UIApplication (OneSignal)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
+    
+    if ([self shouldDisableBasedOnProcessArguments]) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];
+        return;
+    }
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
     // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views
@@ -1626,6 +1631,12 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper registerAsUNNotificationCenterDelegate];
 }
 
++(BOOL) shouldDisableBasedOnProcessArguments {
+    if ([NSProcessInfo.processInfo.arguments containsObject: @"DISABLE_ONESIGNAL_SWIZZLING"]) {
+        return YES;
+    }
+    return NO;
+}
 @end
 
 
