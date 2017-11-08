@@ -32,6 +32,9 @@
 
 #import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
+#import "OSNotificationPayload+Internal.h"
+
+#import "OneSignalTrackFirebaseAnalytics.h"
 
 #import <objc/runtime.h>
 
@@ -144,106 +147,7 @@
 
 @end
 
-@implementation OSNotificationPayload
-@synthesize actionButtons = _actionButtons, additionalData = _additionalData, badge = _badge, body = _body, contentAvailable = _contentAvailable, notificationID = _notificationID, launchURL = _launchURL, rawPayload = _rawPayload, sound = _sound, subtitle = _subtitle, title = _title, attachments = _attachments;
 
-- (id)initWithRawMessage:(NSDictionary*)message {
-    self = [super init];
-    if (self && message) {
-        _rawPayload = [NSDictionary dictionaryWithDictionary:message];
-        
-        BOOL is2dot4Format = [_rawPayload[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
-        
-        if (_rawPayload[@"aps"][@"content-available"])
-            _contentAvailable = (BOOL)_rawPayload[@"aps"][@"content-available"];
-        else
-            _contentAvailable = NO;
-        
-        if (_rawPayload[@"aps"][@"badge"])
-            _badge = [_rawPayload[@"aps"][@"badge"] intValue];
-        else
-            _badge = [_rawPayload[@"badge"] intValue];
-        
-        _actionButtons = _rawPayload[@"o"];
-        if (!_actionButtons) {
-            if (is2dot4Format)
-                _actionButtons = _rawPayload[@"os_data"][@"buttons"];
-            else
-                _actionButtons = _rawPayload[@"os_data"][@"buttons"][@"o"];
-        }
-        
-        if(_rawPayload[@"aps"][@"sound"])
-            _sound = _rawPayload[@"aps"][@"sound"];
-        else if(_rawPayload[@"s"])
-            _sound = _rawPayload[@"s"];
-        else if (!is2dot4Format)
-            _sound = _rawPayload[@"os_data"][@"buttons"][@"s"];
-        
-        if(_rawPayload[@"custom"]) {
-            NSDictionary* custom = _rawPayload[@"custom"];
-            if (custom[@"a"])
-                _additionalData = [custom[@"a"] copy];
-            _notificationID = custom[@"i"];
-            _launchURL = custom[@"u"];
-            
-            _attachments = [_rawPayload[@"at"] copy];
-        }
-        else if(_rawPayload[@"os_data"]) {
-            NSDictionary * os_data = _rawPayload[@"os_data"];
-            
-            NSMutableDictionary *additional = [_rawPayload mutableCopy];
-            [additional removeObjectForKey:@"aps"];
-            [additional removeObjectForKey:@"os_data"];
-            _additionalData = [[NSDictionary alloc] initWithDictionary:additional];
-            
-            _notificationID = os_data[@"i"];
-            _launchURL = os_data[@"u"];
-            
-            if (is2dot4Format) {
-                if (os_data[@"att"])
-                    _attachments = [os_data[@"att"] copy];
-            }
-            else {
-                if (os_data[@"buttons"][@"at"])
-                    _attachments = [os_data[@"buttons"][@"at"] copy];
-            }
-        }
-        
-        if(_rawPayload[@"m"]) {
-            id m = _rawPayload[@"m"];
-            if ([m isKindOfClass:[NSDictionary class]]) {
-                _body = m[@"body"];
-                _title = m[@"title"];
-                _subtitle = m[@"subtitle"];
-            }
-            else
-                _body = m;
-        }
-        else if(_rawPayload[@"aps"][@"alert"]) {
-            id a = message[@"aps"][@"alert"];
-            if ([a isKindOfClass:[NSDictionary class]]) {
-                _body = a[@"body"];
-                _title = a[@"title"];
-                _subtitle = a[@"subtitle"];
-            }
-            else
-                _body = a;
-        }
-        else if(_rawPayload[@"os_data"][@"buttons"][@"m"]) {
-            id m = _rawPayload[@"os_data"][@"buttons"][@"m"];
-            if ([m isKindOfClass:[NSDictionary class]]) {
-                _body = m[@"body"];
-                _title = m[@"title"];
-                _subtitle = m[@"subtitle"];
-            }
-            else
-                _body = m;
-        }
-    }
-    
-    return self;
-}
-@end
 
 @implementation OSNotification
 @synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType;
@@ -604,19 +508,23 @@ OSHandleNotificationActionBlock handleNotificationAction;
 static NSString *_lastMessageIdFromAction;
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
-    if (!handleNotificationAction || ![self isOneSignalPayload])
+    if (![self isOneSignalPayload])
         return;
     
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
     OSNotificationPayload *payload = [[OSNotificationPayload alloc] initWithRawMessage:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    OSNotificationOpenedResult * result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
+    OSNotificationOpenedResult *result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
     
     // Prevent duplicate calls to same action
     if ([payload.notificationID isEqualToString:_lastMessageIdFromAction])
         return;
     _lastMessageIdFromAction = payload.notificationID;
     
+    [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
+    
+    if (!handleNotificationAction)
+        return;
     handleNotificationAction(result);
 }
 
@@ -778,7 +686,6 @@ static OneSignal* singleInstance = nil;
     if ([actionArray count] == 2)
         actionArray = (NSMutableArray*)[[actionArray reverseObjectEnumerator] allObjects];
     
-
     // Get a full list of categories so we don't replace any exisiting ones.
     __block NSMutableSet* allCategories;
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);

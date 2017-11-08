@@ -40,6 +40,8 @@
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
 #import "NSString+OneSignal.h"
+#import "OneSignalTrackFirebaseAnalytics.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -56,11 +58,7 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
-
-#ifdef XC8_AVAILABLE
 #import <UserNotifications/UserNotifications.h>
-#endif
-
 
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
@@ -121,7 +119,7 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020507";
+NSString* const ONESIGNAL_VERSION = @"020506";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -411,10 +409,8 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
         trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
     
-    #if XC8_AVAILABLE
     if (NSClassFromString(@"UNUserNotificationCenter"))
        [OneSignalHelper clearCachedMedia];
-    #endif
     
     return self;
 }
@@ -998,8 +994,10 @@ static dispatch_queue_t serialQueue;
     // Make sure we only call create or on_session once per open of the app.
     if (![self shouldRegisterNow])
         return;
+    
+    [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
+    
     waitingForOneSReg = true;
-
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     
@@ -1534,48 +1532,21 @@ static NSString *_lastnonActiveMessageId;
                onFailure:nil];
 }
 
-+ (void)addActionButtonsToExtentionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    if (request.content.categoryIdentifier && ![request.content.categoryIdentifier isEqualToString:@""])
-        return;
-    
-    NSArray* buttonsPayloadList = request.content.userInfo[@"os_data"][@"buttons"];
-    if (!buttonsPayloadList)
-        buttonsPayloadList = request.content.userInfo[@"buttons"];
-    
-    if (buttonsPayloadList)
-        [OneSignalHelper addActionButtons:buttonsPayloadList toNotificationContent:replacementContent];
-}
-
 // Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    if (!replacementContent)
-        replacementContent = [request.content mutableCopy];
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     
-    // Action Buttons
-    [self addActionButtonsToExtentionRequest:request withMutableNotificationContent:replacementContent];
-    
-    // Media Attachments
-    NSDictionary* attachments = request.content.userInfo[@"os_data"][@"att"];
-    if (!attachments)
-        attachments = request.content.userInfo[@"att"];
-    if (attachments)
-        [OneSignalHelper addAttachments:attachments toNotificationContent:replacementContent];
-    
-    return replacementContent;
+    return [OneSignalNotificationServiceExtensionHandler
+            didReceiveNotificationExtensionRequest:request
+            withMutableNotificationContent:replacementContent];
 }
 
 
 // Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    if (!replacementContent)
-        replacementContent = [request.content mutableCopy];
-    
-    [self addActionButtonsToExtentionRequest:request withMutableNotificationContent:replacementContent];
-    
-    return replacementContent;
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    return [OneSignalNotificationServiceExtensionHandler
+            serviceExtensionTimeWillExpireRequest:request
+            withMutableNotificationContent:replacementContent];
 }
-
-
 @end
 
 // Swizzles UIApplication class to swizzling the following:
@@ -1616,12 +1587,12 @@ static NSString *_lastnonActiveMessageId;
     // Swizzle - UIApplication delegate
     injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
-    // Swizzle - UNUserNotificationCenter delegate - iOS 10+
-    if (!NSClassFromString(@"UNUserNotificationCenter"))
-        return;
-    
+    [self setupUNUserNotificationCenterDelegate];
+}
+
++(void)setupUNUserNotificationCenterDelegate {
     [OneSignalUNUserNotificationCenter swizzleSelectors];
-    
+
     // Set our own delegate if one hasn't been set already from something else.
     [OneSignalHelper registerAsUNNotificationCenterDelegate];
 }
