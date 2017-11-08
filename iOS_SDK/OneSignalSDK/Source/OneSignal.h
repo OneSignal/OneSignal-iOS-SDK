@@ -87,6 +87,12 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Unique Message Identifier */
 @property(readonly)NSString* notificationID;
 
+/* Unique Template Identifier */
+@property(readonly)NSString* templateID;
+
+/* Name of Template */
+@property(readonly)NSString* templateName;
+
 /* Provide this key with a value of 1 to indicate that new content is available.
  Including this key and value means that when your app is launched in the background or resumed application:didReceiveRemoteNotification:fetchCompletionHandler: is called. */
 @property(readonly)BOOL contentAvailable;
