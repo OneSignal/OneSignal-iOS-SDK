@@ -1395,6 +1395,7 @@ didReceiveRemoteNotification:userInfo
     // Make sure only 1 network call is made and only key2 gets sent.
     [NSObjectOverrider runPendingSelectors];
     [self runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
     
     XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key"]);
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key2"], @"value2");
