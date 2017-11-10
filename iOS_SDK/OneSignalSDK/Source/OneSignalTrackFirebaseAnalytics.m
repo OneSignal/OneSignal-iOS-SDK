@@ -27,8 +27,6 @@
 
 #import "OneSignalTrackFirebaseAnalytics.h"
 
-//#import <FirebaseAnalytics/FIRAnalytics.h>
-
 @implementation OneSignalTrackFirebaseAnalytics
 
 static NSTimeInterval lastOpenedTime = 0;
@@ -53,7 +51,12 @@ static NSTimeInterval lastOpenedTime = 0;
         return [NSString stringWithFormat:@"%@ - %@", payload.templateName, payload.templateID];
     if (!payload.title)
         return @"";
-    return [payload.title substringToIndex:10];
+    
+    int titleLength = payload.title.length;
+    if (titleLength > 10)
+        titleLength = 10;
+    
+    return [payload.title substringToIndex:titleLength];
 }
 
 +(void)trackOpenEvent:(OSNotificationOpenedResult*)results {

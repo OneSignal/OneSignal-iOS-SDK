@@ -51,11 +51,6 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <AdditionalOptions>
-         <AdditionalOption
-            key = "MallocScribble"
-            value = ""
-            isEnabled = "YES">
-         </AdditionalOption>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction

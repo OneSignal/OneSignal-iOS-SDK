@@ -47,6 +47,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OSPermission.h"
+#import "OSNotificationPayload+Internal.h"
 
 #include <pthread.h>
 #include <mach/mach.h>
@@ -65,6 +66,7 @@
 #import "OneSignalHelperOverrider.h"
 #import "NSLocaleOverrider.h"
 #import "UIAlertViewOverrider.h"
+#import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;
@@ -134,6 +136,7 @@
     [OneSignalHelperOverrider reset:self];
     [UNUserNotificationCenterOverrider reset:self];
     [UIApplicationOverrider reset];
+    [OneSignalTrackFirebaseAnalyticsOverrider reset];
     
     NSLocaleOverrider.preferredLanguagesArray = @[@"en-US"];
 
@@ -319,6 +322,11 @@
     [self resumeApp];
 }
 
+-(void)initOneSignalAndThreadWait {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+}
+
 - (void)testBasicInitTest {
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
@@ -382,8 +390,7 @@
 - (void)testRegisterationOniOS7 {
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
@@ -404,11 +411,11 @@
     XCTAssertFalse(UIApplicationOverrider.calledCurrentUserNotificationSettings);
 }
 
-// Seen a few rare crash reports where [NSLocale preferredLanguages] resturns an empty array
+// Test exists since we've seen a few rare crash reports where
+//   [NSLocale preferredLanguages] resturns an empty array
 - (void)testInitWithEmptyPreferredLanguages {
     NSLocaleOverrider.preferredLanguagesArray = @[];
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
 }
 
 - (void)testInitOnSimulator {
@@ -416,8 +423,8 @@
     [self backgroundModesDisabledInXcode];
     UIApplicationOverrider.didFailRegistarationErrorCode = 3010;
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
+    
     [self answerNotifiationPrompt:true];
     [self runBackgroundThreads];
     
@@ -430,7 +437,7 @@
     
     // 2nd init call should not fire another on_session call.
     OneSignalHelperOverrider.lastHTTPRequset = nil;
-    [self initOneSignal];
+    [self initOneSignalAndThreadWait];
     XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
     
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
@@ -463,8 +470,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [self runBackgroundThreads];
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key"], @"value");
@@ -478,8 +484,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [self runBackgroundThreads];
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 0);
     
 }
@@ -530,8 +535,7 @@
 
 
 - (void)testPermissionChangeObserverWhenAlreadyAccepted {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -546,17 +550,14 @@
 
 - (void)testPermissionChangeObserverFireAfterAppRestart {
     // Setup app as accepted.
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
-    
     
     // User kills app, turns off notifications, then opnes it agian.
     [self clearStateForAppRestart];
     [self setCurrentNotificationPermission:false];
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     // Added Observer should be notified of the change right away.
     observer = [OSPermissionStateTestObserver new];
@@ -635,8 +636,7 @@
 }
 
 - (void)testSubscriptionChangeObserverWhenAlreadyAccepted {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -649,8 +649,7 @@
 
 - (void)testSubscriptionChangeObserverFireAfterAppRestart {
     // Setup app as accepted.
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
     
@@ -658,8 +657,7 @@
     // User kills app, turns off notifications, then opnes it agian.
     [self clearStateForAppRestart];
     [self setCurrentNotificationPermission:false];
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     // Added Observer should be notified of the change right away.
     observer = [OSSubscriptionStateTestObserver new];
@@ -776,7 +774,6 @@
     XCTAssertNil(permissionObserver->last);
     XCTAssertNil(subscriptionObserver->last);
 }
-
 
 - (void)testSubscriptionChangeObserverBasic {
     [self setCurrentNotificationPermissionAsUnanswered];
@@ -913,8 +910,7 @@
 - (void)testPromptedButNeveranswerNotificationPrompt {
     [self setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     // Don't make a network call right away.
     XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
@@ -1043,12 +1039,89 @@
 }
 
 
+- (UNNotificationResponse*)createNotificationResponseForAnalyticsTests {
+    id userInfo = @{@"custom":
+                        @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                          @"ti": @"1117f966-d8cc-11e4-bed1-df8f05be55bb",
+                          @"tn": @"Template Name"
+                          }
+                    };
+    
+    return [self createBasiciOSNotificationResponseWithPayload:userInfo];
+}
+
+- (void)testFirebaseAnalyticsNotificationOpen {
+    [self initOneSignalAndThreadWait];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    [notifCenter.delegate userNotificationCenter:notifCenter
+                 didReceiveNotificationResponse:[self createNotificationResponseForAnalyticsTests]
+                          withCompletionHandler:^() {}];
+    
+    // Make sure we track the notification open event
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    id event =  @{
+                  @"os_notification_opened": @{
+                      @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"medium": @"notification",
+                      @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"source": @"OneSignal"}
+                  };
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], event);
+}
+
+- (void)testFirebaseAnalyticsInfluenceNotificationOpen {
+    // The Notification Service Extension runs where the notification received id tracked.
+    //   Note: This is normally a separate process but can't emulate that here.
+    UNNotificationResponse *response = [self createNotificationResponseForAnalyticsTests];
+    [OneSignal didReceiveNotificationExtensionRequest:response.notification.request
+                       withMutableNotificationContent:nil];
+    
+    // Make sure we are tracking the notification received event to firebase.
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
+    id received_event = @{
+         @"os_notification_received": @{
+              @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+              @"medium": @"notification",
+              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+              @"source": @"OneSignal"}
+         };
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
+    
+    // App is now starting
+    [self initOneSignalAndThreadWait];
+    
+    // Since we opened the app right after receiving a notification
+    //   an influence_open should be sent to firebase.
+    XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
+    id influence_open_event = @{
+       @"os_notification_influence_open": @{
+          @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+          @"medium": @"notification",
+          @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+          @"source": @"OneSignal"}
+       };
+    XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
+}
+
+- (void)testOSNotificationPayloadParsesTemplateFields {
+    NSDictionary *aps = @{@"custom": @{@"ti": @"templateId", @"tn": @"Template name"}};
+    OSNotificationPayload *paylaod = [[OSNotificationPayload alloc] initWithRawMessage:aps];
+    XCTAssertEqual(paylaod.templateID, @"templateId");
+    XCTAssertEqual(paylaod.templateName, @"Template name");
+    
+    // Test os_data format
+    aps = @{@"os_data": @{@"ti": @"templateId", @"tn": @"Template name"}};
+    paylaod = [[OSNotificationPayload alloc] initWithRawMessage:aps];
+    XCTAssertEqual(paylaod.templateID, @"templateId");
+    XCTAssertEqual(paylaod.templateName, @"Template name");
+}
+
 
 // Wrapper SDKs may not have the app_id available on cold starts.
 // Open event should still fire however so the event is not missed.
 - (void)testNotificationOpenOn2ndColdStartWithoutAppId {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     [self clearStateForAppRestart];
     
@@ -1066,9 +1139,6 @@
     
     XCTAssertTrue(openedWasFire);
 }
-
-
-
 
 // Testing iOS 10 - old pre-2.4.0 button fromat - with original aps payload format
 - (void)testNotificationOpenFromButtonPress {
@@ -1169,9 +1239,12 @@
     __block BOOL openedWasFire = false;
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
-        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionID, @"id1");
+        id actionButons = @[@{@"id": @"id1", @"text": @"text1"}];
+        XCTAssertEqualObjects(result.notification.payload.actionButtons, actionButons);
+        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        
         openedWasFire = true;
     }];
     [self resumeApp];
@@ -1209,6 +1282,7 @@
         XCTAssertNil(result.action.actionID);
         openedWasFire = true;
     }];
+    
     [self runBackgroundThreads];
     
     id userInfo = @{@"custom": @{
@@ -1223,7 +1297,6 @@
     // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     XCTAssertEqual(openedWasFire, true);
-    
     
     // Part 2 - New paylaod test
     // Current mocking isn't able to setup this test correctly.
@@ -1241,7 +1314,6 @@
     XCTAssertEqual(openedWasFire, true);
     */
 }
-
 
 // Testing iOS 10 - pre-2.4.0 button fromat - with os_data aps payload format
 - (void)testRecievedCallbackWithButtons {
@@ -1279,8 +1351,7 @@
 // Testing iOS 8 - with os_data aps payload format
 - (void)testGeneratingLocalNotificationWithButtonsiOS8OS_data {
     OneSignalHelperOverrider.mockIOSVersion = 8;
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     [self backgroundApp];
     
     id userInfo = @{@"aps": @{@"content_available": @1},
@@ -1306,8 +1377,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testGeneratingLocalNotificationWithButtonsiOS8 {
     OneSignalHelperOverrider.mockIOSVersion = 8;
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     [self backgroundApp];
     
     id userInfo = @{@"aps": @{@"content_available": @1},
@@ -1328,12 +1398,9 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(UIApplicationOverrider.lastUILocalNotification.alertBody, @"alert body only");
 }
 
-
-
-
 - (void)testSendTags {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
+    
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
     
     // Simple test with a sendTag and sendTags call.
@@ -1349,7 +1416,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key1"], @"value1");
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key2"], @"value2");
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
-    
     
     // More advanced test with callbacks.
     __block BOOL didRunSuccess1, didRunSuccess2, didRunSuccess3;
@@ -1381,8 +1447,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testDeleteTags {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
     
     NSLog(@"Calling sendTag and deleteTag");
@@ -1401,14 +1466,12 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key2"], @"value2");
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
     
-    
     [OneSignal sendTags:@{@"someKey": @NO}];
     [OneSignal deleteTag:@"someKey"];
 }
 
 - (void)testGetTags {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
     
     __block BOOL fireGetTags = false;
@@ -1426,8 +1489,8 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testGetTagsBeforePlayerId {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
+    
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
     
     __block BOOL fireGetTags = false;
@@ -1476,8 +1539,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testSendTagsBeforeRegisterComplete {
     [self setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     NSObjectOverrider.selectorNamesForInstantOnlyForFirstRun = [@[@"sendTagsToServer"] mutableCopy];
     
@@ -1497,10 +1559,8 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
 }
 
-
 - (void)testPostNotification {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
     
     
@@ -1523,8 +1583,7 @@ didReceiveRemoteNotification:userInfo
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @0);
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
@@ -1535,8 +1594,7 @@ didReceiveRemoteNotification:userInfo
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     
@@ -1559,8 +1617,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void) testOnSessionWhenResuming {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [self initOneSignalAndThreadWait];
     
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
@@ -1578,8 +1635,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalHelperOverrider.lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
 }
-
-
 
 // Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
 - (void)testContentAvailableDoesNotTriggerOpen  {
@@ -1616,11 +1671,13 @@ didReceiveRemoteNotification:userInfo
 // iOS 10 - Notification Service Extension test
 - (void) testDidReceiveNotificatioExtensionRequest {
     // Example of a pre-existing category a developer setup. + possibly an existing "__dynamic__" category of ours.
-    id category = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"some_category" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
-    id category2 = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
-    id category3 = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"some_category2" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category = [UNNotificationCategory categoryWithIdentifier:@"some_category" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category2 = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category3 = [UNNotificationCategory categoryWithIdentifier:@"some_category2" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
     
-    [[NSClassFromString(@"UNUserNotificationCenter") currentNotificationCenter] setNotificationCategories:[[NSMutableSet alloc] initWithArray:@[category, category2, category3]]];
+    id currentNC = [UNUserNotificationCenter currentNotificationCenter];
+    id categorySet = [[NSMutableSet alloc] initWithArray:@[category, category2, category3]];
+    [currentNC setNotificationCategories:categorySet];
     
     id userInfo = @{@"aps": @{
                         @"mutable-content": @1,

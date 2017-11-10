@@ -32,102 +32,124 @@
 #import "OneSignal.h"
 
 @implementation OSNotificationPayload
-@synthesize actionButtons = _actionButtons, additionalData = _additionalData, badge = _badge, body = _body, contentAvailable = _contentAvailable, notificationID = _notificationID, launchURL = _launchURL, rawPayload = _rawPayload, sound = _sound, subtitle = _subtitle, title = _title, attachments = _attachments;
 
 - (id)initWithRawMessage:(NSDictionary*)message {
+    if (!message)
+        return nil;
+    
     self = [super init];
-    if (self && message) {
-        _rawPayload = [NSDictionary dictionaryWithDictionary:message];
-        
-        BOOL is2dot4Format = [_rawPayload[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
-        
-        if (_rawPayload[@"aps"][@"content-available"])
-            _contentAvailable = (BOOL)_rawPayload[@"aps"][@"content-available"];
-        else
-            _contentAvailable = NO;
-        
-        if (_rawPayload[@"aps"][@"badge"])
-            _badge = [_rawPayload[@"aps"][@"badge"] intValue];
-        else
-            _badge = [_rawPayload[@"badge"] intValue];
-        
-        _actionButtons = _rawPayload[@"o"];
-        if (!_actionButtons) {
-            if (is2dot4Format)
-                _actionButtons = _rawPayload[@"os_data"][@"buttons"];
-            else
-                _actionButtons = _rawPayload[@"os_data"][@"buttons"][@"o"];
-        }
-        
-        if(_rawPayload[@"aps"][@"sound"])
-            _sound = _rawPayload[@"aps"][@"sound"];
-        else if(_rawPayload[@"s"])
-            _sound = _rawPayload[@"s"];
-        else if (!is2dot4Format)
-            _sound = _rawPayload[@"os_data"][@"buttons"][@"s"];
-        
-        if(_rawPayload[@"custom"]) {
-            NSDictionary* custom = _rawPayload[@"custom"];
-            if (custom[@"a"])
-                _additionalData = [custom[@"a"] copy];
-            _notificationID = custom[@"i"];
-            _launchURL = custom[@"u"];
-            
-            _attachments = [_rawPayload[@"at"] copy];
-        }
-        else if(_rawPayload[@"os_data"]) {
-            NSDictionary * os_data = _rawPayload[@"os_data"];
-            
-            NSMutableDictionary *additional = [_rawPayload mutableCopy];
-            [additional removeObjectForKey:@"aps"];
-            [additional removeObjectForKey:@"os_data"];
-            _additionalData = [[NSDictionary alloc] initWithDictionary:additional];
-            
-            _notificationID = os_data[@"i"];
-            _launchURL = os_data[@"u"];
-            
-            if (is2dot4Format) {
-                if (os_data[@"att"])
-                    _attachments = [os_data[@"att"] copy];
-            }
-            else {
-                if (os_data[@"buttons"][@"at"])
-                    _attachments = [os_data[@"buttons"][@"at"] copy];
-            }
-        }
-        
-        if(_rawPayload[@"m"]) {
-            id m = _rawPayload[@"m"];
-            if ([m isKindOfClass:[NSDictionary class]]) {
-                _body = m[@"body"];
-                _title = m[@"title"];
-                _subtitle = m[@"subtitle"];
-            }
-            else
-                _body = m;
-        }
-        else if(_rawPayload[@"aps"][@"alert"]) {
-            id a = message[@"aps"][@"alert"];
-            if ([a isKindOfClass:[NSDictionary class]]) {
-                _body = a[@"body"];
-                _title = a[@"title"];
-                _subtitle = a[@"subtitle"];
-            }
-            else
-                _body = a;
-        }
-        else if(_rawPayload[@"os_data"][@"buttons"][@"m"]) {
-            id m = _rawPayload[@"os_data"][@"buttons"][@"m"];
-            if ([m isKindOfClass:[NSDictionary class]]) {
-                _body = m[@"body"];
-                _title = m[@"title"];
-                _subtitle = m[@"subtitle"];
-            }
-            else
-                _body = m;
-        }
-    }
+    if (!self)
+        return nil;
+    
+    _rawPayload = [NSDictionary dictionaryWithDictionary:message];
+    
+    if ([_rawPayload[@"os_data"] isKindOfClass:[NSDictionary class]])
+        [self parseOSDataPayload];
+    else
+        [self parseOriginalPayload];
+    
+    [self parseOtherApnsFields];
     
     return self;
 }
+
+// Original OneSignal payload format.
+-(void)parseOriginalPayload {
+    BOOL remoteSlient = _rawPayload[@"m"] && !_rawPayload[@"aps"][@"alert"];
+    if (remoteSlient)
+        [self parseRemoteSlient:_rawPayload];
+    else {
+        [self parseApnsFields];
+        _attachments = _rawPayload[@"at"];
+        [self parseActionButtons:_rawPayload[@"o"]];
+    }
+    
+    [self parseCommonOneSignalFields:_rawPayload[@"custom"]];
+    _additionalData = _rawPayload[@"custom"][@"a"];
+}
+
+// New OneSignal playload format.
+//   OneSignal specific features are under "os_data".
+-(void)parseOSDataPayload {
+    NSDictionary *os_data = _rawPayload[@"os_data"];
+    BOOL remoteSlient = os_data[@"buttons"] && !_rawPayload[@"aps"][@"alert"];
+    if (remoteSlient)
+        [self parseRemoteSlient:os_data[@"buttons"]];
+    else {
+        [self parseApnsFields];
+        _attachments = os_data[@"att"];
+        [self parseActionButtons:os_data[@"buttons"]];
+    }
+    
+    [self parseCommonOneSignalFields:_rawPayload[@"os_data"]];
+    [self parseOSDataAdditionalData];
+}
+
+-(void)parseOSDataAdditionalData {
+    NSMutableDictionary *additional = [_rawPayload mutableCopy];
+    [additional removeObjectForKey:@"aps"];
+    [additional removeObjectForKey:@"os_data"];
+    _additionalData = [[NSDictionary alloc] initWithDictionary:additional];
+}
+
+// Fields that share the same format for all OneSignal payload types.
+-(void)parseCommonOneSignalFields:(NSDictionary*)payload {
+    _notificationID = payload[@"i"];
+    _launchURL = payload[@"u"];
+    _templateID = payload[@"ti"];
+    _templateName = payload[@"tn"];
+}
+
+-(void)parseApnsFields {
+    [self parseAlertField:_rawPayload[@"aps"][@"alert"]];
+    _badge = [_rawPayload[@"aps"][@"badge"] intValue];
+    _sound = _rawPayload[@"aps"][@"sound"];
+}
+
+// Pasrse the APNs alert field, can be a NSString or a NSDictionary
+-(void)parseAlertField:(NSObject*)alert {
+    if ([alert isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *alertDictionary = (NSDictionary*)alert;
+        _body = alertDictionary[@"body"];
+        _title = alertDictionary[@"title"];
+        _subtitle = alertDictionary[@"subtitle"];
+    }
+    else
+        _body = (NSString*)alert;
+}
+
+// Only used on iOS 9 and older.
+//   - Or if the OneSignal server hasn't received the iOS version update.
+// May also be used if OneSignal server hasn't received the SDK version 2.4.0+ update event
+-(void)parseRemoteSlient:(NSDictionary*)payload {
+    [self parseAlertField:payload[@"m"]];
+    _badge = [payload[@"b"] intValue];
+    _sound = payload[@"s"];
+    _attachments = payload[@"at"];
+    [self parseActionButtons:_rawPayload[@"o"]];
+}
+
+// Parse and convert minified keys for action buttons
+-(void)parseActionButtons:(NSArray<NSDictionary*>*)buttons {
+    NSMutableArray *buttonArray = [NSMutableArray new];
+    for (NSDictionary *button in buttons) {
+        [buttonArray addObject: @{@"text" : button[@"n"],
+                                  @"id" : (button[@"i"] ?: button[@"n"])
+                                 }];
+    }
+    
+    _actionButtons = buttonArray;
+}
+
+-(void)parseOtherApnsFields {
+    NSDictionary *aps = _rawPayload[@"aps"];
+    if (aps[@"content-available"])
+        _contentAvailable = (BOOL)aps[@"content-available"];
+    
+    if (aps[@"mutable-content"])
+        _mutableContent = (BOOL)aps[@"mutable-content"];
+    
+    _category = aps[@"category"];
+}
+
 @end
