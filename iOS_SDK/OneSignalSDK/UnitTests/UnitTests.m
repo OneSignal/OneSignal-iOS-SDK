@@ -283,7 +283,6 @@
     NSLog(@"END runBackgroundThreads");
 }
 
-
 - (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
     // Mocking an iOS 10 notification
     // Setting response.notification.request.content.userInfo
@@ -1051,6 +1050,7 @@
 }
 
 - (void)testFirebaseAnalyticsNotificationOpen {
+    OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
     [self initOneSignalAndThreadWait];
     
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1071,6 +1071,11 @@
 }
 
 - (void)testFirebaseAnalyticsInfluenceNotificationOpen {
+    // Start App once to download params
+    OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
+    [self initOneSignalAndThreadWait];
+    
+    // Notification is recieved.
     // The Notification Service Extension runs where the notification received id tracked.
     //   Note: This is normally a separate process but can't emulate that here.
     UNNotificationResponse *response = [self createNotificationResponseForAnalyticsTests];
@@ -1088,10 +1093,13 @@
          };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
     
-    // App is now starting
-    [self initOneSignalAndThreadWait];
+    // Trigger a new app session
+    [self backgroundApp];
+    NSDateOverrider.timeOffset = 41;
+    [self resumeApp];
+    [self runBackgroundThreads];
     
-    // Since we opened the app right after receiving a notification
+    // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
     XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
     id influence_open_event = @{

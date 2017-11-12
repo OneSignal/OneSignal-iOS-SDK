@@ -30,6 +30,10 @@
 #import "OneSignal.h"
 
 @interface OneSignalTrackFirebaseAnalytics : NSObject
++(BOOL)needsRemoteParams;
++(void)init;
++(void)updateFromDownloadParams:(NSDictionary*)params;
+
 +(void)trackOpenEvent:(OSNotificationOpenedResult*)results;
 +(void)trackReceivedEvent:(OSNotification*)notification;
 +(void)trackInfluenceOpenEvent;
