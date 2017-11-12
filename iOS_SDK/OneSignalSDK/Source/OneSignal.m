@@ -412,6 +412,11 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     if (NSClassFromString(@"UNUserNotificationCenter"))
        [OneSignalHelper clearCachedMedia];
     
+    if ([OneSignalTrackFirebaseAnalytics needsRemoteParams]) {
+        [OneSignalTrackFirebaseAnalytics init];
+        [self downloadIOSParams];
+    }
+    
     return self;
 }
 
@@ -447,6 +452,17 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
     return true;
+}
+
++(void)downloadIOSParams {
+    NSString* path = [NSString stringWithFormat:@"apps/%@/ios_params.js", self.app_id];
+    if (self.currentSubscriptionState.userId != nil)
+        [path stringByAppendingString:[NSString stringWithFormat:@"?player_id=%@", self.currentSubscriptionState.userId]];
+    NSMutableURLRequest* request = [self.httpClient requestWithMethod:@"GET" path:path];
+    
+    [OneSignalHelper enqueueRequest:request onSuccess:^(NSDictionary* results) {
+        [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:results];
+    } onFailure:nil];
 }
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {

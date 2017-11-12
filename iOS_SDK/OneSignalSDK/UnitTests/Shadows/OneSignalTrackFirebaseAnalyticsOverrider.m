@@ -34,23 +34,34 @@
 @implementation OneSignalTrackFirebaseAnalyticsOverrider
 
 static NSMutableArray<NSDictionary*> *loggedEvents;
+static BOOL hasFIRAnalytics = false;
 
 +(void)reset {
     loggedEvents = [NSMutableArray new];
+    hasFIRAnalytics = false;
 }
 
 +(NSArray<NSDictionary*>*)loggedEvents {
     return loggedEvents;
 }
 
++(void)setHasFIRAnalytics:(BOOL)enable {
+    hasFIRAnalytics = enable;
+}
+
 +(void)load {
     [self reset];
     
     injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideLogEventWithName:parameters:), [OneSignalTrackFirebaseAnalytics class], @selector(logEventWithName:parameters:));
+    injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideNeedsRemoteParams), [OneSignalTrackFirebaseAnalytics class], @selector(needsRemoteParams));
 }
 
 +(void)overrideLogEventWithName:(NSString*)name parameters:(NSDictionary*)params {
     [loggedEvents addObject:@{name: params}];
+}
+
++(BOOL)overrideNeedsRemoteParams {
+    return hasFIRAnalytics;
 }
 
 @end

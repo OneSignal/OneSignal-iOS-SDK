@@ -30,4 +30,5 @@
 @interface OneSignalTrackFirebaseAnalyticsOverrider : NSObject
 +(void)reset;
 +(NSArray<NSDictionary*>*)loggedEvents;
++(void)setHasFIRAnalytics:(BOOL)enable;
 @end

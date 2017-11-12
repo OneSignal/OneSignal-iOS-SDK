@@ -108,9 +108,8 @@ static float mockIOSVersion;
         }
     }
     
-    // We should always send an app_id with every request.
-    if (!parameters[@"app_id"])
-        _XCTPrimitiveFail(currentTestInstance);
+    if (!parameters[@"app_id"] && ![request.URL.absoluteString containsString:@"/apps/"])
+        _XCTPrimitiveFail(currentTestInstance, @"All requesst should include an app_id");
     
     networkRequestCount++;
     
@@ -121,8 +120,12 @@ static float mockIOSVersion;
     lastUrl = [url absoluteString];
     lastHTTPRequset = parameters;
     
-    if (successBlock)
-        successBlock(@{@"id": @"1234"});
+    if (successBlock) {
+        if ([request.URL.absoluteString hasPrefix:@"https://onesignal.com/api/v1/apps/"])
+            successBlock(@{@"fba": @true});
+        else
+            successBlock(@{@"id": @"1234"});
+    }
 }
 
 + (BOOL)overrideIsIOSVersionGreaterOrEqual:(float)version {

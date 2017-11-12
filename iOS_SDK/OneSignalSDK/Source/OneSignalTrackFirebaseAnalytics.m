@@ -30,6 +30,30 @@
 @implementation OneSignalTrackFirebaseAnalytics
 
 static NSTimeInterval lastOpenedTime = 0;
+static BOOL trackingEnabled = false;
+
+// Only need to download remote params if app includes Firebase analytics
++(BOOL)needsRemoteParams {
+    return NSClassFromString(@"FIRAnalytics") != nil;
+}
+
+// Called from both main target and extension
+// Note: Not checking for FIRAnalytics class existence here since the library isn't needed on the
+//         extension target to track inflenced opens.
++(void)init {
+    NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    trackingEnabled = [userDefaults boolForKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
+}
+
+
++(void)updateFromDownloadParams:(NSDictionary*)params {
+    trackingEnabled = (BOOL)params[@"fba"];
+    NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    if (trackingEnabled)
+        [userDefaults setBool:true forKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
+    else
+        [userDefaults removeObjectForKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
+}
 
 +(NSString*)appGroupKey {
     NSString* groupKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_app_groups_key"];
@@ -52,7 +76,7 @@ static NSTimeInterval lastOpenedTime = 0;
     if (!payload.title)
         return @"";
     
-    int titleLength = payload.title.length;
+    NSUInteger titleLength = payload.title.length;
     if (titleLength > 10)
         titleLength = 10;
     
@@ -60,7 +84,8 @@ static NSTimeInterval lastOpenedTime = 0;
 }
 
 +(void)trackOpenEvent:(OSNotificationOpenedResult*)results {
-    NSLog(@"Sending Google Analytics Open");
+    if (!trackingEnabled)
+        return;
     
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];
     
@@ -74,6 +99,9 @@ static NSTimeInterval lastOpenedTime = 0;
 }
 
 +(void)trackReceivedEvent:(OSNotificationPayload*)payload {
+    if (!trackingEnabled)
+        return;
+    
     NSString* campaign = [self getCampaignNameFromPayload:payload];
     NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     [userDefaults setObject:payload.notificationID forKey:@"OS_LAST_RECIEVED_NOTIFICATION_ID"];
@@ -91,6 +119,9 @@ static NSTimeInterval lastOpenedTime = 0;
 }
 
 +(void)trackInfluenceOpenEvent {
+    if (!trackingEnabled)
+        return;
+    
     NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     NSTimeInterval lastTimeReceived = [userDefaults doubleForKey:@"OS_LAST_RECIEVED_TIME"];
     
