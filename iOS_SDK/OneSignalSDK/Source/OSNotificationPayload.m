@@ -33,14 +33,17 @@
 
 @implementation OSNotificationPayload
 
-- (id)initWithRawMessage:(NSDictionary*)message {
++(instancetype)parseWithApns:(NSDictionary*)message {
     if (!message)
         return nil;
     
-    self = [super init];
-    if (!self)
-        return nil;
+    OSNotificationPayload *osPayload = [OSNotificationPayload new];
     
+    [osPayload initWithRawMessage:message];
+    return osPayload;
+}
+
+-(void)initWithRawMessage:(NSDictionary*)message {
     _rawPayload = [NSDictionary dictionaryWithDictionary:message];
     
     if ([_rawPayload[@"os_data"] isKindOfClass:[NSDictionary class]])
@@ -49,8 +52,6 @@
         [self parseOriginalPayload];
     
     [self parseOtherApnsFields];
-    
-    return self;
 }
 
 // Original OneSignal payload format.
@@ -126,7 +127,7 @@
     _badge = [payload[@"b"] intValue];
     _sound = payload[@"s"];
     _attachments = payload[@"at"];
-    [self parseActionButtons:_rawPayload[@"o"]];
+    [self parseActionButtons:payload[@"o"]];
 }
 
 // Parse and convert minified keys for action buttons

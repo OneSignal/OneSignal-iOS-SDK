@@ -204,19 +204,18 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     return [@"com.apple.UNNotificationDismissActionIdentifier" isEqual:response.actionIdentifier];
 }
 
-+ (void) processiOS10Open:(UNNotificationResponse *)response {
++ (void) processiOS10Open:(UNNotificationResponse*)response {
     if (![OneSignal app_id])
         return;
     
     if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
         return;
     
-    BOOL isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
+    let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
                     OneSignal.inFocusDisplayType != OSNotificationDisplayTypeNotification;
     
-    
-    NSMutableDictionary *userInfo;
-    userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo identifier:[response valueForKey:@"actionIdentifier"]];
+    let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
+                                                      identifier:response.actionIdentifier];
     
     [OneSignal notificationOpened:userInfo isActive:isActive];
 }

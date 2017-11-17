@@ -33,47 +33,49 @@
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
++(UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
+                                        withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    NSLog(@"$$$$$$$$$UNNotificationRequest.content.userInfo:%@", request.content.userInfo);
+    let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
     
-    id payload = [[OSNotificationPayload alloc] initWithRawMessage:request.content.userInfo];
+    // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
     // Action Buttons
-    [self addActionButtonsToExtentionRequest:request withMutableNotificationContent:replacementContent];
+    [self addActionButtonsToExtentionRequest:request
+                                 withPayload:payload
+              withMutableNotificationContent:replacementContent];
     
     // Media Attachments
-    NSDictionary* attachments = request.content.userInfo[@"os_data"][@"att"];
-    if (!attachments)
-        attachments = request.content.userInfo[@"att"];
-    if (attachments)
-        [OneSignalHelper addAttachments:attachments toNotificationContent:replacementContent];
+    [OneSignalHelper addAttachments:payload toNotificationContent:replacementContent];
     
     return replacementContent;
 }
 
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
++(UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request
+                                       withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    [self addActionButtonsToExtentionRequest:request withMutableNotificationContent:replacementContent];
+    let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
+    
+    [self addActionButtonsToExtentionRequest:request
+                                 withPayload:payload
+              withMutableNotificationContent:replacementContent];
     
     return replacementContent;
 }
 
-+ (void)addActionButtonsToExtentionRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
++(void)addActionButtonsToExtentionRequest:(UNNotificationRequest*)request
+                               withPayload:(OSNotificationPayload*)payload
+            withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    // If the developer already set a category don't replace it with our generated one.
     if (request.content.categoryIdentifier && ![request.content.categoryIdentifier isEqualToString:@""])
         return;
     
-    NSArray* buttonsPayloadList = request.content.userInfo[@"os_data"][@"buttons"];
-    if (!buttonsPayloadList)
-        buttonsPayloadList = request.content.userInfo[@"buttons"];
-    
-    if (buttonsPayloadList)
-        [OneSignalHelper addActionButtons:buttonsPayloadList toNotificationContent:replacementContent];
+    [OneSignalHelper addActionButtons:payload toNotificationContent:replacementContent];
 }
 
 @end
