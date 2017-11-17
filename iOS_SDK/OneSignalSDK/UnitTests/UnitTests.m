@@ -113,13 +113,15 @@
 @implementation UnitTests
 
 - (void)beforeAllTest {
-    static BOOL setupUIApplicationDelegate = false;
+    static var setupUIApplicationDelegate = false;
     if (setupUIApplicationDelegate)
         return;
     
     // Normally this just loops internally, overwrote _run to work around this.
     UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
+    
     setupUIApplicationDelegate = true;
+    
     // InstallUncaughtExceptionHandler();
     
     // Force swizzle in all methods for tests.
@@ -924,8 +926,10 @@
 
 - (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
     OneSignalHelperOverrider.mockIOSVersion = 8;
+    [self setCurrentNotificationPermission:true];
     
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+    [OneSignal initWithLaunchOptions:nil
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
@@ -938,7 +942,8 @@
 - (void)testNeverPromptedStatus {
     [self setCurrentNotificationPermissionAsUnanswered];
     
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+    [OneSignal initWithLaunchOptions:nil
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
@@ -1114,13 +1119,13 @@
 
 - (void)testOSNotificationPayloadParsesTemplateFields {
     NSDictionary *aps = @{@"custom": @{@"ti": @"templateId", @"tn": @"Template name"}};
-    OSNotificationPayload *paylaod = [[OSNotificationPayload alloc] initWithRawMessage:aps];
+    OSNotificationPayload *paylaod = [OSNotificationPayload parseWithApns:aps];
     XCTAssertEqual(paylaod.templateID, @"templateId");
     XCTAssertEqual(paylaod.templateName, @"Template name");
     
     // Test os_data format
     aps = @{@"os_data": @{@"ti": @"templateId", @"tn": @"Template name"}};
-    paylaod = [[OSNotificationPayload alloc] initWithRawMessage:aps];
+    paylaod = [OSNotificationPayload parseWithApns:aps];
     XCTAssertEqual(paylaod.templateID, @"templateId");
     XCTAssertEqual(paylaod.templateName, @"Template name");
 }
@@ -1255,6 +1260,7 @@
         
         openedWasFire = true;
     }];
+    
     [self resumeApp];
     [self runBackgroundThreads];
     
@@ -1272,7 +1278,9 @@
     
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     id notifCenterDelegate = notifCenter.delegate;
-    [notifCenterDelegate userNotificationCenter:notifCenter willPresentNotification:[notifResponse notification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    [notifCenterDelegate userNotificationCenter:notifCenter
+                        willPresentNotification:[notifResponse notification]
+                          withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
     XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
     [UIAlertViewOverrider.lastUIAlertViewDelegate alertView:nil clickedButtonAtIndex:1];
@@ -1327,68 +1335,90 @@
 - (void)testRecievedCallbackWithButtons {
     __block BOOL recievedWasFire = false;
     
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
-        recievedWasFire = true;
-        id actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
-        // TODO: Fix code so it don't use the shortened format.
-        // XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
-    } handleNotificationAction:nil settings:nil];
+    [OneSignal initWithLaunchOptions:nil
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+          handleNotificationReceived:^(OSNotification *notification) {
+            recievedWasFire = true;
+            let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
+            XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
+          }
+            handleNotificationAction:nil
+                            settings:nil];
     [self runBackgroundThreads];
     
-    id userInfo = @{@"aps": @{@"content_available": @1},
-                    @"os_data": @{
+    let userInfo = @{@"aps": @{@"content_available": @1},
+                     @"os_data": @{
                         @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
                         @"buttons": @{
                             @"m": @"alert body only",
                             @"o": @[@{@"i": @"id1", @"n": @"text1"}]
                         }
-                    }
-                };
+                      }
+                   };
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    let notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
-    id notifCenterDelegate = notifCenter.delegate;
+    let notifCenterDelegate = notifCenter.delegate;
     
-    //iOS 10 calls  UNUserNotificationCenterDelegate method directly when a notification is received while the app is in focus.
-    [notifCenterDelegate userNotificationCenter:notifCenter willPresentNotification:[notifResponse notification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    //iOS 10 calls UNUserNotificationCenterDelegate method directly when a notification is received while the app is in focus.
+    [notifCenterDelegate userNotificationCenter:notifCenter
+                        willPresentNotification:[notifResponse notification]
+                          withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
     XCTAssertEqual(recievedWasFire, true);
 }
 
+-(void)fireDidReceiveRemoteNotification:(NSDictionary*)userInfo {
+    let appDelegate = [UIApplication sharedApplication].delegate;
+    [appDelegate application:[UIApplication sharedApplication]
+didReceiveRemoteNotification:userInfo
+      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
+}
+
+-(void)assertLocalNotification:(NSDictionary*)userInfo {
+    let localNotif = UIApplicationOverrider.lastUILocalNotification;
+    XCTAssertEqualObjects(localNotif.alertBody, @"alert body only");
+    XCTAssertEqualObjects(localNotif.category, @"__dynamic__");
+    XCTAssertEqualObjects(localNotif.userInfo, userInfo);
+    
+    let categories = [UIApplication sharedApplication].currentUserNotificationSettings.categories;
+    
+    XCTAssertEqual(categories.count, 1);
+    
+    let category = categories.allObjects[0];
+    XCTAssertEqualObjects(category.identifier, @"__dynamic__");
+    
+    let actions = [category actionsForContext:UIUserNotificationActionContextDefault];
+    XCTAssertEqualObjects(actions[0].identifier, @"id1");
+    XCTAssertEqualObjects(actions[0].title, @"text1");
+}
 
 // Testing iOS 8 - with os_data aps payload format
-- (void)testGeneratingLocalNotificationWithButtonsiOS8OS_data {
+- (void)testGeneratingLocalNotificationWithButtonsiOS8_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [self initOneSignalAndThreadWait];
     [self backgroundApp];
     
-    id userInfo = @{@"aps": @{@"content_available": @1},
+    let userInfo = @{@"aps": @{@"content_available": @1},
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
                             @"buttons": @{
                                     @"m": @"alert body only",
                                     @"o": @[@{@"i": @"id1", @"n": @"text1"}]
                                     }
-                            }
+                            },
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
                     };
     
-    
-    id appDelegate = [UIApplication sharedApplication].delegate;
-                      
-    [appDelegate application:[UIApplication sharedApplication]
-didReceiveRemoteNotification:userInfo
-      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
-    
-    XCTAssertEqualObjects(UIApplicationOverrider.lastUILocalNotification.alertBody, @"alert body only");
+    [self fireDidReceiveRemoteNotification:userInfo];
+    [self assertLocalNotification:userInfo];
 }
-
 
 - (void)testGeneratingLocalNotificationWithButtonsiOS8 {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [self initOneSignalAndThreadWait];
     [self backgroundApp];
     
-    id userInfo = @{@"aps": @{@"content_available": @1},
+    let userInfo = @{@"aps": @{@"content_available": @1},
                     @"m": @"alert body only",
                     @"o": @[@{@"i": @"id1", @"n": @"text1"}],
                     @"custom": @{
@@ -1396,14 +1426,8 @@ didReceiveRemoteNotification:userInfo
                             }
                     };
     
-    
-    id appDelegate = [UIApplication sharedApplication].delegate;
-    
-    [appDelegate application:[UIApplication sharedApplication]
-didReceiveRemoteNotification:userInfo
-      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
-    
-    XCTAssertEqualObjects(UIApplicationOverrider.lastUILocalNotification.alertBody, @"alert body only");
+    [self fireDidReceiveRemoteNotification:userInfo];
+    [self assertLocalNotification:userInfo];
 }
 
 - (void)testSendTags {
@@ -1662,32 +1686,32 @@ didReceiveRemoteNotification:userInfo
                             }
                     };
     
-    
-    id appDelegate = [UIApplication sharedApplication].delegate;
-    [appDelegate application:[UIApplication sharedApplication]
-didReceiveRemoteNotification:userInfo
-      fetchCompletionHandler:^(UIBackgroundFetchResult result) { }];
-    
+    [self fireDidReceiveRemoteNotification:userInfo];
     [self runBackgroundThreads];
     
     XCTAssertEqual(receivedWasFire, true);
     XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 0);
 }
 
-
+-(UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
+    return [UNNotificationCategory
+            categoryWithIdentifier:identifier
+            actions:@[]
+            intentIdentifiers:@[]
+            options:UNNotificationCategoryOptionCustomDismissAction];
+}
 
 // iOS 10 - Notification Service Extension test
-- (void) testDidReceiveNotificatioExtensionRequest {
-    // Example of a pre-existing category a developer setup. + possibly an existing "__dynamic__" category of ours.
-    id category = [UNNotificationCategory categoryWithIdentifier:@"some_category" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
-    id category2 = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
-    id category3 = [UNNotificationCategory categoryWithIdentifier:@"some_category2" actions:@[] intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+- (void)testDidReceiveNotificatioExtensionRequest {
+    // Example of a pre-existing category a developer setup.
+    //   Plus possibly an existing "__dynamic__" category of ours.
+    let categorySet = [NSMutableSet new];
+    [categorySet addObject:[self unNotificagionCategoryWithId:@"some_category"]];
+    [categorySet addObject:[self unNotificagionCategoryWithId:@"__dynamic__"]];
+    [categorySet addObject:[self unNotificagionCategoryWithId:@"some_category2"]];
+    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categorySet];
     
-    id currentNC = [UNUserNotificationCenter currentNotificationCenter];
-    id categorySet = [[NSMutableSet alloc] initWithArray:@[category, category2, category3]];
-    [currentNC setNotificationCategories:categorySet];
-    
-    id userInfo = @{@"aps": @{
+    var userInfo = @{@"aps": @{
                         @"mutable-content": @1,
                         @"alert": @"Message Body"
                     },
@@ -1697,9 +1721,8 @@ didReceiveRemoteNotification:userInfo
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
-    
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    var notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    let content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure butons were added.
     XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
@@ -1710,14 +1733,14 @@ didReceiveRemoteNotification:userInfo
     
     // Run again with different buttons.
     userInfo = @{@"aps": @{
-                         @"mutable-content": @1,
-                         @"alert": @"Message Body"
-                         },
+                     @"mutable-content": @1,
+                     @"alert": @"Message Body"
+                 },
                  @"os_data": @{
-                         @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
-                         @"buttons": @[@{@"i": @"id2", @"n": @"text2"}],
-                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
-                         }};
+                     @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                     @"buttons": @[@{@"i": @"id2", @"n": @"text2"}],
+                     @"att": @{ @"id": @"http://domain.com/file.jpg"}
+                 }};
     
     notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];

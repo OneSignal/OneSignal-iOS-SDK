@@ -26,11 +26,12 @@
  */
 
 #import "OneSignalTrackFirebaseAnalytics.h"
+#import "OneSignalHelper.h"
 
 @implementation OneSignalTrackFirebaseAnalytics
 
 static NSTimeInterval lastOpenedTime = 0;
-static BOOL trackingEnabled = false;
+static var trackingEnabled = false;
 
 // Only need to download remote params if app includes Firebase analytics
 +(BOOL)needsRemoteParams {
@@ -41,14 +42,14 @@ static BOOL trackingEnabled = false;
 // Note: Not checking for FIRAnalytics class existence here since the library isn't needed on the
 //         extension target to track inflenced opens.
 +(void)init {
-    NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     trackingEnabled = [userDefaults boolForKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
 }
 
 
 +(void)updateFromDownloadParams:(NSDictionary*)params {
     trackingEnabled = (BOOL)params[@"fba"];
-    NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     if (trackingEnabled)
         [userDefaults setBool:true forKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
     else
@@ -56,7 +57,7 @@ static BOOL trackingEnabled = false;
 }
 
 +(NSString*)appGroupKey {
-    NSString* groupKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_app_groups_key"];
+    NSString *groupKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_app_groups_key"];
     return [groupKey stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
@@ -76,7 +77,7 @@ static BOOL trackingEnabled = false;
     if (!payload.title)
         return @"";
     
-    NSUInteger titleLength = payload.title.length;
+    var titleLength = payload.title.length;
     if (titleLength > 10)
         titleLength = 10;
     
@@ -102,8 +103,8 @@ static BOOL trackingEnabled = false;
     if (!trackingEnabled)
         return;
     
-    NSString* campaign = [self getCampaignNameFromPayload:payload];
-    NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    let campaign = [self getCampaignNameFromPayload:payload];
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     [userDefaults setObject:payload.notificationID forKey:@"OS_LAST_RECIEVED_NOTIFICATION_ID"];
     [userDefaults setObject:campaign forKey:@"OS_LAST_RECIEVED_GAF_CAMPAIGN"];
     [userDefaults setDouble:[[NSDate date] timeIntervalSince1970] forKey:@"OS_LAST_RECIEVED_TIME"];
@@ -122,13 +123,13 @@ static BOOL trackingEnabled = false;
     if (!trackingEnabled)
         return;
     
-    NSUserDefaults* userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     NSTimeInterval lastTimeReceived = [userDefaults doubleForKey:@"OS_LAST_RECIEVED_TIME"];
     
     if (lastTimeReceived == 0)
         return;
     
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    let now = [[NSDate date] timeIntervalSince1970];
     
     // Attribute if app was opened in 2 minutes or less after displaying the notification
     if (now - lastTimeReceived > 120)
@@ -139,8 +140,8 @@ static BOOL trackingEnabled = false;
     if (now - lastOpenedTime < 30)
         return;
     
-    NSString* notificationId = [userDefaults objectForKey:@"OS_LAST_RECIEVED_NOTIFICATION_ID"];
-    NSString* campaign = [userDefaults objectForKey:@"OS_LAST_RECIEVED_GAF_CAMPAIGN"];
+    NSString *notificationId = [userDefaults objectForKey:@"OS_LAST_RECIEVED_NOTIFICATION_ID"];
+    NSString *campaign = [userDefaults objectForKey:@"OS_LAST_RECIEVED_GAF_CAMPAIGN"];
     
     [self logEventWithName:@"os_notification_influence_open"
                 parameters:@{

@@ -38,8 +38,6 @@
 + (void) displayWebView:(NSURL*)url;
 
 // - Notification Opened
-+ (NSDictionary*)getPushTitleBody:(NSDictionary*)messageDict;
-+ (NSArray*)getActionButtons:(NSDictionary*)messageDict;
 + (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier;
 + (void)lastMessageReceived:(NSDictionary*)message;
 + (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;
@@ -48,18 +46,19 @@
 
 // - iOS 10
 + (BOOL)isIOSVersionGreaterOrEqual:(float)version;
-#if XC8_AVAILABLE
 + (void)registerAsUNNotificationCenterDelegate;
 + (void)clearCachedMedia;
-+ (id)prepareUNNotificationRequest:(NSDictionary *)data :(NSDictionary *)userInfo;
-+ (void)addnotificationRequest:(NSDictionary *)data userInfo:(NSDictionary *)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
-#endif
++ (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotificationPayload*)payload;
++ (void)addNotificationRequest:(OSNotificationPayload*)payload completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 // - Notifications
 + (BOOL)canGetNotificationTypes;
-+ (UILocalNotification*)prepareUILocalNotification:(NSDictionary*)data :(NSDictionary*)userInfo;
-+ (BOOL)verifyURL:(NSString *)urlString;
++ (UILocalNotification*)prepareUILocalNotification:(OSNotificationPayload*)payload;
++ (BOOL)verifyURL:(NSString*)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
++ (NSMutableSet<UNNotificationCategory*>*)existingCategories;
++ (void)addAttachments:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
++ (void)addActionButtons:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
 
 // - Networking
 + (NSNumber*)getNetType;
@@ -68,17 +67,29 @@
 + (void)handleJSONNSURLResponse:(NSURLResponse*) response data:(NSData*) data error:(NSError*) error onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 
 // Threading
-+ (void) runOnMainThread:(void(^)())block;
-+ (void) dispatch_async_on_main_queue:(void(^)())block;
++ (void)runOnMainThread:(void(^)())block;
++ (void)dispatch_async_on_main_queue:(void(^)())block;
 + (void)performSelector:(SEL)aSelector onMainThreadOnObject:(id)targetObj withObject:(id)anArgument afterDelay:(NSTimeInterval)delay;
 
 // Other
 + (BOOL) isValidEmail:(NSString*)email;
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
-+ (void)addAttachments:(NSDictionary*)attachments toNotificationContent:(id)content;
-+ (void)addActionButtons:(NSArray*)buttonsPayloadList toNotificationContent:(id)content;
 + (NSString*)trimURLSpacing:(NSString*)url;
 
 #pragma clang diagnostic pop
 @end
+
+// Defines let and var in Objective-c for shorter code
+// __auto_type is compatible with Xcode 8+
+#if defined(__cplusplus)
+#define let auto const
+#else
+#define let const __auto_type
+#endif
+
+#if defined(__cplusplus)
+#define var auto
+#else
+#define var __auto_type
+#endif

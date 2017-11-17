@@ -43,6 +43,8 @@ static UIApplicationState currentUIApplicationState;
 
 static UILocalNotification* lastUILocalNotification;
 
+static UIUserNotificationSettings* lastUIUserNotificationSettings;
+
 static BOOL pendingRegiseterBlock;
 
 + (void)load {
@@ -63,6 +65,7 @@ static BOOL pendingRegiseterBlock;
     calledCurrentUserNotificationSettings = false;
     didFailRegistarationErrorCode = 0;
     currentUIApplicationState = UIApplicationStateActive;
+    lastUIUserNotificationSettings = nil;
 }
 
 +(void)setCurrentUIApplicationState:(UIApplicationState)value {
@@ -143,11 +146,14 @@ static BOOL pendingRegiseterBlock;
     // Check for this as it will create thread locks on a real device.
     [UNUserNotificationCenterOverrider failIfInNotificationSettingsWithCompletionHandler];
     
-    return [UIUserNotificationSettings settingsForTypes:UNUserNotificationCenterOverrider.notifTypesOverride categories:nil];
+    return [UIUserNotificationSettings
+            settingsForTypes:UNUserNotificationCenterOverrider.notifTypesOverride
+            categories:lastUIUserNotificationSettings.categories];
 }
 
 // KEEP - Used to prevent xctest from fowarding to the iOS 10 equivalent.
-- (void)overrideRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
+- (void)overrideRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings {
+    lastUIUserNotificationSettings = notificationSettings;
 }
 
 - (UIApplicationState) overrideApplicationState {
