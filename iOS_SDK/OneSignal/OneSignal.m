@@ -143,11 +143,6 @@ static bool location_event_fired;
     if (NSFoundationVersionNumber < NSFoundationVersionNumber_iOS_6_0)
         return self;
     
-    if (![[NSUUID alloc] initWithUUIDString:appId]) {
-        onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11eg-bed1-df8f05be55ba'\n");
-        return self;
-    }
-    
     if ([@"b2f7f966-d8cc-11eg-bed1-df8f05be55ba" isEqualToString:appId] || [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId])
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
