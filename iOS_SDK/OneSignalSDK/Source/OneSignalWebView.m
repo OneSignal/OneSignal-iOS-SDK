@@ -40,12 +40,14 @@ UIViewController *viewControllerForPresentation;
 
 -(void)viewDidLoad {
     [super viewDidLoad];
-
-    _webView = [[UIWebView alloc] initWithFrame:self.view.frame];
+    
+    _webView = [[UIWebView alloc] init];
     _webView.delegate = self;
     [self.view addSubview:_webView];
     
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self pinSubviewToMarginsWithSubview:_webView withSuperview:self.view];
+    
+    self.view.backgroundColor = [UIColor redColor];
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismiss:)];
     
@@ -68,7 +70,7 @@ UIViewController *viewControllerForPresentation;
         //clear web view
         [_webView loadHTMLString:@"" baseURL:nil];
         if (viewControllerForPresentation)
-           [viewControllerForPresentation.view removeFromSuperview];
+            [viewControllerForPresentation.view removeFromSuperview];
     }];
 }
 
@@ -84,6 +86,19 @@ UIViewController *viewControllerForPresentation;
 
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
+}
+
+-(void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
+    subview.translatesAutoresizingMaskIntoConstraints = false;
+    
+    NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0];
+    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0];
+    NSLayoutConstraint *leadingConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0.0];
+    NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0.0];
+    
+    [superview addConstraints:@[topConstraint, bottomConstraint, leadingConstraint, trailingConstraint]];
+    
+    [superview layoutIfNeeded];
 }
 
 
@@ -110,9 +125,9 @@ UIViewController *viewControllerForPresentation;
     
     if (!viewControllerForPresentation.view.superview)
         [mainWindow addSubview:[viewControllerForPresentation view]];
-
+    
     @try {
-       [viewControllerForPresentation presentViewController:navController animated:YES completion:nil];
+        [viewControllerForPresentation presentViewController:navController animated:YES completion:nil];
     }
     @catch(NSException* exception) { }
 }
@@ -120,3 +135,5 @@ UIViewController *viewControllerForPresentation;
 
 
 @end
+
+
