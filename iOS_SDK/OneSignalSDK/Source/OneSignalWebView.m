@@ -28,6 +28,7 @@
 #import <UIKit/UIKit.h>
 #import "OneSignalWebView.h"
 #import "OneSignal.h"
+#import "OneSignalHelper.h"
 
 @interface OneSignal ()
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
@@ -41,13 +42,11 @@ UIViewController *viewControllerForPresentation;
 -(void)viewDidLoad {
     [super viewDidLoad];
     
-    _webView = [[UIWebView alloc] init];
+    _webView = [UIWebView new];
     _webView.delegate = self;
     [self.view addSubview:_webView];
     
     [self pinSubviewToMarginsWithSubview:_webView withSuperview:self.view];
-    
-    self.view.backgroundColor = [UIColor redColor];
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismiss:)];
     
@@ -91,12 +90,12 @@ UIViewController *viewControllerForPresentation;
 -(void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
     subview.translatesAutoresizingMaskIntoConstraints = false;
     
-    NSLayoutConstraint *topConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeTop multiplier:1.0 constant:0.0];
-    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0.0];
-    NSLayoutConstraint *leadingConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0.0];
-    NSLayoutConstraint *trailingConstraint = [NSLayoutConstraint constraintWithItem:subview attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:superview attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0.0];
+    let attributes = @[@(NSLayoutAttributeTop), @(NSLayoutAttributeBottom), @(NSLayoutAttributeLeading), @(NSLayoutAttributeTrailing)];
     
-    [superview addConstraints:@[topConstraint, bottomConstraint, leadingConstraint, trailingConstraint]];
+    for (NSNumber *layoutAttribute in attributes) {
+        let attribute = (NSLayoutAttribute)[layoutAttribute longValue];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:subview attribute:attribute relatedBy:NSLayoutRelationEqual toItem:superview attribute:attribute multiplier:1.0 constant:0.0]];
+    }
     
     [superview layoutIfNeeded];
 }
