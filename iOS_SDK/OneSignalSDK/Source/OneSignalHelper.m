@@ -838,6 +838,12 @@ static OneSignal* singleInstance = nil;
     
     inAppLaunch = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"] boolValue];
     
+    // If the URL contains itunes.apple.com, it's an app store link
+    // that should be opened using sharedApplication openURL
+    if ([[url absoluteString] containsString:@"itunes.apple.com"]) {
+        inAppLaunch = NO;
+    }
+    
     if (inAppLaunch && [self isWWWScheme:url]) {
         if (!webVC)
             webVC = [[OneSignalWebView alloc] init];
