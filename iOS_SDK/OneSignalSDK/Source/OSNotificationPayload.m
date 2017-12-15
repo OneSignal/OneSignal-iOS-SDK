@@ -89,7 +89,14 @@
     else {
         [self parseApnsFields];
         _attachments = os_data[@"att"];
-        [self parseActionButtons:os_data[@"buttons"]];
+        
+        // it appears that in iOS 9, the 'buttons' os_data field is an object not array
+        // this if statement checks for this condition and parses appropriately
+        if ([os_data[@"buttons"] isKindOfClass:[NSArray class]]) {
+            [self parseActionButtons:os_data[@"buttons"]];
+        } else if (os_data[@"buttons"] && [os_data[@"buttons"] isKindOfClass: [NSDictionary class]] && [os_data[@"buttons"][@"o"] isKindOfClass: [NSArray class]]) {
+            [self parseActionButtons:os_data[@"buttons"][@"o"]];
+        }
     }
     
     [self parseCommonOneSignalFields:_rawPayload[@"os_data"]];
