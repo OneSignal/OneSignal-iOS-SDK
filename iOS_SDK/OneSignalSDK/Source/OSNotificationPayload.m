@@ -72,6 +72,10 @@
     //and 'actionSelected' was not being set in additionalData
     if (_rawPayload[@"actionSelected"] && !_additionalData) {
         _additionalData = @{@"actionSelected" : _rawPayload[@"actionSelected"]};
+    } else if (_rawPayload[@"actionSelected"]) {
+        NSMutableDictionary *additional = [_additionalData mutableCopy];
+        additional[@"actionSelected"] = _rawPayload[@"actionSelected"];
+        _additionalData = additional;
     }
 }
 
