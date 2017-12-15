@@ -61,12 +61,18 @@
         [self parseRemoteSlient:_rawPayload];
     else {
         [self parseApnsFields];
-        _attachments = _rawPayload[@"at"];
-        [self parseActionButtons:_rawPayload[@"o"]];
+        _attachments = _rawPayload[@"att"];
+        [self parseActionButtons:_rawPayload[@"buttons"]];
     }
     
     [self parseCommonOneSignalFields:_rawPayload[@"custom"]];
     _additionalData = _rawPayload[@"custom"][@"a"];
+    
+    //fixes an issue where actionSelected was a top level property in _rawPayload
+    //and 'actionSelected' was not being set in additionalData
+    if (_rawPayload[@"actionSelected"] && !_additionalData) {
+        _additionalData = @{@"actionSelected" : _rawPayload[@"actionSelected"]};
+    }
 }
 
 // New OneSignal playload format.

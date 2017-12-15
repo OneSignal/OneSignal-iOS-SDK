@@ -1248,10 +1248,9 @@
 }
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
-- (void)testNotificationAlertButtonsDisplayWithNewformat {
+- (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
     __block BOOL openedWasFire = false;
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+    id receiveBlock = ^(OSNotificationOpenedResult *result) {
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionID, @"id1");
         id actionButons = @[@{@"id": @"id1", @"text": @"text1"}];
@@ -1259,19 +1258,12 @@
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         
         openedWasFire = true;
-    }];
+    };
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
     
     [self resumeApp];
     [self runBackgroundThreads];
-    
-    id userInfo = @{@"aps": @{
-                            @"mutable-content": @1,
-                            @"alert": @{@"body": @"Message Body", @"title": @"title"}
-                            },
-                    @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf",
-                            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
-                            }};
     
     id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
@@ -1287,6 +1279,34 @@
     XCTAssertEqual(openedWasFire, true);
 }
 
+- (void)testOldFormatNotificationAlertButtonsDisplay {
+    id oldFormat = @{@"aps" : @{
+                             @"mutable-content" : @1,
+                             @"alert" : @{
+                                     @"title" : @"Test Title"
+                                     }
+                             },
+                     @"buttons" : @[@{@"i": @"id1", @"n": @"text1"}],
+                     @"custom" : @{
+                             @"i" : @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf"
+                             }
+                     };
+    
+    [self notificationAlertButtonsDisplayWithFormat:oldFormat];
+}
+
+- (void)testNewFormatNotificationAlertButtonsDisplay {
+    id newFormat = @{@"aps": @{
+                             @"mutable-content": @1,
+                             @"alert": @{@"body": @"Message Body", @"title": @"title"}
+                             },
+                     @"os_data": @{
+                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf",
+                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                             }};
+    
+    [self notificationAlertButtonsDisplayWithFormat:newFormat];
+}
 
 // Testing iOS 10 - with original aps payload format
 - (void)testOpeningWithAdditionalData {
@@ -1332,29 +1352,19 @@
 }
 
 // Testing iOS 10 - pre-2.4.0 button fromat - with os_data aps payload format
-- (void)testRecievedCallbackWithButtons {
+- (void)receivedCallbackWithButtonsWithUserInfo:(NSDictionary *)userInfo {
     __block BOOL recievedWasFire = false;
     
     [OneSignal initWithLaunchOptions:nil
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
           handleNotificationReceived:^(OSNotification *notification) {
-            recievedWasFire = true;
-            let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
-            XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
+              recievedWasFire = true;
+              let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
+              XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
           }
             handleNotificationAction:nil
                             settings:nil];
     [self runBackgroundThreads];
-    
-    let userInfo = @{@"aps": @{@"content_available": @1},
-                     @"os_data": @{
-                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
-                        @"buttons": @{
-                            @"m": @"alert body only",
-                            @"o": @[@{@"i": @"id1", @"n": @"text1"}]
-                        }
-                      }
-                   };
     
     let notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1366,6 +1376,33 @@
                           withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
     XCTAssertEqual(recievedWasFire, true);
+}
+
+- (void)testReceivedCallbackWithButtonsWithNewFormat {
+    let newFormat = @{@"aps": @{@"content_available": @1},
+                      @"os_data": @{
+                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                              @"buttons": @{
+                                      @"m": @"alert body only",
+                                      @"o": @[@{@"i": @"id1", @"n": @"text1"}]
+                                      }
+                              }
+                      };
+    
+    id oldFormat = @{@"aps" : @{
+                             @"mutable-content" : @1,
+                             @"alert" : @{
+                                     @"title" : @"Test Title"
+                                     }
+                             },
+                     @"buttons" : @[@{@"i": @"id1", @"n": @"text1"}],
+                     @"custom" : @{
+                             @"i" : @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf"
+                             }
+                     };
+    
+    [self receivedCallbackWithButtonsWithUserInfo:newFormat];
+    [self receivedCallbackWithButtonsWithUserInfo:oldFormat];
 }
 
 -(void)fireDidReceiveRemoteNotification:(NSDictionary*)userInfo {
@@ -1702,50 +1739,49 @@ didReceiveRemoteNotification:userInfo
 }
 
 // iOS 10 - Notification Service Extension test
-- (void)testDidReceiveNotificatioExtensionRequest {
-    // Example of a pre-existing category a developer setup.
-    //   Plus possibly an existing "__dynamic__" category of ours.
-    let categorySet = [NSMutableSet new];
-    [categorySet addObject:[self unNotificagionCategoryWithId:@"some_category"]];
-    [categorySet addObject:[self unNotificagionCategoryWithId:@"__dynamic__"]];
-    [categorySet addObject:[self unNotificagionCategoryWithId:@"some_category2"]];
-    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:categorySet];
+- (void) didReceiveNotificationExtensionRequestDontOverrideCateogoryWithUserInfo:(NSDictionary *)userInfo {
+    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     
-    var userInfo = @{@"aps": @{
-                        @"mutable-content": @1,
-                        @"alert": @"Message Body"
-                    },
-                    @"os_data": @{
-                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
-                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
-                        @"att": @{ @"id": @"http://domain.com/file.jpg" }
-                    }};
+    [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
-    var notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
-    let content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
-    // Make sure butons were added.
-    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    // Make sure we didn't override an existing category
+    XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
     XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+- (void)testDidReceiveNotificationExtensionRequestDontOverrideCategory
+{
+    id newFormat = @{@"aps": @{
+                             @"mutable-content": @1,
+                             @"alert": @"Message Body"
+                             },
+                     @"os_data": @{
+                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                             }};
+    
+    id oldFormat = @{@"aps" : @{
+                             @"mutable-content" : @1,
+                             @"alert" : @{
+                                     @"title" : @"Test Title"
+                                     }
+                             },
+                     
+                     @"att": @{ @"id": @"http://domain.com/file.jpg" },
+                     @"buttons" : @[@{@"i": @"id1", @"n": @"text1"}],
+                     @"custom" : @{
+                             @"i" : @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf"
+                             }
+                     };
     
     
-    // Run again with different buttons.
-    userInfo = @{@"aps": @{
-                     @"mutable-content": @1,
-                     @"alert": @"Message Body"
-                 },
-                 @"os_data": @{
-                     @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
-                     @"buttons": @[@{@"i": @"id2", @"n": @"text2"}],
-                     @"att": @{ @"id": @"http://domain.com/file.jpg"}
-                 }};
-    
-    notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
-    [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
-    
-    XCTAssertEqual(UNUserNotificationCenterOverrider.lastSetCategoriesCount, 3);
+    [self didReceiveNotificationExtensionRequestDontOverrideCateogoryWithUserInfo:oldFormat];
+    [self didReceiveNotificationExtensionRequestDontOverrideCateogoryWithUserInfo:newFormat];
 }
 
 // iOS 10 - Notification Service Extension test
