@@ -51,7 +51,7 @@
 
 
 
-@interface DirectDownloadDelegate : NSObject {
+@interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;
     NSURLResponse* response;
     BOOL done;
@@ -66,6 +66,28 @@
 @implementation DirectDownloadDelegate
 @synthesize error, response, done;
 
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
+    [outputHandle writeData:data];
+}
+
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
+    response = aResponse;
+    completionHandler(NSURLSessionResponseAllow);
+}
+
+-(void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)anError {
+    error = anError;
+    done = YES;
+    
+    [outputHandle closeFile];
+}
+
+-(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)anError {
+    done = YES;
+    error = anError;
+    [outputHandle closeFile];
+}
+
 - (id)initWithFilePath:(NSString*)path {
     if (self = [super init]) {
         if ([[NSFileManager defaultManager] fileExistsAtPath:path])
@@ -76,53 +98,40 @@
     }
     return self;
 }
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError*)anError {
-    error = anError;
-    [self connectionDidFinishLoading:connection];
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData*)someData {
-    [outputHandle writeData:someData];
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse*)aResponse {
-    response = aResponse;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    done = YES;
-    [outputHandle closeFile];
-}
 @end
 
-
-
-@interface NSURLConnection (DirectDownload)
-+ (BOOL)downloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError*)error;
+@interface NSURLSession (DirectDownload)
++ (BOOL)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error;
 @end
 
-@implementation NSURLConnection (DirectDownload)
+@implementation NSURLSession (DirectDownload)
 
-+ (BOOL)downloadItemAtURL:(NSURL*)url toFile:(NSString *)localPath error:(NSError*)error {
-    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:url];
++ (BOOL)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error {
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     
-    DirectDownloadDelegate* delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
-    [NSURLConnection connectionWithRequest:request delegate:delegate];
+    DirectDownloadDelegate *delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
     
-    while ([delegate isDone] == NO) {
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:delegate delegateQueue:nil];
+    
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request];
+    
+    [task resume];
+    
+    while (![delegate isDone]) {
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }
     
-    NSError* downloadError = [delegate error];
+    NSError *downloadError = [delegate error];
     if (downloadError != nil) {
-        if (error != nil)
+        if (error != nil) {
             error = downloadError;
-        return NO;
+        }
+        return false;
     }
     
-    return YES;
+    return true;
 }
+
 @end
 
 @interface UIApplication (Swizzling)
@@ -715,7 +724,7 @@ static OneSignal* singleInstance = nil;
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     
     NSError* error = nil;
-    [NSURLConnection downloadItemAtURL:URL toFile:filePath error:error];
+    [NSURLSession downloadItemAtURL:URL toFile:filePath error:error];
     NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
     NSMutableArray* appendedCache;
     if (cachedFiles) {
@@ -765,25 +774,32 @@ static OneSignal* singleInstance = nil;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network request to: %@", request.URL]];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"request.body: %@", [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding]]];
     
+    let sess = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    
     if (isSynchronous) {
-        NSURLResponse* response = nil;
-        NSError* error = nil;
+        __block NSURLResponse* receivedResponse = nil;
+        __block NSError* receivedError = nil;
         
-        [NSURLConnection sendSynchronousRequest:request
-                              returningResponse:&response
-                                          error:&error];
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         
-        [OneSignalHelper handleJSONNSURLResponse:response data:nil error:error onSuccess:successBlock onFailure:failureBlock];
-    }
-    else {
-        [NSURLConnection
-         sendAsynchronousRequest:request
-         queue:[[NSOperationQueue alloc] init]
-         completionHandler:^(NSURLResponse* response,
-                             NSData* data,
-                             NSError* error) {
-             [OneSignalHelper handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
-         }];
+        let dataTask = [sess dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            receivedResponse = response;
+            receivedError = error;
+            
+            dispatch_semaphore_signal(semaphore);
+        }];
+        
+        [dataTask resume];
+        
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
+        [OneSignalHelper handleJSONNSURLResponse:receivedResponse data:nil error:receivedError onSuccess:successBlock onFailure:failureBlock];
+    } else {
+        let dataTask = [sess dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            [OneSignalHelper handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
+        }];
+        
+        [dataTask resume];
     }
 }
 
