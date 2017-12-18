@@ -24,7 +24,7 @@
 		4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDA1FA8284E00CEAB1D /* NSDataOverrider.m */; };
 		4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */; };
 		4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */; };
-		4529DEE41FA82C6200CEAB1D /* NSURLConnectionOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE31FA82C6200CEAB1D /* NSURLConnectionOverrider.m */; };
+		4529DEE41FA82C6200CEAB1D /* NSURLSessionOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE31FA82C6200CEAB1D /* NSURLSessionOverrider.m */; };
 		4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */; };
 		4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE91FA8360C00CEAB1D /* UIApplicationOverrider.m */; };
 		4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */; };
@@ -172,8 +172,8 @@
 		4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSDateOverrider.m; sourceTree = "<group>"; };
 		4529DEDF1FA82AB300CEAB1D /* NSBundleOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSBundleOverrider.h; sourceTree = "<group>"; };
 		4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSBundleOverrider.m; sourceTree = "<group>"; };
-		4529DEE21FA82C6200CEAB1D /* NSURLConnectionOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSURLConnectionOverrider.h; sourceTree = "<group>"; };
-		4529DEE31FA82C6200CEAB1D /* NSURLConnectionOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSURLConnectionOverrider.m; sourceTree = "<group>"; };
+		4529DEE21FA82C6200CEAB1D /* NSURLSessionOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSURLSessionOverrider.h; sourceTree = "<group>"; };
+		4529DEE31FA82C6200CEAB1D /* NSURLSessionOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSURLSessionOverrider.m; sourceTree = "<group>"; };
 		4529DEE51FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UNUserNotificationCenterOverrider.h; sourceTree = "<group>"; };
 		4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UNUserNotificationCenterOverrider.m; sourceTree = "<group>"; };
 		4529DEE81FA8360C00CEAB1D /* UIApplicationOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIApplicationOverrider.h; sourceTree = "<group>"; };
@@ -328,8 +328,8 @@
 				4529DEEF1FA8433500CEAB1D /* NSLocaleOverrider.m */,
 				4529DED01FA81EA800CEAB1D /* NSObjectOverrider.h */,
 				4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */,
-				4529DEE21FA82C6200CEAB1D /* NSURLConnectionOverrider.h */,
-				4529DEE31FA82C6200CEAB1D /* NSURLConnectionOverrider.m */,
+				4529DEE21FA82C6200CEAB1D /* NSURLSessionOverrider.h */,
+				4529DEE31FA82C6200CEAB1D /* NSURLSessionOverrider.m */,
 				4529DED61FA8253D00CEAB1D /* NSUserDefaultsOverrider.h */,
 				4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */,
 				4529DEEB1FA83C5D00CEAB1D /* OneSignalHelperOverrider.h */,
@@ -701,7 +701,7 @@
 				91F58D851E7C88230017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				912412491E73369800E41FD7 /* OneSignalHelper.m in Sources */,
-				4529DEE41FA82C6200CEAB1D /* NSURLConnectionOverrider.m in Sources */,
+				4529DEE41FA82C6200CEAB1D /* NSURLSessionOverrider.m in Sources */,
 				4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */,
 				912412341E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				912412101E73342200E41FD7 /* OneSignal.m in Sources */,
