@@ -31,6 +31,8 @@
 #import "OneSignalHTTPClient.h"
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
+#import "OneSignalClient.h"
+#import "Requests.h"
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
@@ -241,35 +243,17 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)sendLocation {
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
-    if (!lastLocation || ![OneSignal mUserId]) return;
-    
-    //Fired from timer and not initial location fetched
-    if (initialLocationSent)
-        [OneSignalLocation resetSendTimer];
-    
-    initialLocationSent = YES;
-    
-    NSMutableURLRequest* request = [[[OneSignalHTTPClient alloc] init] requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", [OneSignal mUserId]]];
-    
-    BOOL logBG = [UIApplication sharedApplication].applicationState != UIApplicationStateActive;
-    
-    NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             [OneSignal app_id], @"app_id",
-                             @(lastLocation->cords.latitude), @"lat",
-                             @(lastLocation->cords.longitude), @"long",
-                             @(lastLocation->verticalAccuracy), @"loc_acc_vert",
-                             @(lastLocation->horizontalAccuracy), @"loc_acc",
-                             [OneSignalHelper getNetType], @"net_type",
-                             @(logBG), @"loc_bg",
-                             nil];
-    
-    NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-    [request setHTTPBody:postData];
-    
-    [OneSignalHelper enqueueRequest:request
-                          onSuccess:nil
-                          onFailure:nil];
+        if (!lastLocation || ![OneSignal mUserId]) return;
+        
+        //Fired from timer and not initial location fetched
+        if (initialLocationSent)
+            [OneSignalLocation resetSendTimer];
+        
+        initialLocationSent = YES;
+        
+        [[OneSignalClient sharedClient] executeRequest:[OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)] onSuccess:nil onFailure:nil];
     }
+    
 }
 
 

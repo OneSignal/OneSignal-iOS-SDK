@@ -31,6 +31,8 @@
 #import "OneSignalHelper.h"
 #import "OneSignalHTTPClient.h"
 #import "OneSignalWebView.h"
+#import "OneSignalClient.h"
+#import "Requests.h"
 
 @interface OneSignal ()
 
@@ -68,6 +70,8 @@ static BOOL lastOnFocusWasToBackground = YES;
     [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
 }
+
+
 
 + (void)onFocus:(BOOL)toBackground {
     
@@ -114,21 +118,10 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (![OneSignal mUserId])
         return;
     
-    OneSignalHTTPClient * httpClient = [[OneSignalHTTPClient alloc] init];
-    
     // If resuming and badge was set, clear it on the server as well.
     if (wasBadgeSet && !toBackground) {
-        NSMutableURLRequest* request = [httpClient requestWithMethod:@"PUT" path:[NSString stringWithFormat:@"players/%@", [OneSignal mUserId]]];
+        [[OneSignalClient sharedClient] executeRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0] onSuccess:nil onFailure:nil];
         
-        NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [OneSignal app_id], @"app_id",
-                                 @0, @"badge_count",
-                                 nil];
-        
-        NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-        [request setHTTPBody:postData];
-        
-        [OneSignalHelper enqueueRequest:request onSuccess:nil onFailure:nil];
         return;
     }
     
@@ -138,23 +131,8 @@ static BOOL lastOnFocusWasToBackground = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [OneSignalTracker beginBackgroundFocusTask];
             
-            NSMutableURLRequest* request = [httpClient requestWithMethod:@"POST" path:[NSString stringWithFormat:@"players/%@/on_focus", [OneSignal mUserId]]];
-            NSDictionary* dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                                     [OneSignal app_id], @"app_id",
-                                     @"ping", @"state",
-                                     @1, @"type",
-                                     @(timeToPingWith), @"active_time",
-                                     [OneSignalHelper getNetType], @"net_type",
-                                     nil];
+            [[OneSignalClient sharedClient] executeSynchronousRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
             
-            NSData* postData = [NSJSONSerialization dataWithJSONObject:dataDic options:0 error:nil];
-            [request setHTTPBody:postData];
-            
-            // We are already running in a thread so send the request synchronous to keep the thread alive.
-            [OneSignalHelper enqueueRequest:request
-                                  onSuccess:nil
-                                  onFailure:nil
-                              isSynchronous:true];
             [OneSignalTracker endBackgroundFocusTask];
         });
     }

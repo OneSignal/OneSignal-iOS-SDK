@@ -30,18 +30,9 @@
 #import <XCTest/XCTest.h>
 
 @interface OneSignalHelperOverrider : NSObject
-+(void)reset:(XCTestCase*)testInstance;
 
 +(void)setMockIOSVersion:(float)value;
 +(float)mockIOSVersion;
-
-+(void)setLastHTTPRequset:(NSDictionary*)value;
-+(NSDictionary*)lastHTTPRequset;
-
-+(int)networkRequestCount;
-
-+(void)setLastUrl:(NSString*)value;
-+(NSString*)lastUrl;
 
 + (void)runBackgroundThreads;
 
