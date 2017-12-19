@@ -69,6 +69,11 @@
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
 
+// Networking
+#import "OneSignalClient.h"
+#import "Requests.h"
+#import "OneSignalClientOverrider.h"
+
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;
 @end
