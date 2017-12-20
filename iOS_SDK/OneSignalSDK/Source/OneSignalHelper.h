@@ -62,7 +62,6 @@
 
 // - Networking
 + (NSNumber*)getNetType;
-+ (void)handleJSONNSURLResponse:(NSURLResponse*) response data:(NSData*) data error:(NSError*) error onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 
 // Threading
 + (void)runOnMainThread:(void(^)())block;

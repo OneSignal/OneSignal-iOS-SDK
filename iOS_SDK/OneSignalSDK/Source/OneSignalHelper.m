@@ -766,41 +766,6 @@ static OneSignal* singleInstance = nil;
     return NO;
 }
 
-+ (void)handleJSONNSURLResponse:(NSURLResponse*) response data:(NSData*) data error:(NSError*) error onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
-    NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
-    NSInteger statusCode = [HTTPResponse statusCode];
-    NSError* jsonError = nil;
-    NSMutableDictionary* innerJson;
-    
-    if (data != nil && [data length] > 0) {
-        innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response: %@", innerJson]];
-        if (jsonError) {
-            if (failureBlock != nil)
-                failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
-            return;
-        }
-    }
-    
-    if (error == nil && statusCode == 200) {
-        if (successBlock != nil) {
-            if (innerJson != nil)
-                successBlock(innerJson);
-            else
-                successBlock(nil);
-        }
-    }
-    else if (failureBlock != nil) {
-        if (innerJson != nil && error == nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson}]);
-        else if (error != nil)
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"error" : error}]);
-        else
-            failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:nil]);
-    }
-}
-
 + (BOOL)isWWWScheme:(NSURL*)url {
     NSString* urlScheme = [url.scheme lowercaseString];
     return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];

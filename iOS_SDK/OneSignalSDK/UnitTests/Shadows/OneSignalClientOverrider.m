@@ -43,10 +43,7 @@ static XCTestCase* currentTestInstance;
     NSMutableDictionary *parameters = [request.parameters mutableCopy];
     
     if (!parameters[@"app_id"] && ![request.request.URL.absoluteString containsString:@"/apps/"])
-        _XCTPrimitiveFail(currentTestInstance, @"All requesst should include an app_id");
-    
-    if (!parameters[@"app_id"] && ![request.request.URL.absoluteString containsString:@"/apps/"])
-        _XCTPrimitiveFail(currentTestInstance, @"All requesst should include an app_id");
+        _XCTPrimitiveFail(currentTestInstance, @"All request should include an app_id");
     
     networkRequestCount++;
     

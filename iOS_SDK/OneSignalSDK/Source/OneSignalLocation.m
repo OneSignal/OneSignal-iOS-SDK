@@ -251,7 +251,7 @@ static OneSignalLocation* singleInstance = nil;
         
         initialLocationSent = YES;
         
-        [[OneSignalClient sharedClient] executeRequest:[OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)] onSuccess:nil onFailure:nil];
+        [OneSignalClient.sharedClient executeRequest:[OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)] onSuccess:nil onFailure:nil];
     }
     
 }

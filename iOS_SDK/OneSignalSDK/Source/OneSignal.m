@@ -461,7 +461,7 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
 }
 
 +(void)downloadIOSParams {
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
     } onFailure:nil];
 }
@@ -671,7 +671,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
     
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]] onSuccess:^(NSDictionary *result) {
         if (nowProcessingCallbacks)
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
                 if (callbackSet.successBlock)
@@ -699,7 +699,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         return;
     }
     
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestGetTags withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestGetTags withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
         successBlock([result objectForKey:@"tags"]);
     } onFailure:failureBlock];
     
@@ -756,7 +756,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:[jsonData mutableCopy]] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:[jsonData mutableCopy]] onSuccess:^(NSDictionary *result) {
         NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
         NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         
@@ -894,7 +894,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT updated pushToken!"];
     
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes])] onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes])] onSuccess:successBlock onFailure:failureBlock];
     
     [self fireIdsAvailableCallback];
 }
@@ -1043,7 +1043,7 @@ static dispatch_queue_t serialQueue;
         [OneSignalLocation clearLastLocation];
     }
     
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.userId] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.userId] onSuccess:^(NSDictionary *result) {
         waitingForOneSReg = false;
         
         // Success, no more high priority
@@ -1110,7 +1110,7 @@ static dispatch_queue_t serialQueue;
         
         mLastNotificationTypes = [self getNotificationTypes];
         
-        [[OneSignalClient sharedClient] executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:nil onFailure:nil];
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:nil onFailure:nil];
         
         if ([self getUsableDeviceToken])
             [self fireIdsAvailableCallback];
@@ -1125,7 +1125,7 @@ static dispatch_queue_t serialQueue;
     if (!self.currentSubscriptionState.userId)
         return;
     
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestSendPurchases withUserId:self.currentSubscriptionState.userId appId:self.app_id withPurchases:purchases] onSuccess:nil onFailure:nil];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestSendPurchases withUserId:self.currentSubscriptionState.userId appId:self.app_id withPurchases:purchases] onSuccess:nil onFailure:nil];
 }
 
 
@@ -1260,7 +1260,7 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [[OneSignalClient sharedClient] executeRequest:[OSRequestSubmitNotificationOpened withUserId:self.currentSubscriptionState.userId appId:self.app_id wasOpened:YES messageId:messageId] onSuccess:nil onFailure:nil];
+        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:self.currentSubscriptionState.userId appId:self.app_id wasOpened:YES messageId:messageId] onSuccess:nil onFailure:nil];
         [[NSUserDefaults standardUserDefaults] setObject:messageId forKey:@"GT_LAST_MESSAGE_OPENED_"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
@@ -1451,7 +1451,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [[OneSignalClient sharedClient] executeRequest:[OSRequestSyncHashedEmail withUserId:self.currentSubscriptionState.userId appId:self.app_id email:trimmedEmail networkType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestSyncHashedEmail withUserId:self.currentSubscriptionState.userId appId:self.app_id email:trimmedEmail networkType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
 }
 
 // Called from the app's Notification Service Extension

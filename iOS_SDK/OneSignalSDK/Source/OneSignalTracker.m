@@ -120,7 +120,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     // If resuming and badge was set, clear it on the server as well.
     if (wasBadgeSet && !toBackground) {
-        [[OneSignalClient sharedClient] executeRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0] onSuccess:nil onFailure:nil];
+        [OneSignalClient.sharedClient executeRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0] onSuccess:nil onFailure:nil];
         
         return;
     }
@@ -131,7 +131,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [OneSignalTracker beginBackgroundFocusTask];
             
-            [[OneSignalClient sharedClient] executeSynchronousRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
+            [OneSignalClient.sharedClient executeSynchronousRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
             
             [OneSignalTracker endBackgroundFocusTask];
         });
