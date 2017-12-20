@@ -43,7 +43,6 @@ static float mockIOSVersion;
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
     
-//    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideEnqueueRequest:onSuccess:onFailure:isSynchronous:), [OneSignalHelper class], @selector(enqueueRequest:onSuccess:onFailure:isSynchronous:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterOrEqual:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
@@ -59,44 +58,6 @@ static float mockIOSVersion;
 + (NSString*) overrideGetAppName {
     return @"App Name";
 }
-
-//+ (void)overrideEnqueueRequest:(NSURLRequest*)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock isSynchronous:(BOOL)isSynchronous {
-//    NSError *error = nil;
-//
-//    NSLog(@"request.URL: %@", request.URL);
-//
-//    NSMutableDictionary *parameters;
-//
-//    NSData* httpData = [request HTTPBody];
-//    if (httpData)
-//        parameters = [NSJSONSerialization JSONObjectWithData:[request HTTPBody] options:0 error:&error];
-//    else {
-//        NSURLComponents *components = [NSURLComponents componentsWithString:request.URL.absoluteString];
-//        parameters = [NSMutableDictionary new];
-//        for(NSURLQueryItem *item in components.queryItems) {
-//            parameters[item.name] = item.value;
-//        }
-//    }
-//
-//    if (!parameters[@"app_id"] && ![request.URL.absoluteString containsString:@"/apps/"])
-//        _XCTPrimitiveFail(currentTestInstance, @"All requesst should include an app_id");
-//
-//    networkRequestCount++;
-//
-//    id url = [request URL];
-//    NSLog(@"url: %@", url);
-//    NSLog(@"parameters: %@", parameters);
-//
-//    lastUrl = [url absoluteString];
-//    lastHTTPRequset = parameters;
-//
-//    if (successBlock) {
-//        if ([request.URL.absoluteString hasPrefix:@"https://onesignal.com/api/v1/apps/"])
-//            successBlock(@{@"fba": @true});
-//        else
-//            successBlock(@{@"id": @"1234"});
-//    }
-//}
 
 + (BOOL)overrideIsIOSVersionGreaterOrEqual:(float)version {
     return mockIOSVersion >= version;
