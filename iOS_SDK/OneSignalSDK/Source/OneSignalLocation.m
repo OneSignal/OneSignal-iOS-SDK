@@ -28,7 +28,6 @@
 #import <UIKit/UIKit.h>
 
 #import "OneSignalLocation.h"
-#import "OneSignalHTTPClient.h"
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
 #import "OneSignalClient.h"
