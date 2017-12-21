@@ -67,6 +67,12 @@
 #import "NSLocaleOverrider.h"
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
+#import "OneSignalClientOverrider.h"
+
+// Networking
+#import "OneSignalClient.h"
+#import "Requests.h"
+#import "OneSignalClientOverrider.h"
 
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;
@@ -135,7 +141,7 @@
     NSLog(@"=======  APP RESTART ======\n\n");
     
     NSDateOverrider.timeOffset = 0;
-    [OneSignalHelperOverrider reset:self];
+    [OneSignalClientOverrider reset:self];
     [UNUserNotificationCenterOverrider reset:self];
     [UIApplicationOverrider reset];
     [OneSignalTrackFirebaseAnalyticsOverrider reset];
@@ -334,12 +340,12 @@
     [self initOneSignal];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @15);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"device_model"], @"x86_64");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"device_type"], @0);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"language"], @"en-US");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
     OSPermissionSubscriptionState* status = [OneSignal getPermissionSubscriptionState];
     XCTAssertTrue(status.permissionStatus.accepted);
@@ -352,11 +358,11 @@
     XCTAssertEqualObjects(status.subscriptionStatus.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
     // 2nd init call should not fire another on_session call.
-    OneSignalHelperOverrider.lastHTTPRequset = nil;
+    OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 - (void)testVersionStringLength {
@@ -393,19 +399,19 @@
     
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @7);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"device_model"], @"x86_64");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"device_type"], @0);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"language"], @"en-US");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
-    OneSignalHelperOverrider.lastHTTPRequset = nil;
+    OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     // Make the following methods were not called as they are not available on iOS 7
     XCTAssertFalse(UIApplicationOverrider.calledRegisterForRemoteNotifications);
@@ -429,19 +435,19 @@
     [self answerNotifiationPrompt:true];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"]);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @-15);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"device_model"], @"x86_64");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"device_type"], @0);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"language"], @"en-US");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-15);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
     // 2nd init call should not fire another on_session call.
-    OneSignalHelperOverrider.lastHTTPRequset = nil;
+    OneSignalClientOverrider.lastHTTPRequest = nil;
     [self initOneSignalAndThreadWait];
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 
@@ -473,9 +479,9 @@
     
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key"], @"value");
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     [self clearStateForAppRestart];
     
@@ -486,7 +492,7 @@
     [self runBackgroundThreads];
     
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
     
 }
 
@@ -850,13 +856,13 @@
     [self setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignal];
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     [self answerNotifiationPrompt:true];
     [self runBackgroundThreads];
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @-13);
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-13);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 
@@ -914,14 +920,14 @@
     [self initOneSignalAndThreadWait];
     
     // Don't make a network call right away.
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     // Triggers the 30 fallback to register device right away.
     [OneSignal performSelector:NSSelectorFromString(@"registerUser")];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @-19);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-19);
 }
 
 - (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
@@ -935,7 +941,7 @@
     
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @7);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
 }
 
 
@@ -952,8 +958,8 @@
     [NSObjectOverrider runPendingSelectors];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @-18);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-18);
 }
 
 - (void)testNotAcceptingNotificationsWithoutBackgroundModes {
@@ -963,15 +969,15 @@
     [self initOneSignal];
     
     // Don't make a network call right away.
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     [self answerNotifiationPrompt:false];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastUrl, @"https://onesignal.com/api/v1/players");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"]);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
 }
 
 - (void)testIdsAvailableNotAcceptingNotifications {
@@ -1028,18 +1034,18 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"opened"], @1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
     // Make sure if the device recieved a duplicate we don't fire the open network call again.
-    OneSignalHelperOverrider.lastUrl = nil;
-    OneSignalHelperOverrider.lastHTTPRequset = nil;
+    OneSignalClientOverrider.lastUrl = nil;
+    OneSignalClientOverrider.lastHTTPRequest = nil;
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
-    XCTAssertNil(OneSignalHelperOverrider.lastUrl);
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertNil(OneSignalClientOverrider.lastUrl);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 
@@ -1185,18 +1191,18 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"opened"], @1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
     // Make sure if the device recieved a duplicate we don't fire the open network call again.
-    OneSignalHelperOverrider.lastUrl = nil;
-    OneSignalHelperOverrider.lastHTTPRequset = nil;
+    OneSignalClientOverrider.lastUrl = nil;
+    OneSignalClientOverrider.lastHTTPRequest = nil;
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
-    XCTAssertNil(OneSignalHelperOverrider.lastUrl);
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertNil(OneSignalClientOverrider.lastUrl);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 
@@ -1233,18 +1239,18 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"opened"], @1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
     // Make sure if the device recieved a duplicate we don't fire the open network call again.
-    OneSignalHelperOverrider.lastUrl = nil;
-    OneSignalHelperOverrider.lastHTTPRequset = nil;
+    OneSignalClientOverrider.lastUrl = nil;
+    OneSignalClientOverrider.lastHTTPRequest = nil;
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
-    XCTAssertNil(OneSignalHelperOverrider.lastUrl);
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset);
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertNil(OneSignalClientOverrider.lastUrl);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
@@ -1470,7 +1476,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testSendTags {
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     // Simple test with a sendTag and sendTags call.
     [OneSignal sendTag:@"key" value:@"value"];
@@ -1481,10 +1487,10 @@ didReceiveRemoteNotification:userInfo
     [self runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key"], @"value");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key1"], @"value1");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key2"], @"value2");
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key1"], @"value1");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], @"value2");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // More advanced test with callbacks.
     __block BOOL didRunSuccess1, didRunSuccess2, didRunSuccess3;
@@ -1504,11 +1510,11 @@ didReceiveRemoteNotification:userInfo
     [NSObjectOverrider runPendingSelectors];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key10"], @"value10");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key11"], @"value11");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key12"], @"value12");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key13"], @"value13");
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 3);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key10"], @"value10");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key11"], @"value11");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key12"], @"value12");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key13"], @"value13");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     
     XCTAssertEqual(didRunSuccess1, true);
     XCTAssertEqual(didRunSuccess2, true);
@@ -1517,7 +1523,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testDeleteTags {
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     NSLog(@"Calling sendTag and deleteTag");
     // send 2 tags and delete 1 before they get sent off.
@@ -1531,9 +1537,9 @@ didReceiveRemoteNotification:userInfo
     [self runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key"]);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key2"], @"value2");
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"]);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], @"value2");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     [OneSignal sendTags:@{@"someKey": @NO}];
     [OneSignal deleteTag:@"someKey"];
@@ -1541,7 +1547,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testGetTags {
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     __block BOOL fireGetTags = false;
     
@@ -1560,7 +1566,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testGetTagsBeforePlayerId {
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     __block BOOL fireGetTags = false;
     
@@ -1601,7 +1607,7 @@ didReceiveRemoteNotification:userInfo
     [NSObjectOverrider runPendingSelectors];
     
     // create, ge tags, then sendTags call.
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     XCTAssertTrue(fireDeleteTags);
 }
 
@@ -1616,34 +1622,34 @@ didReceiveRemoteNotification:userInfo
     [self runBackgroundThreads];
     
     // Do not try to send tag update yet as there isn't a player_id yet.
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
     
     [self answerNotifiationPrompt:false];
     [self runBackgroundThreads];
     
     // A single POST player create call should be made with tags included.
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"tags"][@"key"], @"value");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @0);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
 }
 
 - (void)testPostNotification {
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     
     // Normal post should auto add add_id.
     [OneSignal postNotification:@{@"contents": @{@"en": @"message body"}}];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"contents"][@"en"], @"message body");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"contents"][@"en"], @"message body");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     
     // Should allow overriding the app_id
     [OneSignal postNotification:@{@"contents": @{@"en": @"message body"}, @"app_id": @"override_app_UUID"}];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 3);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"contents"][@"en"], @"message body");
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"app_id"], @"override_app_UUID");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"contents"][@"en"], @"message body");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"override_app_UUID");
 }
 
 
@@ -1654,8 +1660,8 @@ didReceiveRemoteNotification:userInfo
     
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @0);
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 - (void)testPermissionChangedInSettingsOutsideOfApp {
@@ -1669,17 +1675,17 @@ didReceiveRemoteNotification:userInfo
     
     [OneSignal addPermissionObserver:observer];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @0);
-    XCTAssertNil(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"]);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
     
     [self backgroundApp];
     [self setCurrentNotificationPermission:true];
     [self resumeApp];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"notification_types"], @15);
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastHTTPRequset[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     XCTAssertEqual(observer->last.from.accepted, false);
     XCTAssertEqual(observer->last.to.accepted, true);
@@ -1693,7 +1699,7 @@ didReceiveRemoteNotification:userInfo
     NSDateOverrider.timeOffset = 10;
     [self resumeApp];
     [self runBackgroundThreads];
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     // Anything over 30 secounds should count as a session.
     [self backgroundApp];
@@ -1701,8 +1707,8 @@ didReceiveRemoteNotification:userInfo
     [self resumeApp];
     [self runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalHelperOverrider.lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 // Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
@@ -1727,7 +1733,7 @@ didReceiveRemoteNotification:userInfo
     [self runBackgroundThreads];
     
     XCTAssertEqual(receivedWasFire, true);
-    XCTAssertEqual(OneSignalHelperOverrider.networkRequestCount, 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
 }
 
 -(UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
@@ -1851,4 +1857,19 @@ didReceiveRemoteNotification:userInfo
     //   We should not try to download attachemts as iOS is about to kill the extension and this will take to much time.
     XCTAssertNil(content.attachments);
 }
+
+-(void)testBuildOSRequest {
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType]];
+    
+    XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"]);
+    XCTAssert([request.parameters[@"tags"][@"tag1"] isEqualToString:@"test1"]);
+    XCTAssert([request.path isEqualToString:@"players/12345"]);
+    
+    let urlRequest = request.request;
+    
+    XCTAssert([urlRequest.URL.absoluteString isEqualToString:@"https://onesignal.com/api/v1/players/12345"]);
+    XCTAssert([urlRequest.HTTPMethod isEqualToString:@"PUT"]);
+    XCTAssert([urlRequest.allHTTPHeaderFields[@"Content-Type"] isEqualToString:@"application/json"]);
+}
+
 @end

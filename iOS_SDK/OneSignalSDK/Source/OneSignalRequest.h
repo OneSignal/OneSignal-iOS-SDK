@@ -26,14 +26,21 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 
-@interface OneSignalHelperOverrider : NSObject
+typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
+#define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
 
-+(void)setMockIOSVersion:(float)value;
-+(float)mockIOSVersion;
 
-+ (void)runBackgroundThreads;
+#ifndef OneSignalRequest_h
+#define OneSignalRequest_h
 
+@interface OneSignalRequest : NSObject
+
+@property (nonatomic) HTTPMethod method;
+@property (nonatomic, nonnull) NSString *path;
+@property (nonatomic, nullable) NSDictionary *parameters;
+-(NSMutableURLRequest * _Nonnull )request;
+-(BOOL)hasAppId;
 @end
+
+#endif

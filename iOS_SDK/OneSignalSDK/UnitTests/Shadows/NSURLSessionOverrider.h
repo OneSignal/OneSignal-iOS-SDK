@@ -26,14 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
 
-@interface OneSignalHelperOverrider : NSObject
-
-+(void)setMockIOSVersion:(float)value;
-+(float)mockIOSVersion;
-
-+ (void)runBackgroundThreads;
+@interface NSURLSessionOverrider : NSObject
 
 @end

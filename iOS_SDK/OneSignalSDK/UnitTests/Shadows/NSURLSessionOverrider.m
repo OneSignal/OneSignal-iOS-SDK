@@ -25,50 +25,26 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalHelperOverrider.h"
+#import "NSURLSessionOverrider.h"
 
 #import "TestHelperFunctions.h"
 
-#import "OneSignal.h"
-#import "OneSignalHelper.h"
-
-@implementation OneSignalHelperOverrider
-
-static dispatch_queue_t serialMockMainLooper;
-
-static XCTestCase* currentTestInstance;
-
-static float mockIOSVersion;
+@implementation NSURLSessionOverrider
 
 + (void)load {
-    serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
+    // Swizzle an injected method defined in OneSignalHelper
+    injectStaticSelector([NSURLSessionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLSession class], @selector(downloadItemAtURL:toFile:error:));
+}
+
+// Override downloading of media attachment
++ (BOOL)overrideDownloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError*)error {
+    NSString *content = @"File Contents";
+    NSData *fileContents = [content dataUsingEncoding:NSUTF8StringEncoding];
+    [[NSFileManager defaultManager] createFileAtPath:localPath
+                                            contents:fileContents
+                                          attributes:nil];
     
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterOrEqual:));
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
-}
-
-+(void)setMockIOSVersion:(float)value {
-    mockIOSVersion = value;
-}
-+(float)mockIOSVersion {
-    return mockIOSVersion;
-}
-
-+ (NSString*) overrideGetAppName {
-    return @"App Name";
-}
-
-+ (BOOL)overrideIsIOSVersionGreaterOrEqual:(float)version {
-    return mockIOSVersion >= version;
-}
-
-+ (void) overrideDispatch_async_on_main_queue:(void(^)())block {
-    dispatch_async(serialMockMainLooper, block);
-}
-
-+ (void)runBackgroundThreads {
-    dispatch_sync(serialMockMainLooper, ^{});
+    return true;
 }
 
 @end

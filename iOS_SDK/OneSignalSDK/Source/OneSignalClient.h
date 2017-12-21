@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +26,16 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
+#import "OneSignalHelper.h"
+#import "OneSignalRequest.h"
 
-@interface OneSignalHelperOverrider : NSObject
+#ifndef OneSignalClient_h
+#define OneSignalClient_h
 
-+(void)setMockIOSVersion:(float)value;
-+(float)mockIOSVersion;
-
-+ (void)runBackgroundThreads;
-
+@interface OneSignalClient : NSObject
++ (OneSignalClient *)sharedClient;
+- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
+- (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 @end
+
+#endif
