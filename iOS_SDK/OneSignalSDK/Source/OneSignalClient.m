@@ -28,6 +28,10 @@
 #import "OneSignalClient.h"
 #import "UIApplicationDelegate+OneSignal.h"
 
+@interface OneSignalClient ()
+@property (strong, nonatomic) NSURLSession *sharedSession;
+@end
+
 @implementation OneSignalClient
 
 + (OneSignalClient *)sharedClient {
@@ -39,21 +43,25 @@
     return sharedClient;
 }
 
+-(instancetype)init {
+    if (self = [super init]) {
+        _sharedSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    }
+    
+    return self;
+}
+
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     if (!request.hasAppId) {
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"HTTP Requests must contain app_id parameter"];
         return;
     }
     
-    let sess = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-    
-    let task = [sess dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    let task = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         [OneSignalClient handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
     }];
     
     [task resume];
-    
-    [sess finishTasksAndInvalidate];
 }
 
 - (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -62,14 +70,12 @@
         return;
     }
     
-    let sess = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-    
     __block NSURLResponse *httpResponse;
     __block NSError *httpError;
     
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
-    let dataTask = [sess dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    let dataTask = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         httpResponse = response;
         httpError = error;
         
@@ -77,8 +83,6 @@
     }];
     
     [dataTask resume];
-    
-    [sess finishTasksAndInvalidate];
     
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
