@@ -58,6 +58,7 @@
     }
     
     let task = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+
         [OneSignalClient handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
     }];
     
