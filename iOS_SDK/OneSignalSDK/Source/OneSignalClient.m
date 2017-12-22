@@ -52,6 +52,8 @@
     }];
     
     [task resume];
+    
+    [sess finishTasksAndInvalidate];
 }
 
 - (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
@@ -75,6 +77,8 @@
     }];
     
     [dataTask resume];
+    
+    [sess finishTasksAndInvalidate];
     
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
