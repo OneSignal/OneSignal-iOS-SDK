@@ -624,9 +624,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary* keyValuePairs = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-    if (jsonError == nil)
+    if (jsonError == nil) {
         [self sendTags:keyValuePairs];
-    else {
+    } else {
         onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error: %@", jsonError]);
         onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]);
     }
@@ -638,6 +638,18 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
    
+    if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
+        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair]);
+        return;
+    }
+    
+    for (NSString *key in [keyValuePair allKeys]) {
+        if ([keyValuePair[key] isKindOfClass:[NSDictionary class]]) {
+            onesignal_Log(ONE_S_LL_WARN, @"sendTags Tags JSON must not contain nested objects");
+            return;
+        }
+    }
+    
     if (tagsToSend == nil)
         tagsToSend = [keyValuePair mutableCopy];
     else

@@ -27,6 +27,7 @@
 
 #import "OneSignalRequest.h"
 #import "OneSignalHelper.h"
+#import "OneSignal.h"
 #import "Requests.h"
 
 #define API_VERSION @"api/v1/"
@@ -72,6 +73,12 @@
 -(void)attachBodyToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {
     if (!self.parameters)
         return;
+    
+    //to prevent a crash, print error and return before attempting to serialize to JSON data
+    if (![NSJSONSerialization isValidJSONObject:self.parameters]) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal Attempted to make a request with an invalid JSON body: %@", self.parameters]];
+        return;
+    }
     
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:&error];
