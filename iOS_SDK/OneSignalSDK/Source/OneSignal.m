@@ -995,7 +995,6 @@ static dispatch_queue_t serialQueue;
     
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    app_id, @"app_id",
-                   deviceModel, @"device_model",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
                    [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
                    [NSNumber numberWithInt:0], @"device_type",
@@ -1003,6 +1002,9 @@ static dispatch_queue_t serialQueue;
                    ONESIGNAL_VERSION, @"sdk",
                    self.currentSubscriptionState.pushToken, @"identifier", // identifier MUST be at the end as it could be nil.
                    nil];
+    
+    if (deviceModel)
+        dataDic[@"device_model"] = deviceModel;
     
     if (build)
         dataDic[@"game_version"] = build;
