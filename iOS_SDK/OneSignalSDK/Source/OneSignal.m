@@ -624,9 +624,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary* keyValuePairs = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-    if (jsonError == nil)
+    if (jsonError == nil) {
         [self sendTags:keyValuePairs];
-    else {
+    } else {
         onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error: %@", jsonError]);
         onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]);
     }
@@ -638,6 +638,18 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
    
+    if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
+        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair]);
+        return;
+    }
+    
+    for (NSString *key in [keyValuePair allKeys]) {
+        if ([keyValuePair[key] isKindOfClass:[NSDictionary class]]) {
+            onesignal_Log(ONE_S_LL_WARN, @"sendTags Tags JSON must not contain nested objects");
+            return;
+        }
+    }
+    
     if (tagsToSend == nil)
         tagsToSend = [keyValuePair mutableCopy];
     else
@@ -983,7 +995,6 @@ static dispatch_queue_t serialQueue;
     
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    app_id, @"app_id",
-                   deviceModel, @"device_model",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
                    [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
                    [NSNumber numberWithInt:0], @"device_type",
@@ -991,6 +1002,9 @@ static dispatch_queue_t serialQueue;
                    ONESIGNAL_VERSION, @"sdk",
                    self.currentSubscriptionState.pushToken, @"identifier", // identifier MUST be at the end as it could be nil.
                    nil];
+    
+    if (deviceModel)
+        dataDic[@"device_model"] = deviceModel;
     
     if (build)
         dataDic[@"game_version"] = build;
