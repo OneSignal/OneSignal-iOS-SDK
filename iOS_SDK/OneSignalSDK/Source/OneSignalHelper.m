@@ -117,6 +117,8 @@
     
     [task resume];
     
+    [session finishTasksAndInvalidate];
+    
     while (![delegate isDone]) {
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
     }

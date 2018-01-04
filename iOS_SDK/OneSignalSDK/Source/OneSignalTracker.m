@@ -29,7 +29,6 @@
 
 #import "OneSignalTracker.h"
 #import "OneSignalHelper.h"
-#import "OneSignalHTTPClient.h"
 #import "OneSignalWebView.h"
 #import "OneSignalClient.h"
 #import "Requests.h"

@@ -28,7 +28,6 @@
 #import "OneSignal.h"
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
-#import "OneSignalHTTPClient.h"
 #import "OneSignalTrackIAP.h"
 #import "OneSignalLocation.h"
 #import "OneSignalReachability.h"
@@ -153,15 +152,6 @@ static int mSubscriptionStatus = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
-
-
-
-static OneSignalHTTPClient *_httpClient;
-+ (OneSignalHTTPClient*)httpClient {
-    if (!_httpClient)
-        _httpClient = [OneSignalHTTPClient new];
-    return _httpClient;
-}
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -293,7 +283,6 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
 
 + (void)clearStatics {
     app_id = nil;
-    _httpClient = nil;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
     mLastNotificationTypes = -1;

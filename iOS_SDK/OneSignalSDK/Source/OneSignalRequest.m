@@ -66,8 +66,8 @@
     return request;
 }
 
--(BOOL)hasAppId {
-    return self.parameters[@"app_id"] != nil && [self.parameters[@"app_id"] length] > 0;
+-(BOOL)missingAppId {
+    return self.parameters[@"app_id"] == nil || [self.parameters[@"app_id"] length] == 0;
 }
 
 -(void)attachBodyToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {

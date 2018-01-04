@@ -39,8 +39,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 @property (nonatomic) HTTPMethod method;
 @property (nonatomic, nonnull) NSString *path;
 @property (nonatomic, nullable) NSDictionary *parameters;
+-(BOOL)missingAppId; //for requests that don't require an appId parameter, the subclass should override this method and return false
 -(NSMutableURLRequest * _Nonnull )request;
--(BOOL)hasAppId;
 @end
 
 #endif
