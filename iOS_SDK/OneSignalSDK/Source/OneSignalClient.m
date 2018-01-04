@@ -52,13 +52,12 @@
 }
 
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    if (!request.hasAppId) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"HTTP Requests must contain app_id parameter"];
+    if (![self validRequest:request]) {
+        [self handleMissingAppIdError:failureBlock withRequest:request];
         return;
     }
     
     let task = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-
         [OneSignalClient handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
     }];
     
@@ -66,8 +65,8 @@
 }
 
 - (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    if (!request.hasAppId) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"HTTP Requests must contain app_id parameter"];
+    if (![self validRequest:request]) {
+        [self handleMissingAppIdError:failureBlock withRequest:request];
         return;
     }
     
@@ -88,6 +87,24 @@
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
     [OneSignalClient handleJSONNSURLResponse:httpResponse data:nil error:httpError onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)handleMissingAppIdError:(OSFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {
+    let errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must contain app_id parameter", NSStringFromClass([request class])];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorDescription];
+    
+    failureBlock([NSError errorWithDomain:@"OneSignalError" code:-1 userInfo:@{@"error" : errorDescription}]);
+}
+
+- (BOOL)validRequest:(OneSignalRequest *)request {
+    if (request.missingAppId) {
+        return false;
+    }
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.request.URL.absoluteString, request.parameters]];
+    
+    return true;
 }
 
 
@@ -115,8 +132,7 @@
             else
                 successBlock(nil);
         }
-    }
-    else if (failureBlock != nil) {
+    } else if (failureBlock != nil) {
         if (innerJson != nil && error == nil)
             failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson}]);
         else if (error != nil)
