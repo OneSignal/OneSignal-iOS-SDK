@@ -1,9 +1,9 @@
 platform :ios, '10.3'
 
 target 'OneSignalDemo' do
-  pod 'OneSignal', '>= 2.5.4', '< 3.0'
+  pod 'OneSignal', '>= 2.6.1', '< 3.0'
 end
 
 target 'OneSignalNotificationServiceExtension' do
-  pod 'OneSignal', '>= 2.5.4', '< 3.0'
+  pod 'OneSignal', '>= 2.6.1', '< 3.0'
 end

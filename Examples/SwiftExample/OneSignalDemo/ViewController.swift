@@ -54,16 +54,20 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
     
     func displaySettingsNotification() {
         let message = NSLocalizedString("Please turn on notifications by going to Settings > Notifications > Allow Notifications", comment: "Alert message when the user has denied access to the notifications")
-        let alertController = UIAlertController(title: "OneSignal Example", message: message, preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil))
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("Settings", comment: "Alert button to open Settings"), style: .`default`, handler: { action in
+        let settingsAction = UIAlertAction(title: NSLocalizedString("Settings", comment: "Alert button to open Settings"), style: .`default`, handler: { action in
             if #available(iOS 10.0, *) {
                 UIApplication.shared.open(URL(string: UIApplicationOpenSettingsURLString)!, options: [:], completionHandler: nil)
             } else {
                 // Fallback on earlier versions
             }
-        }))
-        self.present(alertController, animated: true, completion: nil)
+        });
+        self.displayAlert(title: message, message: "OneSignal Example", actions: [UIAlertAction.okAction(), settingsAction]);
+    }
+    
+    func displayAlert(title : String, message: String, actions: [UIAlertAction]) {
+        let controller = UIAlertController(title: title, message: message, preferredStyle: .alert);
+        actions.forEach { controller.addAction($0) };
+        self.present(controller, animated: true, completion: nil);
     }
     
     func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges!) {
@@ -126,15 +130,27 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         OneSignal.sendTags(tags, onSuccess: { result in
             print("Tags sent - \(result!)")
         }) { error in
-            print("Error sending tags: \(error?.localizedDescription)")
+            print("Error sending tags: \(error?.localizedDescription ?? "None")")
         }
     }
     
     @IBAction func onGetTagsButton(_ sender: UIButton) {
         OneSignal.getTags({ tags in
             print("tags - \(tags!)")
+            
+            guard let tags = tags else {
+                self.displayAlert(title: NSLocalizedString("No Tags Available", comment: "Alert message when there were no tags available for this user"), message: NSLocalizedString("There were no tags present for this device", comment: "No tags available for this user"), actions: [UIAlertAction.okAction()]);
+                return;
+            };
+            
+            if JSONSerialization.isValidJSONObject(tags), let tagsData = try? JSONSerialization.data(withJSONObject: tags, options: .prettyPrinted), let tagsString = String(data: tagsData, encoding: .utf8) {
+                self.displayAlert(title: NSLocalizedString("Tags JSON", comment: "Title for displaying tags JSON"), message: tagsString, actions: [UIAlertAction.okAction()]);
+            } else {
+                self.displayAlert(title: NSLocalizedString("Unable to Parse Tags", comment: "Alerts the user that tags are present but unable to be parsed"), message: NSLocalizedString("Tags exist but are unable to be parsed or displayed as a string", comment: "Informs the user that the app is unable to parse tags"), actions: [UIAlertAction.okAction()]);
+            }
+            
         }, onFailure: { error in
-            print("Error getting tags - \(error?.localizedDescription)")
+            print("Error getting tags - \(error?.localizedDescription ?? "None")")
             // errorWithDomain - OneSignalError
             // code - HTTP error code from the OneSignal server
             // userInfo - JSON OneSignal responded with
@@ -163,7 +179,7 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         let userID = status.subscriptionStatus.userId
         print("userID = \(userID)")
         let pushToken = status.subscriptionStatus.pushToken
-        print("pushToken = \(pushToken)")
+        print("pushToken = \(pushToken ?? "None")")
     }
     
     @IBAction func onSyncEmailButton(_ sender: UIButton) {
@@ -184,6 +200,7 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
          */
         // must add core location framework for this to work. Root Project > Build Phases > Link Binary With Libraries
         OneSignal.promptLocation()
+        print("OneSignal version: " + OneSignal.sdk_semantic_version());
     }
     
     // Sending Notifications
@@ -245,5 +262,11 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         } else {
             OneSignal.setSubscription(true)
         }
+    }
+}
+
+extension UIAlertAction {
+    static func okAction() -> UIAlertAction {
+        return UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil);
     }
 }

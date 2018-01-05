@@ -41,13 +41,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
         // For debugging
-        //OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
+        OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         
         let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
             
             print("Received Notification: \(notification!.payload.notificationID)")
-            print("launchURL = \(notification?.payload.launchURL)")
-            print("content_available = \(notification?.payload.contentAvailable)")
+            print("launchURL = \(notification?.payload.launchURL ?? "None")")
+            print("content_available = \(notification?.payload.contentAvailable ?? false)")
         }
         
         let notificationOpenedBlock: OSHandleNotificationActionBlock = { result in
@@ -55,8 +55,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             let payload: OSNotificationPayload? = result?.notification.payload
             
             print("Message = \(payload!.body)")
-            print("badge number = \(payload?.badge)")
-            print("notification sound = \(payload?.sound)")
+            print("badge number = \(payload?.badge ?? UInt(-1))")
+            print("notification sound = \(payload?.sound ?? "None")")
             
             if let additionalData = result!.notification.payload!.additionalData {
                 print("additionalData = \(additionalData)")
@@ -104,7 +104,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         
         let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true, ]
         
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "<REPLACE_WITH_YOUR_ONESIGNAL_APP_ID", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "78e8aff3-7ce2-401f-9da0-2d41f287ebaf", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
         
         OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
         
