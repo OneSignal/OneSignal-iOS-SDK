@@ -43,6 +43,13 @@
     // Do any additional setup after loading the view, typically from a nib.
 }
 
+-(void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.com.example.onesignal"];
+    NSLog(@"User defaults value: %@", [userDefaults objectForKey:@"tst"]);
+}
+
 - (IBAction)sendTagButton:(id)sender {
     //[self promptForNotificationsWithNativeiOS10Code];
     

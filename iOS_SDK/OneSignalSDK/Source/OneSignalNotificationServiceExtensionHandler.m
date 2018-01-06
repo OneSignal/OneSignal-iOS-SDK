@@ -40,6 +40,8 @@
     
     let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
     
+    replacementContent.title = [NSString stringWithFormat:@"{Extension Service} %@", replacementContent.title];
+    
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     

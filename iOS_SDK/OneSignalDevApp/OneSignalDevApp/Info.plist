@@ -2,14 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>OneSignal_app_groups_key</key>
-	<string> group.com.onesignal.example.testgroup </string>
-	<key>OneSignal_disable_badge_clearing</key>
-	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Test Location2</string>
-	<key>NSLocationUsageDescription</key>
-	<string>Test Location</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -27,6 +19,19 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSLocationUsageDescription</key>
+	<string>Test Location</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Test Location2</string>
+	<key>OneSignal_app_groups_key</key>
+	<string> group.com.onesignal.example.testgroup </string>
+	<key>OneSignal_disable_badge_clearing</key>
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
@@ -53,10 +58,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 </dict>
 </plist>

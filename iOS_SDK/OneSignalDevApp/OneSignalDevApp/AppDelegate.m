@@ -63,7 +63,7 @@
     };
     
     [OneSignal initWithLaunchOptions:launchOptions
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+                               appId:@"78e8aff3-7ce2-401f-9da0-2d41f287ebaf"
           handleNotificationReceived:notificationReceiverBlock
             handleNotificationAction:openNotificationHandler
                             settings:@{kOSSettingsKeyAutoPrompt: @false,

@@ -28,7 +28,7 @@
 #import <UIKit/UIKit.h>
 #import <OneSignal/OneSignal.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <OSPermissionObserver, OSSubscriptionObserver>
 
 @property(nonatomic,retain) IBOutlet UITextView* textMultiLine1;
 

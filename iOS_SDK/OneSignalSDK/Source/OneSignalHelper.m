@@ -107,6 +107,12 @@
 @implementation NSURLSession (DirectDownload)
 
 + (BOOL)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error {
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.com.example.onesignal"];
+    [userDefaults setObject:[NSString stringWithFormat:@"Downloading file from url: %@ to local path: %@", url.absoluteString, localPath] forKey:@"tst"];
+    [userDefaults synchronize];
+    
+    NSLog(@"Synchronously downloading file: %@", [NSString stringWithFormat:@"Downloading file from url: %@ to local path: %@", url.absoluteString, localPath]);
+    
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     
     DirectDownloadDelegate *delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];

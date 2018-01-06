@@ -27,6 +27,8 @@
 
 #import "AppDelegate.h"
 #import <OneSignal/OneSignal.h>
+#import "RedViewController.h"
+#import "GreenViewController.h"
 
 @implementation AppDelegate
 
@@ -53,8 +55,26 @@
             if (payload.title)
                 messageTitle = payload.title;
             
-            if (result.action.actionID)
+            if (result.action.actionID) {
                 fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionID]];
+                
+                UIViewController *vc;
+                
+                if ([result.action.actionID isEqualToString: @"id2"]) {
+                    RedViewController *redVC = (RedViewController *)[[UIStoryboard storyboardWithName:@"MainStoryboard" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"redVC"];
+                    
+                    if (payload.additionalData[@"OpenURL"])
+                        redVC.receivedUrl = [NSURL URLWithString:(NSString *)payload.additionalData[@"OpenURL"]];
+                    
+                    vc = redVC;
+                } else if ([result.action.actionID isEqualToString:@"id1"]) {
+                    vc = [[UIStoryboard storyboardWithName:@"MainStoryboard" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"greenVC"];
+                }
+                
+                [self.window.rootViewController presentViewController:vc animated:true completion:nil];
+            }
+            
+            
         }
         
         UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:messageTitle
@@ -72,7 +92,7 @@
     
     // (REQUIRED) - Initializes OneSignal
     [OneSignal initWithLaunchOptions:launchOptions
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+                               appId:@"78e8aff3-7ce2-401f-9da0-2d41f287ebaf"
           handleNotificationReceived:notificationRecievedBlock
             handleNotificationAction:notificationOpenedBlock
                             settings:oneSignalSetting];
