@@ -28,7 +28,6 @@
 #import <UIKit/UIKit.h>
 
 #import "OneSignalLocation.h"
-#import "OneSignalHTTPClient.h"
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
 #import "OneSignalClient.h"
@@ -219,13 +218,13 @@ static OneSignalLocation* singleInstance = nil;
     [invocation invoke];
     [invocation getReturnValue:&cords];
     
-    os_last_location *currentLocation = (os_last_location*)malloc(sizeof(os_last_location));
-    currentLocation->verticalAccuracy = [[location valueForKey:@"verticalAccuracy"] doubleValue];
-    currentLocation->horizontalAccuracy = [[location valueForKey:@"horizontalAccuracy"] doubleValue];
-    currentLocation->cords = cords;
-    
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
-        lastLocation = currentLocation;
+        if (!lastLocation)
+            lastLocation = (os_last_location*)malloc(sizeof(os_last_location));
+        
+        lastLocation->verticalAccuracy = [[location valueForKey:@"verticalAccuracy"] doubleValue];
+        lastLocation->horizontalAccuracy = [[location valueForKey:@"horizontalAccuracy"] doubleValue];
+        lastLocation->cords = cords;
     }
     
     if(!sendLocationTimer)
@@ -234,6 +233,10 @@ static OneSignalLocation* singleInstance = nil;
     if(!initialLocationSent)
         [OneSignalLocation sendLocation];
 
+}
+
+-(void)locationManager:(id)manager didFailWithError:(NSError *)error {
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
 }
 
 + (void)resetSendTimer {

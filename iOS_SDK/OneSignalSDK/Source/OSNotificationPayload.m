@@ -96,6 +96,8 @@
             [self parseActionButtons:os_data[@"buttons"]];
         } else if (os_data[@"buttons"] && [os_data[@"buttons"] isKindOfClass: [NSDictionary class]] && [os_data[@"buttons"][@"o"] isKindOfClass: [NSArray class]]) {
             [self parseActionButtons:os_data[@"buttons"][@"o"]];
+        } else if ([_rawPayload[@"actionbuttons"] isKindOfClass:[NSArray class]]) {
+            [self parseActionButtons:_rawPayload[@"actionbuttons"]];
         }
     }
     
