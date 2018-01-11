@@ -126,6 +126,8 @@ NSString* const ONESIGNAL_VERSION = @"020602";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
+static BOOL shouldDelaySubscriptionUpdate = false;
+
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
@@ -302,6 +304,10 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     BOOL val = coldStartFromTapOnNotification;
     coldStartFromTapOnNotification = NO;
     return val;
+}
+
++ (BOOL)shouldDelaySubscriptionSettingsUpdate {
+    return shouldDelaySubscriptionUpdate;
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
@@ -1113,7 +1119,16 @@ static dispatch_queue_t serialQueue;
         
         mLastNotificationTypes = [self getNotificationTypes];
         
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:nil onFailure:nil];
+        shouldDelaySubscriptionUpdate = true;
+        
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:^(NSDictionary *result) {
+            
+            shouldDelaySubscriptionUpdate = false;
+            
+            if (self.currentSubscriptionState.delayedObserverUpdate)
+                [self.currentSubscriptionState setAccepted:[self getNotificationTypes] == 15];
+                
+        } onFailure:nil];
         
         if ([self getUsableDeviceToken])
             [self fireIdsAvailableCallback];

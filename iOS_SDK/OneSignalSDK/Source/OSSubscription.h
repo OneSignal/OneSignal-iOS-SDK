@@ -69,6 +69,9 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 - (void)setAccepted:(BOOL)inAccpeted;
 - (void)persistAsFrom;
 - (BOOL)compare:(OSSubscriptionState*)from;
+
+@property (nonatomic) BOOL delayedObserverUpdate;
+
 @end
 
 // Redefine OSSubscriptionStateChanges

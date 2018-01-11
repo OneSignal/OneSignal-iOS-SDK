@@ -126,6 +126,12 @@
 
 - (void)setAccepted:(BOOL)inAccpeted {
     BOOL lastSubscribed = self.subscribed;
+    
+    if ([OneSignal shouldDelaySubscriptionSettingsUpdate]) {
+        self.delayedObserverUpdate = true;
+        return;
+    }
+    
     _accpeted = inAccpeted;
     if (lastSubscribed != self.subscribed)
         [self.observable notifyChange:self];
