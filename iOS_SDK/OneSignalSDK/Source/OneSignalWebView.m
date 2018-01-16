@@ -28,6 +28,7 @@
 #import <UIKit/UIKit.h>
 #import "OneSignalWebView.h"
 #import "OneSignal.h"
+#import "OneSignalHelper.h"
 
 @interface OneSignal ()
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
@@ -41,11 +42,11 @@ UIViewController *viewControllerForPresentation;
 -(void)viewDidLoad {
     [super viewDidLoad];
     
-    _webView = [[UIWebView alloc] initWithFrame:self.view.frame];
+    _webView = [UIWebView new];
     _webView.delegate = self;
     [self.view addSubview:_webView];
     
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self pinSubviewToMarginsWithSubview:_webView withSuperview:self.view];
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismiss:)];
     
@@ -68,7 +69,7 @@ UIViewController *viewControllerForPresentation;
         //clear web view
         [_webView loadHTMLString:@"" baseURL:nil];
         if (viewControllerForPresentation)
-           [viewControllerForPresentation.view removeFromSuperview];
+            [viewControllerForPresentation.view removeFromSuperview];
     }];
 }
 
@@ -84,6 +85,19 @@ UIViewController *viewControllerForPresentation;
 
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
+}
+
+-(void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
+    subview.translatesAutoresizingMaskIntoConstraints = false;
+    
+    let attributes = @[@(NSLayoutAttributeTop), @(NSLayoutAttributeBottom), @(NSLayoutAttributeLeading), @(NSLayoutAttributeTrailing)];
+    
+    for (NSNumber *layoutAttribute in attributes) {
+        let attribute = (NSLayoutAttribute)[layoutAttribute longValue];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:subview attribute:attribute relatedBy:NSLayoutRelationEqual toItem:superview attribute:attribute multiplier:1.0 constant:0.0]];
+    }
+    
+    [superview layoutIfNeeded];
 }
 
 
@@ -110,9 +124,9 @@ UIViewController *viewControllerForPresentation;
     
     if (!viewControllerForPresentation.view.superview)
         [mainWindow addSubview:[viewControllerForPresentation view]];
-
+    
     @try {
-       [viewControllerForPresentation presentViewController:navController animated:YES completion:nil];
+        [viewControllerForPresentation presentViewController:navController animated:YES completion:nil];
     }
     @catch(NSException* exception) { }
 }
@@ -120,3 +134,5 @@ UIViewController *viewControllerForPresentation;
 
 
 @end
+
+

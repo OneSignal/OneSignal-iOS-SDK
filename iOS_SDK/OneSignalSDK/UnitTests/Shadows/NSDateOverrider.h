@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,8 @@
  * THE SOFTWARE.
  */
 
-@interface OneSignalHTTPClient : NSObject
+#import <Foundation/Foundation.h>
 
-@property (readonly, nonatomic) NSURL *baseURL;
-
-- (NSMutableURLRequest*) requestWithMethod:(NSString*)method
-                                      path:(NSString*)path;
+@interface NSDateOverrider : NSObject
++(void) setTimeOffset:(NSTimeInterval)offset;
 @end

@@ -26,35 +26,16 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignalHTTPClient.h"
+#import "OneSignalHelper.h"
+#import "OneSignalRequest.h"
 
-#define DEFAULT_PUSH_HOST @"https://onesignal.com/api/v1/"
+#ifndef OneSignalClient_h
+#define OneSignalClient_h
 
-@interface OneSignalHTTPClient()
-@property (readwrite, nonatomic) NSURL *baseURL;
+@interface OneSignalClient : NSObject
++ (OneSignalClient *)sharedClient;
+- (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
+- (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 @end
 
-@implementation OneSignalHTTPClient
-
-@synthesize baseURL = _baseURL;
-
-- (id)init {
-    self = [super init];
-    if (self)
-        self.baseURL = [NSURL URLWithString:DEFAULT_PUSH_HOST];
-    return self;
-}
-
-- (NSMutableURLRequest*) requestWithMethod:(NSString*)method
-                                       path:(NSString*)path {
-    
-    NSURL* url = [NSURL URLWithString:path relativeToURL:self.baseURL];
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
-    [request setHTTPMethod:method];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    
-    return request;
-}
-
-@end
+#endif

@@ -28,6 +28,7 @@
 #import "OneSignalAlertViewDelegate.h"
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
+#import "OSNotificationPayload+Internal.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -43,21 +44,23 @@
 @implementation OneSignalAlertView
 
 + (void)showInAppAlert:(NSDictionary*)messageDict {
-    NSDictionary* titleAndBody = [OneSignalHelper getPushTitleBody:messageDict];
-    id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict];
+    let payload = [OSNotificationPayload parseWithApns:messageDict];
     
-    UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:titleAndBody[@"title"]
-                                                        message:titleAndBody[@"body"]
-                                                       delegate:oneSignalAlertViewDelegate
-                                              cancelButtonTitle:NSLocalizedString(@"Close", nil)
-                                              otherButtonTitles:nil, nil];
+    id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc]
+                                         initWithMessageDict:messageDict];
+
+    let alertView = [[UIAlertView alloc]
+                     initWithTitle:payload.title
+                     message:payload.body
+                     delegate:oneSignalAlertViewDelegate
+                     cancelButtonTitle:NSLocalizedString(@"Close", nil)
+                     otherButtonTitles:nil, nil];
     // Add Buttons
-    NSArray *actionButons = [OneSignalHelper getActionButtons:messageDict];
-    if (actionButons) {
-        for(id button in actionButons)
-            [alertView addButtonWithTitle:button[@"n"] ?: button[@"text"]];
+    if (payload.actionButtons) {
+        for(id button in payload.actionButtons)
+            [alertView addButtonWithTitle:button[@"text"]];
     }
-    
+
     [alertView show];
     
     // Message received that was displayed (Foreground + InAppAlert is true)
@@ -96,24 +99,26 @@ static NSMutableArray* delegateReference;
         actionType = OSNotificationActionTypeActionTaken;
         
         NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
-
-        if (mMessageDict[@"os_data"]) {
+        
+        //fixed for iOS 7, which has 'actionbuttons' as a root property of the dict, not in 'os_data'
+        if (mMessageDict[@"os_data"] && !mMessageDict[@"actionbuttons"]) {
             if ([mMessageDict[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]])
                 userInfo[@"actionSelected"] = mMessageDict[@"os_data"][@"buttons"][@"o"][buttonIndex - 1][@"i"];
             else
                 userInfo[@"actionSelected"] = mMessageDict[@"os_data"][@"buttons"][buttonIndex - 1][@"i"];
-        }
-        else if (mMessageDict[@"buttons"])
+        } else if (mMessageDict[@"buttons"]) {
              userInfo[@"actionSelected"] = mMessageDict[@"buttons"][buttonIndex - 1][@"i"];
-        else {
-            NSMutableDictionary* customDict = [userInfo[@"custom"] mutableCopy];
-            NSMutableDictionary* additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+        } else {
+            NSMutableDictionary* customDict = userInfo[@"custom"] ? [userInfo[@"custom"] mutableCopy] : [NSMutableDictionary new];
+            NSMutableDictionary* additionalData = customDict[@"a"] ? [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]] : [NSMutableDictionary new];
             
-            if([additionalData[@"actionButtons"] isKindOfClass:[NSArray class]])
+            if([additionalData[@"actionButtons"] isKindOfClass:[NSArray class]]) {
                 additionalData[@"actionSelected"] = additionalData[@"actionButtons"][buttonIndex - 1][@"id"];
-                
-            else if([mMessageDict[@"o"] isKindOfClass:[NSArray class]])
+            } else if([mMessageDict[@"o"] isKindOfClass:[NSArray class]]) {
                 additionalData[@"actionSelected"] = mMessageDict[@"o"][buttonIndex -1][@"i"];
+            } else if ([mMessageDict[@"actionbuttons"] isKindOfClass:[NSArray class]]) {
+                additionalData[@"actionSelected"] = mMessageDict[@"actionbuttons"][buttonIndex - 1][@"i"];
+            }
             
             customDict[@"a"] = additionalData;
             userInfo[@"custom"] = customDict;

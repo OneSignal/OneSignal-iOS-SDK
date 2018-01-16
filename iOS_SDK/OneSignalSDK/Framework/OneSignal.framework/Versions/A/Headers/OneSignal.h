@@ -87,9 +87,33 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Unique Message Identifier */
 @property(readonly)NSString* notificationID;
 
-/* Provide this key with a value of 1 to indicate that new content is available.
- Including this key and value means that when your app is launched in the background or resumed application:didReceiveRemoteNotification:fetchCompletionHandler: is called. */
+/* Unique Template Identifier */
+@property(readonly)NSString* templateID;
+
+/* Name of Template */
+@property(readonly)NSString* templateName;
+
+/* True when the key content-available is set to 1 in the aps payload.
+   content-available is used to wake your app when the payload is received.
+   See Apple's documenation for more details.
+  https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application
+*/
 @property(readonly)BOOL contentAvailable;
+
+/* True when the key mutable-content is set to 1 in the aps payload.
+ mutable-content is used to wake your Notification Service Extension to modify a notification.
+ See Apple's documenation for more details.
+ https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension
+ */
+@property(readonly)BOOL mutableContent;
+
+/*
+ Notification category key previously registered to display with.
+ This overrides OneSignal's actionButtons.
+ See Apple's documenation for more details.
+ https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SupportingNotificationsinYourApp.html#//apple_ref/doc/uid/TP40008194-CH4-SW26
+*/
+@property(readonly)NSString* category;
 
 /* The badge assigned to the application icon */
 @property(readonly)NSUInteger badge;
@@ -121,6 +145,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @end
 
+// ## OneSignal OSNotification
 @interface OSNotification : NSObject
 
 /* Notification Payload */
