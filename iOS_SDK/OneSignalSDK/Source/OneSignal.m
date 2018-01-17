@@ -126,6 +126,8 @@ NSString* const ONESIGNAL_VERSION = @"020602";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
+static BOOL shouldDelaySubscriptionUpdate = false;
+
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
@@ -294,7 +296,6 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     _currentSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
-    _subscriptionStateChangesObserver = nil;
 }
 
 // Set to false as soon as it's read.
@@ -302,6 +303,10 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     BOOL val = coldStartFromTapOnNotification;
     coldStartFromTapOnNotification = NO;
     return val;
+}
+
++ (BOOL)shouldDelaySubscriptionSettingsUpdate {
+    return shouldDelaySubscriptionUpdate;
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
@@ -817,6 +822,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [[NSUserDefaults standardUserDefaults] setObject:value forKey:@"ONESIGNAL_SUBSCRIPTION"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
+    shouldDelaySubscriptionUpdate = true;
+    
     self.currentSubscriptionState.userSubscriptionSetting = enable;
     
     if (app_id)
@@ -1113,7 +1120,17 @@ static dispatch_queue_t serialQueue;
         
         mLastNotificationTypes = [self getNotificationTypes];
         
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:nil onFailure:nil];
+        //delays observer update until the OneSignal server is notified
+        shouldDelaySubscriptionUpdate = true;
+        
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:^(NSDictionary *result) {
+            
+            shouldDelaySubscriptionUpdate = false;
+            
+            if (self.currentSubscriptionState.delayedObserverUpdate)
+                [self.currentSubscriptionState setAccepted:[self getNotificationTypes] > 0];
+            
+        } onFailure:nil];
         
         if ([self getUsableDeviceToken])
             [self fireIdsAvailableCallback];

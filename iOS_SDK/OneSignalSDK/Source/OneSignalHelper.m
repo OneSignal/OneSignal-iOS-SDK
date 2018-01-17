@@ -725,20 +725,29 @@ static OneSignal* singleInstance = nil;
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     
-    NSError* error = nil;
-    [NSURLSession downloadItemAtURL:URL toFile:filePath error:error];
-    NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
-    NSMutableArray* appendedCache;
-    if (cachedFiles) {
-        appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
-        [appendedCache addObject:name];
-    }
-    else
-        appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
+    //guard against situations where for example, available storage is too low
     
-    [[NSUserDefaults standardUserDefaults] setObject:appendedCache forKey:@"CACHED_MEDIA"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    return name;
+    @try {
+        NSError* error = nil;
+        [NSURLSession downloadItemAtURL:URL toFile:filePath error:error];
+        NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
+        NSMutableArray* appendedCache;
+        if (cachedFiles) {
+            appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
+            [appendedCache addObject:name];
+        }
+        else
+            appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
+        
+        [[NSUserDefaults standardUserDefaults] setObject:appendedCache forKey:@"CACHED_MEDIA"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        return name;
+    } @catch (NSException *exception) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal encountered an exception while downloading file (%@), exception: %@", url, exception.description]];
+        
+        return nil;
+    }
+
 }
 
 +(void)clearCachedMedia {

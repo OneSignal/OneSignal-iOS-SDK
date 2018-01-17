@@ -23,6 +23,9 @@
 #import "OneSignalRequest.h"
 #import "OneSignalSelectorHelpers.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 @implementation OneSignalClientOverrider
 
 static dispatch_queue_t serialMockMainLooper;
@@ -30,6 +33,8 @@ static NSString* lastUrl;
 static int networkRequestCount;
 static NSDictionary* lastHTTPRequest;
 static XCTestCase* currentTestInstance;
+static BOOL executeInstantaneously = true;
+static dispatch_queue_t executionQueue;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -37,9 +42,24 @@ static XCTestCase* currentTestInstance;
     
     //with refactored networking code, need to replace the implementation of the execute request method so tests don't actually execite HTTP requests
     injectToProperClass(@selector(overrideExecuteRequest:onSuccess:onFailure:), @selector(executeRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
+    
+    executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
 }
 
 - (void)overrideExecuteRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    NSLog(@"Executing request: %@", NSStringFromClass([request class]));
+    if (executeInstantaneously) {
+        [OneSignalClientOverrider finishExecutingRequest:request onSuccess:successBlock onFailure:failureBlock];
+    } else {
+        dispatch_async(executionQueue, ^{
+            [OneSignalClientOverrider finishExecutingRequest:request onSuccess:successBlock onFailure:failureBlock];
+        });
+    }
+}
+
++ (void)finishExecutingRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    NSLog(@"completing HTTP request: %@", NSStringFromClass([request class]));
+    
     NSMutableDictionary *parameters = [request.parameters mutableCopy];
     
     if (!parameters[@"app_id"] && ![request.request.URL.absoluteString containsString:@"/apps/"])
@@ -60,6 +80,14 @@ static XCTestCase* currentTestInstance;
         else
             successBlock(@{@"id": @"1234"});
     }
+}
+
++(dispatch_queue_t)getHTTPQueue {
+    return executionQueue;
+}
+
++(void)setShouldExecuteInstantaneously:(BOOL)instant {
+    executeInstantaneously = instant;
 }
 
 +(void)reset:(XCTestCase*)testInstance {
