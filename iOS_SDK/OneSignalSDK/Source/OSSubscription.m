@@ -28,6 +28,9 @@
 #import "OSSubscription.h"
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+
 @implementation OSSubscriptionState
 
 - (ObserableSubscriptionStateType*)observable {
@@ -131,7 +134,7 @@
     // This is to prevent a problem where the observer gets updated
     // before the OneSignal server does. (11f7f49841339317a334c5ec928db7edccb21cfe)
     
-    if ([OneSignal shouldDelaySubscriptionSettingsUpdate]) {
+    if ([OneSignal performSelector:@selector(shouldDelaySubscriptionSettingsUpdate)]) {
         self.delayedObserverUpdate = true;
         return;
     }
