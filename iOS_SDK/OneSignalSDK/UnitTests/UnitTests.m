@@ -115,8 +115,6 @@
 
 @interface UnitTests : XCTestCase
 
-@property (strong, atomic) NSLock *subscriptionLock;
-
 @end
 
 @implementation UnitTests
@@ -171,8 +169,6 @@
 // Called before each test.
 - (void)setUp {
     [super setUp];
-    
-    self.subscriptionLock = [NSLock new];
     
     OneSignalHelperOverrider.mockIOSVersion = 10;
     

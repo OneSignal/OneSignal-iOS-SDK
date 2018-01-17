@@ -10,9 +10,6 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
-//when mocking a networking request with a delay, this setting determines how long to delay the completion block for
-#define EXECUTION_DELAY 0.01
-
 @interface OneSignalClientOverrider : NSObject
 +(void)reset:(XCTestCase*)testInstance;
 +(void)setLastHTTPRequest:(NSDictionary*)value;

@@ -296,10 +296,6 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     _currentSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
-//    _subscriptionStateChangesObserver = nil;
-    
-    // this function is only called for unit testing
-    //commented out so we can have a single synchronized observer in tests
 }
 
 // Set to false as soon as it's read.
