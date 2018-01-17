@@ -296,7 +296,10 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     _currentSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
-    _subscriptionStateChangesObserver = nil;
+//    _subscriptionStateChangesObserver = nil;
+    
+    // this function is only called for unit testing
+    //commented out so we can have a single synchronized observer in tests
 }
 
 // Set to false as soon as it's read.
@@ -823,6 +826,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [[NSUserDefaults standardUserDefaults] setObject:value forKey:@"ONESIGNAL_SUBSCRIPTION"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     
+    shouldDelaySubscriptionUpdate = true;
+    
     self.currentSubscriptionState.userSubscriptionSetting = enable;
     
     if (app_id)
@@ -1119,6 +1124,7 @@ static dispatch_queue_t serialQueue;
         
         mLastNotificationTypes = [self getNotificationTypes];
         
+        //delays observer update until the OneSignal server is notified
         shouldDelaySubscriptionUpdate = true;
         
         [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:^(NSDictionary *result) {
@@ -1126,8 +1132,8 @@ static dispatch_queue_t serialQueue;
             shouldDelaySubscriptionUpdate = false;
             
             if (self.currentSubscriptionState.delayedObserverUpdate)
-                [self.currentSubscriptionState setAccepted:[self getNotificationTypes] == 15];
-                
+                [self.currentSubscriptionState setAccepted:[self getNotificationTypes] > 0];
+            
         } onFailure:nil];
         
         if ([self getUsableDeviceToken])

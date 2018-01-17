@@ -50,11 +50,15 @@ SEL changeSelector;
 }
 
 - (void)addObserver:(id)observer {
-    [observers addObject:observer];
+    @synchronized(observers) {
+        [observers addObject:observer];
+    }
 }
 
 - (void)removeObserver:(id)observer {
-    [observers removeObject:observer];
+    @synchronized(observers) {
+        [observers removeObject:observer];
+    }
 }
 
 #pragma clang diagnostic push
@@ -62,21 +66,29 @@ SEL changeSelector;
 
 - (BOOL)notifyChange:(id)state {
     BOOL fired = false;
-     for (id observer in observers) {
-         fired = true;
-         if (changeSelector) {
-             // Any Obserable setup to fire a custom selector with changeSelector
-             //  is external to our SDK. Run on the main thread in case the
-             //  app developer needs to update UI elements.
-             [OneSignalHelper dispatch_async_on_main_queue: ^{
-                 [observer performSelector:changeSelector withObject:state];
-             }];
-         }
-         else
-             [observer onChanged:state];
-     }
+    
+    @synchronized(observers) {
+        for (id observer in observers) {
+            fired = true;
+            if (changeSelector) {
+                // Any Obserable setup to fire a custom selector with changeSelector
+                //  is external to our SDK. Run on the main thread in case the
+                //  app developer needs to update UI elements.
+                
+                [self callObserver:observer withSelector:changeSelector withState:state];
+                
+            } else
+                [observer onChanged:state];
+        }
+    }
     
     return fired;
+}
+
+- (void)callObserver:(id)observer withSelector:(SEL)selector withState:(id)state {
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [observer performSelector:changeSelector withObject:state];
+    }];
 }
 
 #pragma clang diagnostic pop

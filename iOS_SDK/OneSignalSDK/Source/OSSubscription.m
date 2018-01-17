@@ -127,6 +127,10 @@
 - (void)setAccepted:(BOOL)inAccpeted {
     BOOL lastSubscribed = self.subscribed;
     
+    // checks to see if we should delay the observer update
+    // This is to prevent a problem where the observer gets updated
+    // before the OneSignal server does. (11f7f49841339317a334c5ec928db7edccb21cfe)
+    
     if ([OneSignal shouldDelaySubscriptionSettingsUpdate]) {
         self.delayedObserverUpdate = true;
         return;
