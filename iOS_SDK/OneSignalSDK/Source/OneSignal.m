@@ -431,9 +431,11 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     }
     
     if (!app_id) {
+        app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
         if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
             onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
-        app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
+        else
+            return true;
     }
     else if (![app_id isEqualToString:[userDefaults stringForKey:@"GT_APP_ID"]]) {
         // Handle changes to the app id. This might happen on a developer's device when testing
