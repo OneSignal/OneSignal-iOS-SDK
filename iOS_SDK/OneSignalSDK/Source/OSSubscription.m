@@ -127,6 +127,11 @@
         [self.observable notifyChange:self];
 }
 
+
+- (void)setEmailUserId:(NSString *)emailUserId {
+    _emailUserId = emailUserId;
+}
+
 - (void)setAccepted:(BOOL)inAccpeted {
     BOOL lastSubscribed = self.subscribed;
     

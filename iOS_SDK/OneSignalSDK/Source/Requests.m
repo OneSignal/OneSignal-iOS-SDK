@@ -29,6 +29,7 @@
 #import "Requests.h"
 #import "OneSignalRequest.h"
 #import "OneSignalHelper.h"
+#import "NSNull+OneSignal.h"
 #import <stdlib.h>
 #import <stdio.h>
 #import <sys/types.h>
@@ -95,13 +96,14 @@
 @end
 
 @implementation OSRequestUpdateDeviceToken
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId deviceToken:(NSString *)identifier notificationTypes:(NSNumber *)notificationTypes {
++ (instancetype)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId {
     let request = [OSRequestUpdateDeviceToken new];
     
     request.parameters = @{
                            @"app_id" : appId,
                            @"identifier" : identifier,
-                           @"notification_types" : notificationTypes
+                           @"notification_types" : notificationTypes,
+                           @"parent_player_id" : [NSNull nullIfObjectIsNil:parentId]
                            };
     
     request.method = PUT;
@@ -111,6 +113,38 @@
 }
 @end
 
+@implementation OSRequestCreateDevice
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withEmail:(NSString * _Nullable)email withPlayerId:(NSString * _Nullable)playerId withEmailAuthHash:(NSString * _Nullable)emailAuthHash {
+    let request = [OSRequestCreateDevice new];
+    
+    request.parameters = @{
+                           @"app_id" : appId,
+                           @"device_type" : deviceType,
+                           @"email" : [NSNull nullIfObjectIsNil:email],
+                           @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
+                           @"device_player_id" : [NSNull nullIfObjectIsNil:playerId]
+                           };
+    
+    request.method = POST;
+    request.path = @"/players";
+    
+    return request;
+}
+@end
+
+@implementation OSRequestLogoutEmail
+
++ (instancetype _Nonnull)withEmailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash {
+    let request = [OSRequestLogoutEmail new];
+    
+    request.parameters = @{@"device_player_id" : devicePlayerId, @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash]};
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"%@/email_logout", emailPlayerId];
+    
+    return request;
+}
+
+@end
 
 @implementation OSRequestUpdateNotificationTypes
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId notificationTypes:(NSNumber *)notificationTypes {

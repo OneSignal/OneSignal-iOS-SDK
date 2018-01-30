@@ -66,6 +66,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 
 @property (nonatomic) BOOL accpeted;
 
+- (void)setEmailUserId:(NSString *)emailUserId;
 - (void)setAccepted:(BOOL)inAccpeted;
 - (void)persistAsFrom;
 - (BOOL)compare:(OSSubscriptionState*)from;

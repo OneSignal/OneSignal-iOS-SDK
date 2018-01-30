@@ -128,6 +128,9 @@ static BOOL coldStartFromTapOnNotification = NO;
 
 static BOOL shouldDelaySubscriptionUpdate = false;
 
+static NSString *currentUserEmail;
+static NSString *authHashToken;
+
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
@@ -904,7 +907,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT updated pushToken!"];
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes])] onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:successBlock onFailure:failureBlock];
     
     [self fireIdsAvailableCallback];
 }
@@ -1490,6 +1493,79 @@ static NSString *_lastnonActiveMessageId;
     return [OneSignalNotificationServiceExtensionHandler
             serviceExtensionTimeWillExpireRequest:request
             withMutableNotificationContent:replacementContent];
+}
+
+#pragma mark Email
+
++ (void)updateEmailPlayerId:(NSString *)emailPlayerId {
+    if (!emailPlayerId)
+        return;
+    
+    [[NSUserDefaults standardUserDefaults] setObject:emailPlayerId forKey:@"GT_EMAIL_PLAYER_ID"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    if (![emailPlayerId isEqualToString:_currentSubscriptionState.emailUserId]) {
+        //if the ID has changed, call Edit Edvice
+        
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailPlayerId appId:self.app_id deviceToken:self.currentSubscriptionState.pushToken notificationTypes:@([self getNotificationTypes]) withParentId:self.currentSubscriptionState.emailUserId] onSuccess:nil onFailure:nil];
+    }
+}
+
++ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    if (![OneSignalHelper isValidEmail:email]) {
+        failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"description" : @"Email is invalid"}]);
+        return;
+    }
+    
+    let emailId = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"GT_EMAIL_PLAYER_ID"];
+    
+    if (emailId) {
+        [[OneSignalClient sharedClient] executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:self.currentSubscriptionState.pushToken notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:^(NSDictionary *result) {
+            successBlock();
+        } onFailure:^(NSError *error) {
+            failureBlock(error);
+        }];
+    } else {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:@11 withEmail:currentUserEmail withPlayerId:_currentSubscriptionState.userId withEmailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
+            let emailPlayerId = (NSString *)result[@"id"];
+            
+            if (emailPlayerId) {
+                [[NSUserDefaults standardUserDefaults] setObject:emailPlayerId forKey:@"GT_EMAIL_PLAYER_ID"];
+                [[NSUserDefaults standardUserDefaults] synchronize];
+                
+                successBlock();
+            } else {
+                [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
+            }
+        } onFailure:^(NSError *error) {
+            failureBlock(error);
+        }];
+    }
+}
+
++ (void)setUnauthenticatedEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    
+}
+
++ (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    if (!self.currentSubscriptionState.emailUserId) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Email Player ID does not exist, cannot logout"];
+        failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"description" : @"Attempted to log out of the user's email with OneSignal. The user does not currently have an email player ID and is not logged in, so it is not possible to log out of the email for this device"}]);
+        return;
+    }
+    
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withEmailPlayerId:self.currentSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"GT_EMAIL_PLAYER_ID"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        [self.currentSubscriptionState setEmailUserId:nil];
+        currentUserEmail = nil;
+        authHashToken = nil;
+        
+        successBlock();
+    } onFailure:^(NSError *error) {
+        failureBlock(error);
+    }];
 }
 @end
 
