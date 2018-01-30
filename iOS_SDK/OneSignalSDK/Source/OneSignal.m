@@ -1550,7 +1550,7 @@ static NSString *_lastnonActiveMessageId;
     if (![emailPlayerId isEqualToString:_currentSubscriptionState.emailUserId]) {
         //if the ID has changed, call Edit Edvice
         
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailPlayerId appId:self.app_id deviceToken:self.currentSubscriptionState.pushToken notificationTypes:@([self getNotificationTypes]) withParentId:self.currentSubscriptionState.emailUserId] onSuccess:nil onFailure:nil];
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailPlayerId appId:self.app_id deviceToken:currentUserEmail notificationTypes:@([self getNotificationTypes]) withParentId:self.currentSubscriptionState.emailUserId] onSuccess:nil onFailure:nil];
     }
 }
 
@@ -1567,7 +1567,7 @@ static NSString *_lastnonActiveMessageId;
     let emailId = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"GT_EMAIL_PLAYER_ID"];
     
     if (emailId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:self.currentSubscriptionState.pushToken notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:email notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:^(NSDictionary *result) {
             if (successBlock)
                 successBlock();
         } onFailure:^(NSError *error) {

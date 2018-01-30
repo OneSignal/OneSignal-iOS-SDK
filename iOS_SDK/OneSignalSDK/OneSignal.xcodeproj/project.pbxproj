@@ -136,6 +136,8 @@
 		CA63AF71201FF83500E340FB /* NSNull+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF6F201FF83500E340FB /* NSNull+OneSignal.m */; };
 		CA63AF72201FF83500E340FB /* NSNull+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF6F201FF83500E340FB /* NSNull+OneSignal.m */; };
 		CA63AF73201FF83500E340FB /* NSNull+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF6F201FF83500E340FB /* NSNull+OneSignal.m */; };
+		CA63AF8420211F7400E340FB /* EmailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8320211F7400E340FB /* EmailTests.m */; };
+		CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -260,6 +262,9 @@
 		CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientOverrider.m; sourceTree = "<group>"; };
 		CA63AF6E201FF83500E340FB /* NSNull+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNull+OneSignal.h"; sourceTree = "<group>"; };
 		CA63AF6F201FF83500E340FB /* NSNull+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNull+OneSignal.m"; sourceTree = "<group>"; };
+		CA63AF8320211F7400E340FB /* EmailTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmailTests.m; sourceTree = "<group>"; };
+		CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestCommonMethods.h; sourceTree = "<group>"; };
+		CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTestCommonMethods.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -383,6 +388,9 @@
 			children = (
 				4529DECD1FA81DE000CEAB1D /* Shadows */,
 				911E2CBC1E398AB3003112A4 /* UnitTests.m */,
+				CA63AF8320211F7400E340FB /* EmailTests.m */,
+				CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */,
+				CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */,
 				911E2CBE1E398AB3003112A4 /* Info.plist */,
 				91F60F7B1E80E49A00706E60 /* UncaughtExceptionHandler.h */,
 				91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */,
@@ -740,6 +748,7 @@
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
+				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
 				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
@@ -757,6 +766,7 @@
 				CA08FC7B1FE99B13004C445F /* OneSignalRequest.m in Sources */,
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
+				CA63AF8420211F7400E340FB /* EmailTests.m in Sources */,
 				91B6EA431E85D38F00B5CF01 /* OSObservable.m in Sources */,
 				4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */,
 				CA08FC871FE99BB4004C445F /* OneSignalClientOverrider.m in Sources */,

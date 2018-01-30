@@ -97,14 +97,16 @@
 
 @implementation OSRequestUpdateDeviceToken
 + (instancetype)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId {
+    NSLog(@"USER ID: %@, APP ID: %@, DEVICE TOKEN: %@, NOTIFICATION TYPES: %@, PARENT ID: %@", userId, appId, identifier, notificationTypes, parentId);
+    
     let request = [OSRequestUpdateDeviceToken new];
     
     request.parameters = @{
-                           @"app_id" : appId,
-                           @"identifier" : identifier,
-                           @"notification_types" : notificationTypes,
-                           @"parent_player_id" : [NSNull nullIfObjectIsNil:parentId]
-                           };
+       @"app_id" : appId,
+       @"identifier" : identifier,
+       @"notification_types" : notificationTypes,
+       @"parent_player_id" : [NSNull nullIfObjectIsNil:parentId]
+    };
     
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
@@ -120,7 +122,7 @@
     request.parameters = @{
                            @"app_id" : appId,
                            @"device_type" : deviceType,
-                           @"email" : [NSNull nullIfObjectIsNil:email],
+                           @"identifier" : [NSNull nullIfObjectIsNil:email],
                            @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
                            @"device_player_id" : [NSNull nullIfObjectIsNil:playerId]
                            };
@@ -135,10 +137,12 @@
 @implementation OSRequestLogoutEmail
 
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId emailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash {
+    
+    
     let request = [OSRequestLogoutEmail new];
     
     request.parameters = @{
-       @"device_player_id" : devicePlayerId,
+       @"device_player_id" : [NSNull nullIfObjectIsNil:devicePlayerId],
        @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
        @"app_id" : appId
     };
