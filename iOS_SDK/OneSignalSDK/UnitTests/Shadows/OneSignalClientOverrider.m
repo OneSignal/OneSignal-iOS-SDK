@@ -155,7 +155,6 @@ static NSString *lastHTTPRequestType;
 
 +(void)runBackgroundThreads {
     dispatch_sync(executionQueue, ^{});
-    dispatch_sync(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{});
 }
 
 @end
