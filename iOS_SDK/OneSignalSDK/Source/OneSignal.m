@@ -1087,8 +1087,6 @@ static dispatch_queue_t serialQueue;
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"GT_EMAIL_PLAYER_ID"])
         requests[@"email"] = [OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.emailUserId];
     
-    NSLog(@"EXECUTING REQUESTS: %@", requests);
-    
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         waitingForOneSReg = false;
         
@@ -1584,6 +1582,8 @@ static NSString *_lastnonActiveMessageId;
                 [[NSUserDefaults standardUserDefaults] setObject:emailPlayerId forKey:@"GT_EMAIL_PLAYER_ID"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 
+                self.currentSubscriptionState.emailUserId = emailPlayerId;
+                
                 if (successBlock)
                     successBlock();
             } else {
@@ -1607,7 +1607,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withEmailPlayerId:self.currentSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.app_id emailPlayerId:self.currentSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"GT_EMAIL_PLAYER_ID"];
         [[NSUserDefaults standardUserDefaults] synchronize];
         

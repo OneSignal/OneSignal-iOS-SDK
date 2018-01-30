@@ -1994,6 +1994,18 @@ didReceiveRemoteNotification:userInfo
     
     XCTAssertTrue([@"OSRequestUpdateDeviceToken" isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    
+    //test email logout
+    let expectation = [self expectationWithDescription:@"email_logout"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal logoutEmailWithSuccess:^{
+        [expectation fulfill];
+    } withFailure:^(NSError *error) {
+        XCTFail("Failed with error: %@", error);
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
 }
 
 - (void)testMultipleRequests {

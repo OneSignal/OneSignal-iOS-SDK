@@ -90,7 +90,7 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestLogoutEmail : OneSignalRequest
-+ (instancetype _Nonnull)withEmailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId emailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash;
 @end
 
 #endif /* Requests_h */

@@ -134,10 +134,15 @@
 
 @implementation OSRequestLogoutEmail
 
-+ (instancetype _Nonnull)withEmailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId emailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash {
     let request = [OSRequestLogoutEmail new];
     
-    request.parameters = @{@"device_player_id" : devicePlayerId, @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash]};
+    request.parameters = @{
+       @"device_player_id" : devicePlayerId,
+       @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
+       @"app_id" : appId
+    };
+    
     request.method = POST;
     request.path = [NSString stringWithFormat:@"%@/email_logout", emailPlayerId];
     
