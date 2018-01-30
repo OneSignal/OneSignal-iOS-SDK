@@ -278,6 +278,10 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     return self.currentSubscriptionState.userId;
 }
 
++ (NSString *)mEmailUserId {
+    return self.currentSubscriptionState.emailUserId;
+}
+
 + (void)setMSDKType:(NSString*)type {
     mSDKType = type;
 }
@@ -682,12 +686,31 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]] onSuccess:^(NSDictionary *result) {
+    NSMutableDictionary *requests = [NSMutableDictionary new];
+    
+    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]];
+    
+    if (self.currentSubscriptionState.emailUserId)
+        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]];
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
+        //the tags for email & push are identical so it doesn't matter what we return in the success block
+        
+        NSDictionary *resultTags = results[@"push"];
+        
+        if (!resultTags)
+            resultTags = results[@"email"];
+        
         if (nowProcessingCallbacks)
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
                 if (callbackSet.successBlock)
-                    callbackSet.successBlock(result);
-    } onFailure:^(NSError *error) {
+                    callbackSet.successBlock(resultTags);
+        
+    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+        NSError *error = errors[@"push"];
+        if (!error)
+            error = errors[@"email"];
+        
         if (nowProcessingCallbacks)
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
                 if (callbackSet.failureBlock)
@@ -1058,7 +1081,15 @@ static dispatch_queue_t serialQueue;
         [OneSignalLocation clearLastLocation];
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.userId] onSuccess:^(NSDictionary *result) {
+    let requests = [NSMutableDictionary new];
+    requests[@"push"] = [OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.userId];
+    
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"GT_EMAIL_PLAYER_ID"])
+        requests[@"email"] = [OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.emailUserId];
+    
+    NSLog(@"EXECUTING REQUESTS: %@", requests);
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         waitingForOneSReg = false;
         
         // Success, no more high priority
@@ -1066,10 +1097,19 @@ static dispatch_queue_t serialQueue;
         
         [self updateLastSessionDateTime];
         
-        if (result[@"id"]) {
-            self.currentSubscriptionState.userId = result[@"id"];
+        //update email player ID
+        if (results[@"email"] && results[@"email"][@"id"]) {
+            self.currentSubscriptionState.emailUserId = results[@"email"][@"id"];
+            [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.emailUserId forKey:@"GT_EMAIL_PLAYER_ID"];
+            //NSUserDefaults Synchronize: called after the next if-statement
+        }
+        
+        //update push player id
+        if (results.count > 0 && results[@"push"][@"id"]) {
+            self.currentSubscriptionState.userId = results[@"push"][@"id"];
+            
             [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.userId forKey:@"GT_PLAYER_ID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            //NSUserDefaults Synchronize: called after this if-statement
             
             if (self.currentSubscriptionState.pushToken)
                 [self updateDeviceToken:self.currentSubscriptionState.pushToken
@@ -1098,9 +1138,14 @@ static dispatch_queue_t serialQueue;
             }
             
         }
-    } onFailure:^(NSError *error) {
+        
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         waitingForOneSReg = false;
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error registering with OneSignal: %@", error]];
+        
+        for (NSString *key in @[@"push", @"email"])
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Encountered error during %@ registration with OneSignal: %@", key, errors[key]]];
         
         //If the failed registration is priority, force the next one to be a high priority
         nextRegistrationIsHighPriority = YES;
@@ -1513,17 +1558,23 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     if (![OneSignalHelper isValidEmail:email]) {
-        failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"description" : @"Email is invalid"}]);
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"description" : @"Email is invalid"}]);
         return;
     }
+    
+    currentUserEmail = email;
+    authHashToken = hashToken;
     
     let emailId = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:@"GT_EMAIL_PLAYER_ID"];
     
     if (emailId) {
-        [[OneSignalClient sharedClient] executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:self.currentSubscriptionState.pushToken notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:^(NSDictionary *result) {
-            successBlock();
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:self.currentSubscriptionState.pushToken notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:^(NSDictionary *result) {
+            if (successBlock)
+                successBlock();
         } onFailure:^(NSError *error) {
-            failureBlock(error);
+            if (failureBlock)
+                failureBlock(error);
         }];
     } else {
         [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:@11 withEmail:currentUserEmail withPlayerId:_currentSubscriptionState.userId withEmailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
@@ -1533,12 +1584,14 @@ static NSString *_lastnonActiveMessageId;
                 [[NSUserDefaults standardUserDefaults] setObject:emailPlayerId forKey:@"GT_EMAIL_PLAYER_ID"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 
-                successBlock();
+                if (successBlock)
+                    successBlock();
             } else {
                 [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
             }
         } onFailure:^(NSError *error) {
-            failureBlock(error);
+            if (failureBlock)
+                failureBlock(error);
         }];
     }
 }
@@ -1562,9 +1615,11 @@ static NSString *_lastnonActiveMessageId;
         currentUserEmail = nil;
         authHashToken = nil;
         
-        successBlock();
+        if (successBlock)
+            successBlock();
     } onFailure:^(NSError *error) {
-        failureBlock(error);
+        if (failureBlock)
+            failureBlock(error);
     }];
 }
 @end

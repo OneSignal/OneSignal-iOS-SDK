@@ -273,7 +273,7 @@
     
     // the httpQueue makes sure all HTTP request mocks are sync'ed
     
-    dispatch_queue_t registerUserQueue, notifSettingsQueue, httpQueue;
+    dispatch_queue_t registerUserQueue, notifSettingsQueue;
     for(int i = 0; i < 10; i++) {
         [OneSignalHelperOverrider runBackgroundThreads];
         
@@ -285,9 +285,7 @@
         if (registerUserQueue)
             dispatch_sync(registerUserQueue, ^{});
         
-        httpQueue = [OneSignalClientOverrider getHTTPQueue];
-        if (httpQueue)
-            dispatch_sync(httpQueue, ^{});
+        [OneSignalClientOverrider runBackgroundThreads];
         
         [UNUserNotificationCenterOverrider runBackgroundThreads];
         
@@ -323,7 +321,7 @@
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
   id userInfo = @{@"custom":
-                      @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"}
+                      @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"}
                   };
   
   return [self createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -348,9 +346,12 @@
     [self initOneSignal];
     [self runBackgroundThreads];
     
+    NSLog(@"CHECKING LAST HTTP REQUEST");
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
+    NSLog(@"RAN A FEW CONDITIONALS: %@", OneSignalClientOverrider.lastHTTPRequest);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
@@ -359,6 +360,8 @@
     XCTAssertTrue(status.permissionStatus.accepted);
     XCTAssertTrue(status.permissionStatus.hasPrompted);
     XCTAssertTrue(status.permissionStatus.answeredPrompt);
+    
+    NSLog(@"CURRENT USER ID: %@", status.subscriptionStatus);
     
     XCTAssertEqual(status.subscriptionStatus.subscribed, true);
     XCTAssertEqual(status.subscriptionStatus.userSubscriptionSetting, true);
@@ -371,6 +374,8 @@
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    
+    
 }
 
 - (void)testVersionStringLength {
@@ -1044,7 +1049,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1061,7 +1066,7 @@
 
 - (UNNotificationResponse*)createNotificationResponseForAnalyticsTests {
     id userInfo = @{@"custom":
-                        @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                           @"ti": @"1117f966-d8cc-11e4-bed1-df8f05be55bb",
                           @"tn": @"Template Name"
                           }
@@ -1085,7 +1090,7 @@
                   @"os_notification_opened": @{
                       @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
                       @"medium": @"notification",
-                      @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                       @"source": @"OneSignal"}
                   };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], event);
@@ -1109,7 +1114,7 @@
          @"os_notification_received": @{
               @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
               @"medium": @"notification",
-              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
               @"source": @"OneSignal"}
          };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
@@ -1127,7 +1132,7 @@
        @"os_notification_influence_open": @{
           @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
           @"medium": @"notification",
-          @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+          @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
           @"source": @"OneSignal"}
        };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
@@ -1186,7 +1191,7 @@
                     @"m": @"alert body only",
                     @"o": @[@{@"i": @"id1", @"n": @"text1"}],
                     @"custom": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
                             }
                     };
     
@@ -1201,7 +1206,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1234,7 +1239,7 @@
                             @"alert": @"Message Body"
                             },
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             }};
     
@@ -1249,7 +1254,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1338,7 +1343,7 @@
     [self runBackgroundThreads];
     
     id userInfo = @{@"custom": @{
-                      @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                       @"a": @{ @"foo": @"bar" }
                   }};
     
@@ -1397,7 +1402,7 @@
 - (void)testReceivedCallbackWithButtonsWithNewFormat {
     let newFormat = @{@"aps": @{@"content_available": @1},
                       @"os_data": @{
-                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                               @"buttons": @{
                                       @"m": @"alert body only",
                                       @"o": @[@{@"i": @"id1", @"n": @"text1"}]
@@ -1459,7 +1464,7 @@ didReceiveRemoteNotification:userInfo
                                     @"o": @[@{@"i": @"id1", @"n": @"text1"}]
                                     }
                             },
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
                     };
     
     [self fireDidReceiveRemoteNotification:userInfo];
@@ -1475,7 +1480,7 @@ didReceiveRemoteNotification:userInfo
                     @"m": @"alert body only",
                     @"o": @[@{@"i": @"id1", @"n": @"text1"}],
                     @"custom": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
                             }
                     };
     
@@ -1502,23 +1507,25 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], @"value2");
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
-    // More advanced test with callbacks.
-    __block BOOL didRunSuccess1, didRunSuccess2, didRunSuccess3;
+    let expectation = [self expectationWithDescription:@"wait_tags"];
+    expectation.expectedFulfillmentCount = 3;
     
     [OneSignal sendTag:@"key10" value:@"value10" onSuccess:^(NSDictionary *result) {
-        didRunSuccess1 = true;
+        [expectation fulfill];
     } onFailure:^(NSError *error) {}];
     [OneSignal sendTags:@{@"key11": @"value11", @"key12": @"value12"} onSuccess:^(NSDictionary *result) {
-        didRunSuccess2 = true;
+        [expectation fulfill];
     } onFailure:^(NSError *error) {}];
     
     [OneSignal sendTag:@"key13" value:@"value13" onSuccess:^(NSDictionary *result) {
-        didRunSuccess3 = true;
+        [expectation fulfill];
     } onFailure:^(NSError *error) {}];
     
     [self runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     [self runBackgroundThreads];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key10"], @"value10");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key11"], @"value11");
@@ -1526,9 +1533,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key13"], @"value13");
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     
-    XCTAssertEqual(didRunSuccess1, true);
-    XCTAssertEqual(didRunSuccess2, true);
-    XCTAssertEqual(didRunSuccess3, true);
 }
 
 - (void)testDeleteTags {
@@ -1778,7 +1782,7 @@ didReceiveRemoteNotification:userInfo
                              @"alert": @"Message Body"
                              },
                      @"os_data": @{
-                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                              @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                              @"att": @{ @"id": @"http://domain.com/file.jpg" }
                              }};
@@ -1809,7 +1813,7 @@ didReceiveRemoteNotification:userInfo
                             @"alert": @"Message Body"
                             },
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
                             }};
@@ -1834,7 +1838,7 @@ didReceiveRemoteNotification:userInfo
                             @"alert": @"Message Body"
                             },
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                             @"att": @{ @"id": @"file.jpg" }
                             }};
     
@@ -1854,7 +1858,7 @@ didReceiveRemoteNotification:userInfo
                         @"alert": @"Message Body"
                         },
                     @"os_data": @{
-                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                         @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
@@ -1871,9 +1875,9 @@ didReceiveRemoteNotification:userInfo
 }
 
 -(void)testBuildOSRequest {
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType]];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType]];
     
-    XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"]);
+    XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"]);
     XCTAssert([request.parameters[@"tags"][@"tag1"] isEqualToString:@"test1"]);
     XCTAssert([request.path isEqualToString:@"players/12345"]);
     
@@ -1891,7 +1895,7 @@ didReceiveRemoteNotification:userInfo
     
     let invalidJson = @{@{@"invalid1" : @"invalid2"} : @"test"}; //Keys are required to be strings, this would crash the app if not handled appropriately
     
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb" tags:invalidJson networkType:[OneSignalHelper getNetType]];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OneSignalHelper getNetType]];
     
     let urlRequest = request.request;
     
@@ -1952,8 +1956,61 @@ didReceiveRemoteNotification:userInfo
     [self runBackgroundThreads];
     
     XCTAssertTrue(observer->last.to.subscribed);
+}
+
+- (void)testEmailValidation {
+    XCTAssertFalse([OneSignalHelper isValidEmail:@"test@test"]);
     
+    XCTAssertTrue([OneSignalHelper isValidEmail:@"john.doe233@unlv.nevada.edu"]);
     
+    XCTAssertFalse([OneSignalHelper isValidEmail:@"testing123@22."]);
+}
+
+
+
+- (void)testSetEmail {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    [self runBackgroundThreads];
+    
+    [OneSignal setEmail:@"test@test.com" withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c" withSuccess:nil withFailure:nil];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertTrue([@"OSRequestCreateDevice" isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @11);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email"], @"test@test.com");
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], @"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c");
+    
+    [OneSignal setEmail:@"test@test.com" withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c" withSuccess:nil withFailure:nil];
+    
+    [self runBackgroundThreads];
+    
+    XCTAssertTrue([@"OSRequestUpdateDeviceToken" isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+}
+
+- (void)testMultipleRequests {
+    let first = [OSRequestGetTags withUserId:@"test1" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    let second = [OSRequestGetTags withUserId:@"test2" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    let expectation = [self expectationWithDescription:@"multiple_requests"];
+    
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:@{@"first" : first, @"second" : second} withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
+        [expectation fulfill];
+    } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
+        
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.5];
 }
 
 @end

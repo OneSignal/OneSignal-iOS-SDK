@@ -19,5 +19,7 @@
 +(NSString*)lastUrl;
 +(void)setShouldExecuteInstantaneously:(BOOL)instant;
 + (dispatch_queue_t)getHTTPQueue;
++(void)runBackgroundThreads;
++(NSString *)lastHTTPRequestType;
 @end
 

@@ -39,6 +39,7 @@
 + (BOOL)sendNotificationTypesUpdate;
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
++ (NSString *)mEmailUserId;
 
 @end
 
@@ -119,7 +120,14 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     // If resuming and badge was set, clear it on the server as well.
     if (wasBadgeSet && !toBackground) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0] onSuccess:nil onFailure:nil];
+        NSMutableDictionary *requests = [NSMutableDictionary new];
+        
+        requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0];
+        
+        if ([OneSignal mEmailUserId])
+            requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] badgeCount:@0];
+        
+        [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
         
         return;
     }
@@ -130,7 +138,14 @@ static BOOL lastOnFocusWasToBackground = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [OneSignalTracker beginBackgroundFocusTask];
             
-            [OneSignalClient.sharedClient executeSynchronousRequest:[OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
+            NSMutableDictionary *requests = [NSMutableDictionary new];
+            
+            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType]];
+            
+            if ([OneSignal mEmailUserId])
+                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType]];
+            
+            [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
             
             [OneSignalTracker endBackgroundFocusTask];
         });

@@ -51,6 +51,45 @@
     return self;
 }
 
+- (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
+    
+    if (requests.allKeys.count == 0)
+        return;
+    
+    //execute on a background thread or the semaphore will block the caller thread
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        
+        __block NSMutableDictionary<NSString *, NSError *> *errors = [NSMutableDictionary new];
+        __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
+        
+        for (NSString *identifier in requests.allKeys) {
+            let request = requests[identifier];
+            
+            [self executeRequest:request onSuccess:^(NSDictionary *result) {
+                results[identifier] = result;
+                dispatch_semaphore_signal(semaphore);
+            } onFailure:^(NSError *error) {
+                errors[identifier] = error;
+                dispatch_semaphore_signal(semaphore);
+            }];
+        }
+        
+        for (int i = 0; i < requests.count; i++) {
+            dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 15 * NSEC_PER_SEC));
+        }
+        
+        //requests should all be completed at this point
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (errors.allKeys.count > 0 && failureBlock) {
+                failureBlock(errors);
+            } else if (errors.allKeys.count == 0 && successBlock) {
+                successBlock(results);
+            }
+        });
+    });
+}
+
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     if (![self validRequest:request]) {
         [self handleMissingAppIdError:failureBlock withRequest:request];
