@@ -29,9 +29,9 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "ReattemptRequest.h"
 
-#define REATTEMPT_DELAY 15.0
-#define REQUEST_TIMEOUT_REQUEST 6.0
-#define REQUEST_TIMEOUT_RESOURCE 10.0
+#define REATTEMPT_DELAY 30.0
+#define REQUEST_TIMEOUT_REQUEST 60.0 //for most HTTP requests
+#define REQUEST_TIMEOUT_RESOURCE 100.0 //for loading a resource like an image
 
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
