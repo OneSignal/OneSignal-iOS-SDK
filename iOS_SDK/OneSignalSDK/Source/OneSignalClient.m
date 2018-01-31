@@ -27,6 +27,11 @@
 
 #import "OneSignalClient.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "ReattemptRequest.h"
+
+#define REATTEMPT_DELAY 15.0
+#define REQUEST_TIMEOUT_REQUEST 6.0
+#define REQUEST_TIMEOUT_RESOURCE 10.0
 
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
@@ -45,7 +50,11 @@
 
 -(instancetype)init {
     if (self = [super init]) {
-        _sharedSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        let configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST;
+        configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE;
+        
+        _sharedSession = [NSURLSession sessionWithConfiguration:configuration];
     }
     
     return self;
@@ -76,7 +85,7 @@
         }
         
         for (int i = 0; i < requests.count; i++) {
-            dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 15 * NSEC_PER_SEC));
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         }
         
         //requests should all be completed at this point
@@ -97,12 +106,14 @@
     }
     
     let task = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        [OneSignalClient handleJSONNSURLResponse:response data:data error:error onSuccess:successBlock onFailure:failureBlock];
+        [self handleJSONNSURLResponse:response data:data error:error isAsync:true withRequest:request onSuccess:successBlock onFailure:failureBlock];
     }];
     
     [task resume];
 }
 
+// while this method still uses completion blocks like the asynchronous method,
+// it pauses execution of the thread until the request is finished
 - (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     if (![self validRequest:request]) {
         [self handleMissingAppIdError:failureBlock withRequest:request];
@@ -123,9 +134,9 @@
     
     [dataTask resume];
     
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, REQUEST_TIMEOUT_RESOURCE * NSEC_PER_SEC));
     
-    [OneSignalClient handleJSONNSURLResponse:httpResponse data:nil error:httpError onSuccess:successBlock onFailure:failureBlock];
+    [self handleJSONNSURLResponse:httpResponse data:nil error:httpError isAsync:false withRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
 - (void)handleMissingAppIdError:(OSFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {
@@ -146,8 +157,23 @@
     return true;
 }
 
+// reattempts a failed HTTP request
+// only occurs if the request encountered a 500+ server error (or timeout) code.
+// only asynchronous HTTP requests will get reattempted with a delay
+// synchronous requests (ie. image downloads) will be reattempted immediately
+- (void)reattemptRequest:(ReattemptRequest *)reattempt {
+    if (!reattempt) {
+        return;
+    }
+    
+    //very important to set this flag otherwise the request will continue to reattempt infinitely until it stops getting a 500+ error code.
+    //we want requests to only retry one time after a delay.
+    reattempt.request.reattempted = true;
+    
+    [self executeRequest:reattempt.request onSuccess:reattempt.successBlock onFailure:reattempt.failureBlock];
+}
 
-+ (void)handleJSONNSURLResponse:(NSURLResponse*) response data:(NSData*) data error:(NSError*) error onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+- (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
     NSInteger statusCode = [HTTPResponse statusCode];
@@ -162,6 +188,23 @@
                 failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
             return;
         }
+    }
+    
+    // in the event that there is no network connection, NSURLSession will return status code 0
+    if ((statusCode >= 500 || statusCode == 0) && !request.reattempted) {
+        let reattempt = [ReattemptRequest withRequest:request successBlock:successBlock failureBlock:failureBlock];
+        
+        if (async) {
+            //retry again in 15 seconds
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %i seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), (int)REATTEMPT_DELAY, (int)statusCode]];
+            
+            [OneSignalHelper performSelector:@selector(reattemptRequest:) onMainThreadOnObject:self withObject:reattempt afterDelay:REATTEMPT_DELAY];
+        } else {
+            //retry again immediately
+            [self reattemptRequest: reattempt];
+        }
+        
+        return;
     }
     
     if (error == nil && statusCode == 200) {

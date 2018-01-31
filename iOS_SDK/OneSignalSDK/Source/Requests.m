@@ -97,7 +97,6 @@
 
 @implementation OSRequestUpdateDeviceToken
 + (instancetype)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId {
-    NSLog(@"USER ID: %@, APP ID: %@, DEVICE TOKEN: %@, NOTIFICATION TYPES: %@, PARENT ID: %@", userId, appId, identifier, notificationTypes, parentId);
     
     let request = [OSRequestUpdateDeviceToken new];
     
