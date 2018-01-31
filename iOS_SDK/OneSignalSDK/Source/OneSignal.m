@@ -1039,9 +1039,14 @@ static dispatch_queue_t serialQueue;
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
     
+    NSArray* nowProcessingCallbacks;
+    
     if (tagsToSend) {
         dataDic[@"tags"] = tagsToSend;
         tagsToSend = nil;
+        
+        nowProcessingCallbacks = pendingSendTagCallbacks;
+        pendingSendTagCallbacks = nil;
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
@@ -1067,6 +1072,12 @@ static dispatch_queue_t serialQueue;
             self.currentSubscriptionState.userId = result[@"id"];
             [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.userId forKey:@"GT_PLAYER_ID"];
             [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            if (nowProcessingCallbacks) {
+                for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
+                    callbackSet.successBlock(dataDic[@"tags"]);
+                }
+            }
             
             if (self.currentSubscriptionState.pushToken)
                 [self updateDeviceToken:self.currentSubscriptionState.pushToken
@@ -1101,6 +1112,12 @@ static dispatch_queue_t serialQueue;
         
         //If the failed registration is priority, force the next one to be a high priority
         nextRegistrationIsHighPriority = YES;
+        
+        if (nowProcessingCallbacks) {
+            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
+                callbackSet.failureBlock(error);
+            }
+        }
     }];
 }
 
