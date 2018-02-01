@@ -36,7 +36,7 @@
 @implementation OneSignalRequest
 - (id)init {
     if (self = [super init]) {
-        self.reattempted = false;
+        self.reattemptCount = 0;
     }
     
     return self;

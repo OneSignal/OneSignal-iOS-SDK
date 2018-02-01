@@ -32,6 +32,7 @@
 #define REATTEMPT_DELAY 30.0
 #define REQUEST_TIMEOUT_REQUEST 60.0 //for most HTTP requests
 #define REQUEST_TIMEOUT_RESOURCE 100.0 //for loading a resource like an image
+#define MAX_ATTEMPT_COUNT 3
 
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
@@ -166,9 +167,9 @@
         return;
     }
     
-    //very important to set this flag otherwise the request will continue to reattempt infinitely until it stops getting a 500+ error code.
+    //very important to increment this variable otherwise the request will continue to reattempt infinitely until it stops getting a 500+ error code.
     //we want requests to only retry one time after a delay.
-    reattempt.request.reattempted = true;
+    reattempt.request.reattemptCount++;
     
     [self executeRequest:reattempt.request onSuccess:reattempt.successBlock onFailure:reattempt.failureBlock];
 }
@@ -191,7 +192,7 @@
     }
     
     // in the event that there is no network connection, NSURLSession will return status code 0
-    if ((statusCode >= 500 || statusCode == 0) && !request.reattempted) {
+    if ((statusCode >= 500 || statusCode == 0) && request.reattemptCount < MAX_ATTEMPT_COUNT - 1) {
         let reattempt = [ReattemptRequest withRequest:request successBlock:successBlock failureBlock:failureBlock];
         
         if (async) {
