@@ -142,6 +142,9 @@
 		CA63AFC32022670A00E340FB /* ReattemptRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AFC12022670A00E340FB /* ReattemptRequest.m */; };
 		CA63AFC42022670A00E340FB /* ReattemptRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AFC12022670A00E340FB /* ReattemptRequest.m */; };
 		CA63AFC52022670A00E340FB /* ReattemptRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AFC12022670A00E340FB /* ReattemptRequest.m */; };
+		CA70E3352023D51000019273 /* OneSignalSetEmailParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */; };
+		CA70E3362023D51300019273 /* OneSignalSetEmailParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */; };
+		CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -271,6 +274,9 @@
 		CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTestCommonMethods.m; sourceTree = "<group>"; };
 		CA63AFC02022670A00E340FB /* ReattemptRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReattemptRequest.h; sourceTree = "<group>"; };
 		CA63AFC12022670A00E340FB /* ReattemptRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReattemptRequest.m; sourceTree = "<group>"; };
+		CA70E3332023D51000019273 /* OneSignalSetEmailParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalSetEmailParameters.h; sourceTree = "<group>"; };
+		CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalSetEmailParameters.m; sourceTree = "<group>"; };
+		CA70E3382023F24500019273 /* OneSignalCommonDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCommonDefines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -416,9 +422,12 @@
 				91F58D7B1E7C7EE30017D24D /* NotificationSettings */,
 				912412461E73349500E41FD7 /* Categories */,
 				912412451E73346700E41FD7 /* UI */,
+				CA70E3382023F24500019273 /* OneSignalCommonDefines.h */,
 				91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */,
 				912411F01E73342200E41FD7 /* OneSignal.h */,
 				912411F11E73342200E41FD7 /* OneSignal.m */,
+				CA70E3332023D51000019273 /* OneSignalSetEmailParameters.h */,
+				CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */,
 				912411F41E73342200E41FD7 /* OneSignalHelper.h */,
 				912411F51E73342200E41FD7 /* OneSignalHelper.m */,
 				912411F81E73342200E41FD7 /* OneSignalJailbreakDetection.h */,
@@ -701,6 +710,7 @@
 				912412261E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				454F94F21FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
 				912412321E73342200E41FD7 /* OneSignalTracker.m in Sources */,
+				CA70E3352023D51000019273 /* OneSignalSetEmailParameters.m in Sources */,
 				91B6EA411E85D38F00B5CF01 /* OSObservable.m in Sources */,
 				4529DF0C1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				91F58D891E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
@@ -736,6 +746,7 @@
 				9124123B1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				9124123F1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				0338566C1FBBDB150002F7C1 /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
+				CA70E3362023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				912412271E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				91B6EA421E85D38F00B5CF01 /* OSObservable.m in Sources */,
@@ -760,6 +771,7 @@
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
+				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
 				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,

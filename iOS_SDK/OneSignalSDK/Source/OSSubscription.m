@@ -26,6 +26,7 @@
  */
 
 #import "OSSubscription.h"
+#import "OneSignalCommonDefines.h"
 
 
 #pragma clang diagnostic push
@@ -43,15 +44,19 @@
     _accpeted = permission;
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    _userId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
-    _pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"];
-    _userSubscriptionSetting = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
+    _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
+    _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
+    _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
+    _userId = [userDefaults stringForKey:USERID];
+    _pushToken = [userDefaults stringForKey:DEVICE_TOKEN];
+    _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION] == nil;
     
     return self;
 }
 
 - (BOOL)compare:(OSSubscriptionState*)from {
     return ![self.userId ?: @"" isEqualToString:from.userId ?: @""] ||
+    ![self.emailUserId ?: @"" isEqualToString:from.emailUserId ?: @""] ||
            ![self.pushToken ?: @"" isEqualToString:from.pushToken ?: @""] ||
            self.userSubscriptionSetting != from.userSubscriptionSetting ||
            self.accpeted != from.accpeted;
@@ -60,10 +65,13 @@
 - (instancetype)initAsFrom {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
-    _userId = [userDefaults stringForKey:@"GT_PLAYER_ID_LAST"];
-    _pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN_LAST"];
-    _userSubscriptionSetting = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION_LAST"] == nil;
-    _accpeted = [userDefaults boolForKey:@"ONESIGNAL_PERMISSION_ACCEPTED_LAST"];
+    _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
+    _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
+    _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
+    _userId = [userDefaults stringForKey:USERID_LAST];
+    _pushToken = [userDefaults stringForKey:PUSH_TOKEN];
+    _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION_SETTING] == nil;
+    _accpeted = [userDefaults boolForKey:ACCEPTED_PERMISSION];
     
     return self;
 }
@@ -74,11 +82,14 @@
     NSString* strUserSubscriptionSetting = nil;
     if (!_userSubscriptionSetting)
         strUserSubscriptionSetting = @"no";
-    [userDefaults setObject:strUserSubscriptionSetting forKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
     
-    [userDefaults setObject:_userId forKey:@"GT_PLAYER_ID_LAST"];
-    [userDefaults setObject:_pushToken forKey:@"GT_DEVICE_TOKEN_LAST"];
-    [userDefaults setBool:_accpeted forKey:@"ONESIGNAL_PERMISSION_ACCEPTED_LAST"];
+    [userDefaults setObject:[NSNumber numberWithBool:_requiresEmailAuth] forKey:REQUIRE_EMAIL_AUTH];
+    [userDefaults setObject:_emailAuthCode forKey:EMAIL_AUTH_CODE];
+    [userDefaults setObject:strUserSubscriptionSetting forKey:SUBSCRIPTION_SETTING];
+    [userDefaults setObject:_emailUserId forKey:EMAIL_USERID];
+    [userDefaults setObject:_userId forKey:USERID_LAST];
+    [userDefaults setObject:_pushToken forKey:PUSH_TOKEN];
+    [userDefaults setBool:_accpeted forKey:ACCEPTED_PERMISSION];
     
     [userDefaults synchronize];
 }
@@ -87,6 +98,9 @@
     OSSubscriptionState* copy = [[[self class] alloc] init];
     
     if (copy) {
+        copy->_requiresEmailAuth = _requiresEmailAuth;
+        copy->_emailAuthCode = [_emailAuthCode copy];
+        copy->_emailUserId = [_emailUserId copy];
         copy->_userId = [_userId copy];
         copy->_pushToken = [_pushToken copy];
         copy->_userSubscriptionSetting = _userSubscriptionSetting;
@@ -112,7 +126,7 @@
     BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
     _pushToken = pushToken;
     if (changed) {
-        [[NSUserDefaults standardUserDefaults] setObject:_pushToken forKey:@"GT_DEVICE_TOKEN"];
+        [[NSUserDefaults standardUserDefaults] setObject:_pushToken forKey:DEVICE_TOKEN];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
         if (self.observable)

@@ -37,6 +37,8 @@
 
 #import "NSNull+OneSignal.h"
 
+// Helper method to make sure nil is never inserted into a dictionary when building HTTP requests
+
 @implementation NSNull (OneSignal)
 
 + (id)nullIfObjectIsNil:(id)object {

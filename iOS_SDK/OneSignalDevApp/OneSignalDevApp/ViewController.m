@@ -33,6 +33,7 @@
 #import <OneSignal/OneSignal.h>
 
 @interface ViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *textField;
 
 @end
 
@@ -70,6 +71,17 @@
     }];
     
 }
+
+- (IBAction)setEmailButtonPressed:(UIButton *)sender
+{
+    [OneSignal setEmail:self.textField.text withEmailAuthHashToken:@"aa3e3201f8f8bfd2fcbe8a899c161b7acb5a86545196c5465bef47fd757ca356" withSuccess:^{
+        NSLog(@"Successfully sent email");
+    } withFailure:^(NSError *error) {
+        NSLog(@"Encountered error: %@", error);
+    }];
+}
+
+
 
 - (void)promptForNotificationsWithNativeiOS10Code {
     id responseBlock = ^(BOOL granted, NSError* error) {

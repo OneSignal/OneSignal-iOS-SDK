@@ -62,7 +62,6 @@
 }
 
 - (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
-    
     if (requests.allKeys.count == 0)
         return;
     
@@ -174,23 +173,7 @@
     [self executeRequest:reattempt.request onSuccess:reattempt.successBlock onFailure:reattempt.failureBlock];
 }
 
-- (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
-    NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
-    NSInteger statusCode = [HTTPResponse statusCode];
-    NSError* jsonError = nil;
-    NSMutableDictionary* innerJson;
-    
-    if (data != nil && [data length] > 0) {
-        innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response: %@", innerJson]];
-        if (jsonError) {
-            if (failureBlock != nil)
-                failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
-            return;
-        }
-    }
-    
+- (BOOL)willReattemptRequest:(int)statusCode withRequest:(OneSignalRequest *)request success:(OSResultSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock asyncRequest:(BOOL)async {
     // in the event that there is no network connection, NSURLSession will return status code 0
     if ((statusCode >= 500 || statusCode == 0) && request.reattemptCount < MAX_ATTEMPT_COUNT - 1) {
         let reattempt = [ReattemptRequest withRequest:request successBlock:successBlock failureBlock:failureBlock];
@@ -205,8 +188,31 @@
             [self reattemptRequest: reattempt];
         }
         
-        return;
+        return true;
     }
+    
+    return false;
+}
+
+- (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    NSHTTPURLResponse* HTTPResponse = (NSHTTPURLResponse*)response;
+    NSInteger statusCode = [HTTPResponse statusCode];
+    NSError* jsonError = nil;
+    NSMutableDictionary* innerJson;
+    
+    if (data != nil && [data length] > 0) {
+        innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@): %@", NSStringFromClass([request class]), innerJson]];
+        if (jsonError) {
+            if (failureBlock != nil)
+                failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
+            return;
+        }
+    }
+    
+    if ([self willReattemptRequest:(int)statusCode withRequest:request success:successBlock failure:failureBlock asyncRequest:async])
+        return;
     
     if (error == nil && statusCode == 200) {
         if (successBlock != nil) {
