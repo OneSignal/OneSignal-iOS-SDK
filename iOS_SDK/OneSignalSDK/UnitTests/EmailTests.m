@@ -14,8 +14,13 @@
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"
 #import "OSSubscription.h"
-
-
+#import "UIApplicationOverrider.h"
+#import "NSObjectOverrider.h"
+#import "OneSignalHelperOverrider.h"
+#import "UNUserNotificationCenterOverrider.h"
+#import "UNUserNotificationCenter+OneSignal.h"
+#import "NSBundleOverrider.h"
+#import "NSUserDefaultsOverrider.h"
 
 @interface EmailTests : XCTestCase
 
@@ -26,6 +31,21 @@
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+    
+    [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
+    
+    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+    
+    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
+    
+    [NSUserDefaultsOverrider clearInternalDictionary];
+    
+    [UnitTestCommonMethods clearStateForAppRestart];
+    
+    [UnitTestCommonMethods beforeAllTest];
 }
 
 - (void)tearDown {
@@ -42,6 +62,8 @@
 }
 
 - (void)testSetEmail {
+    
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -49,12 +71,17 @@
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
     
+    // Triggers the 30 fallback to register device right away.
     [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqualObjects(observer->last.to.userId, @"1234");
     
     [OneSignal setEmail:@"test@test.com" withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c" withSuccess:nil withFailure:nil];
     
     [UnitTestCommonMethods runBackgroundThreads];
-    NSLog(@"EMAIL AFTER IS: %@", OneSignalClientOverrider.lastHTTPRequest[@"email"]);
+    NSLog(@"EMAIL AFTER IS: %@", OneSignalClientOverrider.lastHTTPRequestType);
     XCTAssertTrue([@"OSRequestCreateDevice" isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @11);
@@ -76,6 +103,7 @@
         [expectation fulfill];
     } withFailure:^(NSError *error) {
         XCTFail("Failed with error: %@", error);
+        [expectation fulfill];
     }];
     
     [self waitForExpectations:@[expectation] timeout:0.1];

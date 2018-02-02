@@ -11,7 +11,12 @@
 
 @interface UnitTestCommonMethods : NSObject
 
++ (void)setCurrentNotificationPermissionAsUnanswered;
++ (void)resumeApp;
++ (void)initOneSignal;
 + (void)runBackgroundThreads;
++ (void)beforeAllTest;
++ (void)clearStateForAppRestart;
 
 @end
 

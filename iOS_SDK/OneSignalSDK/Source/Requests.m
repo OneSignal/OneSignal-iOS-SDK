@@ -127,7 +127,7 @@
                            };
     
     request.method = POST;
-    request.path = @"/players";
+    request.path = @"players";
     
     return request;
 }

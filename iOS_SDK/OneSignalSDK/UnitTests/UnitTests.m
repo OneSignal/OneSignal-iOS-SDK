@@ -85,53 +85,6 @@
 
 @implementation UnitTests
 
-- (void)beforeAllTest {
-    static var setupUIApplicationDelegate = false;
-    if (setupUIApplicationDelegate)
-        return;
-    
-    // Normally this just loops internally, overwrote _run to work around this.
-    UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
-    
-    setupUIApplicationDelegate = true;
-    
-    // InstallUncaughtExceptionHandler();
-    
-    // Force swizzle in all methods for tests.
-    OneSignalHelperOverrider.mockIOSVersion = 8;
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
-    OneSignalHelperOverrider.mockIOSVersion = 10;
-}
-
-- (void)clearStateForAppRestart {
-    NSLog(@"=======  APP RESTART ======\n\n");
-    
-    NSDateOverrider.timeOffset = 0;
-    [OneSignalClientOverrider reset:self];
-    [UNUserNotificationCenterOverrider reset:self];
-    [UIApplicationOverrider reset];
-    [OneSignalTrackFirebaseAnalyticsOverrider reset];
-    
-    NSLocaleOverrider.preferredLanguagesArray = @[@"en-US"];
-
-    [OneSignalHelper performSelector:NSSelectorFromString(@"resetLocals")];
-    
-    [OneSignal setValue:nil forKeyPath:@"lastAppActiveMessageId"];
-    [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
-    [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
-    
-    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
-    
-    [NSObjectOverrider reset];
-    
-    [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
-    
-    [UIAlertViewOverrider reset];
-    
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
-}
-
 // Called before each test.
 - (void)setUp {
     [super setUp];
@@ -147,9 +100,9 @@
     
     [NSUserDefaultsOverrider clearInternalDictionary];
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
 
-    [self beforeAllTest];
+    [UnitTestCommonMethods beforeAllTest];
     
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
@@ -166,11 +119,6 @@
 
 - (void)backgroundModesDisabledInXcode {
     NSBundleOverrider.nsbundleDictionary = @{};
-}
-
-- (void)setCurrentNotificationPermissionAsUnanswered {
-    UNUserNotificationCenterOverrider.notifTypesOverride = 0;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
 }
 
 - (void)setCurrentNotificationPermission:(BOOL)accepted {
@@ -202,7 +150,7 @@
     if (triggerDidRegisterForRemoteNotfications)
         [self setCurrentNotificationPermission:false];
     
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [self setCurrentNotificationPermission:accept];
     
     if (triggerDidRegisterForRemoteNotfications && NSBundleOverrider.nsbundleDictionary[@"UIBackgroundModes"])
@@ -223,12 +171,6 @@
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationWillResignActive:sharedApp];
-}
-
-- (void)resumeApp {
-    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationDidBecomeActive:sharedApp];
 }
 
 - (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
@@ -261,23 +203,16 @@
   return [self createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
-// Helper used to simpify tests below.
-- (void)initOneSignal {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    
-    // iOS fires the resume event when app is cold started.
-    [self resumeApp];
-}
 
 -(void)initOneSignalAndThreadWait {
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
 }
 
 - (void)testBasicInitTest {
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
@@ -373,7 +308,7 @@
 }
 
 - (void)testInitOnSimulator {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     UIApplicationOverrider.didFailRegistarationErrorCode = 3010;
     
@@ -406,7 +341,7 @@
     
     XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
 
     // Test old very old kOSSettingsKeyInAppAlerts
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
@@ -430,7 +365,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
     
     [OneSignal sendTag:@"key" value:@"value"];
     [OneSignal setSubscription:true];
@@ -456,7 +391,7 @@
 }
 - (void)sharedTestPermissionChangeObserver {
     
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -508,7 +443,7 @@
     [OneSignal addPermissionObserver:observer];
     
     // User kills app, turns off notifications, then opnes it agian.
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
     [self setCurrentNotificationPermission:false];
     [self initOneSignalAndThreadWait];
     
@@ -535,7 +470,7 @@
     [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
 }
 - (void)sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -550,7 +485,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Restart App
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -568,7 +503,7 @@
 
 
 - (void)testPermissionChangeObserverDontLoseFromChanges {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -608,7 +543,7 @@
     
     
     // User kills app, turns off notifications, then opnes it agian.
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
     [self setCurrentNotificationPermission:false];
     [self initOneSignalAndThreadWait];
     
@@ -623,7 +558,7 @@
 
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -655,7 +590,7 @@
 - (void)testTestPermissionChangeObserverWithNativeiOS10PromptCall {
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
     
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -678,7 +613,7 @@
 }
 
 - (void)testPermissionChangeObserverWithDecline {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -706,7 +641,7 @@
 
 
 - (void)testPermissionAndSubscriptionChangeObserverRemove {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -729,7 +664,7 @@
 }
 
 - (void)testSubscriptionChangeObserverBasic {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -755,7 +690,7 @@
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -802,9 +737,9 @@
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];
     UIApplicationOverrider.didFailRegistarationErrorCode = 3000;
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     [self answerNotifiationPrompt:true];
@@ -816,9 +751,9 @@
 
 
 - (void)testPromptForPushNotificationsWithUserResponse {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -831,10 +766,10 @@
 }
 
 - (void)testPromptForPushNotificationsWithUserResponseOnIOS8 {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 8;
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -847,10 +782,10 @@
 }
 
 - (void)testPromptForPushNotificationsWithUserResponseOnIOS7 {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -864,7 +799,7 @@
 
 
 - (void)testPromptedButNeveranswerNotificationPrompt {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignalAndThreadWait];
     
@@ -895,7 +830,7 @@
 
 
 - (void)testNeverPromptedStatus {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [OneSignal initWithLaunchOptions:nil
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
@@ -912,10 +847,10 @@
 }
 
 - (void)testNotAcceptingNotificationsWithoutBackgroundModes {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     // Don't make a network call right away.
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
@@ -930,7 +865,7 @@
 }
 
 - (void)testIdsAvailableNotAcceptingNotifications {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -1056,7 +991,7 @@
     // Trigger a new app session
     [self backgroundApp];
     NSDateOverrider.timeOffset = 41;
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Since we opened the app under 2 mintues after receiving a notification
@@ -1091,7 +1026,7 @@
 - (void)testNotificationOpenOn2ndColdStartWithoutAppId {
     [self initOneSignalAndThreadWait];
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
     
     __block BOOL openedWasFire = false;
     [OneSignal initWithLaunchOptions:nil appId:nil handleNotificationAction:^(OSNotificationOpenedResult *result) {
@@ -1217,7 +1152,7 @@
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
     
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -1532,7 +1467,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testGetTagsWithNestedDelete {
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL fireDeleteTags = false;
     
@@ -1560,7 +1495,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testSendTagsBeforeRegisterComplete {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignalAndThreadWait];
     
@@ -1613,7 +1548,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testPermissionChangedInSettingsOutsideOfApp {
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart];
     
     [self backgroundModesDisabledInXcode];
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
@@ -1630,7 +1565,7 @@ didReceiveRemoteNotification:userInfo
     
     [self backgroundApp];
     [self setCurrentNotificationPermission:true];
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
@@ -1647,14 +1582,14 @@ didReceiveRemoteNotification:userInfo
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
     NSDateOverrider.timeOffset = 10;
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     // Anything over 30 secounds should count as a session.
     [self backgroundApp];
     NSDateOverrider.timeOffset = 41;
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
@@ -1854,7 +1789,7 @@ didReceiveRemoteNotification:userInfo
  */
 
 -(void)testDelayedSubscriptionUpdate {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
