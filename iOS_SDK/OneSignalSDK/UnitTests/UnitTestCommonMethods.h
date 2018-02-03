@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 #import "OneSignal.h"
 
 @interface UnitTestCommonMethods : NSObject
@@ -16,7 +17,7 @@
 + (void)initOneSignal;
 + (void)runBackgroundThreads;
 + (void)beforeAllTest;
-+ (void)clearStateForAppRestart;
++ (void)clearStateForAppRestart:(XCTestCase *)testCase;
 
 @end
 

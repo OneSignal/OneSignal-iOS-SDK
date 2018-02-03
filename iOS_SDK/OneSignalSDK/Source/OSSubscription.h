@@ -64,6 +64,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 // Redefine OSSubscriptionState
 @interface OSSubscriptionState () <OSPermissionStateObserver>
 
+@property (strong, nonatomic) NSString *emailAddress;
 @property (strong, nonatomic) NSString *emailAuthCode;
 @property (nonatomic) BOOL requiresEmailAuth;
 @property (nonatomic) BOOL accpeted;

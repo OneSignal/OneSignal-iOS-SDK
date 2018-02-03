@@ -152,7 +152,7 @@
         return false;
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.request.URL.absoluteString, request.parameters]];
+    [self prettyPrintDebugStatementWithRequest:request];
     
     return true;
 }
@@ -192,6 +192,17 @@
     }
     
     return false;
+}
+
+- (void)prettyPrintDebugStatementWithRequest:(OneSignalRequest *)request {
+    if (![NSJSONSerialization isValidJSONObject:request.parameters])
+        return;
+    
+    NSError *error;
+    let data = [NSJSONSerialization dataWithJSONObject:request.parameters options:NSJSONWritingPrettyPrinted error:&error];
+    let jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.request.URL.absoluteString, jsonString]];
 }
 
 - (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {

@@ -42,10 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId;
 @end
 
-@interface OSRequestSendTagsToServer : OneSignalRequest
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId tags:(NSDictionary *)tags networkType:(NSNumber *)netType;
-@end
-
 @interface OSRequestPostNotification : OneSignalRequest
 + (instancetype)withAppId:(NSString *)appId withJson:(NSMutableDictionary *)json;
 @end
@@ -66,19 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId email:(NSString *)email networkType:(NSNumber *)netType;
 @end
 
-@interface OSRequestSendLocation : OneSignalRequest
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId location:(os_last_location *)coordinate networkType:(NSNumber *)netType backgroundState:(BOOL)backgroundState;
-@end
-
-@interface OSRequestOnFocus : OneSignalRequest
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId badgeCount:(NSNumber *)badgeCount;
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId state:(NSString *)state type:(NSNumber *)type activeTime:(NSNumber *)activeTime netType:(NSNumber *)netType;
-@end
-
 NS_ASSUME_NONNULL_END
 
 @interface OSRequestUpdateDeviceToken : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId;
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash;
 @end
 
 @interface OSRequestRegisterUser : OneSignalRequest
@@ -91,6 +78,19 @@ NS_ASSUME_NONNULL_END
 
 @interface OSRequestLogoutEmail : OneSignalRequest
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId emailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash;
+@end
+
+@interface OSRequestSendTagsToServer : OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken;
+@end
+
+@interface OSRequestSendLocation : OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash;
+@end
+
+@interface OSRequestOnFocus : OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId badgeCount:(NSNumber * _Nonnull)badgeCount emailAuthToken:(NSString * _Nullable)emailAuthHash;
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId state:(NSString * _Nonnull)state type:(NSNumber * _Nonnull)type activeTime:(NSNumber * _Nonnull)activeTime netType:(NSNumber * _Nonnull)netType emailAuthToken:(NSString * _Nullable)emailAuthHash;
 @end
 
 #endif /* Requests_h */

@@ -61,12 +61,13 @@
     NSLog(@"END runBackgroundThreads");
 }
 
-+ (void)clearStateForAppRestart {
++ (void)clearStateForAppRestart:(XCTestCase *)testCase {
     NSLog(@"=======  APP RESTART ======\n\n");
     
     NSDateOverrider.timeOffset = 0;
-    [OneSignalClientOverrider reset:self];
-    [UNUserNotificationCenterOverrider reset:self];
+    
+    [OneSignalClientOverrider reset:testCase];
+    [UNUserNotificationCenterOverrider reset:testCase];
     [UIApplicationOverrider reset];
     [OneSignalTrackFirebaseAnalyticsOverrider reset];
     

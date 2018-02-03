@@ -44,6 +44,7 @@
     _accpeted = permission;
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    _emailAddress = [userDefaults objectForKey:EMAIL_ADDRESS];
     _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
     _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
     _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
@@ -56,6 +57,7 @@
 
 - (BOOL)compare:(OSSubscriptionState*)from {
     return ![self.userId ?: @"" isEqualToString:from.userId ?: @""] ||
+    ![self.emailAddress ?: @"" isEqualToString:from.emailAddress ?: @""] ||
     ![self.emailUserId ?: @"" isEqualToString:from.emailUserId ?: @""] ||
            ![self.pushToken ?: @"" isEqualToString:from.pushToken ?: @""] ||
            self.userSubscriptionSetting != from.userSubscriptionSetting ||
@@ -65,6 +67,7 @@
 - (instancetype)initAsFrom {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
+    _emailAddress = [userDefaults objectForKey:EMAIL_ADDRESS];
     _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
     _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
     _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
@@ -83,6 +86,7 @@
     if (!_userSubscriptionSetting)
         strUserSubscriptionSetting = @"no";
     
+    [userDefaults setObject:_emailAddress forKey:EMAIL_ADDRESS];
     [userDefaults setObject:[NSNumber numberWithBool:_requiresEmailAuth] forKey:REQUIRE_EMAIL_AUTH];
     [userDefaults setObject:_emailAuthCode forKey:EMAIL_AUTH_CODE];
     [userDefaults setObject:strUserSubscriptionSetting forKey:SUBSCRIPTION_SETTING];

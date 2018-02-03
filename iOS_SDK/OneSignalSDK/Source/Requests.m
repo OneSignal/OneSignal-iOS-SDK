@@ -69,10 +69,18 @@
 @end
 
 @implementation OSRequestSendTagsToServer
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId tags:(NSDictionary *)tags networkType:(NSNumber *)netType {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken {
     let request = [OSRequestSendTagsToServer new];
     
-    request.parameters = @{@"app_id" : appId, @"tags" : tags, @"net_type" : netType};
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"tags"] = tags;
+    params[@"net_type"] = netType;
+    
+    if (emailAuthToken && emailAuthToken.length > 0)
+        params[@"email_auth_hash"] = emailAuthToken;
+    
+    request.parameters = params;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
     
@@ -96,17 +104,19 @@
 @end
 
 @implementation OSRequestUpdateDeviceToken
-+ (instancetype)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash {
     
     let request = [OSRequestUpdateDeviceToken new];
     
-    request.parameters = @{
-       @"app_id" : appId,
-       @"identifier" : identifier,
-       @"notification_types" : notificationTypes,
-       @"parent_player_id" : [NSNull nullIfObjectIsNil:parentId]
-    };
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"identifier"] = identifier;
+    params[@"notification_types"] = notificationTypes;
     
+    if (emailAuthHash && emailAuthHash.length > 0)
+        params[@"email_auth_hash"] = emailAuthHash;
+    
+    request.parameters = params;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
     
@@ -119,12 +129,12 @@
     let request = [OSRequestCreateDevice new];
     
     request.parameters = @{
-                           @"app_id" : appId,
-                           @"device_type" : deviceType,
-                           @"identifier" : [NSNull nullIfObjectIsNil:email],
-                           @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
-                           @"device_player_id" : [NSNull nullIfObjectIsNil:playerId]
-                           };
+       @"app_id" : appId,
+       @"device_type" : deviceType,
+       @"identifier" : [NSNull nullIfObjectIsNil:email],
+       @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
+       @"device_player_id" : [NSNull nullIfObjectIsNil:playerId]
+    };
     
     request.method = POST;
     request.path = @"players";
@@ -136,8 +146,6 @@
 @implementation OSRequestLogoutEmail
 
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId emailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash {
-    
-    
     let request = [OSRequestLogoutEmail new];
     
     request.parameters = @{
@@ -222,10 +230,22 @@
 @end
 
 @implementation OSRequestSendLocation
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId location:(os_last_location *)coordinate networkType:(NSNumber *)netType backgroundState:(BOOL)backgroundState {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash {
     let request = [OSRequestSendLocation new];
     
-    request.parameters = @{@"app_id" : appId, @"lat" : @(coordinate->cords.latitude), @"long" : @(coordinate->cords.longitude), @"loc_acc_vert" : @(coordinate->verticalAccuracy), @"loc_acc" : @(coordinate->horizontalAccuracy), @"net_type" : netType, @"loc_bg" : @(backgroundState)};
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"lat"] = @(coordinate->cords.latitude);
+    params[@"long"] = @(coordinate->cords.longitude);
+    params[@"loc_acc_vert"] = @(coordinate->verticalAccuracy);
+    params[@"loc_acc"] = @(coordinate->horizontalAccuracy);
+    params[@"net_type"] = netType;
+    params[@"loc_bg"] = @(backgroundState);
+
+    if (emailAuthHash && emailAuthHash.length > 0)
+        params[@"email_auth_hash"] = emailAuthHash;
+    
+    request.parameters = params;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
     
@@ -234,20 +254,38 @@
 @end
 
 @implementation OSRequestOnFocus
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId badgeCount:(NSNumber *)badgeCount {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId badgeCount:(NSNumber * _Nonnull)badgeCount emailAuthToken:(NSString * _Nullable)emailAuthHash {
     let request = [OSRequestOnFocus new];
     
-    request.parameters = @{@"app_id" : appId, @"badge_count" : badgeCount};
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"badgeCount"] = badgeCount;
+    
+    if (emailAuthHash && emailAuthHash.length > 0)
+        params[@"email_auth_hash"] = emailAuthHash;
+    
+    request.parameters = params;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
     
     return request;
 }
 
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId state:(NSString *)state type:(NSNumber *)type activeTime:(NSNumber *)activeTime netType:(NSNumber *)netType {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId state:(NSString * _Nonnull)state type:(NSNumber * _Nonnull)type activeTime:(NSNumber * _Nonnull)activeTime netType:(NSNumber * _Nonnull)netType emailAuthToken:(NSString * _Nullable)emailAuthHash {
     let request = [OSRequestOnFocus new];
     
-    request.parameters = @{@"app_id" : appId, @"state" : state, @"type" : type, @"active_time" : activeTime, @"net_type" : netType};
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"state"] = state;
+    params[@"type"] = type;
+    params[@"active_time"] = activeTime;
+    params[@"net_type"] = netType;
+    
+    if (emailAuthHash && emailAuthHash.length > 0)
+        params[@"email_auth_hash"] = emailAuthHash;
+    
+    request.parameters = params;
     request.method = POST;
     request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
     

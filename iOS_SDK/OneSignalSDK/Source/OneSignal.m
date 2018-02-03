@@ -131,8 +131,6 @@ static BOOL coldStartFromTapOnNotification = NO;
 
 static BOOL shouldDelaySubscriptionUpdate = false;
 
-static NSString *currentUserEmail;
-static NSString *authHashToken;
 
 /*
     if setEmail: was called before the device was registered (push playerID = nil),
@@ -292,6 +290,10 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     return self.currentSubscriptionState.userId;
 }
 
++ (NSString *)mEmailAuthToken {
+    return self.currentSubscriptionState.emailAuthCode;
+}
+
 + (NSString *)mEmailUserId {
     return self.currentSubscriptionState.emailUserId;
 }
@@ -433,9 +435,16 @@ static ObserableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
     if (NSClassFromString(@"UNUserNotificationCenter"))
        [OneSignalHelper clearCachedMedia];
     
+    /*
+     downloads params file to see:
+         (A) if firebase analytics should be tracked
+         (B) if this app requires email authentication
+    */
+    
+    [self downloadIOSParams];
+    
     if ([OneSignalTrackFirebaseAnalytics needsRemoteParams]) {
         [OneSignalTrackFirebaseAnalytics init];
-        [self downloadIOSParams];
     }
     
     return self;
@@ -714,10 +723,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     NSMutableDictionary *requests = [NSMutableDictionary new];
     
-    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]];
+    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
     
-    if (self.currentSubscriptionState.emailUserId)
-        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType]];
+    if (self.currentSubscriptionState.emailUserId && self.currentSubscriptionState.emailAuthCode)
+        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:self.currentSubscriptionState.emailAuthCode];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         //the tags for email & push are identical so it doesn't matter what we return in the success block
@@ -956,7 +965,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT updated pushToken!"];
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes]) withParentId:nil emailAuthToken:nil] onSuccess:successBlock onFailure:failureBlock];
     
     [self fireIdsAvailableCallback];
 }
@@ -1050,7 +1059,6 @@ static dispatch_queue_t serialQueue;
                    [NSNumber numberWithInt:0], @"device_type",
                    [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
                    ONESIGNAL_VERSION, @"sdk",
-                   self.currentSubscriptionState.pushToken, @"identifier", // identifier MUST be at the end as it could be nil.
                    nil];
     
     if (deviceModel)
@@ -1107,8 +1115,12 @@ static dispatch_queue_t serialQueue;
         [OneSignalLocation clearLastLocation];
     }
     
+    
+    let pushDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
+    pushDataDic[@"identifier"] = self.currentSubscriptionState.pushToken;
+    
     let requests = [NSMutableDictionary new];
-    requests[@"push"] = [OSRequestRegisterUser withData:dataDic userId:self.currentSubscriptionState.userId];
+    requests[@"push"] = [OSRequestRegisterUser withData:pushDataDic userId:self.currentSubscriptionState.userId];
     
     if (self.currentSubscriptionState.emailUserId && self.currentSubscriptionState.emailAuthCode) {
         let emailDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
@@ -1128,6 +1140,14 @@ static dispatch_queue_t serialQueue;
         
         //update email player ID
         if (results[@"email"] && results[@"email"][@"id"]) {
+            
+            // check to see if the email player_id or email_auth_token are different from what were previously saved
+            // if so, we should update the server with this change
+            
+            if (self.currentSubscriptionState.emailUserId && ![self.currentSubscriptionState.emailUserId isEqualToString:results[@"email"][@"id"]] && self.currentSubscriptionState.emailAuthCode) {
+                [self emailChangedWithNewEmailPlayerId:results[@"email"][@"id"]];
+            }
+            
             self.currentSubscriptionState.emailUserId = results[@"email"][@"id"];
             [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.emailUserId forKey:EMAIL_USERID];
             //NSUserDefaults Synchronize: called after the next if-statement
@@ -1577,29 +1597,25 @@ static NSString *_lastnonActiveMessageId;
 
 #pragma mark Email
 
-+ (void)updateEmailPlayerId:(NSString *)emailPlayerId {
-    if (!emailPlayerId)
-        return;
-    
-    [[NSUserDefaults standardUserDefaults] setObject:emailPlayerId forKey:EMAIL_USERID];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    
-    if (![emailPlayerId isEqualToString:_currentSubscriptionState.emailUserId]) {
-        //if the ID has changed, call Edit Edvice
-        
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailPlayerId appId:self.app_id deviceToken:currentUserEmail notificationTypes:@([self getNotificationTypes]) withParentId:self.currentSubscriptionState.emailUserId] onSuccess:nil onFailure:nil];
-    }
-}
-
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    
+    //checks to ensure it is a valid email
     if (![OneSignalHelper isValidEmail:email]) {
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"Email is invalid"}]);
         return;
     }
     
+    //checks to make sure that if email_auth is required, the user has passed in a hash token
     if (self.currentSubscriptionState.requiresEmailAuth && (!hashToken || hashToken.length == 0)) {
         failureBlock([NSError errorWithDomain:@"com.onesignal.email" code:0 userInfo:@{@"error" : @"Email authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
+        return;
+    }
+    
+    // if both the email address & hash token are the same, there's no need to make a network call here.
+    if ([self.currentSubscriptionState.emailAddress isEqualToString:email] && [self.currentSubscriptionState.emailAuthCode isEqualToString:hashToken]) {
+        if (successBlock)
+            successBlock();
         return;
     }
     
@@ -1614,13 +1630,13 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    currentUserEmail = email;
-    authHashToken = hashToken;
-    
     let emailId = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:EMAIL_USERID];
     
+    // if the user already has a onesignal email player_id, then we should call update the device token
+    // otherwise we should call Create Device
+    
     if (emailId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:email notificationTypes:@([self getNotificationTypes]) withParentId:nil] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:email notificationTypes:@([self getNotificationTypes]) withParentId:nil emailAuthToken:hashToken] onSuccess:^(NSDictionary *result) {
             if (successBlock)
                 successBlock();
         } onFailure:^(NSError *error) {
@@ -1628,16 +1644,16 @@ static NSString *_lastnonActiveMessageId;
                 failureBlock(error);
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:@11 withEmail:currentUserEmail withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:@11 withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:hashToken] onSuccess:^(NSDictionary *result) {
             let emailPlayerId = (NSString *)result[@"id"];
             
             if (emailPlayerId) {
-                [[NSUserDefaults standardUserDefaults] setObject:hashToken forKey:EMAIL_AUTH_CODE];
-                [[NSUserDefaults standardUserDefaults] setObject:emailPlayerId forKey:EMAIL_USERID];
-                [[NSUserDefaults standardUserDefaults] synchronize];
-                
+                self.currentSubscriptionState.emailAddress = email;
                 self.currentSubscriptionState.emailAuthCode = hashToken;
                 self.currentSubscriptionState.emailUserId = emailPlayerId;
+                
+                //call persistAsFrom in order to save the hashToken & playerId to NSUserDefaults
+                [self.currentSubscriptionState persistAsFrom];
                 
                 if (successBlock)
                     successBlock();
@@ -1652,7 +1668,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setUnauthenticatedEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
-    
+    [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
@@ -1662,13 +1678,12 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.app_id emailPlayerId:self.currentSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:authHashToken] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.app_id emailPlayerId:self.currentSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:EMAIL_USERID];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
-        [self.currentSubscriptionState setEmailUserId:nil];
-        currentUserEmail = nil;
-        authHashToken = nil;
+        self.currentSubscriptionState.emailAuthCode = nil;
+        self.currentSubscriptionState.emailUserId = nil;
         
         if (successBlock)
             successBlock();
@@ -1677,6 +1692,35 @@ static NSString *_lastnonActiveMessageId;
             failureBlock(error);
     }];
 }
+
++ (void)setUnauthenticatedEmail:(NSString * _Nonnull)email {
+    [self setUnauthenticatedEmail:email withSuccess:nil withFailure:nil];
+}
+
++ (void)logoutEmail {
+    [self logoutEmailWithSuccess:nil withFailure:nil];
+}
+
++ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken {
+    [self setEmail:email withEmailAuthHashToken:hashToken withSuccess:nil withFailure:nil];
+}
+
++ (void)emailChangedWithNewEmailPlayerId:(NSString * _Nullable)emailPlayerId {
+    //make sure that the email player ID has changed otherwise there's no point in this request
+    if ([self.currentSubscriptionState.emailUserId isEqualToString:emailPlayerId])
+        return;
+    
+    let request = [OSRequestUpdateDeviceToken withUserId:emailPlayerId == nil ? self.currentSubscriptionState.emailUserId : emailPlayerId
+                                                   appId:self.app_id deviceToken:self.currentSubscriptionState.emailAddress
+                                                   notificationTypes:@([self getNotificationTypes])
+                                                   withParentId:self.currentSubscriptionState.emailUserId
+                                                   emailAuthToken:self.currentSubscriptionState.emailAuthCode];
+    
+    [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:^(NSError *error) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];
+    }];
+}
+
 @end
 
 // Swizzles UIApplication class to swizzling the following:
