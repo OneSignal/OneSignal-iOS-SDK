@@ -965,7 +965,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT updated pushToken!"];
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes]) withParentId:nil emailAuthToken:nil] onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes]) withParentId:nil emailAuthToken:nil email: nil] onSuccess:successBlock onFailure:failureBlock];
     
     [self fireIdsAvailableCallback];
 }
@@ -1636,7 +1636,7 @@ static NSString *_lastnonActiveMessageId;
     // otherwise we should call Create Device
     
     if (emailId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:email notificationTypes:@([self getNotificationTypes]) withParentId:nil emailAuthToken:hashToken] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:email notificationTypes:nil withParentId:nil emailAuthToken:hashToken email:nil] onSuccess:^(NSDictionary *result) {
             if (successBlock)
                 successBlock();
         } onFailure:^(NSError *error) {
@@ -1655,8 +1655,13 @@ static NSString *_lastnonActiveMessageId;
                 //call persistAsFrom in order to save the hashToken & playerId to NSUserDefaults
                 [self.currentSubscriptionState persistAsFrom];
                 
-                if (successBlock)
-                    successBlock();
+                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:nil notificationTypes:@([self getNotificationTypes]) withParentId:self.currentSubscriptionState.emailUserId emailAuthToken:hashToken email:email] onSuccess:^(NSDictionary *result) {
+                    if (successBlock)
+                        successBlock();
+                } onFailure:^(NSError *error) {
+                    if (failureBlock)
+                        failureBlock(error);
+                }];
             } else {
                 [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
             }
@@ -1678,12 +1683,17 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
+    
     [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.app_id emailPlayerId:self.currentSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:EMAIL_USERID];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
+        self.currentSubscriptionState.emailAddress = nil;
         self.currentSubscriptionState.emailAuthCode = nil;
         self.currentSubscriptionState.emailUserId = nil;
+        
+        //call persistAsFrom in order to save the hashToken & playerId to NSUserDefaults
+        [self.currentSubscriptionState persistAsFrom];
         
         if (successBlock)
             successBlock();
@@ -1710,11 +1720,13 @@ static NSString *_lastnonActiveMessageId;
     if ([self.currentSubscriptionState.emailUserId isEqualToString:emailPlayerId])
         return;
     
-    let request = [OSRequestUpdateDeviceToken withUserId:emailPlayerId == nil ? self.currentSubscriptionState.emailUserId : emailPlayerId
-                                                   appId:self.app_id deviceToken:self.currentSubscriptionState.emailAddress
-                                                   notificationTypes:@([self getNotificationTypes])
-                                                   withParentId:self.currentSubscriptionState.emailUserId
-                                                   emailAuthToken:self.currentSubscriptionState.emailAuthCode];
+    let request = [OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId
+                                                   appId:self.app_id
+                                                   deviceToken:nil
+                                                   notificationTypes: @([self getNotificationTypes])
+                                                   withParentId:emailPlayerId
+                                                   emailAuthToken:self.currentSubscriptionState.emailAuthCode
+                                                   email:self.currentSubscriptionState.emailAddress];
     
     [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:^(NSError *error) {
         [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];

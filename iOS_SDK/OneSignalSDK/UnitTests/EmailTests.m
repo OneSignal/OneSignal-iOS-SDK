@@ -23,6 +23,13 @@
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalCommonDefines.h"
 
+
+@interface OneSignal ()
+void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
++ (NSString *)mEmailUserId;
++ (NSString *)mEmailAuthToken;
+@end
+
 @interface EmailTests : XCTestCase
 
 @end
@@ -89,10 +96,10 @@
     XCTAssertNotNil([[NSUserDefaults standardUserDefaults] objectForKey:EMAIL_AUTH_CODE]);
     
     //check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
-    XCTAssertTrue([NSStringFromClass([OSRequestCreateDevice class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @11);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"test@test.com");
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"parent_player_id"], @"1234");
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email"], @"test@test.com");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], @"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c");
     
     //we will change the email and make sure the HTTP call to update the device token is made
@@ -106,7 +113,13 @@
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"test2@test.com");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], @"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c");
     
+    XCTAssertEqual([OneSignal mEmailUserId], @"1234");
+    XCTAssertEqual([OneSignal mEmailAuthToken], @"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c");
+    
     [self logoutEmail];
+    
+    XCTAssertNil([OneSignal mEmailUserId]);
+    XCTAssertNil([OneSignal mEmailAuthToken]);
 }
 
 - (void)testUnauthenticatedEmail {
@@ -129,13 +142,13 @@
     [OneSignal setUnauthenticatedEmail:@"test@test.com" withSuccess:nil withFailure:nil];
     
     [UnitTestCommonMethods runBackgroundThreads];
-    
+    NSLog(@"LAST REQ: %@", OneSignalClientOverrider.lastHTTPRequest);
     //check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
-    XCTAssertTrue([NSStringFromClass([OSRequestCreateDevice class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @11);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"test@test.com");
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], [NSNull null]);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"parent_player_id"], @"1234");
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email"], @"test@test.com");
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"]);
     
     //now we will change the unauthenticated email to something else
     [OneSignal setEmail:@"test2@test.com" withEmailAuthHashToken:nil withSuccess:nil withFailure:nil];
@@ -148,7 +161,13 @@
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"test2@test.com");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"]);
     
+    XCTAssertEqual([OneSignal mEmailUserId], @"1234");
+    XCTAssertNil([OneSignal mEmailAuthToken]);
+    
     [self logoutEmail];
+    
+    XCTAssertNil([OneSignal mEmailUserId]);
+    XCTAssertNil([OneSignal mEmailAuthToken]);
 }
 
 - (void)logoutEmail {

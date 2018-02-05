@@ -34,6 +34,7 @@
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 
 @end
 
@@ -42,6 +43,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    
+    self.activityIndicatorView.hidden = true;
+}
+
+- (void)changeAnimationState:(BOOL)animating {
+    animating ? [self.activityIndicatorView startAnimating] : [self.activityIndicatorView stopAnimating];
+    self.activityIndicatorView.hidden = !animating;
 }
 
 - (IBAction)sendTagButton:(id)sender {
@@ -74,13 +82,28 @@
 
 - (IBAction)setEmailButtonPressed:(UIButton *)sender
 {
+    [self changeAnimationState:true];
     [OneSignal setEmail:self.textField.text withEmailAuthHashToken:@"aa3e3201f8f8bfd2fcbe8a899c161b7acb5a86545196c5465bef47fd757ca356" withSuccess:^{
         NSLog(@"Successfully sent email");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self changeAnimationState:false];
+        });
     } withFailure:^(NSError *error) {
         NSLog(@"Encountered error: %@", error);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self changeAnimationState:false];
+        });
     }];
 }
 
+- (IBAction)logoutButtonPressed:(UIButton *)sender
+{
+    [OneSignal logoutEmailWithSuccess:^{
+        NSLog(@"Successfully logged out of email");
+    } withFailure:^(NSError *error) {
+        NSLog(@"Encountered error while logging out of email: %@", error);
+    }];
+}
 
 
 - (void)promptForNotificationsWithNativeiOS10Code {

@@ -104,14 +104,22 @@
 @end
 
 @implementation OSRequestUpdateDeviceToken
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nonnull)identifier notificationTypes:(NSNumber * _Nonnull)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash email:(NSString * _Nullable)email {
     
     let request = [OSRequestUpdateDeviceToken new];
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    params[@"identifier"] = identifier;
-    params[@"notification_types"] = notificationTypes;
+    params[@"email"] = email;
+    
+    if (notificationTypes)
+        params[@"notification_types"] = notificationTypes;
+    
+    if (identifier)
+        params[@"identifier"] = identifier;
+    
+    if (parentId)
+        params[@"parent_player_id"] = parentId;
     
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
@@ -149,13 +157,13 @@
     let request = [OSRequestLogoutEmail new];
     
     request.parameters = @{
-       @"device_player_id" : [NSNull nullIfObjectIsNil:devicePlayerId],
+       @"parent_player_id" : [NSNull nullIfObjectIsNil:emailPlayerId],
        @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
        @"app_id" : appId
     };
     
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"%@/email_logout", emailPlayerId];
+    request.path = [NSString stringWithFormat:@"players/%@/email_logout", devicePlayerId];
     
     return request;
 }
