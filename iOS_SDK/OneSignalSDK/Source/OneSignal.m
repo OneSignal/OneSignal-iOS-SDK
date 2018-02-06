@@ -1573,13 +1573,17 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)syncHashedEmail:(NSString *)email {
-    if (!email)
+    if (!email) {
+        [self onesignal_Log:ONE_S_LL_WARN message:@"OneSignal syncHashedEmail: The provided email is nil"];
         return;
+    }
     
     let trimmedEmail = [email stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
-    if (![OneSignalHelper isValidEmail:trimmedEmail])
+    if (![OneSignalHelper isValidEmail:trimmedEmail]) {
+        [self onesignal_Log:ONE_S_LL_WARN message:@"OneSignal syncHashedEmail: The provided email is invalid"];
         return;
+    }
     
     if (!self.currentSubscriptionState.userId) {
         emailToSet = email;
