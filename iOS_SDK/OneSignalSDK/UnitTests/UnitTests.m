@@ -497,9 +497,6 @@
     XCTAssertNil(observer->last);
 }
 
-
-
-
 - (void)testPermissionChangeObserverDontLoseFromChanges {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
@@ -682,9 +679,6 @@
     
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
-    
-    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSSubscriptionState: userId: 1234, pushToken: 0000000000000000000000000000000000000000000000000000000000000000, userSubscriptionSetting: 1, subscribed: 1>,\nto:   <OSSubscriptionState: userId: 1234, pushToken: 0000000000000000000000000000000000000000000000000000000000000000, userSubscriptionSetting: 0, subscribed: 0>\n>");
-    NSLog(@"Test description: %@", observer->last);
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
@@ -743,6 +737,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     [self answerNotifiationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-13);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
