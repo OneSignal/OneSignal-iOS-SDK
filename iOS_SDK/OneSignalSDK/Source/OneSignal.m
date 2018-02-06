@@ -1607,6 +1607,22 @@ static NSString *_lastnonActiveMessageId;
 
 #pragma mark Email
 
++ (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
+    if (failureBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failureBlock(error);
+        });
+    }
+}
+
++ (void)callSuccessBlockOnMainThread:(OSEmailSuccessBlock)successBlock {
+    if (successBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            successBlock();
+        });
+    }
+}
+
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     
     //checks to ensure it is a valid email
@@ -1645,13 +1661,13 @@ static NSString *_lastnonActiveMessageId;
     // if the user already has a onesignal email player_id, then we should call update the device token
     // otherwise we should call Create Device
     
+    // since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
+    
     if (emailId) {
         [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:emailId appId:self.app_id deviceToken:email notificationTypes:nil withParentId:nil emailAuthToken:hashToken email:nil] onSuccess:^(NSDictionary *result) {
-            if (successBlock)
-                successBlock();
+            [self callSuccessBlockOnMainThread:successBlock];
         } onFailure:^(NSError *error) {
-            if (failureBlock)
-                failureBlock(error);
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
         [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:@11 withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:hashToken] onSuccess:^(NSDictionary *result) {
@@ -1666,18 +1682,15 @@ static NSString *_lastnonActiveMessageId;
                 [self.currentSubscriptionState persistAsFrom];
                 
                 [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:nil notificationTypes:@([self getNotificationTypes]) withParentId:self.currentSubscriptionState.emailUserId emailAuthToken:hashToken email:email] onSuccess:^(NSDictionary *result) {
-                    if (successBlock)
-                        successBlock();
+                    [self callSuccessBlockOnMainThread:successBlock];
                 } onFailure:^(NSError *error) {
-                    if (failureBlock)
-                        failureBlock(error);
+                    [self callFailureBlockOnMainThread:failureBlock withError:error];
                 }];
             } else {
                 [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
             }
         } onFailure:^(NSError *error) {
-            if (failureBlock)
-                failureBlock(error);
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     }
 }
@@ -1689,7 +1702,9 @@ static NSString *_lastnonActiveMessageId;
 + (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     if (!self.currentSubscriptionState.emailUserId) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Email Player ID does not exist, cannot logout"];
-        failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"Attempted to log out of the user's email with OneSignal. The user does not currently have an email player ID and is not logged in, so it is not possible to log out of the email for this device"}]);
+        
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"Attempted to log out of the user's email with OneSignal. The user does not currently have an email player ID and is not logged in, so it is not possible to log out of the email for this device"}]);
         return;
     }
     
@@ -1705,11 +1720,9 @@ static NSString *_lastnonActiveMessageId;
         //call persistAsFrom in order to save the hashToken & playerId to NSUserDefaults
         [self.currentSubscriptionState persistAsFrom];
         
-        if (successBlock)
-            successBlock();
+        [self callSuccessBlockOnMainThread:successBlock];
     } onFailure:^(NSError *error) {
-        if (failureBlock)
-            failureBlock(error);
+        [self callFailureBlockOnMainThread:failureBlock withError:error];
     }];
 }
 
