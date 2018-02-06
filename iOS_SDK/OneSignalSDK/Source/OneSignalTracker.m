@@ -125,7 +125,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         
         requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:nil];
         
-        if ([OneSignal mEmailUserId] && [OneSignal mEmailAuthToken])
+        if ([OneSignal mEmailUserId])
             requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken]];
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
@@ -143,7 +143,7 @@ static BOOL lastOnFocusWasToBackground = YES;
             
             requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil];
             
-            if ([OneSignal mEmailUserId] && [OneSignal mEmailAuthToken])
+            if ([OneSignal mEmailUserId])
                 requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken]];
             
             [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];

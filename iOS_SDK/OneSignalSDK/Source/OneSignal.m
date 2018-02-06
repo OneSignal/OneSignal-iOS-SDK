@@ -725,7 +725,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
     
-    if (self.currentSubscriptionState.emailUserId && self.currentSubscriptionState.emailAuthCode)
+    if (self.currentSubscriptionState.emailUserId && (self.currentSubscriptionState.requiresEmailAuth == false || self.currentSubscriptionState.emailAuthCode))
         requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:self.currentSubscriptionState.emailAuthCode];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
@@ -1095,6 +1095,16 @@ static dispatch_queue_t serialQueue;
             dataDic[@"as_id"] = @"OptedOut";
     }
     
+    let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
+    if (CTTelephonyNetworkInfoClass) {
+        id instance = [[CTTelephonyNetworkInfoClass alloc] init];
+        let carrierName = (NSString *)[[instance valueForKey:@"subscriberCellularProvider"] valueForKey:@"carrierName"];
+        
+        if (carrierName) {
+            dataDic[@"carrier"] = carrierName;
+        }
+    }
+    
     let releaseMode = [OneSignalMobileProvision releaseMode];
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
@@ -1122,7 +1132,7 @@ static dispatch_queue_t serialQueue;
     let requests = [NSMutableDictionary new];
     requests[@"push"] = [OSRequestRegisterUser withData:pushDataDic userId:self.currentSubscriptionState.userId];
     
-    if (self.currentSubscriptionState.emailUserId && self.currentSubscriptionState.emailAuthCode) {
+    if (self.currentSubscriptionState.emailUserId && (!self.currentSubscriptionState.requiresEmailAuth || self.currentSubscriptionState.emailAuthCode)) {
         let emailDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
         emailDataDic[@"device_type"] = @11;
         emailDataDic[@"email_auth_hash"] = self.currentSubscriptionState.emailAuthCode;

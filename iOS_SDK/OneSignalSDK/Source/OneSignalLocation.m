@@ -258,7 +258,7 @@ static OneSignalLocation* singleInstance = nil;
         
         NSMutableDictionary *requests = [NSMutableDictionary new];
         
-        if ([OneSignal mEmailUserId] && [OneSignal mEmailAuthToken])
+        if ([OneSignal mEmailUserId])
             requests[@"email"] = [OSRequestSendLocation withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:[OneSignal mEmailAuthToken]];
         
         requests[@"push"] = [OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:nil];

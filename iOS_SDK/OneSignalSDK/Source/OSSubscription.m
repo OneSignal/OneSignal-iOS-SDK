@@ -172,15 +172,19 @@
 }
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d>";
-    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed];
+    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d, emailUserId: %@>";
+    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed, self.emailUserId];
 }
 
 - (NSDictionary*)toDictionary {
-    return @{@"userId": _userId ?: [NSNull null],
-             @"pushToken": _pushToken ?: [NSNull null],
-             @"userSubscriptionSetting": @(_userSubscriptionSetting),
-             @"subscribed": @(self.subscribed)};
+    return @{
+         @"userId": _userId ?: [NSNull null],
+         @"pushToken": _pushToken ?: [NSNull null],
+         @"userSubscriptionSetting": @(_userSubscriptionSetting),
+         @"subscribed": @(self.subscribed),
+         @"emailUserId": _emailUserId ?: [NSNull null],
+         @"emailAddress": _emailAddress ?: [NSNull null]
+     };
 }
 
 @end
