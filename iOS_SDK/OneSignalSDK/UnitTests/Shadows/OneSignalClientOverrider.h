@@ -21,5 +21,6 @@
 + (dispatch_queue_t)getHTTPQueue;
 +(void)runBackgroundThreads;
 +(NSString *)lastHTTPRequestType;
++(void)setRequiresEmailAuth:(BOOL)required;
 @end
 

@@ -24,7 +24,7 @@
 #import "OneSignalCommonDefines.h"
 
 
-@interface OneSignal ()
+@interface OneSignal () 
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
@@ -194,6 +194,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
         XCTFail(@"setEmail: should reject invalid emails");
         
     } withFailure:^(NSError *error) {
+        XCTAssertNotNil(error);
+        
         [expectation fulfill];
     }];
     
@@ -210,6 +212,74 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     } withFailure:^(NSError *error) {
         XCTFail("Failed with error: %@", error);
         [expectation fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+}
+
+- (void)testRequiresEmailAuth {
+    [OneSignalClientOverrider setRequiresEmailAuth:true];
+    
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    // Triggers the 30 fallback to register device right away.
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //the userId should already be set at this point, check to make sure.
+    XCTAssertEqualObjects(observer->last.to.userId, @"1234");
+    
+    let expectation = [self expectationWithDescription:@"email"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal setUnauthenticatedEmail:@"testEmail@test.com" withSuccess:^{
+        XCTFail(@"Email authentication should be required.");
+    } withFailure:^(NSError *error) {
+        XCTAssertNotNil(error);
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    //reset so we don't interfere with other tests
+    [OneSignalClientOverrider setRequiresEmailAuth:false];
+}
+
+- (void)testDoesNotRequireEmailAuth {
+    
+    [OneSignalClientOverrider setRequiresEmailAuth:false];
+    
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    // Triggers the 30 fallback to register device right away.
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //the userId should already be set at this point, check to make sure.
+    XCTAssertEqualObjects(observer->last.to.userId, @"1234");
+    
+    let expectation = [self expectationWithDescription:@"email"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal setUnauthenticatedEmail:@"testEmail@test.com" withSuccess:^{
+        [expectation fulfill];
+    } withFailure:^(NSError *error) {
+        XCTFail(@"Encountered error: %@", error);
     }];
     
     [self waitForExpectations:@[expectation] timeout:0.1];

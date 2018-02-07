@@ -22,12 +22,12 @@
 #import "OneSignalClient.h"
 #import "OneSignalRequest.h"
 #import "OneSignalSelectorHelpers.h"
+#import "Requests.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation OneSignalClientOverrider
-
 static dispatch_queue_t serialMockMainLooper;
 static NSString* lastUrl;
 static int networkRequestCount;
@@ -36,6 +36,7 @@ static XCTestCase* currentTestInstance;
 static BOOL executeInstantaneously = true;
 static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
+static BOOL requiresEmailAuth = false;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -46,6 +47,7 @@ static NSString *lastHTTPRequestType;
     injectToProperClass(@selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:), @selector(executeSimultaneousRequests:withSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
     
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
+    
 }
 
 - (void)overrideExecuteSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
@@ -106,8 +108,8 @@ static NSString *lastHTTPRequestType;
         lastHTTPRequestType = NSStringFromClass([request class]);
         
         if (successBlock) {
-            if ([request.request.URL.absoluteString hasPrefix:@"https://onesignal.com/api/v1/apps/"])
-                successBlock(@{@"fba": @true});
+            if ([request isKindOfClass:[OSRequestGetIosParams class]])
+                successBlock(@{@"fba": @true, @"require_email_auth" : @(requiresEmailAuth)});
             else
                 successBlock(@{@"id": @"1234"});
         }
@@ -155,6 +157,10 @@ static NSString *lastHTTPRequestType;
 
 +(void)runBackgroundThreads {
     dispatch_sync(executionQueue, ^{});
+}
+
++(void)setRequiresEmailAuth:(BOOL)required {
+    requiresEmailAuth = required;
 }
 
 @end
