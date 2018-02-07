@@ -75,9 +75,12 @@
 #import "OneSignalClient.h"
 #import "Requests.h"
 #import "OneSignalClientOverrider.h"
+#import "OneSignalCommonDefines.h"
 
 
-
+NSString * serverUrlWithPath(NSString *path) {
+    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+}
 
 @interface UnitTests : XCTestCase
 
@@ -852,7 +855,7 @@
     [self answerNotifiationPrompt:false];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
@@ -912,7 +915,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1069,7 +1072,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1117,7 +1120,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1586,7 +1589,7 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
@@ -1746,7 +1749,7 @@ didReceiveRemoteNotification:userInfo
     
     let urlRequest = request.request;
     
-    XCTAssert([urlRequest.URL.absoluteString isEqualToString:@"https://onesignal.com/api/v1/players/12345"]);
+    XCTAssert([urlRequest.URL.absoluteString isEqualToString:serverUrlWithPath(@"players/12345")]);
     XCTAssert([urlRequest.HTTPMethod isEqualToString:@"PUT"]);
     XCTAssert([urlRequest.allHTTPHeaderFields[@"Content-Type"] isEqualToString:@"application/json"]);
 }

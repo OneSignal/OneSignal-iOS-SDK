@@ -29,9 +29,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
 #import "Requests.h"
-
-#define API_VERSION @"api/v1/"
-#define SERVER_URL @"https://onesignal.com/"
+#import "OneSignalCommonDefines.h"
 
 @implementation OneSignalRequest
 - (id)init {

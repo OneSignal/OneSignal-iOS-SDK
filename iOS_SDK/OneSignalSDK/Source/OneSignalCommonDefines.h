@@ -9,6 +9,11 @@
 #ifndef OneSignalCommonDefines_h
 #define OneSignalCommonDefines_h
 
+// networking
+#define API_VERSION @"api/v1/"
+#define SERVER_URL @"https://onesignal-staging.pw/"
+
+// NSUserDefaults parameter names
 #define EMAIL_AUTH_CODE @"GT_EMAIL_AUTH_CODE"
 #define SUBSCRIPTION_SETTING @"ONESIGNAL_SUBSCRIPTION_LAST"
 #define EMAIL_USERID @"GT_EMAIL_PLAYER_ID"
