@@ -37,4 +37,11 @@
 - (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
 @end
 
+@interface OSEmailSubscriptionStateTestObserver : NSObject<OSEmailSubscriptionObserver> {
+    @package OSEmailSubscriptionStateChanges *last;
+    @package int fireCount;
+}
+- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges;
+@end
+
 // END - Observers

@@ -150,3 +150,11 @@
     fireCount++;
 }
 @end
+
+@implementation OSEmailSubscriptionStateTestObserver
+- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
+    NSLog(@"UnitTest:onOSEmailSubscriptionChanged: \n%@", stateChanges);
+    last = stateChanges;
+    fireCount++;
+}
+@end

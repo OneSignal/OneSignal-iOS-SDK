@@ -34,7 +34,7 @@
 
 @implementation OSSubscriptionState
 
-- (ObserableSubscriptionStateType*)observable {
+- (ObservableSubscriptionStateType*)observable {
     if (!_observable)
         _observable = [OSObservable new];
     return _observable;
@@ -44,10 +44,6 @@
     _accpeted = permission;
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    _emailAddress = [userDefaults objectForKey:EMAIL_ADDRESS];
-    _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
-    _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
-    _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
     _userId = [userDefaults stringForKey:USERID];
     _pushToken = [userDefaults stringForKey:DEVICE_TOKEN];
     _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION] == nil;
@@ -57,8 +53,6 @@
 
 - (BOOL)compare:(OSSubscriptionState*)from {
     return ![self.userId ?: @"" isEqualToString:from.userId ?: @""] ||
-    ![self.emailAddress ?: @"" isEqualToString:from.emailAddress ?: @""] ||
-    ![self.emailUserId ?: @"" isEqualToString:from.emailUserId ?: @""] ||
            ![self.pushToken ?: @"" isEqualToString:from.pushToken ?: @""] ||
            self.userSubscriptionSetting != from.userSubscriptionSetting ||
            self.accpeted != from.accpeted;
@@ -67,10 +61,6 @@
 - (instancetype)initAsFrom {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
-    _emailAddress = [userDefaults objectForKey:EMAIL_ADDRESS];
-    _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
-    _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
-    _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
     _userId = [userDefaults stringForKey:USERID_LAST];
     _pushToken = [userDefaults stringForKey:PUSH_TOKEN];
     _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION_SETTING] == nil;
@@ -86,11 +76,7 @@
     if (!_userSubscriptionSetting)
         strUserSubscriptionSetting = @"no";
     
-    [userDefaults setObject:_emailAddress forKey:EMAIL_ADDRESS];
-    [userDefaults setObject:[NSNumber numberWithBool:_requiresEmailAuth] forKey:REQUIRE_EMAIL_AUTH];
-    [userDefaults setObject:_emailAuthCode forKey:EMAIL_AUTH_CODE];
     [userDefaults setObject:strUserSubscriptionSetting forKey:SUBSCRIPTION_SETTING];
-    [userDefaults setObject:_emailUserId forKey:EMAIL_USERID];
     [userDefaults setObject:_userId forKey:USERID_LAST];
     [userDefaults setObject:_pushToken forKey:PUSH_TOKEN];
     [userDefaults setBool:_accpeted forKey:ACCEPTED_PERMISSION];
@@ -102,9 +88,6 @@
     OSSubscriptionState* copy = [[[self class] alloc] init];
     
     if (copy) {
-        copy->_requiresEmailAuth = _requiresEmailAuth;
-        copy->_emailAuthCode = [_emailAuthCode copy];
-        copy->_emailUserId = [_emailUserId copy];
         copy->_userId = [_userId copy];
         copy->_pushToken = [_pushToken copy];
         copy->_userSubscriptionSetting = _userSubscriptionSetting;
@@ -146,10 +129,6 @@
 }
 
 
-- (void)setEmailUserId:(NSString *)emailUserId {
-    _emailUserId = emailUserId;
-}
-
 - (void)setAccepted:(BOOL)inAccpeted {
     BOOL lastSubscribed = self.subscribed;
     
@@ -172,8 +151,8 @@
 }
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d, emailUserId: %@>";
-    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed, self.emailUserId];
+    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d>";
+    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed];
 }
 
 - (NSDictionary*)toDictionary {
@@ -181,9 +160,7 @@
          @"userId": _userId ?: [NSNull null],
          @"pushToken": _pushToken ?: [NSNull null],
          @"userSubscriptionSetting": @(_userSubscriptionSetting),
-         @"subscribed": @(self.subscribed),
-         @"emailUserId": _emailUserId ?: [NSNull null],
-         @"emailAddress": _emailAddress ?: [NSNull null]
+         @"subscribed": @(self.subscribed)
      };
 }
 

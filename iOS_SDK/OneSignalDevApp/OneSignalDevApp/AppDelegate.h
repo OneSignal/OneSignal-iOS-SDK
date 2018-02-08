@@ -31,7 +31,7 @@
 #import <UIKit/UIKit.h>
 #import <OneSignal/OneSignal.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver>
 
 @property (strong, nonatomic) UIWindow *window;
 

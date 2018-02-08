@@ -37,6 +37,7 @@
 
 #import "OSPermission.h"
 #import "OSSubscription.h"
+#import "OSEmailSubscription.h"
 
 
 // Permission + Subscription - Redefine OSPermissionSubscriptionState
