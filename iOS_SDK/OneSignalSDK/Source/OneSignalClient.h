@@ -32,6 +32,9 @@
 #ifndef OneSignalClient_h
 #define OneSignalClient_h
 
+typedef void (^OSMultipleFailureBlock)(NSDictionary<NSString *, NSError *> *errors);
+typedef void (^OSMultipleSuccessBlock)(NSDictionary<NSString *, NSDictionary *> *results);
+
 @interface OneSignalClient : NSObject
 + (OneSignalClient *)sharedClient;
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
