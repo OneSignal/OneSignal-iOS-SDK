@@ -240,6 +240,11 @@ NSString * serverUrlWithPath(NSString *path) {
     XCTAssertEqual(status.subscriptionStatus.userId, @"1234");
     XCTAssertEqualObjects(status.subscriptionStatus.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
+    //email has not been set so the email properties should be nil
+    XCTAssertFalse(status.emailSubscriptionStatus.subscribed);
+    XCTAssertNil(status.emailSubscriptionStatus.emailUserId);
+    XCTAssertNil(status.emailSubscriptionStatus.emailAddress);
+    
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];

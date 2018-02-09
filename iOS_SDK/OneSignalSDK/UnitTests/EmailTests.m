@@ -292,6 +292,54 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [self waitForExpectations:@[expectation] timeout:0.5];
 }
 
+- (void)testSubscriptionState {
+    [OneSignalClientOverrider setRequiresEmailAuth:true];
+    
+    [self setupEmailTest];
+    
+    let unsubscribedSubscriptionStatus = [OneSignal getPermissionSubscriptionState].emailSubscriptionStatus;
+    
+    XCTAssertNil(unsubscribedSubscriptionStatus.emailAuthCode);
+    XCTAssertNil(unsubscribedSubscriptionStatus.emailAddress);
+    XCTAssertNil(unsubscribedSubscriptionStatus.emailUserId);
+    XCTAssertFalse(unsubscribedSubscriptionStatus.subscribed);
+    
+    
+    let expectation = [self expectationWithDescription:@"email"];
+    expectation.expectedFulfillmentCount = 2;
+    
+    [OneSignal setEmail:@"test@test.com" withEmailAuthHashToken:@"test-hash-token" withSuccess:^{
+        [expectation fulfill];
+    } withFailure:^(NSError *error) {
+        XCTFail(@"Encountered an error: %@", error);
+    }];
+    
+    let loggedInSubscriptionStatus = [OneSignal getPermissionSubscriptionState].emailSubscriptionStatus;
+    
+    XCTAssertEqual(loggedInSubscriptionStatus.emailUserId, @"1234");
+    XCTAssertEqual(loggedInSubscriptionStatus.emailAddress, @"test@test.com");
+    XCTAssertEqual(loggedInSubscriptionStatus.emailAuthCode, @"test-hash-token");
+    XCTAssertEqual(loggedInSubscriptionStatus.subscribed, true);
+    
+    [OneSignal logoutEmailWithSuccess:^{
+        [expectation fulfill];
+    } withFailure:^(NSError *error) {
+        XCTFail(@"Encountered an error: %@", error);
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    let loggedOutSubscriptionStatus = [OneSignal getPermissionSubscriptionState].emailSubscriptionStatus;
+    
+    XCTAssertNil(loggedOutSubscriptionStatus.emailAuthCode);
+    XCTAssertNil(loggedOutSubscriptionStatus.emailAddress);
+    XCTAssertNil(loggedOutSubscriptionStatus.emailUserId);
+    XCTAssertFalse(loggedOutSubscriptionStatus.subscribed);
+    
+    //reset so we don't interfere with other tests
+    [OneSignalClientOverrider setRequiresEmailAuth:false];
+}
+
 - (void)testEmailSubscriptionObserver {
     [UnitTestCommonMethods runBackgroundThreads];
     

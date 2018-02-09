@@ -29,6 +29,10 @@
     return self;
 }
 
+-(BOOL)subscribed {
+    return self.emailUserId != nil;
+}
+
 - (void)persist {
     let userDefaults = [NSUserDefaults standardUserDefaults];
     

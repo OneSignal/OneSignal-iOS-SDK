@@ -240,6 +240,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @interface OSEmailSubscriptionState : NSObject
 @property (readonly, nonatomic) NSString* emailUserId; // The new Email user ID
 @property (readonly, nonatomic) NSString *emailAddress;
+@property (readonly, nonatomic) BOOL subscribed;
 - (NSDictionary*)toDictionary;
 @end
 
@@ -270,6 +271,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @property (readonly) OSPermissionState* permissionStatus;
 @property (readonly) OSSubscriptionState* subscriptionStatus;
+@property (readonly) OSEmailSubscriptionState *emailSubscriptionStatus;
 - (NSDictionary*)toDictionary;
 
 @end

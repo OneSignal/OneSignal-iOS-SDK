@@ -45,6 +45,7 @@
 
 @property (readwrite) OSPermissionState* permissionStatus;
 @property (readwrite) OSSubscriptionState* subscriptionStatus;
+@property (readwrite) OSEmailSubscriptionState *emailSubscriptionStatus;
 
 @end
 
