@@ -1686,7 +1686,7 @@ static NSString *_lastnonActiveMessageId;
     }
     
     // if both the email address & hash token are the same, there's no need to make a network call here.
-    if ([self.currentEmailSubscriptionState.emailAddress isEqualToString:email] && [self.currentEmailSubscriptionState.emailAuthCode isEqualToString:hashToken]) {
+    if ([self.currentEmailSubscriptionState.emailAddress isEqualToString:email] && ([self.currentEmailSubscriptionState.emailAuthCode isEqualToString:hashToken] || (self.currentEmailSubscriptionState.emailAuthCode == nil && hashToken == nil))) {
         if (successBlock)
             successBlock();
         return;
