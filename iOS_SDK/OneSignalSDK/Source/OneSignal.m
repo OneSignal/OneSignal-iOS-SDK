@@ -155,6 +155,7 @@ static BOOL backgroundModesEnabled = false;
 
 // indicates if the GetiOSParams request has completed
 static BOOL downloadedParameters = false;
+static BOOL didCallDownloadParameters = false;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
@@ -348,6 +349,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     _currentSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
+    
+    didCallDownloadParameters = false;
 }
 
 // Set to false as soon as it's read.
@@ -470,7 +473,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
          (B) if this app requires email authentication
     */
     
-    [self downloadIOSParams];
+    if (!didCallDownloadParameters)
+        [self downloadIOSParams];
     
     if ([OneSignalTrackFirebaseAnalytics needsRemoteParams]) {
         [OneSignalTrackFirebaseAnalytics init];
@@ -517,6 +521,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 
 +(void)downloadIOSParams {
     NSLog(@"DOWNLOADING IOS PARAMS");
+    didCallDownloadParameters = true;
+    
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
         if (result[@"require_email_auth"]) {
             self.currentEmailSubscriptionState.requiresEmailAuth = [result[@"require_email_auth"] boolValue];

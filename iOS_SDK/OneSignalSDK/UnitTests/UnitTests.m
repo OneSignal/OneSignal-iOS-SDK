@@ -213,6 +213,8 @@ NSString * serverUrlWithPath(NSString *path) {
 }
 
 - (void)testBasicInitTest {
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
     [UnitTestCommonMethods initOneSignal];
@@ -249,7 +251,7 @@ NSString * serverUrlWithPath(NSString *path) {
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     
 }
@@ -284,6 +286,8 @@ NSString * serverUrlWithPath(NSString *path) {
 }
 
 - (void)testRegisterationOniOS7 {
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
     [self initOneSignalAndThreadWait];
@@ -299,7 +303,7 @@ NSString * serverUrlWithPath(NSString *path) {
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Make the following methods were not called as they are not available on iOS 7
     XCTAssertFalse(UIApplicationOverrider.calledRegisterForRemoteNotifications);
@@ -314,6 +318,8 @@ NSString * serverUrlWithPath(NSString *path) {
 }
 
 - (void)testInitOnSimulator {
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     UIApplicationOverrider.didFailRegistarationErrorCode = 3010;
@@ -334,7 +340,7 @@ NSString * serverUrlWithPath(NSString *path) {
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 
