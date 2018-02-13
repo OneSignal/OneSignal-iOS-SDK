@@ -401,10 +401,12 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             registeredWithApple = self.currentSubscriptionState.pushToken || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
         
         // Check if disabled in-app launch url if passed a NO
-        if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
+        if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]]) {
             [self enableInAppLaunchURL:settings[kOSSettingsKeyInAppLaunchURL]];
-        else
+        } else if (![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"]) {
+            //only need to default to @YES if the app doesn't already have this setting saved in NSUserDefaults
             [self enableInAppLaunchURL:@YES];
+        }
         
         
         var autoPrompt = YES;
@@ -1746,7 +1748,7 @@ static NSString *_lastnonActiveMessageId;
     }
 }
 
-+ (void)setUnauthenticatedEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
++ (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
 
@@ -1777,8 +1779,8 @@ static NSString *_lastnonActiveMessageId;
     }];
 }
 
-+ (void)setUnauthenticatedEmail:(NSString * _Nonnull)email {
-    [self setUnauthenticatedEmail:email withSuccess:nil withFailure:nil];
++ (void)setEmail:(NSString * _Nonnull)email {
+    [self setEmail:email withSuccess:nil withFailure:nil];
 }
 
 + (void)logoutEmail {

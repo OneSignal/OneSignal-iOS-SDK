@@ -115,7 +115,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [self setupEmailTest];
     
-    [OneSignal setUnauthenticatedEmail:@"test@test.com" withSuccess:nil withFailure:nil];
+    [OneSignal setEmail:@"test@test.com" withSuccess:nil withFailure:nil];
     
     [UnitTestCommonMethods runBackgroundThreads];
     NSLog(@"LAST REQ: %@", OneSignalClientOverrider.lastHTTPRequest);
@@ -163,7 +163,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 1;
     
-    [OneSignal setUnauthenticatedEmail:@"bad_email" withSuccess:^{
+    [OneSignal setEmail:@"bad_email" withSuccess:^{
         XCTFail(@"setEmail: should reject invalid emails");
         
     } withFailure:^(NSError *error) {
@@ -191,7 +191,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 
-// tests to make sure the SDK correctly rejects setUnauthenticatedEmail if
+// tests to make sure the SDK correctly rejects setEmail when authToken == nil if
+// the auth token is required (via iOS params file) for this application
 - (void)testRequiresEmailAuth {
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
@@ -215,7 +216,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     }];
     
     //this should fail since require_email_auth == true and we aren't providing an auth token
-    [OneSignal setUnauthenticatedEmail:@"test@test.com" withSuccess:^{
+    [OneSignal setEmail:@"test@test.com" withSuccess:^{
         XCTFail(@"Email authentication should be required.");
     } withFailure:^(NSError *error) {
         XCTAssertNotNil(error);
@@ -240,7 +241,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 1;
     
-    [OneSignal setUnauthenticatedEmail:@"testEmail@test.com" withSuccess:^{
+    [OneSignal setEmail:@"testEmail@test.com" withSuccess:^{
         [expectation fulfill];
     } withFailure:^(NSError *error) {
         XCTFail(@"Encountered error: %@", error);
