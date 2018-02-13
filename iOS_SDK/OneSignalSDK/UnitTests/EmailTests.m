@@ -33,6 +33,8 @@
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
++ (void)registerUserInternal;
++ (void)setNextRegistrationHighPriority:(BOOL)highPriority;
 @end
 
 @interface EmailTests : XCTestCase
@@ -273,7 +275,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
-    
     // Triggers the 30 fallback to register device right away.
     [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
@@ -394,24 +395,28 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 
 //when the user is logged in with email, on_focus requests should be duplicated for the email player id as well
 - (void)testOnFocusEmailRequest {
+    
     [UnitTestCommonMethods runBackgroundThreads];
     
     [self setupEmailTest];
     
     [OneSignalClientOverrider reset:self];
+    
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     
-    [OneSignalTracker setLastOpenedTime:now - 40];
-    
-    [OneSignalTracker onFocus:true];
+    //if we don't artificially set lastOpenedTime back at least 30 seconds, the on_focus request will not execute
+    [OneSignalTracker setLastOpenedTime:now - 4000];
     
     [OneSignalTracker onFocus:false];
     
+    [OneSignalTracker setLastOpenedTime:now - 4000];
+    
+    [OneSignalTracker onFocus:true];
+    
     [UnitTestCommonMethods runBackgroundThreads];
     
-    //TODO: Fix broken asserts
-//    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestOnFocus class]));
-//    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertTrue([OneSignalClientOverrider.lastHTTPRequestType isEqualToString:NSStringFromClass([OSRequestOnFocus class])]);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     [OneSignalClientOverrider reset:self];
     
@@ -430,13 +435,62 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [OneSignalClientOverrider reset:self];
     
-    [OneSignalTracker setLastOpenedTime:now - 40];
+    //check to make sure request count gets reset to 0
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
+    
+    [OneSignalTracker setLastOpenedTime:now - 4000];
+    
+    [OneSignalTracker onFocus:false];
+    
+    [OneSignalTracker setLastOpenedTime:now - 4000];
     
     [OneSignalTracker onFocus:true];
     
+    [UnitTestCommonMethods runBackgroundThreads];
+    
     // on_focus should fire off two requests, one for the email player ID and one for push player ID
-//    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestOnFocus class]));
-//    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertTrue([OneSignalClientOverrider.lastHTTPRequestType isEqualToString:NSStringFromClass([OSRequestOnFocus class])]);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    
+    [OneSignalClientOverrider setRequiresEmailAuth:false];
+    
+    [OneSignalClientOverrider reset:self];
+}
+
+- (void)testRegistration {
+    // Restart App
+    [self setupEmailTest];
+    
+    [OneSignalClientOverrider setRequiresEmailAuth:true];
+    
+    let expectation = [self expectationWithDescription:@"email"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal setEmail:@"test@test.com" withEmailAuthHashToken:@"test-hash-token" withSuccess:^{
+        [expectation fulfill];
+    } withFailure:^(NSError *error) {
+        XCTFail(@"Encountered an error: %@", error);
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    //reset network request count back to zero
+    [OneSignalClientOverrider reset:self];
+    
+    //set this flag to true so that registerUserInternal() actually executes
+    [OneSignal setNextRegistrationHighPriority:true];
+    
+    [OneSignal registerUserInternal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //should make two requests (one for email player ID, one for push)
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], @"test-hash-token");
+    
+    [OneSignalClientOverrider setRequiresEmailAuth:false];
+    
+    [OneSignalClientOverrider reset:self];
 }
 
 @end

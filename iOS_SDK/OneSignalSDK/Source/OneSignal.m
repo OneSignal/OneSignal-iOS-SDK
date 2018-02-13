@@ -1031,6 +1031,11 @@ bool nextRegistrationIsHighPriority = NO;
 
 static BOOL waitingForOneSReg = false;
 
+//needed so that tests can make sure registerUserInternal executes
++ (void)setNextRegistrationHighPriority:(BOOL)highPriority {
+    nextRegistrationIsHighPriority = highPriority;
+}
+
 
 + (void)updateLastSessionDateTime {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
