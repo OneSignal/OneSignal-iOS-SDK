@@ -795,13 +795,17 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         NSError *error = errors[@"push"];
-        if (!error)
+        if (!error) {
             error = errors[@"email"];
+        }
         
-        if (nowProcessingCallbacks)
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
-                if (callbackSet.failureBlock)
+        if (nowProcessingCallbacks) {
+            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
+                if (callbackSet.failureBlock) {
                     callbackSet.failureBlock(error);
+                }
+            }
+        }
     }];
 }
 
