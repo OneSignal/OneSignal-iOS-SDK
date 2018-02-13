@@ -524,7 +524,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 +(void)downloadIOSParams {
-    NSLog(@"DOWNLOADING IOS PARAMS");
+    [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     didCallDownloadParameters = true;
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
@@ -536,7 +536,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                 [self setEmail:delayedParameters.email withEmailAuthHashToken:delayedParameters.authToken withSuccess:delayedParameters.successBlock withFailure:delayedParameters.failureBlock];
                 delayedParameters = nil;
             }
-            NSLog(@"REQUIRES EMAIL AUTH: %i", self.currentEmailSubscriptionState.requiresEmailAuth);
         }
         
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
@@ -546,7 +545,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
-    NSLog(@"ONESIGNAL - Setting log level: %d", (int)nsLogLevel);
     _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
 }
 
