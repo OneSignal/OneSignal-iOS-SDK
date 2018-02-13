@@ -59,6 +59,9 @@ static BOOL lastOnFocusWasToBackground = YES;
     lastOnFocusWasToBackground = YES;
 }
 
++ (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
+    lastOpenedTime = lastOpened;
+}
 
 
 + (void) beginBackgroundFocusTask {

@@ -192,6 +192,16 @@
     
     return request;
 }
+
++ (instancetype)withUserId:(NSString *)userId emailAuthToken:(NSString *)emailAuthToken appId:(NSString *)appId withPurchases:(NSArray *)purchases {
+    let request = [OSRequestSendPurchases new];
+    
+    request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthToken]};
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"players/%@/on_purchase", purchases];
+    
+    return request;
+}
 @end
 
 @implementation OSRequestSubmitNotificationOpened

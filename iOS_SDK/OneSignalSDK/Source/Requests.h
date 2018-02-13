@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSRequestSendPurchases : OneSignalRequest
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId withPurchases:(NSArray *)purchases;
++ (instancetype)withUserId:(NSString *)userId emailAuthToken:(NSString *)emailAuthToken appId:(NSString *)appId withPurchases:(NSArray *)purchases;
 @end
 
 @interface OSRequestSubmitNotificationOpened : OneSignalRequest
