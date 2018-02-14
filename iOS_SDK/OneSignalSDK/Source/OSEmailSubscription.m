@@ -71,7 +71,7 @@
 
 - (instancetype)copyWithZone:(NSZone *)zone {
     OSEmailSubscriptionState *copy = [OSEmailSubscriptionState new];
-    NSLog(@"COPYING SUBSCRIPTION EMAIL STATE");
+    
     if (copy) {
         copy->_requiresEmailAuth = _requiresEmailAuth;
         copy->_emailAuthCode = [_emailAuthCode copy];

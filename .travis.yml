@@ -5,4 +5,4 @@ before_install:
 script:
   - xcodebuild -list
   - xcodebuild build -scheme OneSignal-Dynamic
-  - xcodebuild -scheme UnitTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPad Air,OS=11.0' test
+  - xcodebuild -scheme UnitTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=11.2' test
