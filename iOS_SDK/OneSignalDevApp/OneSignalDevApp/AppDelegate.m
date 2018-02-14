@@ -60,10 +60,12 @@
     
     id notificationReceiverBlock = ^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
+        
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:11];
     };
     
     [OneSignal initWithLaunchOptions:launchOptions
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+                               appId:@"5dc0b8c7-335a-4c4c-9ed4-266cbf2158ac"
           handleNotificationReceived:notificationReceiverBlock
             handleNotificationAction:openNotificationHandler
                             settings:@{kOSSettingsKeyAutoPrompt: @false,
@@ -76,6 +78,7 @@
     
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
+    [OneSignal addEmailSubscriptionObserver:self];
     
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -90,6 +93,11 @@
 - (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
     NSLog(@"onOSPermissionChanged: %@", stateChanges);
     NSLog(@"HERE");
+}
+
+-(void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
+    NSLog(@"onOSEmailSubscriptionChanged: %@", stateChanges);
+    
 }
 
 
@@ -115,9 +123,6 @@
 //                                     kFIRParameterCampaign: @"some title"
 //                                     }];
     
-    NSString* test = @"{ \
-    \"user_list\": [] \
-}";
 }
 
 

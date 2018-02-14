@@ -27,6 +27,8 @@
 
 #import <XCTest/XCTest.h>
 
+#import "UnitTestCommonMethods.h"
+
 #import <objc/runtime.h>
 
 #import <UIKit/UIKit.h>
@@ -73,98 +75,18 @@
 #import "OneSignalClient.h"
 #import "Requests.h"
 #import "OneSignalClientOverrider.h"
+#import "OneSignalCommonDefines.h"
 
-@interface OneSignal (UN_extra)
-+ (dispatch_queue_t) getRegisterQueue;
-@end
 
-// START - Start Observers
-
-@interface OSPermissionStateTestObserver : NSObject<OSPermissionObserver>
-@end
-
-@implementation OSPermissionStateTestObserver {
-    @package OSPermissionStateChanges* last;
-    @package int fireCount;
+NSString * serverUrlWithPath(NSString *path) {
+    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
 }
-
-- (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
-    NSLog(@"UnitTest:onOSPermissionChanged :\n%@", stateChanges);
-    last = stateChanges;
-    fireCount++;
-}
-@end
-
-
-@interface OSSubscriptionStateTestObserver : NSObject<OSSubscriptionObserver>
-@end
-
-@implementation OSSubscriptionStateTestObserver {
-    @package OSSubscriptionStateChanges* last;
-    @package int fireCount;
-}
-- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-    NSLog(@"UnitTest:onOSSubscriptionChanged:\n%@", stateChanges);
-    last = stateChanges;
-    fireCount++;
-}
-@end
-
-// END - Observers
-
 
 @interface UnitTests : XCTestCase
 
 @end
 
 @implementation UnitTests
-
-- (void)beforeAllTest {
-    static var setupUIApplicationDelegate = false;
-    if (setupUIApplicationDelegate)
-        return;
-    
-    // Normally this just loops internally, overwrote _run to work around this.
-    UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
-    
-    setupUIApplicationDelegate = true;
-    
-    // InstallUncaughtExceptionHandler();
-    
-    // Force swizzle in all methods for tests.
-    OneSignalHelperOverrider.mockIOSVersion = 8;
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
-    OneSignalHelperOverrider.mockIOSVersion = 10;
-}
-
-- (void)clearStateForAppRestart {
-    NSLog(@"=======  APP RESTART ======\n\n");
-    
-    NSDateOverrider.timeOffset = 0;
-    [OneSignalClientOverrider reset:self];
-    [UNUserNotificationCenterOverrider reset:self];
-    [UIApplicationOverrider reset];
-    [OneSignalTrackFirebaseAnalyticsOverrider reset];
-    
-    NSLocaleOverrider.preferredLanguagesArray = @[@"en-US"];
-
-    [OneSignalHelper performSelector:NSSelectorFromString(@"resetLocals")];
-    
-    [OneSignal setValue:nil forKeyPath:@"lastAppActiveMessageId"];
-    [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
-    [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
-    
-    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
-    
-    [NSObjectOverrider reset];
-    
-    [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
-    
-    [UIAlertViewOverrider reset];
-    
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
-}
 
 // Called before each test.
 - (void)setUp {
@@ -181,9 +103,9 @@
     
     [NSUserDefaultsOverrider clearInternalDictionary];
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
 
-    [self beforeAllTest];
+    [UnitTestCommonMethods beforeAllTest];
     
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
@@ -195,16 +117,11 @@
 // Called after each test.
 - (void)tearDown {
     [super tearDown];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
 }
 
 - (void)backgroundModesDisabledInXcode {
     NSBundleOverrider.nsbundleDictionary = @{};
-}
-
-- (void)setCurrentNotificationPermissionAsUnanswered {
-    UNUserNotificationCenterOverrider.notifTypesOverride = 0;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
 }
 
 - (void)setCurrentNotificationPermission:(BOOL)accepted {
@@ -236,7 +153,7 @@
     if (triggerDidRegisterForRemoteNotfications)
         [self setCurrentNotificationPermission:false];
     
-    [self resumeApp];
+    [UnitTestCommonMethods resumeApp];
     [self setCurrentNotificationPermission:accept];
     
     if (triggerDidRegisterForRemoteNotfications && NSBundleOverrider.nsbundleDictionary[@"UIBackgroundModes"])
@@ -257,46 +174,6 @@
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationWillResignActive:sharedApp];
-}
-
-- (void)resumeApp {
-    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationDidBecomeActive:sharedApp];
-}
-
-// Runs any blocks passed to dispatch_async()
-- (void)runBackgroundThreads {
-    NSLog(@"START runBackgroundThreads");
-    
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
-    
-    // the httpQueue makes sure all HTTP request mocks are sync'ed
-    
-    dispatch_queue_t registerUserQueue, notifSettingsQueue, httpQueue;
-    for(int i = 0; i < 10; i++) {
-        [OneSignalHelperOverrider runBackgroundThreads];
-        
-        notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
-        if (notifSettingsQueue)
-            dispatch_sync(notifSettingsQueue, ^{});
-        
-        registerUserQueue = [OneSignal getRegisterQueue];
-        if (registerUserQueue)
-            dispatch_sync(registerUserQueue, ^{});
-        
-        httpQueue = [OneSignalClientOverrider getHTTPQueue];
-        if (httpQueue)
-            dispatch_sync(httpQueue, ^{});
-        
-        [UNUserNotificationCenterOverrider runBackgroundThreads];
-        
-        dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
-        
-        [UIApplicationOverrider runBackgroundThreads];
-    }
-    
-    NSLog(@"END runBackgroundThreads");
 }
 
 - (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
@@ -323,34 +200,32 @@
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
   id userInfo = @{@"custom":
-                      @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"}
+                      @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"}
                   };
   
   return [self createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
-// Helper used to simpify tests below.
-- (void)initOneSignal {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    
-    // iOS fires the resume event when app is cold started.
-    [self resumeApp];
-}
 
 -(void)initOneSignalAndThreadWait {
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
 }
 
 - (void)testBasicInitTest {
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
-    [self initOneSignal];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    NSLog(@"CHECKING LAST HTTP REQUEST");
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
+    NSLog(@"RAN A FEW CONDITIONALS: %@", OneSignalClientOverrider.lastHTTPRequest);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
@@ -360,17 +235,25 @@
     XCTAssertTrue(status.permissionStatus.hasPrompted);
     XCTAssertTrue(status.permissionStatus.answeredPrompt);
     
+    NSLog(@"CURRENT USER ID: %@", status.subscriptionStatus);
+    
     XCTAssertEqual(status.subscriptionStatus.subscribed, true);
     XCTAssertEqual(status.subscriptionStatus.userSubscriptionSetting, true);
     XCTAssertEqual(status.subscriptionStatus.userId, @"1234");
     XCTAssertEqualObjects(status.subscriptionStatus.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
+    //email has not been set so the email properties should be nil
+    XCTAssertFalse(status.emailSubscriptionStatus.subscribed);
+    XCTAssertNil(status.emailSubscriptionStatus.emailUserId);
+    XCTAssertNil(status.emailSubscriptionStatus.emailAddress);
+    
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    
+    
 }
 
 - (void)testVersionStringLength {
@@ -403,6 +286,8 @@
 }
 
 - (void)testRegisterationOniOS7 {
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
     [self initOneSignalAndThreadWait];
@@ -417,9 +302,8 @@
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Make the following methods were not called as they are not available on iOS 7
     XCTAssertFalse(UIApplicationOverrider.calledRegisterForRemoteNotifications);
@@ -434,14 +318,16 @@
 }
 
 - (void)testInitOnSimulator {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     UIApplicationOverrider.didFailRegistarationErrorCode = 3010;
     
     [self initOneSignalAndThreadWait];
     
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
@@ -453,9 +339,8 @@
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [self initOneSignalAndThreadWait];
-    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 
@@ -467,7 +352,7 @@
     
     XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
 
     // Test old very old kOSSettingsKeyInAppAlerts
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
@@ -483,24 +368,24 @@
     [OneSignal setSubscription:true];
     [OneSignal promptLocation];
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [self initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [OneSignal sendTag:@"key" value:@"value"];
     [OneSignal setSubscription:true];
     [OneSignal promptLocation];
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 - (void)testPermissionChangeObserverIOS10 {
@@ -511,13 +396,14 @@
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [self sharedTestPermissionChangeObserver];
 }
+
 - (void)testPermissionChangeObserverIOS7 {
     OneSignalHelperOverrider.mockIOSVersion = 7;
     [self sharedTestPermissionChangeObserver];
 }
 - (void)sharedTestPermissionChangeObserver {
     
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -526,7 +412,7 @@
     [OneSignal addPermissionObserver:observer];
     
     [self registerForPushNotifications];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.answeredPrompt, false);
@@ -535,7 +421,7 @@
     XCTAssertEqual(observer->fireCount, 1);
     
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.accepted, false);
     XCTAssertEqual(observer->last.to.answeredPrompt, true);
@@ -553,7 +439,7 @@
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.answeredPrompt, false);
@@ -569,14 +455,14 @@
     [OneSignal addPermissionObserver:observer];
     
     // User kills app, turns off notifications, then opnes it agian.
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     [self setCurrentNotificationPermission:false];
     [self initOneSignalAndThreadWait];
     
     // Added Observer should be notified of the change right away.
     observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.accepted, true);
     XCTAssertEqual(observer->last.to.accepted, false);
@@ -596,7 +482,7 @@
     [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
 }
 - (void)sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -604,14 +490,14 @@
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Restart App
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -620,28 +506,25 @@
     observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertNil(observer->last);
 }
 
-
-
-
 - (void)testPermissionChangeObserverDontLoseFromChanges {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [self registerForPushNotifications];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
 
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.answeredPrompt, false);
@@ -654,7 +537,7 @@
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.subscribed, false);
     XCTAssertEqual(observer->last.to.subscribed, true);
@@ -669,14 +552,14 @@
     
     
     // User kills app, turns off notifications, then opnes it agian.
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     [self setCurrentNotificationPermission:false];
     [self initOneSignalAndThreadWait];
     
     // Added Observer should be notified of the change right away.
     observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
@@ -684,7 +567,7 @@
 
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -696,14 +579,14 @@
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
                           completionHandler:^(BOOL granted, NSError* error) {}];
     [self backgroundApp];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->fireCount, 1);
     XCTAssertEqualObjects([observer->last description],
                           @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 0, status: NotDetermined>,\nto:   <OSPermissionState: hasPrompted: 1, status: NotDetermined>\n>");
     
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Make sure it doesn't fire for answeredPrompt then again right away for accepted
     XCTAssertEqual(observer->fireCount, 2);
@@ -716,7 +599,7 @@
 - (void)testTestPermissionChangeObserverWithNativeiOS10PromptCall {
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
     
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -730,7 +613,7 @@
     [self backgroundApp];
     // Full bug details explained in answerNotifiationPrompt
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->fireCount, 3);
     
@@ -739,7 +622,7 @@
 }
 
 - (void)testPermissionChangeObserverWithDecline {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -748,7 +631,7 @@
     [OneSignal addPermissionObserver:observer];
     
     [self registerForPushNotifications];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.hasPrompted, false);
     XCTAssertEqual(observer->last.from.answeredPrompt, false);
@@ -757,7 +640,7 @@
     XCTAssertEqual(observer->fireCount, 1);
     
     [self answerNotifiationPrompt:false];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.accepted, false);
     XCTAssertEqual(observer->last.to.answeredPrompt, true);
@@ -767,7 +650,7 @@
 
 
 - (void)testPermissionAndSubscriptionChangeObserverRemove {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
@@ -783,14 +666,14 @@
     
     [self registerForPushNotifications];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertNil(permissionObserver->last);
     XCTAssertNil(subscriptionObserver->last);
 }
 
 - (void)testSubscriptionChangeObserverBasic {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -800,23 +683,20 @@
     
     [self registerForPushNotifications];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.subscribed, false);
     XCTAssertEqual(observer->last.to.subscribed, true);
     
     [OneSignal setSubscription:false];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
-    
-    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSSubscriptionState: userId: 1234, pushToken: 0000000000000000000000000000000000000000000000000000000000000000, userSubscriptionSetting: 1, subscribed: 1>,\nto:   <OSSubscriptionState: userId: 1234, pushToken: 0000000000000000000000000000000000000000000000000000000000000000, userSubscriptionSetting: 0, subscribed: 0>\n>");
-    NSLog(@"Test description: %@", observer->last);
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -825,16 +705,16 @@
     [OneSignal addSubscriptionObserver:observer];
     
     // Triggers the 30 fallback to register device right away.
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertNil(observer->last.from.userId);
     XCTAssertEqualObjects(observer->last.to.userId, @"1234");
     XCTAssertFalse(observer->last.to.subscribed);
     
     [OneSignal setSubscription:false];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(observer->last.from.userSubscriptionSetting);
     XCTAssertFalse(observer->last.to.userSubscriptionSetting);
@@ -847,7 +727,7 @@
     // Prompt and accept notifications
     [self registerForPushNotifications];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Shouldn't be subscribed yet as we called setSubscription:false before
     XCTAssertFalse(observer->last.from.subscribed);
@@ -855,7 +735,7 @@
     
     // Device should be reported a subscribed now as all condiditions are true.
     [OneSignal setSubscription:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertFalse(observer->last.from.subscribed);
     XCTAssertTrue(observer->last.to.subscribed);
 }
@@ -863,23 +743,25 @@
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];
     UIApplicationOverrider.didFailRegistarationErrorCode = 3000;
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
+    [UnitTestCommonMethods runBackgroundThreads];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-13);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 
 - (void)testPromptForPushNotificationsWithUserResponse {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -887,15 +769,15 @@
     }];
     [self backgroundApp];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
 }
 
 - (void)testPromptForPushNotificationsWithUserResponseOnIOS8 {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 8;
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -903,15 +785,15 @@
     }];
     [self backgroundApp];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
 }
 
 - (void)testPromptForPushNotificationsWithUserResponseOnIOS7 {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -919,13 +801,13 @@
     }];
     [self backgroundApp];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
 }
 
 
 - (void)testPromptedButNeveranswerNotificationPrompt {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignalAndThreadWait];
     
@@ -934,7 +816,7 @@
     
     // Triggers the 30 fallback to register device right away.
     [OneSignal performSelector:NSSelectorFromString(@"registerUser")];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-19);
@@ -949,49 +831,49 @@
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
 }
 
 
 - (void)testNeverPromptedStatus {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [OneSignal initWithLaunchOptions:nil
                                appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     // Triggers the 30 fallback to register device right away.
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-18);
 }
 
 - (void)testNotAcceptingNotificationsWithoutBackgroundModes {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     // Don't make a network call right away.
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     [self answerNotifiationPrompt:false];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
 }
 
 - (void)testIdsAvailableNotAcceptingNotifications {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
@@ -1001,13 +883,13 @@
         idsAvailable1Called = true;
     }];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [self registerForPushNotifications];
     
     [self answerNotifiationPrompt:false];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(idsAvailable1Called);
     
     
@@ -1020,7 +902,7 @@
         idsAvailable2Called = true;
     }];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(idsAvailable2Called);
 }
 
@@ -1034,7 +916,7 @@
         XCTAssertNil(result.action.actionID);
         openedWasFire = true;
     }];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     id notifResponse = [self createBasiciOSNotificationResponse];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1044,7 +926,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1055,13 +937,13 @@
     
     XCTAssertNil(OneSignalClientOverrider.lastUrl);
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
 
 - (UNNotificationResponse*)createNotificationResponseForAnalyticsTests {
     id userInfo = @{@"custom":
-                        @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                           @"ti": @"1117f966-d8cc-11e4-bed1-df8f05be55bb",
                           @"tn": @"Template Name"
                           }
@@ -1085,7 +967,7 @@
                   @"os_notification_opened": @{
                       @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
                       @"medium": @"notification",
-                      @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                       @"source": @"OneSignal"}
                   };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], event);
@@ -1109,7 +991,7 @@
          @"os_notification_received": @{
               @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
               @"medium": @"notification",
-              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+              @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
               @"source": @"OneSignal"}
          };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
@@ -1117,8 +999,8 @@
     // Trigger a new app session
     [self backgroundApp];
     NSDateOverrider.timeOffset = 41;
-    [self resumeApp];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
@@ -1127,7 +1009,7 @@
        @"os_notification_influence_open": @{
           @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
           @"medium": @"notification",
-          @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+          @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
           @"source": @"OneSignal"}
        };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
@@ -1152,13 +1034,13 @@
 - (void)testNotificationOpenOn2ndColdStartWithoutAppId {
     [self initOneSignalAndThreadWait];
     
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     __block BOOL openedWasFire = false;
     [OneSignal initWithLaunchOptions:nil appId:nil handleNotificationAction:^(OSNotificationOpenedResult *result) {
         openedWasFire = true;
     }];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     id notifResponse = [self createBasiciOSNotificationResponse];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1179,14 +1061,14 @@
         XCTAssertEqualObjects(result.action.actionID, @"id1");
         openedWasFire = true;
     }];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
     
     id userInfo = @{@"aps": @{@"content_available": @1},
                     @"m": @"alert body only",
                     @"o": @[@{@"i": @"id1", @"n": @"text1"}],
                     @"custom": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
                             }
                     };
     
@@ -1201,7 +1083,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1212,7 +1094,7 @@
     
     XCTAssertNil(OneSignalClientOverrider.lastUrl);
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
 
@@ -1226,7 +1108,7 @@
         XCTAssertEqualObjects(result.action.actionID, @"id1");
         openedWasFire = true;
     }];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
     
     id userInfo = @{@"aps": @{
@@ -1234,7 +1116,7 @@
                             @"alert": @"Message Body"
                             },
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             }};
     
@@ -1249,7 +1131,7 @@
     
     // Make sure open tracking network call was made.
     XCTAssertEqual(openedWasFire, true);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55bb");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
@@ -1260,7 +1142,7 @@
     
     XCTAssertNil(OneSignalClientOverrider.lastUrl);
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
@@ -1278,8 +1160,8 @@
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
     
-    [self resumeApp];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
@@ -1335,10 +1217,10 @@
         openedWasFire = true;
     }];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     id userInfo = @{@"custom": @{
-                      @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                      @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                       @"a": @{ @"foo": @"bar" }
                   }};
     
@@ -1380,7 +1262,7 @@
           }
             handleNotificationAction:nil
                             settings:nil];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     let notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1397,7 +1279,7 @@
 - (void)testReceivedCallbackWithButtonsWithNewFormat {
     let newFormat = @{@"aps": @{@"content_available": @1},
                       @"os_data": @{
-                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                               @"buttons": @{
                                       @"m": @"alert body only",
                                       @"o": @[@{@"i": @"id1", @"n": @"text1"}]
@@ -1459,7 +1341,7 @@ didReceiveRemoteNotification:userInfo
                                     @"o": @[@{@"i": @"id1", @"n": @"text1"}]
                                     }
                             },
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
                     };
     
     [self fireDidReceiveRemoteNotification:userInfo];
@@ -1475,7 +1357,7 @@ didReceiveRemoteNotification:userInfo
                     @"m": @"alert body only",
                     @"o": @[@{@"i": @"id1", @"n": @"text1"}],
                     @"custom": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
                             }
                     };
     
@@ -1486,7 +1368,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testSendTags {
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Simple test with a sendTag and sendTags call.
     [OneSignal sendTag:@"key" value:@"value"];
@@ -1494,46 +1376,45 @@ didReceiveRemoteNotification:userInfo
     
     // Make sure all 3 sets of tags where send in 1 network call.
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key1"], @"value1");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], @"value2");
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     
-    // More advanced test with callbacks.
-    __block BOOL didRunSuccess1, didRunSuccess2, didRunSuccess3;
+    let expectation = [self expectationWithDescription:@"wait_tags"];
+    expectation.expectedFulfillmentCount = 3;
     
     [OneSignal sendTag:@"key10" value:@"value10" onSuccess:^(NSDictionary *result) {
-        didRunSuccess1 = true;
+        [expectation fulfill];
     } onFailure:^(NSError *error) {}];
     [OneSignal sendTags:@{@"key11": @"value11", @"key12": @"value12"} onSuccess:^(NSDictionary *result) {
-        didRunSuccess2 = true;
+        [expectation fulfill];
     } onFailure:^(NSError *error) {}];
     
     [OneSignal sendTag:@"key13" value:@"value13" onSuccess:^(NSDictionary *result) {
-        didRunSuccess3 = true;
+        [expectation fulfill];
     } onFailure:^(NSError *error) {}];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key10"], @"value10");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key11"], @"value11");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key12"], @"value12");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key13"], @"value13");
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     
-    XCTAssertEqual(didRunSuccess1, true);
-    XCTAssertEqual(didRunSuccess2, true);
-    XCTAssertEqual(didRunSuccess3, true);
 }
 
 - (void)testDeleteTags {
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     NSLog(@"Calling sendTag and deleteTag");
     // send 2 tags and delete 1 before they get sent off.
@@ -1544,12 +1425,12 @@ didReceiveRemoteNotification:userInfo
     
     // Make sure only 1 network call is made and only key2 gets sent.
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], @"value2");
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     
     [OneSignal sendTags:@{@"someKey": @NO}];
     [OneSignal deleteTag:@"someKey"];
@@ -1557,7 +1438,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testGetTags {
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     __block BOOL fireGetTags = false;
     
@@ -1568,7 +1449,7 @@ didReceiveRemoteNotification:userInfo
         NSLog(@"getTags onFailure HERE");
     }];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(fireGetTags);
 }
@@ -1576,7 +1457,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testGetTagsBeforePlayerId {
     [self initOneSignalAndThreadWait];
     
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     __block BOOL fireGetTags = false;
     
@@ -1587,14 +1468,14 @@ didReceiveRemoteNotification:userInfo
         NSLog(@"getTags onFailure HERE");
     }];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(fireGetTags);
 
 }
 
 - (void)testGetTagsWithNestedDelete {
-    [self initOneSignal];
+    [UnitTestCommonMethods initOneSignal];
     
     __block BOOL fireDeleteTags = false;
     
@@ -1611,34 +1492,34 @@ didReceiveRemoteNotification:userInfo
     }];
     
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
     // create, ge tags, then sendTags call.
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     XCTAssertTrue(fireDeleteTags);
 }
 
 - (void)testSendTagsBeforeRegisterComplete {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [self initOneSignalAndThreadWait];
     
     NSObjectOverrider.selectorNamesForInstantOnlyForFirstRun = [@[@"sendTagsToServer"] mutableCopy];
     
     [OneSignal sendTag:@"key" value:@"value"];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Do not try to send tag update yet as there isn't a player_id yet.
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     [self answerNotifiationPrompt:false];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // A single POST player create call should be made with tags included.
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
@@ -1646,18 +1527,18 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testPostNotification {
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     
     // Normal post should auto add add_id.
     [OneSignal postNotification:@{@"contents": @{@"en": @"message body"}}];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"contents"][@"en"], @"message body");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     
     // Should allow overriding the app_id
     [OneSignal postNotification:@{@"contents": @{@"en": @"message body"}, @"app_id": @"override_app_UUID"}];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"contents"][@"en"], @"message body");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"override_app_UUID");
 }
@@ -1671,11 +1552,11 @@ didReceiveRemoteNotification:userInfo
     [self initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 - (void)testPermissionChangedInSettingsOutsideOfApp {
-    [self clearStateForAppRestart];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [self backgroundModesDisabledInXcode];
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
@@ -1692,12 +1573,12 @@ didReceiveRemoteNotification:userInfo
     
     [self backgroundApp];
     [self setCurrentNotificationPermission:true];
-    [self resumeApp];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     
     XCTAssertEqual(observer->last.from.accepted, false);
     XCTAssertEqual(observer->last.to.accepted, true);
@@ -1709,18 +1590,18 @@ didReceiveRemoteNotification:userInfo
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
     NSDateOverrider.timeOffset = 10;
-    [self resumeApp];
-    [self runBackgroundThreads];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Anything over 30 secounds should count as a session.
     [self backgroundApp];
     NSDateOverrider.timeOffset = 41;
-    [self resumeApp];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://onesignal.com/api/v1/players/1234/on_session");
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
 // Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
@@ -1733,7 +1614,7 @@ didReceiveRemoteNotification:userInfo
           }
                  handleNotificationAction:nil
                             settings:nil];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     id userInfo = @{@"aps": @{@"content_available": @1},
                     @"custom": @{
@@ -1742,10 +1623,10 @@ didReceiveRemoteNotification:userInfo
                     };
     
     [self fireDidReceiveRemoteNotification:userInfo];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(receivedWasFire, true);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 -(UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
@@ -1778,7 +1659,7 @@ didReceiveRemoteNotification:userInfo
                              @"alert": @"Message Body"
                              },
                      @"os_data": @{
-                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                              @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                              @"att": @{ @"id": @"http://domain.com/file.jpg" }
                              }};
@@ -1809,7 +1690,7 @@ didReceiveRemoteNotification:userInfo
                             @"alert": @"Message Body"
                             },
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
                             }};
@@ -1834,7 +1715,7 @@ didReceiveRemoteNotification:userInfo
                             @"alert": @"Message Body"
                             },
                     @"os_data": @{
-                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                             @"att": @{ @"id": @"file.jpg" }
                             }};
     
@@ -1854,7 +1735,7 @@ didReceiveRemoteNotification:userInfo
                         @"alert": @"Message Body"
                         },
                     @"os_data": @{
-                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bb",
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                         @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
@@ -1871,15 +1752,15 @@ didReceiveRemoteNotification:userInfo
 }
 
 -(void)testBuildOSRequest {
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType]];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
     
-    XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb"]);
+    XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"]);
     XCTAssert([request.parameters[@"tags"][@"tag1"] isEqualToString:@"test1"]);
     XCTAssert([request.path isEqualToString:@"players/12345"]);
     
     let urlRequest = request.request;
     
-    XCTAssert([urlRequest.URL.absoluteString isEqualToString:@"https://onesignal.com/api/v1/players/12345"]);
+    XCTAssert([urlRequest.URL.absoluteString isEqualToString:serverUrlWithPath(@"players/12345")]);
     XCTAssert([urlRequest.HTTPMethod isEqualToString:@"PUT"]);
     XCTAssert([urlRequest.allHTTPHeaderFields[@"Content-Type"] isEqualToString:@"application/json"]);
 }
@@ -1891,7 +1772,7 @@ didReceiveRemoteNotification:userInfo
     
     let invalidJson = @{@{@"invalid1" : @"invalid2"} : @"test"}; //Keys are required to be strings, this would crash the app if not handled appropriately
     
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55bb" tags:invalidJson networkType:[OneSignalHelper getNetType]];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
     
     let urlRequest = request.request;
     
@@ -1901,7 +1782,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignal sendTags:invalidJson];
     
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
     //the request should fail and the HTTP request should not contain the invalid tags
@@ -1916,27 +1797,27 @@ didReceiveRemoteNotification:userInfo
  */
 
 -(void)testDelayedSubscriptionUpdate {
-    [self setCurrentNotificationPermissionAsUnanswered];
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
             handleNotificationAction:nil
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Triggers the 30 fallback to register device right away.
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [OneSignal setSubscription:false];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Prompt and accept notifications
     [self registerForPushNotifications];
     [self answerNotifiationPrompt:true];
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Shouldn't be subscribed yet as we called setSubscription:false before
     XCTAssertFalse(observer->last.from.subscribed);
@@ -1949,11 +1830,9 @@ didReceiveRemoteNotification:userInfo
     [OneSignalClientOverrider setShouldExecuteInstantaneously:true];
     XCTAssertFalse(observer->last.to.subscribed);
     
-    [self runBackgroundThreads];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(observer->last.to.subscribed);
-    
-    
 }
 
 @end

@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -23,7 +23,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="bnb-7j-Txm">
-                                <rect key="frame" x="16" y="28" width="343" height="350"/>
+                                <rect key="frame" x="16" y="28" width="343" height="410"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="scp-Od-j8b">
                                         <rect key="frame" x="0.0" y="0.0" width="343" height="30"/>
@@ -41,16 +41,61 @@
                                             <action selector="onGetTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ImV-Jb-wUi"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v8N-J4-GZS">
-                                        <rect key="frame" x="0.0" y="80" width="343" height="30"/>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A26-fO-NJq">
+                                        <rect key="frame" x="0.0" y="80" width="343" height="50"/>
+                                        <subviews>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email Address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="b6K-VA-jiu">
+                                                <rect key="frame" x="0.0" y="10" width="216" height="30"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="iA5-un-hvS"/>
+                                                </constraints>
+                                                <nil key="textColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits" keyboardType="emailAddress" keyboardAppearance="alert" returnKeyType="go"/>
+                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CDz-wP-tRF">
+                                                <rect key="frame" x="224" y="10" width="111" height="30"/>
+                                                <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="Ht3-GV-ePe"/>
+                                                    <constraint firstAttribute="width" constant="111" id="ntR-Sl-HXT"/>
+                                                </constraints>
+                                                <state key="normal" title="Set Email"/>
+                                                <connections>
+                                                    <action selector="onGetTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3ev-1R-HSa"/>
+                                                    <action selector="setEmailButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Qbg-lO-e2Z"/>
+                                                </connections>
+                                            </button>
+                                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Bpn-6E-Le9">
+                                                <rect key="frame" x="269" y="15" width="20" height="20"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="20" id="Ah9-eZ-f2q"/>
+                                                    <constraint firstAttribute="height" constant="20" id="JVb-PF-zeN"/>
+                                                </constraints>
+                                            </activityIndicatorView>
+                                        </subviews>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="Bpn-6E-Le9" firstAttribute="centerX" secondItem="CDz-wP-tRF" secondAttribute="centerX" id="14f-hI-zaE"/>
+                                            <constraint firstItem="CDz-wP-tRF" firstAttribute="leading" secondItem="b6K-VA-jiu" secondAttribute="trailing" constant="8" id="MaQ-LE-tDM"/>
+                                            <constraint firstAttribute="trailing" secondItem="CDz-wP-tRF" secondAttribute="trailing" constant="8" id="PAR-li-VK5"/>
+                                            <constraint firstItem="CDz-wP-tRF" firstAttribute="centerY" secondItem="A26-fO-NJq" secondAttribute="centerY" id="Zho-Fg-Flw"/>
+                                            <constraint firstAttribute="height" constant="50" id="cAG-In-jRv"/>
+                                            <constraint firstItem="b6K-VA-jiu" firstAttribute="leading" secondItem="A26-fO-NJq" secondAttribute="leading" id="lIk-MO-oCs"/>
+                                            <constraint firstItem="Bpn-6E-Le9" firstAttribute="centerY" secondItem="CDz-wP-tRF" secondAttribute="centerY" id="oxb-Td-1Ba"/>
+                                            <constraint firstItem="b6K-VA-jiu" firstAttribute="centerY" secondItem="A26-fO-NJq" secondAttribute="centerY" id="wOi-1k-zUH"/>
+                                        </constraints>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="n7d-6C-Mj7">
+                                        <rect key="frame" x="0.0" y="140" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" title="Delete or Update Tags"/>
+                                        <state key="normal" title="Logout Email"/>
                                         <connections>
-                                            <action selector="onDeleteOrUpdateTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="j6P-bS-AUL"/>
+                                            <action selector="logoutEmailButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4yZ-rT-aVF"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e0d-lw-fVn">
-                                        <rect key="frame" x="0.0" y="120" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="180" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Get IDs Available"/>
                                         <connections>
@@ -58,7 +103,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z6a-jZ-De4">
-                                        <rect key="frame" x="0.0" y="160" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="220" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Sync Email"/>
                                         <connections>
@@ -66,7 +111,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ebf-52-A41">
-                                        <rect key="frame" x="0.0" y="200" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="260" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Prompt Location"/>
                                         <connections>
@@ -74,7 +119,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yZR-mo-rso">
-                                        <rect key="frame" x="0.0" y="240" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="300" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Send Notification 1"/>
                                         <connections>
@@ -82,7 +127,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Ye-re-geG">
-                                        <rect key="frame" x="0.0" y="280" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="340" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Send Notification 2"/>
                                         <connections>
@@ -90,7 +135,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NoN-j4-eys">
-                                        <rect key="frame" x="0.0" y="320" width="343" height="30"/>
+                                        <rect key="frame" x="0.0" y="380" width="343" height="30"/>
                                         <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <state key="normal" title="Register For Push Notifications">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -102,7 +147,7 @@
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="KEj-eg-d7y">
-                                <rect key="frame" x="36" y="388" width="303" height="31"/>
+                                <rect key="frame" x="36" y="448" width="303" height="31"/>
                                 <subviews>
                                     <switch opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uKa-sC-xZ3">
                                         <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
@@ -119,7 +164,7 @@
                                 </subviews>
                             </stackView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Ev6-VI-BvV">
-                                <rect key="frame" x="26" y="429" width="323" height="228"/>
+                                <rect key="frame" x="26" y="489" width="323" height="168"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -142,7 +187,11 @@
                     </view>
                     <connections>
                         <outlet property="allowNotificationsSwitch" destination="uKa-sC-xZ3" id="Efd-Ht-6Ia"/>
+                        <outlet property="emailTextField" destination="b6K-VA-jiu" id="Ypy-xe-ptH"/>
+                        <outlet property="logoutEmailButton" destination="n7d-6C-Mj7" id="TEL-yJ-dfx"/>
                         <outlet property="registerForPushNotificationsButton" destination="NoN-j4-eys" id="r3k-Gg-ibX"/>
+                        <outlet property="setEmailActivityIndicatorView" destination="Bpn-6E-Le9" id="bYp-J4-ISn"/>
+                        <outlet property="setEmailButton" destination="CDz-wP-tRF" id="4xa-NE-uMc"/>
                         <outlet property="setSubscriptionLabel" destination="ljh-6a-4qh" id="ZvJ-iv-Urz"/>
                         <outlet property="textView" destination="Ev6-VI-BvV" id="dp4-QG-HGP"/>
                     </connections>

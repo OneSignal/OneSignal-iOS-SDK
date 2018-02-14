@@ -47,7 +47,7 @@ NSMutableDictionary* skusToTrack;
 
 + (BOOL)canTrack {
     skPaymentQueue = NSClassFromString(@"SKPaymentQueue");
-    return (skPaymentQueue != nil && [skPaymentQueue performSelector:@selector(canMakePayments)]);
+    return (skPaymentQueue != nil && [skPaymentQueue respondsToSelector:@selector(canMakePayments)] && [skPaymentQueue performSelector:@selector(canMakePayments)]);
 }
 
 - (id)init {

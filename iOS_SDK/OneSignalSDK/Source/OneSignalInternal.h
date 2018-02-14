@@ -37,6 +37,7 @@
 
 #import "OSPermission.h"
 #import "OSSubscription.h"
+#import "OSEmailSubscription.h"
 
 
 // Permission + Subscription - Redefine OSPermissionSubscriptionState
@@ -44,6 +45,7 @@
 
 @property (readwrite) OSPermissionState* permissionStatus;
 @property (readwrite) OSSubscriptionState* subscriptionStatus;
+@property (readwrite) OSEmailSubscriptionState *emailSubscriptionStatus;
 
 @end
 

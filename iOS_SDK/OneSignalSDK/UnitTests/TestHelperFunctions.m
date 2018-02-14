@@ -74,3 +74,5 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
     
     return existing;
 }
+
+

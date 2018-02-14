@@ -25,23 +25,24 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-
-typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
-#define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
 
 
-#ifndef OneSignalRequest_h
-#define OneSignalRequest_h
 
-@interface OneSignalRequest : NSObject
+/*
+ Creating an NSDictionary can raise exceptions when working with _Nullable parameters
+ If the parameter is nil, inserting it will cause a crash
+ To resolve this, we can use this helper method to check if the object is nil, and if it is, return NSNull instead
+ This will not crash the application, unlike inserting nil
+*/
 
-@property (nonatomic) HTTPMethod method;
-@property (nonatomic, nonnull) NSString *path;
-@property (nonatomic, nullable) NSDictionary *parameters;
-@property (nonatomic) int reattemptCount;
--(BOOL)missingAppId; //for requests that don't require an appId parameter, the subclass should override this method and return false
--(NSMutableURLRequest * _Nonnull )request;
+#import "NSNull+OneSignal.h"
+
+// Helper method to make sure nil is never inserted into a dictionary when building HTTP requests
+
+@implementation NSNull (OneSignal)
+
++ (id)nullIfObjectIsNil:(id)object {
+    return object != nil ? object : [NSNull null];
+}
+
 @end
-
-#endif
