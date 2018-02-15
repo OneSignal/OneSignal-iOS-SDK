@@ -125,7 +125,7 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020602";
+NSString* const ONESIGNAL_VERSION = @"020700";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -1279,6 +1279,8 @@ static dispatch_queue_t serialQueue;
         
         //If the failed registration is priority, force the next one to be a high priority
         nextRegistrationIsHighPriority = YES;
+        
+        let error = (NSError *)(errors[@"push"] ?: errors[@"email"]);
         
         if (nowProcessingCallbacks) {
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
