@@ -68,7 +68,9 @@ SEL changeSelector;
     BOOL fired = false;
     
     @synchronized(observers) {
-        for (id observer in observers) {
+        NSArray *obs = [observers copy];
+        
+        for (id observer in obs) {
             fired = true;
             if (changeSelector) {
                 // Any Obserable setup to fire a custom selector with changeSelector
