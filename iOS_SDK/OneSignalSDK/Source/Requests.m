@@ -208,7 +208,10 @@
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId {
     let request = [OSRequestSubmitNotificationOpened new];
     
-    request.parameters = @{@"player_id" : userId, @"app_id" : appId, @"opened" : @(opened)};
+    request.parameters = @{
+        @"player_id" : [NSNull nullIfObjectIsNil:userId], 
+        @"app_id" : [NSNull nullIfObjectIsNil:appId], 
+        @"opened" : @(opened)};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@", messageId];
     
