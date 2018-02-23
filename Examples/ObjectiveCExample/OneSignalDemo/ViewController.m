@@ -318,7 +318,9 @@
 
 #pragma mark OSEmailSubscriptionStateChanges Delegate Method
 -(void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
-    
+    NSError *error;
+    NSString *jsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:stateChanges.toDictionary options:NSJSONWritingPrettyPrinted error:&error] encoding:NSUTF8StringEncoding];
+    self.textView.text = jsonString;
 }
 
 @end

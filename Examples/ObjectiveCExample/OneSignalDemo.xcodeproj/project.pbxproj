@@ -13,7 +13,6 @@
 		916B37141E6F520E00CEE4AA /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 916B37131E6F520E00CEE4AA /* NotificationService.m */; };
 		916B37181E6F520E00CEE4AA /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 916B37101E6F520D00CEE4AA /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		91C3CFC81E725E2B00D9EA80 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C3CFBD1E725E2B00D9EA80 /* AppDelegate.m */; };
-		91C3CFC91E725E2B00D9EA80 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFBE1E725E2B00D9EA80 /* Default-568h@2x.png */; };
 		91C3CFCA1E725E2B00D9EA80 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFBF1E725E2B00D9EA80 /* InfoPlist.strings */; };
 		91C3CFCB1E725E2B00D9EA80 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91C3CFC11E725E2B00D9EA80 /* MainStoryboard.storyboard */; };
 		91C3CFCC1E725E2B00D9EA80 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 91C3CFC31E725E2B00D9EA80 /* main.m */; };
@@ -22,6 +21,7 @@
 		CA60C741200048DF004A338B /* RedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA60C740200048DF004A338B /* RedViewController.m */; };
 		CA60C744200049AF004A338B /* GreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA60C743200049AF004A338B /* GreenViewController.m */; };
 		CAD30B7F203F906C00C7AF55 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CAD30B7E203F906C00C7AF55 /* Assets.xcassets */; };
+		CAD30B8E203FB5B000C7AF55 /* onesignal1024.png in Resources */ = {isa = PBXBuildFile; fileRef = CAD30B8D203FB5B000C7AF55 /* onesignal1024.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,7 +62,6 @@
 		916B37151E6F520E00CEE4AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		91C3CFBC1E725E2B00D9EA80 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		91C3CFBD1E725E2B00D9EA80 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		91C3CFBE1E725E2B00D9EA80 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		91C3CFC01E725E2B00D9EA80 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		91C3CFC21E725E2B00D9EA80 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		91C3CFC31E725E2B00D9EA80 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -77,6 +76,7 @@
 		CA60C742200049AF004A338B /* GreenViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GreenViewController.h; sourceTree = "<group>"; };
 		CA60C743200049AF004A338B /* GreenViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GreenViewController.m; sourceTree = "<group>"; };
 		CAD30B7E203F906C00C7AF55 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CAD30B8D203FB5B000C7AF55 /* onesignal1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = onesignal1024.png; path = Assets.xcassets/AppIcon.appiconset/onesignal1024.png; sourceTree = "<group>"; };
 		DE4BCB63161638D4003F4A66 /* OneSignalDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -113,11 +113,11 @@
 		91C3CFBB1E725E2B00D9EA80 /* OneSignalDemo */ = {
 			isa = PBXGroup;
 			children = (
+				CAD30B8D203FB5B000C7AF55 /* onesignal1024.png */,
 				CAD30B7E203F906C00C7AF55 /* Assets.xcassets */,
 				91C3CFCF1E725E7A00D9EA80 /* OneSignalDemo.entitlements */,
 				91C3CFBC1E725E2B00D9EA80 /* AppDelegate.h */,
 				91C3CFBD1E725E2B00D9EA80 /* AppDelegate.m */,
-				91C3CFBE1E725E2B00D9EA80 /* Default-568h@2x.png */,
 				91C3CFBF1E725E2B00D9EA80 /* InfoPlist.strings */,
 				CA60C73D2000464A004A338B /* LaunchScreen.storyboard */,
 				91C3CFC11E725E2B00D9EA80 /* MainStoryboard.storyboard */,
@@ -282,9 +282,9 @@
 				CA60C73E2000464A004A338B /* LaunchScreen.storyboard in Resources */,
 				91C3CFCB1E725E2B00D9EA80 /* MainStoryboard.storyboard in Resources */,
 				91C3CFCA1E725E2B00D9EA80 /* InfoPlist.strings in Resources */,
+				CAD30B8E203FB5B000C7AF55 /* onesignal1024.png in Resources */,
 				37D0A46A192B077E009DC9F4 /* notification.wav in Resources */,
 				CAD30B7F203F906C00C7AF55 /* Assets.xcassets in Resources */,
-				91C3CFC91E725E2B00D9EA80 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
