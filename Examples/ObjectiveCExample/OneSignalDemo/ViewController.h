@@ -28,11 +28,8 @@
 #import <UIKit/UIKit.h>
 #import <OneSignal/OneSignal.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, UITextFieldDelegate>
 
 @property(nonatomic,retain) IBOutlet UITextView* textMultiLine1;
-
-- (IBAction)sendTags:(id)sender;
-- (IBAction)getIds:(id)sender;
 
 @end
