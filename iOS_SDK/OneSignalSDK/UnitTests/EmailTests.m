@@ -367,7 +367,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [self waitForExpectations:@[expectation] timeout:0.1];
     
-    NSLog(@"CHECKING REQUIRES EMAIL AUTH");
+    [UnitTestCommonMethods runBackgroundThreads];
+    
     XCTAssertEqual(observer->last.to.emailAddress, @"test@test.com");
     XCTAssertEqual(observer->last.to.emailUserId, @"1234");
     XCTAssertEqual(observer->last.to.emailAuthCode, @"test-hash-token");
@@ -382,8 +383,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     } withFailure:^(NSError *error) {
         XCTFail(@"Encountered error: %@", error);
     }];
-     
+    
     [self waitForExpectations:@[logoutExpectation] timeout:0.1];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertNil(observer->last.to.emailAddress);
     XCTAssertNil(observer->last.to.emailAuthCode);
