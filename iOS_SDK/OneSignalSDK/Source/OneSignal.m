@@ -111,7 +111,9 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 }
 - (NSDictionary*)toDictionary {
     return @{@"permissionStatus": [_permissionStatus toDictionary],
-             @"subscriptionStatus": [_subscriptionStatus toDictionary]};
+             @"subscriptionStatus": [_subscriptionStatus toDictionary],
+             @"emailSubscriptionStatus" : [_emailSubscriptionStatus toDictionary]
+             };
 }
 @end
 

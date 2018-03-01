@@ -25,11 +25,8 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
-#import <OneSignal/OneSignal.h>
+#import <Foundation/Foundation.h>
 
-@interface ViewController : UIViewController <OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, UITextFieldDelegate>
-
-@property(nonatomic,retain) IBOutlet UITextView* textMultiLine1;
-
+@interface RedViewController : UIViewController
+@property (strong, nonatomic) NSURL *receivedUrl;
 @end

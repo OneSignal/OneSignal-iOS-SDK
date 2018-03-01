@@ -29,7 +29,6 @@
 #import "Requests.h"
 #import "OneSignalRequest.h"
 #import "OneSignalHelper.h"
-#import "NSNull+OneSignal.h"
 #import <stdlib.h>
 #import <stdio.h>
 #import <sys/types.h>
@@ -139,9 +138,9 @@
     request.parameters = @{
        @"app_id" : appId,
        @"device_type" : deviceType,
-       @"identifier" : [NSNull nullIfObjectIsNil:email],
-       @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
-       @"device_player_id" : [NSNull nullIfObjectIsNil:playerId]
+       @"identifier" : email ?: [NSNull null],
+       @"email_auth_hash" : emailAuthHash ?: [NSNull null],
+       @"device_player_id" : playerId ?: [NSNull null]
     };
     
     request.method = POST;
@@ -157,8 +156,8 @@
     let request = [OSRequestLogoutEmail new];
     
     request.parameters = @{
-       @"parent_player_id" : [NSNull nullIfObjectIsNil:emailPlayerId],
-       @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthHash],
+       @"parent_player_id" : emailPlayerId ?: [NSNull null],
+       @"email_auth_hash" : emailAuthHash ?: [NSNull null],
        @"app_id" : appId
     };
     
@@ -196,7 +195,7 @@
 + (instancetype)withUserId:(NSString *)userId emailAuthToken:(NSString *)emailAuthToken appId:(NSString *)appId withPurchases:(NSArray *)purchases {
     let request = [OSRequestSendPurchases new];
     
-    request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : [NSNull nullIfObjectIsNil:emailAuthToken]};
+    request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : emailAuthToken ?: [NSNull null]};
     request.method = POST;
     request.path = [NSString stringWithFormat:@"players/%@/on_purchase", purchases];
     
@@ -208,7 +207,7 @@
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId {
     let request = [OSRequestSubmitNotificationOpened new];
     
-    request.parameters = @{@"player_id" : userId, @"app_id" : appId, @"opened" : @(opened)};
+    request.parameters = @{@"player_id" : userId ?: [NSNull null], @"app_id" : appId ?: [NSNull null], @"opened" : @(opened)};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@", messageId];
     

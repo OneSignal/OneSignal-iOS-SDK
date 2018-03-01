@@ -25,11 +25,25 @@
  * THE SOFTWARE.
  */
 
+#import "RedViewController.h"
 #import <UIKit/UIKit.h>
-#import <OneSignal/OneSignal.h>
 
-@interface ViewController : UIViewController <OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, UITextFieldDelegate>
+@interface RedViewController ()
+@property (weak, nonatomic) IBOutlet UIWebView *webView;
+@end
 
-@property(nonatomic,retain) IBOutlet UITextView* textMultiLine1;
+@implementation RedViewController
+
+-(void)viewDidLoad {
+    [super viewDidLoad];
+    
+    if (self.receivedUrl) {
+        [self.webView loadRequest:[NSURLRequest requestWithURL:self.receivedUrl]];
+    }
+}
+
+- (IBAction)backButtonPressed:(UIButton *)sender {
+    [self dismissViewControllerAnimated:true completion:nil];
+}
 
 @end

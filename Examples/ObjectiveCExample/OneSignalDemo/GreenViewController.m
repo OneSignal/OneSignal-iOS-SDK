@@ -25,11 +25,16 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
-#import <OneSignal/OneSignal.h>
+#import "GreenViewController.h"
 
-@interface ViewController : UIViewController <OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, UITextFieldDelegate>
+@implementation GreenViewController
 
-@property(nonatomic,retain) IBOutlet UITextView* textMultiLine1;
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+}
+- (IBAction)backButtonPressed:(UIButton *)sender {
+    [self dismissViewControllerAnimated:true completion:nil];
+}
 
 @end
