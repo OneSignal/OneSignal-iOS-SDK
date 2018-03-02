@@ -38,6 +38,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "NSMutableDictionary+OneSignal.h"
 #import "NSString+OneSignal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
@@ -876,7 +877,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:[jsonData mutableCopy]] onSuccess:^(NSDictionary *result) {
+    NSMutableDictionary *json = [jsonData mutableCopy];
+    
+    [json convertDatesToISO8061Strings]; //convert any dates to NSString's
+    
+    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:json] onSuccess:^(NSDictionary *result) {
         NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
         NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         
