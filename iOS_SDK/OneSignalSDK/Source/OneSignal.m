@@ -1717,7 +1717,7 @@ static NSString *_lastnonActiveMessageId;
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     
     //some clients/wrappers may send NSNull instead of nil as the auth token
-    NSString *emailAuthToken = hashToken;
+    NSString *emailAuthToken = hashToken.lowercaseString;
     if (hashToken == (id)[NSNull null])
         emailAuthToken = nil;
     
