@@ -133,6 +133,8 @@
 		CA08FC811FE99B25004C445F /* Requests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08FC7D1FE99B25004C445F /* Requests.m */; };
 		CA08FC871FE99BB4004C445F /* OneSignalClientOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */; };
 		CA1873BD2049F7070079CA09 /* NSMutableDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1873BC2049F7070079CA09 /* NSMutableDictionary+OneSignal.m */; };
+		CA1873BF2049FB4F0079CA09 /* NSMutableDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1873BC2049F7070079CA09 /* NSMutableDictionary+OneSignal.m */; };
+		CA1873C02049FB540079CA09 /* NSMutableDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1873BC2049F7070079CA09 /* NSMutableDictionary+OneSignal.m */; };
 		CA63AF8420211F7400E340FB /* EmailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8320211F7400E340FB /* EmailTests.m */; };
 		CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */; };
 		CA63AFC22022670A00E340FB /* ReattemptRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = CA63AFC02022670A00E340FB /* ReattemptRequest.h */; };
@@ -759,6 +761,7 @@
 				CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */,
 				CA63AFC42022670A00E340FB /* ReattemptRequest.m in Sources */,
 				91F58D8A1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
+				CA1873BF2049FB4F0079CA09 /* NSMutableDictionary+OneSignal.m in Sources */,
 				912412231E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
@@ -803,6 +806,7 @@
 				1AF75EAF1E8569710097B315 /* NSString+OneSignal.m in Sources */,
 				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
+				CA1873C02049FB540079CA09 /* NSMutableDictionary+OneSignal.m in Sources */,
 				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
