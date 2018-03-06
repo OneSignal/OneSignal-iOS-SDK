@@ -364,7 +364,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)deleteTagsWithJsonString:(NSString*)jsonString;
 // Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
 // Sends as MD5 and SHA1 of the provided email
-+ (void)syncHashedEmail:(NSString*)email;
++ (void)syncHashedEmail:(NSString*)email __deprecated_msg("Please refer to our new Email methods/functionality such as setEmail(). This method will be removed in a future version of the OneSignal SDK");
 
 // - Subscription and Permissions
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock __deprecated_msg("Please use getPermissionSubscriptionState or addSubscriptionObserver and addPermissionObserver instead.");
