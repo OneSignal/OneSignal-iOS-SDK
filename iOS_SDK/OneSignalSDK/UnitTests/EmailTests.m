@@ -496,4 +496,32 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignalClientOverrider reset:self];
 }
 
+-(void)testEmailSubscriptionDescription {
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let observer = [OSEmailSubscriptionStateTestObserver new];
+    [OneSignal addEmailSubscriptionObserver:observer];
+    
+    [self setupEmailTest];
+    
+    let expectation = [self expectationWithDescription:@"email"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal setEmail:@"test@test.com" withSuccess:^{
+        [expectation fulfill];
+    } withFailure:^(NSError *error) {
+        XCTFail(@"Failed with error: %@", error);
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertTrue([observer->last.to.description isEqualToString: @"<OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234>"]);
+    XCTAssertTrue([observer->last.from.description isEqualToString:@"<OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null)>"]);
+    XCTAssertTrue([observer->last.description isEqualToString:@"<OSEmailSubscriptionStateChanges:\nfrom: <OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null)>,\nto:   <OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234>\n>"]);
+    
+    [OneSignalClientOverrider reset:self];
+}
+
 @end
