@@ -589,7 +589,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             let alertView = [[UIAlertView alloc] initWithTitle:levelString
                                                        message:message
                                                       delegate:nil
-                                             cancelButtonTitle:NSLocalizedString(@"Close", nil)
+                                             cancelButtonTitle:NSLocalizedString(@"Close", @"Close button")
                                              otherButtonTitles:nil, nil];
             [alertView show];
         }];
@@ -882,17 +882,21 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [json convertDatesToISO8061Strings]; //convert any dates to NSString's
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:json] onSuccess:^(NSDictionary *result) {
-        NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
-        NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        
-        onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
-        if (successBlock)
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
+            NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            
+            onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
+            if (successBlock)
             successBlock(result);
+        });
     } onFailure:^(NSError *error) {
-        onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
-        onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
-        if (failureBlock)
+        dispatch_async(dispatch_get_main_queue(), ^{
+            onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
+            onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
+            if (failureBlock)
             failureBlock(error);
+        });
     }];
 }
 
