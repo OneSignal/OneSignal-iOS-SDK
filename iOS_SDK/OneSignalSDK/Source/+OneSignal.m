@@ -240,8 +240,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     
     // trigger is nil when UIApplication.presentLocalNotificationNow: is used.
-    //  However it will be UNLegacyNotificationTrigger when UIApplication.scheduleLocalNotification: is used
-    BOOL isLegacyLocalNotif = !notification.request.trigger || [notification.request.trigger isKindOfClass:NSClassFromString(@"UNLegacyNotificationTrigger")];
+    BOOL isLegacyLocalNotif = !notification.request.trigger;
     BOOL isCustomAction = actionIdentifier && ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:actionIdentifier];
     BOOL isRemote = [notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
     
