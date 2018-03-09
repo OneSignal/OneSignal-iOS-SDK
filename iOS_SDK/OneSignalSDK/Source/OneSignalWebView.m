@@ -65,6 +65,7 @@ UIViewController *viewControllerForPresentation;
 
 
 -(void)dismiss:(id)sender {
+    NSLog(@"DISMISS CALLED");
     [self.navigationController dismissViewControllerAnimated:true completion:^{
         //clear web view
         [_webView loadHTMLString:@"" baseURL:nil];
@@ -100,6 +101,16 @@ UIViewController *viewControllerForPresentation;
     [superview layoutIfNeeded];
 }
 
+- (UIViewController*) topMostController
+{
+    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
+    
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+    
+    return topController;
+}
 
 -(void)showInApp {
     // if already presented, no need to present again

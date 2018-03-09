@@ -61,15 +61,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             if let additionalData = result!.notification.payload!.additionalData {
                 print("additionalData = \(additionalData)")
                 
-                // DEEP LINK and open url in RedViewController
-                // Send notification with Additional Data > example key: "OpenURL" example value: "https://google.com"
-                let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                let instantiateRedViewController : RedViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedViewControllerID") as! RedViewController
-                instantiateRedViewController.receivedURL = additionalData["OpenURL"] as! String!
-                self.window = UIWindow(frame: UIScreen.main.bounds)
-                self.window?.rootViewController = instantiateRedViewController
-                self.window?.makeKeyAndVisible()
-                
                 
                 if let actionSelected = payload?.actionButtons {
                     print("actionSelected = \(actionSelected)")

@@ -147,6 +147,10 @@
 		CA810FD1202BA97300A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
+		CA97E14E2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = CA97E14C2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h */; };
+		CA97E14F2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
+		CA97E1502051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
+		CA97E1512051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
@@ -282,6 +286,8 @@
 		CA70E3382023F24500019273 /* OneSignalCommonDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCommonDefines.h; sourceTree = "<group>"; };
 		CA810FCF202BA97300A60FED /* OSEmailSubscription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSEmailSubscription.h; sourceTree = "<group>"; };
 		CA810FD0202BA97300A60FED /* OSEmailSubscription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSEmailSubscription.m; sourceTree = "<group>"; };
+		CA97E14C2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWebOpenDialog.h; sourceTree = "<group>"; };
+		CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalWebOpenDialog.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -462,6 +468,8 @@
 				912411F31E73342200E41FD7 /* OneSignalAlertViewDelegate.m */,
 				912412061E73342200E41FD7 /* OneSignalWebView.h */,
 				912412071E73342200E41FD7 /* OneSignalWebView.m */,
+				CA97E14C2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h */,
+				CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -561,6 +569,7 @@
 				912412391E73342200E41FD7 /* OneSignalWebView.h in Headers */,
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
 				9129C6BD1E89E7AB009CB6A0 /* OSSubscription.h in Headers */,
+				CA97E14E2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -712,6 +721,7 @@
 				9129C6B81E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				912412121E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
 				912412421E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
+				CA97E14F2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */,
 				9124123A1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				912412261E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
@@ -749,6 +759,7 @@
 				91F58D841E7C88220017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				9129C6B91E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				912412131E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
+				CA97E1502051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */,
 				0338566B1FBBD2270002F7C1 /* OSNotificationPayload.m in Sources */,
 				912412431E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				9124123B1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
@@ -806,6 +817,7 @@
 				1AF75EAF1E8569710097B315 /* NSString+OneSignal.m in Sources */,
 				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
+				CA97E1512051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */,
 				CA1873C02049FB540079CA09 /* NSMutableDictionary+OneSignal.m in Sources */,
 				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,

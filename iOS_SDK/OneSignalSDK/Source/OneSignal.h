@@ -282,6 +282,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @end
 
 
+typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
@@ -305,6 +306,9 @@ extern NSString * const kOSSettingsKeyInAppAlerts;
 
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
+
+/*Prompt user yes/no to open URL's from push notifications*/
+extern NSString * const kOSSSettingsKeyPromptBeforeOpeningPushURL;
 
 /* iOS10 +
  Set notification's in-focus display option.

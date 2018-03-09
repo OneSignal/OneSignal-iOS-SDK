@@ -104,6 +104,8 @@ NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisp
 /* Omit no app_id error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
+/* Determine whether to automatically open push notification URL's or prompt user for permission */
+NSString* const kOSSSettingsKeyPromptBeforeOpeningPushURL = @"kOSSSettingsKeyPromptBeforeOpeningPushURL";
 
 @implementation OSPermissionSubscriptionState
 - (NSString*)description {
@@ -159,6 +161,8 @@ static BOOL backgroundModesEnabled = false;
 // indicates if the GetiOSParams request has completed
 static BOOL downloadedParameters = false;
 static BOOL didCallDownloadParameters = false;
+
+static BOOL promptBeforeOpeningPushURLs = false;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
@@ -368,11 +372,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
@@ -411,6 +415,13 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             [self enableInAppLaunchURL:@YES];
         }
         
+        if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
+            promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
+            [userDefaults setObject:settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] forKey:PROMPT_BEFORE_OPENING_PUSH_URL];
+            [userDefaults synchronize];
+        } else if ([userDefaults objectForKey:PROMPT_BEFORE_OPENING_PUSH_URL]) {
+            promptBeforeOpeningPushURLs = [[userDefaults objectForKey:PROMPT_BEFORE_OPENING_PUSH_URL] boolValue];
+        }
         
         var autoPrompt = YES;
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
@@ -1367,10 +1378,13 @@ static NSString *_lastnonActiveMessageId;
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    
     if (!app_id)
         return;
     
     onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
+    
+    NSLog(@"Notification opened with messageDict: %@, isActive: %i", messageDict, isActive);
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (!customDict)
@@ -1402,8 +1416,7 @@ static NSString *_lastnonActiveMessageId;
         // Notify backend that user opened the notification
         NSString *messageId = [customDict objectForKey:@"i"];
         [OneSignal submitNotificationOpened:messageId];
-    }
-    else {
+    } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
         if ([@"dup" isEqualToString:newId])
@@ -1445,7 +1458,7 @@ static NSString *_lastnonActiveMessageId;
                      displayType:(OSNotificationDisplayType)displayType {
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
     if (customDict == nil)
-        customDict = [messageDict objectForKey:@"custom"];
+        customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
@@ -1468,7 +1481,12 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
 }
 
++ (BOOL)shouldPromptToShowURL {
+    return promptBeforeOpeningPushURLs;
+}
+
 + (void)launchWebURL:(NSString*)openUrl {
+    
     NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
     
     if (toOpenUrl && [OneSignalHelper verifyURL:toOpenUrl]) {
