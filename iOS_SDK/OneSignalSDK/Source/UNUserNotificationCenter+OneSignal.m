@@ -239,52 +239,17 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     UIApplication *sharedApp = [UIApplication sharedApplication];
     
-    // trigger is nil when UIApplication.presentLocalNotificationNow: is used.
-    //  However it will be UNLegacyNotificationTrigger when UIApplication.scheduleLocalNotification: is used
-    BOOL isLegacyLocalNotif = !notification.request.trigger || [notification.request.trigger isKindOfClass:NSClassFromString(@"UNLegacyNotificationTrigger")];
+    /*
+        The iOS SDK used to call some local notification selectors (such as didReceiveLocalNotification)
+        as a convenience but has stopped due to concerns about private API usage
+        the SDK will now print warnings when a developer's app implements these selectors
+    */
     BOOL isCustomAction = actionIdentifier && ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:actionIdentifier];
     BOOL isRemote = [notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
     
-    if (isLegacyLocalNotif) {
-        UILocalNotification *localNotif = [NSClassFromString(@"UIConcreteLocalNotification") alloc];
-        localNotif.alertBody = notification.request.content.body;
-        localNotif.alertTitle = notification.request.content.title;
-        localNotif.applicationIconBadgeNumber = [notification.request.content.badge integerValue];
-        NSString* soundName = [notification.request.content.sound valueForKey:@"_toneFileName"];
-        if (!soundName)
-            soundName = @"UILocalNotificationDefaultSoundName";
-        localNotif.soundName = soundName;
-        localNotif.alertLaunchImage = notification.request.content.launchImageName;
-        localNotif.userInfo = notification.request.content.userInfo;
-        localNotif.category = notification.request.content.categoryIdentifier;
-        localNotif.hasAction = true; // Defaults to true, UNLocalNotification doesn't seem to have a flag for this.
-        localNotif.fireDate = notification.date;
-        localNotif.timeZone = [notification.request.trigger valueForKey:@"_timeZone"];
-        localNotif.repeatInterval = (NSCalendarUnit)[notification.request.trigger valueForKey:@"_repeatInterval"];
-        localNotif.repeatCalendar = [notification.request.trigger valueForKey:@"_repeatCalendar"];
-        // localNotif.region =
-        // localNotif.regionTriggersOnce =
-        
-        if (isTextReply &&
-            [sharedApp.delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)]) {
-            NSDictionary* dict = @{UIUserNotificationActionResponseTypedTextKey: userText};
-            [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forLocalNotification:localNotif withResponseInfo:dict completionHandler:^() {
-                completionHandler();
-            }];
-        }
-        else if (isCustomAction &&
-                 [sharedApp.delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
-            [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forLocalNotification:localNotif completionHandler:^() {
-                completionHandler();
-            }];
-        else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveLocalNotification:)]) {
-            [sharedApp.delegate application:sharedApp didReceiveLocalNotification:localNotif];
-            completionHandler();
-        }
-        else
-            completionHandler();
-    }
-    else if (isRemote) {
+    
+    
+    if (isRemote) {
         NSDictionary* remoteUserInfo = notification.request.content.userInfo;
         
         if (isTextReply &&

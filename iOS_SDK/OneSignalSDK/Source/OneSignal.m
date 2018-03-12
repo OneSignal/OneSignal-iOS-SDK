@@ -400,6 +400,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
        [OneSignalLocation getLocation:false];
     
     if (self) {
+        [OneSignal checkIfApplicationImplementsDeprecatedMethods];
+        
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
         if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
@@ -535,6 +537,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
     return true;
+}
+
+// the iOS SDK used to call these selectors as a convenience but has stopped due to concerns about private API usage
+// the SDK will now print warnings when a developer's app implements these selectors
++ (void)checkIfApplicationImplementsDeprecatedMethods {
+    for (NSString *selectorName in DEPRECATED_SELECTORS)
+        if ([[[UIApplication sharedApplication] delegate] respondsToSelector:NSSelectorFromString(selectorName)])
+            [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal has detected that your application delegate implements a deprecated method (%@). Please note that this method has been officially deprecated and the OneSignal SDK will no longer call it. You should use UNUserNotificationCenter instead", selectorName]];
 }
 
 +(void)downloadIOSParams {
