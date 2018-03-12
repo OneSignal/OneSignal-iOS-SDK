@@ -51,13 +51,15 @@
 
 + (void)showOpenDialogwithURL:(NSURL *)url withResponse:(OSWebOpenURLResultBlock)shouldOpen {
     
+    let message = NSLocalizedString(([NSString stringWithFormat:@"Would you like to open %@://%@", url.scheme, url.host]), @"Asks whether the user wants to open the URL");
+    
     //for iOS 7
     if (![OneSignalHelper isIOSVersionGreaterOrEqual:8]) {
-        let alertView = [[UIAlertView alloc] initWithTitle:@"Open URL?"
-                                                message:[NSString stringWithFormat:@"Would you like to open %@", url.absoluteString]
+        let alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Open URL?", nil)
+                                                   message:message
                                                 delegate:[OneSignalWebOpenDialog sharedInstance]
-                                                cancelButtonTitle:@"No"
-                                                otherButtonTitles:@"Yes", nil];
+                                         cancelButtonTitle:NSLocalizedString(@"No", nil)
+                                                otherButtonTitles:NSLocalizedString(@"Yes", nil), nil];
         
         [OneSignalWebOpenDialog sharedInstance].resultBlock = shouldOpen;
         
@@ -69,15 +71,15 @@
     //for iOS 8+
     let rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
     
-    let alertController = [UIAlertController alertControllerWithTitle:@"Open URL?"
-                                                message:[NSString stringWithFormat:@"Would you like to open %@", url.host]
+    let alertController = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Open URL?", nil)
+                                                              message:message
                                                 preferredStyle:UIAlertControllerStyleAlert];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Yes", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         [OneSignalWebOpenDialog delayResult:shouldOpen shouldOpen:true];
     }]];
     
-    [alertController addAction:[UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"No", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         [OneSignalWebOpenDialog delayResult:shouldOpen shouldOpen:false];
     }]];
     
