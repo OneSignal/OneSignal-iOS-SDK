@@ -65,7 +65,6 @@ UIViewController *viewControllerForPresentation;
 
 
 -(void)dismiss:(id)sender {
-    NSLog(@"DISMISS CALLED");
     [self.navigationController dismissViewControllerAnimated:true completion:^{
         //clear web view
         [_webView loadHTMLString:@"" baseURL:nil];

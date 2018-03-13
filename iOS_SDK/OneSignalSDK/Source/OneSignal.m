@@ -1396,9 +1396,7 @@ static NSString *_lastnonActiveMessageId;
     
     NSLog(@"Notification opened with messageDict: %@, isActive: %i", messageDict, isActive);
     
-    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
-    if (!customDict)
-        customDict = [messageDict objectForKey:@"custom"];
+    NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
@@ -1466,9 +1464,8 @@ static NSString *_lastnonActiveMessageId;
                         isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType
                      displayType:(OSNotificationDisplayType)displayType {
-    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
-    if (customDict == nil)
-        customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
+    
+    NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
