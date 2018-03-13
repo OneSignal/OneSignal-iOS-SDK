@@ -38,6 +38,8 @@
 
 #import <objc/runtime.h>
 
+#import "OneSignalWebOpenDialog.h"
+#import "OneSignalInternal.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -328,15 +330,18 @@ OSHandleNotificationActionBlock handleNotificationAction;
     NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
     BOOL is2dot4Format = false;
     
-    if (remoteUserInfo[@"os_data"][@"buttons"]) {
+    if (remoteUserInfo[@"os_data"]) {
         userInfo = [remoteUserInfo mutableCopy];
         additionalData = [NSMutableDictionary dictionary];
         
-        is2dot4Format = [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
-        if (is2dot4Format)
-            optionsDict = userInfo[@"os_data"][@"buttons"];
-        else
-           optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
+        if (remoteUserInfo[@"os_data"][@"buttons"]) {
+            
+            is2dot4Format = [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
+            if (is2dot4Format)
+                optionsDict = userInfo[@"os_data"][@"buttons"];
+            else
+                optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
+        }
     }
     else if (remoteUserInfo[@"custom"]) {
         userInfo = [remoteUserInfo mutableCopy];
@@ -347,8 +352,9 @@ OSHandleNotificationActionBlock handleNotificationAction;
             additionalData = [[NSMutableDictionary alloc] init];
         optionsDict = userInfo[@"o"];
     }
-    else
+    else {
         return nil;
+    }
     
     if (optionsDict) {
         NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
@@ -364,12 +370,12 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     if ([additionalData count] == 0)
         additionalData = nil;
-    
-    if (remoteUserInfo[@"os_data"]) {
+    else if (remoteUserInfo[@"os_data"]) {
         [userInfo addEntriesFromDictionary:additionalData];
         if (!is2dot4Format)
             userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
     }
+    
     else {
         customDict[@"a"] = additionalData;
         userInfo[@"custom"] = customDict;
@@ -785,7 +791,7 @@ static OneSignal* singleInstance = nil;
 + (void) displayWebView:(NSURL*)url {
     
     // Check if in-app or safari
-    BOOL inAppLaunch = YES;
+    __block BOOL inAppLaunch = YES;
     if( ![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"]) {
         [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"ONESIGNAL_INAPP_LAUNCH_URL"];
         [[NSUserDefaults standardUserDefaults] synchronize];
@@ -795,23 +801,38 @@ static OneSignal* singleInstance = nil;
     
     // If the URL contains itunes.apple.com, it's an app store link
     // that should be opened using sharedApplication openURL
-    if ([[url absoluteString] containsString:@"itunes.apple.com"]) {
+    if ([[url absoluteString] rangeOfString:@"itunes.apple.com"].location != NSNotFound) {
         inAppLaunch = NO;
     }
     
-    if (inAppLaunch && [self isWWWScheme:url]) {
-        if (!webVC)
-            webVC = [[OneSignalWebView alloc] init];
-        webVC.url = url;
-        [webVC showInApp];
-    }
-    else {
-        // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
-         [OneSignalHelper dispatch_async_on_main_queue: ^{
-            [[UIApplication sharedApplication] openURL:url];
+    __block let openUrlBlock = ^void(BOOL shouldOpen) {
+        if (!shouldOpen)
+            return;
+        
+        [OneSignalHelper dispatch_async_on_main_queue: ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if (inAppLaunch && [self isWWWScheme:url]) {
+                    if (!webVC)
+                        webVC = [[OneSignalWebView alloc] init];
+                    webVC.url = url;
+                    [webVC showInApp];
+                }
+                else {
+                    // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
+                    [[UIApplication sharedApplication] openURL:url];
+                }
+            });
         }];
-    }
+    };
     
+    if ([OneSignal shouldPromptToShowURL]) {
+        [OneSignalWebOpenDialog showOpenDialogwithURL:url withResponse:^(BOOL shouldOpen) {
+            openUrlBlock(shouldOpen);
+        }];
+    } else {
+        openUrlBlock(true);
+    }
+        
 }
 
 + (void) runOnMainThread:(void(^)())block {

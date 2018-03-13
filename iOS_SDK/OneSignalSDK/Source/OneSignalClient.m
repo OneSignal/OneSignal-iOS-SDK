@@ -66,7 +66,7 @@
         return;
     
     //execute on a background thread or the semaphore will block the caller thread
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         
         __block NSMutableDictionary<NSString *, NSError *> *errors = [NSMutableDictionary new];

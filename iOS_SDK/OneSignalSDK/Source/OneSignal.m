@@ -38,6 +38,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "NSMutableDictionary+OneSignal.h"
 #import "NSString+OneSignal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
@@ -103,6 +104,8 @@ NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisp
 /* Omit no app_id error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
+/* Determine whether to automatically open push notification URL's or prompt user for permission */
+NSString* const kOSSSettingsKeyPromptBeforeOpeningPushURL = @"kOSSSettingsKeyPromptBeforeOpeningPushURL";
 
 @implementation OSPermissionSubscriptionState
 - (NSString*)description {
@@ -158,6 +161,8 @@ static BOOL backgroundModesEnabled = false;
 // indicates if the GetiOSParams request has completed
 static BOOL downloadedParameters = false;
 static BOOL didCallDownloadParameters = false;
+
+static BOOL promptBeforeOpeningPushURLs = false;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
@@ -367,11 +372,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
     
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : NULL settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
-    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES}];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: @{kOSSettingsKeyAutoPrompt : @YES, kOSSettingsKeyInAppAlerts : @YES, kOSSettingsKeyInAppLaunchURL : @YES, kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO}];
 }
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
@@ -395,6 +400,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
        [OneSignalLocation getLocation:false];
     
     if (self) {
+        [OneSignal checkIfApplicationImplementsDeprecatedMethods];
+        
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
         if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
@@ -410,6 +417,13 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             [self enableInAppLaunchURL:@YES];
         }
         
+        if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
+            promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
+            [userDefaults setObject:settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] forKey:PROMPT_BEFORE_OPENING_PUSH_URL];
+            [userDefaults synchronize];
+        } else if ([userDefaults objectForKey:PROMPT_BEFORE_OPENING_PUSH_URL]) {
+            promptBeforeOpeningPushURLs = [[userDefaults objectForKey:PROMPT_BEFORE_OPENING_PUSH_URL] boolValue];
+        }
         
         var autoPrompt = YES;
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
@@ -525,6 +539,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return true;
 }
 
+// the iOS SDK used to call these selectors as a convenience but has stopped due to concerns about private API usage
+// the SDK will now print warnings when a developer's app implements these selectors
++ (void)checkIfApplicationImplementsDeprecatedMethods {
+    for (NSString *selectorName in DEPRECATED_SELECTORS)
+        if ([[[UIApplication sharedApplication] delegate] respondsToSelector:NSSelectorFromString(selectorName)])
+            [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal has detected that your application delegate implements a deprecated method (%@). Please note that this method has been officially deprecated and the OneSignal SDK will no longer call it. You should use UNUserNotificationCenter instead", selectorName]];
+}
+
 +(void)downloadIOSParams {
     [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     didCallDownloadParameters = true;
@@ -588,7 +610,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             let alertView = [[UIAlertView alloc] initWithTitle:levelString
                                                        message:message
                                                       delegate:nil
-                                             cancelButtonTitle:NSLocalizedString(@"Close", nil)
+                                             cancelButtonTitle:NSLocalizedString(@"Close", @"Close button")
                                              otherButtonTitles:nil, nil];
             [alertView show];
         }];
@@ -876,18 +898,26 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:[jsonData mutableCopy]] onSuccess:^(NSDictionary *result) {
-        NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
-        NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        
-        onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
-        if (successBlock)
+    NSMutableDictionary *json = [jsonData mutableCopy];
+    
+    [json convertDatesToISO8061Strings]; //convert any dates to NSString's
+    
+    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:json] onSuccess:^(NSDictionary *result) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
+            NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            
+            onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
+            if (successBlock)
             successBlock(result);
+        });
     } onFailure:^(NSError *error) {
-        onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
-        onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
-        if (failureBlock)
+        dispatch_async(dispatch_get_main_queue(), ^{
+            onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
+            onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
+            if (failureBlock)
             failureBlock(error);
+        });
     }];
 }
 
@@ -1358,14 +1388,13 @@ static NSString *_lastnonActiveMessageId;
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
+    
     if (!app_id)
         return;
     
     onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
     
-    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
-    if (!customDict)
-        customDict = [messageDict objectForKey:@"custom"];
+    NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
@@ -1393,8 +1422,7 @@ static NSString *_lastnonActiveMessageId;
         // Notify backend that user opened the notification
         NSString *messageId = [customDict objectForKey:@"i"];
         [OneSignal submitNotificationOpened:messageId];
-    }
-    else {
+    } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
         if ([@"dup" isEqualToString:newId])
@@ -1434,9 +1462,8 @@ static NSString *_lastnonActiveMessageId;
                         isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType
                      displayType:(OSNotificationDisplayType)displayType {
-    NSDictionary* customDict = [messageDict objectForKey:@"os_data"];
-    if (customDict == nil)
-        customDict = [messageDict objectForKey:@"custom"];
+    
+    NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
@@ -1459,7 +1486,12 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
 }
 
++ (BOOL)shouldPromptToShowURL {
+    return promptBeforeOpeningPushURLs;
+}
+
 + (void)launchWebURL:(NSString*)openUrl {
+    
     NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
     
     if (toOpenUrl && [OneSignalHelper verifyURL:toOpenUrl]) {

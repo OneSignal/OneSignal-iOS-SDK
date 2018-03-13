@@ -25,5 +25,7 @@
 #define ACCEPTED_PERMISSION @"ONESIGNAL_PERMISSION_ACCEPTED_LAST"
 #define REQUIRE_EMAIL_AUTH @"GT_REQUIRE_EMAIL_AUTH"
 #define EMAIL_ADDRESS @"EMAIL_ADDRESS"
+#define PROMPT_BEFORE_OPENING_PUSH_URL @"PROMPT_BEFORE_OPENING_PUSH_URL"
+#define DEPRECATED_SELECTORS @[@"application:didReceiveLocalNotification:", @"application:handleActionWithIdentifier:forLocalNotification:completionHandler:", @"application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:"]
 
 #endif /* OneSignalCommonDefines_h */

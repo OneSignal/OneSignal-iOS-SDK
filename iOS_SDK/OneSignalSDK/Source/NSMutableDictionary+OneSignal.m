@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2018 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,42 +25,24 @@
  * THE SOFTWARE.
  */
 
+#import "NSMutableDictionary+OneSignal.h"
 
-// Internal selectors to the OneSignal SDK to be shared by other Classes.
+@implementation NSMutableDictionary (OneSignal)
 
-#ifndef OneSignalInternal_h
-#define OneSignalInternal_h
+//NSJSONSerialization will not handle NSDates
+//this method converts any occurrences of NSDate into an ISO8061 compliant string
 
-#import "OneSignal.h"
-#import "OSObservable.h"
-#import "OneSignalNotificationSettings.h"
-
-#import "OSPermission.h"
-#import "OSSubscription.h"
-#import "OSEmailSubscription.h"
-
-
-// Permission + Subscription - Redefine OSPermissionSubscriptionState
-@interface OSPermissionSubscriptionState ()
-
-@property (readwrite) OSPermissionState* permissionStatus;
-@property (readwrite) OSSubscriptionState* subscriptionStatus;
-@property (readwrite) OSEmailSubscriptionState *emailSubscriptionStatus;
-
+- (void)convertDatesToISO8061Strings {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    [dateFormatter setLocale:enUSPOSIXLocale];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    
+    for (NSString *key in self.allKeys) {
+        id value = self[key];
+        
+        if ([value isKindOfClass:[NSDate class]])
+            self[key] = [dateFormatter stringFromDate:(NSDate *)value];
+    }
+}
 @end
-
-
-@interface OneSignal (OneSignalInternal)
-+ (void)updateNotificationTypes:(int)notificationTypes;
-+ (BOOL)registerForAPNsToken;
-+ (void)setWaitingForApnsResponse:(BOOL)value;
-+ (BOOL)shouldPromptToShowURL;
-
-@property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
-
-@property (class) OSPermissionState* currentPermissionState;
-
-@end
-
-
-#endif /* OneSignalInternal_h */

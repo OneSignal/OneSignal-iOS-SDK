@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,42 +25,12 @@
  * THE SOFTWARE.
  */
 
-
-// Internal selectors to the OneSignal SDK to be shared by other Classes.
-
-#ifndef OneSignalInternal_h
-#define OneSignalInternal_h
-
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "OneSignal.h"
-#import "OSObservable.h"
-#import "OneSignalNotificationSettings.h"
 
-#import "OSPermission.h"
-#import "OSSubscription.h"
-#import "OSEmailSubscription.h"
+@interface OneSignalWebOpenDialog : NSObject <UIAlertViewDelegate>
 
-
-// Permission + Subscription - Redefine OSPermissionSubscriptionState
-@interface OSPermissionSubscriptionState ()
-
-@property (readwrite) OSPermissionState* permissionStatus;
-@property (readwrite) OSSubscriptionState* subscriptionStatus;
-@property (readwrite) OSEmailSubscriptionState *emailSubscriptionStatus;
++ (void)showOpenDialogwithURL:(NSURL *)url withResponse:(OSWebOpenURLResultBlock)shouldOpen;
 
 @end
-
-
-@interface OneSignal (OneSignalInternal)
-+ (void)updateNotificationTypes:(int)notificationTypes;
-+ (BOOL)registerForAPNsToken;
-+ (void)setWaitingForApnsResponse:(BOOL)value;
-+ (BOOL)shouldPromptToShowURL;
-
-@property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
-
-@property (class) OSPermissionState* currentPermissionState;
-
-@end
-
-
-#endif /* OneSignalInternal_h */
