@@ -1394,8 +1394,6 @@ static NSString *_lastnonActiveMessageId;
     
     onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
     
-    NSLog(@"Notification opened with messageDict: %@, isActive: %i", messageDict, isActive);
-    
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
     // Should be called first, other methods relay on this global state below.
