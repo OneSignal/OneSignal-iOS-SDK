@@ -1269,7 +1269,8 @@ static dispatch_queue_t serialQueue;
             
             if (nowProcessingCallbacks) {
                 for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                    callbackSet.successBlock(dataDic[@"tags"]);
+                    if (callbackSet.successBlock)
+                        callbackSet.successBlock(dataDic[@"tags"]);
                 }
             }
             
@@ -1316,7 +1317,8 @@ static dispatch_queue_t serialQueue;
         
         if (nowProcessingCallbacks) {
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                callbackSet.failureBlock(error);
+                if (callbackSet.failureBlock)
+                    callbackSet.failureBlock(error);
             }
         }
     }];
