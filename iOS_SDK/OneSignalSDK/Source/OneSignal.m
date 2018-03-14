@@ -1392,6 +1392,10 @@ static NSString *_lastnonActiveMessageId;
     if (!app_id)
         return;
     
+    // This method should not continue to be executed for non-OS push notifications
+    if (![OneSignalHelper isOneSignalPayload:messageDict])
+        return;
+    
     onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];

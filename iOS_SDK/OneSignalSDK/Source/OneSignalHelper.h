@@ -59,6 +59,7 @@
 + (NSMutableSet<UNNotificationCategory*>*)existingCategories;
 + (void)addAttachments:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
 + (void)addActionButtons:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
++ (BOOL)isOneSignalPayload:(NSDictionary *)payload;
 
 // - Networking
 + (NSNumber*)getNetType;

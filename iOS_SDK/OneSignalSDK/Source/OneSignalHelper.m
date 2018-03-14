@@ -389,14 +389,14 @@ OSHandleNotificationActionBlock handleNotificationAction;
 
 
 // Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
-+ (BOOL)isOneSignalPayload {
-    if (!lastMessageReceived)
++ (BOOL)isOneSignalPayload:(NSDictionary *)payload {
+    if (!payload)
         return NO;
-    return lastMessageReceived[@"custom"][@"i"] || lastMessageReceived[@"os_data"][@"i"];
+    return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
 }
 
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
-    if (!handleNotificationReceived || ![self isOneSignalPayload])
+    if (!handleNotificationReceived || ![self isOneSignalPayload:lastMessageReceived])
         return;
     
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
@@ -414,7 +414,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
 static NSString *_lastMessageIdFromAction;
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
-    if (![self isOneSignalPayload])
+    if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];

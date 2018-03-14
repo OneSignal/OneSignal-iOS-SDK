@@ -140,6 +140,15 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
                 willPresentNotification:(UNNotification *)notification
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+    
+    if (![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
+        if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
+            [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
+        else
+            completionHandler(7);
+        return;
+    }
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
     NSUInteger completionHandlerOptions = 0;
@@ -150,8 +159,9 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         default: break;
     }
     
-    if ([OneSignal app_id])
+    if ([OneSignal app_id]) {
         [OneSignal notificationOpened:notification.request.content.userInfo isActive:YES];
+    }
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
@@ -177,6 +187,15 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
+    
+    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+        if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
+            [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+        else
+            completionHandler();
+        return;
+    }
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
     
     [OneSignalUNUserNotificationCenter processiOS10Open:response];
@@ -209,6 +228,9 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         return;
     
     if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
+        return;
+    
+    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo])
         return;
     
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
