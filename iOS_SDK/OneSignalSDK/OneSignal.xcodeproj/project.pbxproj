@@ -148,6 +148,9 @@
 		CA97E14F2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
 		CA97E1502051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
 		CA97E1512051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
+		CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
@@ -283,6 +286,8 @@
 		CA810FD0202BA97300A60FED /* OSEmailSubscription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSEmailSubscription.m; sourceTree = "<group>"; };
 		CA97E14C2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWebOpenDialog.h; sourceTree = "<group>"; };
 		CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalWebOpenDialog.m; sourceTree = "<group>"; };
+		CAABF349205B15780042F8E5 /* OneSignalExtensionBadgeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalExtensionBadgeHandler.h; sourceTree = "<group>"; };
+		CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalExtensionBadgeHandler.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -452,6 +457,8 @@
 				4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */,
 				454F94F01FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.h */,
 				454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */,
+				CAABF349205B15780042F8E5 /* OneSignalExtensionBadgeHandler.h */,
+				CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -731,6 +738,7 @@
 				454F94F51FAD2E5A00D74CCF /* OSNotificationPayload.m in Sources */,
 				9129C6BE1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412361E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
+				CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				CA08FC7F1FE99B25004C445F /* Requests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -768,6 +776,7 @@
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412371E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
+				CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				CA08FC801FE99B25004C445F /* Requests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -785,6 +794,7 @@
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
 				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
+				CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
 				91F58D851E7C88230017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,

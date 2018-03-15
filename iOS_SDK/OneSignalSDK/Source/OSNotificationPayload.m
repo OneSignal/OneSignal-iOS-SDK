@@ -118,6 +118,7 @@
     _launchURL = payload[@"u"];
     _templateID = payload[@"ti"];
     _templateName = payload[@"tn"];
+    _badgeIncrement = [_rawPayload[@"badge_inc"] integerValue];
 }
 
 -(void)parseApnsFields {

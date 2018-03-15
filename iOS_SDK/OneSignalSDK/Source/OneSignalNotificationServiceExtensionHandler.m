@@ -26,7 +26,7 @@
  */
 
 #import "OneSignalNotificationServiceExtensionHandler.h"
-
+#import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
@@ -39,6 +39,9 @@
         replacementContent = [request.content mutableCopy];
     
     let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
+    
+    //handle badge count
+    [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotificationPayload:payload withMutableNotificationContent:replacementContent];
     
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];

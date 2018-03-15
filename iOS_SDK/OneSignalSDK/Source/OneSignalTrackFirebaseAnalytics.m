@@ -27,6 +27,8 @@
 
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalHelper.h"
+#import "OneSignalCommonDefines.h"
+#import "OneSignalExtensionBadgeHandler.h"
 
 @implementation OneSignalTrackFirebaseAnalytics
 
@@ -43,7 +45,7 @@ static var trackingEnabled = false;
 //         extension target to track inflenced opens.
 +(void)init {
     let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    trackingEnabled = [userDefaults boolForKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
+    trackingEnabled = [userDefaults boolForKey:ONESIGNAL_FB_ENABLE_FIREBASE];
 }
 
 
@@ -51,14 +53,13 @@ static var trackingEnabled = false;
     trackingEnabled = (BOOL)params[@"fba"];
     let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
     if (trackingEnabled)
-        [userDefaults setBool:true forKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
+        [userDefaults setBool:true forKey:ONESIGNAL_FB_ENABLE_FIREBASE];
     else
-        [userDefaults removeObjectForKey:@"OS_ENABLE_FIREBASE_ANALYTICS"];
+        [userDefaults removeObjectForKey:ONESIGNAL_FB_ENABLE_FIREBASE];
 }
 
 +(NSString*)appGroupKey {
-    NSString *groupKey = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_app_groups_key"];
-    return [groupKey stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    return [OneSignalExtensionBadgeHandler appGroupName];
 }
 
 +(void)logEventWithName:(NSString*)name parameters:(NSDictionary*)params {
@@ -105,9 +106,9 @@ static var trackingEnabled = false;
     
     let campaign = [self getCampaignNameFromPayload:payload];
     let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    [userDefaults setObject:payload.notificationID forKey:@"OS_LAST_RECIEVED_NOTIFICATION_ID"];
-    [userDefaults setObject:campaign forKey:@"OS_LAST_RECIEVED_GAF_CAMPAIGN"];
-    [userDefaults setDouble:[[NSDate date] timeIntervalSince1970] forKey:@"OS_LAST_RECIEVED_TIME"];
+    [userDefaults setObject:payload.notificationID forKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED];
+    [userDefaults setObject:campaign forKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED];
+    [userDefaults setDouble:[[NSDate date] timeIntervalSince1970] forKey:ONESIGNAL_FB_LAST_TIME_RECEIVED];
     [userDefaults synchronize];
     
     [self logEventWithName:@"os_notification_received"
@@ -124,7 +125,7 @@ static var trackingEnabled = false;
         return;
     
     let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    NSTimeInterval lastTimeReceived = [userDefaults doubleForKey:@"OS_LAST_RECIEVED_TIME"];
+    NSTimeInterval lastTimeReceived = [userDefaults doubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED];
     
     if (lastTimeReceived == 0)
         return;
@@ -140,8 +141,8 @@ static var trackingEnabled = false;
     if (now - lastOpenedTime < 30)
         return;
     
-    NSString *notificationId = [userDefaults objectForKey:@"OS_LAST_RECIEVED_NOTIFICATION_ID"];
-    NSString *campaign = [userDefaults objectForKey:@"OS_LAST_RECIEVED_GAF_CAMPAIGN"];
+    NSString *notificationId = [userDefaults objectForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED];
+    NSString *campaign = [userDefaults objectForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED];
     
     [self logEventWithName:@"os_notification_influence_open"
                 parameters:@{

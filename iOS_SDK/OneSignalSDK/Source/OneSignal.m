@@ -50,6 +50,8 @@
 
 #import "OSObservable.h"
 
+#import "OneSignalExtensionBadgeHandler.h"
+
 #import <stdlib.h>
 #import <stdio.h>
 #import <sys/types.h>
@@ -908,14 +910,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             
             onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
             if (successBlock)
-            successBlock(result);
+                successBlock(result);
         });
     } onFailure:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
             onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
             if (failureBlock)
-            failureBlock(error);
+                failureBlock(error);
         });
     }];
 }
@@ -1536,7 +1538,7 @@ static NSString *_lastnonActiveMessageId;
     
 + (BOOL) clearBadgeCount:(BOOL)fromNotifOpened {
     
-    NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_disable_badge_clearing"];
+    NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
     
     if (disableBadgeNumber)
         disableBadgeClearing = [disableBadgeNumber boolValue];
@@ -1555,6 +1557,10 @@ static NSString *_lastnonActiveMessageId;
         // iOS 8+ auto dismisses the notification you tap on so only clear the badge (and notifications [side-effect]) if it was set.
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+        
+        let defaults = [[NSUserDefaults alloc] initWithSuiteName:[OneSignalExtensionBadgeHandler appGroupName]];
+        [defaults setObject:@0 forKey:ONESIGNAL_BADGE_KEY];
+        [defaults synchronize];
     }
     
     return wasBadgeSet;
