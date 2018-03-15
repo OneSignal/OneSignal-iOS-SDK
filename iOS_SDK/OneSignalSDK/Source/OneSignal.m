@@ -38,7 +38,6 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
-#import "NSMutableDictionary+OneSignal.h"
 #import "NSString+OneSignal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
@@ -900,7 +899,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     NSMutableDictionary *json = [jsonData mutableCopy];
     
-    [json convertDatesToISO8061Strings]; //convert any dates to NSString's
+    [OneSignal convertDatesToISO8061Strings:json]; //convert any dates to NSString's
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:json] onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -931,6 +930,20 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     else {
         onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]);
         onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]);
+    }
+}
+
++ (void)convertDatesToISO8061Strings:(NSMutableDictionary *)dictionary {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    [dateFormatter setLocale:enUSPOSIXLocale];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    
+    for (NSString *key in dictionary.allKeys) {
+        id value = dictionary[key];
+        
+        if ([value isKindOfClass:[NSDate class]])
+            dictionary[key] = [dateFormatter stringFromDate:(NSDate *)value];
     }
 }
 
