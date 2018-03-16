@@ -187,7 +187,7 @@
     
     request.parameters = @{@"app_id" : appId, @"purchases" : purchases};
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"players/%@/on_purchase", purchases];
+    request.path = [NSString stringWithFormat:@"players/%@/on_purchase", userId];
     
     return request;
 }
@@ -197,7 +197,7 @@
     
     request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : emailAuthToken ?: [NSNull null]};
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"players/%@/on_purchase", purchases];
+    request.path = [NSString stringWithFormat:@"players/%@/on_purchase", userId];
     
     return request;
 }
