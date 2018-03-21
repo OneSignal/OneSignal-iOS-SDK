@@ -62,6 +62,8 @@ NSString *correctUrlWithPath(NSString *path) {
     return [[SERVER_URL stringByAppendingString:API_VERSION] stringByAppendingString:path];
 }
 
+// only works for dictionaries with values that are strings, numbers, or sub-dictionaries/arrays of strings and numbers
+// since this is all our SDK uses, it should suffice.
 BOOL dictionariesAreEquivalent(NSDictionary *first, NSDictionary *second) {
     let firstKeys = first.allKeys;
     let secondKeys = second.allKeys;
