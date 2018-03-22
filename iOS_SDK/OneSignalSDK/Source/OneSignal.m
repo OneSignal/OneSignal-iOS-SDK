@@ -394,6 +394,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                  withUserDefaults:userDefaults
                      withSettings:settings];
     
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:23];
+    
     if (!success)
         return self;
     
@@ -1557,10 +1559,6 @@ static NSString *_lastnonActiveMessageId;
         // iOS 8+ auto dismisses the notification you tap on so only clear the badge (and notifications [side-effect]) if it was set.
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-        
-        let defaults = [[NSUserDefaults alloc] initWithSuiteName:[OneSignalExtensionBadgeHandler appGroupName]];
-        [defaults setObject:@0 forKey:ONESIGNAL_BADGE_KEY];
-        [defaults synchronize];
     }
     
     return wasBadgeSet;
@@ -1949,7 +1947,21 @@ static NSString *_lastnonActiveMessageId;
     // Swizzle - UIApplication delegate
     injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
+    injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
+    
     [self setupUNUserNotificationCenterDelegate];
+}
+
+/*
+    In order for the badge count to be consistent even in situations where the developer manually sets the badge number,
+    We swizzle the 'setApplicationIconBadgeNumber()' to intercept these calls so we always know the latest count
+*/
+- (void)onesignalSetApplicationIconBadgeNumber:(NSInteger)badge {
+    let defaults = [[NSUserDefaults alloc] initWithSuiteName:[OneSignalExtensionBadgeHandler appGroupName]];
+    [defaults setObject:@(badge) forKey:ONESIGNAL_BADGE_KEY];
+    [defaults synchronize];
+    
+    [self onesignalSetApplicationIconBadgeNumber:badge];
 }
 
 +(void)setupUNUserNotificationCenterDelegate {
