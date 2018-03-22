@@ -1811,45 +1811,4 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue(observer->last.to.subscribed);
 }
 
-- (void)testBadgeExtensionUpdate {
-    
-    let defaults = [[NSUserDefaults alloc] initWithSuiteName:[OneSignalExtensionBadgeHandler appGroupName]];
-    [defaults setObject:@2 forKey:ONESIGNAL_BADGE_KEY];
-    [defaults synchronize];
-    
-    //test that manually setting the badge number also updates NSUserDefaults for our app group
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-    
-    XCTAssert([(NSNumber *)[defaults objectForKey:ONESIGNAL_BADGE_KEY] isEqualToNumber:@0]);
-    
-    NSMutableDictionary * userInfo = [@{
-        @"aps": @{
-            @"mutable-content": @1,
-            @"alert": @"Message Body"
-        },
-        @"os_data": @{
-            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
-            @"att": @{ @"id": @"http://domain.com/file.jpg" }
-        },
-        @"badge_inc" : @3
-    } mutableCopy];
-    
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    
-    //test that receiving a notification with badge_inc updates the badge icon number
-    [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
-    
-    XCTAssert([(NSNumber *)[defaults objectForKey:ONESIGNAL_BADGE_KEY] isEqualToNumber:@3]);
-    
-    //test that a negative badge_inc value decrements correctly
-    [userInfo setObject:@-1 forKey:@"badge_inc"];
-    
-    id newNotifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    
-    [OneSignal didReceiveNotificationExtensionRequest:[newNotifResponse notification].request withMutableNotificationContent:nil];
-    
-    XCTAssert([(NSNumber *)[defaults objectForKey:ONESIGNAL_BADGE_KEY] isEqualToNumber:@2]);
-}
-
 @end

@@ -1955,9 +1955,7 @@ static NSString *_lastnonActiveMessageId;
     We swizzle the 'setApplicationIconBadgeNumber()' to intercept these calls so we always know the latest count
 */
 - (void)onesignalSetApplicationIconBadgeNumber:(NSInteger)badge {
-    let defaults = [[NSUserDefaults alloc] initWithSuiteName:[OneSignalExtensionBadgeHandler appGroupName]];
-    [defaults setObject:@(badge) forKey:ONESIGNAL_BADGE_KEY];
-    [defaults synchronize];
+    [OneSignalExtensionBadgeHandler updateCachedBadgeValue:badge];
     
     [self onesignalSetApplicationIconBadgeNumber:badge];
 }
