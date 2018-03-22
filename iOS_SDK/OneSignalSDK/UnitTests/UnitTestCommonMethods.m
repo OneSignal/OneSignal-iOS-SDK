@@ -1,10 +1,29 @@
-//
-//  UnitTestCommonMethods.m
-//  UnitTests
-//
-//  Created by Brad Hesse on 1/30/18.
-//  Copyright © 2018 Hiptic. All rights reserved.
-//
+/**
+ * Modified MIT License
+ *
+ * Copyright 2017 OneSignal
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * 2. All copies of substantial portions of the Software may only be used in connection
+ * with services provided by OneSignal.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 #import "UnitTestCommonMethods.h"
 #import "OneSignalClientOverrider.h"
@@ -22,6 +41,12 @@
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "UIAlertViewOverrider.h"
 #import "NSObjectOverrider.h"
+#import "OneSignalCommonDefines.h"
+
+
+NSString * serverUrlWithPath(NSString *path) {
+    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+}
 
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;
@@ -59,6 +84,28 @@
     }
     
     NSLog(@"END runBackgroundThreads");
+}
+
++ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
+    // Mocking an iOS 10 notification
+    // Setting response.notification.request.content.userInfo
+    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+    
+    // Normal tap on notification
+    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
+    
+    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
+    UNNotification *unNotif = [UNNotification alloc];
+    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    // Set as remote push type
+    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
+    
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    [notifResponse setValue:unNotif forKeyPath:@"notification"];
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotifContent setValue:userInfo forKey:@"userInfo"];
+    
+    return notifResponse;
 }
 
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
