@@ -394,8 +394,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                  withUserDefaults:userDefaults
                      withSettings:settings];
     
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:23];
-    
     if (!success)
         return self;
     

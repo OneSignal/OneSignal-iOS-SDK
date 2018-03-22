@@ -22,6 +22,12 @@
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "UIAlertViewOverrider.h"
 #import "NSObjectOverrider.h"
+#import "OneSignalCommonDefines.h"
+
+
+NSString * serverUrlWithPath(NSString *path) {
+    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+}
 
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;
@@ -59,6 +65,28 @@
     }
     
     NSLog(@"END runBackgroundThreads");
+}
+
++ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
+    // Mocking an iOS 10 notification
+    // Setting response.notification.request.content.userInfo
+    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+    
+    // Normal tap on notification
+    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
+    
+    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
+    UNNotification *unNotif = [UNNotification alloc];
+    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    // Set as remote push type
+    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
+    
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    [notifResponse setValue:unNotif forKeyPath:@"notification"];
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotifContent setValue:userInfo forKey:@"userInfo"];
+    
+    return notifResponse;
 }
 
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {

@@ -10,6 +10,8 @@
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
 
+NSString * serverUrlWithPath(NSString *path);
+
 @interface UnitTestCommonMethods : NSObject
 
 + (void)setCurrentNotificationPermissionAsUnanswered;
@@ -18,6 +20,7 @@
 + (void)runBackgroundThreads;
 + (void)beforeAllTest;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
++ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
 
 @end
 
