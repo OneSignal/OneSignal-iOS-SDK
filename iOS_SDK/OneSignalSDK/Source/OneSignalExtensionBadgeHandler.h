@@ -25,18 +25,13 @@
  * THE SOFTWARE.
  */
 
-#import "ReattemptRequest.h"
+#import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
+#import "OneSignal.h"
 
-@implementation ReattemptRequest
-
-+(instancetype)withRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock)success failureBlock:(OSFailureBlock)failure {
-    let reattempt = [ReattemptRequest new];
-    
-    reattempt.request = request;
-    reattempt.successBlock = success;
-    reattempt.failureBlock = failure;
-    
-    return reattempt;
-}
-
+@interface OneSignalExtensionBadgeHandler : NSObject
++ (void)handleBadgeCountWithNotificationRequest:(UNNotificationRequest *)request withNotificationPayload:(OSNotificationPayload *)payload withMutableNotificationContent:(UNMutableNotificationContent *)replacementContent;
++ (void)updateCachedBadgeValue:(NSInteger)value;
++ (NSInteger)currentCachedBadgeValue;
++ (NSString *)appGroupName;
 @end

@@ -58,6 +58,8 @@
 
 #import "UnitTestAppDelegate.h"
 
+#import "OneSignalExtensionBadgeHandler.h"
+
 // Shadows
 #import "NSObjectOverrider.h"
 #import "NSUserDefaultsOverrider.h"
@@ -77,10 +79,6 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
-
-NSString * serverUrlWithPath(NSString *path) {
-    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
-}
 
 @interface UnitTests : XCTestCase
 
@@ -175,35 +173,13 @@ NSString * serverUrlWithPath(NSString *path) {
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationWillResignActive:sharedApp];
 }
-
-- (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
-    // Mocking an iOS 10 notification
-    // Setting response.notification.request.content.userInfo
-    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
-    
-    // Normal tap on notification
-    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
-    
-    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
-    UNNotification *unNotif = [UNNotification alloc];
-    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
-    // Set as remote push type
-    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
-    
-    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
-    [notifResponse setValue:unNotif forKeyPath:@"notification"];
-    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
-    [unNotifContent setValue:userInfo forKey:@"userInfo"];
-    
-    return notifResponse;
-}
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
   id userInfo = @{@"custom":
                       @{@"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"}
                   };
   
-  return [self createBasiciOSNotificationResponseWithPayload:userInfo];
+  return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
 
@@ -949,7 +925,7 @@ NSString * serverUrlWithPath(NSString *path) {
                           }
                     };
     
-    return [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
 - (void)testFirebaseAnalyticsNotificationOpen {
@@ -1072,7 +1048,7 @@ NSString * serverUrlWithPath(NSString *path) {
                             }
                     };
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
     
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1120,7 +1096,7 @@ NSString * serverUrlWithPath(NSString *path) {
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             }};
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
     
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1163,7 +1139,7 @@ NSString * serverUrlWithPath(NSString *path) {
     [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
     
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
@@ -1224,7 +1200,7 @@ NSString * serverUrlWithPath(NSString *path) {
                       @"a": @{ @"foo": @"bar" }
                   }};
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     id notifCenterDelegate = notifCenter.delegate;
     
@@ -1243,7 +1219,7 @@ NSString * serverUrlWithPath(NSString *path) {
                          @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bc"
                          },
                  @"foo": @"bar"};
-    notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     XCTAssertEqual(openedWasFire, true);
     */
@@ -1264,7 +1240,7 @@ NSString * serverUrlWithPath(NSString *path) {
                             settings:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    let notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     let notifCenterDelegate = notifCenter.delegate;
     
@@ -1639,7 +1615,7 @@ didReceiveRemoteNotification:userInfo
 
 // iOS 10 - Notification Service Extension test
 - (void) didReceiveNotificationExtensionRequestDontOverrideCateogoryWithUserInfo:(NSDictionary *)userInfo {
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -1695,7 +1671,7 @@ didReceiveRemoteNotification:userInfo
                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
                             }};
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -1719,7 +1695,7 @@ didReceiveRemoteNotification:userInfo
                             @"att": @{ @"id": @"file.jpg" }
                             }};
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
 
@@ -1740,7 +1716,7 @@ didReceiveRemoteNotification:userInfo
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
     
-    id notifResponse = [self createBasiciOSNotificationResponseWithPayload:userInfo];
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
