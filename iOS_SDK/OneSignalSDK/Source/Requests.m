@@ -109,7 +109,9 @@
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    params[@"email"] = email;
+    
+    if (email)
+        params[@"email"] = email;
     
     if (notificationTypes)
         params[@"notification_types"] = notificationTypes;

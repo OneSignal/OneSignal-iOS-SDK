@@ -144,6 +144,7 @@
 		CA810FD1202BA97300A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
+		CA85C15320604AEA003AB529 /* RequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA85C15220604AEA003AB529 /* RequestTests.m */; };
 		CA97E14E2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h in Headers */ = {isa = PBXBuildFile; fileRef = CA97E14C2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h */; };
 		CA97E14F2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
 		CA97E1502051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
@@ -285,6 +286,7 @@
 		CA70E3382023F24500019273 /* OneSignalCommonDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCommonDefines.h; sourceTree = "<group>"; };
 		CA810FCF202BA97300A60FED /* OSEmailSubscription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSEmailSubscription.h; sourceTree = "<group>"; };
 		CA810FD0202BA97300A60FED /* OSEmailSubscription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSEmailSubscription.m; sourceTree = "<group>"; };
+		CA85C15220604AEA003AB529 /* RequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestTests.m; sourceTree = "<group>"; };
 		CA97E14C2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalWebOpenDialog.h; sourceTree = "<group>"; };
 		CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalWebOpenDialog.m; sourceTree = "<group>"; };
 		CAA4ED0020646762005BD59B /* BadgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BadgeTests.m; sourceTree = "<group>"; };
@@ -413,6 +415,7 @@
 			children = (
 				4529DECD1FA81DE000CEAB1D /* Shadows */,
 				911E2CBC1E398AB3003112A4 /* UnitTests.m */,
+				CA85C15220604AEA003AB529 /* RequestTests.m */,
 				CAA4ED0020646762005BD59B /* BadgeTests.m */,
 				CA63AF8320211F7400E340FB /* EmailTests.m */,
 				CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */,
@@ -792,6 +795,7 @@
 				91F58D8B1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
+				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,

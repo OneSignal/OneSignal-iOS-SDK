@@ -181,7 +181,7 @@ static OneSignalLocation* singleInstance = nil;
         //LocationAlways > LocationWhenInUse > No entry (Log error)
         //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
-        NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"];
+        NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
         if(backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription) {
             [locationManager performSelector:@selector(requestAlwaysAuthorization)];
             if (deviceOSVersion >= 9.0) {
