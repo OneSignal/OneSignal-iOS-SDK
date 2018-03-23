@@ -143,7 +143,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignal setEmail:@"test@test.com" withSuccess:nil withFailure:nil];
     
     [UnitTestCommonMethods runBackgroundThreads];
-    NSLog(@"LAST REQ: %@", OneSignalClientOverrider.lastHTTPRequest);
+    
     //check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
@@ -165,8 +165,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [UnitTestCommonMethods runBackgroundThreads];
     
-    NSLog(@"LAST HTTP TYPE: %@", OneSignalClientOverrider.lastHTTPRequestType);
-    NSLog(@"LAST HTTP REQ: %@", OneSignalClientOverrider.lastHTTPRequest);
     //check to make sure the server gets updated with the new email
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
