@@ -1244,12 +1244,38 @@
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     let notifCenterDelegate = notifCenter.delegate;
     
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
+    
     //iOS 10 calls UNUserNotificationCenterDelegate method directly when a notification is received while the app is in focus.
     [notifCenterDelegate userNotificationCenter:notifCenter
                         willPresentNotification:[notifResponse notification]
                           withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
+    [UnitTestCommonMethods runBackgroundThreads];
+    
     XCTAssertEqual(recievedWasFire, true);
+}
+
+/*
+    There was a bug where receiving notifications would cause OSRequestSubmitNotificationOpened
+    to fire, even though the notification had not been opened
+*/
+- (void)testReceiveNotificationDoesNotSubmitOpenedRequest {
+    [OneSignalClientOverrider reset:self];
+    
+    let newFormat = @{@"aps": @{@"content_available": @1},
+                      @"os_data": @{
+                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                              @"buttons": @{
+                                      @"m": @"alert body only",
+                                      @"o": @[@{@"i": @"id1", @"n": @"text1"}]
+                                      }
+                              }
+                      };
+    
+    [self receivedCallbackWithButtonsWithUserInfo:newFormat];
+    
+    XCTAssertFalse([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestSubmitNotificationOpened class]]);
 }
 
 - (void)testReceivedCallbackWithButtonsWithNewFormat {

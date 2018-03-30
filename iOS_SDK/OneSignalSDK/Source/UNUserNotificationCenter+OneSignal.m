@@ -46,7 +46,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @interface OneSignal (UN_extra)
-+ (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
++ (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 @end
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
@@ -159,9 +159,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         default: break;
     }
     
-    if ([OneSignal app_id]) {
-        [OneSignal notificationOpened:notification.request.content.userInfo isActive:YES];
-    }
+    if ([OneSignal app_id])
+        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:false];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
@@ -239,7 +238,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
     
-    [OneSignal notificationOpened:userInfo isActive:isActive];
+    [OneSignal notificationReceived:userInfo isActive:isActive wasOpened:YES];
+    
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.
