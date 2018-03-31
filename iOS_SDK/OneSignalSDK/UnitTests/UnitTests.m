@@ -79,6 +79,10 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
+@interface OneSignalHelper (TestHelper)
++ (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
+@end
+
 
 @interface UnitTests : XCTestCase
 
@@ -1809,6 +1813,15 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(observer->last.to.subscribed);
+}
+
+// Checks to make sure that media URL's will not fail the extension-type check if they have query parameters
+- (void)testHandlingMediaUrlExtensions {
+    let testUrl = @"https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=100";
+    
+    let cacheName = [OneSignalHelper downloadMediaAndSaveInBundle:testUrl];
+    
+    XCTAssertNotNil(cacheName);
 }
 
 @end
