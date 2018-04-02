@@ -48,6 +48,7 @@ static BOOL executeInstantaneously = true;
 static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
+static NSMutableArray<NSString *> *executedRequestTypes;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -59,6 +60,7 @@ static BOOL requiresEmailAuth = false;
     
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     
+    executedRequestTypes = [[NSMutableArray alloc] init];
 }
 
 - (void)overrideExecuteSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
@@ -69,6 +71,8 @@ static BOOL requiresEmailAuth = false;
     __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
     
     for (NSString *key in requests.allKeys) {
+        [executedRequestTypes addObject:NSStringFromClass([requests[key] class])];
+        
         [OneSignalClient.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
             results[key] = result;
             dispatch_semaphore_signal(semaphore);
@@ -90,6 +94,8 @@ static BOOL requiresEmailAuth = false;
 }
 
 - (void)overrideExecuteRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    [executedRequestTypes addObject:NSStringFromClass([request class])];
+    
     if (executeInstantaneously) {
         [OneSignalClientOverrider finishExecutingRequest:request onSuccess:successBlock onFailure:failureBlock];
     } else {
@@ -127,6 +133,14 @@ static BOOL requiresEmailAuth = false;
     }
 }
 
++(BOOL)hasExecutedRequestOfType:(Class)type {
+    for (id requestType in executedRequestTypes)
+        if ([requestType isEqualToString:NSStringFromClass(type)])
+            return true;
+    
+    return false;
+}
+
 +(dispatch_queue_t)getHTTPQueue {
     return executionQueue;
 }
@@ -145,6 +159,7 @@ static BOOL requiresEmailAuth = false;
     networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequest = nil;
+    [executedRequestTypes removeAllObjects];
 }
 
 +(void)setLastHTTPRequest:(NSDictionary*)value {

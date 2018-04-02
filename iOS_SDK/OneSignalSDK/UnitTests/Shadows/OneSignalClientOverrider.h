@@ -41,5 +41,6 @@
 +(void)runBackgroundThreads;
 +(NSString *)lastHTTPRequestType;
 +(void)setRequiresEmailAuth:(BOOL)required;
++(BOOL)hasExecutedRequestOfType:(Class)type;
 @end
 

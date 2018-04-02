@@ -415,7 +415,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 
 //when the user is logged in with email, on_focus requests should be duplicated for the email player id as well
 - (void)testOnFocusEmailRequest {
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     [self setupEmailTest];
@@ -435,7 +434,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertTrue([OneSignalClientOverrider.lastHTTPRequestType isEqualToString:NSStringFromClass([OSRequestOnFocus class])]);
+    XCTAssertTrue([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestOnFocus class]]);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     [OneSignalClientOverrider reset:self];
@@ -469,7 +468,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [UnitTestCommonMethods runBackgroundThreads];
     
     // on_focus should fire off two requests, one for the email player ID and one for push player ID
-    XCTAssertTrue([OneSignalClientOverrider.lastHTTPRequestType isEqualToString:NSStringFromClass([OSRequestOnFocus class])]);
+    XCTAssertTrue([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestOnFocus class]]);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     [OneSignalClientOverrider setRequiresEmailAuth:false];

@@ -1404,7 +1404,7 @@ static NSString *_lastnonActiveMessageId;
 //  - 2. Notification received
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
-+ (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive {
++ (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened {
     
     if (!app_id)
         return;
@@ -1439,10 +1439,6 @@ static NSString *_lastnonActiveMessageId;
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
         [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType];
-        
-        // Notify backend that user opened the notification
-        NSString *messageId = [customDict objectForKey:@"i"];
-        [OneSignal submitNotificationOpened:messageId];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1450,7 +1446,9 @@ static NSString *_lastnonActiveMessageId;
             return;
         if (newId)
             _lastnonActiveMessageId = newId;
-        
+    }
+    
+    if (opened) {
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         NSString* actionSelected = NULL;
         OSNotificationActionType type = OSNotificationActionTypeOpened;
@@ -1464,8 +1462,7 @@ static NSString *_lastnonActiveMessageId;
         }
         
         // Call Action Block
-        [OneSignalHelper handleNotificationAction:type actionID:actionSelected displayType:OSNotificationDisplayTypeNotification];
-        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
+        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
     }
 }
 
@@ -1504,7 +1501,11 @@ static NSString *_lastnonActiveMessageId;
     
     //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
-    [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+    
+    //ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
+    if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
+        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+    }
 }
 
 + (BOOL)shouldPromptToShowURL {
@@ -1669,9 +1670,13 @@ static NSString *_lastnonActiveMessageId;
     // Method was called due to a tap on a notification - Fire open notification
     else if (application.applicationState != UIApplicationStateBackground) {
         [OneSignalHelper lastMessageReceived:userInfo];
+        
         if (application.applicationState == UIApplicationStateActive)
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
-        [OneSignal notificationOpened:userInfo isActive:NO];
+        
+        if (![OneSignalHelper isRemoteSilentNotification:userInfo])
+            [OneSignal notificationReceived:userInfo isActive:NO wasOpened:YES];
+        
         return startedBackgroundJob;
     }
     // content-available notification received in the background - Fire handleNotificationReceived block in app
@@ -1697,7 +1702,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     let isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-    [OneSignal notificationOpened:userInfo isActive:isActive];
+    [OneSignal notificationReceived:userInfo isActive:isActive wasOpened:YES];
     
     // Notification Tapped or notification Action Tapped
     if (!isActive)
