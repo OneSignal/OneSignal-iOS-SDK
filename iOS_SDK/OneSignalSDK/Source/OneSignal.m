@@ -1462,7 +1462,7 @@ static NSString *_lastnonActiveMessageId;
         }
         
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
+        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
     }
 }
 
@@ -1501,7 +1501,11 @@ static NSString *_lastnonActiveMessageId;
     
     //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
-    [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+    
+    //ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
+    if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
+        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+    }
 }
 
 + (BOOL)shouldPromptToShowURL {

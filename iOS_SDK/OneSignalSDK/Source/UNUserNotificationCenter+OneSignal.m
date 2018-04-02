@@ -159,8 +159,10 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         default: break;
     }
     
+    let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
+    
     if ([OneSignal app_id])
-        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:false];
+        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
