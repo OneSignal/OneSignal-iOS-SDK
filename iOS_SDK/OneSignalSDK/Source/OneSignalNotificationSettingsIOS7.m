@@ -32,6 +32,7 @@
 #import "OneSignal.h"
 #import "OneSignalInternal.h"
 #import "OneSignalNotificationSettingsIOS7.h"
+#import "OneSignalCommonDefines.h"
 
 
 @implementation OneSignalNotificationSettingsIOS7 {
@@ -43,7 +44,7 @@
     OSPermissionState* status = OneSignal.currentPermissionState;
     
     // Don't call getNotificationTypes as this will cause currentSubscriptionState to initialize before currentPermissionState
-    status.notificationTypes = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"] == nil ? 0 : 7;
+    status.notificationTypes = [userDefaults stringForKey:DEVICE_TOKEN] == nil ? 0 : 7;
     status.accepted = status.notificationTypes > 0;
     status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
     

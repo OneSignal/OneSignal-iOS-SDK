@@ -32,6 +32,9 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+
 @implementation OneSignalHelperOverrider
 
 static dispatch_queue_t serialMockMainLooper;

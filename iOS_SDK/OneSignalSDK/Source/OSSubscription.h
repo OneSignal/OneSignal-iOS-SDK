@@ -40,7 +40,8 @@
 -(void)onChanged:(OSSubscriptionState*)state;
 @end
 
-typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState*> ObserableSubscriptionStateType;
+
+typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState*> ObservableSubscriptionStateType;
 
 // Redefine OSSubscriptionState
 @interface OSSubscriptionState () {
@@ -53,7 +54,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @property (readwrite, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
 @property (readwrite, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
 @property (readwrite, nonatomic) NSString* pushToken; // AKA Apple Device Token
-@property (nonatomic) ObserableSubscriptionStateType* observable;
+@property (nonatomic) ObservableSubscriptionStateType* observable;
 
 - (instancetype)initAsToWithPermision:(BOOL)permission;
 - (instancetype)initAsFrom;
@@ -65,10 +66,12 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @interface OSSubscriptionState () <OSPermissionStateObserver>
 
 @property (nonatomic) BOOL accpeted;
-
 - (void)setAccepted:(BOOL)inAccpeted;
 - (void)persistAsFrom;
 - (BOOL)compare:(OSSubscriptionState*)from;
+
+@property (nonatomic) BOOL delayedObserverUpdate;
+
 @end
 
 // Redefine OSSubscriptionStateChanges
@@ -80,8 +83,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @end
 
 
-typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChanges*> ObserableSubscriptionStateChangesType;
-
+typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChanges*> ObservableSubscriptionStateChangesType;
 
 @interface OSSubscriptionChangedInternalObserver : NSObject<OSSubscriptionStateObserver>
 + (void)fireChangesObserver:(OSSubscriptionState*)state;
@@ -93,6 +95,6 @@ typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChang
 @property (class) OSSubscriptionState* currentSubscriptionState;
 
 // Used to manage observers added by the app developer.
-@property (class) ObserableSubscriptionStateChangesType* subscriptionStateChangesObserver;
+@property (class) ObservableSubscriptionStateChangesType* subscriptionStateChangesObserver;
 
 @end

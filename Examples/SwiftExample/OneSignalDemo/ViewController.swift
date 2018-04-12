@@ -29,12 +29,19 @@
 import UIKit
 import OneSignal
 
-class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObserver {
+class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, UITextFieldDelegate {
     
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var allowNotificationsSwitch: UISwitch!
     @IBOutlet weak var setSubscriptionLabel: UILabel!
     @IBOutlet weak var registerForPushNotificationsButton: UIButton!
+    
+    @IBOutlet weak var emailTextField: UITextField!
+    @IBOutlet weak var setEmailButton: UIButton!
+    @IBOutlet weak var logoutEmailButton: UIButton!
+    @IBOutlet weak var setEmailActivityIndicatorView: UIActivityIndicatorView!
+    @IBOutlet weak var logoutEmailActivityIndicatorView: UIActivityIndicatorView!
+    @IBOutlet weak var logoutEmailTrailingConstraint: NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,24 +53,51 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
             allowNotificationsSwitch.isOn = true
             allowNotificationsSwitch.isUserInteractionEnabled = true
             registerForPushNotificationsButton.backgroundColor = UIColor.green
-            registerForPushNotificationsButton.isUserInteractionEnabled = false 
+            registerForPushNotificationsButton.isUserInteractionEnabled = false
         }
         OneSignal.add(self as OSPermissionObserver)
         OneSignal.add(self as OSSubscriptionObserver)
+        OneSignal.add(self as OSEmailSubscriptionObserver)
+        
+        self.emailTextField.delegate = self;
     }
     
     func displaySettingsNotification() {
         let message = NSLocalizedString("Please turn on notifications by going to Settings > Notifications > Allow Notifications", comment: "Alert message when the user has denied access to the notifications")
-        let alertController = UIAlertController(title: "OneSignal Example", message: message, preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil))
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("Settings", comment: "Alert button to open Settings"), style: .`default`, handler: { action in
+        let settingsAction = UIAlertAction(title: NSLocalizedString("Settings", comment: "Alert button to open Settings"), style: .`default`, handler: { action in
             if #available(iOS 10.0, *) {
                 UIApplication.shared.open(URL(string: UIApplicationOpenSettingsURLString)!, options: [:], completionHandler: nil)
             } else {
                 // Fallback on earlier versions
             }
-        }))
-        self.present(alertController, animated: true, completion: nil)
+        });
+        self.displayAlert(title: message, message: "OneSignal Example", actions: [UIAlertAction.okAction(), settingsAction]);
+    }
+    
+    func displayError(withMessage message : String) {
+        let action = UIAlertAction(title: "Ok", style: .cancel, handler: nil);
+        self.displayAlert(title: "An Error Occurred", message: message, actions: [action])
+    }
+    
+    func changeLogoutAnimationState(_ animating : Bool) {
+        self.logoutEmailTrailingConstraint.constant = animating ? 36.0 : 0.0;
+        if (animating) {
+            self.logoutEmailActivityIndicatorView.startAnimating();
+        }
+        
+        UIView.animate(withDuration: 0.15, animations: {
+            self.view.layoutIfNeeded();
+        }) { (completed) in
+            if (completed && !animating) {
+                self.logoutEmailActivityIndicatorView.stopAnimating();
+            }
+        }
+    }
+    
+    func displayAlert(title : String, message: String, actions: [UIAlertAction]) {
+        let controller = UIAlertController(title: title, message: message, preferredStyle: .alert);
+        actions.forEach { controller.addAction($0) };
+        self.present(controller, animated: true, completion: nil);
     }
     
     func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges!) {
@@ -91,8 +125,18 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
             allowNotificationsSwitch.isUserInteractionEnabled = true
             setSubscriptionLabel.text = "Set Subscription ON"
             registerForPushNotificationsButton.backgroundColor = UIColor.green
-            registerForPushNotificationsButton.isUserInteractionEnabled = false 
+            registerForPushNotificationsButton.isUserInteractionEnabled = false
         }
+    }
+    
+    func onOSEmailSubscriptionChanged(_ stateChanges: OSEmailSubscriptionStateChanges!) {
+        self.textView.text = String(data: try! JSONSerialization.data(withJSONObject: stateChanges.toDictionary(), options: .prettyPrinted), encoding: .utf8);
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder();
+        
+        return true;
     }
     
     @IBAction func onRegisterForPushNotificationsButton(_ sender: UIButton) {
@@ -126,15 +170,27 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         OneSignal.sendTags(tags, onSuccess: { result in
             print("Tags sent - \(result!)")
         }) { error in
-            print("Error sending tags: \(error?.localizedDescription)")
+            print("Error sending tags: \(error?.localizedDescription ?? "None")")
         }
     }
     
     @IBAction func onGetTagsButton(_ sender: UIButton) {
         OneSignal.getTags({ tags in
             print("tags - \(tags!)")
+            
+            guard let tags = tags else {
+                self.displayAlert(title: NSLocalizedString("No Tags Available", comment: "Alert message when there were no tags available for this user"), message: NSLocalizedString("There were no tags present for this device", comment: "No tags available for this user"), actions: [UIAlertAction.okAction()]);
+                return;
+            };
+            
+            if JSONSerialization.isValidJSONObject(tags), let tagsData = try? JSONSerialization.data(withJSONObject: tags, options: .prettyPrinted), let tagsString = String(data: tagsData, encoding: .utf8) {
+                self.displayAlert(title: NSLocalizedString("Tags JSON", comment: "Title for displaying tags JSON"), message: tagsString, actions: [UIAlertAction.okAction()]);
+            } else {
+                self.displayAlert(title: NSLocalizedString("Unable to Parse Tags", comment: "Alerts the user that tags are present but unable to be parsed"), message: NSLocalizedString("Tags exist but are unable to be parsed or displayed as a string", comment: "Informs the user that the app is unable to parse tags"), actions: [UIAlertAction.okAction()]);
+            }
+            
         }, onFailure: { error in
-            print("Error getting tags - \(error?.localizedDescription)")
+            print("Error getting tags - \(error?.localizedDescription ?? "None")")
             // errorWithDomain - OneSignalError
             // code - HTTP error code from the OneSignal server
             // userInfo - JSON OneSignal responded with
@@ -161,9 +217,9 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         let userSubscriptionSetting = status.subscriptionStatus.userSubscriptionSetting
         print("userSubscriptionSetting = \(userSubscriptionSetting)")
         let userID = status.subscriptionStatus.userId
-        print("userID = \(userID)")
+        print("userID = \(userID ?? "None")")
         let pushToken = status.subscriptionStatus.pushToken
-        print("pushToken = \(pushToken)")
+        print("pushToken = \(pushToken ?? "None")")
     }
     
     @IBAction func onSyncEmailButton(_ sender: UIButton) {
@@ -184,6 +240,7 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
          */
         // must add core location framework for this to work. Root Project > Build Phases > Link Binary With Libraries
         OneSignal.promptLocation()
+        print("OneSignal version: " + OneSignal.sdk_semantic_version());
     }
     
     // Sending Notifications
@@ -193,7 +250,7 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         let status: OSPermissionSubscriptionState = OneSignal.getPermissionSubscriptionState()
         let pushToken = status.subscriptionStatus.pushToken
         let userId = status.subscriptionStatus.userId
-            
+        
         if pushToken != nil {
             let message = "This is a notification's message or body"
             let notificationContent = [
@@ -245,5 +302,41 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         } else {
             OneSignal.setSubscription(true)
         }
+    }
+    
+    @IBAction func setEmailButtonPressed(_ sender: UIButton) {
+        self.emailTextField.resignFirstResponder();
+        
+        sender.isHidden = true;
+        self.setEmailActivityIndicatorView.startAnimating();
+        
+        OneSignal.setEmail(self.emailTextField.text ?? "", withSuccess: {
+            sender.isHidden = false;
+            self.setEmailActivityIndicatorView.stopAnimating();
+            
+        }) { (error) in
+            sender.isHidden = false;
+            self.setEmailActivityIndicatorView.stopAnimating();
+            
+            self.displayError(withMessage: "Encountered error while attempting to set email: " + (error?.localizedDescription ?? "null"));
+        };
+    }
+    
+    @IBAction func logoutEmailButtonPressed(_ sender: UIButton) {
+        self.changeLogoutAnimationState(true);
+        
+        OneSignal.logoutEmail(success: {
+            self.changeLogoutAnimationState(false);
+        }) { (error) in
+            self.changeLogoutAnimationState(false);
+            
+            self.displayError(withMessage: "Encountered error while attempting to log out of email: " + (error?.localizedDescription ?? "null"));
+        };
+    }
+}
+
+extension UIAlertAction {
+    static func okAction() -> UIAlertAction {
+        return UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil);
     }
 }

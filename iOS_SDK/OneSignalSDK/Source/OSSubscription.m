@@ -26,11 +26,15 @@
  */
 
 #import "OSSubscription.h"
+#import "OneSignalCommonDefines.h"
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 
 @implementation OSSubscriptionState
 
-- (ObserableSubscriptionStateType*)observable {
+- (ObservableSubscriptionStateType*)observable {
     if (!_observable)
         _observable = [OSObservable new];
     return _observable;
@@ -40,9 +44,9 @@
     _accpeted = permission;
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    _userId = [userDefaults stringForKey:@"GT_PLAYER_ID"];
-    _pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN"];
-    _userSubscriptionSetting = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION"] == nil;
+    _userId = [userDefaults stringForKey:USERID];
+    _pushToken = [userDefaults stringForKey:DEVICE_TOKEN];
+    _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION] == nil;
     
     return self;
 }
@@ -57,10 +61,10 @@
 - (instancetype)initAsFrom {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     
-    _userId = [userDefaults stringForKey:@"GT_PLAYER_ID_LAST"];
-    _pushToken = [userDefaults stringForKey:@"GT_DEVICE_TOKEN_LAST"];
-    _userSubscriptionSetting = [userDefaults objectForKey:@"ONESIGNAL_SUBSCRIPTION_LAST"] == nil;
-    _accpeted = [userDefaults boolForKey:@"ONESIGNAL_PERMISSION_ACCEPTED_LAST"];
+    _userId = [userDefaults stringForKey:USERID_LAST];
+    _pushToken = [userDefaults stringForKey:PUSH_TOKEN];
+    _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION_SETTING] == nil;
+    _accpeted = [userDefaults boolForKey:ACCEPTED_PERMISSION];
     
     return self;
 }
@@ -71,11 +75,11 @@
     NSString* strUserSubscriptionSetting = nil;
     if (!_userSubscriptionSetting)
         strUserSubscriptionSetting = @"no";
-    [userDefaults setObject:strUserSubscriptionSetting forKey:@"ONESIGNAL_SUBSCRIPTION_LAST"];
     
-    [userDefaults setObject:_userId forKey:@"GT_PLAYER_ID_LAST"];
-    [userDefaults setObject:_pushToken forKey:@"GT_DEVICE_TOKEN_LAST"];
-    [userDefaults setBool:_accpeted forKey:@"ONESIGNAL_PERMISSION_ACCEPTED_LAST"];
+    [userDefaults setObject:strUserSubscriptionSetting forKey:SUBSCRIPTION_SETTING];
+    [userDefaults setObject:_userId forKey:USERID_LAST];
+    [userDefaults setObject:_pushToken forKey:PUSH_TOKEN];
+    [userDefaults setBool:_accpeted forKey:ACCEPTED_PERMISSION];
     
     [userDefaults synchronize];
 }
@@ -109,7 +113,7 @@
     BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
     _pushToken = pushToken;
     if (changed) {
-        [[NSUserDefaults standardUserDefaults] setObject:_pushToken forKey:@"GT_DEVICE_TOKEN"];
+        [[NSUserDefaults standardUserDefaults] setObject:_pushToken forKey:DEVICE_TOKEN];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
         if (self.observable)
@@ -124,8 +128,19 @@
         [self.observable notifyChange:self];
 }
 
+
 - (void)setAccepted:(BOOL)inAccpeted {
     BOOL lastSubscribed = self.subscribed;
+    
+    // checks to see if we should delay the observer update
+    // This is to prevent a problem where the observer gets updated
+    // before the OneSignal server does. (11f7f49841339317a334c5ec928db7edccb21cfe)
+    
+    if ([OneSignal performSelector:@selector(shouldDelaySubscriptionSettingsUpdate)]) {
+        self.delayedObserverUpdate = true;
+        return;
+    }
+    
     _accpeted = inAccpeted;
     if (lastSubscribed != self.subscribed)
         [self.observable notifyChange:self];
@@ -141,10 +156,12 @@
 }
 
 - (NSDictionary*)toDictionary {
-    return @{@"userId": _userId ?: [NSNull null],
-             @"pushToken": _pushToken ?: [NSNull null],
-             @"userSubscriptionSetting": @(_userSubscriptionSetting),
-             @"subscribed": @(self.subscribed)};
+    return @{
+         @"userId": _userId ?: [NSNull null],
+         @"pushToken": _pushToken ?: [NSNull null],
+         @"userSubscriptionSetting": @(_userSubscriptionSetting),
+         @"subscribed": @(self.subscribed)
+     };
 }
 
 @end

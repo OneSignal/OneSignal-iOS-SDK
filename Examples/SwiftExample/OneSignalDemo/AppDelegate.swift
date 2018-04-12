@@ -46,8 +46,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
             
             print("Received Notification: \(notification!.payload.notificationID)")
-            print("launchURL = \(notification?.payload.launchURL)")
-            print("content_available = \(notification?.payload.contentAvailable)")
+            print("launchURL = \(notification?.payload.launchURL ?? "None")")
+            print("content_available = \(notification?.payload.contentAvailable ?? false)")
         }
         
         let notificationOpenedBlock: OSHandleNotificationActionBlock = { result in
@@ -55,20 +55,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             let payload: OSNotificationPayload? = result?.notification.payload
             
             print("Message = \(payload!.body)")
-            print("badge number = \(payload?.badge)")
-            print("notification sound = \(payload?.sound)")
+            print("badge number = \(payload?.badge ?? 0)")
+            print("notification sound = \(payload?.sound ?? "None")")
             
             if let additionalData = result!.notification.payload!.additionalData {
                 print("additionalData = \(additionalData)")
-                
-                // DEEP LINK and open url in RedViewController
-                // Send notification with Additional Data > example key: "OpenURL" example value: "https://google.com"
-                let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-                let instantiateRedViewController : RedViewController = mainStoryboard.instantiateViewController(withIdentifier: "RedViewControllerID") as! RedViewController
-                instantiateRedViewController.receivedURL = additionalData["OpenURL"] as! String!
-                self.window = UIWindow(frame: UIScreen.main.bounds)
-                self.window?.rootViewController = instantiateRedViewController
-                self.window?.makeKeyAndVisible()
                 
                 
                 if let actionSelected = payload?.actionButtons {
@@ -104,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         
         let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true, ]
         
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "<REPLACE_WITH_YOUR_ONESIGNAL_APP_ID", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
         
         OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
         

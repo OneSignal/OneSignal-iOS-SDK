@@ -27,6 +27,8 @@
 
 #import "AppDelegate.h"
 #import <OneSignal/OneSignal.h>
+#import "RedViewController.h"
+#import "GreenViewController.h"
 
 @implementation AppDelegate
 
@@ -53,16 +55,33 @@
             if (payload.title)
                 messageTitle = payload.title;
             
-            if (result.action.actionID)
+            if (result.action.actionID) {
                 fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionID]];
+                
+                UIViewController *vc;
+                
+                if ([result.action.actionID isEqualToString: @"id2"]) {
+                    RedViewController *redVC = (RedViewController *)[[UIStoryboard storyboardWithName:@"MainStoryboard" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"redVC"];
+                    
+                    if (payload.additionalData[@"OpenURL"])
+                        redVC.receivedUrl = [NSURL URLWithString:(NSString *)payload.additionalData[@"OpenURL"]];
+                    
+                    vc = redVC;
+                } else if ([result.action.actionID isEqualToString:@"id1"]) {
+                    vc = [[UIStoryboard storyboardWithName:@"MainStoryboard" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"greenVC"];
+                }
+                
+                [self.window.rootViewController presentViewController:vc animated:true completion:nil];
+            }
+            
+            
         }
         
-        UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:messageTitle
-                                                            message:fullMessage
-                                                           delegate:self
-                                                  cancelButtonTitle:@"Close"
-                                                  otherButtonTitles:nil, nil];
-        [alertView show];
+        UIAlertController *controller = [UIAlertController alertControllerWithTitle:@"Push Notification" message:fullMessage preferredStyle:UIAlertControllerStyleAlert];
+        [controller addAction:[UIAlertAction actionWithTitle:@"Close" style:UIAlertActionStyleCancel handler:nil]];
+        
+        [self.window.rootViewController presentViewController:controller animated:true completion:nil];
+        
     };
     
     // (Optional) - Configuration options for OneSignal settings.

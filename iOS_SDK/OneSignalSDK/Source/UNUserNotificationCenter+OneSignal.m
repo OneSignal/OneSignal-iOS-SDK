@@ -46,7 +46,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @interface OneSignal (UN_extra)
-+ (void)notificationOpened:(NSDictionary*)messageDict isActive:(BOOL)isActive;
++ (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 @end
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
@@ -151,6 +151,15 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
                 willPresentNotification:(UNNotification *)notification
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+    
+    if (![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
+        if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
+            [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
+        else
+            completionHandler(7);
+        return;
+    }
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
     NSUInteger completionHandlerOptions = 0;
@@ -161,8 +170,10 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         default: break;
     }
     
+    let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
+    
     if ([OneSignal app_id])
-        [OneSignal notificationOpened:notification.request.content.userInfo isActive:YES];
+        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
@@ -188,6 +199,15 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
+    
+    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+        if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
+            [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+        else
+            completionHandler();
+        return;
+    }
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
     
     [OneSignalUNUserNotificationCenter processiOS10Open:response];
@@ -222,13 +242,17 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
         return;
     
+    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo])
+        return;
+    
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
                     OneSignal.inFocusDisplayType != OSNotificationDisplayTypeNotification;
     
     let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
     
-    [OneSignal notificationOpened:userInfo isActive:isActive];
+    [OneSignal notificationReceived:userInfo isActive:isActive wasOpened:YES];
+    
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.
@@ -250,52 +274,17 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     UIApplication *sharedApp = [UIApplication sharedApplication];
     
-    // trigger is nil when UIApplication.presentLocalNotificationNow: is used.
-    //  However it will be UNLegacyNotificationTrigger when UIApplication.scheduleLocalNotification: is used
-    BOOL isLegacyLocalNotif = !notification.request.trigger || [notification.request.trigger isKindOfClass:NSClassFromString(@"UNLegacyNotificationTrigger")];
+    /*
+        The iOS SDK used to call some local notification selectors (such as didReceiveLocalNotification)
+        as a convenience but has stopped due to concerns about private API usage
+        the SDK will now print warnings when a developer's app implements these selectors
+    */
     BOOL isCustomAction = actionIdentifier && ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:actionIdentifier];
     BOOL isRemote = [notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
     
-    if (isLegacyLocalNotif) {
-        UILocalNotification *localNotif = [NSClassFromString(@"UIConcreteLocalNotification") alloc];
-        localNotif.alertBody = notification.request.content.body;
-        localNotif.alertTitle = notification.request.content.title;
-        localNotif.applicationIconBadgeNumber = [notification.request.content.badge integerValue];
-        NSString* soundName = [notification.request.content.sound valueForKey:@"_toneFileName"];
-        if (!soundName)
-            soundName = @"UILocalNotificationDefaultSoundName";
-        localNotif.soundName = soundName;
-        localNotif.alertLaunchImage = notification.request.content.launchImageName;
-        localNotif.userInfo = notification.request.content.userInfo;
-        localNotif.category = notification.request.content.categoryIdentifier;
-        localNotif.hasAction = true; // Defaults to true, UNLocalNotification doesn't seem to have a flag for this.
-        localNotif.fireDate = notification.date;
-        localNotif.timeZone = [notification.request.trigger valueForKey:@"_timeZone"];
-        localNotif.repeatInterval = (NSCalendarUnit)[notification.request.trigger valueForKey:@"_repeatInterval"];
-        localNotif.repeatCalendar = [notification.request.trigger valueForKey:@"_repeatCalendar"];
-        // localNotif.region =
-        // localNotif.regionTriggersOnce =
-        
-        if (isTextReply &&
-            [sharedApp.delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:)]) {
-            NSDictionary* dict = @{UIUserNotificationActionResponseTypedTextKey: userText};
-            [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forLocalNotification:localNotif withResponseInfo:dict completionHandler:^() {
-                completionHandler();
-            }];
-        }
-        else if (isCustomAction &&
-                 [sharedApp.delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
-            [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forLocalNotification:localNotif completionHandler:^() {
-                completionHandler();
-            }];
-        else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveLocalNotification:)]) {
-            [sharedApp.delegate application:sharedApp didReceiveLocalNotification:localNotif];
-            completionHandler();
-        }
-        else
-            completionHandler();
-    }
-    else if (isRemote) {
+    
+    
+    if (isRemote) {
         NSDictionary* remoteUserInfo = notification.request.content.userInfo;
         
         if (isTextReply &&
