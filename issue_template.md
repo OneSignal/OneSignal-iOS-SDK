@@ -1,6 +1,7 @@
 <!--
  1. IF YOU DON'T FILL OUT THE FOLLOWING INFORMATION WE MAY CLOSE YOUR ISSUE WITHOUT INVESTIGATION
  2. SEARCH EXISTING ISSUES FOR AN ANSWER: https://goo.gl/WiaCcG
+ 3. See our Common Issues documentation: https://goo.gl/68ntg2
 -->
 
 **Description:**
