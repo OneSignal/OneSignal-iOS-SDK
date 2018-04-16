@@ -710,7 +710,12 @@ static OneSignal* singleInstance = nil;
 
 // Synchroneously downloads a media
 // On success returns bundle resource name, otherwise returns nil
-+ (NSString*)downloadMediaAndSaveInBundle:(NSString*)url {
++ (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
+    
+    let inputUrl = [NSURL URLWithString:urlString];
+    
+    //removes any unnecessary query parameters that would break extension type checking
+    let url = [[NSURL alloc] initWithScheme:inputUrl.scheme host:inputUrl.host path:inputUrl.path].absoluteString;
     
     NSArray<NSString*>* supportedExtensions = @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"];
     NSArray* components = [url componentsSeparatedByString:@"."];
