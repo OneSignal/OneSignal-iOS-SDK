@@ -340,6 +340,10 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
 
+// - Privacy
++ (void)consentGranted:(BOOL)granted;
++ (BOOL)requiresUserPrivacyConsent; // tells your application if privacy consent is still needed from the current user
+
 @property (class) OSNotificationDisplayType inFocusDisplayType;
 
 + (NSString*)app_id;

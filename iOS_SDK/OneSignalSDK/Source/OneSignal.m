@@ -67,6 +67,7 @@
 
 #import "OneSignalSetEmailParameters.h"
 #import "OneSignalCommonDefines.h"
+#import "DelayedInitializationParameters.h"
 
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
@@ -144,7 +145,7 @@ static BOOL shouldDelaySubscriptionUpdate = false;
     this property stores the parameters so that once registration is complete
     we can finish setEmail:
 */
-static OneSignalSetEmailParameters *delayedParameters;
+static OneSignalSetEmailParameters *delayedEmailParameters;
 
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
@@ -164,6 +165,9 @@ static BOOL downloadedParameters = false;
 static BOOL didCallDownloadParameters = false;
 
 static BOOL promptBeforeOpeningPushURLs = false;
+
+static BOOL delayedInitializationForPrivacyConsent = false;
+DelayedInitializationParameters *delayedInitParameters;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
@@ -388,6 +392,13 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 //         Ensure a 2nd call can be made later with the appId from the developer's code.
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
     
+    if ([self requiresUserPrivacyConsent]) {
+        delayedInitializationForPrivacyConsent = true;
+        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId withHandleNotificationReceivedBlock:receivedCallback withHandleNotificationActionBlock:actionCallback withSettings:settings];
+        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+        return self;
+    }
+    
     let userDefaults = [NSUserDefaults standardUserDefaults];
     
     let success = [self initAppId:appId
@@ -540,6 +551,53 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return true;
 }
 
++ (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
+    if (delayedInitializationForPrivacyConsent) {
+        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent", methodName]];
+        return false;
+    }
+    
+    return false;
+}
+
++ (BOOL)requiresUserPrivacyConsent {
+    
+    // if the plist key does not exist default to true
+    // the plist value specifies whether GDPR privacy consent is required for this app
+    // if required and consent has not been previously granted, return false
+    
+    let requiresConsent = [[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_REQUIRE_PRIVACY_CONSENT] boolValue] ?: false;
+    
+    if (requiresConsent) {
+        let userDefaults = [NSUserDefaults standardUserDefaults];
+        
+        let consentGranted = (NSNumber *)[userDefaults objectForKey:GDPR_CONSENT_GRANTED];
+        
+        if (consentGranted == nil) {
+            [userDefaults setObject:@false forKey:GDPR_CONSENT_GRANTED];
+            [userDefaults synchronize];
+        }
+        
+        return ![[userDefaults objectForKey:GDPR_CONSENT_GRANTED] boolValue];
+    }
+    
+    return false;
+}
+
++ (void)consentGranted:(BOOL)granted {
+    let userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    [userDefaults setObject:@(granted) forKey:GDPR_CONSENT_GRANTED];
+    [userDefaults synchronize];
+    
+    if (!granted || !delayedInitializationForPrivacyConsent || delayedInitParameters == nil)
+        return;
+    
+    [self initWithLaunchOptions:delayedInitParameters.launchOptions appId:delayedInitParameters.appId handleNotificationReceived:delayedInitParameters.receivedBlock handleNotificationAction:delayedInitParameters.actionBlock settings:delayedInitParameters.settings];
+    delayedInitializationForPrivacyConsent = false;
+    delayedInitParameters = nil;
+}
+
 // the iOS SDK used to call these selectors as a convenience but has stopped due to concerns about private API usage
 // the SDK will now print warnings when a developer's app implements these selectors
 + (void)checkIfApplicationImplementsDeprecatedMethods {
@@ -557,9 +615,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             self.currentEmailSubscriptionState.requiresEmailAuth = [result[@"require_email_auth"] boolValue];
             
             // checks if a cell to setEmail: was delayed due to missing 'requiresEmailAuth' parameter
-            if (delayedParameters && self.currentSubscriptionState.userId) {
-                [self setEmail:delayedParameters.email withEmailAuthHashToken:delayedParameters.authToken withSuccess:delayedParameters.successBlock withFailure:delayedParameters.failureBlock];
-                delayedParameters = nil;
+            if (delayedEmailParameters && self.currentSubscriptionState.userId) {
+                [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
+                delayedEmailParameters = nil;
             }
         }
         
@@ -649,6 +707,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptForPushNotificationsWithUserResponse:"])
+        return;
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", waitingForApnsResponse]];
     
     self.currentPermissionState.hasPrompted = true;
@@ -659,6 +722,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 // This registers for a push token and prompts the user for notifiations permisions
 //    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
 + (void)registerForPushNotifications {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"registerForPushNotifications:"])
+        return;
+    
     [self promptForPushNotificationsWithUserResponse:nil];
 }
 
@@ -711,6 +779,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // Block not assigned if userID nil and there is a device token
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"IdsAvailable:"])
+        return;
+    
     idsAvailableBlockWhenReady = idsAvailableBlock;
     [self fireIdsAvailableCallback];
 }
@@ -733,6 +806,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)sendTagsWithJsonString:(NSString*)jsonString {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTagsWithJsonString:"])
+        return;
+    
     NSError* jsonError;
     
     NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -746,10 +824,19 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)sendTags:(NSDictionary*)keyValuePair {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTags:"])
+        return;
+    
     [self sendTags:keyValuePair onSuccess:nil onFailure:nil];
 }
 
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTags:onSuccess:onFailure:"])
+        return;
    
     if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
         onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair]);
@@ -828,14 +915,29 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)sendTag:(NSString*)key value:(NSString*)value {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTag:value:"])
+        return;
+    
     [self sendTag:key value:value onSuccess:nil onFailure:nil];
 }
 
 + (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTag:value:onSuccess:onFailure:"])
+        return;
+    
     [self sendTags:[NSDictionary dictionaryWithObjectsAndKeys: value, key, nil] onSuccess:successBlock onFailure:failureBlock];
 }
 
 + (void)getTags:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTags:onFailure:"])
+        return;
+    
     if (!self.currentSubscriptionState.userId) {
         pendingGetTagsSuccessBlock = successBlock;
         pendingGetTagsFailureBlock = failureBlock;
@@ -849,23 +951,48 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)getTags:(OSResultSuccessBlock)successBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTags:"])
+        return;
+    
     [self getTags:successBlock onFailure:nil];
 }
 
 
 + (void)deleteTag:(NSString*)key onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"deleteTag:onSuccess:onFailure:"])
+        return;
+    
     [self deleteTags:@[key] onSuccess:successBlock onFailure:failureBlock];
 }
 
 + (void)deleteTag:(NSString*)key {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"deleteTag:"])
+        return;
+    
     [self deleteTags:@[key] onSuccess:nil onFailure:nil];
 }
 
 + (void)deleteTags:(NSArray*)keys {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"deleteTags:"])
+        return;
+    
     [self deleteTags:keys onSuccess:nil onFailure:nil];
 }
 
 + (void)deleteTagsWithJsonString:(NSString*)jsonString {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"deleteTagsWithJsonString:"])
+        return;
+    
     NSError* jsonError;
     
     NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -895,10 +1022,20 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 
 + (void)postNotification:(NSDictionary*)jsonData {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"postNotification:"])
+        return;
+    
     [self postNotification:jsonData onSuccess:nil onFailure:nil];
 }
 
 + (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"postNotification:onSuccess:onFailure:"])
+        return;
+    
     NSMutableDictionary *json = [jsonData mutableCopy];
     
     [OneSignal convertDatesToISO8061Strings:json]; //convert any dates to NSString's
@@ -923,6 +1060,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)postNotificationWithJsonString:(NSString*)jsonString onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"postNotificationWithJsonString:onSuccess:onFailure:"])
+        return;
+    
     NSError* jsonError;
     
     NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -974,6 +1116,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)setSubscription:(BOOL)enable {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSubscription:"])
+        return;
+    
     NSString* value = nil;
     if (!enable)
         value = @"no";
@@ -995,6 +1142,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void) promptLocation {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
+        return;
+    
     [OneSignalLocation getLocation:true];
 }
 
@@ -1273,10 +1425,10 @@ static dispatch_queue_t serialQueue;
         if (results.count > 0 && results[@"push"][@"id"]) {
             self.currentSubscriptionState.userId = results[@"push"][@"id"];
             
-            if (delayedParameters) {
+            if (delayedEmailParameters) {
                 //a call to setEmail: was delayed because the push player_id did not exist yet
-                [self setEmail:delayedParameters.email withEmailAuthHashToken:delayedParameters.authToken withSuccess:delayedParameters.successBlock withFailure:delayedParameters.failureBlock];
-                delayedParameters = nil;
+                [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
+                delayedEmailParameters = nil;
             }
             
             [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.userId forKey:USERID];
@@ -1713,6 +1865,11 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)syncHashedEmail:(NSString *)email {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"syncHashedEmail:"])
+        return;
+    
     if (!email) {
         [self onesignal_Log:ONE_S_LL_WARN message:@"OneSignal syncHashedEmail: The provided email is nil"];
         return;
@@ -1769,6 +1926,10 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withEmailAuthHashToken:withSuccess:withFailure:"])
+        return;
+    
     //some clients/wrappers may send NSNull instead of nil as the auth token
     NSString *emailAuthToken = hashToken;
     if (hashToken == (id)[NSNull null])
@@ -1804,7 +1965,7 @@ static NSString *_lastnonActiveMessageId;
     
     if (!self.currentSubscriptionState.userId || (downloadedParameters == false && emailAuthToken != nil)) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setEmail: until the parameters have been downloaded."];
-        delayedParameters = [OneSignalSetEmailParameters withEmail:email withAuthToken:emailAuthToken withSuccess:successBlock withFailure:failureBlock];
+        delayedEmailParameters = [OneSignalSetEmailParameters withEmail:email withAuthToken:emailAuthToken withSuccess:successBlock withFailure:failureBlock];
         return;
     }
     
@@ -1846,10 +2007,20 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withSuccess:withFailure:"])
+        return;
+    
     [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutEmailWithSuccess:withFailure:"])
+        return;
+    
     if (!self.currentEmailSubscriptionState.emailUserId) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Email Player ID does not exist, cannot logout"];
         
@@ -1877,14 +2048,29 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setEmail:(NSString * _Nonnull)email {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:"])
+        return;
+    
     [self setEmail:email withSuccess:nil withFailure:nil];
 }
 
 + (void)logoutEmail {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutEmail"])
+        return;
+    
     [self logoutEmailWithSuccess:nil withFailure:nil];
 }
 
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withEmailAuthHashToken:"])
+        return;
+    
     [self setEmail:email withEmailAuthHashToken:hashToken withSuccess:nil withFailure:nil];
 }
 

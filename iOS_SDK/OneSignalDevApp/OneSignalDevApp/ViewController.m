@@ -35,6 +35,7 @@
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
 
 @end
 
@@ -45,6 +46,8 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     self.activityIndicatorView.hidden = true;
+    
+    self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
 }
 
 - (void)changeAnimationState:(BOOL)animating {
@@ -119,6 +122,11 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)consentSegmentedControlValueChanged:(UISegmentedControl *)sender {
+    NSLog(@"View controller consent granted: %i", (int)sender.selectedSegmentIndex);
+    [OneSignal consentGranted:(bool)sender.selectedSegmentIndex];
 }
 
 
