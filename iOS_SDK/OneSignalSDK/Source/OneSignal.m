@@ -552,8 +552,10 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
-    if (delayedInitializationForPrivacyConsent) {
-        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent", methodName]];
+    if ([self requiresUserPrivacyConsent]) {
+        if (methodName) {
+            [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent", methodName]];
+        }
         return false;
     }
     
@@ -789,6 +791,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void) fireIdsAvailableCallback {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     if (!idsAvailableBlockWhenReady)
         return;
     if (!self.currentSubscriptionState.userId)
@@ -874,6 +881,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // Called only with a delay to batch network calls.
 + (void) sendTagsToServer {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     if (!tagsToSend)
         return;
     
@@ -1179,6 +1191,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"updateDeviceToken:onSuccess:onFailure:"])
+        return;
+    
     onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
     
     // iOS 7
@@ -1240,6 +1257,11 @@ static BOOL waitingForOneSReg = false;
 }
 
 +(BOOL)shouldRegisterNow {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     if (waitingForOneSReg)
         return false;
     
@@ -1273,6 +1295,11 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUser {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     if (waitingForApnsResponse) {
         [self registerUserAfterDelay];
         return;
@@ -1287,6 +1314,11 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUserInternal {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     // Make sure we only call create or on_session once per open of the app.
     if (![self shouldRegisterNow])
         return;
@@ -1500,6 +1532,11 @@ static dispatch_queue_t serialQueue;
 
 // Updates the server with the new user's notification setting or subscription status changes
 + (BOOL) sendNotificationTypesUpdate {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return false;
+    
     // User changed notification settings for the app.
     if ([self getNotificationTypes] != -1 && self.currentSubscriptionState.userId && mLastNotificationTypes != [self getNotificationTypes]) {
         if (!self.currentSubscriptionState.pushToken) {
@@ -1531,6 +1568,11 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)sendPurchases:(NSArray*)purchases {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     if (!self.currentSubscriptionState.userId)
         return;
     
@@ -1678,6 +1720,11 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)submitNotificationOpened:(NSString*)messageId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
     //Keep track of the Id for the last message sent
     NSString* lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
