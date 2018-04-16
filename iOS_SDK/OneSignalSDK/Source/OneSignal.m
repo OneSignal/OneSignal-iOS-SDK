@@ -1260,7 +1260,7 @@ static BOOL waitingForOneSReg = false;
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
+        return false;
     
     if (waitingForOneSReg)
         return false;
