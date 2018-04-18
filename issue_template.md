@@ -21,10 +21,9 @@
 <!--
   Example:
 
-  1. Visit https://site.com/page.
-  2. Wait for prompt to appear.
-  3. Click Allow.
-  4. Observe issue X, Y, and Z.
+  1. Install iOS SDK version 2.8.2 with Cocoapods into a project
+  2. Initialize the SDK in didFinishLaunchingWithOptions:
+  3. Attempt to receive a push notification
 
   (write below this line) -->
 
