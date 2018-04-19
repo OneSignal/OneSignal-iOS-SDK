@@ -2,13 +2,14 @@
   <img src="https://onesignal.com/assets/common/logo_onesignal_color.png"/>
 </p>
 
-### OneSignal iOS SDK [![CocoaPods](https://img.shields.io/cocoapods/v/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![CocoaPods](https://img.shields.io/cocoapods/dm/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage) [![Build Status](https://travis-ci.org/OneSignal/OneSignal-iOS-SDK.svg?branch=master)](https://travis-ci.org/OneSignal/OneSignal-iOS-SDK)
+### OneSignal iOS SDK
+[![CocoaPods](https://img.shields.io/cocoapods/v/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![CocoaPods](https://img.shields.io/cocoapods/dm/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage) [![Build Status](https://travis-ci.org/OneSignal/OneSignal-iOS-SDK.svg?branch=master)](https://travis-ci.org/OneSignal/OneSignal-iOS-SDK)
 
 ---
 
-OneSignal is a free push notification service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
+[OneSignal](https://www.onesignal.com) is a free push notification service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
 
-![alt text](http://www.hesse.io/videoGif8.gif)
+<img src="http://www.hesse.io/videoGif8.gif" width="250" alt="Example Notification Gif">
 
 #### Installation
 See OneSignal's [iOS Native SDK Setup Guide](https://documentation.onesignal.com/docs/ios-sdk-setup) for documentation.
