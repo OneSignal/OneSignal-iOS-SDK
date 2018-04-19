@@ -79,6 +79,8 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
+#import "DummyNotificationCenterDelegate.h"
+
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
@@ -1848,6 +1850,30 @@ didReceiveRemoteNotification:userInfo
     let cacheName = [OneSignalHelper downloadMediaAndSaveInBundle:testUrl];
     
     XCTAssertNotNil(cacheName);
+}
+
+//tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
+- (void)testSwizzling {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    
+    DummyNotificationCenterDelegate *delegate = [[DummyNotificationCenterDelegate alloc] init];
+    
+    IMP original = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+    
+    center.delegate = delegate;
+    
+    IMP swizzled = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+    
+    XCTAssertNotEqual(original, swizzled);
+    
+    //calling setDelegate: a second time on the same object should not re-exchange method implementations
+    //thus the new method implementation should still be the same, swizzled == newSwizzled should be true
+    center.delegate = delegate;
+    
+    IMP newSwizzled = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+    
+    XCTAssertNotEqual(original, newSwizzled);
+    XCTAssertEqual(swizzled, newSwizzled);
 }
 
 @end
