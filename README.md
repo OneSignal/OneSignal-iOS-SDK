@@ -8,7 +8,7 @@
 
 OneSignal is a free push notification service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
 
-![alt text](http://www.hesse.io/videoGif4.gif)
+![alt text](https://media.giphy.com/media/Mn4SNEqw1WqUHi5sB5/giphy.gif)
 
 #### Installation
 See OneSignal's [iOS Native SDK Setup Guide](https://documentation.onesignal.com/docs/ios-sdk-setup) for documentation.
