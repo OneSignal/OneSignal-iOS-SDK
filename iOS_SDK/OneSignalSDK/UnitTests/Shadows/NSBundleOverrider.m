@@ -28,10 +28,18 @@
 #import "NSBundleOverrider.h"
 
 #import "OneSignalSelectorHelpers.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation NSBundleOverrider
 
 static NSDictionary* nsbundleDictionary;
+
+//mimics the Onesignal_require_privacy_consent plist key
+static BOOL privacyState = false;
+
++ (void)setPrivacyState:(BOOL)state {
+    privacyState = state;
+}
 
 + (void)load {
     injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
@@ -56,7 +64,10 @@ static NSDictionary* nsbundleDictionary;
 }
 
 - (nullable id)overrideObjectForInfoDictionaryKey:(NSString*)key {
-    return nsbundleDictionary[key];
+    if (privacyState && [key isEqualToString:ONESIGNAL_REQUIRE_PRIVACY_CONSENT])
+        return @true;
+    else
+        return nsbundleDictionary[key];
 }
 
 - (NSURL*)overrideURLForResource:(NSString*)name withExtension:(NSString*)ext {

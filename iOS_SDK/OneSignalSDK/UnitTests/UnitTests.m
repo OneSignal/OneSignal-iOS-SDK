@@ -1850,4 +1850,28 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNotNil(cacheName);
 }
 
+/*
+    Tests the privacy functionality to comply with the GDPR
+*/
+- (void)testPrivacyState {
+    [NSBundleOverrider setPrivacyState:true];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    //indicates initialization was delayed
+    XCTAssertNil(OneSignal.app_id);
+    
+    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    
+    [OneSignal consentGranted:true];
+    
+    XCTAssertTrue([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:OneSignal.app_id]);
+    
+    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+    
+    [NSBundleOverrider setPrivacyState:false];
+}
+
 @end

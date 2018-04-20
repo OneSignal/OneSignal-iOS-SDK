@@ -30,4 +30,5 @@
 @interface NSBundleOverrider : NSObject
 +(void) setNsbundleDictionary:(NSDictionary*)value;
 +(NSDictionary*) nsbundleDictionary;
++ (void)setPrivacyState:(BOOL)state;
 @end
