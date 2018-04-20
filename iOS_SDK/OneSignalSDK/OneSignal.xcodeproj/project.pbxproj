@@ -153,6 +153,7 @@
 		CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CAB411AE208931EE005A70D1 /* DummyNotificationCenterDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
@@ -292,6 +293,8 @@
 		CAA4ED0020646762005BD59B /* BadgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BadgeTests.m; sourceTree = "<group>"; };
 		CAABF349205B15780042F8E5 /* OneSignalExtensionBadgeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalExtensionBadgeHandler.h; sourceTree = "<group>"; };
 		CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalExtensionBadgeHandler.m; sourceTree = "<group>"; };
+		CAB411AC208931EE005A70D1 /* DummyNotificationCenterDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DummyNotificationCenterDelegate.h; sourceTree = "<group>"; };
+		CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DummyNotificationCenterDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -427,6 +430,8 @@
 				4529DED41FA823B900CEAB1D /* TestHelperFunctions.m */,
 				4529DEF41FA8460C00CEAB1D /* UnitTestAppDelegate.h */,
 				4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */,
+				CAB411AC208931EE005A70D1 /* DummyNotificationCenterDelegate.h */,
+				CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -836,6 +841,7 @@
 				4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */,
 				912412441E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				9124123C1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
+				CAB411AE208931EE005A70D1 /* DummyNotificationCenterDelegate.m in Sources */,
 				4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */,
 				CA08FC751FE99B00004C445F /* OneSignalClient.m in Sources */,
 				9129C6BA1E89E59B009CB6A0 /* OSPermission.m in Sources */,
