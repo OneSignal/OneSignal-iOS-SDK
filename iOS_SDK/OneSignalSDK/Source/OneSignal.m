@@ -169,6 +169,11 @@ static BOOL promptBeforeOpeningPushURLs = false;
 static BOOL delayedInitializationForPrivacyConsent = false;
 DelayedInitializationParameters *delayedInitParameters;
 
+//the iOS Native SDK will use the plist flag to enable privacy consent
+//however wrapper SDK's will use a method call before initialization
+//this boolean flag is switched on to enable this behavior
+static BOOL shouldRequireUserConsent = false;
+
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
@@ -562,6 +567,10 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return false;
 }
 
++ (void)setRequiresUserPrivacyConsent:(BOOL)required {
+    shouldRequireUserConsent = required;
+}
+
 + (BOOL)requiresUserPrivacyConsent {
     
     // if the plist key does not exist default to true
@@ -570,7 +579,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     let requiresConsent = [[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_REQUIRE_PRIVACY_CONSENT] boolValue] ?: false;
     
-    if (requiresConsent) {
+    if (requiresConsent || shouldRequireUserConsent) {
         let userDefaults = [NSUserDefaults standardUserDefaults];
         
         let consentGranted = (NSNumber *)[userDefaults objectForKey:GDPR_CONSENT_GRANTED];
@@ -603,9 +612,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 // the iOS SDK used to call these selectors as a convenience but has stopped due to concerns about private API usage
 // the SDK will now print warnings when a developer's app implements these selectors
 + (void)checkIfApplicationImplementsDeprecatedMethods {
-    for (NSString *selectorName in DEPRECATED_SELECTORS)
-        if ([[[UIApplication sharedApplication] delegate] respondsToSelector:NSSelectorFromString(selectorName)])
-            [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal has detected that your application delegate implements a deprecated method (%@). Please note that this method has been officially deprecated and the OneSignal SDK will no longer call it. You should use UNUserNotificationCenter instead", selectorName]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (NSString *selectorName in DEPRECATED_SELECTORS)
+            if ([[[UIApplication sharedApplication] delegate] respondsToSelector:NSSelectorFromString(selectorName)])
+                [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal has detected that your application delegate implements a deprecated method (%@). Please note that this method has been officially deprecated and the OneSignal SDK will no longer call it. You should use UNUserNotificationCenter instead", selectorName]];
+    });
 }
 
 +(void)downloadIOSParams {

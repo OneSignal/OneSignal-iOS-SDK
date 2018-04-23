@@ -343,6 +343,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // - Privacy
 + (void)consentGranted:(BOOL)granted;
 + (BOOL)requiresUserPrivacyConsent; // tells your application if privacy consent is still needed from the current user
++ (void)setRequiresUserPrivacyConsent:(BOOL)required; //used by wrapper SDK's to require user privacy consent
 
 @property (class) OSNotificationDisplayType inFocusDisplayType;
 
