@@ -28,11 +28,16 @@
 #import "OneSignalClient.h"
 #import "UIApplicationDelegate+OneSignal.h"
 #import "ReattemptRequest.h"
+#import "OneSignal.h"
 
 #define REATTEMPT_DELAY 30.0
 #define REQUEST_TIMEOUT_REQUEST 60.0 //for most HTTP requests
 #define REQUEST_TIMEOUT_RESOURCE 100.0 //for loading a resource like an image
 #define MAX_ATTEMPT_COUNT 3
+
+@interface OneSignal (OneSignalClientExtra)
++ (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
+@end
 
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
@@ -100,6 +105,12 @@
 }
 
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    if (request.method != GET && [OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
+        failureBlock([NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", NSStringFromClass(request.class)]}]);
+        return;
+    }
+    
     if (![self validRequest:request]) {
         [self handleMissingAppIdError:failureBlock withRequest:request];
         return;

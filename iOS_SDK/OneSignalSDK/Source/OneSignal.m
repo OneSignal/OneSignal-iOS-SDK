@@ -396,6 +396,12 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 // NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
 //         Ensure a 2nd call can be made later with the appId from the developer's code.
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
+    NSLog(@"Called init with app ID: %@", appId);
+    
+    //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
+    //the app ID is required to download parameters, so do not download params until the appID is provided
+    if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:appId];
     
     if ([self requiresUserPrivacyConsent]) {
         delayedInitializationForPrivacyConsent = true;
@@ -508,11 +514,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
          (B) if this app requires email authentication
     */
     
-    //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
-    //the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
-        [self downloadIOSParams];
-    
     if ([OneSignalTrackFirebaseAnalytics needsRemoteParams]) {
         [OneSignalTrackFirebaseAnalytics init];
     }
@@ -561,7 +562,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         if (methodName) {
             [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent", methodName]];
         }
-        return false;
+        return true;
     }
     
     return false;
@@ -619,11 +620,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     });
 }
 
-+(void)downloadIOSParams {
++(void)downloadIOSParamsWithAppId:(NSString *)appId {
     [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     didCallDownloadParameters = true;
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[@"require_email_auth"]) {
             self.currentEmailSubscriptionState.requiresEmailAuth = [result[@"require_email_auth"] boolValue];
             
@@ -1610,6 +1611,8 @@ static NSString *_lastnonActiveMessageId;
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 + (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened {
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
     
     if (!app_id)
         return;
@@ -1685,6 +1688,10 @@ static NSString *_lastnonActiveMessageId;
                         isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType
                      displayType:(OSNotificationDisplayType)displayType {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:isActive:actionType:displayType:"])
+        return;
     
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
@@ -1837,8 +1844,12 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     let trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     let parsedDeviceToken = [[trimmedDeviceToken componentsSeparatedByString:@" "] componentsJoinedByString:@""];
+    
     
     [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
     
@@ -1903,6 +1914,9 @@ static NSString *_lastnonActiveMessageId;
 
 // iOS 8-9 - Entry point when OneSignal action button notification is displayed or opened.
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     if (!notification.userInfo)
         return;
 
