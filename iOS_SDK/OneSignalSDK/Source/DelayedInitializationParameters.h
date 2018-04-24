@@ -26,9 +26,16 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "OneSignal.h"
 
-@interface NSBundleOverrider : NSObject
-+(void) setNsbundleDictionary:(NSDictionary*)value;
-+(NSDictionary*) nsbundleDictionary;
-+ (void)setPrivacyState:(BOOL)state;
+@interface DelayedInitializationParameters : NSObject
+
+-(instancetype _Nonnull)initWithLaunchOptions:(NSDictionary * _Nullable)launchOptions withAppId:(NSString * _Nullable)appId withHandleNotificationReceivedBlock:(OSHandleNotificationReceivedBlock _Nullable)received withHandleNotificationActionBlock:(OSHandleNotificationActionBlock _Nullable)action withSettings:(NSDictionary * _Nullable)settings;
+
+@property (strong, nonatomic, nullable) NSDictionary *launchOptions;
+@property (strong, nonatomic, nullable) NSString *appId;
+@property (strong, nonatomic, nullable) NSDictionary *settings;
+@property (nonatomic, nullable) OSHandleNotificationReceivedBlock receivedBlock;
+@property (nonatomic, nullable) OSHandleNotificationActionBlock actionBlock;
+
 @end

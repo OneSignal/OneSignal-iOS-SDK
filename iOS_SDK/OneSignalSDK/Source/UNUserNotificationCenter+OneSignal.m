@@ -47,6 +47,7 @@
 
 @interface OneSignal (UN_extra)
 + (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened;
++ (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
 @end
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
@@ -152,7 +153,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                 willPresentNotification:(UNNotification *)notification
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     
-    if (![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
+    // return if the user has not granted privacy permissions or if not a OneSignal payload
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
         if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
             [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
         else
@@ -200,7 +202,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
     
-    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+    // return if the user has not granted privacy permissions or if not a OneSignal payload
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
         if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
             [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
         else

@@ -25,10 +25,17 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
+#import "DelayedInitializationParameters.h"
 
-@interface NSBundleOverrider : NSObject
-+(void) setNsbundleDictionary:(NSDictionary*)value;
-+(NSDictionary*) nsbundleDictionary;
-+ (void)setPrivacyState:(BOOL)state;
+@implementation DelayedInitializationParameters
+
+-(instancetype)initWithLaunchOptions:(NSDictionary *)launchOptions withAppId:(NSString *)appId withHandleNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)received withHandleNotificationActionBlock:(OSHandleNotificationActionBlock)action withSettings:(NSDictionary *)settings {
+    self.launchOptions = launchOptions;
+    self.appId = appId;
+    self.receivedBlock = received;
+    self.actionBlock = action;
+    self.settings = settings;
+    return self;
+}
+
 @end

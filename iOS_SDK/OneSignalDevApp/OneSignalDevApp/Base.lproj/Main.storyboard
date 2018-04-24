@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -71,24 +72,53 @@
                                     <constraint firstAttribute="height" constant="20" id="bBI-BW-dmM"/>
                                 </constraints>
                             </activityIndicatorView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" translatesAutoresizingMaskIntoConstraints="NO" id="05S-ud-V2e">
+                                <rect key="frame" x="163" y="442" width="179" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="28" id="nSO-fn-AxS"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="Not Granted"/>
+                                    <segment title="Granted"/>
+                                </segments>
+                                <connections>
+                                    <action selector="consentSegmentedControlValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="oL2-15-pJ0"/>
+                                </connections>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Consent Status:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j3e-42-uww">
+                                <rect key="frame" x="0.0" y="445" width="155" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="sCD-KJ-VyV"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="05S-ud-V2e" firstAttribute="leading" secondItem="j3e-42-uww" secondAttribute="trailing" constant="8" id="0VK-or-IQV"/>
                             <constraint firstItem="H3K-GA-smE" firstAttribute="centerX" secondItem="ebC-zs-TnD" secondAttribute="centerX" id="1J0-KC-Ike"/>
                             <constraint firstItem="Kp7-Oh-BQ1" firstAttribute="top" secondItem="H3K-GA-smE" secondAttribute="bottom" constant="56" id="467-jK-M0h"/>
                             <constraint firstItem="ebC-zs-TnD" firstAttribute="top" secondItem="H3K-GA-smE" secondAttribute="bottom" constant="18" id="4gc-Du-Gk7"/>
+                            <constraint firstItem="05S-ud-V2e" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-24.5" id="8TC-JA-qOE"/>
                             <constraint firstItem="Kp7-Oh-BQ1" firstAttribute="centerX" secondItem="H3K-GA-smE" secondAttribute="centerX" id="BET-RV-SSL"/>
+                            <constraint firstItem="05S-ud-V2e" firstAttribute="top" secondItem="0cV-KP-U0v" secondAttribute="bottom" constant="18" id="Doq-ct-llI"/>
                             <constraint firstItem="k3C-y9-O4O" firstAttribute="leading" secondItem="ebC-zs-TnD" secondAttribute="trailing" constant="8" id="EHn-dg-Gsx"/>
                             <constraint firstAttribute="trailingMargin" secondItem="ebC-zs-TnD" secondAttribute="trailing" constant="54" id="NSB-la-nXF"/>
                             <constraint firstItem="k3C-y9-O4O" firstAttribute="centerY" secondItem="ebC-zs-TnD" secondAttribute="centerY" id="WyY-eM-1NM"/>
+                            <constraint firstItem="j3e-42-uww" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="XLa-mE-TYD"/>
                             <constraint firstItem="ebC-zs-TnD" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Yug-OZ-HIr"/>
+                            <constraint firstAttribute="trailing" secondItem="05S-ud-V2e" secondAttribute="trailing" constant="33" id="en0-C1-hCf"/>
                             <constraint firstItem="0cV-KP-U0v" firstAttribute="centerX" secondItem="Kp7-Oh-BQ1" secondAttribute="centerX" id="rAQ-XU-eNr"/>
+                            <constraint firstItem="j3e-42-uww" firstAttribute="centerY" secondItem="05S-ud-V2e" secondAttribute="centerY" id="thm-36-AAy"/>
                             <constraint firstItem="ebC-zs-TnD" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="54" id="tp6-Bq-3wr"/>
                             <constraint firstItem="0cV-KP-U0v" firstAttribute="top" secondItem="Kp7-Oh-BQ1" secondAttribute="bottom" constant="8" id="wyD-rc-wek"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="activityIndicatorView" destination="k3C-y9-O4O" id="cIe-9k-ZJW"/>
+                        <outlet property="consentSegmentedControl" destination="05S-ud-V2e" id="9HS-Rj-OmM"/>
                         <outlet property="textField" destination="ebC-zs-TnD" id="Qds-Dp-amQ"/>
                     </connections>
                 </viewController>

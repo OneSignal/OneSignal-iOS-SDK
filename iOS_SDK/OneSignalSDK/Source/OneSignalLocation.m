@@ -109,6 +109,10 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)onfocus:(BOOL)isActive {
     
+    // return if the user has not granted privacy permissions
+    if ([OneSignal requiresUserPrivacyConsent])
+        return;
+    
     if(!locationManager || !started) return;
     
     /**
@@ -207,6 +211,10 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     
+    // return if the user has not granted privacy permissions
+    if ([OneSignal requiresUserPrivacyConsent])
+        return;
+    
     [manager performSelector:@selector(stopUpdatingLocation)];
     
     id location = locations.lastObject;
@@ -247,6 +255,11 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (void)sendLocation {
+    
+    // return if the user has not granted privacy permissions
+    if ([OneSignal requiresUserPrivacyConsent])
+        return;
+    
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
         if (!lastLocation || ![OneSignal mUserId]) return;
         

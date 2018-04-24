@@ -1852,6 +1852,84 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNotNil(cacheName);
 }
 
+/*
+    Tests the privacy functionality to comply with the GDPR
+*/
+- (void)testPrivacyState {
+    [NSBundleOverrider setPrivacyState:true];
+    
+    [self assertUserConsent];
+    
+    [NSBundleOverrider setPrivacyState:false];
+}
+
+- (void)testOverridePrivacyState {
+    //since some wrapper SDK's wont use an info.plist, the SDK also provides a method that can also set the privacy consent setting
+    
+    [OneSignal setRequiresUserPrivacyConsent:true];
+    
+    [self assertUserConsent];
+    
+    [OneSignal setRequiresUserPrivacyConsent:false];
+}
+
+- (void)assertUserConsent {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    //indicates initialization was delayed
+    XCTAssertNil(OneSignal.app_id);
+    
+    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    
+    let latestHttpRequest = OneSignalClientOverrider.lastUrl;
+    
+    [OneSignal sendTags:@{@"test" : @"test"}];
+    
+    //if lastUrl is null, isEqualToString: will return false, so perform an equality check as well
+    XCTAssertTrue([OneSignalClientOverrider.lastUrl isEqualToString:latestHttpRequest] || latestHttpRequest == OneSignalClientOverrider.lastUrl);
+    
+    [OneSignal consentGranted:true];
+    
+    XCTAssertTrue([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:OneSignal.app_id]);
+    
+    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+}
+
+//since apps may manually request push permission while OneSignal privacy consent is not granted,
+//the SDK should not do anything with this token while permission is pending
+//checks to make sure that, for example, OneSignal does not register the push token with the backend
+- (void)testPushNotificationToken {
+    [NSBundleOverrider setPrivacyState:true];
+    
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    // Triggers the 30 fallback to register device right away.
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertNil(observer->last.from.userId);
+    XCTAssertNil(observer->last.to.userId);
+    XCTAssertFalse(observer->last.to.subscribed);
+    
+    [OneSignal setSubscription:true];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertFalse(observer->last.from.userSubscriptionSetting);
+    XCTAssertFalse(observer->last.to.userSubscriptionSetting);
+    // Device registered with OneSignal so now make pushToken available.
+    XCTAssertNil(observer->last.to.pushToken);
+    
+    [NSBundleOverrider setPrivacyState:false];
+  
 //tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
 - (void)testSwizzling {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
@@ -1874,6 +1952,7 @@ didReceiveRemoteNotification:userInfo
     
     XCTAssertNotEqual(original, newSwizzled);
     XCTAssertEqual(swizzled, newSwizzled);
+  
 }
 
 @end
