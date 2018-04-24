@@ -1929,6 +1929,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil(observer->last.to.pushToken);
     
     [NSBundleOverrider setPrivacyState:false];
+}
   
 //tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
 - (void)testSwizzling {
