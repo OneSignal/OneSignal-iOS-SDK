@@ -49,7 +49,7 @@
 
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
-#define ONESIGNAL_REQUIRE_PRIVACY_CONSENT @"Onesignal_require_privacy_consent"
+#define ONESIGNAL_REQUIRE_PRIVACY_CONSENT @"OneSignal_require_privacy_consent"
 
 // Badge handling
 #define ONESIGNAL_DISABLE_BADGE_CLEARING @"OneSignal_disable_badge_clearing"
