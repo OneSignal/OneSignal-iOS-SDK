@@ -69,6 +69,10 @@ static Class delegateUNClass = nil;
 // But rather in one of the subclasses
 static NSArray* delegateUNSubclasses = nil;
 
+//ensures setDelegate: swizzles will never get executed twice for the same delegate object
+//captures a weak reference to avoid retain cycles
+__weak static id previousDelegate;
+
 + (void)swizzleSelectors {
     injectToProperClass(@selector(setOneSignalUNDelegate:), @selector(setDelegate:), @[], [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
     
@@ -121,6 +125,13 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 //  - Selector will be called once if developer does not set a UNUserNotificationCenter delegate.
 //  - Selector will be called a 2nd time if the developer does set one.
 - (void) setOneSignalUNDelegate:(id)delegate {
+    if (previousDelegate == delegate) {
+        [self setOneSignalUNDelegate:delegate];
+        return;
+    }
+    
+    previousDelegate = delegate;
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
     
     delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
