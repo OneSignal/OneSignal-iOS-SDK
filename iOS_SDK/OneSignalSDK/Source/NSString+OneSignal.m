@@ -7,6 +7,8 @@
 
 #import "NSString+OneSignal.h"
 
+#define MIME_MAP @{@"audio/aiff" : @"aiff", @"audio/x-wav" : @"wav", @"audio/mpeg" : @"mp3", @"video/mp4" : @"mp4", @"image/jpeg" : @"jpeg", @"image/jpg" : @"jpg", @"image/png" : @"png", @"image/gif" : @"gif", @"video/mpeg" : @"mpeg", @"video/mpg" : @"mpg", @"video/avi" : @"avi", @"sound/m4a" : @"m4a", @"video/m4v" : @"m4v"}
+
 @implementation NSString (OneSignal)
 
 
@@ -43,5 +45,8 @@
 	return (NSString*)tmpstr;
 }
 
+- (NSString *)fileExtensionForMimeType {
+    return MIME_MAP[self];
+}
 
 @end

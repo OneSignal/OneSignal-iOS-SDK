@@ -41,6 +41,9 @@
 #import "OneSignalWebOpenDialog.h"
 #import "OneSignalInternal.h"
 
+#import "NSString+OneSignal.h"
+#import "NSURL+OneSignal.h"
+
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -103,12 +106,12 @@
 @end
 
 @interface NSURLSession (DirectDownload)
-+ (BOOL)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error;
++ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error;
 @end
 
 @implementation NSURLSession (DirectDownload)
 
-+ (BOOL)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error {
++ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     
     DirectDownloadDelegate *delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
@@ -130,10 +133,10 @@
         if (error != nil) {
             error = downloadError;
         }
-        return false;
+        return nil;
     }
     
-    return true;
+    return delegate.response.MIMEType;
 }
 
 @end
@@ -728,19 +731,30 @@ static OneSignal* singleInstance = nil;
     NSArray<NSString*>* supportedExtensions = @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"];
     NSArray* components = [url componentsSeparatedByString:@"."];
     
-    // URL is not to a file
-    if ([components count] < 2)
-        return NULL;
-    NSString* extension = [components lastObject];
+    NSString* extension;
     
-    // Unrecognized extention
-    if (![supportedExtensions containsObject:extension])
-        return NULL;
+    // URL is not to a file
+    if ([components count] >= 2) {
+        extension = inputUrl.pathExtension;
+        
+        if ([extension isEqualToString:@""])
+            extension = nil;
+        
+        // Unrecognized extention
+        if (extension != nil && ![supportedExtensions containsObject:extension])
+            return nil;
+    }
+    
+    if (!extension)
+        extension = [[NSURL URLWithString:urlString] valueForQueryParameter:@"file_type"];
     
     NSURL* URL = [NSURL URLWithString:url];
     
+    var name = [self randomStringWithLength:10];
     
-    NSString* name = [[self randomStringWithLength:10] stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
+    if (extension)
+        name = [name stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
+    
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     
@@ -748,7 +762,31 @@ static OneSignal* singleInstance = nil;
     
     @try {
         NSError* error = nil;
-        [NSURLSession downloadItemAtURL:URL toFile:filePath error:error];
+        let mimeType = [NSURLSession downloadItemAtURL:URL toFile:filePath error:error];
+        
+        if (error) {
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
+            return nil;
+        }
+        
+        if (!extension) {
+            NSString *newExtension = mimeType.fileExtensionForMimeType;
+            
+            if (!newExtension || ![supportedExtensions containsObject:newExtension])
+                return nil;
+            
+            name = [NSString stringWithFormat:@"%@.%@", name, newExtension];
+            
+            let newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
+            
+            [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
+        }
+        
+        if (error) {
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
+            return nil;
+        }
+        
         NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
         NSMutableArray* appendedCache;
         if (cachedFiles) {
