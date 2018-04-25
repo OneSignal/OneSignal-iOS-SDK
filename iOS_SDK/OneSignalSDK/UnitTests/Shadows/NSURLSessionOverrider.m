@@ -44,7 +44,12 @@
                                             contents:fileContents
                                           attributes:nil];
     
-    return @"image/jpg";
+    if ([url.absoluteString isEqualToString:@"http://domain.com/file"])
+        return @"image/png";
+    else if ([url.absoluteString isEqualToString:@"http://domain.com/secondFile"])
+        return nil;
+    else
+        return @"image/jpg";
 }
 
 @end

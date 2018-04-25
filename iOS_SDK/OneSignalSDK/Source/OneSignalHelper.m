@@ -44,6 +44,8 @@
 #import "NSString+OneSignal.h"
 #import "NSURL+OneSignal.h"
 
+#import "OneSignalCommonDefines.h"
+
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -719,8 +721,14 @@ static OneSignal* singleInstance = nil;
 
 }
 
-// Synchroneously downloads a media
-// On success returns bundle resource name, otherwise returns nil
+/*
+ Synchroneously downloads an attachment
+ On success returns bundle resource name, otherwise returns nil
+ The preference order for file type determination is as follows:
+    1. File extension in the actual URL
+    2. MIME type
+    3. URL Query parameter called 'filename', such as test.jpg. The SDK will extract the file extension from it
+*/
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
     
     let inputUrl = [NSURL URLWithString:urlString];
@@ -728,7 +736,6 @@ static OneSignal* singleInstance = nil;
     //removes any unnecessary query parameters that would break extension type checking
     let url = [[NSURL alloc] initWithScheme:inputUrl.scheme host:inputUrl.host path:inputUrl.path].absoluteString;
     
-    NSArray<NSString*>* supportedExtensions = @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"];
     NSArray* components = [url componentsSeparatedByString:@"."];
     
     NSString* extension;
@@ -741,12 +748,9 @@ static OneSignal* singleInstance = nil;
             extension = nil;
         
         // Unrecognized extention
-        if (extension != nil && ![supportedExtensions containsObject:extension])
+        if (extension != nil && ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension])
             return nil;
     }
-    
-    if (!extension)
-        extension = [[NSURL URLWithString:urlString] valueForQueryParameter:@"file_type"];
     
     NSURL* URL = [NSURL URLWithString:url];
     
@@ -770,9 +774,15 @@ static OneSignal* singleInstance = nil;
         }
         
         if (!extension) {
-            NSString *newExtension = mimeType.fileExtensionForMimeType;
+            NSString *newExtension;
             
-            if (!newExtension || ![supportedExtensions containsObject:newExtension])
+            if (mimeType != nil && ![mimeType isEqualToString:@""]) {
+                newExtension = mimeType.fileExtensionForMimeType;
+            } else {
+                newExtension = [[[NSURL URLWithString:urlString] valueForQueryParameter:@"filename"] supportedFileExtension];
+            }
+            
+            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension])
                 return nil;
             
             name = [NSString stringWithFormat:@"%@.%@", name, newExtension];
