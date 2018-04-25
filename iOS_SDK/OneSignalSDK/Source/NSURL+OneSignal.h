@@ -25,31 +25,10 @@
  * THE SOFTWARE.
  */
 
-#import "NSURLSessionOverrider.h"
+#import <Foundation/Foundation.h>
 
-#import "TestHelperFunctions.h"
+@interface NSURL (OneSignal)
 
-@implementation NSURLSessionOverrider
-
-+ (void)load {
-    // Swizzle an injected method defined in OneSignalHelper
-    injectStaticSelector([NSURLSessionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLSession class], @selector(downloadItemAtURL:toFile:error:));
-}
-
-// Override downloading of media attachment
-+ (NSString *)overrideDownloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError*)error {
-    NSString *content = @"File Contents";
-    NSData *fileContents = [content dataUsingEncoding:NSUTF8StringEncoding];
-    [[NSFileManager defaultManager] createFileAtPath:localPath
-                                            contents:fileContents
-                                          attributes:nil];
-    
-    if ([url.absoluteString isEqualToString:@"http://domain.com/file"])
-        return @"image/png";
-    else if ([url.absoluteString isEqualToString:@"http://domain.com/secondFile"])
-        return nil;
-    else
-        return @"image/jpg";
-}
+- (NSString *)valueForQueryParameter:(NSString *)parameter;
 
 @end

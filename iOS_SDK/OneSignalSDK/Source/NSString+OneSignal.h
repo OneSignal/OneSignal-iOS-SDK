@@ -14,6 +14,8 @@
 - (NSString*)one_getVersionForRange:(NSRange)range;
 - (NSString*)one_substringAfter:(NSString *)needle;
 - (NSString*)one_getSemanticVersion;
+- (NSString *)fileExtensionForMimeType;
+- (NSString *)supportedFileExtension;
 
 @end
 #endif

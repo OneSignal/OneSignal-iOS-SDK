@@ -1956,4 +1956,55 @@ didReceiveRemoteNotification:userInfo
   
 }
 
+- (UNNotificationAttachment *)deliverNotificationWithJSON:(id)json {
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:json];
+    
+    [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    return content.attachments.firstObject;
+}
+
+- (id)exampleNotificationJSONWithMediaURL:(NSString *)urlString {
+    return @{@"aps": @{
+                     @"mutable-content": @1,
+                     @"alert": @"Message Body"
+                     },
+             @"os_data": @{
+                     @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                     @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                     @"att": @{ @"id": urlString }
+                     }};
+}
+
+- (void)testExtractFileExtensionFromMimeType {
+    //test to make sure the MIME type parsing works correctly
+    //NSURLSessionOverrider returns image/png for this URL
+    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file"];
+    
+    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
+}
+
+- (void)testExtractFileExtensionFromQueryParameter {
+    // we allow developers to add ?filename=test.jpg (for example) to attachment URL's in cases where there is no extension & no mime type
+    // tests to make sure the SDK correctly extracts the file extension from the `filename` URL query parameter
+    // NSURLSessionOverrider returns nil for this URL
+    id jpgFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/secondFile?filename=test.jpg"];
+    
+    let downloadedJpgFilename = [self deliverNotificationWithJSON:jpgFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedJpgFilename.supportedFileExtension isEqualToString:@"jpg"]);
+}
+
+- (void)testFileExtensionPrioritizesURLFileExtension {
+    //tests to make sure that the URL's file extension is prioritized above the MIME type and URL query param
+    //this attachment URL will have a file extension, a MIME type, and a filename query parameter. It should prioritize the URL file extension (gif)
+    //NSURLSessionOverrider returns image/png for this URL
+    id gifFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file.gif?filename=test.png"];
+    
+    let downloadedGifFilename = [self deliverNotificationWithJSON:gifFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"gif"]);
+}
+
 @end
