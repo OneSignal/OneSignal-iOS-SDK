@@ -731,28 +731,16 @@ static OneSignal* singleInstance = nil;
 */
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
     
-    let inputUrl = [NSURL URLWithString:urlString];
+    let url = [NSURL URLWithString:urlString];
     
-    //removes any unnecessary query parameters that would break extension type checking
-    let url = [[NSURL alloc] initWithScheme:inputUrl.scheme host:inputUrl.host path:inputUrl.path].absoluteString;
+    NSString* extension = url.pathExtension;
     
-    NSArray* components = [url componentsSeparatedByString:@"."];
+    if ([extension isEqualToString:@""])
+        extension = nil;
     
-    NSString* extension;
-    
-    // URL is not to a file
-    if ([components count] >= 2) {
-        extension = inputUrl.pathExtension;
-        
-        if ([extension isEqualToString:@""])
-            extension = nil;
-        
-        // Unrecognized extention
-        if (extension != nil && ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension])
-            return nil;
-    }
-    
-    NSURL* URL = [NSURL URLWithString:url];
+    // Unrecognized extention
+    if (extension != nil && ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension])
+        return nil;
     
     var name = [self randomStringWithLength:10];
     
@@ -766,7 +754,7 @@ static OneSignal* singleInstance = nil;
     
     @try {
         NSError* error = nil;
-        let mimeType = [NSURLSession downloadItemAtURL:URL toFile:filePath error:error];
+        let mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:error];
         
         if (error) {
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
