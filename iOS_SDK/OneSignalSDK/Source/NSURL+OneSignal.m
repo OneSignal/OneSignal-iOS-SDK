@@ -28,7 +28,7 @@
 #import "NSURL+OneSignal.h"
 
 @implementation NSURL (OneSignal)
-- (NSString *)valueForQueryParameter:(NSString *)parameter {
+- (NSString *)valueFromQueryParameter:(NSString *)parameter {
     NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:false];
     
     for(NSURLQueryItem *item in components.queryItems)

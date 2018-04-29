@@ -29,6 +29,6 @@
 
 @interface NSURL (OneSignal)
 
-- (NSString *)valueForQueryParameter:(NSString *)parameter;
+- (NSString *)valueFromQueryParameter:(NSString *)parameter;
 
 @end

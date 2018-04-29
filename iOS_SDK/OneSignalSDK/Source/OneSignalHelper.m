@@ -767,7 +767,7 @@ static OneSignal* singleInstance = nil;
             if (mimeType != nil && ![mimeType isEqualToString:@""]) {
                 newExtension = mimeType.fileExtensionForMimeType;
             } else {
-                newExtension = [[[NSURL URLWithString:urlString] valueForQueryParameter:@"filename"] supportedFileExtension];
+                newExtension = [[[NSURL URLWithString:urlString] valueFromQueryParameter:@"filename"] supportedFileExtension];
             }
             
             if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension])
