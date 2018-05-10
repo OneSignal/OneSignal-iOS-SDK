@@ -37,7 +37,7 @@
 }
 
 // Override downloading of media attachment
-+ (NSString *)overrideDownloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError*)error {
++ (NSString *)overrideDownloadItemAtURL:(NSURL*)url toFile:(NSString*)localPath error:(NSError**)error {
     NSString *content = @"File Contents";
     NSData *fileContents = [content dataUsingEncoding:NSUTF8StringEncoding];
     [[NSFileManager defaultManager] createFileAtPath:localPath
