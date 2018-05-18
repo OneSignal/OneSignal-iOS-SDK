@@ -79,6 +79,10 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)onFocus:(BOOL)toBackground {
     
+    // return if the user has not granted privacy permissions
+    if ([OneSignal requiresUserPrivacyConsent])
+        return;
+    
     // Prevent the onFocus to be called twice when app being terminated
     //    - Both WillResignActive and willTerminate
     if (lastOnFocusWasToBackground == toBackground)
