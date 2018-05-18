@@ -117,14 +117,6 @@
         return;
     }
     
-    NSData *requestData = request.request.HTTPBody;
-    
-    if (requestData) {
-        NSString *json = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
-        
-        NSLog(@"Executing request %@ with json: %@", NSStringFromClass([request class]), json);
-    }
-    
     let task = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         [self handleJSONNSURLResponse:response data:data error:error isAsync:true withRequest:request onSuccess:successBlock onFailure:failureBlock];
     }];
