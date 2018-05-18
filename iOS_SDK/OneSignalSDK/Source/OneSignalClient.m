@@ -72,7 +72,7 @@
     
     //execute on a background thread or the semaphore will block the caller thread
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        dispatch_group_t group = dispatch_group_create();
         
         __block NSMutableDictionary<NSString *, NSError *> *errors = [NSMutableDictionary new];
         __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
@@ -80,18 +80,19 @@
         for (NSString *identifier in requests.allKeys) {
             let request = requests[identifier];
             
+            //use a dispatch_group instead of a semaphore, in case the failureBlock gets called synchronously
+            //this will prevent the SDK from waiting/blocking on a request that instantly failed
+            dispatch_group_enter(group);
             [self executeRequest:request onSuccess:^(NSDictionary *result) {
                 results[identifier] = result;
-                dispatch_semaphore_signal(semaphore);
+                dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
-                dispatch_semaphore_signal(semaphore);
+                dispatch_group_leave(group);
             }];
         }
         
-        for (int i = 0; i < requests.count; i++) {
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-        }
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
         
         //requests should all be completed at this point
         dispatch_async(dispatch_get_main_queue(), ^{
