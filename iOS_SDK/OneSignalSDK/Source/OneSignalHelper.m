@@ -108,12 +108,12 @@
 @end
 
 @interface NSURLSession (DirectDownload)
-+ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error;
++ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError **)error;
 @end
 
 @implementation NSURLSession (DirectDownload)
 
-+ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError *)error {
++ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError **)error {
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
     
     DirectDownloadDelegate *delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
@@ -132,9 +132,8 @@
     
     NSError *downloadError = [delegate error];
     if (downloadError != nil) {
-        if (error != nil) {
-            error = downloadError;
-        }
+        if (error)
+            *error = downloadError;
         return nil;
     }
     
@@ -753,8 +752,8 @@ static OneSignal* singleInstance = nil;
     //guard against situations where for example, available storage is too low
     
     @try {
-        NSError* error = nil;
-        let mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:error];
+        NSError* error;
+        let mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:&error];
         
         if (error) {
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];

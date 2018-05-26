@@ -1658,16 +1658,10 @@ static NSString *_lastnonActiveMessageId;
     
     if (opened) {
         //app was in background / not running and opened due to a tap on a notification or an action check what type
-        NSString* actionSelected = NULL;
         OSNotificationActionType type = OSNotificationActionTypeOpened;
-        if (messageDict[@"custom"][@"a"][@"actionSelected"]) {
-            actionSelected = messageDict[@"custom"][@"a"][@"actionSelected"];
+        
+        if (messageDict[@"custom"][@"a"][@"actionSelected"] || messageDict[@"actionSelected"])
             type = OSNotificationActionTypeActionTaken;
-        }
-        if (messageDict[@"actionSelected"]) {
-            actionSelected = messageDict[@"actionSelected"];
-            type = OSNotificationActionTypeActionTaken;
-        }
         
         // Call Action Block
         [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
@@ -2017,7 +2011,8 @@ static NSString *_lastnonActiveMessageId;
     
     //checks to make sure that if email_auth is required, the user has passed in a hash token
     if (self.currentEmailSubscriptionState.requiresEmailAuth && (!emailAuthToken || emailAuthToken.length == 0)) {
-        failureBlock([NSError errorWithDomain:@"com.onesignal.email" code:0 userInfo:@{@"error" : @"Email authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.email" code:0 userInfo:@{@"error" : @"Email authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
         return;
     }
     
@@ -2204,6 +2199,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
         return;
     }
+    
     
     // Swizzle - UIApplication delegate
     injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
