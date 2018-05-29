@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>OneSignal_require_privacy_consent</key>
-	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -31,10 +29,8 @@
 	<string>Test Location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Test Location2</string>
-	<key>OneSignal_app_groups_key</key>
-	<string> group.com.onesignal.example.testgroup </string>
-	<key>OneSignal_disable_badge_clearing</key>
-	<true/>
+	<key>OneSignal_require_privacy_consent</key>
+	<false/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -47,6 +43,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>OneSignal_disable_badge_clearing</key>
+	<false/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

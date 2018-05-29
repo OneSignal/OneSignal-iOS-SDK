@@ -63,6 +63,17 @@
     return [(NSNumber *)[userDefaults objectForKey:ONESIGNAL_BADGE_KEY] integerValue];
 }
 
+//gets the NSBundle of the primary application - NOT the app extension
+//this way we can determine the bundle ID for the host (primary) application.
++ (NSString *)primaryBundleIdentifier {
+    NSBundle *bundle = [NSBundle mainBundle];
+    if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"])
+        bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+    
+    return [bundle bundleIdentifier];
+    
+}
+
 + (void)updateCachedBadgeValue:(NSInteger)value {
     //since badge logic can be executed in an extension, we need to use app groups to get
     //a shared NSUserDefaults from the app group suite name
@@ -77,7 +88,7 @@
     var appGroupName = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_APP_GROUP_NAME_KEY];
     
     if (!appGroupName)
-        appGroupName = [NSString stringWithFormat:@"group.%@.%@", [[NSBundle mainBundle] bundleIdentifier], @"onesignal"];
+        appGroupName = [NSString stringWithFormat:@"group.%@.%@", OneSignalExtensionBadgeHandler.primaryBundleIdentifier, @"onesignal"];
     
     return [appGroupName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }

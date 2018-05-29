@@ -59,8 +59,6 @@
     
     id notificationReceiverBlock = ^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
-        
-        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:11];
     };
     
     [OneSignal initWithLaunchOptions:launchOptions
