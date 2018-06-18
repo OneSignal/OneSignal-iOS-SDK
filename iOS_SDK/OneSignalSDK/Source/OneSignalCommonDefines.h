@@ -46,6 +46,7 @@
 #define EMAIL_ADDRESS @"EMAIL_ADDRESS"
 #define PROMPT_BEFORE_OPENING_PUSH_URL @"PROMPT_BEFORE_OPENING_PUSH_URL"
 #define DEPRECATED_SELECTORS @[@"application:didReceiveLocalNotification:", @"application:handleActionWithIdentifier:forLocalNotification:completionHandler:", @"application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:"]
+#define USES_PROVISIONAL_AUTHORIZATION @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"
 
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"

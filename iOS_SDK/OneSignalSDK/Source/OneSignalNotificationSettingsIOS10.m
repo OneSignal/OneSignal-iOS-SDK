@@ -53,7 +53,7 @@ static dispatch_queue_t serialQueue;
     return [super init];
 }
 
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
     if (useCachedStatus) {
         completionHandler(OneSignal.currentPermissionState);
         return;
@@ -106,6 +106,7 @@ static dispatch_queue_t serialQueue;
     id responseBlock = ^(BOOL granted, NSError* error) {
         // Run callback on main / UI thread
         [OneSignalHelper dispatch_async_on_main_queue: ^{
+            OneSignal.currentPermissionState.provisional = false;
             OneSignal.currentPermissionState.accepted = granted;
             OneSignal.currentPermissionState.answeredPrompt = true;
             [OneSignal updateNotificationTypes: granted ? 15 : 0];
@@ -114,11 +115,43 @@ static dispatch_queue_t serialQueue;
         }];
     };
     
+    UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
+    
+    //even if the user accepts traditional push notifications,
+    //developers can still choose to send Direct to History notifications
+    if (@available(iOS 12, *))
+        options += UNAuthorizationOptionProvisional;
+    
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-    [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
-                          completionHandler:responseBlock];
+    [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
     
     [OneSignal registerForAPNsToken];
+}
+
+- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
+    if (@available(iOS 12, *)) {
+        [self getNotificationPermissionState:^(OSPermissionState *subscriptionState) {
+            
+            //don't register for provisional if the user has already accepted the prompt
+            if (subscriptionState.accepted)
+                return;
+            
+            UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+            
+            id responseBlock = ^(BOOL granted, NSError *error) {
+                [OneSignalHelper dispatch_async_on_main_queue:^{
+                    OneSignal.currentPermissionState.provisional = granted;
+                    [OneSignal updateNotificationTypes: granted ? 1 : 0];
+                    if (completionHandler)
+                        completionHandler(granted);
+                }];
+            };
+            
+            [center requestAuthorizationWithOptions:UNAuthorizationOptionProvisional completionHandler:responseBlock];
+            
+            [OneSignal registerForAPNsToken];
+        }];
+    }
 }
 
 // Ignore these 2 events, promptForNotifications: already takes care of these.

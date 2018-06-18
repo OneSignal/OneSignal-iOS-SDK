@@ -453,10 +453,12 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-        if (autoPrompt || registeredWithApple)
+        if (autoPrompt || registeredWithApple) {
             [self registerForPushNotifications];
-        else
+        } else {
+            [self checkProvisionalAuthorizationStatus];
             [self registerForAPNsToken];
+        }
         
         
         /* Check if in-app setting passed assigned
@@ -557,6 +559,22 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return true;
 }
 
+// Checks to see if we should register for APNS' new Provisional authorization
+// (also known as Direct to History).
+// This behavior is determined by the OneSignal Parameters request
++ (void)checkProvisionalAuthorizationStatus {
+    let usesProvisional = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:USES_PROVISIONAL_AUTHORIZATION];
+    
+    // if iOS parameters for this app have never downloaded, this method
+    // should return
+    if (!usesProvisional || ![usesProvisional boolValue])
+        return;
+    
+    [self.osNotificationSettings registerForProvisionalAuthorization:^(BOOL accepted) {
+        
+    }];
+}
+
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
     if ([self requiresUserPrivacyConsent]) {
         if (methodName) {
@@ -633,6 +651,16 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                 [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
                 delayedEmailParameters = nil;
             }
+        }
+        
+        //TODO: Determine if the autoprompt setting overrides this.
+        if (result[@"uses_provisional_auth"] && [result[@"uses_provisional_auth"] boolValue]) {
+            let defaults = [NSUserDefaults standardUserDefaults];
+            
+            [defaults setObject:@true forKey:USES_PROVISIONAL_AUTHORIZATION];
+            [defaults synchronize];
+            
+            [self checkProvisionalAuthorizationStatus];
         }
         
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
