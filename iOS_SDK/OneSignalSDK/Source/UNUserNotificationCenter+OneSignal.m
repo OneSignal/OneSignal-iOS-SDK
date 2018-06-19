@@ -94,6 +94,13 @@ static BOOL useCachedUNNotificationSettings;
 static UNNotificationSettings* cachedUNNotificationSettings;
 
 - (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
+    
+    //we don't want to run our swizzle if the authorization is provisional (iOS 12 'Direct to History')
+    if (options == (UNAuthorizationOptions)(1 << 6)) {
+        [self onesignalRequestAuthorizationWithOptions:options completionHandler:completionHandler];
+        return;
+    }
+    
     OneSignal.currentPermissionState.hasPrompted = true;
     
     useCachedUNNotificationSettings = true;

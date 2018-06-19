@@ -187,6 +187,7 @@ static int mSubscriptionStatus = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
+BOOL requestedProvisionalAuthorization = false;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -563,12 +564,17 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 // (also known as Direct to History).
 // This behavior is determined by the OneSignal Parameters request
 + (void)checkProvisionalAuthorizationStatus {
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
     let usesProvisional = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:USES_PROVISIONAL_AUTHORIZATION];
     
     // if iOS parameters for this app have never downloaded, this method
     // should return
-    if (!usesProvisional || ![usesProvisional boolValue])
+    if (!usesProvisional || ![usesProvisional boolValue] || requestedProvisionalAuthorization)
         return;
+    
+    requestedProvisionalAuthorization = true;
     
     [self.osNotificationSettings registerForProvisionalAuthorization:^(BOOL accepted) {
         
@@ -643,8 +649,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     didCallDownloadParameters = true;
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
-        if (result[@"require_email_auth"]) {
-            self.currentEmailSubscriptionState.requiresEmailAuth = [result[@"require_email_auth"] boolValue];
+        if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
+            self.currentEmailSubscriptionState.requiresEmailAuth = [result[IOS_REQUIRES_EMAIL_AUTHENTICATION] boolValue];
             
             // checks if a cell to setEmail: was delayed due to missing 'requiresEmailAuth' parameter
             if (delayedEmailParameters && self.currentSubscriptionState.userId) {
@@ -654,7 +660,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         }
         
         //TODO: Determine if the autoprompt setting overrides this.
-        if (result[@"uses_provisional_auth"] && [result[@"uses_provisional_auth"] boolValue]) {
+        if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
             let defaults = [NSUserDefaults standardUserDefaults];
             
             [defaults setObject:@true forKey:USES_PROVISIONAL_AUTHORIZATION];
@@ -1252,7 +1258,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
         // The goal is to only have 1 server call.
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
-            if (status.answeredPrompt)
+            if (status.answeredPrompt || status.provisional)
                 [OneSignal registerUser];
             else
                 [self registerUserAfterDelay];
@@ -1813,9 +1819,11 @@ static NSString *_lastnonActiveMessageId;
     
     OSPermissionState* permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
     
-    if (!permissionStatus.hasPrompted)
+    //only return the error statuses if not provisional
+    if (!permissionStatus.provisional && !permissionStatus.hasPrompted)
         return ERROR_PUSH_NEVER_PROMPTED;
-    if (!permissionStatus.answeredPrompt)
+    
+    if (!permissionStatus.provisional && !permissionStatus.answeredPrompt)
         return ERROR_PUSH_PROMPT_NEVER_ANSWERED;
     
     if (!self.currentSubscriptionState.userSubscriptionSetting)

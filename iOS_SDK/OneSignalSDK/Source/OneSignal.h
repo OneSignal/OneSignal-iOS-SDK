@@ -204,7 +204,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionDenied,
     
     // The application is authorized to post user notifications.
-    OSNotificationPermissionAuthorized
+    OSNotificationPermissionAuthorized,
+    
+    // the application is only authorized to post Provisional notifications (direct to history)
+    OSNotificationPermissionProvisional
 };
 
 
@@ -212,6 +215,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 // Permission Classes
 @interface OSPermissionState : NSObject
 
+@property (readonly, nonatomic) BOOL provisional;
 @property (readonly, nonatomic) BOOL hasPrompted;
 @property (readonly, nonatomic) OSNotificationPermission status;
 - (NSDictionary*)toDictionary;

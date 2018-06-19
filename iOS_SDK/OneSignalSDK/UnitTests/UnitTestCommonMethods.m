@@ -58,7 +58,7 @@ NSString * serverUrlWithPath(NSString *path) {
 + (void)runBackgroundThreads {
     NSLog(@"START runBackgroundThreads");
     
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
     
     // the httpQueue makes sure all HTTP request mocks are sync'ed
     

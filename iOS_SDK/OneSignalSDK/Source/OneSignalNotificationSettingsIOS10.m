@@ -65,12 +65,23 @@ static dispatch_queue_t serialQueue;
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
             OSPermissionState* status = OneSignal.currentPermissionState;
             
-            status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized;
-            status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
+            //to avoid 'undeclared identifier' errors in older versions of Xcode,
+            //we do not directly reference UNAuthorizationStatusProvisional (which is only available in iOS 12/Xcode 10
+            UNAuthorizationStatus provisionalStatus = (UNAuthorizationStatus)3;
+            
+            status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined && settings.authorizationStatus != provisionalStatus;
+            status.provisional = (settings.authorizationStatus == 3);
+            status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized && !status.provisional;
+            NSLog(@"Status authorization: %d %d", (settings.authorizationStatus == UNAuthorizationStatusAuthorized), status.provisional);
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
                                      + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
+            
+            if (@available(iOS 12, *))
+                if (status.notificationTypes == 0 && settings.authorizationStatus == provisionalStatus)
+                    status.notificationTypes = 1;
+            
             useCachedStatus = true;
             completionHandler(status);
             useCachedStatus = false;
@@ -117,11 +128,6 @@ static dispatch_queue_t serialQueue;
     
     UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     
-    //even if the user accepts traditional push notifications,
-    //developers can still choose to send Direct to History notifications
-    if (@available(iOS 12, *))
-        options += UNAuthorizationOptionProvisional;
-    
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
     
@@ -129,28 +135,28 @@ static dispatch_queue_t serialQueue;
 }
 
 - (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
+    
     if (@available(iOS 12, *)) {
-        [self getNotificationPermissionState:^(OSPermissionState *subscriptionState) {
-            
-            //don't register for provisional if the user has already accepted the prompt
-            if (subscriptionState.accepted)
-                return;
-            
-            UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-            
-            id responseBlock = ^(BOOL granted, NSError *error) {
-                [OneSignalHelper dispatch_async_on_main_queue:^{
-                    OneSignal.currentPermissionState.provisional = granted;
-                    [OneSignal updateNotificationTypes: granted ? 1 : 0];
-                    if (completionHandler)
-                        completionHandler(granted);
-                }];
-            };
-            
-            [center requestAuthorizationWithOptions:UNAuthorizationOptionProvisional completionHandler:responseBlock];
-            
-            [OneSignal registerForAPNsToken];
-        }];
+        OSPermissionState *state = [self getNotificationPermissionState];
+        
+        //don't register for provisional if the user has already accepted the prompt
+        if (state.accepted)
+            return;
+        
+        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+        
+        id responseBlock = ^(BOOL granted, NSError *error) {
+            [OneSignalHelper dispatch_async_on_main_queue:^{
+                OneSignal.currentPermissionState.provisional = granted;
+                [OneSignal updateNotificationTypes: granted ? 1 : 0];
+                if (completionHandler)
+                    completionHandler(granted);
+            }];
+        };
+        
+        [center requestAuthorizationWithOptions:(UNAuthorizationOptions)(1 << 6) completionHandler:responseBlock];
+        
+        [OneSignal registerForAPNsToken];
     }
 }
 

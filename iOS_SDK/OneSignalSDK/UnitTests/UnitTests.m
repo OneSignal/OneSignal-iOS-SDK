@@ -216,6 +216,7 @@
     XCTAssertTrue(status.permissionStatus.accepted);
     XCTAssertTrue(status.permissionStatus.hasPrompted);
     XCTAssertTrue(status.permissionStatus.answeredPrompt);
+    XCTAssertFalse(status.permissionStatus.provisional);
     
     NSLog(@"CURRENT USER ID: %@", status.subscriptionStatus);
     
@@ -401,6 +402,8 @@
     XCTAssertEqual(observer->last.to.hasPrompted, true);
     XCTAssertEqual(observer->last.to.answeredPrompt, false);
     XCTAssertEqual(observer->fireCount, 1);
+    XCTAssertEqual(observer->last.from.provisional, false);
+    XCTAssertEqual(observer->last.to.provisional, false);
     
     [self answerNotifiationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -411,8 +414,37 @@
     
     // Make sure it doesn't fire for answeredPrompt then again right away for accepted
     XCTAssertEqual(observer->fireCount, 2);
-    
-    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: NotDetermined>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized>\n>");
+    XCTAssertEqualObjects([observer->last description], @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: NotDetermined, provisional: 0>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized, provisional: 0>\n>");
+}
+
+- (void)testProvisionalPermissionState {
+    if (@available(iOS 12, *)) {
+        [UNUserNotificationCenterOverrider setNotifTypesOverride:0];
+        [UNUserNotificationCenterOverrider setAuthorizationStatus:@0];
+        [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
+        
+        
+        OneSignalHelperOverrider.mockIOSVersion = 12;
+        
+        [OneSignalClientOverrider setShouldUseProvisionalAuth:true];
+        
+        OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+        [OneSignal addPermissionObserver:observer];
+        
+        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+                handleNotificationAction:nil
+                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
+        
+        [UnitTestCommonMethods runBackgroundThreads];
+        
+        [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
+        
+        [UnitTestCommonMethods runBackgroundThreads];
+        
+        XCTAssertTrue(observer->last.to.provisional);
+        XCTAssertFalse(observer->last.from.provisional);
+        
+    }
 }
 
 
@@ -564,8 +596,9 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->fireCount, 1);
+    NSLog(@"Sub desc: %@", [observer->last description]);
     XCTAssertEqualObjects([observer->last description],
-                          @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 0, status: NotDetermined>,\nto:   <OSPermissionState: hasPrompted: 1, status: NotDetermined>\n>");
+                          @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 0, status: NotDetermined, provisional: 0>,\nto:   <OSPermissionState: hasPrompted: 1, status: NotDetermined, provisional: 0>\n>");
     
     [self answerNotifiationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -573,7 +606,7 @@
     // Make sure it doesn't fire for answeredPrompt then again right away for accepted
     XCTAssertEqual(observer->fireCount, 2);
     XCTAssertEqualObjects([observer->last description],
-                          @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: NotDetermined>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized>\n>");
+                          @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: NotDetermined, provisional: 0>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized, provisional: 0>\n>");
 }
 
 // Yes, this starts with testTest, we are testing our Unit Test behavior!
@@ -600,7 +633,7 @@
     XCTAssertEqual(observer->fireCount, 3);
     
     XCTAssertEqualObjects([observer->last description],
-                          @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: Denied>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized>\n>");
+                          @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: Denied, provisional: 0>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized, provisional: 0>\n>");
 }
 
 - (void)testPermissionChangeObserverWithDecline {
