@@ -188,6 +188,7 @@ OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
+BOOL usesAutoPrompt = false;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -353,6 +354,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (void)clearStatics {
+    usesAutoPrompt = false;
+    requestedProvisionalAuthorization = false;
+    
     app_id = nil;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
@@ -449,12 +453,12 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             promptBeforeOpeningPushURLs = [[userDefaults objectForKey:PROMPT_BEFORE_OPENING_PUSH_URL] boolValue];
         }
         
-        var autoPrompt = YES;
+        usesAutoPrompt = YES;
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
-            autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
+            usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-        if (autoPrompt || registeredWithApple) {
+        if (usesAutoPrompt || registeredWithApple) {
             [self registerForPushNotifications];
         } else {
             [self checkProvisionalAuthorizationStatus];
@@ -660,7 +664,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         }
         
         //TODO: Determine if the autoprompt setting overrides this.
-        if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
             let defaults = [NSUserDefaults standardUserDefaults];
             
             [defaults setObject:@true forKey:USES_PROVISIONAL_AUTHORIZATION];

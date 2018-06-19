@@ -42,6 +42,7 @@
 #import "UIAlertViewOverrider.h"
 #import "NSObjectOverrider.h"
 #import "OneSignalCommonDefines.h"
+#import "NSBundleOverrider.h"
 
 
 NSString * serverUrlWithPath(NSString *path) {
@@ -174,6 +175,47 @@ NSString * serverUrlWithPath(NSString *path) {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationDidBecomeActive:sharedApp];
+}
+
++ (void)setCurrentNotificationPermission:(BOOL)accepted {
+    if (accepted) {
+        UNUserNotificationCenterOverrider.notifTypesOverride = 7;
+        UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+    }
+    else {
+        UNUserNotificationCenterOverrider.notifTypesOverride = 0;
+        UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
+    }
+}
+
++ (void)answerNotificationPrompt:(BOOL)accept {
+    // iOS 10.2.1 Real device obserserved sequence of events:
+    //   1. Call requestAuthorizationWithOptions to prompt for notifications.
+    ///  2. App goes out of focus when the prompt is shown.
+    //   3. User press ACCPET! and focus event fires.
+    //   4. *(iOS bug?)* We check permission with currentNotificationCenter.getNotificationSettingsWithCompletionHandler and it show up as UNAuthorizationStatusDenied!?!?!
+    //   5. Callback passed to getNotificationSettingsWithCompletionHandler then fires with Accpeted as TRUE.
+    //   6. Check getNotificationSettingsWithCompletionHandler and it is then correctly reporting UNAuthorizationStatusAuthorized
+    //   7. Note: If remote notification background modes are on then application:didRegisterForRemoteNotificationsWithDeviceToken: will fire after #5 on it's own.
+    BOOL triggerDidRegisterForRemoteNotfications = (UNUserNotificationCenterOverrider.authorizationStatus == [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined] && accept);
+    if (triggerDidRegisterForRemoteNotfications)
+        [self setCurrentNotificationPermission:false];
+    
+    [UnitTestCommonMethods resumeApp];
+    [self setCurrentNotificationPermission:accept];
+    
+    if (triggerDidRegisterForRemoteNotfications && NSBundleOverrider.nsbundleDictionary[@"UIBackgroundModes"])
+        [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
+    
+    if (OneSignalHelperOverrider.mockIOSVersion > 9) {
+        [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:accept];
+    } else if (OneSignalHelperOverrider.mockIOSVersion > 7) {
+        UIApplication *sharedApp = [UIApplication sharedApplication];
+        [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UNUserNotificationCenterOverrider.notifTypesOverride categories:nil]];
+    }
+    else  { // iOS 7 - Only support accepted for now.
+        [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
+    }
 }
 
 @end

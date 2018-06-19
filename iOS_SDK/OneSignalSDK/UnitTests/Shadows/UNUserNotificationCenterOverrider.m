@@ -47,6 +47,8 @@ static XCTestCase* currentTestInstance;
 
 static BOOL shouldSetProvisionalAuthStatus = false;
 
+static UNAuthorizationOptions previousRequestedAuthorizationOptions = UNAuthorizationOptionNone;
+
 static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *error);
 
 + (void)load {
@@ -75,10 +77,15 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
 }
 
++ (UNAuthorizationOptions)lastRequestedAuthorizationOptions {
+    return previousRequestedAuthorizationOptions;
+}
+
 +(void)reset:(XCTestCase*)testInstance {
     currentTestInstance = testInstance;
     lastSetCategories = nil;
     shouldSetProvisionalAuthStatus = false;
+    previousRequestedAuthorizationOptions = UNAuthorizationOptionNone;
 }
 
 +(void) setNotifTypesOverride:(int)value {
@@ -96,7 +103,7 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
 }
 
 +(int) lastSetCategoriesCount {
-    return [lastSetCategories count];
+    return (int)[lastSetCategories count];
 }
 
 +(void) fireLastRequestAuthorizationWithGranted:(BOOL)granted {
@@ -155,11 +162,12 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
 
 - (void)overrideRequestAuthorizationWithOptions:(UNAuthorizationOptions)options
                               completionHandler:(void (^)(BOOL granted, NSError *error))completionHandler {
+    previousRequestedAuthorizationOptions = options;
     
     if (shouldSetProvisionalAuthStatus)
         authorizationStatus = @3;
     
-    if (![authorizationStatus isEqualToNumber:[NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined]])
+    if (![authorizationStatus isEqualToNumber:[NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined]] && ![authorizationStatus isEqualToNumber:@3])
         completionHandler([authorizationStatus isEqual:[NSNumber numberWithInteger:UNAuthorizationStatusAuthorized]] || shouldSetProvisionalAuthStatus, nil);
     else
         lastRequestAuthorizationWithOptionsBlock = completionHandler;

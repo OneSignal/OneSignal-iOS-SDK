@@ -155,8 +155,6 @@ static dispatch_queue_t serialQueue;
         };
         
         [center requestAuthorizationWithOptions:(UNAuthorizationOptions)(1 << 6) completionHandler:responseBlock];
-        
-        [OneSignal registerForAPNsToken];
     }
 }
 
