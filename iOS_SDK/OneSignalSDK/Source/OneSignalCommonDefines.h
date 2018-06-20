@@ -56,6 +56,9 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 
+// Info.plist key
+#define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
+
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
 #define ONESIGNAL_REQUIRE_PRIVACY_CONSENT @"OneSignal_require_privacy_consent"

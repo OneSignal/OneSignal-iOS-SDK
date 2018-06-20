@@ -26,23 +26,20 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "OneSignalDialogController.h"
 
-@interface UIApplicationOverrider : NSObject
-+(void)reset;
+NS_ASSUME_NONNULL_BEGIN
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value;
+@interface OSDialogRequest : NSObject
 
-+(UILocalNotification*)lastUILocalNotification;
+@property (strong, nonatomic, nonnull) NSString *title;
+@property (strong, nonatomic, nonnull) NSString *message;
+@property (strong, nonatomic, nullable) NSString *actionTitle;
+@property (strong, nonatomic, nonnull) NSString *cancelTitle;
+@property (nonatomic, nullable) OSDialogActionCompletion completion;
 
-+(void)runBackgroundThreads;
+- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitle:(NSString * _Nullable)actionTitle withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion;
 
-+(BOOL)calledRegisterForRemoteNotifications;
-+(BOOL)calledCurrentUserNotificationSettings;
-
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value;
-
-+ (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken;
-
-+ (NSURL* )lastOpenedUrl;
 @end
+
+NS_ASSUME_NONNULL_END

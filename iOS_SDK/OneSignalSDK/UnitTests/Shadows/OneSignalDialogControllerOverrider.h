@@ -26,23 +26,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
-@interface UIApplicationOverrider : NSObject
-+(void)reset;
+#import "OneSignalDialogRequest.h"
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value;
+NS_ASSUME_NONNULL_BEGIN
 
-+(UILocalNotification*)lastUILocalNotification;
-
-+(void)runBackgroundThreads;
-
-+(BOOL)calledRegisterForRemoteNotifications;
-+(BOOL)calledCurrentUserNotificationSettings;
-
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value;
-
-+ (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken;
-
-+ (NSURL* )lastOpenedUrl;
+@interface OneSignalDialogControllerOverrider : NSObject
++ (OSDialogRequest *)getCurrentDialog;
 @end
+
+NS_ASSUME_NONNULL_END

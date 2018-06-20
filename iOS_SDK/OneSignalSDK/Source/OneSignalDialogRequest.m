@@ -25,24 +25,21 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "OneSignalDialogRequest.h"
 
-@interface UIApplicationOverrider : NSObject
-+(void)reset;
+@implementation OSDialogRequest
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value;
+- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitle:(NSString * _Nullable)actionTitle withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion
+{
+    self = [super init];
+    if (self) {
+        self.title = title;
+        self.message = message;
+        self.actionTitle = actionTitle;
+        self.cancelTitle = cancelTitle;
+        self.completion = completion;
+    }
+    return self;
+}
 
-+(UILocalNotification*)lastUILocalNotification;
-
-+(void)runBackgroundThreads;
-
-+(BOOL)calledRegisterForRemoteNotifications;
-+(BOOL)calledCurrentUserNotificationSettings;
-
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value;
-
-+ (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken;
-
-+ (NSURL* )lastOpenedUrl;
 @end
