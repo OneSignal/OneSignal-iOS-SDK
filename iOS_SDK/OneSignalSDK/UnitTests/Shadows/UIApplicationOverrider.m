@@ -168,7 +168,7 @@ static NSURL* lastOpenedUrl;
     lastUILocalNotification = notification;
 }
 
-- (void)overrideOpenURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options completionHandler:(void (^ __nullable)(BOOL success))completion {
+- (void)overrideOpenURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options completionHandler:(void (^ __nullable)(BOOL success))completion {
     lastOpenedUrl = url;
 }
 
