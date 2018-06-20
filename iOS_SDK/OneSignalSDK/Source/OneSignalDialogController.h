@@ -25,26 +25,15 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettings_h
-#define OneSignalNotificationSettings_h
-
-#import "OneSignal.h"
-
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@protocol OneSignalNotificationSettings <NSObject>
+NS_ASSUME_NONNULL_BEGIN
+typedef void (^OSDialogActionCompletion)(BOOL tappedAction);
 
-- (int) getNotificationTypes;
-- (OSPermissionState*)getNotificationPermissionState;
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionState))completionHandler;
-- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler;
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
-// Only used for iOS 8 & 9
-- (void)onNotificationPromptResponse:(int)notificationTypes;
-
-// Only used for iOS 7
-- (void)onAPNsResponse:(BOOL)success;
-
+@interface OneSignalDialogController : NSObject <UIAlertViewDelegate>
++ (instancetype _Nonnull)sharedInstance;
+- (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withAction:(NSString * _Nullable)actionTitle cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion;
 @end
 
-#endif /* OneSignaNotificationSettings_h */
+NS_ASSUME_NONNULL_END

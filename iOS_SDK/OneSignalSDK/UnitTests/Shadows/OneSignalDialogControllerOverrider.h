@@ -25,26 +25,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettings_h
-#define OneSignalNotificationSettings_h
-
-#import "OneSignal.h"
-
 #import <Foundation/Foundation.h>
 
-@protocol OneSignalNotificationSettings <NSObject>
+#import "OneSignalDialogRequest.h"
 
-- (int) getNotificationTypes;
-- (OSPermissionState*)getNotificationPermissionState;
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionState))completionHandler;
-- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler;
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
-// Only used for iOS 8 & 9
-- (void)onNotificationPromptResponse:(int)notificationTypes;
+NS_ASSUME_NONNULL_BEGIN
 
-// Only used for iOS 7
-- (void)onAPNsResponse:(BOOL)success;
-
+@interface OneSignalDialogControllerOverrider : NSObject
++ (OSDialogRequest *)getCurrentDialog;
 @end
 
-#endif /* OneSignaNotificationSettings_h */
+NS_ASSUME_NONNULL_END

@@ -46,6 +46,18 @@
 #define EMAIL_ADDRESS @"EMAIL_ADDRESS"
 #define PROMPT_BEFORE_OPENING_PUSH_URL @"PROMPT_BEFORE_OPENING_PUSH_URL"
 #define DEPRECATED_SELECTORS @[@"application:didReceiveLocalNotification:", @"application:handleActionWithIdentifier:forLocalNotification:completionHandler:", @"application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:"]
+#define USES_PROVISIONAL_AUTHORIZATION @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"
+#define PERMISSION_HAS_PROMPTED @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"
+#define PERMISSION_ANSWERED_PROMPT @"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"
+#define PERMISSION_ACCEPTED @"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"
+#define PERMISSION_PROVISIONAL_STATUS @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"
+
+// iOS Parameter Names
+#define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
+#define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
+
+// Info.plist key
+#define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
 
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"

@@ -68,6 +68,7 @@
 #import "OneSignalSetEmailParameters.h"
 #import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
+#import "OneSignalDialogController.h"
 
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
@@ -187,6 +188,8 @@ static int mSubscriptionStatus = -1;
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
+BOOL requestedProvisionalAuthorization = false;
+BOOL usesAutoPrompt = false;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -352,6 +355,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (void)clearStatics {
+    usesAutoPrompt = false;
+    requestedProvisionalAuthorization = false;
+    
     app_id = nil;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
@@ -448,15 +454,17 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             promptBeforeOpeningPushURLs = [[userDefaults objectForKey:PROMPT_BEFORE_OPENING_PUSH_URL] boolValue];
         }
         
-        var autoPrompt = YES;
+        usesAutoPrompt = YES;
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
-            autoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
+            usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-        if (autoPrompt || registeredWithApple)
+        if (usesAutoPrompt || registeredWithApple) {
             [self registerForPushNotifications];
-        else
+        } else {
+            [self checkProvisionalAuthorizationStatus];
             [self registerForAPNsToken];
+        }
         
         
         /* Check if in-app setting passed assigned
@@ -557,6 +565,27 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return true;
 }
 
+// Checks to see if we should register for APNS' new Provisional authorization
+// (also known as Direct to History).
+// This behavior is determined by the OneSignal Parameters request
++ (void)checkProvisionalAuthorizationStatus {
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
+    let usesProvisional = (NSNumber *)[[NSUserDefaults standardUserDefaults] objectForKey:USES_PROVISIONAL_AUTHORIZATION];
+    
+    // if iOS parameters for this app have never downloaded, this method
+    // should return
+    if (!usesProvisional || ![usesProvisional boolValue] || requestedProvisionalAuthorization)
+        return;
+    
+    requestedProvisionalAuthorization = true;
+    
+    [self.osNotificationSettings registerForProvisionalAuthorization:^(BOOL accepted) {
+        
+    }];
+}
+
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
     if ([self requiresUserPrivacyConsent]) {
         if (methodName) {
@@ -625,14 +654,23 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     didCallDownloadParameters = true;
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
-        if (result[@"require_email_auth"]) {
-            self.currentEmailSubscriptionState.requiresEmailAuth = [result[@"require_email_auth"] boolValue];
+        if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
+            self.currentEmailSubscriptionState.requiresEmailAuth = [result[IOS_REQUIRES_EMAIL_AUTHENTICATION] boolValue];
             
             // checks if a cell to setEmail: was delayed due to missing 'requiresEmailAuth' parameter
             if (delayedEmailParameters && self.currentSubscriptionState.userId) {
                 [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
                 delayedEmailParameters = nil;
             }
+        }
+        
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
+            let defaults = [NSUserDefaults standardUserDefaults];
+            
+            [defaults setObject:@true forKey:USES_PROVISIONAL_AUTHORIZATION];
+            [defaults synchronize];
+            
+            [self checkProvisionalAuthorizationStatus];
         }
         
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
@@ -679,17 +717,28 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         NSLog(@"%@", [levelString stringByAppendingString:message]);
     
     if (logLevel <= _visualLogLevel) {
-        [OneSignalHelper runOnMainThread:^{
-            let alertView = [[UIAlertView alloc] initWithTitle:levelString
-                                                       message:message
-                                                      delegate:nil
-                                             cancelButtonTitle:NSLocalizedString(@"Close", @"Close button")
-                                             otherButtonTitles:nil, nil];
-            [alertView show];
-        }];
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withAction:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
 }
 
+//presents the settings page to control/customize push notification settings
++ (void)presentSettings {
+    
+    //only supported in 10+
+    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10.0])
+        return;
+    
+    let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    
+    if (!url)
+        return;
+    
+    if ([[UIApplication sharedApplication] canOpenURL:url]) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    } else {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
+    }
+}
 
 // iOS 8+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {
@@ -718,6 +767,37 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [[UIApplication sharedApplication] registerForRemoteNotifications];
     
     return true;
+}
+
+// if user has disabled push notifications & fallback == true,
+// the SDK will prompt the user to open notification Settings for this app
++ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL))completionHandler fallbackToSettings:(BOOL)fallback {
+    
+    if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
+        //show settings
+        
+        let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
+        let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
+        let localizedCancelActionTitle = NSLocalizedString(@"Cancel", @"A button allowing the user to close the Settings prompt");
+        
+        //the developer can provide a custom message in Info.plist if they choose.
+        var localizedMessage = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:FALLBACK_TO_SETTINGS_MESSAGE];
+        
+        if (!localizedMessage)
+            localizedMessage = NSLocalizedString(@"You currently have notifications turned off for this application. You can open Settings to re-enable them", @"A message explaining that users can open Settings to re-enable push notifications");
+        
+        
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withAction:localizedSettingsActionTitle cancelTitle:localizedCancelActionTitle withActionCompletion:^(BOOL tappedAction) {
+            
+            //completion is called on the main thread
+            if (tappedAction)
+                [self presentSettings];;
+        }];
+        
+        return;
+    }
+    
+    [self promptForPushNotificationsWithUserResponse:completionHandler];
 }
 
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler {
@@ -1224,7 +1304,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
         // The goal is to only have 1 server call.
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
-            if (status.answeredPrompt)
+            if (status.answeredPrompt || status.provisional)
                 [OneSignal registerUser];
             else
                 [self registerUserAfterDelay];
@@ -1785,9 +1865,11 @@ static NSString *_lastnonActiveMessageId;
     
     OSPermissionState* permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
     
-    if (!permissionStatus.hasPrompted)
+    //only return the error statuses if not provisional
+    if (!permissionStatus.provisional && !permissionStatus.hasPrompted)
         return ERROR_PUSH_NEVER_PROMPTED;
-    if (!permissionStatus.answeredPrompt)
+    
+    if (!permissionStatus.provisional && !permissionStatus.answeredPrompt)
         return ERROR_PUSH_PROMPT_NEVER_ANSWERED;
     
     if (!self.currentSubscriptionState.userSubscriptionSetting)

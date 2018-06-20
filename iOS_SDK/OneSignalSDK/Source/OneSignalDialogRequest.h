@@ -26,11 +26,20 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import "OneSignal.h"
+#import "OneSignalDialogController.h"
 
-@interface OneSignalWebOpenDialog : NSObject <UIAlertViewDelegate>
+NS_ASSUME_NONNULL_BEGIN
 
-+ (void)showOpenDialogwithURL:(NSURL *)url withResponse:(OSWebOpenURLResultBlock)shouldOpen;
+@interface OSDialogRequest : NSObject
+
+@property (strong, nonatomic, nonnull) NSString *title;
+@property (strong, nonatomic, nonnull) NSString *message;
+@property (strong, nonatomic, nullable) NSString *actionTitle;
+@property (strong, nonatomic, nonnull) NSString *cancelTitle;
+@property (nonatomic, nullable) OSDialogActionCompletion completion;
+
+- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitle:(NSString * _Nullable)actionTitle withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion;
 
 @end
+
+NS_ASSUME_NONNULL_END

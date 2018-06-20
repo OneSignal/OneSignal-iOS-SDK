@@ -25,26 +25,32 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettings_h
-#define OneSignalNotificationSettings_h
+#import "OneSignalDialogControllerOverrider.h"
+
+#import "OneSignalSelectorHelpers.h"
 
 #import "OneSignal.h"
 
-#import <Foundation/Foundation.h>
+#import "OneSignalDialogController.h"
 
-@protocol OneSignalNotificationSettings <NSObject>
-
-- (int) getNotificationTypes;
-- (OSPermissionState*)getNotificationPermissionState;
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionState))completionHandler;
-- (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler;
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
-// Only used for iOS 8 & 9
-- (void)onNotificationPromptResponse:(int)notificationTypes;
-
-// Only used for iOS 7
-- (void)onAPNsResponse:(BOOL)success;
-
+@interface OneSignalDialogController ()
+- (void)displayDialog:(OSDialogRequest * _Nonnull)request;
 @end
 
-#endif /* OneSignaNotificationSettings_h */
+@implementation OneSignalDialogControllerOverrider
+
+static OSDialogRequest *currentDialog;
+
++ (void)load {
+    injectToProperClass(@selector(overrideDisplayDialog:), @selector(displayDialog:), @[], [OneSignalDialogControllerOverrider class], [OneSignalDialogController class]);
+}
+
+- (void)overrideDisplayDialog:(OSDialogRequest * _Nonnull)request {
+    currentDialog = request;
+}
+
++ (OSDialogRequest *)getCurrentDialog {
+    return currentDialog;
+}
+
+@end

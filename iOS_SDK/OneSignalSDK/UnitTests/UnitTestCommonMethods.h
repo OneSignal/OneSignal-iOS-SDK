@@ -40,6 +40,8 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)beforeAllTest;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
++ (void)answerNotificationPrompt:(BOOL)accept;
++ (void)setCurrentNotificationPermission:(BOOL)accepted;
 
 @end
 
