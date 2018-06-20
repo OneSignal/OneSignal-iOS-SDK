@@ -136,6 +136,10 @@
 		CA36A42D208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		CA36A42E208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		CA36A42F208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
+		CA41812D20DB208400432788 /* OneSignalDialogRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CACA3F3420DAFF9E002B7758 /* OneSignalDialogRequest.m */; };
+		CA41812E20DB208400432788 /* OneSignalDialogRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CACA3F3420DAFF9E002B7758 /* OneSignalDialogRequest.m */; };
+		CA41812F20DB208800432788 /* OneSignalDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACA3F3120DAE5B2002B7758 /* OneSignalDialogController.m */; };
+		CA41813020DB208900432788 /* OneSignalDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACA3F3120DAE5B2002B7758 /* OneSignalDialogController.m */; };
 		CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA42CAC220D99CB90001F2F2 /* ProvisionalAuthorizationTests.m */; };
 		CA63AF8420211F7400E340FB /* EmailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8320211F7400E340FB /* EmailTests.m */; };
 		CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */; };
@@ -786,6 +790,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA41812D20DB208400432788 /* OneSignalDialogRequest.m in Sources */,
 				9124120F1E73342200E41FD7 /* OneSignal.m in Sources */,
 				CA08FC741FE99AFF004C445F /* OneSignalClient.m in Sources */,
 				91F58D861E7C88250017D24D /* OneSignalNotificationSettingsIOS8.m in Sources */,
@@ -813,6 +818,7 @@
 				CA63AFC42022670A00E340FB /* ReattemptRequest.m in Sources */,
 				91F58D8A1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
 				912412231E73342200E41FD7 /* OneSignalLocation.m in Sources */,
+				CA41812F20DB208800432788 /* OneSignalDialogController.m in Sources */,
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412371E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
@@ -855,6 +861,7 @@
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
 				CA63AF8420211F7400E340FB /* EmailTests.m in Sources */,
+				CA41812E20DB208400432788 /* OneSignalDialogRequest.m in Sources */,
 				CA36A42F208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */,
 				91B6EA431E85D38F00B5CF01 /* OSObservable.m in Sources */,
 				4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */,
@@ -867,6 +874,7 @@
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				CAACCA7B20DB10350008A560 /* OneSignalDialogControllerOverrider.m in Sources */,
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
+				CA41813020DB208900432788 /* OneSignalDialogController.m in Sources */,
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412141E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
 				CA63AFC52022670A00E340FB /* ReattemptRequest.m in Sources */,
