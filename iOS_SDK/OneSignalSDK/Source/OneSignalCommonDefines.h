@@ -47,6 +47,9 @@
 #define PROMPT_BEFORE_OPENING_PUSH_URL @"PROMPT_BEFORE_OPENING_PUSH_URL"
 #define DEPRECATED_SELECTORS @[@"application:didReceiveLocalNotification:", @"application:handleActionWithIdentifier:forLocalNotification:completionHandler:", @"application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:"]
 
+// Info.plist key
+#define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
+
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
 #define ONESIGNAL_REQUIRE_PRIVACY_CONSENT @"OneSignal_require_privacy_consent"

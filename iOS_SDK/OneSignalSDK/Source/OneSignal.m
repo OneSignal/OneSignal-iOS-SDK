@@ -68,6 +68,7 @@
 #import "OneSignalSetEmailParameters.h"
 #import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
+#import "OneSignalDialogController.h"
 
 #define NOTIFICATION_TYPE_NONE 0
 #define NOTIFICATION_TYPE_BADGE 1
@@ -679,14 +680,26 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         NSLog(@"%@", [levelString stringByAppendingString:message]);
     
     if (logLevel <= _visualLogLevel) {
-        [OneSignalHelper runOnMainThread:^{
-            let alertView = [[UIAlertView alloc] initWithTitle:levelString
-                                                       message:message
-                                                      delegate:nil
-                                             cancelButtonTitle:NSLocalizedString(@"Close", @"Close button")
-                                             otherButtonTitles:nil, nil];
-            [alertView show];
-        }];
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withAction:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+    }
+}
+
+//presents the settings page to control/customize push notification settings
++ (void)presentSettings {
+    
+    //only supported in 10+
+    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10.0])
+        return;
+    
+    let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    
+    if (!url)
+        return;
+    
+    if ([[UIApplication sharedApplication] canOpenURL:url]) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    } else {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
     }
 }
 
@@ -718,6 +731,37 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [[UIApplication sharedApplication] registerForRemoteNotifications];
     
     return true;
+}
+
+// if user has disabled push notifications & fallback == true,
+// the SDK will prompt the user to open notification Settings for this app
++ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL))completionHandler fallbackToSettings:(BOOL)fallback {
+    
+    if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
+        //show settings
+        
+        let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
+        let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
+        let localizedCancelActionTitle = NSLocalizedString(@"Cancel", @"A button allowing the user to close the Settings prompt");
+        
+        //the developer can provide a custom message in Info.plist if they choose.
+        var localizedMessage = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:FALLBACK_TO_SETTINGS_MESSAGE];
+        
+        if (!localizedMessage)
+            localizedMessage = NSLocalizedString(@"You currently have notifications turned off for this application. You can open Settings to re-enable them", @"A message explaining that users can open Settings to re-enable push notifications");
+        
+        
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withAction:localizedSettingsActionTitle cancelTitle:localizedCancelActionTitle withActionCompletion:^(BOOL tappedAction) {
+            
+            //completion is called on the main thread
+            if (tappedAction)
+                [self presentSettings];;
+        }];
+        
+        return;
+    }
+    
+    [self promptForPushNotificationsWithUserResponse:completionHandler];
 }
 
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler {

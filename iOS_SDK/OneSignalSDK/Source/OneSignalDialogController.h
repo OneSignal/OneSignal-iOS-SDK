@@ -28,22 +28,12 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface UIApplicationOverrider : NSObject
-+(void)reset;
+NS_ASSUME_NONNULL_BEGIN
+typedef void (^OSDialogActionCompletion)(BOOL tappedAction);
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value;
-
-+(UILocalNotification*)lastUILocalNotification;
-
-+(void)runBackgroundThreads;
-
-+(BOOL)calledRegisterForRemoteNotifications;
-+(BOOL)calledCurrentUserNotificationSettings;
-
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value;
-
-+ (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken;
-
-+ (NSURL* )lastOpenedUrl;
-
+@interface OneSignalDialogController : NSObject <UIAlertViewDelegate>
++ (instancetype _Nonnull)sharedInstance;
+- (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withAction:(NSString * _Nullable)actionTitle cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion;
 @end
+
+NS_ASSUME_NONNULL_END
