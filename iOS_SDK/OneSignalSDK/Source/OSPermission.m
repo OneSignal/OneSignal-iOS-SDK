@@ -102,6 +102,10 @@
     return _hasPrompted;
 }
 
+-(BOOL)reachable {
+    return self.provisional || self.accepted;
+}
+
 - (void)setProvisional:(BOOL)provisional {
     if (_provisional != provisional) {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];

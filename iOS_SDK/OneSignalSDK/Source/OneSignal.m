@@ -580,9 +580,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     requestedProvisionalAuthorization = true;
     
-    [self.osNotificationSettings registerForProvisionalAuthorization:^(BOOL accepted) {
-        
-    }];
+    [self.osNotificationSettings registerForProvisionalAuthorization:nil];
+}
+
++ (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
+    if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
+        [self.osNotificationSettings registerForProvisionalAuthorization:completionHandler];
+    else
+        onesignal_Log(ONE_S_LL_WARN, @"registerForProvisionalAuthorization is only available in iOS 12+.");
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {

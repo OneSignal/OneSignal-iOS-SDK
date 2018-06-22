@@ -34,6 +34,8 @@
 
 #import "OneSignalHelper.h"
 
+#import "OneSignalCommonDefines.h"
+
 @implementation OneSignalNotificationSettingsIOS10 {
 
 // Used as both an optimization and to prevent queue deadlocks.
@@ -72,13 +74,13 @@ static dispatch_queue_t serialQueue;
             status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined && settings.authorizationStatus != provisionalStatus;
             status.provisional = (settings.authorizationStatus == 3);
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized && !status.provisional;
-            NSLog(@"Status authorization: %d %d", (settings.authorizationStatus == UNAuthorizationStatusAuthorized), status.provisional);
+            
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
                                      + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
             
-            if (@available(iOS 12, *))
+            if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
                 if (status.notificationTypes == 0 && settings.authorizationStatus == provisionalStatus)
                     status.notificationTypes = 1;
             
@@ -136,26 +138,28 @@ static dispatch_queue_t serialQueue;
 
 - (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
     
-    if (@available(iOS 12, *)) {
-        OSPermissionState *state = [self getNotificationPermissionState];
-        
-        //don't register for provisional if the user has already accepted the prompt
-        if (state.accepted)
-            return;
-        
-        UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-        
-        id responseBlock = ^(BOOL granted, NSError *error) {
-            [OneSignalHelper dispatch_async_on_main_queue:^{
-                OneSignal.currentPermissionState.provisional = granted;
-                [OneSignal updateNotificationTypes: granted ? 1 : 0];
-                if (completionHandler)
-                    completionHandler(granted);
-            }];
-        };
-        
-        [center requestAuthorizationWithOptions:(UNAuthorizationOptions)(1 << 6) completionHandler:responseBlock];
+    if (![OneSignalHelper isIOSVersionGreaterOrEqual:12.0]) {
+        return;
     }
+    
+    OSPermissionState *state = [self getNotificationPermissionState];
+    
+    //don't register for provisional if the user has already accepted the prompt
+    if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt)
+        return;
+    
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    
+    id responseBlock = ^(BOOL granted, NSError *error) {
+        [OneSignalHelper dispatch_async_on_main_queue:^{
+            OneSignal.currentPermissionState.provisional = granted;
+            [OneSignal updateNotificationTypes: granted ? 1 : 0];
+            if (completionHandler)
+                completionHandler(granted);
+        }];
+    };
+    
+    [center requestAuthorizationWithOptions:PROVISIONAL_UNAUTHORIZATIONOPTION completionHandler:responseBlock];
 }
 
 // Ignore these 2 events, promptForNotifications: already takes care of these.
