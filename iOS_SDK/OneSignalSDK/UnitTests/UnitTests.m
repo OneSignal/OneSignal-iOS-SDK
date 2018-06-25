@@ -1137,6 +1137,8 @@
         XCTAssertEqualObjects(result.notification.payload.actionButtons, actionButons);
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         
+        XCTAssertEqualObjects(result.notification.payload.threadId, @"test1");
+        
         openedWasFire = true;
     };
     
@@ -1164,7 +1166,8 @@
                              @"mutable-content" : @1,
                              @"alert" : @{
                                      @"title" : @"Test Title"
-                                     }
+                                     },
+                             @"thread-id" : @"test1"
                              },
                      @"buttons" : @[@{@"i": @"id1", @"n": @"text1"}],
                      @"custom" : @{
@@ -1178,7 +1181,8 @@
 - (void)testNewFormatNotificationAlertButtonsDisplay {
     id newFormat = @{@"aps": @{
                              @"mutable-content": @1,
-                             @"alert": @{@"body": @"Message Body", @"title": @"title"}
+                             @"alert": @{@"body": @"Message Body", @"title": @"title"},
+                             @"thread-id": @"test1"
                              },
                      @"os_data": @{
                              @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf",

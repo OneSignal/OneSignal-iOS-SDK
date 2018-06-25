@@ -149,6 +149,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
  Keep the raw value for users that would like to root the push */
 @property(readonly)NSDictionary *rawPayload;
 
+/* iOS 10+ : Groups notifications into threads */
+@property(readonly)NSString *threadId;
+
 @end
 
 // ## OneSignal OSNotification
