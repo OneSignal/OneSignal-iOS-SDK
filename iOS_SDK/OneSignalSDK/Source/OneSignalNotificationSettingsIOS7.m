@@ -39,7 +39,7 @@
     void (^notificationPromptReponseCallback)(BOOL);
 }
 
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     OSPermissionState* status = OneSignal.currentPermissionState;
     
@@ -47,6 +47,7 @@
     status.notificationTypes = [userDefaults stringForKey:DEVICE_TOKEN] == nil ? 0 : 7;
     status.accepted = status.notificationTypes > 0;
     status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    status.provisional = false;
     
     completionHandler(status);
 }
@@ -81,6 +82,7 @@
 
 // Only iOS 8 & 9
 - (void)onNotificationPromptResponse:(int)notificationTypes {}
+- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {}
 
 // Only iOS 7
 - (void)onAPNsResponse:(BOOL)success {

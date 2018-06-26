@@ -36,9 +36,9 @@
 
 - (int) getNotificationTypes;
 - (OSPermissionState*)getNotificationPermissionState;
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionState))completionHandler;
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionState))completionHandler;
 - (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler;
-
+- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
 // Only used for iOS 8 & 9
 - (void)onNotificationPromptResponse:(int)notificationTypes;
 
