@@ -740,7 +740,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
         
-        completionHandler(false);
+        if (completionHandler)
+            completionHandler(false);
         
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
         let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
