@@ -685,7 +685,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 //presents the settings page to control/customize push notification settings
-+ (void)presentSettings {
++ (void)presentAppSettings {
     
     //only supported in 10+
     if (![OneSignalHelper isIOSVersionGreaterOrEqual:10.0])
@@ -735,10 +735,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // if user has disabled push notifications & fallback == true,
 // the SDK will prompt the user to open notification Settings for this app
-+ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL))completionHandler fallbackToSettings:(BOOL)fallback {
++ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL accepted))completionHandler fallbackToSettings:(BOOL)fallback {
     
     if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
+        
+        completionHandler(false);
         
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
         let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
@@ -755,7 +757,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             
             //completion is called on the main thread
             if (tappedAction)
-                [self presentSettings];;
+                [self presentAppSettings];
         }];
         
         return;

@@ -354,8 +354,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only use if you set kOSSettingsKeyAutoPrompt to false
 + (void)registerForPushNotifications __deprecated_msg("Please use promptForPushNotificationsWithUserResponse instead.");
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler;
-+ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL))completionHandler fallbackToSettings:(BOOL)fallback;
-+ (void)presentSettings;
++ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL accepted))completionHandler fallbackToSettings:(BOOL)fallback;
++ (void)presentAppSettings;
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
