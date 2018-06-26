@@ -145,8 +145,10 @@ static dispatch_queue_t serialQueue;
     OSPermissionState *state = [self getNotificationPermissionState];
     
     //don't register for provisional if the user has already accepted the prompt
-    if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt)
+    if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt) {
+        completionHandler(true);
         return;
+    }
     
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     

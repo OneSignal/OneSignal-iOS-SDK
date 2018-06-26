@@ -668,7 +668,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             }
         }
         
-        //TODO: Determine if the autoprompt setting overrides this.
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
             let defaults = [NSUserDefaults standardUserDefaults];
             
