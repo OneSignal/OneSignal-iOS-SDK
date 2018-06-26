@@ -148,6 +148,7 @@
 		CA36A42D208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		CA36A42E208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		CA36A42F208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
+		CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA42CAC220D99CB90001F2F2 /* ProvisionalAuthorizationTests.m */; };
 		CA63AF8420211F7400E340FB /* EmailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8320211F7400E340FB /* EmailTests.m */; };
 		CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */; };
 		CA63AFC22022670A00E340FB /* ReattemptRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = CA63AFC02022670A00E340FB /* ReattemptRequest.h */; };
@@ -300,6 +301,7 @@
 		CA1A6E7420DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalDialogControllerOverrider.m; sourceTree = "<group>"; };
 		CA36A42A208FDEFB003EFA9A /* NSURL+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+OneSignal.h"; sourceTree = "<group>"; };
 		CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+OneSignal.m"; sourceTree = "<group>"; };
+		CA42CAC220D99CB90001F2F2 /* ProvisionalAuthorizationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProvisionalAuthorizationTests.m; sourceTree = "<group>"; };
 		CA63AF8320211F7400E340FB /* EmailTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmailTests.m; sourceTree = "<group>"; };
 		CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestCommonMethods.h; sourceTree = "<group>"; };
 		CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTestCommonMethods.m; sourceTree = "<group>"; };
@@ -446,6 +448,7 @@
 				CA85C15220604AEA003AB529 /* RequestTests.m */,
 				CAA4ED0020646762005BD59B /* BadgeTests.m */,
 				CA63AF8320211F7400E340FB /* EmailTests.m */,
+				CA42CAC220D99CB90001F2F2 /* ProvisionalAuthorizationTests.m */,
 				CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */,
 				CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */,
 				911E2CBE1E398AB3003112A4 /* Info.plist */,
@@ -858,6 +861,7 @@
 				CA1A6E7820DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m in Sources */,
 				4529DEE41FA82C6200CEAB1D /* NSURLSessionOverrider.m in Sources */,
 				4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */,
+				CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */,
 				CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */,
 				912412341E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				912412101E73342200E41FD7 /* OneSignal.m in Sources */,
@@ -1004,6 +1008,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				DSTROOT = /tmp/OneSignal.dst;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1023,6 +1029,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				DSTROOT = /tmp/OneSignal.dst;
 				FRAMEWORK_SEARCH_PATHS = (

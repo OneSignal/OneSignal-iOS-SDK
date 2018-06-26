@@ -170,6 +170,10 @@
     if (aps[@"mutable-content"])
         _mutableContent = (BOOL)aps[@"mutable-content"];
     
+    if (aps[@"thread-id"]) {
+        _threadId = (NSString *)aps[@"thread-id"];
+    }
+    
     _category = aps[@"category"];
 }
 

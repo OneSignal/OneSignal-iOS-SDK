@@ -35,6 +35,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "OneSignalCommonDefines.h"
 
 
 #if XC8_AVAILABLE
@@ -94,13 +95,20 @@ static BOOL useCachedUNNotificationSettings;
 static UNNotificationSettings* cachedUNNotificationSettings;
 
 - (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
-    OneSignal.currentPermissionState.hasPrompted = true;
+    
+    BOOL notProvisionalRequest = options != PROVISIONAL_UNAUTHORIZATIONOPTION;
+    
+    //we don't want to modify these settings if the authorization is provisional (iOS 12 'Direct to History')
+    if (notProvisionalRequest)
+        OneSignal.currentPermissionState.hasPrompted = true;
     
     useCachedUNNotificationSettings = true;
     id wrapperBlock = ^(BOOL granted, NSError* error) {
         useCachedUNNotificationSettings = false;
-        OneSignal.currentPermissionState.accepted = granted;
-        OneSignal.currentPermissionState.answeredPrompt = true;
+        if (notProvisionalRequest) {
+            OneSignal.currentPermissionState.accepted = granted;
+            OneSignal.currentPermissionState.answeredPrompt = true;
+        }
         completionHandler(granted, error);
     };
     
