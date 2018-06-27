@@ -149,6 +149,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
  Keep the raw value for users that would like to root the push */
 @property(readonly)NSDictionary *rawPayload;
 
+/* iOS 10+ : Groups notifications into threads */
+@property(readonly)NSString *threadId;
+
 @end
 
 // ## OneSignal OSNotification
@@ -204,7 +207,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionDenied,
     
     // The application is authorized to post user notifications.
-    OSNotificationPermissionAuthorized
+    OSNotificationPermissionAuthorized,
+    
+    // the application is only authorized to post Provisional notifications (direct to history)
+    OSNotificationPermissionProvisional
 };
 
 
@@ -212,6 +218,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 // Permission Classes
 @interface OSPermissionState : NSObject
 
+@property (readonly, nonatomic) BOOL reachable;
 @property (readonly, nonatomic) BOOL hasPrompted;
 @property (readonly, nonatomic) OSNotificationPermission status;
 - (NSDictionary*)toDictionary;
@@ -354,6 +361,9 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only use if you set kOSSettingsKeyAutoPrompt to false
 + (void)registerForPushNotifications __deprecated_msg("Please use promptForPushNotificationsWithUserResponse instead.");
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler;
++ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL accepted))completionHandler fallbackToSettings:(BOOL)fallback;
++ (void)presentAppSettings;
++ (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
