@@ -81,6 +81,8 @@
 
 #import "DummyNotificationCenterDelegate.h"
 
+#import "OneSignalDialogControllerOverrider.h"
+
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
@@ -1970,6 +1972,53 @@ didReceiveRemoteNotification:userInfo
     
     let downloadedGifFilename = [self deliverNotificationWithJSON:gifFormat].URL.lastPathComponent;
     XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"gif"]);
+}
+
+/*
+    We now provide a method to prompt users to open push Settings
+    If the user has turned off push notifications, when the developer
+    calls the new promptForPushNotificationsWithUserResponse:fallbackToSettings:
+    the SDK will open iOS Settings (iOS 10 or higher)
+*/
+- (void)testOpenNotificationSettings {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+    
+    //set up the test so that the user has declined the prompt.
+    //we can then call prompt with Settings fallback.
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    
+    [self registerForPushNotifications];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [self answerNotifiationPrompt:false];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(observer->last.to.accepted, false);
+    
+    //this should result in a dialog being shown, asking the user
+    //if they want to open iOS settings for this app
+    [OneSignal promptForPushNotificationsWithUserResponse:nil fallbackToSettings:true];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //assert that the correct dialog was presented
+    XCTAssertNotNil([OneSignalDialogControllerOverrider getCurrentDialog]);
+    XCTAssertEqualObjects(OneSignalDialogControllerOverrider.getCurrentDialog.title, @"Open Settings");
+    
+    //answer 'Open Settings' on the prompt
+    OneSignalDialogControllerOverrider.getCurrentDialog.completion(true);
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //make sure the app actually tried to open settings
+    XCTAssertNotNil(UIApplicationOverrider.lastOpenedUrl);
+    XCTAssertEqualObjects(UIApplicationOverrider.lastOpenedUrl.absoluteString, UIApplicationOpenSettingsURLString);
 }
 
 @end

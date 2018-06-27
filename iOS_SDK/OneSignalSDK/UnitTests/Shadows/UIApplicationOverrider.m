@@ -47,6 +47,8 @@ static UIUserNotificationSettings* lastUIUserNotificationSettings;
 
 static BOOL pendingRegiseterBlock;
 
+static NSURL* lastOpenedUrl;
+
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
@@ -55,6 +57,7 @@ static BOOL pendingRegiseterBlock;
     injectToProperClass(@selector(overrideRegisterUserNotificationSettings:), @selector(registerUserNotificationSettings:), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideApplicationState), @selector(applicationState), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideScheduleLocalNotification:), @selector(scheduleLocalNotification:), @[], [UIApplicationOverrider class], [UIApplication class]);
+    injectToProperClass(@selector(overrideOpenURL:options:completionHandler:), @selector(openURL:options:completionHandler:), @[], [UIApplicationOverrider class], [UIApplication class]);
 }
 
 +(void)reset {
@@ -162,6 +165,14 @@ static BOOL pendingRegiseterBlock;
 
 - (void)overrideScheduleLocalNotification:(UILocalNotification*)notification {
     lastUILocalNotification = notification;
+}
+
+- (void)overrideOpenURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options completionHandler:(void (^ __nullable)(BOOL success))completion {
+    lastOpenedUrl = url;
+}
+
++ (NSURL* )lastOpenedUrl {
+    return lastOpenedUrl;
 }
 
 @end

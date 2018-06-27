@@ -25,25 +25,32 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "OneSignalDialogControllerOverrider.h"
 
-@interface UIApplicationOverrider : NSObject
-+(void)reset;
+#import "OneSignalSelectorHelpers.h"
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value;
+#import "OneSignal.h"
 
-+(UILocalNotification*)lastUILocalNotification;
+#import "OneSignalDialogController.h"
 
-+(void)runBackgroundThreads;
+@interface OneSignalDialogController ()
+- (void)displayDialog:(OSDialogRequest * _Nonnull)request;
+@end
 
-+(BOOL)calledRegisterForRemoteNotifications;
-+(BOOL)calledCurrentUserNotificationSettings;
+@implementation OneSignalDialogControllerOverrider
 
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value;
+static OSDialogRequest *currentDialog;
 
-+ (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken;
++ (void)load {
+    injectToProperClass(@selector(overrideDisplayDialog:), @selector(displayDialog:), @[], [OneSignalDialogControllerOverrider class], [OneSignalDialogController class]);
+}
 
-+ (NSURL* )lastOpenedUrl;
+- (void)overrideDisplayDialog:(OSDialogRequest * _Nonnull)request {
+    currentDialog = request;
+}
+
++ (OSDialogRequest *)getCurrentDialog {
+    return currentDialog;
+}
 
 @end
