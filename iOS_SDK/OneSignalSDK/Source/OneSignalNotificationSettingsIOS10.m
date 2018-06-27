@@ -82,7 +82,7 @@ static dispatch_queue_t serialQueue;
             
             if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
                 if (status.notificationTypes == 0 && settings.authorizationStatus == provisionalStatus)
-                    status.notificationTypes = 1;
+                    status.notificationTypes = PROVISIONAL_UNAUTHORIZATIONOPTION;
             
             useCachedStatus = true;
             completionHandler(status);
@@ -146,7 +146,8 @@ static dispatch_queue_t serialQueue;
     
     //don't register for provisional if the user has already accepted the prompt
     if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt) {
-        completionHandler(true);
+        if (completionHandler)
+            completionHandler(true);
         return;
     }
     
@@ -155,7 +156,7 @@ static dispatch_queue_t serialQueue;
     id responseBlock = ^(BOOL granted, NSError *error) {
         [OneSignalHelper dispatch_async_on_main_queue:^{
             OneSignal.currentPermissionState.provisional = granted;
-            [OneSignal updateNotificationTypes: granted ? 1 : 0];
+            [OneSignal updateNotificationTypes: granted ? PROVISIONAL_UNAUTHORIZATIONOPTION : 0];
             if (completionHandler)
                 completionHandler(granted);
         }];
