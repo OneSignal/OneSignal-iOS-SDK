@@ -2,12 +2,14 @@
   <img src="https://onesignal.com/assets/common/logo_onesignal_color.png"/>
 </p>
 
-### OneSignal iOS SDK
+### OneSignal iOS SDK (beta)
 [![CocoaPods](https://img.shields.io/cocoapods/v/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![CocoaPods](https://img.shields.io/cocoapods/dm/OneSignal.svg)](https://cocoapods.org/pods/OneSignal) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage) [![Build Status](https://travis-ci.org/OneSignal/OneSignal-iOS-SDK.svg?branch=master)](https://travis-ci.org/OneSignal/OneSignal-iOS-SDK)
 
 ---
 
 [OneSignal](https://www.onesignal.com) is a free push notification service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
+
+This branch contains code for the iOS 12 beta.
 
 ![alt text](https://onesignal.com/images/ios_10_notification_image.gif)
 

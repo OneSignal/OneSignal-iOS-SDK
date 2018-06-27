@@ -47,4 +47,8 @@
 +(void) fireLastRequestAuthorizationWithGranted:(BOOL)granted;
 
 + (void)failIfInNotificationSettingsWithCompletionHandler;
+
++(void)setShouldSetProvisionalAuthorizationStatus:(BOOL)provisional;
+
++ (UNAuthorizationOptions)lastRequestedAuthorizationOptions;
 @end

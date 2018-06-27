@@ -428,6 +428,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [OneSignalTracker onFocus:false];
     
+    [UnitTestCommonMethods runBackgroundThreads];
+    
     [OneSignalTracker setLastOpenedTime:now - 4000];
     
     [OneSignalTracker onFocus:true];
@@ -460,6 +462,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignalTracker setLastOpenedTime:now - 4000];
     
     [OneSignalTracker onFocus:false];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [OneSignalTracker setLastOpenedTime:now - 4000];
     

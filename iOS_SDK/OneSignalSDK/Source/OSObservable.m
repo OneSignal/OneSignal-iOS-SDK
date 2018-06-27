@@ -79,8 +79,9 @@ SEL changeSelector;
                 
                 [self callObserver:observer withSelector:changeSelector withState:state];
                 
-            } else
+            } else {
                 [observer onChanged:state];
+            }
         }
     }
     
