@@ -1996,7 +1996,7 @@ didReceiveRemoteNotification:userInfo
     [self registerForPushNotifications];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    [self answerNotifiationPrompt:false];
+    [UnitTestCommonMethods answerNotificationPrompt:false];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.to.accepted, false);
