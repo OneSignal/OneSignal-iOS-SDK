@@ -29,6 +29,7 @@
 #import "Requests.h"
 #import "OneSignalRequest.h"
 #import "OneSignalHelper.h"
+#import "OneSignalCommonDefines.h"
 #import <stdlib.h>
 #import <stdio.h>
 #import <sys/types.h>
@@ -48,6 +49,12 @@
 }
 @end
 
+/*
+     NOTE: The OSRequestGetIosParams request will not return a Cache-Control header
+     this means that, by default, NSURLSession would cache the result
+     Since we do not want the parameters to be cached, we explicitly
+     disable this behavior using disableLocalCaching
+ */
 @implementation OSRequestGetIosParams
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId {
     let request = [OSRequestGetIosParams new];
@@ -58,6 +65,7 @@
     
     request.method = GET;
     request.path = [NSString stringWithFormat:@"apps/%@/ios_params.js", appId];
+    request.disableLocalCaching = true;
     
     return request;
 }
