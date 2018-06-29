@@ -113,12 +113,12 @@ static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Dire
         
         NSMutableDictionary *parameters = [request.parameters mutableCopy];
         
-        if (!parameters[@"app_id"] && ![request.request.URL.absoluteString containsString:@"/apps/"])
+        if (!parameters[@"app_id"] && ![request.urlRequest.URL.absoluteString containsString:@"/apps/"])
             _XCTPrimitiveFail(currentTestInstance, @"All request should include an app_id");
         
         networkRequestCount++;
         
-        id url = [request.request URL];
+        id url = [request.urlRequest URL];
         NSLog(@"url: %@", url);
         NSLog(@"parameters: %@", parameters);
         

@@ -112,7 +112,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@?app_id=%@", testUserId, testAppId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
 }
 
 - (void)testBuildGetIosParams {
@@ -120,7 +120,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"apps/%@/ios_params.js?player_id=%@", testAppId, testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
 }
 
 - (void)testBuildPostNotification {
@@ -128,9 +128,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath(@"notifications");
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId}));
 }
 
 - (void)testSendTags {
@@ -138,9 +138,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId, @"tags" : @{}, @"net_type" : @0}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"tags" : @{}, @"net_type" : @0}));
 }
 
 - (void)testUpdateDeviceToken {
@@ -148,9 +148,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId, @"email" : testEmailAddress, @"notification_types" : @0, @"identifier" : @"test_device_token", @"parent_player_id" : @"test_parent_id"}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"email" : testEmailAddress, @"notification_types" : @0, @"identifier" : @"test_device_token", @"parent_player_id" : @"test_parent_id"}));
 }
 
 - (void)testCreateDevice {
@@ -158,9 +158,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath(@"players");
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId, @"device_type" : @0, @"identifier" : testEmailAddress, @"email_auth_hash" : [NSNull null], @"device_player_id" : testUserId}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"device_type" : @0, @"identifier" : testEmailAddress, @"email_auth_hash" : [NSNull null], @"device_player_id" : testUserId}));
 }
 
 - (void)testLogoutEmail {
@@ -168,9 +168,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/email_logout", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"parent_player_id" : testEmailUserId, @"email_auth_hash" : [NSNull null], @"app_id" : testAppId}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"parent_player_id" : testEmailUserId, @"email_auth_hash" : [NSNull null], @"app_id" : testAppId}));
 }
 
 - (void)testUpdateNotificationTypes {
@@ -178,9 +178,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId, @"notification_types" : @0}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"notification_types" : @0}));
 }
 
 - (void)testSendPurchases {
@@ -188,15 +188,15 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_purchase", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:standardRequest.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:standardRequest.urlRequest.URL.absoluteString]);
     
     let emailRequest = [OSRequestSendPurchases withUserId:testUserId emailAuthToken:@"email_auth_token" appId:testAppId withPurchases:@[]];
     
-    XCTAssertTrue([correctUrl isEqualToString:emailRequest.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:emailRequest.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(standardRequest.request.HTTPBody, @{@"app_id" : testAppId, @"purchases" : @[]}));
+    XCTAssertTrue(checkHttpBody(standardRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"purchases" : @[]}));
     
-    XCTAssertTrue(checkHttpBody(emailRequest.request.HTTPBody, @{@"app_id" : testAppId, @"purchases" : @[], @"email_auth_hash" : @"email_auth_token"}));
+    XCTAssertTrue(checkHttpBody(emailRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"purchases" : @[], @"email_auth_hash" : @"email_auth_token"}));
 }
 
 - (void)testSubmitNotificationOpened {
@@ -204,9 +204,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"notifications/%@", testMessageId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"opened" : @1}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"opened" : @1}));
 }
 
 - (void)testRegisterUser {
@@ -214,9 +214,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_session", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"test_key" : @"test_value"}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"test_key" : @"test_value"}));
 }
 
 - (void)testSyncHashedEmail {
@@ -228,9 +228,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId, @"em_m" : md5Hash, @"em_s" : sha1Hash, @"net_type" : @1}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"em_m" : md5Hash, @"em_s" : sha1Hash, @"net_type" : @1}));
 }
 
 - (void)testSendLocation {
@@ -245,9 +245,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.request.HTTPBody, @{@"app_id" : testAppId, @"lat" : @3.0, @"long" : @4.0, @"loc_acc_vert" : @1.0, @"loc_acc" : @2.0, @"net_type" : @0, @"loc_bg" : @1}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"lat" : @3.0, @"long" : @4.0, @"loc_acc_vert" : @1.0, @"loc_acc" : @2.0, @"net_type" : @0, @"loc_bg" : @1}));
 }
 
 - (void)testOnFocus {
@@ -255,17 +255,17 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:firstRequest.request.URL.absoluteString]);
+    XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
     
     let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId state:@"test_state" type:@1 activeTime:@2 netType:@3 emailAuthToken:nil];
     
     let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
     
-    XCTAssertTrue([secondCorrectUrl isEqualToString:secondRequest.request.URL.absoluteString]);
+    XCTAssertTrue([secondCorrectUrl isEqualToString:secondRequest.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(firstRequest.request.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0}));
+    XCTAssertTrue(checkHttpBody(firstRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0}));
     
-    XCTAssertTrue(checkHttpBody(secondRequest.request.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3}));
+    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3}));
 }
 
 
