@@ -114,7 +114,8 @@
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     if (request.method != GET && [OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
-        failureBlock([NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", NSStringFromClass(request.class)]}]);
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", NSStringFromClass(request.class)]}]);
         return;
     }
     
@@ -169,8 +170,10 @@
     let errorDescription = [NSString stringWithFormat:@"HTTP Request (%@) must contain app_id parameter", NSStringFromClass([request class])];
     
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorDescription];
-    
-    failureBlock([NSError errorWithDomain:@"OneSignalError" code:-1 userInfo:@{@"error" : errorDescription}]);
+    if (failureBlock)
+        failureBlock([NSError errorWithDomain:@"OneSignalError" code:-1 userInfo:@{@"error" : errorDescription}]);
+    else
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered a networking error: %@", errorDescription]];
 }
 
 - (BOOL)validRequest:(OneSignalRequest *)request {
@@ -242,7 +245,7 @@
         innerJson = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"network response (%@): %@", NSStringFromClass([request class]), innerJson]];
         if (jsonError) {
-            if (failureBlock != nil)
+            if (failureBlock)
                 failureBlock([NSError errorWithDomain:@"OneSignal Error" code:statusCode userInfo:@{@"returned" : jsonError}]);
             return;
         }
@@ -251,17 +254,14 @@
     if ([self willReattemptRequest:(int)statusCode withRequest:request success:successBlock failure:failureBlock asyncRequest:async])
         return;
     
-    if (error == nil && statusCode == 200) {
-        if (successBlock != nil) {
-            if (innerJson != nil)
-                successBlock(innerJson);
-            else
-                successBlock(nil);
+    if (!error && statusCode == 200) {
+        if (successBlock) {
+            successBlock(innerJson);
         }
-    } else if (failureBlock != nil) {
-        if (innerJson != nil && error == nil)
+    } else if (failureBlock) {
+        if (innerJson && !error)
             failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson}]);
-        else if (error != nil)
+        else if (error)
             failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"error" : error}]);
         else
             failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:nil]);
