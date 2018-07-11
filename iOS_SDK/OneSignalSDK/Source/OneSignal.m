@@ -668,8 +668,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                 delayedEmailParameters = nil;
             }
         }
-        
-        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != [NSNull null] && [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
             let defaults = [NSUserDefaults standardUserDefaults];
             
             [defaults setObject:@true forKey:USES_PROVISIONAL_AUTHORIZATION];
