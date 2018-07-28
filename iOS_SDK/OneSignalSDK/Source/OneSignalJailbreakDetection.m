@@ -26,58 +26,33 @@
 
 #import "OneSignalJailbreakDetection.h"
 
+#import "OneSignalCommonDefines.h"
+
 @implementation OneSignalJailbreakDetection
 
 + (BOOL)isJailbroken {
     
 #if !(TARGET_IPHONE_SIMULATOR)
     
-    FILE *file = fopen("/Applications/Cydia.app", "r");
-    if (file) {
-        fclose(file);
-        return YES;
-    }
-    file = fopen("/Library/MobileSubstrate/MobileSubstrate.dylib", "r");
-    if (file) {
-        fclose(file);
-        return YES;
-    }
-
-    file = fopen("/bin/bash", "r");
-    if (file) {
-        fclose(file);
-        return YES;
-    }
-    file = fopen("/usr/sbin/sshd", "r");
-    if (file) {
-        fclose(file);
-        return YES;
-    }
-    file = fopen("/etc/apt", "r");
-    if (file) {
-        fclose(file);
-        return YES;
-    }
-    file = fopen("/usr/bin/ssh", "r");
-    if (file) {
-        fclose(file);
-        return YES;
+    // checks filesystem to see if signature
+    // files present in most jailbroken installations
+    // are present
+    
+    for (NSString *path in JAILBREAK_SIGNATURE_FILES) {
+        FILE *file = fopen(path.UTF8String, "r");
+        if (file) {
+            fclose(file);
+            return YES;
+        }
     }
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    if ([fileManager fileExistsAtPath:@"/Applications/Cydia.app"])
-        return YES;
-    else if ([fileManager fileExistsAtPath:@"/Library/MobileSubstrate/MobileSubstrate.dylib"])
-        return YES;
-    else if ([fileManager fileExistsAtPath:@"/bin/bash"])
-        return YES;
-    else if ([fileManager fileExistsAtPath:@"/usr/sbin/sshd"])
-        return YES;
-    else if ([fileManager fileExistsAtPath:@"/etc/apt"])
-        return YES;
-    else if ([fileManager fileExistsAtPath:@"/usr/bin/ssh"])
-        return YES;
+    for (NSString *path in JAILBREAK_SIGNATURE_FILES) {
+        if ([fileManager fileExistsAtPath:path]) {
+            return YES;
+        }
+    }
     
     // Omit logic below since they show warnings in the device log on iOS 9 devices.
     if (NSFoundationVersionNumber > 1144.17) // NSFoundationVersionNumber_iOS_8_4
