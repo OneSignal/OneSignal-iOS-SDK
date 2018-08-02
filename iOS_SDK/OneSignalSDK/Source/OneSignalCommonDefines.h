@@ -81,4 +81,13 @@
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
+// OneSignal API Client Defines
+typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
+
+#define REATTEMPT_DELAY 30.0
+#define REQUEST_TIMEOUT_REQUEST 60.0 //for most HTTP requests
+#define REQUEST_TIMEOUT_RESOURCE 100.0 //for loading a resource like an image
+#define MAX_ATTEMPT_COUNT 3
+#define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
+
 #endif /* OneSignalCommonDefines_h */

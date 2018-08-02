@@ -1733,7 +1733,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssert([request.parameters[@"tags"][@"tag1"] isEqualToString:@"test1"]);
     XCTAssert([request.path isEqualToString:@"players/12345"]);
     
-    let urlRequest = request.request;
+    let urlRequest = request.urlRequest;
     
     XCTAssert([urlRequest.URL.absoluteString isEqualToString:serverUrlWithPath(@"players/12345")]);
     XCTAssert([urlRequest.HTTPMethod isEqualToString:@"PUT"]);
@@ -1749,7 +1749,7 @@ didReceiveRemoteNotification:userInfo
     
     let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
     
-    let urlRequest = request.request;
+    let urlRequest = request.urlRequest;
     
     XCTAssertNil(urlRequest.HTTPBody);
     
