@@ -108,7 +108,12 @@
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     if (request.method != GET && [OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
-        failureBlock([NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", NSStringFromClass(request.class)]}]);
+        if (failureBlock) {
+            failureBlock([NSError errorWithDomain:@"OneSignal Error" code:0
+                    userInfo:@{@"error" : [NSString stringWithFormat:
+                                    @"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", NSStringFromClass(request.class)]}]);
+        }
+        
         return;
     }
     
@@ -156,7 +161,8 @@
     
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorDescription];
     
-    failureBlock([NSError errorWithDomain:@"OneSignalError" code:-1 userInfo:@{@"error" : errorDescription}]);
+    if (failureBlock)
+        failureBlock([NSError errorWithDomain:@"OneSignalError" code:-1 userInfo:@{@"error" : errorDescription}]);
 }
 
 - (BOOL)validRequest:(OneSignalRequest *)request {
