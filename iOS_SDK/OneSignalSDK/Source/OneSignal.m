@@ -69,20 +69,6 @@
 #import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
 
-#define NOTIFICATION_TYPE_NONE 0
-#define NOTIFICATION_TYPE_BADGE 1
-#define NOTIFICATION_TYPE_SOUND 2
-#define NOTIFICATION_TYPE_ALERT 4
-#define NOTIFICATION_TYPE_ALL 7
-
-#define ERROR_PUSH_CAPABLILITY_DISABLED    -13
-#define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
-#define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
-#define ERROR_PUSH_UNKNOWN_APNS_ERROR      -16
-#define ERROR_PUSH_OTHER_3000_ERROR        -17
-#define ERROR_PUSH_NEVER_PROMPTED          -18
-#define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -414,7 +400,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     let success = [self initAppId:appId
                  withUserDefaults:userDefaults
-                     withSettings:settings];
+                        withSettings:settings];
     
     if (!success)
         return self;
@@ -423,6 +409,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
        [OneSignalLocation getLocation:false];
     
     if (self) {
+        
+        // init can be called multiple times by wrapper SDK's
+        [self cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkRegistrationStatus) object:nil];
+        
+        // Ensure that even if APNS does not respond, the user
+        // is still registered with OneSignal
+        [self performSelector:@selector(checkRegistrationStatus) withObject:nil afterDelay:REGISTRATION_DELAY_SECONDS];
+        
         [OneSignal checkIfApplicationImplementsDeprecatedMethods];
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
@@ -483,7 +477,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                 if (state.answeredPrompt)
                     [self registerUser];
                 else
-                    [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
+                    [self performSelector:@selector(registerUser) withObject:nil afterDelay:REGISTRATION_DELAY_SECONDS];
             }];
         }
     }
@@ -555,6 +549,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
     return true;
+}
+
++ (void)checkRegistrationStatus {
+    if (waitingForApnsResponse && !waitingForOneSReg && !self.currentSubscriptionState.userId) {
+        //user is not registered and APNS has not responded - we should register anyways.
+        
+        [self registerUserInternal];
+    }
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
@@ -1297,7 +1299,7 @@ static BOOL waitingForOneSReg = false;
 
 + (void)registerUserAfterDelay {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:30.0f];
+    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:REGISTRATION_DELAY_SECONDS];
 }
 
 static dispatch_queue_t serialQueue;
