@@ -1959,6 +1959,9 @@ static NSString *_lastnonActiveMessageId;
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     
+    if (![OneSignalHelper isOneSignalPayload:request.content.userInfo])
+        return replacementContent;
+    
     return [OneSignalNotificationServiceExtensionHandler
             didReceiveNotificationExtensionRequest:request
             withMutableNotificationContent:replacementContent];
@@ -1967,6 +1970,10 @@ static NSString *_lastnonActiveMessageId;
 
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    
+    if (![OneSignalHelper isOneSignalPayload:request.content.userInfo])
+        return replacementContent;
+    
     return [OneSignalNotificationServiceExtensionHandler
             serviceExtensionTimeWillExpireRequest:request
             withMutableNotificationContent:replacementContent];

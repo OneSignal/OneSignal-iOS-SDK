@@ -2007,4 +2007,16 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"gif"]);
 }
 
+- (void)testNonOneSignalNotificationWithExtensionService {
+    let request = [UnitTestCommonMethods nonOneSignalRequest];
+    
+    UNMutableNotificationContent *mutableContent = [request.content mutableCopy];
+
+    [OneSignal didReceiveNotificationExtensionRequest:request withMutableNotificationContent:mutableContent];
+
+    // since this is not a OneSignal notification,
+    // attachments should not be added.
+    XCTAssert(mutableContent.attachments.count == 0);
+}
+
 @end

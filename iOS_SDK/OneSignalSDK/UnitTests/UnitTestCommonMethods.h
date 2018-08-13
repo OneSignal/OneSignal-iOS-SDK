@@ -40,6 +40,7 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)beforeAllTest;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
++ (UNNotificationRequest *)nonOneSignalRequest;
 
 @end
 

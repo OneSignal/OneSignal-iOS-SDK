@@ -176,6 +176,32 @@ NSString * serverUrlWithPath(NSString *path) {
     [sharedApp.delegate applicationDidBecomeActive:sharedApp];
 }
 
++ (UNNotificationRequest *)nonOneSignalRequest {
+    let userInfo = @{
+                     @"aps": @{
+                             @"mutable-content": @1,
+                             @"alert": @{
+                                     @"body": @"Message Body",
+                                     @"title": @"title"
+                                     }
+                             },
+                     @"os_data" : @{
+                             @"att": @{
+                                     @"id": @"https://www.onesignal.com/test.png"
+                                     }
+                             }
+                     };
+    
+    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    content.userInfo = userInfo;
+    
+    UNNotificationRequest *request = [UNNotificationRequest alloc];
+    [request setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
+    [request setValue:content forKey:@"content"];
+    
+    return request;
+}
+
 @end
 
 
