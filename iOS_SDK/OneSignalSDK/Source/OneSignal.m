@@ -157,6 +157,8 @@ DelayedInitializationParameters *delayedInitParameters;
 
 //used to ensure registration occurs even if APNS does not respond
 static NSDate *initializationTime;
+static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
+static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
 
 //the iOS Native SDK will use the plist flag to enable privacy consent
 //however wrapper SDK's will use a method call before initialization
@@ -340,6 +342,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     waitingForApnsResponse = value;
 }
 
+// Used for testing purposes to decrease the amount of time the
+// SDK will spend waiting for a response from APNS before it
+// gives up and registers with OneSignal anyways
++ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay {
+    reattemptRegistrationInterval = registrationDelay;
+    maxApnsWait = apnsMaxWait;
+}
+
 + (void)clearStatics {
     app_id = nil;
     _osNotificationSettings = nil;
@@ -357,6 +367,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     _permissionStateChangesObserver = nil;
     
     didCallDownloadParameters = false;
+    
+    maxApnsWait = APNS_TIMEOUT;
+    reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
 }
 
 // Set to false as soon as it's read.
@@ -1219,7 +1232,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // The goal is to only have 1 server call.
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
             if (status.answeredPrompt)
-                [OneSignal registerUser];
+                [self registerUser];
             else {
                 [self registerUserAfterDelay];
             }
@@ -1292,7 +1305,7 @@ static BOOL waitingForOneSReg = false;
 
 + (void)registerUserAfterDelay {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:REGISTRATION_DELAY_SECONDS];
+    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
 }
 
 static dispatch_queue_t serialQueue;
@@ -1309,7 +1322,7 @@ static dispatch_queue_t serialQueue;
     // We should delay registration if we are waiting on APNS
     // But if APNS hasn't responded within 30 seconds,
     // we should continue and register the user.
-    if (waitingForApnsResponse && initializationTime && [[NSDate date] timeIntervalSinceDate:initializationTime] < APNS_TIMEOUT) {
+    if (waitingForApnsResponse && initializationTime && [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait) {
         [self registerUserAfterDelay];
         return;
     }

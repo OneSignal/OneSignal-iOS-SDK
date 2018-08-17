@@ -2007,4 +2007,48 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"gif"]);
 }
 
+//integration test that makes sure that if APNS doesn't respond within a certain
+//window of time, the SDK will register the user with onesignal anyways.
+- (void)testRegistersAfterNoApnsResponse {
+    
+    // simulates no response from APNS
+    [UIApplicationOverrider setBlockApnsResponse:true];
+    
+    // Normally the SDK would wait at least 25 seconds to get a response
+    // and 30 seconds between registration attempts.
+    // This would be too long for a test, so we artificially set the
+    // delay times to be very very short.
+    [OneSignal setDelayIntervals:0.001f withRegistrationDelay:0.002f];
+    
+    // add the subscription observer
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    // create an expectation
+    XCTestExpectation *expectation = [self expectationWithDescription:@"onesignal_registration_wait"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    // do not answer the prompt (apns will not respond)
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    
+    [OneSignal initWithLaunchOptions:nil
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // wait for the registration to be re-attempted.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    // If APNS didn't respond within X seconds, the SDK
+    // should have registered the user with OneSignal
+    // and should have a user ID
+    XCTAssertTrue(observer->last.to.userId != nil);
+}
+
 @end
