@@ -155,6 +155,9 @@ static BOOL promptBeforeOpeningPushURLs = false;
 static BOOL delayedInitializationForPrivacyConsent = false;
 DelayedInitializationParameters *delayedInitParameters;
 
+//used to ensure registration occurs even if APNS does not respond
+static NSDate *initializationTime;
+
 //the iOS Native SDK will use the plist flag to enable privacy consent
 //however wrapper SDK's will use a method call before initialization
 //this boolean flag is switched on to enable this behavior
@@ -384,6 +387,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
     NSLog(@"Called init with app ID: %@", appId);
     
+    initializationTime = [NSDate date];
+    
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
     //the app ID is required to download parameters, so do not download params until the appID is provided
     if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
@@ -409,14 +414,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
        [OneSignalLocation getLocation:false];
     
     if (self) {
-        
-        // init can be called multiple times by wrapper SDK's
-        [self cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkRegistrationStatus) object:nil];
-        
-        // Ensure that even if APNS does not respond, the user
-        // is still registered with OneSignal
-        [self performSelector:@selector(checkRegistrationStatus) withObject:nil afterDelay:REGISTRATION_DELAY_SECONDS];
-        
         [OneSignal checkIfApplicationImplementsDeprecatedMethods];
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
@@ -470,14 +467,17 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                 self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
         }
 
+        
         if (self.currentSubscriptionState.userId)
             [self registerUser];
         else {
             [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-                if (state.answeredPrompt)
+                
+                if (state.answeredPrompt) {
                     [self registerUser];
-                else
-                    [self performSelector:@selector(registerUser) withObject:nil afterDelay:REGISTRATION_DELAY_SECONDS];
+                } else {
+                    [self registerUserAfterDelay];
+                }
             }];
         }
     }
@@ -549,14 +549,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
     
     return true;
-}
-
-+ (void)checkRegistrationStatus {
-    if (waitingForApnsResponse && !waitingForOneSReg && !self.currentSubscriptionState.userId) {
-        //user is not registered and APNS has not responded - we should register anyways.
-        
-        [self registerUserInternal];
-    }
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
@@ -1228,8 +1220,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
             if (status.answeredPrompt)
                 [OneSignal registerUser];
-            else
+            else {
                 [self registerUserAfterDelay];
+            }
         }];
         return;
     }
@@ -1309,12 +1302,14 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUser {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (waitingForApnsResponse) {
+    // We should delay registration if we are waiting on APNS
+    // But if APNS hasn't responded within 30 seconds,
+    // we should continue and register the user.
+    if (waitingForApnsResponse && initializationTime && [[NSDate date] timeIntervalSinceDate:initializationTime] < APNS_TIMEOUT) {
         [self registerUserAfterDelay];
         return;
     }

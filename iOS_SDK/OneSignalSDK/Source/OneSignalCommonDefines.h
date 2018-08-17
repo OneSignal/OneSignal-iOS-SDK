@@ -82,4 +82,8 @@
 // Registration delay
 #define REGISTRATION_DELAY_SECONDS 30.0
 
+// How long the SDK will wait for APNS to respond
+// before registering the user anyways
+#define APNS_TIMEOUT 25.0
+
 #endif /* OneSignalCommonDefines_h */
