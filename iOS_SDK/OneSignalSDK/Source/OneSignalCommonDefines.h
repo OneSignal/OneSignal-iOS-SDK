@@ -64,4 +64,26 @@
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
+// Notification types
+#define NOTIFICATION_TYPE_NONE 0
+#define NOTIFICATION_TYPE_BADGE 1
+#define NOTIFICATION_TYPE_SOUND 2
+#define NOTIFICATION_TYPE_ALERT 4
+#define NOTIFICATION_TYPE_ALL 7
+
+#define ERROR_PUSH_CAPABLILITY_DISABLED    -13
+#define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
+#define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
+#define ERROR_PUSH_UNKNOWN_APNS_ERROR      -16
+#define ERROR_PUSH_OTHER_3000_ERROR        -17
+#define ERROR_PUSH_NEVER_PROMPTED          -18
+#define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
+
+// Registration delay
+#define REGISTRATION_DELAY_SECONDS 30.0
+
+// How long the SDK will wait for APNS to respond
+// before registering the user anyways
+#define APNS_TIMEOUT 25.0
+
 #endif /* OneSignalCommonDefines_h */

@@ -31,6 +31,8 @@
 @interface UIApplicationOverrider : NSObject
 +(void)reset;
 
++(void)setBlockApnsResponse:(BOOL)block;
+
 +(void)setCurrentUIApplicationState:(UIApplicationState)value;
 
 +(UILocalNotification*)lastUILocalNotification;

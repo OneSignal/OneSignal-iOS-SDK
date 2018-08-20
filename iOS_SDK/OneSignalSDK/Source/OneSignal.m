@@ -69,20 +69,6 @@
 #import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
 
-#define NOTIFICATION_TYPE_NONE 0
-#define NOTIFICATION_TYPE_BADGE 1
-#define NOTIFICATION_TYPE_SOUND 2
-#define NOTIFICATION_TYPE_ALERT 4
-#define NOTIFICATION_TYPE_ALL 7
-
-#define ERROR_PUSH_CAPABLILITY_DISABLED    -13
-#define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
-#define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
-#define ERROR_PUSH_UNKNOWN_APNS_ERROR      -16
-#define ERROR_PUSH_OTHER_3000_ERROR        -17
-#define ERROR_PUSH_NEVER_PROMPTED          -18
-#define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -168,6 +154,11 @@ static BOOL promptBeforeOpeningPushURLs = false;
 
 static BOOL delayedInitializationForPrivacyConsent = false;
 DelayedInitializationParameters *delayedInitParameters;
+
+//used to ensure registration occurs even if APNS does not respond
+static NSDate *initializationTime;
+static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
+static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
 
 //the iOS Native SDK will use the plist flag to enable privacy consent
 //however wrapper SDK's will use a method call before initialization
@@ -351,6 +342,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     waitingForApnsResponse = value;
 }
 
+// Used for testing purposes to decrease the amount of time the
+// SDK will spend waiting for a response from APNS before it
+// gives up and registers with OneSignal anyways
++ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay {
+    reattemptRegistrationInterval = registrationDelay;
+    maxApnsWait = apnsMaxWait;
+}
+
 + (void)clearStatics {
     app_id = nil;
     _osNotificationSettings = nil;
@@ -368,6 +367,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     _permissionStateChangesObserver = nil;
     
     didCallDownloadParameters = false;
+    
+    maxApnsWait = APNS_TIMEOUT;
+    reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
 }
 
 // Set to false as soon as it's read.
@@ -398,6 +400,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
     NSLog(@"Called init with app ID: %@", appId);
     
+    initializationTime = [NSDate date];
+    
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
     //the app ID is required to download parameters, so do not download params until the appID is provided
     if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
@@ -414,7 +418,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     let success = [self initAppId:appId
                  withUserDefaults:userDefaults
-                     withSettings:settings];
+                        withSettings:settings];
     
     if (!success)
         return self;
@@ -476,14 +480,17 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
                 self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
         }
 
+        
         if (self.currentSubscriptionState.userId)
             [self registerUser];
         else {
             [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-                if (state.answeredPrompt)
+                
+                if (state.answeredPrompt) {
                     [self registerUser];
-                else
-                    [self performSelector:@selector(registerUser) withObject:nil afterDelay:30.0f];
+                } else {
+                    [self registerUserAfterDelay];
+                }
             }];
         }
     }
@@ -1225,9 +1232,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         // The goal is to only have 1 server call.
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
             if (status.answeredPrompt)
-                [OneSignal registerUser];
-            else
+                [self registerUser];
+            else {
                 [self registerUserAfterDelay];
+            }
         }];
         return;
     }
@@ -1297,7 +1305,7 @@ static BOOL waitingForOneSReg = false;
 
 + (void)registerUserAfterDelay {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:30.0f];
+    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
 }
 
 static dispatch_queue_t serialQueue;
@@ -1307,12 +1315,14 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUser {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (waitingForApnsResponse) {
+    // We should delay registration if we are waiting on APNS
+    // But if APNS hasn't responded within 30 seconds,
+    // we should continue and register the user.
+    if (waitingForApnsResponse && initializationTime && [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait) {
         [self registerUserAfterDelay];
         return;
     }

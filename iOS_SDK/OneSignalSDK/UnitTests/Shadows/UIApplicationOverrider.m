@@ -45,7 +45,10 @@ static UILocalNotification* lastUILocalNotification;
 
 static UIUserNotificationSettings* lastUIUserNotificationSettings;
 
-static BOOL pendingRegiseterBlock;
+static BOOL pendingRegisterBlock;
+
+//mimics no response from APNS
+static BOOL blockApnsResponse;
 
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
@@ -58,8 +61,9 @@ static BOOL pendingRegiseterBlock;
 }
 
 +(void)reset {
+    blockApnsResponse = false;
     lastUILocalNotification = nil;
-    pendingRegiseterBlock = false;
+    pendingRegisterBlock = false;
     shouldFireDeviceToken = true;
     calledRegisterForRemoteNotifications = false;
     calledCurrentUserNotificationSettings = false;
@@ -87,6 +91,10 @@ static BOOL pendingRegiseterBlock;
     didFailRegistarationErrorCode = value;
 }
 
++(void)setBlockApnsResponse:(BOOL)block {
+    blockApnsResponse = true;
+}
+
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
 - (void) override_run {
     NSLog(@"override_run!!!!!!");
@@ -106,15 +114,15 @@ static BOOL pendingRegiseterBlock;
         if (!shouldFireDeviceToken)
             return;
         
-        pendingRegiseterBlock = true;
+        pendingRegisterBlock = true;
     });
 }
 
 // callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken
 + (void)runBackgroundThreads {
-    if (!pendingRegiseterBlock || currentUIApplicationState != UIApplicationStateActive)
+    if (!pendingRegisterBlock || currentUIApplicationState != UIApplicationStateActive || blockApnsResponse)
         return;
-    pendingRegiseterBlock = false;
+    pendingRegisterBlock = false;
     
     id app = [UIApplication sharedApplication];
     id appDelegate = [[UIApplication sharedApplication] delegate];
