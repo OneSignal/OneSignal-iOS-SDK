@@ -81,6 +81,8 @@
 
 #import "DummyNotificationCenterDelegate.h"
 
+#import "NSDictionary+OneSignal.h"
+
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
@@ -2049,6 +2051,43 @@ didReceiveRemoteNotification:userInfo
     // should have registered the user with OneSignal
     // and should have a user ID
     XCTAssertTrue(observer->last.to.userId != nil);
+}
+
+#pragma mark Collection Categories
+
+- (void)testDictionaryByRemovingNullValues {
+    let dictionary = @{
+       @"test_value" : [NSNull null],
+       @"test_nonnull_value" : @"value",
+       @"test_number" : @1,
+       @"test_array" : @[@1, @2, [NSNull null], @3]
+    };
+    
+    let nonnullDictionary = [dictionary os_dictionaryByRemovingNullValues];
+    
+    XCTAssertNil(nonnullDictionary[@"test_value"]);
+    XCTAssertEqualObjects(nonnullDictionary[@"test_nonnull_value"], @"value");
+    XCTAssertEqualObjects(nonnullDictionary[@"test_number"], @1);
+    XCTAssertEqual(((NSArray *)nonnullDictionary[@"test_array"]).count, 3);
+}
+
+- (void)testGetNumberForKey {
+    let dictionary = @{
+       @"key" : @2,
+       @"test" : @"value"
+    };
+    
+    XCTAssertEqualObjects([dictionary os_numberForKey:@"key"], @2);
+    XCTAssertNil([dictionary os_numberForKey:@"test"]);
+}
+
+- (void)testGetURLForKey {
+    let dictionary = @{
+       @"key" : @"https://www.google.com"
+    };
+    
+    XCTAssertEqualObjects([dictionary os_urlForKey:@"key"].absoluteString, @"https://www.google.com");
+    XCTAssertNil([dictionary os_urlForKey:@"test"]);
 }
 
 @end

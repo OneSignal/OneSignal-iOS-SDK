@@ -161,6 +161,14 @@
 		CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB411AE208931EE005A70D1 /* DummyNotificationCenterDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */; };
+		CAE26C6B212CB0CB00F88F72 /* NSArray+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CAE26C67212CB0CB00F88F72 /* NSArray+OneSignal.h */; };
+		CAE26C6C212CB0CB00F88F72 /* NSArray+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE26C68212CB0CB00F88F72 /* NSArray+OneSignal.m */; };
+		CAE26C6D212CB0CB00F88F72 /* NSArray+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE26C68212CB0CB00F88F72 /* NSArray+OneSignal.m */; };
+		CAE26C6E212CB0CB00F88F72 /* NSArray+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE26C68212CB0CB00F88F72 /* NSArray+OneSignal.m */; };
+		CAE26C6F212CB0CB00F88F72 /* NSDictionary+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CAE26C69212CB0CB00F88F72 /* NSDictionary+OneSignal.h */; };
+		CAE26C70212CB0CB00F88F72 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE26C6A212CB0CB00F88F72 /* NSDictionary+OneSignal.m */; };
+		CAE26C71212CB0CB00F88F72 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE26C6A212CB0CB00F88F72 /* NSDictionary+OneSignal.m */; };
+		CAE26C72212CB0CB00F88F72 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CAE26C6A212CB0CB00F88F72 /* NSDictionary+OneSignal.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
@@ -306,6 +314,10 @@
 		CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelayedInitializationParameters.m; sourceTree = "<group>"; };
 		CAB411AC208931EE005A70D1 /* DummyNotificationCenterDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DummyNotificationCenterDelegate.h; sourceTree = "<group>"; };
 		CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DummyNotificationCenterDelegate.m; sourceTree = "<group>"; };
+		CAE26C67212CB0CB00F88F72 /* NSArray+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+OneSignal.h"; sourceTree = "<group>"; };
+		CAE26C68212CB0CB00F88F72 /* NSArray+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+OneSignal.m"; sourceTree = "<group>"; };
+		CAE26C69212CB0CB00F88F72 /* NSDictionary+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+OneSignal.h"; sourceTree = "<group>"; };
+		CAE26C6A212CB0CB00F88F72 /* NSDictionary+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+OneSignal.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -513,6 +525,10 @@
 				9124120B1E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m */,
 				CA36A42A208FDEFB003EFA9A /* NSURL+OneSignal.h */,
 				CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */,
+				CAE26C67212CB0CB00F88F72 /* NSArray+OneSignal.h */,
+				CAE26C68212CB0CB00F88F72 /* NSArray+OneSignal.m */,
+				CAE26C69212CB0CB00F88F72 /* NSDictionary+OneSignal.h */,
+				CAE26C6A212CB0CB00F88F72 /* NSDictionary+OneSignal.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -583,6 +599,7 @@
 				91B6EA451E86555200B5CF01 /* OSObservable.h in Headers */,
 				912412351E73342200E41FD7 /* OneSignalTrackIAP.h in Headers */,
 				912412111E73342200E41FD7 /* OneSignalAlertViewDelegate.h in Headers */,
+				CAE26C6B212CB0CB00F88F72 /* NSArray+OneSignal.h in Headers */,
 				1AF75EB11E8569F60097B315 /* NSString+OneSignal.h in Headers */,
 				91C7725C1E7CA7A800D612D0 /* OneSignalNotificationSettingsIOS7.h in Headers */,
 				912412311E73342200E41FD7 /* OneSignalTracker.h in Headers */,
@@ -590,6 +607,7 @@
 				9124123D1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.h in Headers */,
 				CA63AFC22022670A00E340FB /* ReattemptRequest.h in Headers */,
 				9124121D1E73342200E41FD7 /* OneSignalJailbreakDetection.h in Headers */,
+				CAE26C6F212CB0CB00F88F72 /* NSDictionary+OneSignal.h in Headers */,
 				9129C6B71E89E59B009CB6A0 /* OSPermission.h in Headers */,
 				912412151E73342200E41FD7 /* OneSignalHelper.h in Headers */,
 				91F58D7F1E7C7F5F0017D24D /* OneSignalNotificationSettingsIOS10.h in Headers */,
@@ -743,6 +761,8 @@
 				CA08FC791FE99B13004C445F /* OneSignalRequest.m in Sources */,
 				912412471E73369600E41FD7 /* OneSignalHelper.m in Sources */,
 				9124122E1E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
+				CAE26C70212CB0CB00F88F72 /* NSDictionary+OneSignal.m in Sources */,
+				CAE26C6C212CB0CB00F88F72 /* NSArray+OneSignal.m in Sources */,
 				9124122A1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
 				91F58D7D1E7C7F330017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				9129C6B81E89E59B009CB6A0 /* OSPermission.m in Sources */,
@@ -783,6 +803,8 @@
 				CA08FC7A1FE99B13004C445F /* OneSignalRequest.m in Sources */,
 				912412481E73369700E41FD7 /* OneSignalHelper.m in Sources */,
 				9124122F1E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
+				CAE26C71212CB0CB00F88F72 /* NSDictionary+OneSignal.m in Sources */,
+				CAE26C6D212CB0CB00F88F72 /* NSArray+OneSignal.m in Sources */,
 				9124122B1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
 				0338566D1FBBDB190002F7C1 /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				91F58D841E7C88220017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
@@ -839,6 +861,7 @@
 				912412101E73342200E41FD7 /* OneSignal.m in Sources */,
 				9124122C1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
 				03389F691FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m in Sources */,
+				CAE26C72212CB0CB00F88F72 /* NSDictionary+OneSignal.m in Sources */,
 				CA08FC811FE99B25004C445F /* Requests.m in Sources */,
 				CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */,
 				CA08FC7B1FE99B13004C445F /* OneSignalRequest.m in Sources */,
@@ -859,6 +882,7 @@
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412141E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
+				CAE26C6E212CB0CB00F88F72 /* NSArray+OneSignal.m in Sources */,
 				CA63AFC52022670A00E340FB /* ReattemptRequest.m in Sources */,
 				4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */,
 				912412441E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
