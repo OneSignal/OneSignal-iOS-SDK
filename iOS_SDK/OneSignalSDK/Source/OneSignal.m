@@ -423,7 +423,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     if (!success)
         return self;
     
-    if (mShareLocation)
+    if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
     
     if (self) {
