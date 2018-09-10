@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
                BuildableName = "OneSignal.framework"
-               BlueprintName = "OneSignal-Dynamic"
+               BlueprintName = "OneSignal-Static-Framework"
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -47,7 +47,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
             BuildableName = "OneSignal.framework"
-            BlueprintName = "OneSignal-Dynamic"
+            BlueprintName = "OneSignal-Static-Framework"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -65,7 +65,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
             BuildableName = "OneSignal.framework"
-            BlueprintName = "OneSignal-Dynamic"
+            BlueprintName = "OneSignal-Static-Framework"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
