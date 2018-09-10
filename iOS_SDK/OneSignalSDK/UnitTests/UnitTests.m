@@ -2051,22 +2051,4 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue(observer->last.to.userId != nil);
 }
 
-// Regression test to ensure improper button JSON format
-// does not cause a crash (iOS SDK issue #401)
-- (void)testInvalidButtonFormat {
-    NSDictionary *newFormat = @{@"aps": @{
-                             @"mutable-content": @1,
-                             @"alert": @"Message Body"
-                             },
-                     @"os_data": @{
-                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-                             @"buttons": @[@{@"i": @"id1", @"title": @"text1"}],
-                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
-                             }};
-    
-    let notification = [OSNotificationPayload parseWithApns:newFormat];
-    
-    XCTAssertTrue(notification.actionButtons.count == 0);
-}
-
 @end

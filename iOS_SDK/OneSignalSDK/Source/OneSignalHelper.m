@@ -376,7 +376,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
         additionalData = nil;
     else if (remoteUserInfo[@"os_data"]) {
         [userInfo addEntriesFromDictionary:additionalData];
-        if (!is2dot4Format && userInfo[@"os_data"][@"buttons"])
+        if (!is2dot4Format)
             userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
     }
     
