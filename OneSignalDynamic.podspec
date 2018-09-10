@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
    s.name             = "OneSignalDynamic"
-   s.version          = "2.8.6"
+   s.version          = "2.8.8"
    s.summary          = "OneSignal push notification library for mobile apps."
    s.homepage         = "https://onesignal.com"
    s.license          = { :type => 'MIT', :file => 'LICENSE' }
@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
    
    s.source           = { :git => "https://github.com/OneSignal/OneSignal-iOS-SDK.git", :tag => s.version.to_s }
    
-   s.platform     = :ios
+   s.platform     = :ios, "8.0"
    s.requires_arc = true
    
    s.ios.vendored_frameworks = 'iOS_SDK/OneSignalSDK/Framework/Dynamic/OneSignal.framework'
