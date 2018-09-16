@@ -46,6 +46,7 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 @protected BOOL _answeredPrompt;
 }
 @property (readwrite, nonatomic) BOOL hasPrompted;
+@property (readwrite, nonatomic) BOOL providesAppNotificationSettings;
 @property (readwrite, nonatomic) BOOL answeredPrompt;
 @property (readwrite, nonatomic) BOOL accepted;
 @property (readwrite, nonatomic) BOOL provisional; //internal flag

@@ -60,6 +60,10 @@
 
 @property (class) OSPermissionState* currentPermissionState;
 
+// Indicates if the app provides its own custom Notification customization settings UI
+// To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
++ (BOOL)providesAppNotificationSettings;
+
 @end
 
 

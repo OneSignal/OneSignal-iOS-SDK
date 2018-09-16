@@ -110,6 +110,9 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 /* Determine whether to automatically open push notification URL's or prompt user for permission */
 NSString* const kOSSSettingsKeyPromptBeforeOpeningPushURL = @"kOSSSettingsKeyPromptBeforeOpeningPushURL";
 
+/* Used to determine if the app is able to present it's own customized Notification Settings view (iOS 12+) */
+NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKeyProvidesAppNotificationSettings";
+
 @implementation OSPermissionSubscriptionState
 - (NSString*)description {
     static NSString* format = @"<OSPermissionSubscriptionState:\npermissionStatus: %@,\nsubscriptionStatus: %@\n>";
@@ -167,7 +170,12 @@ static BOOL didCallDownloadParameters = false;
 
 static BOOL promptBeforeOpeningPushURLs = false;
 
+
+// Indicates if initialization of the SDK has been delayed until the user gives privacy consent
 static BOOL delayedInitializationForPrivacyConsent = false;
+
+// If initialization is delayed, this object holds params such as the app ID so that the init()
+// method can be called the moment the user provides privacy consent.
 DelayedInitializationParameters *delayedInitParameters;
 
 //the iOS Native SDK will use the plist flag to enable privacy consent
@@ -190,6 +198,8 @@ BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
+
+static BOOL providesAppNotificationSettings = false;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -457,6 +467,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         usesAutoPrompt = YES;
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
             usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
+        
+        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
+            providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
         if (usesAutoPrompt || registeredWithApple) {
@@ -744,6 +757,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
 }
 
+// iOS 12+ only
+// A boolean indicating if the app provides its own custom Notifications Settings UI
+// If this is set to TRUE via the kOSSettingsKeyProvidesAppNotificationSettings init
+// parameter, the SDK will request authorization from the User Notification Center
++ (BOOL)providesAppNotificationSettings {
+    return providesAppNotificationSettings;
+}
 
 // iOS 8+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {

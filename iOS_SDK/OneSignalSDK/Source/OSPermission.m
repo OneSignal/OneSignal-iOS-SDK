@@ -52,7 +52,7 @@
     _answeredPrompt = [userDefaults boolForKey:PERMISSION_ANSWERED_PROMPT];
     _accepted  = [userDefaults boolForKey:PERMISSION_ACCEPTED];
     _provisional = [userDefaults boolForKey:PERMISSION_PROVISIONAL_STATUS];
-    
+    _providesAppNotificationSettings = [userDefaults boolForKey:PERMISSION_PROVIDES_NOTIFICATION_SETTINGS];
     
     return self;
 }
@@ -64,6 +64,7 @@
     [userDefaults setBool:_answeredPrompt forKey:PERMISSION_ANSWERED_PROMPT];
     [userDefaults setBool:_accepted forKey:PERMISSION_ACCEPTED];
     [userDefaults setBool:_provisional forKey:PERMISSION_PROVISIONAL_STATUS];
+    [userDefaults setBool:_providesAppNotificationSettings forKey:PERMISSION_PROVIDES_NOTIFICATION_SETTINGS];
     
     [userDefaults synchronize];
 }
@@ -77,6 +78,7 @@
         copy->_answeredPrompt = _answeredPrompt;
         copy->_accepted = _accepted;
         copy->_provisional = _provisional;
+        copy->_providesAppNotificationSettings = _providesAppNotificationSettings;
     }
     
     return copy;
@@ -144,6 +146,10 @@
     _accepted = accepted;
     if (changed)
         [self.observable notifyChange:self];
+}
+
+- (void)setProvidesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
+    _providesAppNotificationSettings = providesAppNotificationSettings;
 }
 
 - (OSNotificationPermission)status {

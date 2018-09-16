@@ -51,11 +51,13 @@
 #define PERMISSION_ANSWERED_PROMPT @"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"
 #define PERMISSION_ACCEPTED @"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"
 #define PERMISSION_PROVISIONAL_STATUS @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"
+#define PERMISSION_PROVIDES_NOTIFICATION_SETTINGS @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
 // it indirectly with this macro
 #define PROVISIONAL_UNAUTHORIZATIONOPTION (UNAuthorizationOptions)(1 << 6)
+#define PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION (UNAuthorizationOptions)(1 << 5)
 
 // iOS Parameter Names
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"

@@ -130,6 +130,10 @@ static dispatch_queue_t serialQueue;
     
     UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     
+    if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0] && [OneSignal providesAppNotificationSettings]) {
+        options += PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION;
+    }
+    
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
     
