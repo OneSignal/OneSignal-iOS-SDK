@@ -55,7 +55,7 @@
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
-// it indirectly with this macro
+// it indirectly with these macros
 #define PROVISIONAL_UNAUTHORIZATIONOPTION (UNAuthorizationOptions)(1 << 6)
 #define PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION (UNAuthorizationOptions)(1 << 5)
 
