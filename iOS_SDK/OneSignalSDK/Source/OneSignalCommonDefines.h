@@ -86,4 +86,13 @@
 // before registering the user anyways
 #define APNS_TIMEOUT 25.0
 
+// OneSignal API Client Defines
+#define REATTEMPT_DELAY 30.0
+#define REQUEST_TIMEOUT_REQUEST 120.0 //for most HTTP requests
+#define REQUEST_TIMEOUT_RESOURCE 120.0 //for loading a resource like an image
+#define MAX_ATTEMPT_COUNT 3
+
+// A max timeout for a request, which might include multiple reattempts
+#define MAX_TIMEOUT ((REQUEST_TIMEOUT_REQUEST * MAX_ATTEMPT_COUNT) + (REATTEMPT_DELAY * MAX_ATTEMPT_COUNT)) * NSEC_PER_SEC
+
 #endif /* OneSignalCommonDefines_h */
