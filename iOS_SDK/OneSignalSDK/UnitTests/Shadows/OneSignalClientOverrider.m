@@ -49,6 +49,7 @@ static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
 static NSMutableArray<NSString *> *executedRequestTypes;
+static BOOL disableOverride = false;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -63,7 +64,14 @@ static NSMutableArray<NSString *> *executedRequestTypes;
     executedRequestTypes = [[NSMutableArray alloc] init];
 }
 
+// Calling this function twice results in reversing the swizzle
++ (void)disableExecuteRequestOverride:(BOOL)disable {
+    disableOverride = disable;
+}
+
 - (void)overrideExecuteSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
+    if (disableOverride)
+        return [self overrideExecuteSimultaneousRequests:requests withSuccess:successBlock onFailure:failureBlock];
     
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
@@ -94,6 +102,10 @@ static NSMutableArray<NSString *> *executedRequestTypes;
 }
 
 - (void)overrideExecuteRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    if (disableOverride)
+        return [self overrideExecuteRequest:request onSuccess:successBlock onFailure:failureBlock];
+    
     [executedRequestTypes addObject:NSStringFromClass([request class])];
     
     if (executeInstantaneously) {

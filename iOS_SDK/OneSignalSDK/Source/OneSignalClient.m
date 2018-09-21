@@ -29,11 +29,7 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "ReattemptRequest.h"
 #import "OneSignal.h"
-
-#define REATTEMPT_DELAY 30.0
-#define REQUEST_TIMEOUT_REQUEST 60.0 //for most HTTP requests
-#define REQUEST_TIMEOUT_RESOURCE 100.0 //for loading a resource like an image
-#define MAX_ATTEMPT_COUNT 3
+#import "OneSignalCommonDefines.h"
 
 @interface OneSignal (OneSignalClientExtra)
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
@@ -66,6 +62,14 @@
     return self;
 }
 
+- (NSError *)privacyConsentErrorWithRequestType:(NSString *)type {
+    return [NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : [NSString stringWithFormat: @"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", type]}];
+}
+
+- (NSError *)genericTimedOutError {
+    return [NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : @"The request timed out"}];
+}
+
 - (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
     if (requests.allKeys.count == 0)
         return;
@@ -92,7 +96,15 @@
             }];
         }
         
-        dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, REQUEST_TIMEOUT_REQUEST * NSEC_PER_SEC));
+        // Will wait for up to (maxTimeout) seconds and will then give up and call
+        // the failure block if the request times out.
+        let timedOut = (bool)(0 != dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, MAX_TIMEOUT)));
+        
+        // add a generic 'timed out' error if the request timed out
+        // and there are no other errors present.
+        if (timedOut && errors.allKeys.count == 0)
+            for (NSString *key in requests.allKeys)
+                errors[key] = [self genericTimedOutError];
         
         //requests should all be completed at this point
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -109,9 +121,7 @@
     
     if (request.method != GET && [OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
         if (failureBlock) {
-            failureBlock([NSError errorWithDomain:@"OneSignal Error" code:0
-                    userInfo:@{@"error" : [NSString stringWithFormat:
-                                    @"Attempted to perform an HTTP request (%@) before the user provided privacy consent.", NSStringFromClass(request.class)]}]);
+            failureBlock([self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)]);
         }
         
         return;
@@ -198,7 +208,8 @@
         
         if (async) {
             //retry again in 15 seconds
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %i seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), (int)REATTEMPT_DELAY, (int)statusCode]];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %.3f seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), REATTEMPT_DELAY, (int)statusCode]];
+            NSLog(@"Delay: %f", REATTEMPT_DELAY);
             
             [OneSignalHelper performSelector:@selector(reattemptRequest:) onMainThreadOnObject:self withObject:reattempt afterDelay:REATTEMPT_DELAY];
         } else {
