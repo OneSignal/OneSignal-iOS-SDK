@@ -2051,4 +2051,46 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue(observer->last.to.userId != nil);
 }
 
+/*
+ To prevent tests from generating actual HTTP requests, we swizzle
+ a method called executeRequest() in the OneSignalClient class
+ 
+ However, this test ensures that HTTP retry logic occurs correctly.
+ We have additionally swizzled NSURLSession to prevent real HTTP
+ requests from being generated.
+ 
+ TODO: Remove the OneSignalClientOverrider mock entirely and
+ instead swizzle NSURLSession
+ */
+- (void)testHTTPClientTimeout {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Switches from overriding OneSignalClient to using a
+    // swizzled NSURLSession instead. This results in NSURLSession
+    // mimicking a no-network connection state
+    [OneSignalClientOverrider disableExecuteRequestOverride:true];
+    
+    let expectation = [self expectationWithDescription:@"timeout_test"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal sendTags:@{@"test_tag_key" : @"test_tag_value"} onSuccess:^(NSDictionary *result) {
+        XCTFail(@"Success should not be called");
+    } onFailure:^(NSError *error) {
+        [expectation fulfill];
+    }];
+    
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    [self waitForExpectations:@[expectation] timeout:10.0];
+    
+    // revert the swizzle back to the standard state for tests
+    [OneSignalClientOverrider disableExecuteRequestOverride:false];
+}
+
 @end

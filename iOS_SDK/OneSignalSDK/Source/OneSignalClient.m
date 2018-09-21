@@ -208,7 +208,8 @@
         
         if (async) {
             //retry again in 15 seconds
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %i seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), (int)REATTEMPT_DELAY, (int)statusCode]];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Re-scheduling request (%@) to be re-attempted in %.3f seconds due to failed HTTP request with status code %i", NSStringFromClass([request class]), REATTEMPT_DELAY, (int)statusCode]];
+            NSLog(@"Delay: %f", REATTEMPT_DELAY);
             
             [OneSignalHelper performSelector:@selector(reattemptRequest:) onMainThreadOnObject:self withObject:reattempt afterDelay:REATTEMPT_DELAY];
         } else {

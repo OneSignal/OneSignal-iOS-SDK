@@ -30,3 +30,8 @@
 @interface NSURLSessionOverrider : NSObject
 
 @end
+
+
+@interface MockNSURLSessionDataTask : NSURLSessionDataTask
+-(void)resume;
+@end
