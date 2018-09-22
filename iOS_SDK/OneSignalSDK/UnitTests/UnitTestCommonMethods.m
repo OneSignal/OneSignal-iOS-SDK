@@ -176,6 +176,11 @@ NSString * serverUrlWithPath(NSString *path) {
     [sharedApp.delegate applicationDidBecomeActive:sharedApp];
 }
 
+/* 
+   This notification payload uses a similar format to OneSignal notifications. However
+   it is missing the OneSignal ID. This payload is used to test to make sure that 
+   non-onesignal notifications do not get handled by our SDK/extension service methods.
+*/
 + (UNNotificationRequest *)nonOneSignalRequest {
     let userInfo = @{
                      @"aps": @{
