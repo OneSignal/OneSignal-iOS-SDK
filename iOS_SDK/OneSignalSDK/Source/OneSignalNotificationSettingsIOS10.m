@@ -34,12 +34,14 @@
 
 #import "OneSignalHelper.h"
 
-@implementation OneSignalNotificationSettingsIOS10 {
+@interface OneSignalNotificationSettingsIOS10 ()
 
 // Used as both an optimization and to prevent queue deadlocks.
-// This doesn't seem to be required for the latter at this time. (2.4.3)
-BOOL useCachedStatus;
-}
+@property (atomic) BOOL useCachedStatus;
+
+@end
+
+@implementation OneSignalNotificationSettingsIOS10
 
 // Used to run all calls to getNotificationSettingsWithCompletionHandler sequentially
 //   This prevents any possible deadlocks due to race condiditions.
@@ -54,7 +56,7 @@ static dispatch_queue_t serialQueue;
 }
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
-    if (useCachedStatus) {
+    if (self.useCachedStatus) {
         completionHandler(OneSignal.currentPermissionState);
         return;
     }
@@ -68,18 +70,32 @@ static dispatch_queue_t serialQueue;
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized;
             status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined;
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
-                                     + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
-                                     + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
-                                     + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
-            useCachedStatus = true;
+            + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
+            + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
+            + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
+            self.useCachedStatus = true;
             completionHandler(status);
-            useCachedStatus = false;
+            self.useCachedStatus = false;
         }];
     });
 }
 
+// used only in cases where UNUserNotificationCenter getNotificationSettingsWith...
+// callback does not get executed in a timely fashion. Rather than returning nil,
+- (OSPermissionState *)defaultPermissionState {
+    if (OneSignal.currentPermissionState != nil) {
+        return OneSignal.currentPermissionState;
+    }
+    
+    OSPermissionState *defaultState = [OSPermissionState new];
+    
+    defaultState.notificationTypes = 0;
+    
+    return defaultState;
+}
+
 - (OSPermissionState*)getNotificationPermissionState {
-    if (useCachedStatus)
+    if (self.useCachedStatus)
         return OneSignal.currentPermissionState;
     
     __block OSPermissionState* returnStatus = OneSignal.currentPermissionState;
@@ -90,9 +106,10 @@ static dispatch_queue_t serialQueue;
             dispatch_semaphore_signal(semaphore);
         }];
     });
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
-    return returnStatus;
+    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)));
+    
+    return returnStatus ?: self.defaultPermissionState;
 }
 
 - (int)getNotificationTypes {
