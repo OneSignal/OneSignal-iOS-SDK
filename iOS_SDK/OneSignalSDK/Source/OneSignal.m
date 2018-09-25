@@ -118,7 +118,7 @@ NSString* const kOSSSettingsKeyPromptBeforeOpeningPushURL = @"kOSSSettingsKeyPro
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020806";
+NSString* const ONESIGNAL_VERSION = @"020807";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -423,7 +423,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     if (!success)
         return self;
     
-    if (mShareLocation)
+    if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
     
     if (self) {
