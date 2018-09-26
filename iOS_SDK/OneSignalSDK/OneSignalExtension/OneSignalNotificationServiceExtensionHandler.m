@@ -27,9 +27,9 @@
 
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
-#import "OneSignalHelper.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OneSignalAttachmentsController.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
@@ -38,7 +38,7 @@
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
+    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
     
     //handle badge count
     [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotificationPayload:payload withMutableNotificationContent:replacementContent];
@@ -52,7 +52,7 @@
               withMutableNotificationContent:replacementContent];
     
     // Media Attachments
-    [OneSignalHelper addAttachments:payload toNotificationContent:replacementContent];
+    [OneSignalAttachmentsController addAttachments:payload toNotificationContent:replacementContent];
     
     return replacementContent;
 }
@@ -62,7 +62,7 @@
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
+    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
     
     [self addActionButtonsToExtentionRequest:request
                                  withPayload:payload
@@ -78,7 +78,7 @@
     if (request.content.categoryIdentifier && ![request.content.categoryIdentifier isEqualToString:@""])
         return;
     
-    [OneSignalHelper addActionButtons:payload toNotificationContent:replacementContent];
+    [OneSignalAttachmentsController addActionButtons:payload toNotificationContent:replacementContent];
 }
 
 @end

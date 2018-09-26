@@ -24,7 +24,6 @@
 
 /* Begin PBXBuildFile section */
 		0338566B1FBBD2270002F7C1 /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
-		0338566C1FBBDB150002F7C1 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		0338566D1FBBDB190002F7C1 /* OneSignalTrackFirebaseAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */; };
 		03389F691FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 03389F681FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m */; };
 		1AF75EAE1E8567FD0097B315 /* NSString+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */; };
@@ -48,7 +47,6 @@
 		4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEF21FA8440A00CEAB1D /* UIAlertViewOverrider.m */; };
 		4529DEF61FA8460C00CEAB1D /* UnitTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */; };
 		4529DF0C1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */; };
-		454F94F21FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		454F94F51FAD2E5A00D74CCF /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
 		911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 911E2CBC1E398AB3003112A4 /* UnitTests.m */; };
 		911E2CBF1E398AB3003112A4 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37747F9319147D6500558FAD /* libOneSignal.a */; };
@@ -152,6 +150,32 @@
 		CA36A42D208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		CA36A42E208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		CA36A42F208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
+		CA43A75E215C0D82001C244A /* OneSignalExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = CA43A75C215C0D82001C244A /* OneSignalExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CA43A763215C0DAC001C244A /* OneSignalExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A762215C0DAC001C244A /* OneSignalExtension.m */; };
+		CA43A764215C0DE1001C244A /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CA43A765215C0DE1001C244A /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
+		CA43A766215C0DF7001C244A /* OneSignalTrackFirebaseAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */; };
+		CA43A767215C0E09001C244A /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CA43A768215C0E0A001C244A /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CA43A76C215C0E6E001C244A /* OneSignalAttachmentsController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A76A215C0E6E001C244A /* OneSignalAttachmentsController.m */; };
+		CA43A76D215C0F3C001C244A /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
+		CA43A76E215C10D3001C244A /* NSString+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */; };
+		CA43A76F215C11E6001C244A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
+		CA43A785215C23AE001C244A /* NSURLSession+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CA43A783215C23AE001C244A /* NSURLSession+OneSignal.h */; };
+		CA43A786215C23AE001C244A /* NSURLSession+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CA43A783215C23AE001C244A /* NSURLSession+OneSignal.h */; };
+		CA43A78A215C23AE001C244A /* NSURLSession+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */; };
+		CA43A78B215C2505001C244A /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 911E2CC71E399834003112A4 /* UserNotifications.framework */; };
+		CA43A78E215C26DE001C244A /* OneSignalShared.h in Headers */ = {isa = PBXBuildFile; fileRef = CA43A782215C20AD001C244A /* OneSignalShared.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CA43A78F215C27E8001C244A /* OneSignalShared.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = CA43A782215C20AD001C244A /* OneSignalShared.h */; };
+		CA5BDCC5215C357B00019448 /* NSDictionary+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CA5BDCC3215C357B00019448 /* NSDictionary+OneSignal.h */; };
+		CA5BDCC6215C357B00019448 /* NSDictionary+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CA5BDCC3215C357B00019448 /* NSDictionary+OneSignal.h */; };
+		CA5BDCC7215C357B00019448 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA5BDCC4215C357B00019448 /* NSDictionary+OneSignal.m */; };
+		CA5BDCC8215C357B00019448 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA5BDCC4215C357B00019448 /* NSDictionary+OneSignal.m */; };
+		CA5BDCC9215C357B00019448 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA5BDCC4215C357B00019448 /* NSDictionary+OneSignal.m */; };
+		CA5BDCCA215C357B00019448 /* NSDictionary+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA5BDCC4215C357B00019448 /* NSDictionary+OneSignal.m */; };
+		CA5BDCCE215C380500019448 /* OneSignalAttachmentsController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A76A215C0E6E001C244A /* OneSignalAttachmentsController.m */; };
+		CA5BDCCF215C380500019448 /* OneSignalAttachmentsController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A76A215C0E6E001C244A /* OneSignalAttachmentsController.m */; };
+		CA5BDCD0215C380600019448 /* OneSignalAttachmentsController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A76A215C0E6E001C244A /* OneSignalAttachmentsController.m */; };
 		CA63AF8420211F7400E340FB /* EmailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8320211F7400E340FB /* EmailTests.m */; };
 		CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */; };
 		CA63AFC22022670A00E340FB /* ReattemptRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = CA63AFC02022670A00E340FB /* ReattemptRequest.h */; };
@@ -170,13 +194,14 @@
 		CA97E1502051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
 		CA97E1512051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CA97E14D2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m */; };
 		CAA4ED0120646762005BD59B /* BadgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CAA4ED0020646762005BD59B /* BadgeTests.m */; };
-		CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
-		CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
-		CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAB4112920852E48005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB411AE208931EE005A70D1 /* DummyNotificationCenterDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */; };
+		CABFE918215C39B1000F2A69 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CABFE919215C3A4B000F2A69 /* OneSignalExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A762215C0DAC001C244A /* OneSignalExtension.m */; };
+		CABFE91A215C3A4F000F2A69 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
+		CABFE91B215C3A59000F2A69 /* NSURLSession+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
@@ -211,6 +236,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				CA43A78F215C27E8001C244A /* OneSignalShared.h in CopyFiles */,
 				918CB0301E73388E0067130F /* OneSignal.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -316,6 +342,17 @@
 		CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientOverrider.m; sourceTree = "<group>"; };
 		CA36A42A208FDEFB003EFA9A /* NSURL+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURL+OneSignal.h"; sourceTree = "<group>"; };
 		CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURL+OneSignal.m"; sourceTree = "<group>"; };
+		CA43A75A215C0D82001C244A /* OneSignalExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA43A75C215C0D82001C244A /* OneSignalExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalExtension.h; sourceTree = "<group>"; };
+		CA43A75D215C0D82001C244A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CA43A762215C0DAC001C244A /* OneSignalExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalExtension.m; sourceTree = "<group>"; };
+		CA43A769215C0E6E001C244A /* OneSignalAttachmentsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalAttachmentsController.h; sourceTree = "<group>"; };
+		CA43A76A215C0E6E001C244A /* OneSignalAttachmentsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalAttachmentsController.m; sourceTree = "<group>"; };
+		CA43A782215C20AD001C244A /* OneSignalShared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalShared.h; sourceTree = "<group>"; };
+		CA43A783215C23AE001C244A /* NSURLSession+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+OneSignal.h"; sourceTree = "<group>"; };
+		CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+OneSignal.m"; sourceTree = "<group>"; };
+		CA5BDCC3215C357B00019448 /* NSDictionary+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+OneSignal.h"; sourceTree = "<group>"; };
+		CA5BDCC4215C357B00019448 /* NSDictionary+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+OneSignal.m"; sourceTree = "<group>"; };
 		CA63AF8320211F7400E340FB /* EmailTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmailTests.m; sourceTree = "<group>"; };
 		CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTestCommonMethods.h; sourceTree = "<group>"; };
 		CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnitTestCommonMethods.m; sourceTree = "<group>"; };
@@ -368,6 +405,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CA43A757215C0D82001C244A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA43A78B215C2505001C244A /* UserNotifications.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -377,6 +422,7 @@
 				912411EE1E73342200E41FD7 /* Source */,
 				CA08FC701FE99AE6004C445F /* API */,
 				911E2CBB1E398AB3003112A4 /* UnitTests */,
+				CA43A75B215C0D82001C244A /* OneSignalExtension */,
 				37747F9519147D6500558FAD /* Frameworks */,
 				3E2400391D4FFC31008BDE70 /* OneSignal-Dynamic */,
 				37747F9419147D6500558FAD /* Products */,
@@ -389,6 +435,7 @@
 				37747F9319147D6500558FAD /* libOneSignal.a */,
 				3E2400381D4FFC31008BDE70 /* OneSignal.framework */,
 				911E2CBA1E398AB3003112A4 /* UnitTests.xctest */,
+				CA43A75A215C0D82001C244A /* OneSignalExtension.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -486,6 +533,7 @@
 				912412461E73349500E41FD7 /* Categories */,
 				912412451E73346700E41FD7 /* UI */,
 				CA70E3382023F24500019273 /* OneSignalCommonDefines.h */,
+				CA43A782215C20AD001C244A /* OneSignalShared.h */,
 				91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */,
 				912411F01E73342200E41FD7 /* OneSignal.h */,
 				912411F11E73342200E41FD7 /* OneSignal.m */,
@@ -509,10 +557,10 @@
 				912412051E73342200E41FD7 /* OneSignalTrackIAP.m */,
 				4529DF0A1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.h */,
 				4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */,
-				454F94F01FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.h */,
-				454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */,
 				CAABF349205B15780042F8E5 /* OneSignalExtensionBadgeHandler.h */,
 				CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */,
+				CA43A769215C0E6E001C244A /* OneSignalAttachmentsController.h */,
+				CA43A76A215C0E6E001C244A /* OneSignalAttachmentsController.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -543,6 +591,8 @@
 				9124120B1E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m */,
 				CA36A42A208FDEFB003EFA9A /* NSURL+OneSignal.h */,
 				CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */,
+				CA5BDCC3215C357B00019448 /* NSDictionary+OneSignal.h */,
+				CA5BDCC4215C357B00019448 /* NSDictionary+OneSignal.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -592,6 +642,20 @@
 			path = Source;
 			sourceTree = "<group>";
 		};
+		CA43A75B215C0D82001C244A /* OneSignalExtension */ = {
+			isa = PBXGroup;
+			children = (
+				CA43A75C215C0D82001C244A /* OneSignalExtension.h */,
+				CA43A762215C0DAC001C244A /* OneSignalExtension.m */,
+				454F94F01FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.h */,
+				454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */,
+				CA43A75D215C0D82001C244A /* Info.plist */,
+				CA43A783215C23AE001C244A /* NSURLSession+OneSignal.h */,
+				CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */,
+			);
+			path = OneSignalExtension;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -602,6 +666,7 @@
 				9124124B1E7337A800E41FD7 /* OneSignal.h in Headers */,
 				CA08FC781FE99B13004C445F /* OneSignalRequest.h in Headers */,
 				912412211E73342200E41FD7 /* OneSignalLocation.h in Headers */,
+				CA43A785215C23AE001C244A /* NSURLSession+OneSignal.h in Headers */,
 				912412291E73342200E41FD7 /* OneSignalReachability.h in Headers */,
 				912412251E73342200E41FD7 /* OneSignalMobileProvision.h in Headers */,
 				91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */,
@@ -620,6 +685,7 @@
 				9124123D1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.h in Headers */,
 				CA63AFC22022670A00E340FB /* ReattemptRequest.h in Headers */,
 				9124121D1E73342200E41FD7 /* OneSignalJailbreakDetection.h in Headers */,
+				CA5BDCC5215C357B00019448 /* NSDictionary+OneSignal.h in Headers */,
 				9129C6B71E89E59B009CB6A0 /* OSPermission.h in Headers */,
 				912412151E73342200E41FD7 /* OneSignalHelper.h in Headers */,
 				91F58D7F1E7C7F5F0017D24D /* OneSignalNotificationSettingsIOS10.h in Headers */,
@@ -627,6 +693,17 @@
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
 				9129C6BD1E89E7AB009CB6A0 /* OSSubscription.h in Headers */,
 				CA97E14E2051C0A5003B8CB8 /* OneSignalWebOpenDialog.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA43A755215C0D82001C244A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA43A78E215C26DE001C244A /* OneSignalShared.h in Headers */,
+				CA5BDCC6215C357B00019448 /* NSDictionary+OneSignal.h in Headers */,
+				CA43A786215C23AE001C244A /* NSURLSession+OneSignal.h in Headers */,
+				CA43A75E215C0D82001C244A /* OneSignalExtension.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -655,9 +732,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3E24003F1D4FFC31008BDE70 /* Build configuration list for PBXNativeTarget "OneSignal-Static-Framework" */;
 			buildPhases = (
+				3E2400351D4FFC31008BDE70 /* Headers */,
 				3E2400331D4FFC31008BDE70 /* Sources */,
 				3E2400341D4FFC31008BDE70 /* Frameworks */,
-				3E2400351D4FFC31008BDE70 /* Headers */,
 				3E2400361D4FFC31008BDE70 /* Resources */,
 			);
 			buildRules = (
@@ -687,6 +764,24 @@
 			productReference = 911E2CBA1E398AB3003112A4 /* UnitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		CA43A759215C0D82001C244A /* OneSignalExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA43A75F215C0D82001C244A /* Build configuration list for PBXNativeTarget "OneSignalExtension" */;
+			buildPhases = (
+				CA43A755215C0D82001C244A /* Headers */,
+				CA43A756215C0D82001C244A /* Sources */,
+				CA43A757215C0D82001C244A /* Frameworks */,
+				CA43A758215C0D82001C244A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneSignalExtension;
+			productName = OneSignalExtension;
+			productReference = CA43A75A215C0D82001C244A /* OneSignalExtension.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -705,6 +800,11 @@
 					911E2CB91E398AB3003112A4 = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = 99SW8E36CT;
+						ProvisioningStyle = Automatic;
+					};
+					CA43A759215C0D82001C244A = {
+						CreatedOnToolsVersion = 10.0;
+						DevelopmentTeam = 4ZR3G6ZK9T;
 						ProvisioningStyle = Automatic;
 					};
 					CAA98897213F4B34009FEE5E = {
@@ -730,6 +830,7 @@
 				3E2400371D4FFC31008BDE70 /* OneSignal-Static-Framework */,
 				911E2CB91E398AB3003112A4 /* UnitTests */,
 				CAA98897213F4B34009FEE5E /* OneSignal-Dynamic-Framework */,
+				CA43A759215C0D82001C244A /* OneSignalExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -743,6 +844,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		911E2CB81E398AB3003112A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA43A758215C0D82001C244A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -763,7 +871,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Purpose:\n#   Automatically create a Universal static library for iPhone + iPad + iPhone Simulator from within XCode\n\nset -e\nset -o pipefail\n\n#################[ Tests: helps workaround any future bugs in Xcode ]########\n#\nDEBUG_THIS_SCRIPT=\"true\"\n\nif [ $DEBUG_THIS_SCRIPT = \"true\" ]\nthen\necho \"########### TESTS #############\"\necho \"Use the following variables when debugging this script; note that they may change on recursions\"\necho \"BUILD_DIR = $BUILD_DIR\"\necho \"BUILD_ROOT = $BUILD_ROOT\"\necho \"CONFIGURATION_BUILD_DIR = $CONFIGURATION_BUILD_DIR\"\necho \"BUILT_PRODUCTS_DIR = $BUILT_PRODUCTS_DIR\"\necho \"CONFIGURATION_TEMP_DIR = $CONFIGURATION_TEMP_DIR\"\necho \"TARGET_BUILD_DIR = $TARGET_BUILD_DIR\"\nfi\n\n#####################[ part 1 ]##################\n# First, work out the BASESDK version number (NB: Apple ought to report this, but they hide it)\n#    (incidental: searching for substrings in sh is a nightmare! Sob)\n\n#SDK_VERSION=$(echo ${SDK_NAME} | grep -o '.\\{4\\}$')\n\n# Next, work out if we're in SIM or DEVICE\n\nif [ ${PLATFORM_NAME} = \"iphonesimulator\" ]\nthen\nOTHER_SDK_TO_BUILD=iphoneos${SDK_VERSION}\nelse\nOTHER_SDK_TO_BUILD=iphonesimulator${SDK_VERSION}\nfi\n\necho \"XCode has selected SDK: ${PLATFORM_NAME} with version: ${SDK_VERSION} (although back-targetting: ${IPHONEOS_DEPLOYMENT_TARGET})\"\necho \"...therefore, OTHER_SDK_TO_BUILD = ${OTHER_SDK_TO_BUILD}\"\n#\n#####################[ end of part 1 ]##################\n\n#####################[ part 2 ]##################\n# IF this is the original invocation, invoke WHATEVER other builds are required\n# Xcode is already building ONE target...\n# ...but this is a LIBRARY, so Apple is wrong to set it to build just one.\n# ...we need to build ALL targets\n# ...we MUST NOT re-build the target that is ALREADY being built: Xcode WILL CRASH YOUR COMPUTER if you try this (infinite recursion!)\n#\n# So: build ONLY the missing platforms/configurations.\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: I am NOT the root invocation, so I'm NOT going to recurse\"\nelse\n# CRITICAL:\n# Prevent infinite recursion (Xcode sucks)\nexport ALREADYINVOKED=\"true\"\n\necho \"RECURSION: I am the root ... recursing all missing build targets NOW...\"\necho \"RECURSION: ...about to invoke: xcodebuild -configuration \\\"${CONFIGURATION}\\\" -project \\\"${PROJECT_NAME}.xcodeproj\\\" -target \\\"${TARGET_NAME}\\\" -sdk \\\"${OTHER_SDK_TO_BUILD}\\\" ${ACTION} RUN_CLANG_STATIC_ANALYZER=NO\" BUILD_DIR=\\\"${BUILD_DIR}\\\" BUILD_ROOT=\\\"${BUILD_ROOT}\\\" SYMROOT=\\\"${SYMROOT}\\\"\n\nxcodebuild -configuration \"${CONFIGURATION}\" -project \"${PROJECT_NAME}.xcodeproj\" -target \"${TARGET_NAME}\" -sdk \"${OTHER_SDK_TO_BUILD}\" ${ACTION} RUN_CLANG_STATIC_ANALYZER=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" SYMROOT=\"${SYMROOT}\"\n\nACTION=\"build\"\n\n#Merge all platform binaries as a fat binary for each configurations.\n\n# Calculate where the (multiple) built files are coming from:\nCURRENTCONFIG_DEVICE_DIR=${SYMROOT}/${CONFIGURATION}-iphoneos\nCURRENTCONFIG_SIMULATOR_DIR=${SYMROOT}/${CONFIGURATION}-iphonesimulator\n\necho \"Taking device build from: ${CURRENTCONFIG_DEVICE_DIR}\"\necho \"Taking simulator build from: ${CURRENTCONFIG_SIMULATOR_DIR}\"\n\nCREATING_UNIVERSAL_DIR=${SYMROOT}/${CONFIGURATION}-universal\necho \"...I will output a universal build to: ${CREATING_UNIVERSAL_DIR}\"\n\n# ... remove the products of previous runs of this script\n#      NB: this directory is ONLY created by this script - it should be safe to delete!\n\nrm -rf \"${CREATING_UNIVERSAL_DIR}\"\nmkdir \"${CREATING_UNIVERSAL_DIR}\"\n\n#\necho \"lipo: for current configuration (${CONFIGURATION}) creating output file: ${CREATING_UNIVERSAL_DIR}/${EXECUTABLE_NAME}\"\nxcrun -sdk iphoneos lipo -create -output \"${CREATING_UNIVERSAL_DIR}/${EXECUTABLE_NAME}\" \"${CURRENTCONFIG_DEVICE_DIR}/${EXECUTABLE_NAME}\" \"${CURRENTCONFIG_SIMULATOR_DIR}/${EXECUTABLE_NAME}\"\n\n#########\n#\n# Added: StackOverflow suggestion to also copy \"include\" files\n#    (untested, but should work OK)\n#\necho \"Fetching headers from ${PUBLIC_HEADERS_FOLDER_PATH}\"\necho \"  (if you embed your library project in another project, you will need to add\"\necho '   a \"User Search Headers\" build setting of: (NB INCLUDE THE DOUBLE QUOTES BELOW!)'\necho '        \"$(TARGET_BUILD_DIR)/usr/local/include/\"'\nif [ -d \"${CURRENTCONFIG_DEVICE_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\" ]\nthen\nmkdir -p \"${CREATING_UNIVERSAL_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\"\n# * needs to be outside the double quotes?\ncp -r \"${CURRENTCONFIG_DEVICE_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\"* \"${CREATING_UNIVERSAL_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\"\nfi\nfi\n\nif [ -d \"${SRCROOT}/build\" ]\nthen\nrm -rf \"${SRCROOT}/build\"\nfi\n\n#Move the libs to create framework for both XC & XC8\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/libOneSignal.a\" &&\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/libOneSignal.a\" &&\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\" &&\nUNIVERSAL_LIBRARY_PATH=\"${UNIVERSAL_LIBRARY_DIR}/OneSignal\" &&\nFRAMEWORK=\"${SRCROOT}/Framework/OneSignal.framework\" &&\n\n# Create framework directory structure.\nrm -rf \"${FRAMEWORK}\" &&\nmkdir -p \"${UNIVERSAL_LIBRARY_DIR}\" &&\nmkdir -p \"${FRAMEWORK}/Versions/A/Headers\" &&\nmkdir -p \"${FRAMEWORK}/Versions/A/Modules\"\n\n# Generate universal binary for the device and simulator for the stable version\nlipo \"${SIMULATOR_LIBRARY_PATH}\" \"${DEVICE_LIBRARY_PATH}\" -create -output \"${UNIVERSAL_LIBRARY_PATH}\" &&\n\n# Move files to appropriate locations in framework paths for stable version\ncp \"${UNIVERSAL_LIBRARY_PATH}\" \"${FRAMEWORK}/Versions/A\" &&\nln -s \"A\" \"${FRAMEWORK}/Versions/Current\" &&\nln -s \"Versions/Current/Headers\" \"${FRAMEWORK}/Headers\" &&\nln -s \"Versions/Current/${PRODUCT_NAME}\" \"${FRAMEWORK}/${PRODUCT_NAME}\" &&\n\n#copy header file\ncp \"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/include/OneSignal/OneSignal.h\" \"${FRAMEWORK}/Versions/A/Headers/OneSignal.h\"\n\n#Generate module.modulemap\ntouch \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"framework module OneSignal {\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"    umbrella header \\\"OneSignal.h\\\"\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"    export *\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"    module * { export * }\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"}\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\n# Create symbolic link to the map\nln -s \"Versions/Current/Modules\" \"${FRAMEWORK}/Modules\"\n\n# cleanup\nrm -rf \"${SRCROOT}/build\"";
+			shellScript = "# Purpose:\n#   Automatically create a Universal static library for iPhone + iPad + iPhone Simulator from within XCode\n\nset -e\nset -o pipefail\n\n#################[ Tests: helps workaround any future bugs in Xcode ]########\n#\nDEBUG_THIS_SCRIPT=\"true\"\n\nif [ $DEBUG_THIS_SCRIPT = \"true\" ]\nthen\necho \"########### TESTS #############\"\necho \"Use the following variables when debugging this script; note that they may change on recursions\"\necho \"BUILD_DIR = $BUILD_DIR\"\necho \"BUILD_ROOT = $BUILD_ROOT\"\necho \"CONFIGURATION_BUILD_DIR = $CONFIGURATION_BUILD_DIR\"\necho \"BUILT_PRODUCTS_DIR = $BUILT_PRODUCTS_DIR\"\necho \"CONFIGURATION_TEMP_DIR = $CONFIGURATION_TEMP_DIR\"\necho \"TARGET_BUILD_DIR = $TARGET_BUILD_DIR\"\nfi\n\n#####################[ part 1 ]##################\n# First, work out the BASESDK version number (NB: Apple ought to report this, but they hide it)\n#    (incidental: searching for substrings in sh is a nightmare! Sob)\n\n#SDK_VERSION=$(echo ${SDK_NAME} | grep -o '.\\{4\\}$')\n\n# Next, work out if we're in SIM or DEVICE\n\nif [ ${PLATFORM_NAME} = \"iphonesimulator\" ]\nthen\nOTHER_SDK_TO_BUILD=iphoneos${SDK_VERSION}\nelse\nOTHER_SDK_TO_BUILD=iphonesimulator${SDK_VERSION}\nfi\n\necho \"XCode has selected SDK: ${PLATFORM_NAME} with version: ${SDK_VERSION} (although back-targetting: ${IPHONEOS_DEPLOYMENT_TARGET})\"\necho \"...therefore, OTHER_SDK_TO_BUILD = ${OTHER_SDK_TO_BUILD}\"\n#\n#####################[ end of part 1 ]##################\n\n#####################[ part 2 ]##################\n# IF this is the original invocation, invoke WHATEVER other builds are required\n# Xcode is already building ONE target...\n# ...but this is a LIBRARY, so Apple is wrong to set it to build just one.\n# ...we need to build ALL targets\n# ...we MUST NOT re-build the target that is ALREADY being built: Xcode WILL CRASH YOUR COMPUTER if you try this (infinite recursion!)\n#\n# So: build ONLY the missing platforms/configurations.\n\nif [ \"true\" == ${ALREADYINVOKED:-false} ]\nthen\necho \"RECURSION: I am NOT the root invocation, so I'm NOT going to recurse\"\nelse\n# CRITICAL:\n# Prevent infinite recursion (Xcode sucks)\nexport ALREADYINVOKED=\"true\"\n\necho \"RECURSION: I am the root ... recursing all missing build targets NOW...\"\necho \"RECURSION: ...about to invoke: xcodebuild -configuration \\\"${CONFIGURATION}\\\" -project \\\"${PROJECT_NAME}.xcodeproj\\\" -target \\\"${TARGET_NAME}\\\" -sdk \\\"${OTHER_SDK_TO_BUILD}\\\" ${ACTION} RUN_CLANG_STATIC_ANALYZER=NO\" BUILD_DIR=\\\"${BUILD_DIR}\\\" BUILD_ROOT=\\\"${BUILD_ROOT}\\\" SYMROOT=\\\"${SYMROOT}\\\"\n\nxcodebuild -configuration \"${CONFIGURATION}\" -project \"${PROJECT_NAME}.xcodeproj\" -target \"${TARGET_NAME}\" -sdk \"${OTHER_SDK_TO_BUILD}\" ${ACTION} RUN_CLANG_STATIC_ANALYZER=NO BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\" SYMROOT=\"${SYMROOT}\"\n\nACTION=\"build\"\n\n#Merge all platform binaries as a fat binary for each configurations.\n\n# Calculate where the (multiple) built files are coming from:\nCURRENTCONFIG_DEVICE_DIR=${SYMROOT}/${CONFIGURATION}-iphoneos\nCURRENTCONFIG_SIMULATOR_DIR=${SYMROOT}/${CONFIGURATION}-iphonesimulator\n\necho \"Taking device build from: ${CURRENTCONFIG_DEVICE_DIR}\"\necho \"Taking simulator build from: ${CURRENTCONFIG_SIMULATOR_DIR}\"\n\nCREATING_UNIVERSAL_DIR=${SYMROOT}/${CONFIGURATION}-universal\necho \"...I will output a universal build to: ${CREATING_UNIVERSAL_DIR}\"\n\n# ... remove the products of previous runs of this script\n#      NB: this directory is ONLY created by this script - it should be safe to delete!\n\nrm -rf \"${CREATING_UNIVERSAL_DIR}\"\nmkdir \"${CREATING_UNIVERSAL_DIR}\"\n\n#\necho \"lipo: for current configuration (${CONFIGURATION}) creating output file: ${CREATING_UNIVERSAL_DIR}/${EXECUTABLE_NAME}\"\nxcrun -sdk iphoneos lipo -create -output \"${CREATING_UNIVERSAL_DIR}/${EXECUTABLE_NAME}\" \"${CURRENTCONFIG_DEVICE_DIR}/${EXECUTABLE_NAME}\" \"${CURRENTCONFIG_SIMULATOR_DIR}/${EXECUTABLE_NAME}\"\n\n#########\n#\n# Added: StackOverflow suggestion to also copy \"include\" files\n#    (untested, but should work OK)\n#\necho \"Fetching headers from ${PUBLIC_HEADERS_FOLDER_PATH}\"\necho \"  (if you embed your library project in another project, you will need to add\"\necho '   a \"User Search Headers\" build setting of: (NB INCLUDE THE DOUBLE QUOTES BELOW!)'\necho '        \"$(TARGET_BUILD_DIR)/usr/local/include/\"'\nif [ -d \"${CURRENTCONFIG_DEVICE_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\" ]\nthen\nmkdir -p \"${CREATING_UNIVERSAL_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\"\n# * needs to be outside the double quotes?\ncp -r \"${CURRENTCONFIG_DEVICE_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\"* \"${CREATING_UNIVERSAL_DIR}${PUBLIC_HEADERS_FOLDER_PATH}\"\nfi\nfi\n\nif [ -d \"${SRCROOT}/build\" ]\nthen\nrm -rf \"${SRCROOT}/build\"\nfi\n\n#Move the libs to create framework for both XC & XC8\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/libOneSignal.a\" &&\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/libOneSignal.a\" &&\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\" &&\nUNIVERSAL_LIBRARY_PATH=\"${UNIVERSAL_LIBRARY_DIR}/OneSignal\" &&\nFRAMEWORK=\"${SRCROOT}/Framework/OneSignal.framework\" &&\n\n# Create framework directory structure.\nrm -rf \"${FRAMEWORK}\" &&\nmkdir -p \"${UNIVERSAL_LIBRARY_DIR}\" &&\nmkdir -p \"${FRAMEWORK}/Versions/A/Headers\" &&\nmkdir -p \"${FRAMEWORK}/Versions/A/Modules\"\n\n# Generate universal binary for the device and simulator for the stable version\nlipo \"${SIMULATOR_LIBRARY_PATH}\" \"${DEVICE_LIBRARY_PATH}\" -create -output \"${UNIVERSAL_LIBRARY_PATH}\" &&\n\n# Move files to appropriate locations in framework paths for stable version\ncp \"${UNIVERSAL_LIBRARY_PATH}\" \"${FRAMEWORK}/Versions/A\" &&\nln -s \"A\" \"${FRAMEWORK}/Versions/Current\" &&\nln -s \"Versions/Current/Headers\" \"${FRAMEWORK}/Headers\" &&\nln -s \"Versions/Current/${PRODUCT_NAME}\" \"${FRAMEWORK}/${PRODUCT_NAME}\" &&\n\n#copy header file\ncp \"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/include/OneSignal/OneSignal.h\" \"${FRAMEWORK}/Versions/A/Headers/OneSignal.h\"\n\n#Generate module.modulemap\ntouch \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"framework module OneSignal {\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"    umbrella header \\\"OneSignal.h\\\"\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"    export *\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"    module * { export * }\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\necho \"}\" >> \"${FRAMEWORK}/Versions/A/Modules/module.modulemap\"\n# Create symbolic link to the map\nln -s \"Versions/Current/Modules\" \"${FRAMEWORK}/Modules\"\n\n# cleanup\nrm -rf \"${SRCROOT}/build\"\n";
 		};
 		CAA9889F213F4B41009FEE5E /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -796,6 +904,7 @@
 				91F58D7D1E7C7F330017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				9129C6B81E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				912412121E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
+				CA5BDCC7215C357B00019448 /* NSDictionary+OneSignal.m in Sources */,
 				CA36A42D208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */,
 				912412421E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				CA97E14F2051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */,
@@ -803,7 +912,8 @@
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				912412261E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				CAB4112920852E48005A70D1 /* DelayedInitializationParameters.m in Sources */,
-				454F94F21FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
+				CA43A767215C0E09001C244A /* OneSignalExtensionBadgeHandler.m in Sources */,
+				CA5BDCCE215C380500019448 /* OneSignalAttachmentsController.m in Sources */,
 				912412321E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				CA70E3352023D51000019273 /* OneSignalSetEmailParameters.m in Sources */,
 				91B6EA411E85D38F00B5CF01 /* OSObservable.m in Sources */,
@@ -816,7 +926,6 @@
 				454F94F51FAD2E5A00D74CCF /* OSNotificationPayload.m in Sources */,
 				9129C6BE1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412361E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
-				CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				CA08FC7F1FE99B25004C445F /* Requests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -836,6 +945,7 @@
 				0338566D1FBBDB190002F7C1 /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				91F58D841E7C88220017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				9129C6B91E89E59B009CB6A0 /* OSPermission.m in Sources */,
+				CA5BDCC8215C357B00019448 /* NSDictionary+OneSignal.m in Sources */,
 				CA36A42E208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */,
 				912412131E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
 				CA97E1502051C0A5003B8CB8 /* OneSignalWebOpenDialog.m in Sources */,
@@ -843,8 +953,9 @@
 				912412431E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				9124123B1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */,
+				CA43A768215C0E0A001C244A /* OneSignalExtensionBadgeHandler.m in Sources */,
+				CA5BDCCF215C380500019448 /* OneSignalAttachmentsController.m in Sources */,
 				9124123F1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
-				0338566C1FBBDB150002F7C1 /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
 				CA70E3362023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				912412271E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
@@ -856,7 +967,6 @@
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412371E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
-				CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				CA08FC801FE99B25004C445F /* Requests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -869,13 +979,14 @@
 				91F58D8B1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
+				CABFE91B215C3A59000F2A69 /* NSURLSession+OneSignal.m in Sources */,
 				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
+				CA5BDCC9215C357B00019448 /* NSDictionary+OneSignal.m in Sources */,
 				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
-				CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
 				91F58D851E7C88230017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
@@ -888,8 +999,12 @@
 				912412101E73342200E41FD7 /* OneSignal.m in Sources */,
 				9124122C1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
 				03389F691FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m in Sources */,
+				CABFE919215C3A4B000F2A69 /* OneSignalExtension.m in Sources */,
+				CA5BDCD0215C380600019448 /* OneSignalAttachmentsController.m in Sources */,
 				CA08FC811FE99B25004C445F /* Requests.m in Sources */,
 				CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */,
+				CABFE918215C39B1000F2A69 /* OneSignalExtensionBadgeHandler.m in Sources */,
+				CABFE91A215C3A4F000F2A69 /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
 				CA08FC7B1FE99B13004C445F /* OneSignalRequest.m in Sources */,
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
@@ -917,6 +1032,23 @@
 				CA08FC751FE99B00004C445F /* OneSignalClient.m in Sources */,
 				9129C6BA1E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				91F58D871E7C88250017D24D /* OneSignalNotificationSettingsIOS8.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA43A756215C0D82001C244A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CA43A765215C0DE1001C244A /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
+				CA43A764215C0DE1001C244A /* OneSignalExtensionBadgeHandler.m in Sources */,
+				CA43A766215C0DF7001C244A /* OneSignalTrackFirebaseAnalytics.m in Sources */,
+				CA43A76F215C11E6001C244A /* NSURL+OneSignal.m in Sources */,
+				CA43A76E215C10D3001C244A /* NSString+OneSignal.m in Sources */,
+				CA43A76D215C0F3C001C244A /* OSNotificationPayload.m in Sources */,
+				CA43A763215C0DAC001C244A /* OneSignalExtension.m in Sources */,
+				CA5BDCCA215C357B00019448 /* NSDictionary+OneSignal.m in Sources */,
+				CA43A78A215C23AE001C244A /* NSURLSession+OneSignal.m in Sources */,
+				CA43A76C215C0E6E001C244A /* OneSignalAttachmentsController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -983,10 +1115,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = (
-					"-all_load",
-					"-fembed-bitcode",
-				);
+				OTHER_CFLAGS = "-fembed-bitcode";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -1026,10 +1155,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = (
-					"-all_load",
-					"-fembed-bitcode",
-				);
+				OTHER_CFLAGS = "-fembed-bitcode";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1183,6 +1309,101 @@
 			};
 			name = Release;
 		};
+		CA43A760215C0D82001C244A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OneSignalExtension/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		CA43A761215C0D82001C244A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OneSignalExtension/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		CAA98899213F4B34009FEE5E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1238,6 +1459,15 @@
 			buildConfigurations = (
 				911E2CC21E398AB3003112A4 /* Debug */,
 				911E2CC31E398AB3003112A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CA43A75F215C0D82001C244A /* Build configuration list for PBXNativeTarget "OneSignalExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA43A760215C0D82001C244A /* Debug */,
+				CA43A761215C0D82001C244A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -33,6 +33,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalHelperOverrider.h"
 #import "OneSignalHelper.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
 
 @interface BadgeTests : XCTestCase
 
@@ -78,7 +79,7 @@
     UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     //test that receiving a notification with badge_inc updates the badge icon number
-    [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
+    [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 3);
     
@@ -87,7 +88,7 @@
     
     UNNotificationResponse *newNotifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
-    [OneSignal didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:nil];
+    [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:nil];
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 2);
 }
@@ -110,7 +111,7 @@
     UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     //test that receiving a notification with badge_inc updates the badge icon number
-    [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
+    [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 54);
     
@@ -122,7 +123,7 @@
     UNMutableNotificationContent *mutableContent = [newNotifResponse.notification.request.content mutableCopy];
     
     //tests to make sure the extension is correctly modifying the badge value of the replacement content
-    let replacementContent = [OneSignal didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:mutableContent];
+    let replacementContent = [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:mutableContent];
     
     XCTAssert([replacementContent.badge intValue] == 53);
     
@@ -149,7 +150,7 @@
     UNMutableNotificationContent *mutableContent = [notifResponse.notification.request.content mutableCopy];
     
     //Since the notification is trying to set a negative value, the SDK should keep the badge count == 0
-    let replacementContent = [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:mutableContent];
+    let replacementContent = [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:mutableContent];
     
     XCTAssert(replacementContent.badge.intValue == 0);
     
