@@ -45,7 +45,6 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 
 + (void)load {
     injectToProperClass(@selector(overridePerformSelector:withObject:afterDelay:), @selector(performSelector:withObject:afterDelay:), @[], [NSObjectOverrider class], [NSObject class]);
-    injectToProperClass(@selector(overridePerformSelector:withObject:), @selector(performSelector:withObject:), @[], [NSObjectOverrider class], [NSObject class]);
 }
 
 + (void)reset {
@@ -81,10 +80,6 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
             [selectorsToRun addObject:selectorToRun];
         }
     }
-}
-
-- (id)overridePerformSelector:(SEL)aSelector withObject:(id)anArgument {
-    return [self overridePerformSelector:aSelector withObject:anArgument];
 }
 
 + (void)runPendingSelectors {
