@@ -2087,7 +2087,7 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
-    [self waitForExpectations:@[expectation] timeout:10.0];
+    [self waitForExpectations:@[expectation] timeout:0.5];
     
     // revert the swizzle back to the standard state for tests
     [OneSignalClientOverrider disableExecuteRequestOverride:false];
