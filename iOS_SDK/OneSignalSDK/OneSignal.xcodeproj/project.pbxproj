@@ -51,7 +51,6 @@
 		454F94F21FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		454F94F51FAD2E5A00D74CCF /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
 		911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 911E2CBC1E398AB3003112A4 /* UnitTests.m */; };
-		911E2CBF1E398AB3003112A4 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37747F9319147D6500558FAD /* libOneSignal.a */; };
 		911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		911E2CC81E399834003112A4 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 911E2CC71E399834003112A4 /* UserNotifications.framework */; };
@@ -177,17 +176,13 @@
 		CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB411AE208931EE005A70D1 /* DummyNotificationCenterDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */; };
+		CAE2E5A8215D80010036FD32 /* OneSignalTrackFirebaseAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */; };
+		CAE2E5A9215D80070036FD32 /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
+		CAE2E5AA215D80380036FD32 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		911E2CC01E398AB3003112A4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 37747F9219147D6500558FAD;
-			remoteInfo = OneSignal;
-		};
 		CAA9889B213F4B3A009FEE5E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -364,7 +359,6 @@
 				911E2CC81E399834003112A4 /* UserNotifications.framework in Frameworks */,
 				911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */,
 				911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */,
-				911E2CBF1E398AB3003112A4 /* libOneSignal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,7 +674,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				911E2CC11E398AB3003112A4 /* PBXTargetDependency */,
 			);
 			name = UnitTests;
 			productName = UnitTests;
@@ -870,6 +863,7 @@
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
+				CAE2E5A8215D80010036FD32 /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
@@ -891,11 +885,13 @@
 				CA08FC811FE99B25004C445F /* Requests.m in Sources */,
 				CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */,
 				CA08FC7B1FE99B13004C445F /* OneSignalRequest.m in Sources */,
+				CAE2E5A9215D80070036FD32 /* OSNotificationPayload.m in Sources */,
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
 				CA63AF8420211F7400E340FB /* EmailTests.m in Sources */,
 				CA36A42F208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */,
 				91B6EA431E85D38F00B5CF01 /* OSObservable.m in Sources */,
+				CAE2E5AA215D80380036FD32 /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
 				4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */,
 				CA08FC871FE99BB4004C445F /* OneSignalClientOverrider.m in Sources */,
 				912412401E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
@@ -923,11 +919,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		911E2CC11E398AB3003112A4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 37747F9219147D6500558FAD /* OneSignal */;
-			targetProxy = 911E2CC01E398AB3003112A4 /* PBXContainerItemProxy */;
-		};
 		CAA9889C213F4B3A009FEE5E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 37747F9219147D6500558FAD /* OneSignal */;
