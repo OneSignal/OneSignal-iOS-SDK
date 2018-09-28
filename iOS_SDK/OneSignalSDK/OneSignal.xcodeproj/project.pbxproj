@@ -202,6 +202,8 @@
 		CABFE919215C3A4B000F2A69 /* OneSignalExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A762215C0DAC001C244A /* OneSignalExtension.m */; };
 		CABFE91A215C3A4F000F2A69 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		CABFE91B215C3A59000F2A69 /* NSURLSession+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */; };
+		CAE2E5AF215EECF80036FD32 /* NSURLSession+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */; };
+		CAE2E5B0215EECF90036FD32 /* NSURLSession+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA43A784215C23AE001C244A /* NSURLSession+OneSignal.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
 /* End PBXBuildFile section */
 
@@ -911,6 +913,7 @@
 				9124123A1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				912412261E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
+				CAE2E5AF215EECF80036FD32 /* NSURLSession+OneSignal.m in Sources */,
 				CAB4112920852E48005A70D1 /* DelayedInitializationParameters.m in Sources */,
 				CA43A767215C0E09001C244A /* OneSignalExtensionBadgeHandler.m in Sources */,
 				CA5BDCCE215C380500019448 /* OneSignalAttachmentsController.m in Sources */,
@@ -952,6 +955,7 @@
 				0338566B1FBBD2270002F7C1 /* OSNotificationPayload.m in Sources */,
 				912412431E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				9124123B1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
+				CAE2E5B0215EECF90036FD32 /* NSURLSession+OneSignal.m in Sources */,
 				CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */,
 				CA43A768215C0E0A001C244A /* OneSignalExtensionBadgeHandler.m in Sources */,
 				CA5BDCCF215C380500019448 /* OneSignalAttachmentsController.m in Sources */,

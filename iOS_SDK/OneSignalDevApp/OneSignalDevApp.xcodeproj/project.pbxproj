@@ -36,9 +36,10 @@
 		91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9150E7821E73BFB600C5D46A /* UIKit.framework */; };
-		91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A31E724DCB0022A1CB /* libOneSignal.a */; };
 		91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
 		91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
+		CAE2E5AC215EE8420036FD32 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAE2E5AB215EE8420036FD32 /* OneSignalExtension.framework */; };
+		CAE2E5AE215EE8650036FD32 /* OneSignalExtension.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CAE2E5AB215EE8420036FD32 /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,16 @@
 				9150E77A1E73BEDD00C5D46A /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAE2E5AD215EE8500036FD32 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CAE2E5AE215EE8650036FD32 /* OneSignalExtension.framework in CopyFiles */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -96,6 +107,7 @@
 		9150E7821E73BFB600C5D46A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		91B6EA051E83215000B5CF01 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		91B6EA091E834B1700B5CF01 /* sentImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sentImage.jpg; sourceTree = "<group>"; };
+		CAE2E5AB215EE8420036FD32 /* OneSignalExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,13 +132,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CAE2E5AC215EE8420036FD32 /* OneSignalExtension.framework in Frameworks */,
 				454EB3281FABEF3E0093AD9B /* FirebaseAnalytics.framework in Frameworks */,
 				454EB3271FABEF3A0093AD9B /* FirebaseCore.framework in Frameworks */,
 				454EB3261FABEF380093AD9B /* FirebaseInstanceID.framework in Frameworks */,
 				454EB3251FABEF350093AD9B /* nanopb.framework in Frameworks */,
 				454EB3241FABEF320093AD9B /* FirebaseNanoPB.framework in Frameworks */,
 				454EB3231FABEF2F0093AD9B /* GoogleToolboxForMac.framework in Frameworks */,
-				91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */,
 				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,
 				91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */,
 				91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */,
@@ -185,6 +197,7 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CAE2E5AB215EE8420036FD32 /* OneSignalExtension.framework */,
 				4529DF051FA92C7F00CEAB1D /* GoogleToolboxForMac.framework */,
 				4529DF031FA929F700CEAB1D /* FirebaseNanoPB.framework */,
 				4529DF011FA9292800CEAB1D /* nanopb.framework */,
@@ -241,6 +254,7 @@
 				9150E76E1E73BEDC00C5D46A /* Sources */,
 				9150E76F1E73BEDC00C5D46A /* Frameworks */,
 				9150E7701E73BEDC00C5D46A /* Resources */,
+				CAE2E5AD215EE8500036FD32 /* CopyFiles */,
 			);
 			buildRules = (
 			);
