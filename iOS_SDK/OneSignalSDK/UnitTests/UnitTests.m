@@ -81,7 +81,11 @@
 
 #import "DummyNotificationCenterDelegate.h"
 
-@interface OneSignalHelper (TestHelper)
+// Extension Service
+#import "OneSignalNotificationServiceExtensionHandler.h"
+#import "OneSignalAttachmentsController.h"
+
+@interface OneSignalAttachmentsController (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
 
@@ -964,7 +968,7 @@
     // The Notification Service Extension runs where the notification received id tracked.
     //   Note: This is normally a separate process but can't emulate that here.
     UNNotificationResponse *response = [self createNotificationResponseForAnalyticsTests];
-    [OneSignal didReceiveNotificationExtensionRequest:response.notification.request
+    [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:response.notification.request
                        withMutableNotificationContent:nil];
     
     // Make sure we are tracking the notification received event to firebase.
@@ -1651,7 +1655,7 @@ didReceiveRemoteNotification:userInfo
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
@@ -1707,7 +1711,7 @@ didReceiveRemoteNotification:userInfo
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
@@ -1729,7 +1733,7 @@ didReceiveRemoteNotification:userInfo
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
 
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
@@ -1750,7 +1754,7 @@ didReceiveRemoteNotification:userInfo
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
-    UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalNotificationServiceExtensionHandler serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure butons were added.
     XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
@@ -1847,7 +1851,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testHandlingMediaUrlExtensions {
     let testUrl = @"https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=100";
     
-    let cacheName = [OneSignalHelper downloadMediaAndSaveInBundle:testUrl];
+    let cacheName = [OneSignalAttachmentsController downloadMediaAndSaveInBundle:testUrl];
     
     XCTAssertNotNil(cacheName);
 }
@@ -1961,7 +1965,7 @@ didReceiveRemoteNotification:userInfo
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     return content.attachments.firstObject;
 }

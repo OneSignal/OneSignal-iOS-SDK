@@ -27,7 +27,6 @@
 
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalCommonDefines.h"
-#import "OneSignalHelper.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
 
@@ -44,7 +43,7 @@
         return;
     }
     
-    var currentValue = (int)OneSignalExtensionBadgeHandler.currentCachedBadgeValue ?: 0;
+    int currentValue = (int)OneSignalExtensionBadgeHandler.currentCachedBadgeValue ?: 0;
     
     currentValue += (int)payload.badgeIncrement;
     
@@ -58,7 +57,7 @@
 }
 
 + (NSInteger)currentCachedBadgeValue {
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
+    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
     
     return [(NSNumber *)[userDefaults objectForKey:ONESIGNAL_BADGE_KEY] integerValue];
 }
@@ -77,7 +76,7 @@
 + (void)updateCachedBadgeValue:(NSInteger)value {
     //since badge logic can be executed in an extension, we need to use app groups to get
     //a shared NSUserDefaults from the app group suite name
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
+    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
     
     [userDefaults setObject:@(value) forKey:ONESIGNAL_BADGE_KEY];
     
@@ -85,7 +84,7 @@
 }
 
 + (NSString *)appGroupName {
-    var appGroupName = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_APP_GROUP_NAME_KEY];
+    NSString *appGroupName = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_APP_GROUP_NAME_KEY];
     
     if (!appGroupName)
         appGroupName = [NSString stringWithFormat:@"group.%@.%@", OneSignalExtensionBadgeHandler.primaryBundleIdentifier, @"onesignal"];

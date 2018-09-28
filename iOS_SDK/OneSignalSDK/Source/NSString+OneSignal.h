@@ -16,6 +16,9 @@
 - (NSString*)one_getSemanticVersion;
 - (NSString *)fileExtensionForMimeType;
 - (NSString *)supportedFileExtension;
+- (NSString *)stringByRemovingWhitespace;
+
++(NSString*)randomStringWithLength:(int)length;
 
 @end
 #endif

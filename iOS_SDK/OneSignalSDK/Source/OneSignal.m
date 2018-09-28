@@ -40,7 +40,6 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "NSString+OneSignal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
-#import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotificationPayload+Internal.h"
 
 #import "OneSignalNotificationSettings.h"
@@ -68,6 +67,7 @@
 #import "OneSignalSetEmailParameters.h"
 #import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
+#import "NSDictionary+OneSignal.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -1628,7 +1628,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     // This method should not continue to be executed for non-OS push notifications
-    if (![OneSignalHelper isOneSignalPayload:messageDict])
+    if (!messageDict.isOneSignalPayload)
         return;
     
     onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
@@ -1730,7 +1730,7 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)launchWebURL:(NSString*)openUrl {
     
-    NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
+    NSString* toOpenUrl = [openUrl stringByRemovingWhitespace];
     
     if (toOpenUrl && [OneSignalHelper verifyURL:toOpenUrl]) {
         NSURL *url = [NSURL URLWithString:toOpenUrl];
@@ -1964,22 +1964,6 @@ static NSString *_lastnonActiveMessageId;
     }
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestSyncHashedEmail withUserId:self.currentSubscriptionState.userId appId:self.app_id email:trimmedEmail networkType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
-}
-
-// Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    
-    return [OneSignalNotificationServiceExtensionHandler
-            didReceiveNotificationExtensionRequest:request
-            withMutableNotificationContent:replacementContent];
-}
-
-
-// Called from the app's Notification Service Extension
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    return [OneSignalNotificationServiceExtensionHandler
-            serviceExtensionTimeWillExpireRequest:request
-            withMutableNotificationContent:replacementContent];
 }
 
 #pragma mark Email

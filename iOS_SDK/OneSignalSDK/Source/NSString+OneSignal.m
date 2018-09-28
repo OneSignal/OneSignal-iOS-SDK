@@ -59,4 +59,19 @@
     return MIME_MAP[self];
 }
 
+- (NSString *)stringByRemovingWhitespace {
+    return [self stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+
++(NSString*)randomStringWithLength:(int)length {
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    NSMutableString *randomString = [[NSMutableString alloc] initWithCapacity:length];
+    for(int i = 0; i < length; i++) {
+        uint32_t ln = (uint32_t)letters.length;
+        uint32_t rand = arc4random_uniform(ln);
+        [randomString appendFormat:@"%C", [letters characterAtIndex:rand]];
+    }
+    return randomString;
+}
+
 @end
