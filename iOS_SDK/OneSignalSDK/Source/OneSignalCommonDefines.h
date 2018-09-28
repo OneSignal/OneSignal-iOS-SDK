@@ -97,13 +97,13 @@
     #define SEND_TAGS_DELAY 5.0
 #else
     // Test defines for API Client
-    #define REATTEMPT_DELAY 0.04
-    #define REQUEST_TIMEOUT_REQUEST 0.2 //for most HTTP requests
-    #define REQUEST_TIMEOUT_RESOURCE 0.2 //for loading a resource like an image
+    #define REATTEMPT_DELAY 0.004
+    #define REQUEST_TIMEOUT_REQUEST 0.02 //for most HTTP requests
+    #define REQUEST_TIMEOUT_RESOURCE 0.02 //for loading a resource like an image
     #define MAX_ATTEMPT_COUNT 3
 
     // Send tags batch delay
-    #define SEND_TAGS_DELAY 0.05
+    #define SEND_TAGS_DELAY 0.005
 #endif
 
 // A max timeout for a request, which might include multiple reattempts
