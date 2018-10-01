@@ -45,7 +45,10 @@ static UILocalNotification* lastUILocalNotification;
 
 static UIUserNotificationSettings* lastUIUserNotificationSettings;
 
-static BOOL pendingRegiseterBlock;
+static BOOL pendingRegisterBlock;
+
+//mimics no response from APNS
+static BOOL blockApnsResponse;
 
 static NSURL* lastOpenedUrl;
 
@@ -61,8 +64,9 @@ static NSURL* lastOpenedUrl;
 }
 
 +(void)reset {
+    blockApnsResponse = false;
     lastUILocalNotification = nil;
-    pendingRegiseterBlock = false;
+    pendingRegisterBlock = false;
     shouldFireDeviceToken = true;
     calledRegisterForRemoteNotifications = false;
     calledCurrentUserNotificationSettings = false;
@@ -90,6 +94,10 @@ static NSURL* lastOpenedUrl;
     didFailRegistarationErrorCode = value;
 }
 
++(void)setBlockApnsResponse:(BOOL)block {
+    blockApnsResponse = true;
+}
+
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
 - (void) override_run {
     NSLog(@"override_run!!!!!!");
@@ -109,15 +117,15 @@ static NSURL* lastOpenedUrl;
         if (!shouldFireDeviceToken)
             return;
         
-        pendingRegiseterBlock = true;
+        pendingRegisterBlock = true;
     });
 }
 
 // callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken
 + (void)runBackgroundThreads {
-    if (!pendingRegiseterBlock || currentUIApplicationState != UIApplicationStateActive)
+    if (!pendingRegisterBlock || currentUIApplicationState != UIApplicationStateActive || blockApnsResponse)
         return;
-    pendingRegiseterBlock = false;
+    pendingRegisterBlock = false;
     
     id app = [UIApplication sharedApplication];
     id appDelegate = [[UIApplication sharedApplication] delegate];

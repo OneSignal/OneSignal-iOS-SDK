@@ -26,14 +26,18 @@
  */
 
 #import "NSURLSessionOverrider.h"
-
+#import "OneSignalSelectorHelpers.h"
 #import "TestHelperFunctions.h"
+#import "OneSignalHelper.h"
+
+
 
 @implementation NSURLSessionOverrider
 
 + (void)load {
     // Swizzle an injected method defined in OneSignalHelper
     injectStaticSelector([NSURLSessionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLSession class], @selector(downloadItemAtURL:toFile:error:));
+    injectToProperClass(@selector(overrideDataTaskWithRequest:completionHandler:), @selector(dataTaskWithRequest:completionHandler:), @[], [NSURLSessionOverrider class], [NSURLSession class]);
 }
 
 // Override downloading of media attachment
@@ -50,6 +54,27 @@
         return nil;
     else
         return @"image/jpg";
+}
+
+- (NSURLSessionDataTask *)overrideDataTaskWithRequest:(NSURLRequest *)request completionHandler:(void (^)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error))completionHandler {
+    
+    // mimics no active network connection
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.001 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:0 HTTPVersion:@"1.1" headerFields:@{}];
+        NSError *error = [NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : @"The user is not currently connected to the network."}];
+        NSLog(@"Calling completion handler");
+        completionHandler(nil, response, error);
+    });
+    
+    return [MockNSURLSessionDataTask new];
+}
+
+@end
+
+@implementation MockNSURLSessionDataTask
+
+-(void)resume {
+    //unimplemented
 }
 
 @end

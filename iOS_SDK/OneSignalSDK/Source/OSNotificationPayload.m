@@ -154,9 +154,18 @@
 -(void)parseActionButtons:(NSArray<NSDictionary*>*)buttons {
     NSMutableArray *buttonArray = [NSMutableArray new];
     for (NSDictionary *button in buttons) {
-        [buttonArray addObject: @{@"text" : button[@"n"],
-                                  @"id" : (button[@"i"] ?: button[@"n"])
-                                 }];
+        
+        // check to ensure the button object has the correct
+        // format before adding it to the array
+        if (!button[@"n"] ||
+            (!button[@"i"] && !button[@"n"])) {
+            continue;
+        }
+        
+        [buttonArray addObject: @{
+            @"text" : button[@"n"],
+            @"id" : (button[@"i"] ?: button[@"n"])
+        }];
     }
     
     _actionButtons = buttonArray;

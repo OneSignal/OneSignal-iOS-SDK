@@ -51,6 +51,7 @@ static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
 static NSMutableArray<NSString *> *executedRequestTypes;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
+static BOOL disableOverride = false;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -65,7 +66,14 @@ static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Dire
     executedRequestTypes = [[NSMutableArray alloc] init];
 }
 
+// Calling this function twice results in reversing the swizzle
++ (void)disableExecuteRequestOverride:(BOOL)disable {
+    disableOverride = disable;
+}
+
 - (void)overrideExecuteSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
+    if (disableOverride)
+        return [self overrideExecuteSimultaneousRequests:requests withSuccess:successBlock onFailure:failureBlock];
     
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
@@ -96,6 +104,10 @@ static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Dire
 }
 
 - (void)overrideExecuteRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    
+    if (disableOverride)
+        return [self overrideExecuteRequest:request onSuccess:successBlock onFailure:failureBlock];
+    
     [executedRequestTypes addObject:NSStringFromClass([request class])];
     
     if (executeInstantaneously) {

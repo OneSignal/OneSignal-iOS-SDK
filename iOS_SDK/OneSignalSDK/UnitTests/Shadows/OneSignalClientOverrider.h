@@ -37,11 +37,12 @@
 +(void)setLastUrl:(NSString*)value;
 +(NSString*)lastUrl;
 +(void)setShouldExecuteInstantaneously:(BOOL)instant;
-+ (dispatch_queue_t)getHTTPQueue;
++(dispatch_queue_t)getHTTPQueue;
 +(void)runBackgroundThreads;
 +(NSString *)lastHTTPRequestType;
 +(void)setRequiresEmailAuth:(BOOL)required;
 +(BOOL)hasExecutedRequestOfType:(Class)type;
 +(void)setShouldUseProvisionalAuth:(BOOL)provisional;
++(void)disableExecuteRequestOverride:(BOOL)disable;
 @end
 

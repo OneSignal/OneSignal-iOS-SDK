@@ -49,10 +49,6 @@ NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
 }
 
-@interface OneSignal (UN_extra)
-+ (dispatch_queue_t) getRegisterQueue;
-@end
-
 @implementation UnitTestCommonMethods
 
 // Runs any blocks passed to dispatch_async()

@@ -2021,4 +2021,108 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(UIApplicationOverrider.lastOpenedUrl.absoluteString, UIApplicationOpenSettingsURLString);
 }
 
+//integration test that makes sure that if APNS doesn't respond within a certain
+//window of time, the SDK will register the user with onesignal anyways.
+- (void)testRegistersAfterNoApnsResponse {
+    
+    // simulates no response from APNS
+    [UIApplicationOverrider setBlockApnsResponse:true];
+    
+    // Normally the SDK would wait at least 25 seconds to get a response
+    // and 30 seconds between registration attempts.
+    // This would be too long for a test, so we artificially set the
+    // delay times to be very very short.
+    [OneSignal setDelayIntervals:0.001f withRegistrationDelay:0.002f];
+    
+    // add the subscription observer
+    OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
+    [OneSignal addSubscriptionObserver:observer];
+    
+    // create an expectation
+    XCTestExpectation *expectation = [self expectationWithDescription:@"onesignal_registration_wait"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    // do not answer the prompt (apns will not respond)
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    
+    [OneSignal initWithLaunchOptions:nil
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // wait for the registration to be re-attempted.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    // If APNS didn't respond within X seconds, the SDK
+    // should have registered the user with OneSignal
+    // and should have a user ID
+    XCTAssertTrue(observer->last.to.userId != nil);
+}
+
+/*
+ To prevent tests from generating actual HTTP requests, we swizzle
+ a method called executeRequest() in the OneSignalClient class
+ 
+ However, this test ensures that HTTP retry logic occurs correctly.
+ We have additionally swizzled NSURLSession to prevent real HTTP
+ requests from being generated.
+ 
+ TODO: Remove the OneSignalClientOverrider mock entirely and
+ instead swizzle NSURLSession
+ */
+- (void)testHTTPClientTimeout {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Switches from overriding OneSignalClient to using a
+    // swizzled NSURLSession instead. This results in NSURLSession
+    // mimicking a no-network connection state
+    [OneSignalClientOverrider disableExecuteRequestOverride:true];
+    
+    let expectation = [self expectationWithDescription:@"timeout_test"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    [OneSignal sendTags:@{@"test_tag_key" : @"test_tag_value"} onSuccess:^(NSDictionary *result) {
+        XCTFail(@"Success should not be called");
+    } onFailure:^(NSError *error) {
+        [expectation fulfill];
+    }];
+    
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    [self waitForExpectations:@[expectation] timeout:0.5];
+    
+    // revert the swizzle back to the standard state for tests
+    [OneSignalClientOverrider disableExecuteRequestOverride:false];
+}
+
+// Regression test to ensure improper button JSON format
+// does not cause a crash (iOS SDK issue #401)
+- (void)testInvalidButtonFormat {
+    NSDictionary *newFormat = @{@"aps": @{
+                             @"mutable-content": @1,
+                             @"alert": @"Message Body"
+                             },
+                     @"os_data": @{
+                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                             @"buttons": @[@{@"i": @"id1", @"title": @"text1"}],
+                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                             }};
+    
+    let notification = [OSNotificationPayload parseWithApns:newFormat];
+    
+    XCTAssertTrue(notification.actionButtons.count == 0);
+}
+
 @end

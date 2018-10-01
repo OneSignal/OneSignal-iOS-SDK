@@ -85,11 +85,51 @@
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
-
-#define REATTEMPT_DELAY 30.0
-#define REQUEST_TIMEOUT_REQUEST 60.0 //for most HTTP requests
-#define REQUEST_TIMEOUT_RESOURCE 100.0 //for loading a resource like an image
-#define MAX_ATTEMPT_COUNT 3
 #define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
+
+// Notification types
+#define NOTIFICATION_TYPE_NONE 0
+#define NOTIFICATION_TYPE_BADGE 1
+#define NOTIFICATION_TYPE_SOUND 2
+#define NOTIFICATION_TYPE_ALERT 4
+#define NOTIFICATION_TYPE_ALL 7
+
+#define ERROR_PUSH_CAPABLILITY_DISABLED    -13
+#define ERROR_PUSH_DELEGATE_NEVER_FIRED    -14
+#define ERROR_PUSH_SIMULATOR_NOT_SUPPORTED -15
+#define ERROR_PUSH_UNKNOWN_APNS_ERROR      -16
+#define ERROR_PUSH_OTHER_3000_ERROR        -17
+#define ERROR_PUSH_NEVER_PROMPTED          -18
+#define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
+
+// Registration delay
+#define REGISTRATION_DELAY_SECONDS 30.0
+
+// How long the SDK will wait for APNS to respond
+// before registering the user anyways
+#define APNS_TIMEOUT 25.0
+
+#ifndef OS_TEST
+    // OneSignal API Client Defines
+    #define REATTEMPT_DELAY 30.0
+    #define REQUEST_TIMEOUT_REQUEST 120.0 //for most HTTP requests
+    #define REQUEST_TIMEOUT_RESOURCE 120.0 //for loading a resource like an image
+    #define MAX_ATTEMPT_COUNT 3
+
+    // Send tags batch delay
+    #define SEND_TAGS_DELAY 5.0
+#else
+    // Test defines for API Client
+    #define REATTEMPT_DELAY 0.004
+    #define REQUEST_TIMEOUT_REQUEST 0.02 //for most HTTP requests
+    #define REQUEST_TIMEOUT_RESOURCE 0.02 //for loading a resource like an image
+    #define MAX_ATTEMPT_COUNT 3
+
+    // Send tags batch delay
+    #define SEND_TAGS_DELAY 0.005
+#endif
+
+// A max timeout for a request, which might include multiple reattempts
+#define MAX_TIMEOUT ((REQUEST_TIMEOUT_REQUEST * MAX_ATTEMPT_COUNT) + (REATTEMPT_DELAY * MAX_ATTEMPT_COUNT)) * NSEC_PER_SEC
 
 #endif /* OneSignalCommonDefines_h */
