@@ -35,12 +35,13 @@
 - (id)init {
     if (self = [super init]) {
         self.reattemptCount = 0;
+        self.disableLocalCaching = false;
     }
     
     return self;
 }
 
--(NSMutableURLRequest *)request {
+-(NSMutableURLRequest *)urlRequest {
     //build URL
     let urlString = [[SERVER_URL stringByAppendingString:API_VERSION] stringByAppendingString:self.path];
     

@@ -27,24 +27,17 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-
 #import <CommonCrypto/CommonDigest.h>
-
 #import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
 #import "OSNotificationPayload+Internal.h"
-
 #import "OneSignalTrackFirebaseAnalytics.h"
-
 #import <objc/runtime.h>
-
-#import "OneSignalWebOpenDialog.h"
 #import "OneSignalInternal.h"
-
 #import "NSString+OneSignal.h"
 #import "NSURL+OneSignal.h"
-
 #import "OneSignalCommonDefines.h"
+#import "OneSignalDialogController.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -874,8 +867,13 @@ static OneSignal* singleInstance = nil;
     };
     
     if ([OneSignal shouldPromptToShowURL]) {
-        [OneSignalWebOpenDialog showOpenDialogwithURL:url withResponse:^(BOOL shouldOpen) {
-            openUrlBlock(shouldOpen);
+        let message = NSLocalizedString(([NSString stringWithFormat:@"Would you like to open %@://%@", url.scheme, url.host]), @"Asks whether the user wants to open the URL");
+        let title = NSLocalizedString(@"Open Website?", @"A title asking if the user wants to open a URL/website");
+        let openAction = NSLocalizedString(@"Open", @"Allows the user to open the URL/website");
+        let cancelAction = NSLocalizedString(@"Cancel", @"The user won't open the URL/website");
+        
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withAction:openAction cancelTitle:cancelAction withActionCompletion:^(BOOL tappedAction) {
+            openUrlBlock(tappedAction);
         }];
     } else {
         openUrlBlock(true);

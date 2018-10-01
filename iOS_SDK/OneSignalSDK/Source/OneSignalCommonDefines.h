@@ -46,6 +46,25 @@
 #define EMAIL_ADDRESS @"EMAIL_ADDRESS"
 #define PROMPT_BEFORE_OPENING_PUSH_URL @"PROMPT_BEFORE_OPENING_PUSH_URL"
 #define DEPRECATED_SELECTORS @[@"application:didReceiveLocalNotification:", @"application:handleActionWithIdentifier:forLocalNotification:completionHandler:", @"application:handleActionWithIdentifier:forLocalNotification:withResponseInfo:completionHandler:"]
+#define USES_PROVISIONAL_AUTHORIZATION @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"
+#define PERMISSION_HAS_PROMPTED @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"
+#define PERMISSION_ANSWERED_PROMPT @"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"
+#define PERMISSION_ACCEPTED @"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"
+#define PERMISSION_PROVISIONAL_STATUS @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"
+#define PERMISSION_PROVIDES_NOTIFICATION_SETTINGS @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"
+
+// To avoid undefined symbol compiler errors on older versions of Xcode,
+// instead of using UNAuthorizationOptionProvisional directly, we will use
+// it indirectly with these macros
+#define PROVISIONAL_UNAUTHORIZATIONOPTION (UNAuthorizationOptions)(1 << 6)
+#define PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION (UNAuthorizationOptions)(1 << 5)
+
+// iOS Parameter Names
+#define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
+#define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
+
+// Info.plist key
+#define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
 
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
@@ -63,6 +82,10 @@
 #define ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED @"OS_LAST_RECIEVED_NOTIFICATION_ID"
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
+
+// OneSignal API Client Defines
+typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
+#define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
 
 // Notification types
 #define NOTIFICATION_TYPE_NONE 0

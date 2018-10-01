@@ -26,9 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
-#define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
+#import "OneSignalCommonDefines.h"
 
 
 #ifndef OneSignalRequest_h
@@ -36,12 +34,14 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
 @interface OneSignalRequest : NSObject
 
+@property (nonatomic) BOOL disableLocalCaching;
 @property (nonatomic) HTTPMethod method;
 @property (nonatomic, nonnull) NSString *path;
 @property (nonatomic, nullable) NSDictionary *parameters;
 @property (nonatomic) int reattemptCount;
 -(BOOL)missingAppId; //for requests that don't require an appId parameter, the subclass should override this method and return false
--(NSMutableURLRequest * _Nonnull )request;
+-(NSMutableURLRequest * _Nonnull )urlRequest;
+
 @end
 
 #endif

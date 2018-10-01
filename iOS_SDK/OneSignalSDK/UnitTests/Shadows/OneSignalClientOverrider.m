@@ -34,6 +34,7 @@
 #import "OneSignalRequest.h"
 #import "OneSignalSelectorHelpers.h"
 #import "Requests.h"
+#import "OneSignalCommonDefines.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -49,6 +50,7 @@ static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
 static NSMutableArray<NSString *> *executedRequestTypes;
+static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
 static BOOL disableOverride = false;
 
 + (void)load {
@@ -123,12 +125,12 @@ static BOOL disableOverride = false;
         
         NSMutableDictionary *parameters = [request.parameters mutableCopy];
         
-        if (!parameters[@"app_id"] && ![request.request.URL.absoluteString containsString:@"/apps/"])
+        if (!parameters[@"app_id"] && ![request.urlRequest.URL.absoluteString containsString:@"/apps/"])
             _XCTPrimitiveFail(currentTestInstance, @"All request should include an app_id");
         
         networkRequestCount++;
         
-        id url = [request.request URL];
+        id url = [request.urlRequest URL];
         NSLog(@"url: %@", url);
         NSLog(@"parameters: %@", parameters);
         
@@ -138,7 +140,7 @@ static BOOL disableOverride = false;
         
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]])
-                successBlock(@{@"fba": @true, @"require_email_auth" : @(requiresEmailAuth)});
+                successBlock(@{@"fba": @true, IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth), IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization)});
             else
                 successBlock(@{@"id": @"1234"});
         }
@@ -167,7 +169,7 @@ static BOOL disableOverride = false;
 
 +(void)reset:(XCTestCase*)testInstance {
     currentTestInstance = testInstance;
-    
+    shouldUseProvisionalAuthorization = false;
     networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequest = nil;
@@ -199,6 +201,10 @@ static BOOL disableOverride = false;
 
 +(void)setRequiresEmailAuth:(BOOL)required {
     requiresEmailAuth = required;
+}
+
++(void)setShouldUseProvisionalAuth:(BOOL)provisional {
+    shouldUseProvisionalAuthorization = provisional;
 }
 
 @end

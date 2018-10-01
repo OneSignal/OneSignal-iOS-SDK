@@ -37,13 +37,14 @@
     void (^notificationPromptReponseCallback)(BOOL);
 }
 
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subcscriptionStatus))completionHandler {
+- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     OSPermissionState* status = OneSignal.currentPermissionState;
     
     status.notificationTypes = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
     status.accepted = status.notificationTypes > 0;
     status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    status.provisional = false;
     
     completionHandler(status);
 }
@@ -90,6 +91,7 @@
 
 // Only iOS 7 - The above is used for iOS 8 & 9
 - (void)onAPNsResponse:(BOOL)success {}
+- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {}
 
 #pragma GCC diagnostic pop
 

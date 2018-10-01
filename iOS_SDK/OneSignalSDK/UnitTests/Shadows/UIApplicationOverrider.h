@@ -45,4 +45,7 @@
 +(void) setDidFailRegistarationErrorCode:(NSInteger)value;
 
 + (void)helperCallDidRegisterForRemoteNotificationsWithDeviceToken;
+
++ (NSURL* )lastOpenedUrl;
+
 @end

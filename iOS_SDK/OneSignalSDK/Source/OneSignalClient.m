@@ -37,6 +37,7 @@
 
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
+@property (strong, nonatomic) NSURLSession *noCacheSession;
 @end
 
 @implementation OneSignalClient
@@ -52,14 +53,23 @@
 
 -(instancetype)init {
     if (self = [super init]) {
-        let configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST;
-        configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE;
-        
-        _sharedSession = [NSURLSession sessionWithConfiguration:configuration];
+        _sharedSession = [NSURLSession sessionWithConfiguration:[self configurationWithCachingPolicy:NSURLRequestUseProtocolCachePolicy]];
+        _noCacheSession = [NSURLSession sessionWithConfiguration:[self configurationWithCachingPolicy:NSURLRequestReloadIgnoringLocalCacheData]];
     }
     
     return self;
+}
+
+- (NSURLSessionConfiguration *)configurationWithCachingPolicy:(NSURLRequestCachePolicy)policy {
+    let configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    configuration.timeoutIntervalForRequest = REQUEST_TIMEOUT_REQUEST;
+    configuration.timeoutIntervalForResource = REQUEST_TIMEOUT_RESOURCE;
+    
+    //prevent caching of requests, this mainly impacts OSRequestGetIosParams,
+    //since the OSRequestGetTags endpoint has a caching header policy
+    configuration.requestCachePolicy = policy;
+    
+    return configuration;
 }
 
 - (NSError *)privacyConsentErrorWithRequestType:(NSString *)type {
@@ -132,7 +142,15 @@
         return;
     }
     
-    let task = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    /*
+        None of our requests should currently be cached locally.
+        However, to avoid any future confusion, each OneSignalRequest
+        has a property indicating if local caching should be
+        explicitly disabled for that request. The default is false.
+    */
+    var session = request.disableLocalCaching ? self.noCacheSession : self.sharedSession;
+    
+    let task = [session dataTaskWithRequest:request.urlRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         [self handleJSONNSURLResponse:response data:data error:error isAsync:true withRequest:request onSuccess:successBlock onFailure:failureBlock];
     }];
     
@@ -152,7 +170,7 @@
     
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     
-    let dataTask = [self.sharedSession dataTaskWithRequest:request.request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    let dataTask = [self.sharedSession dataTaskWithRequest:request.urlRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         httpResponse = response;
         httpError = error;
         
@@ -230,7 +248,7 @@
     let data = [NSJSONSerialization dataWithJSONObject:request.parameters options:NSJSONWritingPrettyPrinted error:&error];
     let jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.request.URL.absoluteString, jsonString]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString]];
 }
 
 - (void)handleJSONNSURLResponse:(NSURLResponse*)response data:(NSData*)data error:(NSError*)error isAsync:(BOOL)async withRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
