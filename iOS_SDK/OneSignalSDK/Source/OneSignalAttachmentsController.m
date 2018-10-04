@@ -42,8 +42,8 @@
 
 + (NSMutableSet<UNNotificationCategory*>*)existingCategories {
     __block NSMutableSet* allCategories;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    UNUserNotificationCenter *notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
+    let semaphore = dispatch_semaphore_create(0);
+    let notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
     [notificationCenter getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *categories) {
         allCategories = [categories mutableCopy];
         dispatch_semaphore_signal(semaphore);
@@ -57,7 +57,7 @@
     if (!payload.actionButtons || payload.actionButtons.count == 0)
         return;
     
-    NSMutableArray<UNNotificationAction *> *actionArray = [NSMutableArray new];
+    let actionArray = [NSMutableArray new];
     for(NSDictionary* button in payload.actionButtons) {
         UNNotificationAction *action = [UNNotificationAction actionWithIdentifier:button[@"id"]
                                                           title:button[@"text"]
@@ -72,16 +72,16 @@
         finalActionArray = actionArray;
     
     // Get a full list of categories so we don't replace any exisiting ones.
-    NSMutableSet<UNNotificationCategory*> *allCategories = [self existingCategories];
+    var allCategories = [self existingCategories];
     
-    UNNotificationCategory *category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__"
+    let category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__"
                                                           actions:finalActionArray
                                                 intentIdentifiers:@[]
                                                           options:UNNotificationCategoryOptionCustomDismissAction];
     
     if (allCategories) {
-        NSMutableSet<UNNotificationCategory *> *newCategorySet = [NSMutableSet new];
-        for(UNNotificationCategory *existingCategory in allCategories) {
+        let newCategorySet = [NSMutableSet new];
+        for (UNNotificationCategory *existingCategory in allCategories) {
             if (![existingCategory.identifier isEqualToString:@"__dynamic__"])
                 [newCategorySet addObject:existingCategory];
         }
@@ -107,9 +107,9 @@
  */
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
     
-    NSURL *url = [NSURL URLWithString:urlString];
+    let url = [NSURL URLWithString:urlString];
     
-    NSString* extension = url.pathExtension;
+    var extension = url.pathExtension;
     
     if ([extension isEqualToString:@""])
         extension = nil;
@@ -118,19 +118,19 @@
     if (extension != nil && ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension])
         return nil;
     
-    NSString *name = [NSString randomStringWithLength:10];
+    var name = [NSString randomStringWithLength:10];
     
     if (extension)
         name = [name stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
     
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
+    let paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    let filePath = [paths[0] stringByAppendingPathComponent:name];
     
     //guard against situations where for example, available storage is too low
     
     @try {
         NSError* error;
-        NSString *mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:&error];
+        let mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:&error];
         
         if (error) {
             NSLog(@"Encountered an error while attempting to download file with URL: %@", error);
@@ -151,7 +151,7 @@
             
             name = [NSString stringWithFormat:@"%@.%@", name, newExtension];
             
-            NSString *newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
+            let newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
             
             [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
         }
@@ -161,7 +161,7 @@
             return nil;
         }
         
-        NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
+        let cachedFiles = (NSArray *)[[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
         NSMutableArray* appendedCache;
         if (cachedFiles) {
             appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
@@ -186,24 +186,24 @@
     if (!payload.attachments)
         return;
     
-    NSMutableArray *unAttachments = [NSMutableArray new];
+    let unAttachments = [NSMutableArray new];
     
     for(NSString* key in payload.attachments) {
-        NSString *URI = [[payload.attachments valueForKey:key] stringByRemovingWhitespace];
+        let URI = [[payload.attachments valueForKey:key] stringByRemovingWhitespace];
         
-        NSURL *nsURL = [NSURL URLWithString:URI];
+        let nsURL = [NSURL URLWithString:URI];
         
         // Remote media attachment */
         if (nsURL && [nsURL isWWWScheme]) {
             // Synchroneously download file and chache it
-            NSString *name = [self downloadMediaAndSaveInBundle:URI];
+            let name = [self downloadMediaAndSaveInBundle:URI];
             
             if (!name)
                 continue;
             
-            NSArray<NSString *> *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-            NSString *filePath = [paths[0] stringByAppendingPathComponent:name];
-            NSURL *url = [NSURL fileURLWithPath:filePath];
+            let paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+            let filePath = [paths[0] stringByAppendingPathComponent:name];
+            let url = [NSURL fileURLWithPath:filePath];
             NSError* error;
             UNNotificationAttachment *attachment = [UNNotificationAttachment
                               attachmentWithIdentifier:key
@@ -212,22 +212,21 @@
                               error:&error];
             if (attachment)
                 [unAttachments addObject:attachment];
-        }
-        // Local in bundle resources
-        else {
-            NSMutableArray<NSString *> *files = [[NSMutableArray alloc] initWithArray:[URI componentsSeparatedByString:@"."]];
+        } else { // Local in bundle resources
+            let files = [[NSMutableArray<NSString *> alloc] initWithArray:[URI componentsSeparatedByString:@"."]];
+            
             if (files.count < 2)
                 continue;
             
-            NSString *extension = [files lastObject];
+            let extension = [files lastObject];
             [files removeLastObject];
-            NSString *name = [files componentsJoinedByString:@"."];
+            let name = [files componentsJoinedByString:@"."];
             
             //Make sure resource exists
-            NSURL *url = [[NSBundle mainBundle] URLForResource:name withExtension:extension];
+            let url = [[NSBundle mainBundle] URLForResource:name withExtension:extension];
             if (url) {
                 NSError *error;
-                id attachment = [UNNotificationAttachment
+                let attachment = [UNNotificationAttachment
                                  attachmentWithIdentifier:key
                                  URL:url
                                  options:0

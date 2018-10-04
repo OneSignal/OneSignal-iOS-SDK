@@ -29,6 +29,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OneSignalShared.h"
 
 @implementation OneSignalExtensionBadgeHandler
 
@@ -43,7 +44,7 @@
         return;
     }
     
-    int currentValue = (int)OneSignalExtensionBadgeHandler.currentCachedBadgeValue ?: 0;
+    var currentValue = (int)OneSignalExtensionBadgeHandler.currentCachedBadgeValue ?: 0;
     
     currentValue += (int)payload.badgeIncrement;
     
@@ -57,7 +58,7 @@
 }
 
 + (NSInteger)currentCachedBadgeValue {
-    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
     
     return [(NSNumber *)[userDefaults objectForKey:ONESIGNAL_BADGE_KEY] integerValue];
 }
@@ -65,7 +66,7 @@
 //gets the NSBundle of the primary application - NOT the app extension
 //this way we can determine the bundle ID for the host (primary) application.
 + (NSString *)primaryBundleIdentifier {
-    NSBundle *bundle = [NSBundle mainBundle];
+    var bundle = [NSBundle mainBundle];
     if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"])
         bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
     
@@ -76,7 +77,7 @@
 + (void)updateCachedBadgeValue:(NSInteger)value {
     //since badge logic can be executed in an extension, we need to use app groups to get
     //a shared NSUserDefaults from the app group suite name
-    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
+    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
     
     [userDefaults setObject:@(value) forKey:ONESIGNAL_BADGE_KEY];
     
@@ -84,7 +85,7 @@
 }
 
 + (NSString *)appGroupName {
-    NSString *appGroupName = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_APP_GROUP_NAME_KEY];
+    var appGroupName = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_APP_GROUP_NAME_KEY];
     
     if (!appGroupName)
         appGroupName = [NSString stringWithFormat:@"group.%@.%@", OneSignalExtensionBadgeHandler.primaryBundleIdentifier, @"onesignal"];
