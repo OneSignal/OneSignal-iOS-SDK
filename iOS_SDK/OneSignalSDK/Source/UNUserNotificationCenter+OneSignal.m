@@ -35,6 +35,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
+#import "NSDictionary+OneSignal.h"
 
 
 #if XC8_AVAILABLE
@@ -154,7 +155,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     
     // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || !notification.request.content.userInfo.isOneSignalPayload) {
         if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
             [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
         else
@@ -203,7 +204,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                   withCompletionHandler:(void(^)())completionHandler {
     
     // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || !response.notification.request.content.userInfo.isOneSignalPayload) {
         if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
             [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
         else
@@ -245,7 +246,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
         return;
     
-    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo])
+    if (!response.notification.request.content.userInfo.isOneSignalPayload)
         return;
     
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&

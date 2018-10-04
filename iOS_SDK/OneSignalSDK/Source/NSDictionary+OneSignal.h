@@ -25,16 +25,12 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <Foundation/Foundation.h>
 
-@implementation DummyNotificationCenterDelegate
+NS_ASSUME_NONNULL_BEGIN
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
-
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
-
+@interface NSDictionary (OneSignal)
+- (BOOL)isOneSignalPayload;
 @end
+
+NS_ASSUME_NONNULL_END

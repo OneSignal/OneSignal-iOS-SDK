@@ -27,26 +27,25 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-
 #import <CommonCrypto/CommonDigest.h>
+#import <objc/runtime.h>
 
 #import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
-#import "OSNotificationPayload+Internal.h"
-
 #import "OneSignalTrackFirebaseAnalytics.h"
-
-#import <objc/runtime.h>
-
 #import "OneSignalWebOpenDialog.h"
 #import "OneSignalInternal.h"
-
-#import "NSString+OneSignal.h"
-#import "NSURL+OneSignal.h"
-
 #import "OneSignalCommonDefines.h"
+#import "OneSignalAttachmentsController.h"
+
+#import "NSURL+OneSignal.h"
+#import "NSString+OneSignal.h"
+#import "OSNotificationPayload+Internal.h"
+#import "NSDictionary+OneSignal.h"
+
 
 #define NOTIFICATION_TYPE_ALL 7
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 
@@ -56,91 +55,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-
-
-@interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
-    NSError* error;
-    NSURLResponse* response;
-    BOOL done;
-    NSFileHandle* outputHandle;
-}
-@property (readonly, getter=isDone) BOOL done;
-@property (readonly) NSError* error;
-@property (readonly) NSURLResponse* response;
-
-@end
-
-@implementation DirectDownloadDelegate
-@synthesize error, response, done;
-
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    [outputHandle writeData:data];
-}
-
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
-    response = aResponse;
-    completionHandler(NSURLSessionResponseAllow);
-}
-
--(void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)anError {
-    error = anError;
-    done = YES;
-    
-    [outputHandle closeFile];
-}
-
--(void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)anError {
-    done = YES;
-    error = anError;
-    [outputHandle closeFile];
-}
-
-- (id)initWithFilePath:(NSString*)path {
-    if (self = [super init]) {
-        if ([[NSFileManager defaultManager] fileExistsAtPath:path])
-            [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-        
-        [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
-        outputHandle = [NSFileHandle fileHandleForWritingAtPath:path];
-    }
-    return self;
-}
-@end
-
-@interface NSURLSession (DirectDownload)
-+ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError **)error;
-@end
-
-@implementation NSURLSession (DirectDownload)
-
-+ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError **)error {
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url];
-    
-    DirectDownloadDelegate *delegate = [[DirectDownloadDelegate alloc] initWithFilePath:localPath];
-    
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:delegate delegateQueue:nil];
-    
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request];
-    
-    [task resume];
-    
-    [session finishTasksAndInvalidate];
-    
-    while (![delegate isDone]) {
-        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    }
-    
-    NSError *downloadError = [delegate error];
-    if (downloadError != nil) {
-        if (error)
-            *error = downloadError;
-        return nil;
-    }
-    
-    return delegate.response.MIMEType;
-}
-
-@end
 
 @interface UIApplication (Swizzling)
 +(Class)delegateClass;
@@ -391,16 +305,8 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return userInfo;
 }
 
-
-// Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
-+ (BOOL)isOneSignalPayload:(NSDictionary *)payload {
-    if (!payload)
-        return NO;
-    return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
-}
-
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
-    if (!handleNotificationReceived || ![self isOneSignalPayload:lastMessageReceived])
+    if (!handleNotificationReceived || !lastMessageReceived.isOneSignalPayload)
         return;
     
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
@@ -418,7 +324,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
 static NSString *_lastMessageIdFromAction;
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
-    if (![self isOneSignalPayload:lastMessageReceived])
+    if (!lastMessageReceived.isOneSignalPayload)
         return;
     
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
@@ -529,17 +435,6 @@ static OneSignal* singleInstance = nil;
     return [[[UIDevice currentDevice] systemVersion] floatValue] >= version;
 }
 
-+(NSString*)randomStringWithLength:(int)length {
-    let letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let randomString = [[NSMutableString alloc] initWithCapacity:length];
-    for(var i = 0; i < length; i++) {
-        let ln = (uint32_t)letters.length;
-        let rand = arc4random_uniform(ln);
-        [randomString appendFormat:@"%C", [letters characterAtIndex:rand]];
-    }
-    return randomString;
-}
-
 #if XC8_AVAILABLE
 
 + (void)registerAsUNNotificationCenterDelegate {
@@ -559,7 +454,7 @@ static OneSignal* singleInstance = nil;
 +(UNNotificationRequest*)prepareUNNotificationRequest:(OSNotificationPayload*)payload {
     let content = [UNMutableNotificationContent new];
     
-    [self addActionButtons:payload toNotificationContent:content];
+    [OneSignalAttachmentsController addActionButtons:payload toNotificationContent:content];
     
     content.title = payload.title;
     content.subtitle = payload.subtitle;
@@ -576,129 +471,11 @@ static OneSignal* singleInstance = nil;
         content.badge = [NSNumber numberWithInteger:payload.badge];
     
     // Check if media attached    
-    [self addAttachments:payload toNotificationContent:content];
+    [OneSignalAttachmentsController addAttachments:payload toNotificationContent:content];
     
     let trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.25 repeats:NO];
-    let identifier = [self randomStringWithLength:16];
+    let identifier = [NSString randomStringWithLength:16];
     return [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
-}
-
-+ (void)addActionButtons:(OSNotificationPayload*)payload
-   toNotificationContent:(UNMutableNotificationContent*)content {
-    if (!payload.actionButtons || payload.actionButtons.count == 0)
-        return;
-    
-    let actionArray = [NSMutableArray new];
-    for(NSDictionary* button in payload.actionButtons) {
-        let action = [UNNotificationAction actionWithIdentifier:button[@"id"]
-                                                          title:button[@"text"]
-                                                        options:UNNotificationActionOptionForeground];
-        [actionArray addObject:action];
-    }
-    
-    NSArray* finalActionArray;
-    if (actionArray.count == 2)
-        finalActionArray = [[actionArray reverseObjectEnumerator] allObjects];
-    else
-        finalActionArray = actionArray;
-    
-    // Get a full list of categories so we don't replace any exisiting ones.
-    var allCategories = [self existingCategories];
-    
-    let category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__"
-                                                          actions:finalActionArray
-                                                intentIdentifiers:@[]
-                                                          options:UNNotificationCategoryOptionCustomDismissAction];
-    
-    if (allCategories) {
-        let newCategorySet = [NSMutableSet new];
-        for(UNNotificationCategory *existingCategory in allCategories) {
-            if (![existingCategory.identifier isEqualToString:@"__dynamic__"])
-                [newCategorySet addObject:existingCategory];
-        }
-        
-        [newCategorySet addObject:category];
-        allCategories = newCategorySet;
-    }
-    else
-        allCategories = [[NSMutableSet alloc] initWithArray:@[category]];
-    
-    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:allCategories];
-    
-    content.categoryIdentifier = @"__dynamic__";
-}
-
-+ (NSMutableSet<UNNotificationCategory*>*)existingCategories {
-    __block NSMutableSet* allCategories;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    let notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
-    [notificationCenter getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *categories) {
-        allCategories = [categories mutableCopy];
-        dispatch_semaphore_signal(semaphore);
-    }];
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-    
-    return allCategories;
-}
-
-+ (void)addAttachments:(OSNotificationPayload*)payload
- toNotificationContent:(UNMutableNotificationContent*)content {
-    if (!payload.attachments)
-        return;
-    
-    let unAttachments = [NSMutableArray new];
-    
-    for(NSString* key in payload.attachments) {
-        let URI = [OneSignalHelper trimURLSpacing:[payload.attachments valueForKey:key]];
-        
-        let nsURL = [NSURL URLWithString:URI];
-        
-        // Remote media attachment */
-        if (nsURL && [self isWWWScheme:nsURL]) {
-            // Synchroneously download file and chache it
-            let name = [OneSignalHelper downloadMediaAndSaveInBundle:URI];
-            
-            if (!name)
-                continue;
-            
-            let paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-            let filePath = [paths[0] stringByAppendingPathComponent:name];
-            let url = [NSURL fileURLWithPath:filePath];
-            NSError* error;
-            let attachment = [UNNotificationAttachment
-                              attachmentWithIdentifier:key
-                              URL:url
-                              options:0
-                              error:&error];
-            if (attachment)
-                [unAttachments addObject:attachment];
-        }
-        // Local in bundle resources
-        else {
-            let files = [[NSMutableArray<NSString*> alloc] initWithArray:[URI componentsSeparatedByString:@"."]];
-            if (files.count < 2)
-                continue;
-            
-            let extension = [files lastObject];
-            [files removeLastObject];
-            let name = [files componentsJoinedByString:@"."];
-            
-            //Make sure resource exists
-            let url = [[NSBundle mainBundle] URLForResource:name withExtension:extension];
-            if (url) {
-                NSError *error;
-                id attachment = [UNNotificationAttachment
-                                 attachmentWithIdentifier:key
-                                 URL:url
-                                 options:0
-                                 error:&error];
-                if (attachment)
-                    [unAttachments addObject:attachment];
-            }
-        }
-    }
-    
-    content.attachments = unAttachments;
 }
 
 + (void)addNotificationRequest:(OSNotificationPayload*)payload
@@ -720,89 +497,6 @@ static OneSignal* singleInstance = nil;
 
 }
 
-/*
- Synchroneously downloads an attachment
- On success returns bundle resource name, otherwise returns nil
- The preference order for file type determination is as follows:
-    1. File extension in the actual URL
-    2. MIME type
-    3. URL Query parameter called 'filename', such as test.jpg. The SDK will extract the file extension from it
-*/
-+ (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
-    
-    let url = [NSURL URLWithString:urlString];
-    
-    NSString* extension = url.pathExtension;
-    
-    if ([extension isEqualToString:@""])
-        extension = nil;
-    
-    // Unrecognized extention
-    if (extension != nil && ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension])
-        return nil;
-    
-    var name = [self randomStringWithLength:10];
-    
-    if (extension)
-        name = [name stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
-    
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
-    
-    //guard against situations where for example, available storage is too low
-    
-    @try {
-        NSError* error;
-        let mimeType = [NSURLSession downloadItemAtURL:url toFile:filePath error:&error];
-        
-        if (error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
-            return nil;
-        }
-        
-        if (!extension) {
-            NSString *newExtension;
-            
-            if (mimeType != nil && ![mimeType isEqualToString:@""]) {
-                newExtension = mimeType.fileExtensionForMimeType;
-            } else {
-                newExtension = [[[NSURL URLWithString:urlString] valueFromQueryParameter:@"filename"] supportedFileExtension];
-            }
-            
-            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension])
-                return nil;
-            
-            name = [NSString stringWithFormat:@"%@.%@", name, newExtension];
-            
-            let newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
-            
-            [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
-        }
-        
-        if (error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
-            return nil;
-        }
-        
-        NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
-        NSMutableArray* appendedCache;
-        if (cachedFiles) {
-            appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
-            [appendedCache addObject:name];
-        }
-        else
-            appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
-        
-        [[NSUserDefaults standardUserDefaults] setObject:appendedCache forKey:@"CACHED_MEDIA"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        return name;
-    } @catch (NSException *exception) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal encountered an exception while downloading file (%@), exception: %@", url, exception.description]];
-        
-        return nil;
-    }
-
-}
 
 +(void)clearCachedMedia {
     /*
@@ -831,11 +525,6 @@ static OneSignal* singleInstance = nil;
     return NO;
 }
 
-+ (BOOL)isWWWScheme:(NSURL*)url {
-    NSString* urlScheme = [url.scheme lowercaseString];
-    return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
-}
-
 + (void) displayWebView:(NSURL*)url {
     
     // Check if in-app or safari
@@ -859,7 +548,7 @@ static OneSignal* singleInstance = nil;
         
         [OneSignalHelper dispatch_async_on_main_queue: ^{
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                if (inAppLaunch && [self isWWWScheme:url]) {
+                if (inAppLaunch && [url isWWWScheme]) {
                     if (!webVC)
                         webVC = [[OneSignalWebView alloc] init];
                     webVC.url = url;
@@ -929,13 +618,6 @@ static OneSignal* singleInstance = nil;
     for (int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
         [output appendFormat:@"%02x", digest[i]];
     return output;
-}
-
-+ (NSString*)trimURLSpacing:(NSString*)url {
-    if (!url)
-        return url;
-    
-    return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
 #pragma clang diagnostic pop

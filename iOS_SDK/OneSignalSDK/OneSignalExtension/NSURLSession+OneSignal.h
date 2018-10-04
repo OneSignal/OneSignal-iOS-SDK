@@ -25,16 +25,24 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <Foundation/Foundation.h>
 
-@implementation DummyNotificationCenterDelegate
+NS_ASSUME_NONNULL_BEGIN
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
+@interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
+    NSError* error;
+    NSURLResponse* response;
+    BOOL done;
+    NSFileHandle* outputHandle;
 }
+@property (readonly, getter=isDone) BOOL done;
+@property (readonly) NSError* error;
+@property (readonly) NSURLResponse* response;
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
+@end
 
+NS_ASSUME_NONNULL_END
+
+@interface NSURLSession (DirectDownload)
++ (NSString *)downloadItemAtURL:(NSURL *)url toFile:(NSString *)localPath error:(NSError **)error;
 @end

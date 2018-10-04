@@ -31,4 +31,6 @@
 
 - (NSString *)valueFromQueryParameter:(NSString *)parameter;
 
+- (BOOL)isWWWScheme;
+
 @end

@@ -29,8 +29,6 @@
 
 #import "OSNotificationPayload+Internal.h"
 
-#import "OneSignal.h"
-
 @implementation OSNotificationPayload
 
 +(instancetype)parseWithApns:(NSDictionary*)message {

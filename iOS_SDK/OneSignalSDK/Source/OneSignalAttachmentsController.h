@@ -25,16 +25,15 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
+#import "OneSignalShared.h"
 
-@implementation DummyNotificationCenterDelegate
+NS_ASSUME_NONNULL_BEGIN
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
-
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
-
+@interface OneSignalAttachmentsController : NSObject
++ (void)addAttachments:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
++ (void)addActionButtons:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
 @end
+
+NS_ASSUME_NONNULL_END

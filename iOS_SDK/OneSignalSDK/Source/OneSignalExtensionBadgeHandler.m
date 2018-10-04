@@ -27,9 +27,9 @@
 
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalCommonDefines.h"
-#import "OneSignalHelper.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OneSignalShared.h"
 
 @implementation OneSignalExtensionBadgeHandler
 
@@ -66,7 +66,7 @@
 //gets the NSBundle of the primary application - NOT the app extension
 //this way we can determine the bundle ID for the host (primary) application.
 + (NSString *)primaryBundleIdentifier {
-    NSBundle *bundle = [NSBundle mainBundle];
+    var bundle = [NSBundle mainBundle];
     if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"])
         bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
     

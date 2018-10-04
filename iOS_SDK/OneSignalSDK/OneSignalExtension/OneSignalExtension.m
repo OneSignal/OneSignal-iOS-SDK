@@ -25,16 +25,33 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import "OneSignalExtension.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
+#import "NSDictionary+OneSignal.h"
 
-@implementation DummyNotificationCenterDelegate
+@implementation OneSignalExtension
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+// Called from the app's Notification Service Extension
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     
+    if (!request.content.userInfo.isOneSignalPayload)
+        return replacementContent;
+    
+    return [OneSignalNotificationServiceExtensionHandler
+            didReceiveNotificationExtensionRequest:request
+            withMutableNotificationContent:replacementContent];
 }
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+
+// Called from the app's Notification Service Extension
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     
+    if (!request.content.userInfo.isOneSignalPayload)
+        return replacementContent;
+    
+    return [OneSignalNotificationServiceExtensionHandler
+            serviceExtensionTimeWillExpireRequest:request
+            withMutableNotificationContent:replacementContent];
 }
 
 @end

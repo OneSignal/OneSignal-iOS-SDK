@@ -25,16 +25,13 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import "NSDictionary+OneSignal.h"
 
-@implementation DummyNotificationCenterDelegate
+@implementation NSDictionary (OneSignal)
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
-
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
+// Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
+- (BOOL)isOneSignalPayload {
+    return self[@"custom"][@"i"] || self[@"os_data"][@"i"];
 }
 
 @end

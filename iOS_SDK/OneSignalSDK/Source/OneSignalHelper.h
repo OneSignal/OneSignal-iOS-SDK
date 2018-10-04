@@ -27,6 +27,7 @@
 
 #import "OneSignal.h"
 #import "OneSignalWebView.h"
+#import "OneSignalShared.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -56,38 +57,19 @@
 + (UILocalNotification*)prepareUILocalNotification:(OSNotificationPayload*)payload;
 + (BOOL)verifyURL:(NSString*)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
-+ (NSMutableSet<UNNotificationCategory*>*)existingCategories;
-+ (void)addAttachments:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
-+ (void)addActionButtons:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
-+ (BOOL)isOneSignalPayload:(NSDictionary *)payload;
 
 // - Networking
 + (NSNumber*)getNetType;
 
 // Threading
-+ (void)runOnMainThread:(void(^)())block;
-+ (void)dispatch_async_on_main_queue:(void(^)())block;
++ (void)runOnMainThread:(void(^)(void))block;
++ (void)dispatch_async_on_main_queue:(void(^)(void))block;
 + (void)performSelector:(SEL)aSelector onMainThreadOnObject:(id)targetObj withObject:(id)anArgument afterDelay:(NSTimeInterval)delay;
 
 // Other
 + (BOOL) isValidEmail:(NSString*)email;
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
-+ (NSString*)trimURLSpacing:(NSString*)url;
 
 #pragma clang diagnostic pop
 @end
-
-// Defines let and var in Objective-c for shorter code
-// __auto_type is compatible with Xcode 8+
-#if defined(__cplusplus)
-#define let auto const
-#else
-#define let const __auto_type
-#endif
-
-#if defined(__cplusplus)
-#define var auto
-#else
-#define var __auto_type
-#endif

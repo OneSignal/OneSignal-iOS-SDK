@@ -37,4 +37,9 @@
     
     return nil;
 }
+
+- (BOOL)isWWWScheme {
+    NSString* urlScheme = [self.scheme lowercaseString];
+    return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
+}
 @end

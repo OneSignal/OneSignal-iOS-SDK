@@ -25,16 +25,19 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 
-@implementation DummyNotificationCenterDelegate
+//! Project version number for OneSignalExtension.
+FOUNDATION_EXPORT double OneSignalExtensionVersionNumber;
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
+//! Project version string for OneSignalExtension.
+FOUNDATION_EXPORT const unsigned char OneSignalExtensionVersionString[];
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
+// In this header, you should import all the public headers of your framework using statements like #import <OneSignalExtension/PublicHeader.h>
 
+
+@interface OneSignalExtension : NSObject
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 @end
