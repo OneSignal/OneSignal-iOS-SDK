@@ -16,14 +16,14 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
                BuildableName = "OneSignal.framework"
-               BlueprintName = "OneSignal-Static-Framework"
+               BlueprintName = "OneSignalFramework"
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Static"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
@@ -33,7 +33,7 @@
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Static"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -47,7 +47,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
             BuildableName = "OneSignal.framework"
-            BlueprintName = "OneSignal-Static-Framework"
+            BlueprintName = "OneSignalFramework"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -55,7 +55,7 @@
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Static"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
@@ -65,16 +65,16 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
             BuildableName = "OneSignal.framework"
-            BlueprintName = "OneSignal-Static-Framework"
+            BlueprintName = "OneSignalFramework"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
-      buildConfiguration = "Debug">
+      buildConfiguration = "Static">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Static"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
