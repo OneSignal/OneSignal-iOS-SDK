@@ -69,6 +69,7 @@
 #import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
 #import "OneSignalDialogController.h"
+#import "OneSignalTagsController.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -112,14 +113,6 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 }
 @end
 
-@interface OSPendingCallbacks : NSObject
- @property OSResultSuccessBlock successBlock;
- @property OSFailureBlock failureBlock;
-@end
-
-@implementation OSPendingCallbacks
-@end
-
 @implementation OneSignal
 
 NSString* const ONESIGNAL_VERSION = @"020901";
@@ -137,7 +130,6 @@ static BOOL shouldDelaySubscriptionUpdate = false;
 */
 static OneSignalSetEmailParameters *delayedEmailParameters;
 
-static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
 
@@ -177,7 +169,6 @@ static BOOL shouldRequireUserConsent = false;
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
-NSMutableDictionary* tagsToSend;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 
@@ -971,86 +962,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTags:onSuccess:onFailure:"])
         return;
-   
-    if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
-        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair]);
-        return;
-    }
     
-    for (NSString *key in [keyValuePair allKeys]) {
-        if ([keyValuePair[key] isKindOfClass:[NSDictionary class]]) {
-            onesignal_Log(ONE_S_LL_WARN, @"sendTags Tags JSON must not contain nested objects");
-            return;
-        }
-    }
-    
-    if (tagsToSend == nil)
-        tagsToSend = [keyValuePair mutableCopy];
-    else
-        [tagsToSend addEntriesFromDictionary:keyValuePair];
-    
-    if (successBlock || failureBlock) {
-        if (!pendingSendTagCallbacks)
-            pendingSendTagCallbacks = [[NSMutableArray alloc] init];
-        OSPendingCallbacks* pendingCallbacks = [OSPendingCallbacks alloc];
-        pendingCallbacks.successBlock = successBlock;
-        pendingCallbacks.failureBlock = failureBlock;
-        [pendingSendTagCallbacks addObject:pendingCallbacks];
-    }
-    
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendTagsToServer) object:nil];
-    
-    // Can't send tags yet as their isn't a player_id.
-    //   tagsToSend will be sent with the POST create player call later in this case.
-    if (self.currentSubscriptionState.userId)
-       [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
-}
-
-// Called only with a delay to batch network calls.
-+ (void) sendTagsToServer {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    if (!tagsToSend)
-        return;
-    
-    NSDictionary* nowSendingTags = tagsToSend;
-    tagsToSend = nil;
-    
-    NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
-    pendingSendTagCallbacks = nil;
-    
-    NSMutableDictionary *requests = [NSMutableDictionary new];
-    
-    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
-    
-    if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
-        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:self.currentEmailSubscriptionState.emailAuthCode];
-    
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
-        //the tags for email & push are identical so it doesn't matter what we return in the success block
-        
-        NSDictionary *resultTags = results[@"push"];
-        
-        if (!resultTags)
-            resultTags = results[@"email"];
-        
-        if (nowProcessingCallbacks)
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
-                if (callbackSet.successBlock)
-                    callbackSet.successBlock(resultTags);
-        
-    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-        if (nowProcessingCallbacks) {
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                if (callbackSet.failureBlock) {
-                    callbackSet.failureBlock((NSError *)(errors[@"push"] ?: errors[@"email"]));
-                }
-            }
-        }
-    }];
+    [OneSignalTagsController.sharedInstance sendTags:keyValuePair successHandler:successBlock failureHandler:failureBlock];
 }
 
 + (void)sendTag:(NSString*)key value:(NSString*)value {
@@ -1145,18 +1058,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
-    
-    for(NSString* key in keys) {
-        if (tagsToSend && tagsToSend[key]) {
-            if (![tagsToSend[key] isEqual:@""])
-                [tagsToSend removeObjectForKey:key];
-        }
-        else
-            tags[key] = @"";
-    }
-    
-    [self sendTags:tags onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalTagsController.sharedInstance deleteTags:keys successHandler:successBlock failureHandler:failureBlock];
 }
 
 
@@ -1524,14 +1426,11 @@ static dispatch_queue_t serialQueue;
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
     
-    NSArray* nowProcessingCallbacks;
+    __block BOOL sentTags = false;
     
-    if (tagsToSend) {
-        dataDic[@"tags"] = tagsToSend;
-        tagsToSend = nil;
-        
-        nowProcessingCallbacks = pendingSendTagCallbacks;
-        pendingSendTagCallbacks = nil;
+    if (OneSignalTagsController.sharedInstance.hasPendingTags) {
+        sentTags = true;
+        dataDic[@"tags"] = OneSignalTagsController.sharedInstance.prepareToSendTags;
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
@@ -1596,20 +1495,14 @@ static dispatch_queue_t serialQueue;
             [[NSUserDefaults standardUserDefaults] setObject:self.currentSubscriptionState.userId forKey:USERID];
             //NSUserDefaults Synchronize: called after this if-statement
             
-            if (nowProcessingCallbacks) {
-                for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                    if (callbackSet.successBlock)
-                        callbackSet.successBlock(dataDic[@"tags"]);
-                }
-            }
+            if (sentTags)
+                [OneSignalTagsController.sharedInstance successfullySentTagsWithResults:dataDic[@"tags"]];
+            
             
             if (self.currentSubscriptionState.pushToken)
                 [self updateDeviceToken:self.currentSubscriptionState.pushToken
                               onSuccess:tokenUpdateSuccessBlock
                               onFailure:tokenUpdateFailureBlock];
-            
-            if (tagsToSend)
-                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             
             // try to send location
             [OneSignalLocation sendLocation];
@@ -1644,12 +1537,9 @@ static dispatch_queue_t serialQueue;
         
         let error = (NSError *)(errors[@"push"] ?: errors[@"email"]);
         
-        if (nowProcessingCallbacks) {
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                if (callbackSet.failureBlock)
-                    callbackSet.failureBlock(error);
-            }
-        }
+        if (sentTags)
+            [OneSignalTagsController.sharedInstance failedToSendTagsWithError:error];
+        
     }];
 }
 
