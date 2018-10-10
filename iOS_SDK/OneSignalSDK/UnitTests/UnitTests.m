@@ -566,6 +566,33 @@
                           @"<OSSubscriptionStateChanges:\nfrom: <OSPermissionState: hasPrompted: 1, status: Denied, provisional: 0>,\nto:   <OSPermissionState: hasPrompted: 1, status: Authorized, provisional: 0>\n>");
 }
 
+- (void)testDeliverQuietly {
+    [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
+    
+    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    
+    OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
+    [OneSignal addPermissionObserver:observer];
+    
+    [self backgroundApp];
+    
+    //answer the prompt to allow notification
+    [UnitTestCommonMethods answerNotificationPrompt:true];
+    
+    // user notification center will return only `notificationCenterSetting` enabled
+    // this mimics enabling 'Deliver Quietly'
+    [UNUserNotificationCenterOverrider setNotifTypesOverride:(1 << 4)];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let permissionState = OneSignal.getPermissionSubscriptionState.permissionStatus;
+    
+    // OneSignal should detect that deliver quietly is enabled and set the 5th bit to true
+    XCTAssertTrue((permissionState.notificationTypes >> 4) & 1);
+}
+
 - (void)testPermissionChangeObserverWithDecline {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
