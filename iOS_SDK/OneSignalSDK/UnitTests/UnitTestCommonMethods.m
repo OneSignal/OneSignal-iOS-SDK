@@ -43,7 +43,12 @@
 #import "NSObjectOverrider.h"
 #import "OneSignalCommonDefines.h"
 #import "NSBundleOverrider.h"
+#import "OneSignalTagsController.h"
+#import "TestOneSignalTagsController.h"
 
+@interface OneSignalTagsController (Test)
+@property (nonatomic, nonnull) dispatch_queue_t tagsQueue;
+@end
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
@@ -74,6 +79,8 @@ NSString * serverUrlWithPath(NSString *path) {
         [OneSignalClientOverrider runBackgroundThreads];
         
         [UNUserNotificationCenterOverrider runBackgroundThreads];
+        
+        [(TestOneSignalTagsController *)OneSignalTagsController.sharedInstance runBackgroundThreads];
         
         dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
         
@@ -132,6 +139,8 @@ NSString * serverUrlWithPath(NSString *path) {
     [UIAlertViewOverrider reset];
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    
+    [(TestOneSignalTagsController *)OneSignalTagsController.sharedInstance reset];
 }
 
 + (void)beforeAllTest {

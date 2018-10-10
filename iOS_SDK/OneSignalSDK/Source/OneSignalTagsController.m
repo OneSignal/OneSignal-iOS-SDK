@@ -69,11 +69,9 @@
     return self;
 }
 
-/*
-    Batches sendTags requests, for a maximum rate of one API request every 5 seconds.
- 
-*/
+// Batches sendTags requests, for a maximum rate of one API request every 5 seconds.
 - (void)sendTags:(NSDictionary * _Nonnull)tags successHandler:(OSResultSuccessBlock _Nullable)success failureHandler:(OSFailureBlock _Nullable)failure {
+    
     //no need to initiate a request based on an empty tags object
     if (tags.count == 0)
         return;
@@ -88,13 +86,15 @@
         
         [self addCallbacksToQueueWithSuccessHandler:success failureHandler:failure];
         
-        if (self.scheduled)
+        if (self.scheduled || !OneSignal.currentSubscriptionState.userId)
             return;
         
         self.scheduled = true;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(SEND_TAGS_DELAY * NSEC_PER_SEC)), self.tagsQueue, ^{
-            self.scheduled = false;
-            [self synchronize];
+            if (self.scheduled) {
+                self.scheduled = false;
+                [self synchronize];
+            }
         });
     });
 }
