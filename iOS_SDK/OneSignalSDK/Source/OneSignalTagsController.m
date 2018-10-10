@@ -177,6 +177,21 @@
 }
 
 /*
+    Immediately sends pending tags, such as if the app is about
+    to transition to background
+ */
+- (void)sendPendingTags {
+    dispatch_async(self.tagsQueue, ^{
+        if (!self.hasPendingTags || !self.scheduled)
+            return;
+        
+        self.scheduled = false;
+        
+        [self synchronize];
+    });
+}
+
+/*
     Called before initiating an HTTP request to send tags
     (either here in the Tags Controller, or in the OneSignal
     registration method).

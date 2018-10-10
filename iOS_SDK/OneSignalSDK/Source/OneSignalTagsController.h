@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)failedToSendTagsWithError:(NSError * _Nullable)error;
 - (NSDictionary * _Nullable)prepareToSendTags;
 - (BOOL)hasPendingTags;
+- (void)sendPendingTags;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -32,6 +32,7 @@
 #import "OneSignalWebView.h"
 #import "OneSignalClient.h"
 #import "Requests.h"
+#import "OneSignalTagsController.h"
 
 @interface OneSignal ()
 
@@ -145,6 +146,9 @@ static BOOL lastOnFocusWasToBackground = YES;
         [OneSignalTracker saveUnsentActiveTime:0];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [OneSignalTracker beginBackgroundFocusTask];
+            
+            // if tags are waiting to be updated, send them now
+            [OneSignalTagsController.sharedInstance sendPendingTags];
             
             NSMutableDictionary *requests = [NSMutableDictionary new];
             
