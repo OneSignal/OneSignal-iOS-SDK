@@ -81,11 +81,11 @@ static dispatch_queue_t serialQueue;
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
             
             // check if using provisional notifications
-            // otherwise 'deliver quietly' is enabled.
+            if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0] && settings.authorizationStatus == provisionalStatus)
+                status.notificationTypes += PROVISIONAL_UNAUTHORIZATIONOPTION;
             
-            if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0] && status.notificationTypes == 0 && settings.authorizationStatus == provisionalStatus)
-                status.notificationTypes = PROVISIONAL_UNAUTHORIZATIONOPTION;
-            else if ([OneSignalHelper isIOSVersionGreaterOrEqual:10.0] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
+            // also check if 'deliver quietly' is enabled.
+            if ([OneSignalHelper isIOSVersionGreaterOrEqual:10.0] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
                 status.notificationTypes += 16;
             
             self.useCachedStatus = true;
