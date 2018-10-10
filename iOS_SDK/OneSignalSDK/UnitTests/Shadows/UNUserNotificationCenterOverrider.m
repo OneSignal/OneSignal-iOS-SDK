@@ -133,11 +133,13 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
         id retSettings = [UNNotificationSettings alloc];
         [retSettings setValue:authorizationStatus forKeyPath:@"authorizationStatus"];
         
-        if (notifTypesOverride >= 7) {
+        if (notifTypesOverride >= 7 && notifTypesOverride != 16) {
             [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"badgeSetting"];
             [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"soundSetting"];
             [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"alertSetting"];
             [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKeyPath:@"lockScreenSetting"];
+        } else if (notifTypesOverride == 16) {
+            [retSettings setValue:[NSNumber numberWithInt:UNNotificationSettingEnabled] forKey:@"notificationCenterSetting"];
         }
         
         //if (getNotificationSettingsWithCompletionHandlerStackCount > 1)
