@@ -6,19 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		CA29515B2167F2500064227A /* OneSignal-Static-Framework */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = CA29515E2167F2500064227A /* Build configuration list for PBXAggregateTarget "OneSignal-Static-Framework" */;
-			buildPhases = (
-			);
-			dependencies = (
-			);
-			name = "OneSignal-Static-Framework";
-			productName = "OneSignal-Static-Framework";
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
@@ -321,7 +308,6 @@
 			targets = (
 				9112E8811E724C320022A1CB /* OneSignalDevApp */,
 				9150E7711E73BEDC00C5D46A /* OneSignalNotificationServiceExtension */,
-				CA29515B2167F2500064227A /* OneSignal-Static-Framework */,
 			);
 		};
 /* End PBXProject section */
@@ -607,15 +593,6 @@
 			buildConfigurations = (
 				9150E77B1E73BEDD00C5D46A /* Debug */,
 				9150E77C1E73BEDD00C5D46A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		CA29515E2167F2500064227A /* Build configuration list for PBXAggregateTarget "OneSignal-Static-Framework" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CA29515C2167F2500064227A /* Debug */,
-				CA29515D2167F2500064227A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
