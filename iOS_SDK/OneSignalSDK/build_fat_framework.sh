@@ -42,5 +42,35 @@ rm "${FINAL_FRAMEWORK_LOCATION}/${ONESIGNAL_OUTPUT_NAME}"
 # use lipo to combine device & simulator binaries into one
 lipo -create -output "${EXECUTABLE_DESTINATION}" "${CURRENTCONFIG_DEVICE_DIR}/${ONESIGNAL_OUTPUT_NAME}" "${CURRENTCONFIG_SIMULATOR_DIR}/${ONESIGNAL_OUTPUT_NAME}"
 
+# Move framework files to the location Versions/A/* and create
+# symlinks at the root of the framework, and Versions/Current
+cd $FINAL_FRAMEWORK_LOCATION
+
+declare -a files=("Headers" "Modules" "${ONESIGNAL_OUTPUT_NAME}")
+
+# Create the Versions folders
+mkdir Versions
+mkdir Versions/A
+mkdir Versions/A/Resources
+
+# Move the framework files/folders
+for name in "${files[@]}"; do
+   mv ${name} Versions/A/${name}
+done
+
+# Create symlinks at the root of the framework
+for name in "${files[@]}"; do
+   ln -s Versions/A/${name} ${name}
+done
+
+# move info.plist into Resources and create appropriate symlinks
+mv Info.plist Versions/A/Resources/Info.plist
+ln -s Versions/A/Resources Resources
+
+# Create a symlink directory for 'Versions/A' called 'Current'
+cd Versions
+ln -s A Current
+
+# Copy the built product to the final destination in {repo}/iOS_SDK/OneSignalSDK/Framework
 rm -rf "${ONESIGNAL_DESTINATION_PATH}/${ONESIGNAL_OUTPUT_NAME}.framework"
 cp -a "${FINAL_FRAMEWORK_LOCATION}" "${ONESIGNAL_DESTINATION_PATH}/${ONESIGNAL_OUTPUT_NAME}.framework"
