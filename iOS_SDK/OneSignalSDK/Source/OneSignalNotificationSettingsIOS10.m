@@ -185,7 +185,9 @@ static dispatch_queue_t serialQueue;
         }];
     };
     
-    [center requestAuthorizationWithOptions:PROVISIONAL_UNAUTHORIZATIONOPTION completionHandler:responseBlock];
+    let options = PROVISIONAL_UNAUTHORIZATIONOPTION + UNAuthorizationOptionSound + UNAuthorizationOptionBadge + UNAuthorizationOptionAlert;
+    
+    [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
 }
 
 // Ignore these 2 events, promptForNotifications: already takes care of these.
