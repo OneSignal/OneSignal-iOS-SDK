@@ -176,16 +176,16 @@ static dispatch_queue_t serialQueue;
     
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     
+    let options = PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
+    
     id responseBlock = ^(BOOL granted, NSError *error) {
         [OneSignalHelper dispatch_async_on_main_queue:^{
-            OneSignal.currentPermissionState.provisional = granted;
-            [OneSignal updateNotificationTypes: granted ? PROVISIONAL_UNAUTHORIZATIONOPTION : 0];
+            OneSignal.currentPermissionState.provisional = true;
+            [OneSignal updateNotificationTypes: options];
             if (completionHandler)
                 completionHandler(granted);
         }];
     };
-    
-    let options = PROVISIONAL_UNAUTHORIZATIONOPTION + UNAuthorizationOptionSound + UNAuthorizationOptionBadge + UNAuthorizationOptionAlert;
     
     [center requestAuthorizationWithOptions:options completionHandler:responseBlock];
 }

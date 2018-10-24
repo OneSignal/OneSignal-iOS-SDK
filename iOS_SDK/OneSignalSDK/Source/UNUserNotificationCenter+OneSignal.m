@@ -96,7 +96,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
 - (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
     
-    BOOL notProvisionalRequest = options != PROVISIONAL_UNAUTHORIZATIONOPTION;
+    BOOL notProvisionalRequest = options != PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
     
     //we don't want to modify these settings if the authorization is provisional (iOS 12 'Direct to History')
     if (notProvisionalRequest)
