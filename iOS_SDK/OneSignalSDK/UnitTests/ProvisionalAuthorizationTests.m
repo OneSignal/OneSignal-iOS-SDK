@@ -84,7 +84,9 @@
         
         [UnitTestCommonMethods runBackgroundThreads];
         
-        XCTAssertTrue(UNUserNotificationCenterOverrider.lastRequestedAuthorizationOptions == PROVISIONAL_UNAUTHORIZATIONOPTION);
+        let options = PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
+        
+        XCTAssertTrue(UNUserNotificationCenterOverrider.lastRequestedAuthorizationOptions == options);
         
         XCTAssertTrue(observer->last.to.provisional);
         XCTAssertFalse(observer->last.from.provisional);

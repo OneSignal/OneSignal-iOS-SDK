@@ -94,9 +94,12 @@ static BOOL useiOS10_2_workaround = true;
 static BOOL useCachedUNNotificationSettings;
 static UNNotificationSettings* cachedUNNotificationSettings;
 
+// This is a swizzled implementation of requestAuthorizationWithOptions:
+// in case developers call it directly instead of using our prompt method
 - (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
     
-    BOOL notProvisionalRequest = options != PROVISIONAL_UNAUTHORIZATIONOPTION;
+    // check options for UNAuthorizationOptionProvisional membership
+    BOOL notProvisionalRequest = (options & PROVISIONAL_UNAUTHORIZATIONOPTION) == 0;
     
     //we don't want to modify these settings if the authorization is provisional (iOS 12 'Direct to History')
     if (notProvisionalRequest)
