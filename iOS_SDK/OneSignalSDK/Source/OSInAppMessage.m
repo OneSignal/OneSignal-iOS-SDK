@@ -59,7 +59,7 @@
         else
             return nil;
         
-        if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSDictionary class]])
+        if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]])
             self.triggers = json[@"triggers"];
         else
             return nil;
