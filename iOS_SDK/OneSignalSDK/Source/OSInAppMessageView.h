@@ -25,16 +25,26 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <UIKit/UIKit.h>
+#import "OSInAppMessage.h"
+#import <WebKit/WebKit.h>
 
-@implementation DummyNotificationCenterDelegate
+NS_ASSUME_NONNULL_BEGIN
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
+@protocol OSInAppMessageViewDelegate <NSObject>
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
+- (void)messageViewDidLoadMessageContent;
+- (void)messageViewFailedToLoadMessageContent;
 
 @end
+
+
+
+@interface OSInAppMessageView : UIView <WKNavigationDelegate>
+@property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
+
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
+
+@end
+
+NS_ASSUME_NONNULL_END

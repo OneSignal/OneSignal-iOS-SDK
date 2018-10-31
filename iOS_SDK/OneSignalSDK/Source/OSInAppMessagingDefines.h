@@ -25,16 +25,31 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#ifndef OSInAppMessagingDefines_h
+#define OSInAppMessagingDefines_h
 
-@implementation DummyNotificationCenterDelegate
-
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
+    OSInAppMessageDisplayTypeTopBanner,
     
-}
-
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    OSInAppMessageDisplayTypeCenteredModal,
     
-}
+    OSInAppMessageDisplayTypeFullScreen,
+    
+    OSInAppMessageDisplayTypeBottomBanner
+};
 
-@end
+typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
+    OSInAppMessageDisplayPositionBottom,
+    
+    OSInAppMessageDisplayPositionTop,
+    
+    OSInAppMessageDisplayPositionCentered
+};
+
+#define MESSAGE_MARGIN 0.025f
+
+#define BANNER_HEIGHT 0.25f
+#define CENTERED_MODAL_HEIGHT 0.5f
+#define FULL_SCREEN_HEIGHT 0.8f
+
+#endif /* OSInAppMessagingDefines_h */

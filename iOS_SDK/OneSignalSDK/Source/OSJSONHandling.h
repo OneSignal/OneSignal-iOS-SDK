@@ -25,16 +25,14 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <Foundation/Foundation.h>
 
-@implementation DummyNotificationCenterDelegate
+@protocol OSJSONDecodable
+- (instancetype _Nullable)initWithData:(NSData * _Nonnull)data;
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
+- (instancetype _Nullable)initWithJson:(NSDictionary * _Nonnull)json;
+@end
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
-
+@protocol OSJSONEncodable
+- (NSDictionary * _Nonnull)jsonRepresentation;
 @end

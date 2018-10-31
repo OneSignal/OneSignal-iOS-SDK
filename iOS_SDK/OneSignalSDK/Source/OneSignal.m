@@ -70,6 +70,9 @@
 #import "DelayedInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
+#import "OSMessagingController.h"
+#import "OSInAppMessage.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -1695,6 +1698,12 @@ static dispatch_queue_t serialQueue;
     }
     
     return false;
+}
+
++ (void)testShowMessageWithType:(OSInAppMessageDisplayType)type {
+    let message = [[OSInAppMessage alloc] initWithType:type];
+    
+    [[OSMessagingController sharedInstance] presentInAppMessage:message];
 }
 
 + (void)sendPurchases:(NSArray*)purchases {

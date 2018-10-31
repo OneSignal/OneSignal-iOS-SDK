@@ -45,6 +45,9 @@
 
 #import <Foundation/Foundation.h>
 
+//TODO: Remove this import. It only exists here temporarily while building IAM, for testing purposes.
+#import "OSInAppMessagingDefines.h"
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 #define XC8_AVAILABLE 1
 #import <UserNotifications/UserNotifications.h>
@@ -427,6 +430,9 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
+
+//TODO: Remove this method. It only exists here temporarily while building IAM, for testing purposes.
++ (void)testShowMessageWithType:(OSInAppMessageDisplayType)type;
 
 // iOS 10 only
 // Process from Notification Service Extension.

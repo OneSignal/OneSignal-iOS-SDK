@@ -25,16 +25,17 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <Foundation/Foundation.h>
+#import "OSInAppMessage.h"
+#import "OSInAppMessageViewController.h"
 
-@implementation DummyNotificationCenterDelegate
+NS_ASSUME_NONNULL_BEGIN
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
+@interface OSMessagingController : NSObject <OSInAppMessaveViewControllerDelegate>
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
++ (OSMessagingController * _Nonnull)sharedInstance;
+-(void)presentInAppMessage:(OSInAppMessage * _Nonnull)message;
 
 @end
+
+NS_ASSUME_NONNULL_END
