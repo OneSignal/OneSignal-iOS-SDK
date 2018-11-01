@@ -282,7 +282,18 @@
 }
 
 -(void)messageViewFailedToLoadMessageContent {
+    [self.delegate messageViewControllerWasDismissed];
+}
+
+// This delegate function gets called when an action button is tapped on the IAM
+- (void)messageViewDidTapAction:(NSString *)action withAdditionalData:(NSDictionary *)data {
+    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
     
+    [self.delegate messageViewDidSelectAction:action withData:data];
+}
+
+- (void)messageViewDidFailToProcessAction {
+    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
 }
 
 @end

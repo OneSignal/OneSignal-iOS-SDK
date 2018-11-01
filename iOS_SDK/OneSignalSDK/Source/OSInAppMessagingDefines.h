@@ -28,16 +28,6 @@
 #ifndef OSInAppMessagingDefines_h
 #define OSInAppMessagingDefines_h
 
-typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
-    OSInAppMessageDisplayTypeTopBanner,
-    
-    OSInAppMessageDisplayTypeCenteredModal,
-    
-    OSInAppMessageDisplayTypeFullScreen,
-    
-    OSInAppMessageDisplayTypeBottomBanner
-};
-
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionBottom,
     

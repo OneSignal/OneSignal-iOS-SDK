@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSInAppMessaveViewControllerDelegate <NSObject>
 
+- (void)messageViewDidSelectAction:(NSString *)actionId withData:(NSDictionary *)data;
+
 - (void)messageViewControllerWasDismissed;
 
 @end

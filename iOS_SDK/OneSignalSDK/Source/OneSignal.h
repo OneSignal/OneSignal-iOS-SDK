@@ -45,9 +45,6 @@
 
 #import <Foundation/Foundation.h>
 
-//TODO: Remove this import. It only exists here temporarily while building IAM, for testing purposes.
-#import "OSInAppMessagingDefines.h"
-
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
 #define XC8_AVAILABLE 1
 #import <UserNotifications/UserNotifications.h>
@@ -76,6 +73,21 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     OSNotificationDisplayTypeNotification
 };
 
+
+//TODO: Remove this enum. It only exists here temporarily while building IAM, for testing purposes.
+typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
+    OSInAppMessageDisplayTypeTopBanner,
+    
+    OSInAppMessageDisplayTypeCenteredModal,
+    
+    OSInAppMessageDisplayTypeFullScreen,
+    
+    OSInAppMessageDisplayTypeBottomBanner
+};
+
+@protocol OSInAppMessageDelegate <NSObject>
+- (void)handleMessageAction:(NSString * _Nonnull)actionId withData:(NSDictionary * _Nullable)actionData NS_SWIFT_NAME(handleMessageAction(action:data:));
+@end
 
 @interface OSNotificationAction : NSObject
 
@@ -433,6 +445,8 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 //TODO: Remove this method. It only exists here temporarily while building IAM, for testing purposes.
 + (void)testShowMessageWithType:(OSInAppMessageDisplayType)type;
+
++ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate;
 
 // iOS 10 only
 // Process from Notification Service Extension.

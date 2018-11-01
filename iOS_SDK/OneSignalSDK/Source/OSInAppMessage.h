@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) OSInAppMessageDisplayPosition position;
 @property (nonatomic) float heightRatio;
 
-- (instancetype _Nonnull)initWithType:(OSInAppMessageDisplayType)displayType;
 @end
 
 NS_ASSUME_NONNULL_END

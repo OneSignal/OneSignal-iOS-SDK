@@ -196,7 +196,6 @@
 		CACBAA97218A6243000ACAA5 /* OSMessagingController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */; };
 		CACBAA98218A6243000ACAA5 /* OSMessagingController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */; };
 		CACBAA99218A6243000ACAA5 /* OSMessagingController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */; };
-		CACBAA9A218A6243000ACAA5 /* OSInAppMessagingDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = CACBAA8F218A6242000ACAA5 /* OSInAppMessagingDefines.h */; };
 		CACBAA9B218A6243000ACAA5 /* OSMessagingController.h in Headers */ = {isa = PBXBuildFile; fileRef = CACBAA90218A6242000ACAA5 /* OSMessagingController.h */; };
 		CACBAA9C218A6243000ACAA5 /* OSInAppMessageView.h in Headers */ = {isa = PBXBuildFile; fileRef = CACBAA91218A6242000ACAA5 /* OSInAppMessageView.h */; };
 		CACBAA9D218A6243000ACAA5 /* OSInAppMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA92218A6242000ACAA5 /* OSInAppMessageView.m */; };
@@ -212,6 +211,7 @@
 		CACBAAA8218A6280000ACAA5 /* OSJSONHandling.h in Headers */ = {isa = PBXBuildFile; fileRef = CACBAAA7218A6280000ACAA5 /* OSJSONHandling.h */; };
 		CACBAAAA218A65AE000ACAA5 /* InAppMessagingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAAA9218A65AE000ACAA5 /* InAppMessagingTests.m */; };
 		CACBAAAC218A662B000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
+		CACBAAB4218A7113000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
 		CAE2E5A8215D80010036FD32 /* OneSignalTrackFirebaseAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */; };
 		CAE2E5A9215D80070036FD32 /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
 		CAE2E5AA215D80380036FD32 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
@@ -374,6 +374,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CACBAAB4218A7113000ACAA5 /* WebKit.framework in Frameworks */,
 				37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -661,7 +662,6 @@
 				CACBAAA8218A6280000ACAA5 /* OSJSONHandling.h in Headers */,
 				912412211E73342200E41FD7 /* OneSignalLocation.h in Headers */,
 				912412291E73342200E41FD7 /* OneSignalReachability.h in Headers */,
-				CACBAA9A218A6243000ACAA5 /* OSInAppMessagingDefines.h in Headers */,
 				912412251E73342200E41FD7 /* OneSignalMobileProvision.h in Headers */,
 				91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */,
 				CA36A42C208FDEFB003EFA9A /* NSURL+OneSignal.h in Headers */,

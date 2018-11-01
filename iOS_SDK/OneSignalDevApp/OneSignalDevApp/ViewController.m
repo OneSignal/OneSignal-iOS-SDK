@@ -30,7 +30,6 @@
 
 #import "ViewController.h"
 
-#import <OneSignal/OneSignal.h>
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
@@ -48,6 +47,8 @@
     self.activityIndicatorView.hidden = true;
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
+    
+    [OneSignal addInAppMessageActionHandler:self];
 }
 
 - (void)changeAnimationState:(BOOL)animating {
@@ -127,6 +128,23 @@
 - (IBAction)consentSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller consent granted: %i", (int)sender.selectedSegmentIndex);
     [OneSignal consentGranted:(bool)sender.selectedSegmentIndex];
+}
+
+- (IBAction)showTopBannerButtonPressed:(id)sender {
+    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeTopBanner];
+}
+- (IBAction)showBottomBannerButtonPressed:(id)sender {
+    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeBottomBanner];
+}
+- (IBAction)showCenteredModalButtonPressed:(id)sender {
+    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeCenteredModal];
+}
+- (IBAction)showFullScreenButtonPressed:(id)sender {
+    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeFullScreen];
+}
+
+-(void)handleMessageAction:(NSString *)actionId withData:(NSDictionary *)actionData {
+    NSLog(@"View controller did get action: %@ with data: %@", actionId, actionData);
 }
 
 

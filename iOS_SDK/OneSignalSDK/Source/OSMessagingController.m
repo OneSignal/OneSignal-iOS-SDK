@@ -34,6 +34,8 @@
 
 @property (weak, nonatomic, nullable) OSInAppMessageViewController *messageViewController;
 
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
+
 @end
 
 @implementation OSMessagingController
@@ -49,10 +51,14 @@
 
 -(instancetype _Nonnull)init {
     if (self = [super init]) {
-        
+        self.delegates = [NSMutableArray<OSInAppMessageDelegate> new];
     }
     
     return self;
+}
+
+- (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate {
+    [self.delegates addObject:delegate];
 }
 
 -(void)presentInAppMessage:(OSInAppMessage * _Nonnull)message {
@@ -85,6 +91,11 @@
     
     //nullify our reference to the window to ensure there are no leaks
     self.window = nil;
+}
+
+-(void)messageViewDidSelectAction:(NSString *)actionId withData:(NSDictionary *)data {
+    for (id<OSInAppMessageDelegate> delegate in self.delegates)
+        [delegate handleMessageAction:actionId withData:data];
 }
 
 @end

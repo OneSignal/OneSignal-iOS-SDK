@@ -46,31 +46,19 @@
     if (self = [super init]) {
         if (json[@"type"] != nil && [json[@"type"] isKindOfClass:[NSString class]])
             self.type = displayTypeFromString(json[@"type"]);
-        else
-            return nil;
+        else return nil;
         
         if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
             self.messageId = json[@"id"];
-        else
-            return nil;
+        else return nil;
         
         if (json[@"content_id"] && [json[@"content_id"] isKindOfClass:[NSString class]])
             self.contentId = json[@"content_id"];
-        else
-            return nil;
+        else return nil;
         
         if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]])
             self.triggers = json[@"triggers"];
-        else
-            return nil;
-    }
-    
-    return self;
-}
-
-- (instancetype _Nonnull)initWithType:(OSInAppMessageDisplayType)displayType {
-    if (self = [super init]) {
-        self.type = displayType;
+        else return nil;
         
         switch (self.type) {
             case OSInAppMessageDisplayTypeCenteredModal:

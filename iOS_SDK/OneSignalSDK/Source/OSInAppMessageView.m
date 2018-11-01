@@ -43,14 +43,17 @@
         self.translatesAutoresizingMaskIntoConstraints = false;
         [self setupWebview];
         
-        [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.google.com"]]];
+        [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/testhtml.html"]]];
     }
     
     return self;
 }
 
 - (void)setupWebview {
-    self.webView = [[WKWebView alloc] init];
+    let configuration = [WKWebViewConfiguration new];
+    [configuration.userContentController addScriptMessageHandler:self name:@"iosListener"];
+    
+    self.webView = [[WKWebView alloc] initWithFrame:self.bounds configuration:configuration];
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
     self.webView.scrollView.scrollEnabled = false;
     self.webView.navigationDelegate = self;
@@ -63,6 +66,21 @@
     [self.webView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor].active = true;
     
     [self layoutIfNeeded];
+}
+
+#pragma mark WKScriptMessageHandler
+-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    NSError *error;
+    NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:[message.body dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingAllowFragments error:&error];
+    
+    NSString *action = jsonData[@"action"];
+    
+    if (!jsonData || !action) {
+        [self.delegate messageViewDidFailToProcessAction];
+        return;
+    }
+    
+    [self.delegate messageViewDidTapAction:action withAdditionalData:jsonData[@"data"]];
 }
 
 #pragma mark WKWebViewNavigationDelegate Methods

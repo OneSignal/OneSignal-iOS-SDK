@@ -35,12 +35,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)messageViewDidLoadMessageContent;
 - (void)messageViewFailedToLoadMessageContent;
+- (void)messageViewDidTapAction:(NSString *)action withAdditionalData:(NSDictionary *)data;
+- (void)messageViewDidFailToProcessAction;
 
 @end
 
 
 
-@interface OSInAppMessageView : UIView <WKNavigationDelegate>
+@interface OSInAppMessageView : UIView <WKNavigationDelegate, WKScriptMessageHandler>
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;

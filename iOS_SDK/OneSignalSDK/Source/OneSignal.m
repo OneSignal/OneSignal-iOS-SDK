@@ -1701,9 +1701,41 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)testShowMessageWithType:(OSInAppMessageDisplayType)type {
-    let message = [[OSInAppMessage alloc] initWithType:type];
+    NSString *typeString;
+    
+    switch (type) {
+        case OSInAppMessageDisplayTypeCenteredModal:
+            typeString = @"centered_modal";
+            break;
+        case OSInAppMessageDisplayTypeTopBanner:
+            typeString = @"top_banner";
+            break;
+        case OSInAppMessageDisplayTypeFullScreen:
+            typeString = @"full_screen";
+            break;
+        case OSInAppMessageDisplayTypeBottomBanner:
+            typeString = @"bottom_banner";
+            break;
+    }
+    
+    let message = [[OSInAppMessage alloc] initWithJson:@{
+         @"type" : typeString,
+         @"id" : @"test_id",
+         @"content_id" : @"test_content",
+         @"triggers" : @[
+            @{
+                @"property" : @"view_controller",
+                @"operator" : @"==",
+                @"value" : @"test_vc"
+            }
+        ]
+     }];
     
     [[OSMessagingController sharedInstance] presentInAppMessage:message];
+}
+
++ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate {
+    [[OSMessagingController sharedInstance] addMessageDelegate:delegate];
 }
 
 + (void)sendPurchases:(NSArray*)purchases {
