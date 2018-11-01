@@ -269,7 +269,7 @@
         case OSInAppMessageDisplayPositionTop:
             return (offset > self.messageView.bounds.size.height / 2.0f);
         case OSInAppMessageDisplayPositionCentered:
-            return (fabs(offset) > self.messageView.bounds.size.height / 2.0f);
+            return (fabs(offset) > self.messageView.bounds.size.height / 2.0f) || (fabs(offset) > 100);
         case OSInAppMessageDisplayPositionBottom:
             return (fabs(offset) > self.messageView.bounds.size.height / 2.0f) && offset < 0;
     }
@@ -286,10 +286,10 @@
 }
 
 // This delegate function gets called when an action button is tapped on the IAM
-- (void)messageViewDidTapAction:(NSString *)action withAdditionalData:(NSDictionary *)data {
+- (void)messageViewDidTapAction:(NSString *)action {
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
     
-    [self.delegate messageViewDidSelectAction:action withData:data];
+    [self.delegate messageViewDidSelectAction:action];
 }
 
 - (void)messageViewDidFailToProcessAction {

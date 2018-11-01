@@ -80,7 +80,7 @@
         return;
     }
     
-    [self.delegate messageViewDidTapAction:action withAdditionalData:jsonData[@"data"]];
+    [self.delegate messageViewDidTapAction:action];
 }
 
 #pragma mark WKWebViewNavigationDelegate Methods

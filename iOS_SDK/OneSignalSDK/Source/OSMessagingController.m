@@ -93,9 +93,9 @@
     self.window = nil;
 }
 
--(void)messageViewDidSelectAction:(NSString *)actionId withData:(NSDictionary *)data {
+-(void)messageViewDidSelectAction:(NSString *)actionId {
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
-        [delegate handleMessageAction:actionId withData:data];
+        [delegate handleMessageAction:actionId];
 }
 
 @end

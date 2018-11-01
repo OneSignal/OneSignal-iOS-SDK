@@ -86,7 +86,7 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
 };
 
 @protocol OSInAppMessageDelegate <NSObject>
-- (void)handleMessageAction:(NSString * _Nonnull)actionId withData:(NSDictionary * _Nullable)actionData NS_SWIFT_NAME(handleMessageAction(action:data:));
+- (void)handleMessageAction:(NSString * _Nonnull)actionId NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
 @interface OSNotificationAction : NSObject
