@@ -25,22 +25,22 @@
  * THE SOFTWARE.
  */
 
-#import "OSMessagingTriggerController.h"
+#import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
 #import "OneSignalHelper.h"
 
-@interface OSMessagingTriggerController ()
+@interface OSTriggerController ()
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSString *, id> *triggers;
 @property (strong, nonatomic, nonnull) NSUserDefaults *defaults;
 @end
 
-@implementation OSMessagingTriggerController
+@implementation OSTriggerController
 
-+ (OSMessagingTriggerController *)sharedInstance {
-    static OSMessagingTriggerController *sharedInstance = nil;
++ (OSTriggerController *)sharedInstance {
+    static OSTriggerController *sharedInstance = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        sharedInstance = [OSMessagingTriggerController new];
+        sharedInstance = [OSTriggerController new];
     });
     return sharedInstance;
 }
@@ -97,11 +97,9 @@
             
             id realValue = self.triggers[trigger.property];
             
-            if (![trigger.value isKindOfClass:[realValue class]]) {
-                break;
-            } else if ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesValue:realValue]) {
-                break;
-            } else if ([trigger.value isKindOfClass:[NSString class]] && ![trigger.value isEqualToString:realValue]) {
+            if (![trigger.value isKindOfClass:[realValue class]] ||
+                ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
+                ([trigger.value isKindOfClass:[NSString class]] && ![trigger.value isEqualToString:realValue])) {
                 break;
             } else if (i == conditions.count - 1) {
                 return true;
@@ -112,7 +110,7 @@
     return false;
 }
 
-- (BOOL)trigger:(OSTrigger *)trigger matchesValue:(id)realValue {
+- (BOOL)trigger:(OSTrigger *)trigger matchesNumericValue:(id)realValue {
     switch (trigger.operatorType) {
         case OSTriggerOperatorTypeGreaterThan:
             return [realValue doubleValue] > [trigger.value doubleValue];

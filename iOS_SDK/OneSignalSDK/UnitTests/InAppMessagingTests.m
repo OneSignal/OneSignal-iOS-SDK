@@ -31,7 +31,7 @@
 #import "OneSignalHelper.h"
 #import "OSInAppMessage.h"
 #import "OSTrigger.h"
-#import "OSMessagingTriggerController.h"
+#import "OSTriggerController.h"
 
 @interface OSTrigger (Test)
 + (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value;
@@ -58,7 +58,7 @@
  */
 
 @interface InAppMessagingTests : XCTestCase
-@property (strong, nonatomic) OSMessagingTriggerController *triggerController;
+@property (strong, nonatomic) OSTriggerController *triggerController;
 @end
 
 @implementation InAppMessagingTests {
@@ -77,7 +77,7 @@
         ]
     ]];
     
-    self.triggerController = [OSMessagingTriggerController new];
+    self.triggerController = [OSTriggerController new];
 }
 
 - (OSInAppMessage *)messageWithTriggers:(NSArray *)triggers {

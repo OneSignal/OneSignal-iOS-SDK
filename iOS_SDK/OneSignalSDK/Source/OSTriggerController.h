@@ -30,9 +30,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSMessagingTriggerController : NSObject
+@interface OSTriggerController : NSObject
 
-+ (OSMessagingTriggerController *)sharedInstance;
++ (OSTriggerController *)sharedInstance;
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;

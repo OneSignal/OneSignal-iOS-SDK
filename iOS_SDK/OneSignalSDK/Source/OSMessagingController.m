@@ -27,7 +27,7 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h"
-#import "OSMessagingTriggerController.h"
+#import "OSTriggerController.h"
 
 @interface OSMessagingController ()
 
