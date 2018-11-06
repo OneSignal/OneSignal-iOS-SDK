@@ -27,6 +27,7 @@
 
 #import "OSInAppMessage.h"
 #import "OneSignalHelper.h"
+#import "OneSignal.h"
 
 @implementation OSInAppMessage
 
@@ -56,9 +57,28 @@
             self.contentId = json[@"content_id"];
         else return nil;
         
-        if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]])
-            self.triggers = json[@"triggers"];
-        else return nil;
+        if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
+            let triggers = [NSMutableArray new];
+            
+            for (NSArray *list in (NSArray *)json[@"triggers"]) {
+                let subTriggers = [NSMutableArray new];
+                
+                for (NSDictionary *triggerJson in list) {
+                    let trigger = [[OSTrigger alloc] initWithJson:triggerJson];
+                    
+                    if (trigger) {
+                        [subTriggers addObject:trigger];
+                    } else {
+                        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Trigger JSON is invalid: %@", triggerJson]];
+                        return nil;
+                    }
+                }
+                
+                [triggers addObject:subTriggers];
+            }
+            
+            self.triggers = triggers;
+        } else return nil;
         
         switch (self.type) {
             case OSInAppMessageDisplayTypeCenteredModal:

@@ -26,20 +26,24 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessagingDefines.h"
 #import "OSJSONHandling.h"
-#import "OneSignal.h"
-#import "OSTrigger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSInAppMessage : NSObject <OSJSONDecodable>
-@property (strong, nonatomic, nonnull) NSString *messageId;
-@property (strong, nonatomic, nonnull) NSString *contentId;
-@property (strong, nonatomic, nonnull) NSArray<NSArray <OSTrigger *> *> *triggers;
+typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
+    OSTriggerOperatorTypeGreaterThan,
+    OSTriggerOperatorTypeLessThan,
+    OSTriggerOperatorTypeEqualTo,
+    OSTriggerOperatorTypeLessThanOrEqualTo,
+    OSTriggerOperatorTypeGreaterThanOrEqualTo,
+    OSTriggerOperatorTypeExists
+};
 
-@property (nonatomic) OSInAppMessageDisplayType type;
-@property (nonatomic) OSInAppMessageDisplayPosition position;
+@interface OSTrigger : NSObject <OSJSONDecodable>
+
+@property (strong, nonatomic, nonnull) NSString *property;
+@property (nonatomic) OSTriggerOperatorType operatorType;
+@property (strong, nonatomic, nullable) id value;
 
 @end
 
