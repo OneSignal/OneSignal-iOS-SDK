@@ -217,5 +217,17 @@
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTrigger:@3 withLocalValue:@4]);
 }
 
+- (void)testInvalidOperator {
+    let triggerJson = @{
+        @"property" : @"prop1",
+        @"operator" : @"<<<",
+        @"value" : @2
+    };
+    
+    // When invalid JSON is encountered, the in-app message should
+    // not initialize and should return nil
+    XCTAssertNil([self messageWithTriggers:@[@[triggerJson]]]);
+}
+
 @end
 
