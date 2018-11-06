@@ -27,6 +27,7 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h"
+#import "OSMessagingTriggerController.h"
 
 @interface OSMessagingController ()
 
@@ -36,11 +37,13 @@
 
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
 
+@property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
+
 @end
 
 @implementation OSMessagingController
 
-+ (OSMessagingController * _Nonnull)sharedInstance {
++ (OSMessagingController *)sharedInstance {
     static OSMessagingController *sharedInstance = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
@@ -49,19 +52,24 @@
     return sharedInstance;
 }
 
--(instancetype _Nonnull)init {
+- (instancetype)init {
     if (self = [super init]) {
         self.delegates = [NSMutableArray<OSInAppMessageDelegate> new];
+        self.messages = [NSArray<OSInAppMessage *> new];
     }
     
     return self;
+}
+
+- (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
+    self.messages = newMessages;
 }
 
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate {
     [self.delegates addObject:delegate];
 }
 
--(void)presentInAppMessage:(OSInAppMessage * _Nonnull)message {
+-(void)presentInAppMessage:(OSInAppMessage *)message {
     if (!self.window) {
         self.window = [[UIWindow alloc] init];
         self.window.windowLevel = UIWindowLevelAlert;

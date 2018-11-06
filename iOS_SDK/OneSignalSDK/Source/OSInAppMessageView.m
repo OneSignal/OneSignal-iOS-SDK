@@ -43,7 +43,18 @@
         self.translatesAutoresizingMaskIntoConstraints = false;
         [self setupWebview];
         
-        [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/testhtml.html"]]];
+        switch (self.message.type) {
+            case OSInAppMessageDisplayTypeTopBanner:
+            case OSInAppMessageDisplayTypeBottomBanner:
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/banner.html"]]];
+                break;
+            case OSInAppMessageDisplayTypeFullScreen:
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/full_screen.html"]]];
+                break;
+            case OSInAppMessageDisplayTypeCenteredModal:
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/centered_modal.html"]]];
+                break;
+        }
     }
     
     return self;
@@ -59,6 +70,9 @@
     self.webView.navigationDelegate = self;
     
     [self addSubview:self.webView];
+    
+    if (@available(iOS 11, *))
+        self.webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     
     [self.webView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor].active = true;
     [self.webView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor].active = true;

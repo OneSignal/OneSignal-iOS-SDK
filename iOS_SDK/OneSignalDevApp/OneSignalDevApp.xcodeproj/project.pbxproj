@@ -39,6 +39,8 @@
 		91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A31E724DCB0022A1CB /* libOneSignal.a */; };
 		91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
 		91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
+		CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
+		CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +98,7 @@
 		9150E7821E73BFB600C5D46A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		91B6EA051E83215000B5CF01 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		91B6EA091E834B1700B5CF01 /* sentImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sentImage.jpg; sourceTree = "<group>"; };
+		CACBAAB5218A7136000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +106,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
 				4529DF041FA929F800CEAB1D /* FirebaseNanoPB.framework in Frameworks */,
 				9112E8A51E724ECC0022A1CB /* libOneSignal.a in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
@@ -120,6 +124,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */,
 				454EB3281FABEF3E0093AD9B /* FirebaseAnalytics.framework in Frameworks */,
 				454EB3271FABEF3A0093AD9B /* FirebaseCore.framework in Frameworks */,
 				454EB3261FABEF380093AD9B /* FirebaseInstanceID.framework in Frameworks */,
@@ -185,6 +190,7 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CACBAAB5218A7136000ACAA5 /* WebKit.framework */,
 				4529DF051FA92C7F00CEAB1D /* GoogleToolboxForMac.framework */,
 				4529DF031FA929F700CEAB1D /* FirebaseNanoPB.framework */,
 				4529DF011FA9292800CEAB1D /* nanopb.framework */,

@@ -34,9 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingController : NSObject <OSInAppMessaveViewControllerDelegate>
 
-+ (OSMessagingController * _Nonnull)sharedInstance;
++ (OSMessagingController *)sharedInstance;
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;
-- (void)presentInAppMessage:(OSInAppMessage * _Nonnull)message;
+- (void)presentInAppMessage:(OSInAppMessage *)message;
 
 @end
 

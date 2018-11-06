@@ -63,19 +63,15 @@
         switch (self.type) {
             case OSInAppMessageDisplayTypeCenteredModal:
                 self.position = OSInAppMessageDisplayPositionCentered;
-                self.heightRatio = CENTERED_MODAL_HEIGHT;
                 break;
             case OSInAppMessageDisplayTypeBottomBanner:
                 self.position = OSInAppMessageDisplayPositionBottom;
-                self.heightRatio = BANNER_HEIGHT;
                 break;
             case OSInAppMessageDisplayTypeFullScreen:
                 self.position = OSInAppMessageDisplayPositionCentered;
-                self.heightRatio = FULL_SCREEN_HEIGHT;
                 break;
             case OSInAppMessageDisplayTypeTopBanner:
                 self.position = OSInAppMessageDisplayPositionTop;
-                self.heightRatio = BANNER_HEIGHT;
                 break;
         }
     }

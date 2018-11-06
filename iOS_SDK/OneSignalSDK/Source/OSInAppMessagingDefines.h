@@ -38,8 +38,12 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 
 #define MESSAGE_MARGIN 0.025f
 
-#define BANNER_HEIGHT 0.25f
-#define CENTERED_MODAL_HEIGHT 0.5f
-#define FULL_SCREEN_HEIGHT 0.8f
+#define BANNER_ASPECT_RATIO 2.3f
+#define CENTERED_MODAL_ASPECT_RATIO 0.81f
+
+#define MAX_DISMISSAL_ANIMATION_DURATION 0.3f
+
+// Key for NSUserDefaults trigger storage
+#define OS_TRIGGERS_KEY @"OS_IN_APP_MESSAGING_TRIGGERS"
 
 #endif /* OSInAppMessagingDefines_h */

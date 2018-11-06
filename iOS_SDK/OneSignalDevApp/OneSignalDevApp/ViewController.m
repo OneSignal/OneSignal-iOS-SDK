@@ -143,8 +143,8 @@
     [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeFullScreen];
 }
 
--(void)handleMessageAction:(NSString *)actionId withData:(NSDictionary *)actionData {
-    NSLog(@"View controller did get action: %@ with data: %@", actionId, actionData);
+-(void)handleMessageAction:(NSString *)actionId {
+    NSLog(@"View controller did get action: %@", actionId);
 }
 
 

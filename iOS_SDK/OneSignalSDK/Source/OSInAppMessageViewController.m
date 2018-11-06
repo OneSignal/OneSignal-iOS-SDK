@@ -39,6 +39,7 @@
 @property (weak, nonatomic, nullable) OSInAppMessageView *messageView;
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *initialYConstraint;
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *finalYConstraint;
+@property (strong, nonatomic, nonnull) NSLayoutConstraint *heightConstraint;
 
 @property (weak, nonatomic, nullable) UIPanGestureRecognizer *panGestureRecognizer;
 @property (weak, nonatomic, nullable) UITapGestureRecognizer *tapGestureRecognizer;
@@ -91,7 +92,22 @@
     self.messageView = messageSubview;
     self.messageView.delegate = self;
     
-    self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3];
+    
+    if (@available(iOS 10, *)) {
+        let effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
+        
+        let backgroundView = [[UIVisualEffectView alloc] initWithEffect:effect];
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false;
+        
+        backgroundView.alpha = 0.5;
+        
+        [self.view addSubview:backgroundView];
+        
+        [backgroundView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor].active = true;
+        [backgroundView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor].active = true;
+        [backgroundView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = true;
+        [backgroundView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = true;
+    }
     
     self.messageView.translatesAutoresizingMaskIntoConstraints = false;
     self.messageView.backgroundColor = [UIColor blackColor];
@@ -107,18 +123,42 @@
 
 - (void)addConstraintsForMessage {
     
-    NSLayoutAnchor *top = self.view.topAnchor, *bottom = self.view.bottomAnchor, *leading = self.view.leadingAnchor, *trailing = self.view.trailingAnchor;
+    NSLayoutAnchor *top = self.view.topAnchor, *bottom = self.view.bottomAnchor, *leading = self.view.leadingAnchor, *trailing = self.view.trailingAnchor, *center = self.view.centerXAnchor;
+    NSLayoutDimension *height = self.view.heightAnchor;
     
     if (@available(iOS 12, *)) {
         let safeArea = self.view.safeAreaLayoutGuide;
-        top = safeArea.topAnchor, bottom = safeArea.bottomAnchor, leading = safeArea.leadingAnchor, trailing = safeArea.trailingAnchor;
+        top = safeArea.topAnchor, bottom = safeArea.bottomAnchor, leading = safeArea.leadingAnchor, trailing = safeArea.trailingAnchor, center = safeArea.centerXAnchor;
+        height = safeArea.heightAnchor;
+        
     }
     
     let marginSpacing = MESSAGE_MARGIN * [UIScreen mainScreen].bounds.size.width;
     
-    [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing].active = true;
-    [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing].active = true;
-    [self.messageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:self.message.heightRatio].active = true;
+    var aspectRatio = BANNER_ASPECT_RATIO;
+    
+    if (self.message.type == OSInAppMessageDisplayTypeFullScreen)
+        aspectRatio = UIScreen.mainScreen.bounds.size.width / UIScreen.mainScreen.bounds.size.height;
+    else if (self.message.type == OSInAppMessageDisplayTypeCenteredModal)
+        aspectRatio = CENTERED_MODAL_ASPECT_RATIO;
+    
+    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
+    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing];
+    leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    leftConstraint.active = true;
+    rightConstraint.active = true;
+    
+    [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
+    
+    // The aspect ratio for each type (ie. Banner) determines the height normally
+    // However the actual height of the HTML content takes priority.
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-(2.0f * marginSpacing)].active = true;
+    
+    
+    self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.messageView.widthAnchor multiplier:1.0f/aspectRatio constant:0.0f];
+    self.heightConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
+    self.heightConstraint.active = true;
     
     // add Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
@@ -152,20 +192,35 @@
     [self.view layoutIfNeeded];
 }
 
-- (void)dismissMessageWithDirection:(BOOL)up {
+- (void)dismissMessageWithDirection:(BOOL)up withVelocity:(double)velocity {
     // inactivate the current Y constraints
     self.finalYConstraint.active = false;
     self.initialYConstraint.active = false;
     
+    // The distance that the dismissal animation will travel
+    var distance = 0.0f;
+    
     // add new Y constraints
     if (up) {
+        distance = self.messageView.frame.origin.y + self.messageView.frame.size.height + 8.0f;
         [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f].active = true;
     } else {
+        distance = self.view.frame.size.height - self.messageView.frame.origin.y + 8.0f;
         [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f].active = true;
     }
     
-    [UIView animateWithDuration:0.3 animations:^{
+    var dismissAnimationDuration = velocity != 0.0f ? distance / fabs(velocity) : 0.3f;
+    
+    var animationOption = UIViewAnimationOptionCurveLinear;
+    
+    if (dismissAnimationDuration > MAX_DISMISSAL_ANIMATION_DURATION) {
+        animationOption = UIViewAnimationOptionCurveEaseIn;
+        dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
+    }
+    
+    [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:UIViewAnimationOptionCurveLinear animations:^{
         self.view.backgroundColor = [UIColor clearColor];
+        self.view.alpha = 0.0f;
         [self.view layoutIfNeeded];
     } completion:^(BOOL finished) {
         if (!finished)
@@ -218,6 +273,9 @@
     // Tells us the location of the gesture inside the entire view
     let location = [sender locationInView:self.view];
     
+    // Tells us the velocity of the dismissal gesture in points per second
+    let velocity = [sender velocityInView:self.view].y;
+    
     // Return early if we are just beginning the pan interaction
     // Set up the pan constraints to move the view
     if (sender.state == UIGestureRecognizerStateBegan) {
@@ -234,15 +292,15 @@
         self.panVerticalConstraint.active = false;
         
         // Indicates if the in-app message was swiped away
-        if ([self shouldDismissMessageWithPanGestureOffset:offset]) {
+        if ([self shouldDismissMessageWithPanGestureOffset:offset withVelocity:velocity]) {
             
             // Centered messages can be dismissed in either direction (up/down)
             if (self.message.position == OSInAppMessageDisplayPositionCentered) {
-                [self dismissMessageWithDirection:offset > 0];
+                [self dismissMessageWithDirection:offset > 0 withVelocity:velocity];
             } else {
                 // Top messages can only be dismissed by swiping up
                 // Bottom messages can only be dismissed swiping down
-                [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
+                [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:velocity];
             }
         } else {
             // The pan constraint is now inactive, calling layoutIfNeeded()
@@ -261,15 +319,20 @@
 
 // Called when the user taps on the background view
 - (void)tapGestureRecognizerDidTap:(UITapGestureRecognizer *)sender {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
+    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
-- (BOOL)shouldDismissMessageWithPanGestureOffset:(double)offset {
+- (BOOL)shouldDismissMessageWithPanGestureOffset:(double)offset withVelocity:(double)velocity {
+    
+    // For Centered notifications, only true if the user was swiping
+    // in the same direction as the dismissal
+    BOOL dismissDirection = (offset > 0 && velocity <= 0) || (offset < 0 && velocity >= 0);
+    
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop:
             return (offset > self.messageView.bounds.size.height / 2.0f);
         case OSInAppMessageDisplayPositionCentered:
-            return (fabs(offset) > self.messageView.bounds.size.height / 2.0f) || (fabs(offset) > 100);
+            return dismissDirection && ((fabs(offset) > self.messageView.bounds.size.height / 2.0f) || (fabs(offset) > 100));
         case OSInAppMessageDisplayPositionBottom:
             return (fabs(offset) > self.messageView.bounds.size.height / 2.0f) && offset < 0;
     }
@@ -287,13 +350,13 @@
 
 // This delegate function gets called when an action button is tapped on the IAM
 - (void)messageViewDidTapAction:(NSString *)action {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
+    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
     
     [self.delegate messageViewDidSelectAction:action];
 }
 
 - (void)messageViewDidFailToProcessAction {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop];
+    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
 @end
