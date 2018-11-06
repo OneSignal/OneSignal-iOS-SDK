@@ -90,7 +90,7 @@
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
     
-    return [[OSInAppMessage alloc] initWithData:data];
+    return [OSInAppMessage instanceWithData:data];
 }
 
 - (void)testCorrectlyParsedType {

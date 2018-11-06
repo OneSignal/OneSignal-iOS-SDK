@@ -31,7 +31,7 @@
 
 @implementation OSTrigger
 
--(instancetype)initWithData:(NSData *)data {
++ (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     let json = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
     
@@ -40,32 +40,31 @@
         return nil;
     }
     
-    return [self initWithJson:json];
+    return [self instanceWithJson:json];
 }
 
--(instancetype)initWithJson:(NSDictionary *)json {
-    if (self = [super init]) {
-        if (json[@"property"] && [json[@"property"] isKindOfClass:[NSString class]])
-            self.property = (NSString *)json[@"property"];
-        else return nil;
-        
-        if (json[@"operator"] && [json[@"operator"] isKindOfClass:[NSString class]]) {
-            let num = operatorFromString((NSString *)json[@"operator"]);
-            
-            if (num >= 0)
-                self.operatorType = (OSTriggerOperatorType)num;
-            else return nil;
-        } else return nil;
-        
-        // A value will not exist if the operator type is OSTriggerOperatorTypeExists
-        if (json[@"value"])
-            self.value = json[@"value"];
-        else if (self.operatorType != OSTriggerOperatorTypeExists)
-            return nil;
-        
-    }
++ (instancetype)instanceWithJson:(NSDictionary *)json {
+    let newTrigger = [OSTrigger new];
     
-    return self;
+    if (json[@"property"] && [json[@"property"] isKindOfClass:[NSString class]])
+        newTrigger.property = (NSString *)json[@"property"];
+    else return nil;
+    
+    if (json[@"operator"] && [json[@"operator"] isKindOfClass:[NSString class]]) {
+        let num = operatorFromString((NSString *)json[@"operator"]);
+        
+        if (num >= 0)
+            newTrigger.operatorType = (OSTriggerOperatorType)num;
+        else return nil;
+    } else return nil;
+    
+    // A value will not exist if the operator type is OSTriggerOperatorTypeExists
+    if (json[@"value"])
+        newTrigger.value = json[@"value"];
+    else if (newTrigger.operatorType != OSTriggerOperatorTypeExists)
+        return nil;
+    
+    return newTrigger;
 }
 
 int operatorFromString(NSString *operator) {

@@ -1718,7 +1718,7 @@ static dispatch_queue_t serialQueue;
             break;
     }
     
-    let message = [[OSInAppMessage alloc] initWithJson:@{
+    let message = [OSInAppMessage instanceWithJson:@{
          @"type" : typeString,
          @"id" : @"test_id",
          @"content_id" : @"test_content",

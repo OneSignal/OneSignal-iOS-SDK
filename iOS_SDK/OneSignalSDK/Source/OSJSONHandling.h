@@ -28,9 +28,9 @@
 #import <Foundation/Foundation.h>
 
 @protocol OSJSONDecodable
-- (instancetype _Nullable)initWithData:(NSData * _Nonnull)data;
++ (instancetype _Nullable)instanceWithData:(NSData * _Nonnull)data;
 
-- (instancetype _Nullable)initWithJson:(NSDictionary * _Nonnull)json;
++ (instancetype _Nullable)instanceWithJson:(NSDictionary * _Nonnull)json;
 @end
 
 @protocol OSJSONEncodable

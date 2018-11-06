@@ -31,7 +31,7 @@
 
 @implementation OSInAppMessage
 
--(instancetype)initWithData:(NSData *)data {
++ (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     
@@ -40,63 +40,63 @@
         return nil;
     }
     
-    return [self initWithJson:json];
+    return [self instanceWithJson:json];
 }
 
-- (instancetype)initWithJson:(NSDictionary * _Nonnull)json {
-    if (self = [super init]) {
-        if (json[@"type"] != nil && [json[@"type"] isKindOfClass:[NSString class]])
-            self.type = displayTypeFromString(json[@"type"]);
-        else return nil;
++ (instancetype)instanceWithJson:(NSDictionary * _Nonnull)json {
+    let message = [OSInAppMessage new];
+    
+    if (json[@"type"] != nil && [json[@"type"] isKindOfClass:[NSString class]])
+        message.type = displayTypeFromString(json[@"type"]);
+    else return nil;
+    
+    if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
+        message.messageId = json[@"id"];
+    else return nil;
+    
+    if (json[@"content_id"] && [json[@"content_id"] isKindOfClass:[NSString class]])
+        message.contentId = json[@"content_id"];
+    else return nil;
+    
+    if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
+        let triggers = [NSMutableArray new];
         
-        if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
-            self.messageId = json[@"id"];
-        else return nil;
-        
-        if (json[@"content_id"] && [json[@"content_id"] isKindOfClass:[NSString class]])
-            self.contentId = json[@"content_id"];
-        else return nil;
-        
-        if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
-            let triggers = [NSMutableArray new];
+        for (NSArray *list in (NSArray *)json[@"triggers"]) {
+            let subTriggers = [NSMutableArray new];
             
-            for (NSArray *list in (NSArray *)json[@"triggers"]) {
-                let subTriggers = [NSMutableArray new];
+            for (NSDictionary *triggerJson in list) {
+                let trigger = [OSTrigger instanceWithJson:triggerJson];
                 
-                for (NSDictionary *triggerJson in list) {
-                    let trigger = [[OSTrigger alloc] initWithJson:triggerJson];
-                    
-                    if (trigger) {
-                        [subTriggers addObject:trigger];
-                    } else {
-                        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Trigger JSON is invalid: %@", triggerJson]];
-                        return nil;
-                    }
+                if (trigger) {
+                    [subTriggers addObject:trigger];
+                } else {
+                    [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Trigger JSON is invalid: %@", triggerJson]];
+                    return nil;
                 }
-                
-                [triggers addObject:subTriggers];
             }
             
-            self.triggers = triggers;
-        } else return nil;
-        
-        switch (self.type) {
-            case OSInAppMessageDisplayTypeCenteredModal:
-                self.position = OSInAppMessageDisplayPositionCentered;
-                break;
-            case OSInAppMessageDisplayTypeBottomBanner:
-                self.position = OSInAppMessageDisplayPositionBottom;
-                break;
-            case OSInAppMessageDisplayTypeFullScreen:
-                self.position = OSInAppMessageDisplayPositionCentered;
-                break;
-            case OSInAppMessageDisplayTypeTopBanner:
-                self.position = OSInAppMessageDisplayPositionTop;
-                break;
+            [triggers addObject:subTriggers];
         }
+        
+        message.triggers = triggers;
+    } else return nil;
+    
+    switch (message.type) {
+        case OSInAppMessageDisplayTypeCenteredModal:
+            message.position = OSInAppMessageDisplayPositionCentered;
+            break;
+        case OSInAppMessageDisplayTypeBottomBanner:
+            message.position = OSInAppMessageDisplayPositionBottom;
+            break;
+        case OSInAppMessageDisplayTypeFullScreen:
+            message.position = OSInAppMessageDisplayPositionCentered;
+            break;
+        case OSInAppMessageDisplayTypeTopBanner:
+            message.position = OSInAppMessageDisplayPositionTop;
+            break;
     }
     
-    return self;
+    return message;
 }
 
 OSInAppMessageDisplayType displayTypeFromString(NSString *typeString) {
