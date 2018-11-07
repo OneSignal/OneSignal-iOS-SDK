@@ -46,8 +46,8 @@
 + (instancetype)instanceWithJson:(NSDictionary * _Nonnull)json {
     let message = [OSInAppMessage new];
     
-    if (json[@"type"] != nil && [json[@"type"] isKindOfClass:[NSString class]])
-        message.type = displayTypeFromString(json[@"type"]);
+    if (json[@"type"] != nil && [json[@"type"] isKindOfClass:[NSString class]] && OS_IS_VALID_DISPLAY_TYPE(json[@"type"]))
+        message.type = OS_DISPLAY_TYPE_FOR_STRING(json[@"type"]);
     else return nil;
     
     if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
@@ -81,33 +81,9 @@
         message.triggers = triggers;
     } else return nil;
     
-    switch (message.type) {
-        case OSInAppMessageDisplayTypeCenteredModal:
-            message.position = OSInAppMessageDisplayPositionCentered;
-            break;
-        case OSInAppMessageDisplayTypeBottomBanner:
-            message.position = OSInAppMessageDisplayPositionBottom;
-            break;
-        case OSInAppMessageDisplayTypeFullScreen:
-            message.position = OSInAppMessageDisplayPositionCentered;
-            break;
-        case OSInAppMessageDisplayTypeTopBanner:
-            message.position = OSInAppMessageDisplayPositionTop;
-            break;
-    }
+    message.position = OS_DISPLAY_POSITION_FOR_TYPE(message.type);
     
     return message;
-}
-
-OSInAppMessageDisplayType displayTypeFromString(NSString *typeString) {
-    if ([typeString isEqualToString:@"centered_modal"])
-        return OSInAppMessageDisplayTypeCenteredModal;
-    else if ([typeString isEqualToString:@"top_banner"])
-        return OSInAppMessageDisplayTypeTopBanner;
-    else if ([typeString isEqualToString:@"bottom_banner"])
-        return OSInAppMessageDisplayTypeBottomBanner;
-    else
-        return OSInAppMessageDisplayTypeFullScreen;
 }
 
 @end

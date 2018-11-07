@@ -28,6 +28,8 @@
 #ifndef OSInAppMessagingDefines_h
 #define OSInAppMessagingDefines_h
 
+#import "OneSignal.h"
+
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionBottom,
     
@@ -45,5 +47,22 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 
 // Key for NSUserDefaults trigger storage
 #define OS_TRIGGERS_KEY @"OS_IN_APP_MESSAGING_TRIGGERS"
+
+// Dynamic trigger property types
+#define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
+#define OS_TIME_TRIGGER @"os_time"
+#define OS_EXACT_TIME_TRIGGER @"os_exact_time"
+
+#define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time", @"os_exact_time"] containsObject:type]
+
+// Maps OSInAppMessageDisplayType cases to the equivalent OSInAppMessageDisplayPosition cases
+#define OS_DISPLAY_POSITION_FOR_TYPE(inAppMessageType) [[@[@(OSInAppMessageDisplayPositionTop), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionBottom)] objectAtIndex: inAppMessageType] intValue]
+
+// Checks if a string is a valid display type
+#define OS_IS_VALID_DISPLAY_TYPE(stringType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] containsObject: stringType]
+
+// Converts string like "top_banner" to its OSInAppMessageDisplayType enum case
+#define OS_DISPLAY_TYPE_FOR_STRING(stringType) (OSInAppMessageDisplayType)[@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] indexOfObject: stringType]
+
 
 #endif /* OSInAppMessagingDefines_h */
