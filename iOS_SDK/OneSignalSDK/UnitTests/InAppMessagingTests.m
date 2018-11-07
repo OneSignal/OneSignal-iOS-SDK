@@ -180,7 +180,7 @@
     XCTAssertTrue([self.triggerController messageMatchesTriggers:testMessage]);
 }
 
-- (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTrigger:(NSNumber *)triggerValue withLocalValue:(NSNumber *)localValue {
+- (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTrigger:(id)triggerValue withLocalValue:(id)localValue {
     let testMessage = [self messageWithTriggers:@[]];
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
     testMessage.triggers = @[@[trigger]];
@@ -227,6 +227,18 @@
     // When invalid JSON is encountered, the in-app message should
     // not initialize and should return nil
     XCTAssertNil([self messageWithTriggers:@[@[triggerJson]]]);
+}
+
+- (void)testNumericContainsOperator {
+    let localArray = @[@1, @2, @3];
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@2 withLocalValue:localArray]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@4 withLocalValue:localArray]);
+}
+
+- (void)testStringContainsOperator {
+    let localArray = @[@"test1", @"test2", @"test3"];
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@"test2" withLocalValue:localArray]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@"test5" withLocalValue:localArray]);
 }
 
 @end

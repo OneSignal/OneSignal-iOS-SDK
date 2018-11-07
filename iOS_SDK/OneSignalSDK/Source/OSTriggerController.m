@@ -80,6 +80,20 @@
     [self removeTriggersForKeys:@[key]];
 }
 
+#pragma mark Private Methods
+
+/**
+    Triggers on a message are structured as a 2D array, where the outer array represents OR conditions
+    and the inner array represents AND conditions.
+ 
+    Because of this structure, we use a nested for-loop. In the inner loop, it continues to evaluate. If
+    at any point it determines a trigger condition is FALSE, it breaks and the outer loop continues.
+ 
+    But if the inner loop never hits a condition that is FALSE, it continues looping until it hits the
+    last condition. If the last condition is also true, it returns YES.
+ 
+    Supports both String and Numeric value types & comparisons
+*/
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message {
     for (NSArray <OSTrigger *> *conditions in message.triggers) {
         for (int i = 0; i < conditions.count; i++) {
@@ -97,7 +111,13 @@
             
             id realValue = self.triggers[trigger.property];
             
-            if (![trigger.value isKindOfClass:[realValue class]] ||
+            if (trigger.operatorType == OSTriggerOperatorTypeContains) {
+                if (![self array:realValue containsValue:trigger.value])
+                    break;
+                else if (i == conditions.count - 1)
+                    return true;
+                else continue;
+            } else if (![trigger.value isKindOfClass:[realValue class]] ||
                 ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
                 ([trigger.value isKindOfClass:[NSString class]] && ![trigger.value isEqualToString:realValue])) {
                 break;
@@ -106,6 +126,22 @@
             }
         }
     }
+    
+    return false;
+}
+
+- (BOOL)triggerValue:(id)triggerValue isEqualToValue:(id)value {
+    return ([triggerValue isKindOfClass:[value class]] &&
+     (([triggerValue isKindOfClass:[NSNumber class]] && [triggerValue isEqualToNumber:value]) ||
+      ([triggerValue isKindOfClass:[NSString class]] && [triggerValue isEqualToString:value])));
+}
+
+- (BOOL)array:(NSArray *)array containsValue:(id)value {
+    if (!array) return false;
+    
+    for (id element in array)
+        if ([self triggerValue:value isEqualToValue:element])
+            return true;
     
     return false;
 }
@@ -124,10 +160,11 @@
             return [realValue doubleValue] >= [trigger.value doubleValue];
         case OSTriggerOperatorTypeExists:
             @throw [NSException exceptionWithName:@"OneSignal Extension" reason:@"Attempted to compare/check equality for a non-comparative operator (OSTriggerOperatorTypeExists)" userInfo:nil];
+        case OSTriggerOperatorTypeContains:
+            @throw [NSException exceptionWithName:@"OneSignal Extension" reason:@"Attempted to compare/check equality for a non-comparative operator (OSTriggerOperatorTypeContains)" userInfo:nil];
     }
 }
 
-#pragma mark Private Methods
 - (NSDictionary<NSString *, id> * _Nullable)triggersFromUserDefaults {
     return [self.defaults dictionaryForKey:OS_TRIGGERS_KEY];
 }

@@ -36,7 +36,8 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
     OSTriggerOperatorTypeEqualTo,
     OSTriggerOperatorTypeLessThanOrEqualTo,
     OSTriggerOperatorTypeGreaterThanOrEqualTo,
-    OSTriggerOperatorTypeExists
+    OSTriggerOperatorTypeExists,
+    OSTriggerOperatorTypeContains
 };
 
 @interface OSTrigger : NSObject <OSJSONDecodable>

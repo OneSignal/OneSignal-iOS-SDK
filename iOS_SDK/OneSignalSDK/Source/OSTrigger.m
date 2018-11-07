@@ -68,7 +68,7 @@
 }
 
 int operatorFromString(NSString *operator) {
-    let operators = @[@">", @"<", @"==", @"<=", @">="];
+    let operators = @[@">", @"<", @"==", @"<=", @">=", @"exists", @"contains"];
     
     for (int i = 0; i < operators.count; i++)
         if ([operators[i] isEqualToString:operator])
