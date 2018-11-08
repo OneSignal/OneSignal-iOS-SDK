@@ -60,6 +60,12 @@
         message.contentId = json[@"content_id"];
     else return nil;
     
+    if (json[@"max_display_time"] && [json[@"max_display_time"] isKindOfClass:[NSNumber class]]) {
+        message.maxDisplayTime = [json[@"max_display_time"] doubleValue];
+    } else {
+        message.maxDisplayTime = -1.0f;
+    }
+    
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
         

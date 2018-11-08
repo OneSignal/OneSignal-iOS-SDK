@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) OSInAppMessageDisplayType type;
 @property (nonatomic) OSInAppMessageDisplayPosition position;
+@property (nonatomic) NSTimeInterval maxDisplayTime;
 
 @end
 
