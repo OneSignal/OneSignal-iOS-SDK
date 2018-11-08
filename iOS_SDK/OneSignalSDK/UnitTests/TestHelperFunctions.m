@@ -75,4 +75,15 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
     return existing;
 }
 
-
+void swizzleClassMethodWithCategoryImplementation(Class class, SEL original, SEL new) {
+    Method originalMethod = class_getClassMethod(class, original);
+    Method newMethod = class_getClassMethod(class, new);
+    
+    class = object_getClass((id)class);
+    
+    if (class_addMethod(class, original, method_getImplementation(newMethod), method_getTypeEncoding(newMethod))) {
+        class_replaceMethod(class, new, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+    } else {
+        method_exchangeImplementations(originalMethod, newMethod);
+    }
+}

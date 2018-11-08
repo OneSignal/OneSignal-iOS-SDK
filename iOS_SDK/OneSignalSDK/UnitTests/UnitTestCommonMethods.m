@@ -43,10 +43,18 @@
 #import "NSObjectOverrider.h"
 #import "OneSignalCommonDefines.h"
 #import "NSBundleOverrider.h"
-
+#import "NSTimerOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+}
+
+BOOL roughlyEqualFloats(float left, float right) {
+    return fabsf(left - right) < OS_COMPARISON_PRECISION;
+}
+
+BOOL roughlyEqualDoubles(double left, double right) {
+    return fabs(left - right) < OS_COMPARISON_PRECISION;
 }
 
 @implementation UnitTestCommonMethods
@@ -132,6 +140,8 @@ NSString * serverUrlWithPath(NSString *path) {
     [UIAlertViewOverrider reset];
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    
+    [NSTimerOverrider reset];
 }
 
 + (void)beforeAllTest {

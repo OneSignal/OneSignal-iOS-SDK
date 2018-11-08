@@ -29,7 +29,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSDynamicTrigger : NSObject
+@protocol OSDynamicTriggerDelegate <NSObject>
+- (void)dynamicTriggerFired;
+@end
+
+@interface OSDynamicTriggerController : NSObject
+
+@property (weak, nonatomic, nullable) id<OSDynamicTriggerDelegate> delegate;
+
++ (OSDynamicTriggerController *)sharedInstance;
+- (BOOL)triggerExpressionIsTrueForValue:(id)value withTriggerType:(NSString *)triggerType withMessageId:(NSString *)messageId;
 
 @end
 

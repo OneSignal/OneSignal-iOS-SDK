@@ -33,6 +33,9 @@
 #import "OSTrigger.h"
 #import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
+#import "OSDynamicTriggerController.h"
+#import "NSTimerOverrider.h"
+#import "UnitTestCommonMethods.h"
 
 @interface OSTrigger (Test)
 + (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value;
@@ -66,8 +69,12 @@
     OSInAppMessage *testMessage;
 }
 
+// called before each test
 -(void)setUp {
     [super setUp];
+    
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    
     testMessage = [self messageWithTriggers:@[
         @[
             @{
@@ -266,6 +273,28 @@
     XCTAssertTrue(bottom == OSInAppMessageDisplayTypeBottomBanner);
     XCTAssertTrue(modal == OSInAppMessageDisplayTypeCenteredModal);
     XCTAssertTrue(full == OSInAppMessageDisplayTypeFullScreen);
+}
+
+- (void)testDynamicTriggerWithExactTimeTrigger {
+    let triggered = [[OSDynamicTriggerController new] triggerExpressionIsTrueForValue:@([[NSDate date] timeIntervalSince1970]) withTriggerType:OS_EXACT_TIME_TRIGGER withMessageId:@"test_id"];
+    
+    XCTAssertTrue(triggered);
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+}
+
+- (void)testDynamicTriggerSchedulesExactTimeTrigger {
+    let triggered = [[OSDynamicTriggerController new] triggerExpressionIsTrueForValue:@([[NSDate date] timeIntervalSince1970] + 5.0f) withTriggerType:OS_EXACT_TIME_TRIGGER withMessageId:@"test_id"];
+    
+    XCTAssertFalse(triggered);
+    XCTAssertTrue(roughlyEqualDoubles(NSTimerOverrider.mostRecentTimerInterval, 5.0f));
+}
+
+// Ensure that the Exact Time trigger will not fire after the date has passed
+- (void)testDynamicTriggerDoesntTriggerPastTime {
+    let triggered = [[OSDynamicTriggerController new] triggerExpressionIsTrueForValue:@([[NSDate date] timeIntervalSince1970] - 5.0f) withTriggerType:OS_EXACT_TIME_TRIGGER withMessageId:@"test_id"];
+    
+    XCTAssertFalse(triggered);
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
 }
 
 @end

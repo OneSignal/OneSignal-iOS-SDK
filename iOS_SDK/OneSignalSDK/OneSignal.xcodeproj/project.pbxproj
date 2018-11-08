@@ -188,14 +188,16 @@
 		CA70E3352023D51000019273 /* OneSignalSetEmailParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */; };
 		CA70E3362023D51300019273 /* OneSignalSetEmailParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */; };
 		CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */; };
-		CA7FC88B21924FF7002C4FD9 /* OSDynamicTrigger.h in Headers */ = {isa = PBXBuildFile; fileRef = CA7FC88921924FF7002C4FD9 /* OSDynamicTrigger.h */; };
-		CA7FC88C21924FF7002C4FD9 /* OSDynamicTrigger.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7FC88A21924FF7002C4FD9 /* OSDynamicTrigger.m */; };
-		CA7FC88D21924FF7002C4FD9 /* OSDynamicTrigger.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7FC88A21924FF7002C4FD9 /* OSDynamicTrigger.m */; };
-		CA7FC88E21924FF7002C4FD9 /* OSDynamicTrigger.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7FC88A21924FF7002C4FD9 /* OSDynamicTrigger.m */; };
+		CA7FC89F21927229002C4FD9 /* OSDynamicTriggerController.h in Headers */ = {isa = PBXBuildFile; fileRef = CA7FC89D21927229002C4FD9 /* OSDynamicTriggerController.h */; };
+		CA7FC8A021927229002C4FD9 /* OSDynamicTriggerController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7FC89E21927229002C4FD9 /* OSDynamicTriggerController.m */; };
+		CA7FC8A121927229002C4FD9 /* OSDynamicTriggerController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7FC89E21927229002C4FD9 /* OSDynamicTriggerController.m */; };
+		CA7FC8A221927229002C4FD9 /* OSDynamicTriggerController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7FC89E21927229002C4FD9 /* OSDynamicTriggerController.m */; };
 		CA810FD1202BA97300A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA85C15320604AEA003AB529 /* RequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA85C15220604AEA003AB529 /* RequestTests.m */; };
+		CA8E18FC2193A1A5009DA223 /* NSTimerOverrider.h in Headers */ = {isa = PBXBuildFile; fileRef = CA8E18FA2193A1A5009DA223 /* NSTimerOverrider.h */; };
+		CA8E18FF2193A1A5009DA223 /* NSTimerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CA8E18FB2193A1A5009DA223 /* NSTimerOverrider.m */; };
 		CAA4ED0120646762005BD59B /* BadgeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CAA4ED0020646762005BD59B /* BadgeTests.m */; };
 		CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
@@ -361,11 +363,13 @@
 		CA70E3332023D51000019273 /* OneSignalSetEmailParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalSetEmailParameters.h; sourceTree = "<group>"; };
 		CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalSetEmailParameters.m; sourceTree = "<group>"; };
 		CA70E3382023F24500019273 /* OneSignalCommonDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCommonDefines.h; sourceTree = "<group>"; };
-		CA7FC88921924FF7002C4FD9 /* OSDynamicTrigger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSDynamicTrigger.h; sourceTree = "<group>"; };
-		CA7FC88A21924FF7002C4FD9 /* OSDynamicTrigger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSDynamicTrigger.m; sourceTree = "<group>"; };
+		CA7FC89D21927229002C4FD9 /* OSDynamicTriggerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSDynamicTriggerController.h; sourceTree = "<group>"; };
+		CA7FC89E21927229002C4FD9 /* OSDynamicTriggerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSDynamicTriggerController.m; sourceTree = "<group>"; };
 		CA810FCF202BA97300A60FED /* OSEmailSubscription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSEmailSubscription.h; sourceTree = "<group>"; };
 		CA810FD0202BA97300A60FED /* OSEmailSubscription.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSEmailSubscription.m; sourceTree = "<group>"; };
 		CA85C15220604AEA003AB529 /* RequestTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestTests.m; sourceTree = "<group>"; };
+		CA8E18FA2193A1A5009DA223 /* NSTimerOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSTimerOverrider.h; sourceTree = "<group>"; };
+		CA8E18FB2193A1A5009DA223 /* NSTimerOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSTimerOverrider.m; sourceTree = "<group>"; };
 		CAA4ED0020646762005BD59B /* BadgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BadgeTests.m; sourceTree = "<group>"; };
 		CAABF349205B15780042F8E5 /* OneSignalExtensionBadgeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalExtensionBadgeHandler.h; sourceTree = "<group>"; };
 		CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalExtensionBadgeHandler.m; sourceTree = "<group>"; };
@@ -494,6 +498,8 @@
 				4529DEE61FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m */,
 				CA1A6E7320DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h */,
 				CA1A6E7420DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m */,
+				CA8E18FA2193A1A5009DA223 /* NSTimerOverrider.h */,
+				CA8E18FB2193A1A5009DA223 /* NSTimerOverrider.m */,
 			);
 			path = Shadows;
 			sourceTree = "<group>";
@@ -651,24 +657,40 @@
 			path = Source;
 			sourceTree = "<group>";
 		};
-		CACBAA8C218A6226000ACAA5 /* In-App Messaging */ = {
+		CA7FC88F21925253002C4FD9 /* UI */ = {
 			isa = PBXGroup;
 			children = (
-				CACBAA8F218A6242000ACAA5 /* OSInAppMessagingDefines.h */,
-				CACBAA90218A6242000ACAA5 /* OSMessagingController.h */,
-				CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */,
-				CA4742E2218B8FF30020DC8C /* OSTriggerController.h */,
-				CA4742E3218B8FF30020DC8C /* OSTriggerController.m */,
-				CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */,
-				CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */,
 				CACBAA8D218A6242000ACAA5 /* OSInAppMessageViewController.h */,
 				CACBAA95218A6243000ACAA5 /* OSInAppMessageViewController.m */,
 				CACBAA91218A6242000ACAA5 /* OSInAppMessageView.h */,
 				CACBAA92218A6242000ACAA5 /* OSInAppMessageView.m */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
+		CA7FC89C21926B6B002C4FD9 /* Triggers */ = {
+			isa = PBXGroup;
+			children = (
 				CA47439B2190FEA80020DC8C /* OSTrigger.h */,
 				CA47439C2190FEA80020DC8C /* OSTrigger.m */,
-				CA7FC88921924FF7002C4FD9 /* OSDynamicTrigger.h */,
-				CA7FC88A21924FF7002C4FD9 /* OSDynamicTrigger.m */,
+				CA7FC89D21927229002C4FD9 /* OSDynamicTriggerController.h */,
+				CA7FC89E21927229002C4FD9 /* OSDynamicTriggerController.m */,
+				CA4742E2218B8FF30020DC8C /* OSTriggerController.h */,
+				CA4742E3218B8FF30020DC8C /* OSTriggerController.m */,
+			);
+			name = Triggers;
+			sourceTree = "<group>";
+		};
+		CACBAA8C218A6226000ACAA5 /* In-App Messaging */ = {
+			isa = PBXGroup;
+			children = (
+				CA7FC88F21925253002C4FD9 /* UI */,
+				CA7FC89C21926B6B002C4FD9 /* Triggers */,
+				CACBAA8F218A6242000ACAA5 /* OSInAppMessagingDefines.h */,
+				CACBAA90218A6242000ACAA5 /* OSMessagingController.h */,
+				CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */,
+				CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */,
+				CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */,
 			);
 			name = "In-App Messaging";
 			sourceTree = "<group>";
@@ -687,7 +709,6 @@
 				CACBAAA8218A6280000ACAA5 /* OSJSONHandling.h in Headers */,
 				912412211E73342200E41FD7 /* OneSignalLocation.h in Headers */,
 				912412291E73342200E41FD7 /* OneSignalReachability.h in Headers */,
-				CA7FC88B21924FF7002C4FD9 /* OSDynamicTrigger.h in Headers */,
 				912412251E73342200E41FD7 /* OneSignalMobileProvision.h in Headers */,
 				91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */,
 				CA4742E4218B8FF30020DC8C /* OSTriggerController.h in Headers */,
@@ -698,6 +719,7 @@
 				CA1A6E6920DC2E31001C41B9 /* OneSignalDialogController.h in Headers */,
 				CA08FC7E1FE99B25004C445F /* Requests.h in Headers */,
 				912412411E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.h in Headers */,
+				CA8E18FC2193A1A5009DA223 /* NSTimerOverrider.h in Headers */,
 				91B6EA451E86555200B5CF01 /* OSObservable.h in Headers */,
 				CACBAA9C218A6243000ACAA5 /* OSInAppMessageView.h in Headers */,
 				912412351E73342200E41FD7 /* OneSignalTrackIAP.h in Headers */,
@@ -718,6 +740,7 @@
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
 				CA1A6E7520DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h in Headers */,
 				9129C6BD1E89E7AB009CB6A0 /* OSSubscription.h in Headers */,
+				CA7FC89F21927229002C4FD9 /* OSDynamicTriggerController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -907,11 +930,11 @@
 				4529DF0C1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				91F58D891E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
 				CA810FD1202BA97300A60FED /* OSEmailSubscription.m in Sources */,
-				CA7FC88C21924FF7002C4FD9 /* OSDynamicTrigger.m in Sources */,
 				CACBAAA1218A6243000ACAA5 /* OSInAppMessage.m in Sources */,
 				CA63AFC32022670A00E340FB /* ReattemptRequest.m in Sources */,
 				912412221E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CACBAAA4218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */,
+				CA7FC8A021927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
 				1AF75EAE1E8567FD0097B315 /* NSString+OneSignal.m in Sources */,
 				454F94F51FAD2E5A00D74CCF /* OSNotificationPayload.m in Sources */,
 				9129C6BE1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
@@ -955,11 +978,11 @@
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				91B6EA421E85D38F00B5CF01 /* OSObservable.m in Sources */,
 				CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */,
-				CA7FC88D21924FF7002C4FD9 /* OSDynamicTrigger.m in Sources */,
 				CACBAAA2218A6243000ACAA5 /* OSInAppMessage.m in Sources */,
 				CA63AFC42022670A00E340FB /* ReattemptRequest.m in Sources */,
 				91F58D8A1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
 				CACBAAA5218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */,
+				CA7FC8A121927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
 				912412231E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
@@ -1023,11 +1046,12 @@
 				CACBAAAA218A65AE000ACAA5 /* InAppMessagingTests.m in Sources */,
 				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
+				CA7FC8A221927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
 				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
+				CA8E18FF2193A1A5009DA223 /* NSTimerOverrider.m in Sources */,
 				CACBAA9F218A6243000ACAA5 /* OSInAppMessageView.m in Sources */,
 				CA4742E7218B8FF30020DC8C /* OSTriggerController.m in Sources */,
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
-				CA7FC88E21924FF7002C4FD9 /* OSDynamicTrigger.m in Sources */,
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412141E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,

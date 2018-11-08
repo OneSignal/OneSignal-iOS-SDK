@@ -25,8 +25,20 @@
  * THE SOFTWARE.
  */
 
-#import "OSDynamicTrigger.h"
+#import <Foundation/Foundation.h>
 
-@implementation OSDynamicTrigger
+NS_ASSUME_NONNULL_BEGIN
+
+@interface NSTimerOverrider : NSObject
+
+@property (class, nonatomic) NSTimeInterval mostRecentTimerInterval;
+
+@property (class, nonatomic) BOOL shouldScheduleTimers;
+
+@property (class, nonatomic) BOOL hasScheduledTimer;
+
++ (void)reset;
 
 @end
+
+NS_ASSUME_NONNULL_END

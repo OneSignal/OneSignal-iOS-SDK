@@ -50,6 +50,8 @@
         message.type = OS_DISPLAY_TYPE_FOR_STRING(json[@"type"]);
     else return nil;
     
+    message.position = OS_DISPLAY_POSITION_FOR_TYPE(message.type);
+    
     if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
         message.messageId = json[@"id"];
     else return nil;
@@ -80,8 +82,6 @@
         
         message.triggers = triggers;
     } else return nil;
-    
-    message.position = OS_DISPLAY_POSITION_FOR_TYPE(message.type);
     
     return message;
 }

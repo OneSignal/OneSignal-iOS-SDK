@@ -125,7 +125,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"020903";
+NSString* const ONESIGNAL_VERSION = OS_SDK_VERSION;
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -171,6 +171,9 @@ DelayedInitializationParameters *delayedInitParameters;
 static NSDate *initializationTime;
 static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
 static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
+
+// Set when the app is launched
+static NSDate *sessionLaunchTime;
 
 //the iOS Native SDK will use the plist flag to enable privacy consent
 //however wrapper SDK's will use a method call before initialization
@@ -2324,6 +2327,10 @@ static NSString *_lastnonActiveMessageId;
     }];
 }
 
++ (NSDate *)sessionLaunchTime {
+    return sessionLaunchTime;
+}
+
 @end
 
 // Swizzles UIApplication class to swizzling the following:
@@ -2361,13 +2368,14 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    
     // Swizzle - UIApplication delegate
     injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     [self setupUNUserNotificationCenterDelegate];
+    
+    sessionLaunchTime = [NSDate date];
 }
 
 /*
