@@ -35,7 +35,7 @@
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
-
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
 @end
 
 @implementation OSMessagingController
@@ -53,8 +53,11 @@
     if (self = [super init]) {
         self.delegates = [NSMutableArray<OSInAppMessageDelegate> new];
         self.messages = [NSArray<OSInAppMessage *> new];
+        
         self.triggerController = [OSTriggerController new];
         self.triggerController.delegate = self;
+        
+        self.messageDisplayQueue = [NSMutableArray new];
     }
     
     return self;
@@ -71,25 +74,39 @@
 }
 
 -(void)presentInAppMessage:(OSInAppMessage *)message {
-    if (!self.window) {
-        self.window = [[UIWindow alloc] init];
-        self.window.windowLevel = UIWindowLevelAlert;
-        self.window.frame = [[UIScreen mainScreen] bounds];
-    }
-    
-    let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
-    
-    viewController.delegate = self;
-    
-    self.messageViewController = viewController;
-    
-    self.window.rootViewController = self.messageViewController;
-    
-    self.window.backgroundColor = [UIColor clearColor];
-    
-    self.window.opaque = true;
-    
-    [self.window makeKeyAndVisible];
+    @synchronized (self.messageDisplayQueue) {
+        [self.messageDisplayQueue addObject:message];
+        
+        // if > 1 it means we are already presenting a message.
+        if (self.messageDisplayQueue.count > 1)
+            return;
+        
+        [self displayMessage:message];
+    };
+}
+
+- (void)displayMessage:(OSInAppMessage *)message {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!self.window) {
+            self.window = [[UIWindow alloc] init];
+            self.window.windowLevel = UIWindowLevelAlert;
+            self.window.frame = [[UIScreen mainScreen] bounds];
+        }
+        
+        let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
+        
+        viewController.delegate = self;
+        
+        self.messageViewController = viewController;
+        
+        self.window.rootViewController = self.messageViewController;
+        
+        self.window.backgroundColor = [UIColor clearColor];
+        
+        self.window.opaque = true;
+        
+        [self.window makeKeyAndVisible];
+    });
 }
 
 // checks to see if any messages should be shown now
@@ -104,12 +121,21 @@
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 -(void)messageViewControllerWasDismissed {
-    self.window.hidden = true;
-    
-    [UIApplication.sharedApplication.delegate.window makeKeyWindow];
-    
-    //nullify our reference to the window to ensure there are no leaks
-    self.window = nil;
+    @synchronized (self.messageDisplayQueue) {
+        [self.messageDisplayQueue removeObjectAtIndex:0];
+        
+        if (self.messageDisplayQueue.count > 0) {
+            [self displayMessage:self.messageDisplayQueue.firstObject];
+            return;
+        } else {
+            self.window.hidden = true;
+            
+            [UIApplication.sharedApplication.delegate.window makeKeyWindow];
+            
+            //nullify our reference to the window to ensure there are no leaks
+            self.window = nil;
+        }
+    }
 }
 
 -(void)messageViewDidSelectAction:(NSString *)actionId {
