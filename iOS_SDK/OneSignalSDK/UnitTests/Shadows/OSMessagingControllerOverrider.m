@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2018 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,25 +25,41 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
+#import "OSMessagingControllerOverrider.h"
+#import "OSMessagingController.h"
+#import "OneSignalSelectorHelpers.h"
+#import "TestHelperFunctions.h"
+#import "NSTimerOverrider.h"
 
-@interface OneSignalClientOverrider : NSObject
-+(void)reset:(XCTestCase*)testInstance;
-+(void)setLastHTTPRequest:(NSDictionary*)value;
-+(NSDictionary*)lastHTTPRequest;
-+(int)networkRequestCount;
-+(void)setLastUrl:(NSString*)value;
-+(NSString*)lastUrl;
-+(void)setShouldExecuteInstantaneously:(BOOL)instant;
-+(dispatch_queue_t)getHTTPQueue;
-+(void)runBackgroundThreads;
-+(NSString *)lastHTTPRequestType;
-+(void)setRequiresEmailAuth:(BOOL)required;
-+(BOOL)hasExecutedRequestOfType:(Class)type;
-+(void)setShouldUseProvisionalAuth:(BOOL)provisional;
-+(void)disableExecuteRequestOverride:(BOOL)disable;
-+ (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
+// The displayMessage method is private, we'll expose it here
+@interface OSMessagingController ()
+- (void)displayMessage:(OSInAppMessage *)message;
 @end
 
+@implementation OSMessagingControllerOverrider
+
+static NSMutableArray<OSInAppMessage *> *_displayedMessages;
+
++(void)load {
+    injectToProperClass(@selector(overrideDisplayMessage:), @selector(displayMessage:), @[], [OSMessagingController class], [OSMessagingControllerOverrider class]);
+    
+    _displayedMessages = [NSMutableArray new];
+}
+
+- (void)overrideDisplayMessage:(OSInAppMessage *)message {
+    [_displayedMessages addObject:message];
+}
+
++ (void)reset {
+    [_displayedMessages removeAllObjects];
+}
+
++(NSArray *)displayedMessages {
+    return _displayedMessages;
+}
+
++(void)setDisplayedMessages:(NSArray *)displayedMessages {
+    _displayedMessages = [displayedMessages mutableCopy];
+}
+
+@end

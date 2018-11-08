@@ -1639,6 +1639,10 @@ static dispatch_queue_t serialQueue;
             
         }
         
+        if (results[@"push"][@"messages"]) {
+            [self receivedInAppMessageJson:results[@"push"][@"messages"]];
+        }
+        
         [[NSUserDefaults standardUserDefaults] synchronize];
         
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
@@ -1659,6 +1663,19 @@ static dispatch_queue_t serialQueue;
             }
         }
     }];
+}
+
++ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
+    let messages = [NSMutableArray new];
+    
+    for (NSDictionary *messageJson in messagesJson) {
+        let message = [OSInAppMessage instanceWithJson:messageJson];
+        
+        if (message)
+            [messages addObject:message];
+    }
+    
+    [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];
 }
 
 +(NSString*)getUsableDeviceToken {

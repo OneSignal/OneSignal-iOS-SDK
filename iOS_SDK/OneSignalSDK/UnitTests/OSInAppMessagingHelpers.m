@@ -82,4 +82,24 @@
     return message;
 }
 
++ (NSDictionary *)testRegistrationJsonWithTriggerProperty:(NSString *)property withOperator:(NSString *)operator withValue:(id)value {
+    let testMessage = (NSMutableDictionary *)[[self testMessageJson] mutableCopy];
+    
+    testMessage[@"triggers"] = @[
+        @[
+            @{
+                @"property" : property,
+                @"operator" : operator,
+                @"value" : value
+            }
+        ]
+    ];
+    
+    return @{
+        @"id" : @"1234",
+        @"success" : @1,
+        @"messages" : @[testMessage]
+    };
+}
+
 @end

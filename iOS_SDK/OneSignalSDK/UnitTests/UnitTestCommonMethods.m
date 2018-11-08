@@ -44,6 +44,7 @@
 #import "OneSignalCommonDefines.h"
 #import "NSBundleOverrider.h"
 #import "NSTimerOverrider.h"
+#import "OSMessagingControllerOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
@@ -134,6 +135,8 @@ NSString * serverUrlWithPath(NSString *path) {
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     
     [NSTimerOverrider reset];
+    
+    [OSMessagingControllerOverrider reset];
 }
 
 + (void)beforeAllTest {

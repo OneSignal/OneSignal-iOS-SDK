@@ -98,11 +98,11 @@
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
-            if (!self.triggers[trigger.property]) {
-                break;
-            } else if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
+            if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
                 continue;
+            } else if (!self.triggers[trigger.property]) {
+                break;
             }
             
             // the Exists operator requires no comparisons or equality check

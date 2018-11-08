@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2018 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,24 +26,16 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
+#import "OSInAppMessage.h"
 
-@interface OneSignalClientOverrider : NSObject
-+(void)reset:(XCTestCase*)testInstance;
-+(void)setLastHTTPRequest:(NSDictionary*)value;
-+(NSDictionary*)lastHTTPRequest;
-+(int)networkRequestCount;
-+(void)setLastUrl:(NSString*)value;
-+(NSString*)lastUrl;
-+(void)setShouldExecuteInstantaneously:(BOOL)instant;
-+(dispatch_queue_t)getHTTPQueue;
-+(void)runBackgroundThreads;
-+(NSString *)lastHTTPRequestType;
-+(void)setRequiresEmailAuth:(BOOL)required;
-+(BOOL)hasExecutedRequestOfType:(Class)type;
-+(void)setShouldUseProvisionalAuth:(BOOL)provisional;
-+(void)disableExecuteRequestOverride:(BOOL)disable;
-+ (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface OSMessagingControllerOverrider : NSObject
+
+@property (class, nonatomic) NSArray<OSInAppMessage *> *displayedMessages;
+
++ (void)reset;
+
 @end
 
+NS_ASSUME_NONNULL_END

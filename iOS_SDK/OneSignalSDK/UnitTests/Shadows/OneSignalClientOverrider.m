@@ -52,6 +52,7 @@ static BOOL requiresEmailAuth = false;
 static NSMutableArray<NSString *> *executedRequestTypes;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
 static BOOL disableOverride = false;
+static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -64,6 +65,8 @@ static BOOL disableOverride = false;
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     
     executedRequestTypes = [[NSMutableArray alloc] init];
+    
+    mockResponses = [NSMutableDictionary new];
 }
 
 // Calling this function twice results in reversing the swizzle
@@ -138,9 +141,12 @@ static BOOL disableOverride = false;
         lastHTTPRequest = parameters;
         lastHTTPRequestType = NSStringFromClass([request class]);
         
+        NSLog(@"Mock responses: %@", mockResponses);
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]])
                 successBlock(@{@"fba": @true, IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth), IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization)});
+            else if (mockResponses[NSStringFromClass([request class])])
+                successBlock(mockResponses[NSStringFromClass([request class])]);
             else
                 successBlock(@{@"id": @"1234"});
         }
@@ -174,6 +180,7 @@ static BOOL disableOverride = false;
     lastUrl = nil;
     lastHTTPRequest = nil;
     [executedRequestTypes removeAllObjects];
+    mockResponses = [NSMutableDictionary new];
 }
 
 +(void)setLastHTTPRequest:(NSDictionary*)value {
@@ -205,6 +212,10 @@ static BOOL disableOverride = false;
 
 +(void)setShouldUseProvisionalAuth:(BOOL)provisional {
     shouldUseProvisionalAuthorization = provisional;
+}
+
++ (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response {
+    [mockResponses setObject:response forKey:request];
 }
 
 @end
