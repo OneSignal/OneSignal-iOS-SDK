@@ -51,7 +51,7 @@
     else return nil;
     
     if (json[@"operator"] && [json[@"operator"] isKindOfClass:[NSString class]]) {
-        let num = operatorFromString((NSString *)json[@"operator"]);
+        int num = (int)OS_OPERATOR_FROM_STRING(json[@"operator"]);
         
         if (num >= 0)
             newTrigger.operatorType = (OSTriggerOperatorType)num;
@@ -65,16 +65,6 @@
         return nil;
     
     return newTrigger;
-}
-
-int operatorFromString(NSString *operator) {
-    let operators = @[@">", @"<", @"==", @"<=", @">=", @"exists", @"contains"];
-    
-    for (int i = 0; i < operators.count; i++)
-        if ([operators[i] isEqualToString:operator])
-            return i;
-    
-    return -1;
 }
 
 @end

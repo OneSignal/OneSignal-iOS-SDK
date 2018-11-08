@@ -27,19 +27,18 @@
 
 #import <Foundation/Foundation.h>
 #import "OSTrigger.h"
+#import "OSInAppMessage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol OSDynamicTriggerControllerDelegate <NSObject>
-- (void)dynamicTriggerFired;
+@interface OSTrigger (Test)
++ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
 @end
 
-@interface OSDynamicTriggerController : NSObject
-
-@property (weak, nonatomic, nullable) id<OSDynamicTriggerControllerDelegate> delegate;
-
-- (BOOL)dynamicTriggerShouldFire:(OSTrigger *)trigger withMessageId:(NSString *)messageId;
-
+@interface OSInAppMessage (Test)
++ (instancetype)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
++ (instancetype)testMessage;
++ (instancetype)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
 @end
 
 NS_ASSUME_NONNULL_END

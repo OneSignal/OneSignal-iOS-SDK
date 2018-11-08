@@ -45,12 +45,6 @@ NSString * serverUrlWithPath(NSString *path);
 
 @end
 
-// no real need for more accuracy currently
-#define OS_COMPARISON_PRECISION 0.00003
-
-BOOL roughlyEqualFloats(float left, float right);
-BOOL roughlyEqualDoubles(double left, double right);
-
 // Expose OneSignal test methods
 @interface OneSignal (UN_extra)
 + (dispatch_queue_t) getRegisterQueue;

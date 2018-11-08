@@ -49,14 +49,6 @@ NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
 }
 
-BOOL roughlyEqualFloats(float left, float right) {
-    return fabsf(left - right) < OS_COMPARISON_PRECISION;
-}
-
-BOOL roughlyEqualDoubles(double left, double right) {
-    return fabs(left - right) < OS_COMPARISON_PRECISION;
-}
-
 @implementation UnitTestCommonMethods
 
 // Runs any blocks passed to dispatch_async()

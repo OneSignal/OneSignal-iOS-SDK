@@ -32,23 +32,17 @@
 @interface OSTriggerController ()
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSString *, id> *triggers;
 @property (strong, nonatomic, nonnull) NSUserDefaults *defaults;
+@property (strong, nonatomic, nonnull) OSDynamicTriggerController *dynamicTriggerController;
 @end
 
 @implementation OSTriggerController
-
-+ (OSTriggerController *)sharedInstance {
-    static OSTriggerController *sharedInstance = nil;
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        sharedInstance = [OSTriggerController new];
-    });
-    return sharedInstance;
-}
 
 - (instancetype _Nonnull)init {
     if (self = [super init]) {
         self.triggers = ([[self triggersFromUserDefaults] mutableCopy] ?: [NSMutableDictionary<NSString *, id> new]);
         self.defaults = [NSUserDefaults standardUserDefaults];
+        self.dynamicTriggerController = [OSDynamicTriggerController new];
+        self.dynamicTriggerController.delegate = self;
     }
     
     return self;
@@ -87,20 +81,29 @@
     and the inner array represents AND conditions.
  
     Because of this structure, we use a nested for-loop. In the inner loop, it continues to evaluate. If
-    at any point it determines a trigger condition is FALSE, it breaks and the outer loop continues.
+    at any point it determines a trigger condition is FALSE, it breaks and the outer loop continues to
+    the next OR statement.
  
     But if the inner loop never hits a condition that is FALSE, it continues looping until it hits the
-    last condition. If the last condition is also true, it returns YES.
+    last condition. If the last condition is also true, it returns YES for the entire method.
  
     Supports both String and Numeric value types & comparisons
 */
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message {
     for (NSArray <OSTrigger *> *conditions in message.triggers) {
+        
+        //dynamic triggers should be handled after looping through all other triggers
+        NSMutableArray<OSTrigger *> *dynamicTriggers = [NSMutableArray new];
+        
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
-            if (!self.triggers[trigger.property])
+            if (!self.triggers[trigger.property]) {
                 break;
+            } else if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
+                [dynamicTriggers addObject:trigger];
+                continue;
+            }
             
             // the Exists operator requires no comparisons or equality check
             if (trigger.operatorType == OSTriggerOperatorTypeExists) {
@@ -122,6 +125,18 @@
                 ([trigger.value isKindOfClass:[NSString class]] && ![trigger.value isEqualToString:realValue])) {
                 break;
             } else if (i == conditions.count - 1) {
+                return true;
+            }
+        }
+        
+        for (int i = 0; i < dynamicTriggers.count; i++) {
+            let trigger = dynamicTriggers[i];
+            
+            // even if the trigger evaluates as "false" now, it may become true in the future
+            // (for exmaple if it's a session-duration trigger that launches a timer)
+            if (![self.dynamicTriggerController dynamicTriggerShouldFire:trigger withMessageId:message.messageId]) {
+                break;
+            } else if (i == dynamicTriggers.count - 1) {
                 return true;
             }
         }
@@ -172,6 +187,10 @@
 - (void)didUpdateTriggers {
     [self.defaults setObject:self.triggers forKey:OS_TRIGGERS_KEY];
     [self.defaults synchronize];
+}
+
+-(void)dynamicTriggerFired {
+    
 }
 
 @end

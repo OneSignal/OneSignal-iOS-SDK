@@ -27,12 +27,22 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessage.h"
+#import "OSDynamicTriggerController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSTriggerController : NSObject
+@protocol OSTriggerControllerDelegate <NSObject>
 
-+ (OSTriggerController *)sharedInstance;
+// This is called when, for example, a dynamic trigger timer reaches the end
+// and the message should be shown (assuming no other triggers are false for that message)
+- (void)triggerConditionChanged;
+
+@end
+
+@interface OSTriggerController : NSObject <OSDynamicTriggerControllerDelegate>
+
+@property (weak, nonatomic) id<OSTriggerControllerDelegate> delegate;
+
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;

@@ -78,6 +78,12 @@
 #pragma clang diagnostic pop
 @end
 
+// no real need for more accuracy currently
+#define OS_COMPARISON_PRECISION 0.00003
+
+BOOL roughlyEqualFloats(float left, float right);
+BOOL roughlyEqualDoubles(double left, double right);
+
 // Defines let and var in Objective-c for shorter code
 // __auto_type is compatible with Xcode 8+
 #if defined(__cplusplus)

@@ -29,14 +29,16 @@
 #import "OSInAppMessage.h"
 #import "OSInAppMessageViewController.h"
 #import "OneSignal.h"
+#import "OSTriggerController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSMessagingController : NSObject <OSInAppMessaveViewControllerDelegate>
+@interface OSMessagingController : NSObject <OSInAppMessaveViewControllerDelegate, OSTriggerControllerDelegate>
 
 + (OSMessagingController *)sharedInstance;
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;
 - (void)presentInAppMessage:(OSInAppMessage *)message;
+- (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages;
 
 @end
 

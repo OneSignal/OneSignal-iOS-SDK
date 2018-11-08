@@ -46,15 +46,6 @@
 
 @implementation OSDynamicTriggerController
 
-+ (OSDynamicTriggerController *)sharedInstance {
-    static OSDynamicTriggerController *sharedInstance = nil;
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        sharedInstance = [OSDynamicTriggerController new];
-    });
-    return sharedInstance;
-}
-
 - (instancetype)init {
     if (self = [super init]) {
         self.scheduledMessages = [NSMutableDictionary new];
@@ -63,69 +54,88 @@
     return self;
 }
 
-- (BOOL)triggerExpressionIsTrueForValue:(id)value withTriggerType:(NSString *)triggerType withMessageId:(NSString *)messageId {
-    if (!value)
+- (BOOL)dynamicTriggerShouldFire:(OSTrigger *)trigger withMessageId:(NSString *)messageId {
+    if (!trigger.value)
         return false;
     
-    if ([triggerType isEqualToString:OS_SDK_VERSION_TRIGGER]) {
-        return [value isEqualToString:OS_SDK_VERSION];
+    if ([trigger.property isEqualToString:OS_SDK_VERSION_TRIGGER]) {
+        return [trigger.value isEqualToString:OS_SDK_VERSION];
     }
     
     //currently all other supported dunamic triggers are time-based triggers
-    return [self timeBasedTriggerIsTrueForValue:value withTriggerType:triggerType withMessageId:messageId];
+    return [self timeBasedDynamicTriggerIsTrue:trigger withMessageId:messageId];
 }
 
-- (BOOL)timeBasedTriggerIsTrueForValue:(id)value withTriggerType:(NSString *)property withMessageId:(NSString *)messageId {
+- (BOOL)timeBasedDynamicTriggerIsTrue:(OSTrigger *)trigger withMessageId:(NSString *)messageId {
     @synchronized (self.scheduledMessages) {
-        if (![value isKindOfClass:[NSNumber class]])
+        
+        // All time-based trigger values should be numbers (either timestamps or offsets)
+        if (![trigger.value isKindOfClass:[NSNumber class]])
             return false;
         
         // This would mean we've already set up a timer for this message trigger
-        if (self.scheduledMessages[messageId] && [self.scheduledMessages[messageId] containsObject:property])
+        if (self.scheduledMessages[messageId] && [self.scheduledMessages[messageId] containsObject:trigger.property])
             return false;
         
-        let requiredTimeValue = [value doubleValue];
+        let requiredTimeValue = [trigger.value doubleValue];
         
         // how long to set the timer for (if needed)
         var offset = 0.0f;
         
-        if ([property isEqualToString:OS_SESSION_DURATION_TRIGGER]) {
+        // check what type of trigger it is
+        if ([trigger.property isEqualToString:OS_SESSION_DURATION_TRIGGER]) {
             let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
             
-            if (currentDuration >= requiredTimeValue)
+            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType])
                 return true;
             
             offset = currentDuration - requiredTimeValue;
-        } else if ([property isEqualToString:OS_TIME_TRIGGER]) {
+        } else if ([trigger.property isEqualToString:OS_TIME_TRIGGER]) {
             let currentTimestamp = [[NSDate date] timeIntervalSince1970];
             
-            if (currentTimestamp >= requiredTimeValue)
+            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentTimestamp forOperator:trigger.operatorType])
                 return true;
-            
-            offset = requiredTimeValue - currentTimestamp;
-        } else if ([property isEqualToString:OS_EXACT_TIME_TRIGGER]) {
-            let currentTimestamp = [[NSDate date] timeIntervalSince1970];
-            
-            // if we are within 1 second of the required date, the trigger should fire
-            // But since this is the Exact time trigger, if the date is already passed,
-            // we should return false 
-            if (fabs(requiredTimeValue - currentTimestamp) <= 1.0)
-                return true;
-            else if (currentTimestamp > requiredTimeValue)
-                return false;
             
             offset = requiredTimeValue - currentTimestamp;
         }
+        
+        // don't schedule timers for the past
+        if (offset <= 0.0f)
+            return false;
         
         // if we reach this point, it means we need to return false and set up a timer for a future time
         [NSTimer scheduledTimerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage) userInfo:nil repeats:false];
         
         if (self.scheduledMessages[messageId]) {
-            [self.scheduledMessages[messageId] addObject:property];
+            [self.scheduledMessages[messageId] addObject:trigger.property];
         } else {
-            self.scheduledMessages[messageId] = [NSMutableArray arrayWithObject:property];
+            self.scheduledMessages[messageId] = [NSMutableArray arrayWithObject:trigger.property];
         }
     }
+    
+    return false;
+}
+
+- (BOOL)evaluateTimeInterval:(NSTimeInterval)timeInterval withCurrentValue:(NSTimeInterval)currentTimeInterval forOperator:(OSTriggerOperatorType)operator {
+    switch (operator) {
+        case OSTriggerOperatorTypeLessThan:
+            return currentTimeInterval < timeInterval;
+        case OSTriggerOperatorTypeLessThanOrEqualTo:
+            return currentTimeInterval <= timeInterval;
+        case OSTriggerOperatorTypeGreaterThan:
+            return currentTimeInterval > timeInterval;
+        case OSTriggerOperatorTypeGreaterThanOrEqualTo:
+            return currentTimeInterval >= timeInterval;
+        case OSTriggerOperatorTypeEqualTo:
+            return roughlyEqualDoubles(timeInterval, currentTimeInterval);
+            break;
+        case OSTriggerOperatorTypeExists:
+        case OSTriggerOperatorTypeContains:
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
+            return false;
+            
+    }
+    
     
     return false;
 }

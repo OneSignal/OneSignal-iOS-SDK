@@ -36,23 +36,7 @@
 #import "OSDynamicTriggerController.h"
 #import "NSTimerOverrider.h"
 #import "UnitTestCommonMethods.h"
-
-@interface OSTrigger (Test)
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value;
-@end
-
-@implementation OSTrigger (Test)
-
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value {
-    OSTrigger *trigger = [OSTrigger new];
-    trigger.property = property;
-    trigger.operatorType = type;
-    trigger.value = value;
-    
-    return trigger;
-}
-
-@end
+#import "OSInAppMessagingHelpers.h"
 
 
 /**
@@ -75,7 +59,7 @@
     
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
-    testMessage = [self messageWithTriggers:@[
+    testMessage = [OSInAppMessage testMessageWithTriggersJson:@[
         @[
             @{
                 @"property" : @"view_controller",
@@ -88,19 +72,7 @@
     self.triggerController = [OSTriggerController new];
 }
 
-- (OSInAppMessage *)messageWithTriggers:(NSArray *)triggers {
-    let messageJson = @{
-        @"type" : @"centered_modal",
-        @"id" : @"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba",
-        @"content_id" : @"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba",
-        @"triggers" : triggers
-    };
-    
-    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
-    
-    return [OSInAppMessage instanceWithData:data];
-}
-
+#pragma mark Message JSON Parsing Tests
 - (void)testCorrectlyParsedType {
     XCTAssertTrue(testMessage.type == OSInAppMessageDisplayTypeCenteredModal);
 }
@@ -120,23 +92,22 @@
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.value, @"home_vc");
 }
 
+#pragma mark Message Trigger Logic Tests
 -(void)testTriggersWithOneCondition {
-    let testMessage = [self messageWithTriggers:@[]];
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
-    testMessage.triggers = @[@[trigger]];
+    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
     
     [self.triggerController addTriggerWithKey:@"prop1" withValue:@1];
     
     // since the local trigger for prop1 is 1, and the message filter requires >= 2,
     // the message should not match and should evaluate to false
-    XCTAssertFalse([self.triggerController messageMatchesTriggers:testMessage]);
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
 }
 
 -(void)testTriggersWithTwoConditions {
-    let testMessage = [self messageWithTriggers:@[]];
     let trigger1 = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
     let trigger2 = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
-    testMessage.triggers = @[@[trigger1, trigger2]];
+    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger1, trigger2]]];
     
     [self.triggerController addTriggers:@{
         @"prop1" : @-4.3,
@@ -144,14 +115,13 @@
     }];
     
     // Both triggers should evaluate to true
-    XCTAssertTrue([self.triggerController messageMatchesTriggers:testMessage]);
+    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
 }
 
 -(void)testTriggersWithOrCondition {
-    let testMessage = [self messageWithTriggers:@[]];
     let trigger1 = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
     let trigger2 = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
-    testMessage.triggers = @[@[trigger1], @[trigger2]];
+    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger1], @[trigger2]]];
     
     // The first trigger should evaluate to false, but since the first level array
     // represents OR conditions and the second trigger array evaluates to true,
@@ -161,41 +131,38 @@
         @"prop2" : @2
     }];
     
-    XCTAssertTrue([self.triggerController messageMatchesTriggers:testMessage]);
+    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
 }
 
 -(void)testTriggerWithMissingValue {
-    let testMessage = [self messageWithTriggers:@[]];
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
-    testMessage.triggers = @[@[trigger]];
+    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
     
     // the trigger controller will have no value for 'prop1'
-    XCTAssertFalse([self.triggerController messageMatchesTriggers:testMessage]);
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
 }
 
 - (void)testExistsOperator {
-    let testMessage = [self messageWithTriggers:@[]];
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
-    testMessage.triggers = @[@[trigger]];
+    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
     
     // the property 'prop1' has not been set on local triggers, so the
     // Exists operator should return false
-    XCTAssertFalse([self.triggerController messageMatchesTriggers:testMessage]);
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
     
     [self.triggerController addTriggerWithKey:@"prop1" withValue:@"test"];
     
     // Now that we have set a value for 'prop1', the check should return true
-    XCTAssertTrue([self.triggerController messageMatchesTriggers:testMessage]);
+    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
 }
 
 - (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTrigger:(id)triggerValue withLocalValue:(id)localValue {
-    let testMessage = [self messageWithTriggers:@[]];
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
-    testMessage.triggers = @[@[trigger]];
+    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
     
     [self.triggerController addTriggerWithKey:@"prop1" withValue:localValue];
     
-    return [self.triggerController messageMatchesTriggers:testMessage];
+    return [self.triggerController messageMatchesTriggers:message];
 }
 
 - (void)testGreaterThan {
@@ -234,7 +201,7 @@
     
     // When invalid JSON is encountered, the in-app message should
     // not initialize and should return nil
-    XCTAssertNil([self messageWithTriggers:@[@[triggerJson]]]);
+    XCTAssertNil([OSInAppMessage testMessageWithTriggersJson:@[@[triggerJson]]]);
 }
 
 - (void)testNumericContainsOperator {
@@ -276,23 +243,26 @@
 }
 
 - (void)testDynamicTriggerWithExactTimeTrigger {
-    let triggered = [[OSDynamicTriggerController new] triggerExpressionIsTrueForValue:@([[NSDate date] timeIntervalSince1970]) withTriggerType:OS_EXACT_TIME_TRIGGER withMessageId:@"test_id"];
-    
+    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+
     XCTAssertTrue(triggered);
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
 }
 
 - (void)testDynamicTriggerSchedulesExactTimeTrigger {
-    let triggered = [[OSDynamicTriggerController new] triggerExpressionIsTrueForValue:@([[NSDate date] timeIntervalSince1970] + 5.0f) withTriggerType:OS_EXACT_TIME_TRIGGER withMessageId:@"test_id"];
-    
+    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] + 5.0f)];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+
     XCTAssertFalse(triggered);
     XCTAssertTrue(roughlyEqualDoubles(NSTimerOverrider.mostRecentTimerInterval, 5.0f));
 }
 
 // Ensure that the Exact Time trigger will not fire after the date has passed
 - (void)testDynamicTriggerDoesntTriggerPastTime {
-    let triggered = [[OSDynamicTriggerController new] triggerExpressionIsTrueForValue:@([[NSDate date] timeIntervalSince1970] - 5.0f) withTriggerType:OS_EXACT_TIME_TRIGGER withMessageId:@"test_id"];
-    
+    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] - 5.0f)];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+
     XCTAssertFalse(triggered);
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
 }

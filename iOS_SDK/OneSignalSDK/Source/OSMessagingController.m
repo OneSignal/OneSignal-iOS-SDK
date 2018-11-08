@@ -27,17 +27,14 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h"
-#import "OSTriggerController.h"
 
 @interface OSMessagingController ()
 
 @property (strong, nonatomic, nullable) UIWindow *window;
-
 @property (weak, nonatomic, nullable) OSInAppMessageViewController *messageViewController;
-
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
-
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
+@property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
 
 @end
 
@@ -56,6 +53,8 @@
     if (self = [super init]) {
         self.delegates = [NSMutableArray<OSInAppMessageDelegate> new];
         self.messages = [NSArray<OSInAppMessage *> new];
+        self.triggerController = [OSTriggerController new];
+        self.triggerController.delegate = self;
     }
     
     return self;
@@ -63,6 +62,8 @@
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
     self.messages = newMessages;
+    
+    [self evaluateMessages];
 }
 
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate {
@@ -91,6 +92,16 @@
     [self.window makeKeyAndVisible];
 }
 
+// checks to see if any messages should be shown now
+- (void)evaluateMessages {
+    for (OSInAppMessage *message in self.messages) {
+        if ([self.triggerController messageMatchesTriggers:message]) {
+            // we should show the message
+            [self presentInAppMessage:message];
+        }
+    }
+}
+
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 -(void)messageViewControllerWasDismissed {
     self.window.hidden = true;
@@ -104,6 +115,12 @@
 -(void)messageViewDidSelectAction:(NSString *)actionId {
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
         [delegate handleMessageAction:actionId];
+}
+
+#pragma mark OSTriggerControllerDelegate Methods
+-(void)triggerConditionChanged {
+    // we should re-evaluate all in-app messages
+    [self evaluateMessages];
 }
 
 @end

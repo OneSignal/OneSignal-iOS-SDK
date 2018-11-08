@@ -51,10 +51,9 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 // Dynamic trigger property types
 #define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
 #define OS_TIME_TRIGGER @"os_time"
-#define OS_EXACT_TIME_TRIGGER @"os_exact_time"
 #define OS_SDK_VERSION_TRIGGER @"os_sdk_version"
 
-#define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time", @"os_exact_time", @"os_sdk_version"] containsObject:type]
+#define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time", @"os_sdk_version"] containsObject:type]
 
 // Maps OSInAppMessageDisplayType cases to the equivalent OSInAppMessageDisplayPosition cases
 #define OS_DISPLAY_POSITION_FOR_TYPE(inAppMessageType) [[@[@(OSInAppMessageDisplayPositionTop), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionBottom)] objectAtIndex: inAppMessageType] intValue]
