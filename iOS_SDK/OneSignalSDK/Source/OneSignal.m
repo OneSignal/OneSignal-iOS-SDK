@@ -392,6 +392,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     maxApnsWait = APNS_TIMEOUT;
     reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
+    
+    sessionLaunchTime = [NSDate date];
 }
 
 // Set to false as soon as it's read.
