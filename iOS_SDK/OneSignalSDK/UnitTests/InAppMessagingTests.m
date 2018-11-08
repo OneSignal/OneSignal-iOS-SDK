@@ -277,5 +277,12 @@
     XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.1f);
 }
 
+- (void)testDynamicTriggerSDKVersion {
+    let trigger = [OSTrigger triggerWithProperty:OS_SDK_VERSION_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:OS_SDK_VERSION];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+    
+    XCTAssertTrue(triggered);
+}
+
 @end
 
