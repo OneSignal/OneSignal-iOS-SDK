@@ -57,6 +57,8 @@
 -(void)setUp {
     [super setUp];
     
+    NSTimerOverrider.shouldScheduleTimers = false;
+    
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     testMessage = [OSInAppMessage testMessageWithTriggersJson:@[
@@ -70,6 +72,10 @@
     ]];
     
     self.triggerController = [OSTriggerController new];
+}
+
+-(void)tearDown {
+    NSTimerOverrider.shouldScheduleTimers = true;
 }
 
 #pragma mark Message JSON Parsing Tests
