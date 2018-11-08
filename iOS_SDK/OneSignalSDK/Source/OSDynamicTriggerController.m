@@ -89,7 +89,7 @@
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType])
                 return true;
             
-            offset = currentDuration - requiredTimeValue;
+            offset = requiredTimeValue - currentDuration;
         } else if ([trigger.property isEqualToString:OS_TIME_TRIGGER]) {
             let currentTimestamp = [[NSDate date] timeIntervalSince1970];
             

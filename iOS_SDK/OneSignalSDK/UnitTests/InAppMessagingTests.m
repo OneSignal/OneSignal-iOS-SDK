@@ -267,5 +267,15 @@
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
 }
 
+// The session duration trigger is set to fire in 30 seconds into the session
+- (void)testDynamicTriggerSessionDurationLaunchesTimer {
+    let trigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+    
+    XCTAssertFalse(triggered);
+    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
+    XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.1f);
+}
+
 @end
 
