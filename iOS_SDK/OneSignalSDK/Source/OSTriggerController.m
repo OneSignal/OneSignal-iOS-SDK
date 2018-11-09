@@ -190,7 +190,7 @@
 }
 
 -(void)dynamicTriggerFired {
-    
+    [self.delegate triggerConditionChanged];
 }
 
 @end

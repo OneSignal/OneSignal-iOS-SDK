@@ -41,14 +41,16 @@
     NSTimerOverrider.hasScheduledTimer = true;
     
     if (NSTimerOverrider.shouldScheduleTimers) {
-        return [self overrideScheduledTimerWithTimeInterval:ti target:aTarget selector:aSelector userInfo:userInfo repeats:yesOrNo];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(ti * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [aTarget performSelector:aSelector withObject:userInfo];
+        });
+        
+        return [NSTimer new];
     } else {
         return [NSTimer new];
     }
 }
 @end
-
-
 
 @implementation NSTimerOverrider
 

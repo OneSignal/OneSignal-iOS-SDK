@@ -46,6 +46,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "Requests.h"
 #import "OSMessagingControllerOverrider.h"
+#import "OneSignalOverrider.h"
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -70,6 +71,10 @@
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [UnitTestCommonMethods beforeAllTest];
+}
+
+-(void)tearDown {
+    OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
 }
 
 /**
@@ -123,10 +128,38 @@
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
     
     [UnitTestCommonMethods initOneSignal];
+    
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+}
+
+- (void)testMessageDisplayedAfterTimer {
+    OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
+    
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@">=" withValue:@0.5];
+    
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
+    
+    [UnitTestCommonMethods initOneSignal];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
+    
+    let expectation = [self expectationWithDescription:@"wait for timed message to show"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+        
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectations:@[expectation] timeout:1];
 }
 
 @end
