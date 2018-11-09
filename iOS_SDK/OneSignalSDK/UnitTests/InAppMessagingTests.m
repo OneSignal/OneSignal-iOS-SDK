@@ -162,6 +162,19 @@
     XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
 }
 
+- (void)testNotEqualToOperator {
+    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotEqualTo withValue:@3];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    
+    [self.triggerController addTriggerWithKey:@"prop1" withValue:@2];
+    
+    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
+    
+    [self.triggerController addTriggerWithKey:@"prop1" withValue:@3];
+    
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
+}
+
 - (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTrigger:(id)triggerValue withLocalValue:(id)localValue {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];

@@ -34,15 +34,16 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
     OSTriggerOperatorTypeGreaterThan,
     OSTriggerOperatorTypeLessThan,
     OSTriggerOperatorTypeEqualTo,
+    OSTriggerOperatorTypeNotEqualTo,
     OSTriggerOperatorTypeLessThanOrEqualTo,
     OSTriggerOperatorTypeGreaterThanOrEqualTo,
     OSTriggerOperatorTypeExists,
     OSTriggerOperatorTypeContains
 };
 
-#define OS_OPERATOR_TO_STRING(operator) [@[@">", @"<", @"==", @"<=", @">=", @"exists", @"contains"] objectAtIndex: operator]
+#define OS_OPERATOR_TO_STRING(operator) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"contains"] objectAtIndex: operator]
 
-#define OS_OPERATOR_FROM_STRING(operatorString) [@[@">", @"<", @"==", @"<=", @">=", @"exists", @"contains"] indexOfObject: operatorString]
+#define OS_OPERATOR_FROM_STRING(operatorString) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"contains"] indexOfObject: operatorString]
 
 @interface OSTrigger : NSObject <OSJSONDecodable>
 

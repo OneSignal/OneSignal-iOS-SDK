@@ -122,7 +122,7 @@
                 else continue;
             } else if (![trigger.value isKindOfClass:[realValue class]] ||
                 ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
-                ([trigger.value isKindOfClass:[NSString class]] && ![trigger.value isEqualToString:realValue])) {
+                ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
                 break;
             } else if (i == conditions.count - 1) {
                 return true;
@@ -161,12 +161,27 @@
     return false;
 }
 
+- (BOOL)trigger:(OSTrigger *)trigger matchesStringValue:(NSString *)realValue {
+    switch (trigger.operatorType) {
+        case OSTriggerOperatorTypeEqualTo:
+            return [realValue isEqualToString:trigger.value];
+        case OSTriggerOperatorTypeNotEqualTo:
+            return [realValue isEqualToString:trigger.value];
+        default:
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to use an invalid comparison operator (%@) on a string type", OS_OPERATOR_TO_STRING(trigger.operatorType)]];
+    }
+    
+    return false;
+}
+
 - (BOOL)trigger:(OSTrigger *)trigger matchesNumericValue:(id)realValue {
     switch (trigger.operatorType) {
         case OSTriggerOperatorTypeGreaterThan:
             return [realValue doubleValue] > [trigger.value doubleValue];
         case OSTriggerOperatorTypeEqualTo:
             return [realValue isEqualToNumber:trigger.value];
+        case OSTriggerOperatorTypeNotEqualTo:
+            return ![realValue isEqualToNumber:trigger.value];
         case OSTriggerOperatorTypeLessThan:
             return [realValue doubleValue] < [trigger.value doubleValue];
         case OSTriggerOperatorTypeLessThanOrEqualTo:
@@ -174,10 +189,11 @@
         case OSTriggerOperatorTypeGreaterThanOrEqualTo:
             return [realValue doubleValue] >= [trigger.value doubleValue];
         case OSTriggerOperatorTypeExists:
-            @throw [NSException exceptionWithName:@"OneSignal Extension" reason:@"Attempted to compare/check equality for a non-comparative operator (OSTriggerOperatorTypeExists)" userInfo:nil];
         case OSTriggerOperatorTypeContains:
-            @throw [NSException exceptionWithName:@"OneSignal Extension" reason:@"Attempted to compare/check equality for a non-comparative operator (OSTriggerOperatorTypeContains)" userInfo:nil];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(trigger.operatorType)]];
     }
+    
+    return false;
 }
 
 - (NSDictionary<NSString *, id> * _Nullable)triggersFromUserDefaults {
