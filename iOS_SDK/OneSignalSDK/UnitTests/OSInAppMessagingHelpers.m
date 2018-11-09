@@ -27,6 +27,10 @@
 
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalHelper.h"
+#import "OSTriggerController.h"
+#import "OSMessagingController.h"
+
+
 
 @implementation OSTrigger (Test)
 
@@ -41,7 +45,7 @@
 
 @end
 
-@implementation OSInAppMessage (Test)
+@implementation OSInAppMessageTestHelper
 
 + (NSDictionary *)testMessageJson {
     return @{
@@ -52,7 +56,7 @@
     };
 }
 
-+ (instancetype)testMessageWithTriggersJson:(NSArray *)triggers {
++ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
     
     messageJson[@"triggers"] = triggers;
@@ -62,7 +66,7 @@
     return [OSInAppMessage instanceWithData:data];
 }
 
-+ (instancetype)testMessage {
++ (OSInAppMessage *)testMessage {
     let messageJson = self.testMessageJson;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
@@ -70,7 +74,7 @@
     return [OSInAppMessage instanceWithData:data];
 }
 
-+ (instancetype)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers {
++ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers {
     let messageJson = self.testMessageJson;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
@@ -82,24 +86,52 @@
     return message;
 }
 
-+ (NSDictionary *)testRegistrationJsonWithTriggerProperty:(NSString *)property withOperator:(NSString *)operator withValue:(id)value {
-    let testMessage = (NSMutableDictionary *)[[self testMessageJson] mutableCopy];
-    
-    testMessage[@"triggers"] = @[
-        @[
-            @{
-                @"property" : property,
-                @"operator" : operator,
-                @"value" : value
-            }
-        ]
-    ];
-    
++ (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages {
     return @{
         @"id" : @"1234",
         @"success" : @1,
-        @"messages" : @[testMessage]
+        @"messages" : messages
     };
+}
+
++ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(NSString *)operator withValue:(id)value {
+    let testMessage = (NSMutableDictionary *)[[self testMessageJson] mutableCopy];
+    
+    testMessage[@"triggers"] = @[
+         @[
+             @{
+                 @"property" : property,
+                 @"operator" : operator,
+                 @"value" : value
+             }
+         ]
+     ];
+    
+    return testMessage;
+}
+
+@end
+
+
+
+// This category lets us access the messaging controller's trigger controller
+// which is normally private
+@interface OSMessagingController (Test)
+@property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
+@end
+
+@implementation OSMessagingController (Test)
+
+@dynamic messageDisplayQueue;
+@dynamic triggerController;
+
+- (void)reset {
+    [self.messageDisplayQueue removeAllObjects];
+}
+
+- (void)setTriggerWithName:(NSString *)name withValue:(id)value {
+    [self.triggerController addTriggerWithKey:name withValue:value];
 }
 
 @end

@@ -45,6 +45,7 @@
 #import "NSBundleOverrider.h"
 #import "NSTimerOverrider.h"
 #import "OSMessagingControllerOverrider.h"
+#import "OSInAppMessagingHelpers.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
@@ -137,6 +138,8 @@ NSString * serverUrlWithPath(NSString *path) {
     [NSTimerOverrider reset];
     
     [OSMessagingControllerOverrider reset];
+    
+    [OSMessagingController.sharedInstance reset];
 }
 
 + (void)beforeAllTest {

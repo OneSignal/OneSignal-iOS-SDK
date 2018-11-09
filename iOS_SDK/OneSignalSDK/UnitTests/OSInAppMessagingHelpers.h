@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OSTrigger.h"
 #import "OSInAppMessage.h"
+#import "OSMessagingController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,11 +36,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
 @end
 
-@interface OSInAppMessage (Test)
-+ (instancetype)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
-+ (instancetype)testMessage;
-+ (instancetype)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
-+ (NSDictionary *)testRegistrationJsonWithTriggerProperty:(NSString *)property withOperator:(NSString *)operator withValue:(id)value;
+@interface OSMessagingController (Test)
+- (void)reset;
+- (void)setTriggerWithName:(NSString *)name withValue:(id)value;
+@end
+
+@interface OSInAppMessageTestHelper : NSObject
++ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
++ (OSInAppMessage *)testMessage;
++ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
++ (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages;
++ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(NSString *)operator withValue:(id)value;
 @end
 
 NS_ASSUME_NONNULL_END

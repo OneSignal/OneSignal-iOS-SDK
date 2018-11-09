@@ -44,6 +44,8 @@
 #import "NSUserDefaultsOverrider.h"
 #import "NSBundleOverrider.h"
 #import "UNUserNotificationCenter+OneSignal.h"
+#import "Requests.h"
+#import "OSMessagingControllerOverrider.h"
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -76,20 +78,55 @@
     correctly sets up a timer for the 30 seconds
 */
 - (void)testMessageIsScheduled {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"==" withValue:@30];
     
-    let registrationResponse = [OSInAppMessage testRegistrationJsonWithTriggerProperty:@"os_session_duration" withOperator:@"==" withValue:@30];
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
-    [OneSignalClientOverrider setMockResponseForRequest:@"OSRequestRegisterUser" withResponse:registrationResponse];
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
     
     [UnitTestCommonMethods initOneSignal];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
-    
     XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.3f);
 }
 
+/**
+    Once on_session API request is complete, if the SDK receives a message with valid triggers
+    (all the triggers for the message evaluate to true), the SDK should display the message. This
+    test verifies that the message actually gets displayed.
+*/
+- (void)testMessageIsDisplayed {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"<" withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+    XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+}
 
+// if we have two messages that are both valid to displayed (triggers are all true),
+- (void)testMessagesDontOverlap {
+    [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
+    [OSMessagingController.sharedInstance setTriggerWithName:@"prop2" withValue:@3];
+    
+    let firstMessage = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"prop1" withOperator:@">" withValue:@0];
+    let secondMessage = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"prop2" withOperator:@"<" withValue:@4];
+    
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[firstMessage, secondMessage]];
+    
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+    XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+}
 
 @end

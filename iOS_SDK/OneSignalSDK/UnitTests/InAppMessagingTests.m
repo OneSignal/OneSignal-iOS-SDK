@@ -61,7 +61,7 @@
     
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
-    testMessage = [OSInAppMessage testMessageWithTriggersJson:@[
+    testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:@[
         @[
             @{
                 @"property" : @"view_controller",
@@ -101,7 +101,7 @@
 #pragma mark Message Trigger Logic Tests
 -(void)testTriggersWithOneCondition {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
-    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     [self.triggerController addTriggerWithKey:@"prop1" withValue:@1];
     
@@ -113,7 +113,7 @@
 -(void)testTriggersWithTwoConditions {
     let trigger1 = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
     let trigger2 = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
-    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger1, trigger2]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger1, trigger2]]];
     
     [self.triggerController addTriggers:@{
         @"prop1" : @-4.3,
@@ -127,7 +127,7 @@
 -(void)testTriggersWithOrCondition {
     let trigger1 = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
     let trigger2 = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
-    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger1], @[trigger2]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger1], @[trigger2]]];
     
     // The first trigger should evaluate to false, but since the first level array
     // represents OR conditions and the second trigger array evaluates to true,
@@ -142,7 +142,7 @@
 
 -(void)testTriggerWithMissingValue {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
-    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     // the trigger controller will have no value for 'prop1'
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
@@ -150,7 +150,7 @@
 
 - (void)testExistsOperator {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
-    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     // the property 'prop1' has not been set on local triggers, so the
     // Exists operator should return false
@@ -164,7 +164,7 @@
 
 - (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTrigger:(id)triggerValue withLocalValue:(id)localValue {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
-    let message = [OSInAppMessage testMessageWithTriggers:@[@[trigger]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     [self.triggerController addTriggerWithKey:@"prop1" withValue:localValue];
     
@@ -207,7 +207,7 @@
     
     // When invalid JSON is encountered, the in-app message should
     // not initialize and should return nil
-    XCTAssertNil([OSInAppMessage testMessageWithTriggersJson:@[@[triggerJson]]]);
+    XCTAssertNil([OSInAppMessageTestHelper testMessageWithTriggersJson:@[@[triggerJson]]]);
 }
 
 - (void)testNumericContainsOperator {

@@ -530,9 +530,9 @@
 			isa = PBXGroup;
 			children = (
 				4529DECD1FA81DE000CEAB1D /* Shadows */,
+				CA8E19012193C6B0009DA223 /* InAppMessagingIntegrationTests.m */,
 				911E2CBC1E398AB3003112A4 /* UnitTests.m */,
 				CACBAAA9218A65AE000ACAA5 /* InAppMessagingTests.m */,
-				CA8E19012193C6B0009DA223 /* InAppMessagingIntegrationTests.m */,
 				CA85C15220604AEA003AB529 /* RequestTests.m */,
 				CAA4ED0020646762005BD59B /* BadgeTests.m */,
 				CA63AF8320211F7400E340FB /* EmailTests.m */,
