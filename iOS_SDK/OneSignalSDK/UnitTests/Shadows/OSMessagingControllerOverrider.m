@@ -41,7 +41,7 @@
 static NSMutableArray<OSInAppMessage *> *_displayedMessages;
 
 +(void)load {
-    injectToProperClass(@selector(overrideDisplayMessage:), @selector(displayMessage:), @[], [OSMessagingController class], [OSMessagingControllerOverrider class]);
+    injectToProperClass(@selector(overrideDisplayMessage:), @selector(displayMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
     
     _displayedMessages = [NSMutableArray new];
 }
