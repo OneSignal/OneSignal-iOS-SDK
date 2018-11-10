@@ -139,6 +139,7 @@
         case OSTriggerOperatorTypeNotEqualTo:
             return !roughlyEqualFloats(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeExists:
+        case OSTriggerOperatorTypeNotExists:
         case OSTriggerOperatorTypeContains:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
             return false;

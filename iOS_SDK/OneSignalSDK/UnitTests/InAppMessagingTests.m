@@ -163,6 +163,20 @@
     XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
 }
 
+- (void)testNotExistsOperator {
+    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    
+    // the property 'prop1' has not been set on local triggers, so the
+    // NotExists operator should return true
+    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
+    
+    [self.triggerController addTriggerWithKey:@"prop1" withValue:@"test"];
+    
+    // Now that we have set a value for 'prop1', the check should return false
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
+}
+
 - (void)testNotEqualToOperator {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotEqualTo withValue:@3];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];

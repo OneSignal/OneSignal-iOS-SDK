@@ -102,7 +102,17 @@
                 [dynamicTriggers addObject:trigger];
                 continue;
             } else if (!self.triggers[trigger.property]) {
-                break;
+                // the value doesn't exist
+                
+                if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
+                    // the condition for this trigger is true since the value doesn't exist
+                    // either loop to the next condition, or return true if we are the last condition
+                    if (i == conditions.count - 1) {
+                        return true;
+                    } else continue;
+                } else {
+                    break;
+                }
             }
             
             // the Exists operator requires no comparisons or equality check
@@ -189,6 +199,7 @@
         case OSTriggerOperatorTypeGreaterThanOrEqualTo:
             return [realValue doubleValue] >= [trigger.value doubleValue];
         case OSTriggerOperatorTypeExists:
+        case OSTriggerOperatorTypeNotExists:
         case OSTriggerOperatorTypeContains:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(trigger.operatorType)]];
     }
