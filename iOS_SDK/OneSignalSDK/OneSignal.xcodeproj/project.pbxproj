@@ -208,6 +208,7 @@
 		CAABF34B205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
 		CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */; };
+		CAAE0DFD2195216900A57402 /* OneSignalOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CAAE0DFC2195216900A57402 /* OneSignalOverrider.m */; };
 		CAB4112920852E48005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
@@ -384,6 +385,8 @@
 		CAA4ED0020646762005BD59B /* BadgeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BadgeTests.m; sourceTree = "<group>"; };
 		CAABF349205B15780042F8E5 /* OneSignalExtensionBadgeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalExtensionBadgeHandler.h; sourceTree = "<group>"; };
 		CAABF34A205B15780042F8E5 /* OneSignalExtensionBadgeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalExtensionBadgeHandler.m; sourceTree = "<group>"; };
+		CAAE0DFB2195216900A57402 /* OneSignalOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalOverrider.h; sourceTree = "<group>"; };
+		CAAE0DFC2195216900A57402 /* OneSignalOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalOverrider.m; sourceTree = "<group>"; };
 		CAB4112720852E48005A70D1 /* DelayedInitializationParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelayedInitializationParameters.h; sourceTree = "<group>"; };
 		CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelayedInitializationParameters.m; sourceTree = "<group>"; };
 		CAB411AC208931EE005A70D1 /* DummyNotificationCenterDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DummyNotificationCenterDelegate.h; sourceTree = "<group>"; };
@@ -513,6 +516,8 @@
 				CA8E18FB2193A1A5009DA223 /* NSTimerOverrider.m */,
 				CA8E19092194FE0B009DA223 /* OSMessagingControllerOverrider.h */,
 				CA8E190A2194FE0B009DA223 /* OSMessagingControllerOverrider.m */,
+				CAAE0DFB2195216900A57402 /* OneSignalOverrider.h */,
+				CAAE0DFC2195216900A57402 /* OneSignalOverrider.m */,
 			);
 			path = Shadows;
 			sourceTree = "<group>";
@@ -1034,6 +1039,7 @@
 				CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
 				91F58D851E7C88230017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
+				CAAE0DFD2195216900A57402 /* OneSignalOverrider.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CA8E190B2194FE0B009DA223 /* OSMessagingControllerOverrider.m in Sources */,
 				CAA4ED0120646762005BD59B /* BadgeTests.m in Sources */,

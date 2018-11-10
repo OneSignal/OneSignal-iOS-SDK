@@ -60,6 +60,14 @@
     
     if ([trigger.property isEqualToString:OS_SDK_VERSION_TRIGGER]) {
         return [trigger.value isEqualToString:OS_SDK_VERSION];
+    } else if ([trigger.property isEqualToString:OS_DEVICE_TYPE_TRIGGER]) {
+        
+        
+        let isTablet = OneSignalHelper.isTablet;
+        
+        let matches = [trigger.value isEqualToString:(isTablet ? OS_DEVICE_TYPE_TABLET : OS_DEVICE_TYPE_PHONE)];
+        
+        return trigger.operatorType == OSTriggerOperatorTypeEqualTo ? matches : !matches;
     }
     
     //currently all other supported dunamic triggers are time-based triggers
@@ -104,7 +112,7 @@
             return false;
         
         // if we reach this point, it means we need to return false and set up a timer for a future time
-        [NSTimer scheduledTimerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage) userInfo:nil repeats:false];
+        [NSTimer scheduledTimerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"messageId" : messageId, @"property" : trigger.property} repeats:false];
         
         if (self.scheduledMessages[messageId]) {
             [self.scheduledMessages[messageId] addObject:trigger.property];
@@ -128,7 +136,8 @@
             return currentTimeInterval >= timeInterval;
         case OSTriggerOperatorTypeEqualTo:
             return roughlyEqualDoubles(timeInterval, currentTimeInterval);
-            break;
+        case OSTriggerOperatorTypeNotEqualTo:
+            return !roughlyEqualFloats(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeExists:
         case OSTriggerOperatorTypeContains:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
@@ -140,7 +149,18 @@
     return false;
 }
 
-- (void)timerFiredForMessage {
+- (void)timerFiredForMessage:(NSDictionary *)userInfo {
+    NSString *messageId = userInfo[@"messageId"];
+    NSString *property = userInfo[@"property"];
+    if (messageId && property && self.scheduledMessages[messageId].count > 0) {
+        for (int i = 0; i < self.scheduledMessages[messageId].count; i++) {
+            if ([self.scheduledMessages[messageId][i] isEqualToString:property]) {
+                [self.scheduledMessages[messageId] removeObjectAtIndex:i];
+                break;
+            }
+        }
+    }
+        
     [self.delegate dynamicTriggerFired];
 }
 
