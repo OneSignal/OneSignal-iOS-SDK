@@ -74,6 +74,7 @@
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
 + (NSString*)trimURLSpacing:(NSString*)url;
++ (BOOL)isTablet;
 
 #pragma clang diagnostic pop
 @end

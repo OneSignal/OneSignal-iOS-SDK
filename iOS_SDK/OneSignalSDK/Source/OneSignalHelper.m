@@ -936,6 +936,10 @@ static OneSignal* singleInstance = nil;
     return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
++ (BOOL)isTablet {
+    return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
+}
+
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop

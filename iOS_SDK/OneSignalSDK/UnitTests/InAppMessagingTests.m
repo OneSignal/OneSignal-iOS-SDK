@@ -37,6 +37,7 @@
 #import "NSTimerOverrider.h"
 #import "UnitTestCommonMethods.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OneSignalHelperOverrider.h"
 
 
 /**
@@ -259,6 +260,20 @@
     XCTAssertTrue(bottom == OSInAppMessageDisplayTypeBottomBanner);
     XCTAssertTrue(modal == OSInAppMessageDisplayTypeCenteredModal);
     XCTAssertTrue(full == OSInAppMessageDisplayTypeFullScreen);
+}
+
+- (void)testDynamicTriggerWithDeviceTypeTriggerForTablet {
+    [OneSignalHelperOverrider setOverrideIsTablet:true];
+    let trigger = [OSTrigger triggerWithProperty:OS_DEVICE_TYPE_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:OS_DEVICE_TYPE_TABLET];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+    XCTAssertTrue(triggered);
+}
+
+- (void)testDynamicTriggerWithDeviceTypeTriggerForPhone {
+    [OneSignalHelperOverrider setOverrideIsTablet:false];
+    let trigger = [OSTrigger triggerWithProperty:OS_DEVICE_TYPE_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:OS_DEVICE_TYPE_PHONE];
+    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+    XCTAssertTrue(triggered);
 }
 
 - (void)testDynamicTriggerWithExactTimeTrigger {

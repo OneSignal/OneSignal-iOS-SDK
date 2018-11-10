@@ -52,6 +52,9 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 #define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
 #define OS_TIME_TRIGGER @"os_time"
 #define OS_SDK_VERSION_TRIGGER @"os_sdk_version"
+#define OS_DEVICE_TYPE_TRIGGER @"os_device_type"
+#define OS_DEVICE_TYPE_TABLET @"tablet"
+#define OS_DEVICE_TYPE_PHONE @"phone"
 
 #define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time", @"os_sdk_version"] containsObject:type]
 

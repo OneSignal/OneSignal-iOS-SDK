@@ -33,7 +33,7 @@
 
 +(void)setMockIOSVersion:(float)value;
 +(float)mockIOSVersion;
-
-+ (void)runBackgroundThreads;
++(void)runBackgroundThreads;
++(void)setOverrideIsTablet:(BOOL)shouldBeTablet;
 
 @end
