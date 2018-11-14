@@ -168,6 +168,30 @@
     
     [self waitForExpectations:@[expectation] timeout:0.2];
 }
+
+// If a message has multiple triggers, and one of the triggers is time/duration based, the SDK
+// will set up a timer. However, if a normal value-based trigger condition is not true, there is
+// no point in setting up a timer until that condition changes.
+- (void)testDelaysSettingUpTimers {
+    let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
+    let secondTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger]]];
+    
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+    
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // the timer shouldn't be scheduled yet
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+    
+    [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
+    
+    // the timer should be scheduled now that the other trigger condition is true
+    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
 }
 
 @end
