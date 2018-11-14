@@ -1745,11 +1745,13 @@ static dispatch_queue_t serialQueue;
          @"id" : @"test_id",
          @"content_id" : @"test_content",
          @"triggers" : @[
-            @{
-                @"property" : @"view_controller",
-                @"operator" : @"==",
-                @"value" : @"test_vc"
-            }
+            @[
+                @{
+                    @"property" : @"view_controller",
+                    @"operator" : @"==",
+                    @"value" : @"test_vc"
+                }
+            ]
         ]
      }];
     
