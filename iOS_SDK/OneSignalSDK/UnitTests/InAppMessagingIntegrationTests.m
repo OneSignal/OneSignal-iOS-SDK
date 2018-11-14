@@ -166,7 +166,7 @@
         [expectation fulfill];
     });
     
-    [self waitForExpectations:@[expectation] timeout:0.2];
+    [self waitForExpectations:@[expectation] timeout:0.1];
 }
 
 // If a message has multiple triggers, and one of the triggers is time/duration based, the SDK
@@ -188,7 +188,7 @@
     // the timer shouldn't be scheduled yet
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
-    [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
+    [OneSignal setTriggerForKey:@"prop1" withValue:@2];
     
     // the timer should be scheduled now that the other trigger condition is true
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);

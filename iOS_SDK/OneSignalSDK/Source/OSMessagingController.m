@@ -94,17 +94,12 @@
         }
         
         let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
-        
         viewController.delegate = self;
-        
         self.messageViewController = viewController;
         
         self.window.rootViewController = self.messageViewController;
-        
         self.window.backgroundColor = [UIColor clearColor];
-        
         self.window.opaque = true;
-        
         [self.window makeKeyAndVisible];
     });
 }
@@ -117,6 +112,15 @@
             [self presentInAppMessage:message];
         }
     }
+}
+
+#pragma mark Trigger Methods
+- (void)setTriggers:(NSDictionary<NSString *, id> *)triggers {
+    [self.triggerController addTriggers:triggers];
+}
+
+- (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
+    [self.triggerController removeTriggersForKeys:keys];
 }
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods

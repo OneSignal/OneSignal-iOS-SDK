@@ -66,14 +66,6 @@
     }
 }
 
-- (void)addTriggerWithKey:(NSString *)key withValue:(id)value {
-    [self addTriggers:@{key : value}];
-}
-
-- (void)removeTriggerForKey:(NSString *)key {
-    [self removeTriggersForKeys:@[key]];
-}
-
 #pragma mark Private Methods
 
 /**

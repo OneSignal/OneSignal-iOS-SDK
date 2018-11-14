@@ -131,7 +131,7 @@
 }
 
 - (void)setTriggerWithName:(NSString *)name withValue:(id)value {
-    [self.triggerController addTriggerWithKey:name withValue:value];
+    [self.triggerController addTriggers:@{name : value}];
 }
 
 @end

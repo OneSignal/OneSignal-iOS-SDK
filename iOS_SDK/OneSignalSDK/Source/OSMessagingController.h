@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)presentInAppMessage:(OSInAppMessage *)message;
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages;
 
+- (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
+- (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
+
 @end
 
 NS_ASSUME_NONNULL_END

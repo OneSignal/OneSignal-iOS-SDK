@@ -104,7 +104,7 @@
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self.triggerController addTriggerWithKey:@"prop1" withValue:@1];
+    [self.triggerController addTriggers:@{@"prop1" : @1}];
     
     // since the local trigger for prop1 is 1, and the message filter requires >= 2,
     // the message should not match and should evaluate to false
@@ -157,7 +157,7 @@
     // Exists operator should return false
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
     
-    [self.triggerController addTriggerWithKey:@"prop1" withValue:@"test"];
+    [self.triggerController addTriggers:@{@"prop1" : @"test"}];
     
     // Now that we have set a value for 'prop1', the check should return true
     XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
@@ -171,7 +171,7 @@
     // NotExists operator should return true
     XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
     
-    [self.triggerController addTriggerWithKey:@"prop1" withValue:@"test"];
+    [self.triggerController addTriggers:@{@"prop1" : @"test"}];
     
     // Now that we have set a value for 'prop1', the check should return false
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
@@ -181,11 +181,11 @@
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotEqualTo withValue:@3];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self.triggerController addTriggerWithKey:@"prop1" withValue:@2];
+    [self.triggerController addTriggers:@{@"prop1" : @2}];
     
     XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
     
-    [self.triggerController addTriggerWithKey:@"prop1" withValue:@3];
+    [self.triggerController addTriggers:@{@"prop1" : @3}];
     
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
 }
@@ -194,7 +194,7 @@
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self.triggerController addTriggerWithKey:@"prop1" withValue:localValue];
+    [self.triggerController addTriggers:@{@"prop1" : localValue}];
     
     return [self.triggerController messageMatchesTriggers:message];
 }

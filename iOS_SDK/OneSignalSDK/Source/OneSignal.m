@@ -2350,6 +2350,49 @@ static NSString *_lastnonActiveMessageId;
     return sessionLaunchTime;
 }
 
++ (void)setTriggerForKey:(NSString *)key withValue:(id)value {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setTriggerForKey:withValue:"])
+        return;
+    
+    if (!key) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
+        return;
+    }
+    
+    [OSMessagingController.sharedInstance setTriggers:@{key : value}];
+}
+
++ (void)setTriggers:(NSDictionary<NSString *, id> *)triggers {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setTriggers:"])
+        return;
+    
+    [OSMessagingController.sharedInstance setTriggers:triggers];
+}
+
++ (void)removeTriggerForKey:(NSString *)key {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
+        return;
+    
+    if (!key) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
+        return;
+    }
+    
+    [OSMessagingController.sharedInstance removeTriggersForKeys:@[key]];
+}
+
++ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
+        return;
+    
+    [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
+}
+
 @end
 
 // Swizzles UIApplication class to swizzling the following:
