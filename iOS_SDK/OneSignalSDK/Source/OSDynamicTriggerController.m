@@ -131,12 +131,12 @@
     switch (operator) {
         case OSTriggerOperatorTypeLessThan:
             return currentTimeInterval < timeInterval;
-        case OSTriggerOperatorTypeLessThanOrEqualTo:
-            return currentTimeInterval <= timeInterval;
+        case OSTriggerOperatorTypeLessThanOrEqualTo: //due to potential floating point error, consider very small differences to be equal
+            return currentTimeInterval <= timeInterval || roughlyEqualDoubles(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeGreaterThan:
             return currentTimeInterval > timeInterval;
-        case OSTriggerOperatorTypeGreaterThanOrEqualTo:
-            return currentTimeInterval >= timeInterval;
+        case OSTriggerOperatorTypeGreaterThanOrEqualTo: //due to potential floating point error, consider very small differences to be equal
+            return currentTimeInterval >= timeInterval || roughlyEqualDoubles(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeEqualTo:
             return roughlyEqualDoubles(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeNotEqualTo:

@@ -67,5 +67,6 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 // Converts string like "top_banner" to its OSInAppMessageDisplayType enum case
 #define OS_DISPLAY_TYPE_FOR_STRING(stringType) (OSInAppMessageDisplayType)[@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] indexOfObject: stringType]
 
+#define OS_DISPLAY_TYPE_TO_STRING(displayType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] objectAtIndex: displayType]
 
 #endif /* OSInAppMessagingDefines_h */
