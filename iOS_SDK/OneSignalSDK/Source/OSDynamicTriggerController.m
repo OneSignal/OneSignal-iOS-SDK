@@ -112,7 +112,10 @@
             return false;
         
         // if we reach this point, it means we need to return false and set up a timer for a future time
-        [NSTimer scheduledTimerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"messageId" : messageId, @"property" : trigger.property} repeats:false];
+        let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"messageId" : messageId, @"property" : trigger.property} repeats:false];
+        
+        if (timer)
+            [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         
         if (self.scheduledMessages[messageId]) {
             [self.scheduledMessages[messageId] addObject:trigger.property];
@@ -143,16 +146,17 @@
         case OSTriggerOperatorTypeContains:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
             return false;
-            
     }
     
     
     return false;
 }
 
-- (void)timerFiredForMessage:(NSDictionary *)userInfo {
-    NSString *messageId = userInfo[@"messageId"];
-    NSString *property = userInfo[@"property"];
+- (void)timerFiredForMessage:(NSTimer *)timer {
+    NSString *messageId = timer.userInfo[@"messageId"];
+    NSString *property = timer.userInfo[@"property"];
+    
+    
     if (messageId && property && self.scheduledMessages[messageId].count > 0) {
         for (int i = 0; i < self.scheduledMessages[messageId].count; i++) {
             if ([self.scheduledMessages[messageId][i] isEqualToString:property]) {

@@ -35,17 +35,13 @@
 // Due to issues swizzling Class methods in Objective-C,
 // we'll use a Category to implement this method
 @implementation NSTimer (Testing)
-+ (NSTimer *)overrideScheduledTimerWithTimeInterval:(NSTimeInterval)ti target:(id)aTarget selector:(SEL)aSelector userInfo:(nullable id)userInfo repeats:(BOOL)yesOrNo {
++ (NSTimer *)overrideTimerWithTimeInterval:(NSTimeInterval)ti target:(id)aTarget selector:(SEL)aSelector userInfo:(nullable id)userInfo repeats:(BOOL)yesOrNo {
     NSTimerOverrider.mostRecentTimerInterval = ti;
     
     NSTimerOverrider.hasScheduledTimer = true;
     
     if (NSTimerOverrider.shouldScheduleTimers) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(ti * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [aTarget performSelector:aSelector withObject:userInfo];
-        });
-        
-        return [NSTimer new];
+        return [NSTimer overrideTimerWithTimeInterval:ti target:aTarget selector:aSelector userInfo:userInfo repeats:yesOrNo];
     } else {
         return [NSTimer new];
     }
@@ -59,7 +55,7 @@ static BOOL _hasScheduledTimer = false;
 static NSTimeInterval _mostRecentTimerInterval = 0.0f;
 
 +(void)load {
-    swizzleClassMethodWithCategoryImplementation([NSTimer class], @selector(scheduledTimerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideScheduledTimerWithTimeInterval:target:selector:userInfo:repeats:));
+    swizzleClassMethodWithCategoryImplementation([NSTimer class], @selector(timerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideTimerWithTimeInterval:target:selector:userInfo:repeats:));
 }
 
 + (void)reset {
