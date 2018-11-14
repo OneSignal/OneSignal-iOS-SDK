@@ -33,7 +33,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSInAppMessage : NSObject <OSJSONDecodable>
+@interface OSInAppMessage : NSObject <OSJSONDecodable, OSJSONEncodable>
 @property (strong, nonatomic, nonnull) NSString *messageId;
 @property (strong, nonatomic, nonnull) NSString *contentId;
 @property (strong, nonatomic, nonnull) NSArray<NSArray <OSTrigger *> *> *triggers;

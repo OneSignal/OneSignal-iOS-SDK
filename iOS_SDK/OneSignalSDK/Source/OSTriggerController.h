@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // This is called when, for example, a dynamic trigger timer reaches the end
 // and the message should be shown (assuming no other triggers are false for that message)
+// It is also called when the app changes trigger values
 - (void)triggerConditionChanged;
 
 @end

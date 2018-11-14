@@ -67,4 +67,16 @@
     return newTrigger;
 }
 
+- (NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+    
+    json[@"property"] = self.property;
+    json[@"operator"] = OS_OPERATOR_TO_STRING(self.operatorType);
+    
+    if (self.value)
+        json[@"value"] = self.value;
+    
+    return json;
+}
+
 @end

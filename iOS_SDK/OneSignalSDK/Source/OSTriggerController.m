@@ -214,6 +214,8 @@
 - (void)didUpdateTriggers {
     [self.defaults setObject:self.triggers forKey:OS_TRIGGERS_KEY];
     [self.defaults synchronize];
+    
+    [self.delegate triggerConditionChanged];
 }
 
 -(void)dynamicTriggerFired {

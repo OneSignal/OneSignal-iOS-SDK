@@ -92,5 +92,31 @@
     return message;
 }
 
+-(NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+    
+    json[@"type"] = OS_DISPLAY_TYPE_TO_STRING(self.type);
+    json[@"id"] = self.messageId;
+    json[@"content_id"] = self.contentId;
+    
+    if (self.maxDisplayTime != -1.0f)
+        json[@"max_display_time"] = @(self.maxDisplayTime);
+    
+    let triggers = [NSMutableArray new];
+    
+    for (NSArray *andBlock in self.triggers) {
+        let andConditions = [NSMutableArray new];
+        
+        for (OSTrigger *trigger in andBlock)
+            [andConditions addObject:trigger.jsonRepresentation];
+        
+        [triggers addObject:andConditions];
+    }
+    
+    json[@"triggers"] = triggers;
+    
+    return json;
+}
+
 @end
 
