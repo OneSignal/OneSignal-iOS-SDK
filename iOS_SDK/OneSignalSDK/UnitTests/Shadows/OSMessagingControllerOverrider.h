@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessage.h"
+#import "OSMessagingController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)reset;
 
+@end
+
+@interface OSMessagingController (Tests)
+- (void)resetState;
 @end
 
 NS_ASSUME_NONNULL_END

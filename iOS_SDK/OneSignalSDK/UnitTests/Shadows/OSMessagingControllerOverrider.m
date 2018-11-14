@@ -30,10 +30,24 @@
 #import "OneSignalSelectorHelpers.h"
 #import "TestHelperFunctions.h"
 #import "NSTimerOverrider.h"
+#import "OSTriggerController.h"
 
 // The displayMessage method is private, we'll expose it here
 @interface OSMessagingController ()
-- (void)displayMessage:(OSInAppMessage *)message;
+@property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
+@property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
+@end
+
+@implementation OSMessagingController (Tests)
+
+- (void)resetState {
+    self.triggerController = [OSTriggerController new];
+    self.messages = @[];
+    self.triggerController.delegate = self;
+    self.messageDisplayQueue = [NSMutableArray new];
+}
+
 @end
 
 @implementation OSMessagingControllerOverrider

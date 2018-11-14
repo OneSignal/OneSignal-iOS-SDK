@@ -71,10 +71,16 @@
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [UnitTestCommonMethods beforeAllTest];
+    
+    NSTimerOverrider.shouldScheduleTimers = false;
 }
 
 -(void)tearDown {
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
+    
+    [OSMessagingController.sharedInstance resetState];
+    
+    NSTimerOverrider.shouldScheduleTimers = true;
 }
 
 /**
@@ -128,7 +134,6 @@
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
     
     [UnitTestCommonMethods initOneSignal];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -136,16 +141,18 @@
 }
 
 - (void)testMessageDisplayedAfterTimer {
+    
+    NSTimerOverrider.shouldScheduleTimers = true;
+    
     OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
     
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@">=" withValue:@0.5];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@">=" withValue:@0.05];
     
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
     
     [UnitTestCommonMethods initOneSignal];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
@@ -153,13 +160,14 @@
     let expectation = [self expectationWithDescription:@"wait for timed message to show"];
     expectation.expectedFulfillmentCount = 1;
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.06 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
         
         [expectation fulfill];
     });
     
-    [self waitForExpectations:@[expectation] timeout:1];
+    [self waitForExpectations:@[expectation] timeout:0.2];
+}
 }
 
 @end
