@@ -40,7 +40,7 @@
     This dictionary prevents the SDK from scheduling multiple duplicate timers
     for the same messageId + trigger type.
 */
-@property (strong, nonatomic, nonnull) NSMutableDictionary<NSString *, NSMutableArray <NSString *> *> *scheduledMessages;
+@property (strong, nonatomic, nonnull) NSMutableArray<NSString *> *scheduledMessages;
 
 @end
 
@@ -48,7 +48,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.scheduledMessages = [NSMutableDictionary new];
+        self.scheduledMessages = [NSMutableArray new];
     }
     
     return self;
@@ -81,8 +81,10 @@
         if (![trigger.value isKindOfClass:[NSNumber class]])
             return false;
         
+        let triggerId = [trigger uniqueIdentifierForTriggerFromMessageWithMessageId:messageId];
+        
         // This would mean we've already set up a timer for this message trigger
-        if (self.scheduledMessages[messageId] && [self.scheduledMessages[messageId] containsObject:trigger.property])
+        if ([self.scheduledMessages containsObject:triggerId])
             return false;
         
         let requiredTimeValue = [trigger.value doubleValue];
@@ -112,21 +114,21 @@
             return false;
         
         // if we reach this point, it means we need to return false and set up a timer for a future time
-        let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"messageId" : messageId, @"property" : trigger.property} repeats:false];
+        let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"messageId" : messageId, @"trigger" : trigger} repeats:false];
         
         if (timer)
             [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         
-        if (self.scheduledMessages[messageId]) {
-            [self.scheduledMessages[messageId] addObject:trigger.property];
-        } else {
-            self.scheduledMessages[messageId] = [NSMutableArray arrayWithObject:trigger.property];
-        }
+        [self.scheduledMessages addObject:triggerId];
     }
     
     return false;
 }
 
+/**
+    Time-based triggers can use operators like < to trigger at specific times.
+    For example, the "session duration" trigger can be triggered 
+*/
 - (BOOL)evaluateTimeInterval:(NSTimeInterval)timeInterval withCurrentValue:(NSTimeInterval)currentTimeInterval forOperator:(OSTriggerOperatorType)operator {
     switch (operator) {
         case OSTriggerOperatorTypeLessThan:
@@ -153,20 +155,14 @@
 }
 
 - (void)timerFiredForMessage:(NSTimer *)timer {
-    NSString *messageId = timer.userInfo[@"messageId"];
-    NSString *property = timer.userInfo[@"property"];
-    
-    
-    if (messageId && property && self.scheduledMessages[messageId].count > 0) {
-        for (int i = 0; i < self.scheduledMessages[messageId].count; i++) {
-            if ([self.scheduledMessages[messageId][i] isEqualToString:property]) {
-                [self.scheduledMessages[messageId] removeObjectAtIndex:i];
-                break;
-            }
-        }
-    }
+    @synchronized (self.scheduledMessages) {
+        let messageId = (NSString *)timer.userInfo[@"messageId"];
+        let trigger = (OSTrigger *)timer.userInfo[@"trigger"];
         
-    [self.delegate dynamicTriggerFired];
+        [self.scheduledMessages removeObject:[trigger uniqueIdentifierForTriggerFromMessageWithMessageId:messageId]];
+        
+        [self.delegate dynamicTriggerFired];
+    }
 }
 
 @end

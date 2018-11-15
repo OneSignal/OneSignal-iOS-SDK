@@ -80,7 +80,10 @@
 @end
 
 // no real need for more accuracy currently
-#define OS_COMPARISON_PRECISION 0.00003
+// Due to battery, NSTimer's are not perfectly accurate
+// To avoid issues with this, we only check to make sure the
+// time values are roughly equivalent.
+#define OS_COMPARISON_PRECISION 0.0003
 
 BOOL roughlyEqualFloats(float left, float right);
 BOOL roughlyEqualDoubles(double left, double right);

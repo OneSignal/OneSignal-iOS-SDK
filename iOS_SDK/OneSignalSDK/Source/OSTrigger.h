@@ -27,30 +27,20 @@
 
 #import <Foundation/Foundation.h>
 #import "OSJSONHandling.h"
+#import "OSInAppMessagingDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
-    OSTriggerOperatorTypeGreaterThan,
-    OSTriggerOperatorTypeLessThan,
-    OSTriggerOperatorTypeEqualTo,
-    OSTriggerOperatorTypeNotEqualTo,
-    OSTriggerOperatorTypeLessThanOrEqualTo,
-    OSTriggerOperatorTypeGreaterThanOrEqualTo,
-    OSTriggerOperatorTypeExists,
-    OSTriggerOperatorTypeNotExists,
-    OSTriggerOperatorTypeContains
-};
-
-#define OS_OPERATOR_TO_STRING(operator) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] objectAtIndex: operator]
-
-#define OS_OPERATOR_FROM_STRING(operatorString) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] indexOfObject: operatorString]
 
 @interface OSTrigger : NSObject <OSJSONDecodable, OSJSONEncodable>
 
 @property (strong, nonatomic, nonnull) NSString *property;
 @property (nonatomic) OSTriggerOperatorType operatorType;
 @property (strong, nonatomic, nullable) id value;
+
+// Triggers do not have ID's, but we can get a unique string to represent the trigger
+// by using the property name appended by the operator, so a trigger that fires after
+// session duration >= 30 seconds would return the identifier: os_session_duration>=30
+- (NSString *)uniqueIdentifierForTriggerFromMessageWithMessageId:(NSString *)messageId;
 
 @end
 

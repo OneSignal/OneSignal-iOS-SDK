@@ -79,4 +79,13 @@
     return json;
 }
 
+
+// Returns a unique string for this trigger
+- (NSString *)uniqueIdentifierForTriggerFromMessageWithMessageId:(NSString *)messageId {
+    if (self.value)
+        return [[[self.property stringByAppendingString:OS_OPERATOR_TO_STRING(self.operatorType)] stringByAppendingString:[NSString stringWithFormat:@"%@::", self.value]] stringByAppendingString:messageId];
+    else
+        return [[[self.property stringByAppendingString:OS_OPERATOR_TO_STRING(self.operatorType)] stringByAppendingString:@"::"] stringByAppendingString:messageId];
+}
+
 @end

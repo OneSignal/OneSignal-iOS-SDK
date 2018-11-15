@@ -332,5 +332,31 @@
     XCTAssertTrue(triggered);
 }
 
+/**
+    Triggers don't have unique ID's, but because some triggers create timers, we need a way
+    to refer back to triggers after a period of time to make sure we don't create duplicates.
+*/
+- (void)testTriggerIdentifier {
+    let testMessageIdentifier = @"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba";
+    
+    let correctValues = @{
+        @"prop1" : @"prop1>=3",
+        @"prop2" : @"prop2<=0.2",
+        @"prop3" : @"prop3==test",
+        @"os_session_duration" : @"os_session_duration>30"
+    };
+    
+    let triggers = @[
+        [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3],
+        [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@0.2],
+        [OSTrigger triggerWithProperty:@"prop3" withOperator:OSTriggerOperatorTypeEqualTo withValue:@"test"],
+        [OSTrigger triggerWithProperty:@"os_session_duration" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@30.0]
+    ];
+    
+    // OSTrigger should produce unique identifier strings that exactly match the values in "correctValues"
+    for (OSTrigger *trigger in triggers)
+        XCTAssertEqualObjects([trigger uniqueIdentifierForTriggerFromMessageWithMessageId:testMessageIdentifier], [[correctValues[trigger.property] stringByAppendingString:@"::"] stringByAppendingString:testMessageIdentifier]);
+}
+
 @end
 

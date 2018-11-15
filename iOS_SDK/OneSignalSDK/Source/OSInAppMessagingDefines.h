@@ -38,11 +38,28 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionCentered
 };
 
+typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
+    OSTriggerOperatorTypeGreaterThan,
+    OSTriggerOperatorTypeLessThan,
+    OSTriggerOperatorTypeEqualTo,
+    OSTriggerOperatorTypeNotEqualTo,
+    OSTriggerOperatorTypeLessThanOrEqualTo,
+    OSTriggerOperatorTypeGreaterThanOrEqualTo,
+    OSTriggerOperatorTypeExists,
+    OSTriggerOperatorTypeNotExists,
+    OSTriggerOperatorTypeContains
+};
+
+// Defines the amount of space (margins) in-app message views are given.
+// The higher this value is, the farther away from the edges of the screen
+// the in-app messages will be.
 #define MESSAGE_MARGIN 0.025f
 
+// Aspect ratios for messages. Note that full-screen messages fill the screen
 #define BANNER_ASPECT_RATIO 2.3f
 #define CENTERED_MODAL_ASPECT_RATIO 0.81f
 
+// defines the slowest allowable dismissal speed for in-app messages.
 #define MAX_DISMISSAL_ANIMATION_DURATION 0.3f
 
 // Key for NSUserDefaults trigger storage
@@ -53,9 +70,12 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 #define OS_TIME_TRIGGER @"os_time"
 #define OS_SDK_VERSION_TRIGGER @"os_sdk_version"
 #define OS_DEVICE_TYPE_TRIGGER @"os_device_type"
+
+// Defines the two (current) device types
 #define OS_DEVICE_TYPE_TABLET @"tablet"
 #define OS_DEVICE_TYPE_PHONE @"phone"
 
+// Macro to verify that a string is a correct dynamic trigger
 #define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time", @"os_sdk_version"] containsObject:type]
 
 // Maps OSInAppMessageDisplayType cases to the equivalent OSInAppMessageDisplayPosition cases
@@ -64,9 +84,12 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 // Checks if a string is a valid display type
 #define OS_IS_VALID_DISPLAY_TYPE(stringType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] containsObject: stringType]
 
-// Converts string like "top_banner" to its OSInAppMessageDisplayType enum case
+// Converts OSInAppMessageDisplayType enum cases to and from strings
 #define OS_DISPLAY_TYPE_FOR_STRING(stringType) (OSInAppMessageDisplayType)[@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] indexOfObject: stringType]
-
 #define OS_DISPLAY_TYPE_TO_STRING(displayType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] objectAtIndex: displayType]
+
+// Converts OSTriggerOperatorType enum cases to and from strings
+#define OS_OPERATOR_TO_STRING(operator) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] objectAtIndex: operator]
+#define OS_OPERATOR_FROM_STRING(operatorString) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] indexOfObject: operatorString]
 
 #endif /* OSInAppMessagingDefines_h */
