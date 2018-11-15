@@ -38,7 +38,7 @@
 #import "UnitTestCommonMethods.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalHelperOverrider.h"
-
+#import "OneSignalCommonDefines.h"
 
 /**
  Test to make sure that OSInAppMessage correctly
@@ -303,7 +303,7 @@
     let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
 
     XCTAssertFalse(triggered);
-    XCTAssertTrue(roughlyEqualDoubles(NSTimerOverrider.mostRecentTimerInterval, 5.0f));
+    XCTAssertTrue(OS_ROUGHLY_EQUAL(NSTimerOverrider.mostRecentTimerInterval, 5.0f));
 }
 
 // Ensure that the Exact Time trigger will not fire after the date has passed

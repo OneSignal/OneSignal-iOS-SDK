@@ -136,4 +136,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // A max timeout for a request, which might include multiple reattempts
 #define MAX_TIMEOUT ((REQUEST_TIMEOUT_REQUEST * MAX_ATTEMPT_COUNT) + (REATTEMPT_DELAY * MAX_ATTEMPT_COUNT)) * NSEC_PER_SEC
 
+// To save battery, NSTimer is not exceedingly accurate so timestamp values may be a bit inaccurate
+// To make up for this, we can check to make sure the values are close enough to account for
+// variance and floating-point error.
+#define OS_ROUGHLY_EQUAL(left, right) (fabs(left - right) < 0.0003)
+
 #endif /* OneSignalCommonDefines_h */

@@ -29,6 +29,7 @@
 #import "OSInAppMessagingDefines.h"
 #import "OneSignalHelper.h"
 #import "OneSignalInternal.h"
+#import "OneSignalCommonDefines.h"
 
 @interface OSDynamicTriggerController ()
 
@@ -134,15 +135,15 @@
         case OSTriggerOperatorTypeLessThan:
             return currentTimeInterval < timeInterval;
         case OSTriggerOperatorTypeLessThanOrEqualTo: //due to potential floating point error, consider very small differences to be equal
-            return currentTimeInterval <= timeInterval || roughlyEqualDoubles(timeInterval, currentTimeInterval);
+            return currentTimeInterval <= timeInterval || OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeGreaterThan:
             return currentTimeInterval > timeInterval;
         case OSTriggerOperatorTypeGreaterThanOrEqualTo: //due to potential floating point error, consider very small differences to be equal
-            return currentTimeInterval >= timeInterval || roughlyEqualDoubles(timeInterval, currentTimeInterval);
+            return currentTimeInterval >= timeInterval || OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeEqualTo:
-            return roughlyEqualDoubles(timeInterval, currentTimeInterval);
+            return OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeNotEqualTo:
-            return !roughlyEqualFloats(timeInterval, currentTimeInterval);
+            return !OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeExists:
         case OSTriggerOperatorTypeNotExists:
         case OSTriggerOperatorTypeContains:

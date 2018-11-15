@@ -944,12 +944,3 @@ static OneSignal* singleInstance = nil;
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
 @end
-
-
-BOOL roughlyEqualFloats(float left, float right) {
-    return fabsf(left - right) < OS_COMPARISON_PRECISION;
-}
-
-BOOL roughlyEqualDoubles(double left, double right) {
-    return fabs(left - right) < OS_COMPARISON_PRECISION;
-}

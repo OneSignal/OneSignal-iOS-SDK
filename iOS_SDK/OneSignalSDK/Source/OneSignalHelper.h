@@ -79,14 +79,6 @@
 #pragma clang diagnostic pop
 @end
 
-// no real need for more accuracy currently
-// Due to battery, NSTimer's are not perfectly accurate
-// To avoid issues with this, we only check to make sure the
-// time values are roughly equivalent.
-#define OS_COMPARISON_PRECISION 0.0003
-
-BOOL roughlyEqualFloats(float left, float right);
-BOOL roughlyEqualDoubles(double left, double right);
 
 // Defines let and var in Objective-c for shorter code
 // __auto_type is compatible with Xcode 8+
