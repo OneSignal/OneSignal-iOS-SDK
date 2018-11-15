@@ -41,7 +41,6 @@
 @property (nonatomic) int reattemptCount;
 -(BOOL)missingAppId; //for requests that don't require an appId parameter, the subclass should override this method and return false
 -(NSMutableURLRequest * _Nonnull )urlRequest;
-+ (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
 
 @end
 

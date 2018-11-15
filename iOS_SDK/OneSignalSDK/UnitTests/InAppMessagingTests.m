@@ -85,7 +85,7 @@
 }
 
 -(void)testCorrectlyParsedMessageId {
-    XCTAssertTrue([testMessage.messageId isEqualToString:@"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba"]);
+    XCTAssertTrue([testMessage.messageId isEqualToString:OS_TEST_MESSAGE_ID]);
 }
 
 -(void)testCorrectlyParsedContentId {
@@ -337,8 +337,6 @@
     to refer back to triggers after a period of time to make sure we don't create duplicates.
 */
 - (void)testTriggerIdentifier {
-    let testMessageIdentifier = @"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba";
-    
     let correctValues = @{
         @"prop1" : @"prop1>=3",
         @"prop2" : @"prop2<=0.2",
@@ -354,8 +352,11 @@
     ];
     
     // OSTrigger should produce unique identifier strings that exactly match the values in "correctValues"
-    for (OSTrigger *trigger in triggers)
-        XCTAssertEqualObjects([trigger uniqueIdentifierForTriggerFromMessageWithMessageId:testMessageIdentifier], [[correctValues[trigger.property] stringByAppendingString:@"::"] stringByAppendingString:testMessageIdentifier]);
+    for (OSTrigger *trigger in triggers) {
+        let triggerIdentifier = [trigger uniqueIdentifierForTriggerFromMessageWithMessageId:OS_TEST_MESSAGE_ID];
+        let correctIdentifier = [[correctValues[trigger.property] stringByAppendingString:@"::"] stringByAppendingString:OS_TEST_MESSAGE_ID];
+        XCTAssertEqualObjects(triggerIdentifier, correctIdentifier);
+    }
 }
 
 @end

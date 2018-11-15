@@ -30,6 +30,8 @@
 #import "OSInAppMessage.h"
 #import "OSMessagingController.h"
 
+#define OS_TEST_MESSAGE_ID @"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OSTrigger (Test)
