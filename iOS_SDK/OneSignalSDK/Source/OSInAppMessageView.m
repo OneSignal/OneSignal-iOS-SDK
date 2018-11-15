@@ -80,10 +80,19 @@
     [self.webView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor].active = true;
     
     [self layoutIfNeeded];
+    
+    [self.webView.scrollView addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionNew context:&context];
 }
 
-#pragma mark WKScriptMessageHandler
--(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"contentSize"]) {
+        NSLog(@"HEIGHT OBSERVER %@ --- %@", change[NSKeyValueChangeNewKey], NSStringFromClass([change[NSKeyValueChangeNewKey] class]));
+        
+        [self.delegate messageViewHeightDidChange:[change[NSKeyValueChangeNewKey] CGSizeValue].height];
+    }
+}
+
+- (void)iosListenerFiredWithMessage:(WKScriptMessage *)message {
     NSError *error;
     NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:[message.body dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingAllowFragments error:&error];
     

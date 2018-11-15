@@ -72,6 +72,7 @@
 
 - (void)displayMessage {
     [UIView animateWithDuration:0.3 animations:^{
+        self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
         self.view.alpha = 1.0;
     } completion:^(BOOL finished) {
         if (!finished)
@@ -82,6 +83,7 @@
 }
 
 - (void)loadMessageContent {
+    //TODO: This code is to be used when the API supports real in-app messages
 //    [self.message loadHTMLContentWithResult:^(NSString * _Nonnull html) {
 //        [self displayMessageWithHTML:html];
 //    } withFailure:^(NSError *error) {
@@ -91,23 +93,6 @@
     let messageSubview = [[OSInAppMessageView alloc] initWithMessage:self.message];
     self.messageView = messageSubview;
     self.messageView.delegate = self;
-    
-    
-    if (@available(iOS 10, *)) {
-        let effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-        
-        let backgroundView = [[UIVisualEffectView alloc] initWithEffect:effect];
-        backgroundView.translatesAutoresizingMaskIntoConstraints = false;
-        
-        backgroundView.alpha = 0.5;
-        
-        [self.view addSubview:backgroundView];
-        
-        [backgroundView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor].active = true;
-        [backgroundView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor].active = true;
-        [backgroundView.topAnchor constraintEqualToAnchor:self.view.topAnchor].active = true;
-        [backgroundView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor].active = true;
-    }
     
     self.messageView.translatesAutoresizingMaskIntoConstraints = false;
     self.messageView.backgroundColor = [UIColor blackColor];
@@ -213,6 +198,7 @@
     
     var animationOption = UIViewAnimationOptionCurveLinear;
     
+    // impose a minimum animation speed (max duration)
     if (dismissAnimationDuration > MAX_DISMISSAL_ANIMATION_DURATION) {
         animationOption = UIViewAnimationOptionCurveEaseIn;
         dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
