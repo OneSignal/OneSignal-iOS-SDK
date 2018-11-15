@@ -115,10 +115,12 @@
         let safeArea = self.view.safeAreaLayoutGuide;
         top = safeArea.topAnchor, bottom = safeArea.bottomAnchor, leading = safeArea.leadingAnchor, trailing = safeArea.trailingAnchor, center = safeArea.centerXAnchor;
         height = safeArea.heightAnchor;
-        
     }
     
     let marginSpacing = MESSAGE_MARGIN * [UIScreen mainScreen].bounds.size.width;
+    
+    var maxWidth = MIN(self.view.bounds.size.height, self.view.bounds.size.width);
+    maxWidth -= 2 * marginSpacing;
     
     var aspectRatio = BANNER_ASPECT_RATIO;
     
@@ -151,6 +153,7 @@
     // constraint has a higher priority. The pan constraint is used only when panning
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop:
+            [self.messageView.widthAnchor constraintLessThanOrEqualToConstant:maxWidth].active = true;
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
             self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
@@ -161,6 +164,7 @@
             self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
             break;
         case OSInAppMessageDisplayPositionBottom:
+            [self.messageView.widthAnchor constraintLessThanOrEqualToConstant:maxWidth].active = true;
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
             self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
             self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
