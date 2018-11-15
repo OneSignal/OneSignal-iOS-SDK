@@ -80,16 +80,6 @@
     [self.webView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor].active = true;
     
     [self layoutIfNeeded];
-    
-    [self.webView.scrollView addObserver:self forKeyPath:@"contentSize" options:NSKeyValueObservingOptionNew context:&context];
-}
-
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if ([keyPath isEqualToString:@"contentSize"]) {
-        NSLog(@"HEIGHT OBSERVER %@ --- %@", change[NSKeyValueChangeNewKey], NSStringFromClass([change[NSKeyValueChangeNewKey] class]));
-        
-        [self.delegate messageViewHeightDidChange:[change[NSKeyValueChangeNewKey] CGSizeValue].height];
-    }
 }
 
 - (void)iosListenerFiredWithMessage:(WKScriptMessage *)message {
