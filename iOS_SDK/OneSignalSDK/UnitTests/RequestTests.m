@@ -41,6 +41,7 @@
     NSString *testEmailUserId;
     NSString *testMessageId;
     NSString *testEmailAddress;
+    NSString *testInAppMessageId;
 }
 
 - (void)setUp {
@@ -52,6 +53,7 @@
     testEmailUserId = @"test_email_user_id";
     testEmailAddress = @"test@test.com";
     testMessageId = @"test_message_id";
+    testInAppMessageId = @"test_in_app_message_id";
 }
 
 NSString *urlStringForRequest(OneSignalRequest *request) {
@@ -268,6 +270,24 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3}));
 }
 
+- (void)testInAppMessageViewed {
+    let request = [OSRequestInAppMessageViewed withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId];
+    
+    let correctUrl = correctUrlWithPath(@"players/iam/viewed");
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"message_id" : testInAppMessageId}));
+}
 
+- (void)testInAppMessageOpened {
+    let request = [OSRequestInAppMessageOpened withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId withActionId:@"test_button_id"];
+    
+    let correctUrl = correctUrlWithPath(@"players/iam/opened");
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"message_id" : testInAppMessageId, @"action_id" : @"test_button_id"}));
+}
 
 @end

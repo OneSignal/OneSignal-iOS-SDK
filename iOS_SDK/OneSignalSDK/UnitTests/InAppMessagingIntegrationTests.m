@@ -47,6 +47,7 @@
 #import "Requests.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OneSignalOverrider.h"
+#import "OneSignalClientOverrider.h"
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -192,6 +193,22 @@
     
     // the timer should be scheduled now that the other trigger condition is true
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
+}
+
+// when an in-app message is displayed to the user, the SDK should launch an API request
+- (void)testMessageLaunchesViewedAPIRequest {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"<" withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
 }
 
 @end

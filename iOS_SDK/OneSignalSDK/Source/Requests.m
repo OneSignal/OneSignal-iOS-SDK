@@ -319,3 +319,38 @@
     return request;
 }
 @end
+
+@implementation OSRequestInAppMessageViewed
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId {
+    let request = [OSRequestInAppMessageViewed new];
+    
+    request.parameters = @{
+                           @"player_id" : playerId,
+                           @"app_id" : appId,
+                           @"message_id" : messageId
+                           };
+    
+    request.method = POST;
+    request.path = @"players/iam/viewed";
+    
+    return request;
+}
+@end
+
+@implementation OSRequestInAppMessageOpened
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withActionId:(NSString * _Nonnull)actionId {
+    let request = [OSRequestInAppMessageOpened new];
+    
+    request.parameters = @{
+        @"player_id" : playerId,
+        @"app_id" : appId,
+        @"message_id" : messageId,
+        @"action_id" : actionId
+    };
+    
+    request.method = POST;
+    request.path = @"players/iam/opened";
+    
+    return request;
+}
+@end

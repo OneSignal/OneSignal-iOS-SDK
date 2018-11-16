@@ -342,7 +342,7 @@
 - (void)messageViewDidTapAction:(NSString *)action {
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
     
-    [self.delegate messageViewDidSelectAction:action];
+    [self.delegate messageViewDidSelectAction:action withMessageId:self.message.messageId];
 }
 
 - (void)messageViewDidFailToProcessAction {

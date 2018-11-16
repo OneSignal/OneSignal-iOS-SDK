@@ -27,6 +27,9 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h"
+#import "Requests.h"
+#import "OneSignalClient.h"
+#import "OneSignalInternal.h"
 
 @interface OSMessagingController ()
 
@@ -82,6 +85,12 @@
             return;
         
         [self displayMessage:message];
+        
+        let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.app_id
+                                                     withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                     withMessageId:message.messageId];
+        
+        [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
     };
 }
 
@@ -142,9 +151,16 @@
     }
 }
 
--(void)messageViewDidSelectAction:(NSString *)actionId {
+- (void)messageViewDidSelectAction:(NSString *)actionId withMessageId:(NSString *)messageId {
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
         [delegate handleMessageAction:actionId];
+    
+    let metricsRequest = [OSRequestInAppMessageOpened withAppId:OneSignal.app_id
+                                                 withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                 withMessageId:messageId
+                                                 withActionId:actionId];
+    
+    [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
 }
 
 #pragma mark OSTriggerControllerDelegate Methods
