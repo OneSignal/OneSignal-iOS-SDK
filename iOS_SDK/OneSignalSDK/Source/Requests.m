@@ -331,7 +331,7 @@
                            };
     
     request.method = POST;
-    request.path = @"players/iam/viewed";
+    request.path = [NSString stringWithFormat:@"in_app_messages/impression/%@", messageId];
     
     return request;
 }
@@ -344,12 +344,11 @@
     request.parameters = @{
         @"player_id" : playerId,
         @"app_id" : appId,
-        @"message_id" : messageId,
         @"action_id" : actionId
     };
     
     request.method = POST;
-    request.path = @"players/iam/opened";
+    request.path = [NSString stringWithFormat:@"in_app_messages/impression/engagement/%@", messageId];
     
     return request;
 }
