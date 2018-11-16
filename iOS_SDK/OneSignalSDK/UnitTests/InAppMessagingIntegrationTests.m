@@ -196,7 +196,7 @@
 }
 
 // when an in-app message is displayed to the user, the SDK should launch an API request
-- (void)testMessageLaunchesViewedAPIRequest {
+- (void)testMessageViewedLaunchesViewedAPIRequest {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"<" withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -208,7 +208,28 @@
     [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // the message should now be displayed
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
+}
+
+- (void)testMessageOpenedLaunchesAPIRequest {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"<" withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:@"test_action" withMessageId:message[@"id"]];
+    
+    // The action should cause an "opened" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageOpened class]));
 }
 
 @end
