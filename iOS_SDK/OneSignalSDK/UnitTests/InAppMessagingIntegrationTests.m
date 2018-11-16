@@ -167,7 +167,7 @@
         [expectation fulfill];
     });
     
-    [self waitForExpectations:@[expectation] timeout:0.1];
+    [self waitForExpectations:@[expectation] timeout:0.2];
 }
 
 // If a message has multiple triggers, and one of the triggers is time/duration based, the SDK
