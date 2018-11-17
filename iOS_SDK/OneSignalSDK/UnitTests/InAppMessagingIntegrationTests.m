@@ -99,8 +99,10 @@
     [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // Some slower machines (especially VM's) can take longer to initialize the SDK, so we
+    // check to make sure that the timer was scheduled for 30 seconds within 1 second.
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
-    XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.3f);
+    XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 1.0f);
 }
 
 /**
