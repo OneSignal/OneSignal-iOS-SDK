@@ -83,6 +83,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // Sets up the message view in a hidden position while we wait
+    // for the actual HTML content to load
     [self setupInitialMessageUI];
     
     // loads the HTML content
@@ -129,11 +131,8 @@
     
     
     // If the message has a max display time, set up the timer now
-    if (self.message.maxDisplayTime > 0.0f) {
-        let timer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime target:self selector:@selector(maxDisplayTimeTimerFinished) userInfo:nil repeats:false];
-        
-        self.dismissalTimer = timer;
-    }
+    if (self.message.maxDisplayTime > 0.0f)
+        self.dismissalTimer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime target:self selector:@selector(maxDisplayTimeTimerFinished) userInfo:nil repeats:false];
 }
 
 - (void)maxDisplayTimeTimerFinished {
@@ -161,17 +160,22 @@
     NSLayoutAnchor *top = self.view.topAnchor, *bottom = self.view.bottomAnchor, *leading = self.view.leadingAnchor, *trailing = self.view.trailingAnchor, *center = self.view.centerXAnchor;
     NSLayoutDimension *height = self.view.heightAnchor;
     
-    if (@available(iOS 12, *)) {
+    // The safe area represents the anchors that are not obscurable by  UI such
+    // as a notch or a rounded corner on newer iOS devices like iPhone X
+    if (@available(iOS 11, *)) {
         let safeArea = self.view.safeAreaLayoutGuide;
         top = safeArea.topAnchor, bottom = safeArea.bottomAnchor, leading = safeArea.leadingAnchor, trailing = safeArea.trailingAnchor, center = safeArea.centerXAnchor;
         height = safeArea.heightAnchor;
     }
     
+    // The spacing between the message view & edges
     let marginSpacing = MESSAGE_MARGIN * [UIScreen mainScreen].bounds.size.width;
     
+    // Constrains the message view to a max width to look better on iPads & landscape
     var maxWidth = MIN(self.view.bounds.size.height, self.view.bounds.size.width);
     maxWidth -= 2 * marginSpacing;
     
+    // Configures the aspect ratio depending on the message type
     var aspectRatio = BANNER_ASPECT_RATIO;
     
     if (self.message.type == OSInAppMessageDisplayTypeFullScreen)
@@ -179,6 +183,7 @@
     else if (self.message.type == OSInAppMessageDisplayTypeCenteredModal)
         aspectRatio = CENTERED_MODAL_ASPECT_RATIO;
     
+    // pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
     let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing];
     leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
