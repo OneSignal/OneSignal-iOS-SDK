@@ -35,16 +35,39 @@
 #define LOW_CONSTRAINT_PRIORITY 900.0f
 
 @interface OSInAppMessageViewController ()
+
+// The message object
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
+
+// The actual message subview
 @property (weak, nonatomic, nullable) OSInAppMessageView *messageView;
+
+// Before the message display animation, this constrains the Y position
+// of the message to be off-screen
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *initialYConstraint;
+
+// This constrains the Y position once the initial animation is finished
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *finalYConstraint;
+
+// This constraint enforces an aspect ratio for the given message type (ie. banner)
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *heightConstraint;
 
+// This recognizer lets the user pan (swipe) the message up and down
 @property (weak, nonatomic, nullable) UIPanGestureRecognizer *panGestureRecognizer;
+
+// This tap recognizer lets us dismiss the message if the user taps the background
 @property (weak, nonatomic, nullable) UITapGestureRecognizer *tapGestureRecognizer;
+
+// This point represents the X/Y location of where the most recent
+// pan gesture started. Used to determine the offset
 @property (nonatomic) CGPoint initialGestureRecognizerLocation;
+
+// This constraint determines the Y position when panning the message up or down
 @property (strong, nonatomic, nullable) NSLayoutConstraint *panVerticalConstraint;
+
+// This timer is used to dismiss in-app messages if the "max_display_time" is set
+// We start the timer once the message is displayed (not during loading the content)
+@property (weak, nonatomic, nullable) NSTimer *dismissalTimer;
 @end
 
 @implementation OSInAppMessageViewController
@@ -60,35 +83,22 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.alpha = 0.0;
+    [self setupInitialMessageUI];
     
+    // loads the HTML content
     [self loadMessageContent];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
     
+    [self.dismissalTimer invalidate];
 }
 
-- (void)displayMessage {
-    [UIView animateWithDuration:0.3 animations:^{
-        self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
-        self.view.alpha = 1.0;
-    } completion:^(BOOL finished) {
-        if (!finished)
-            return;
-        
-        [self animateAppearance];
-    }];
-}
-
-- (void)loadMessageContent {
-    //TODO: This code is to be used when the API supports real in-app messages
-//    [self.message loadHTMLContentWithResult:^(NSString * _Nonnull html) {
-//        [self displayMessageWithHTML:html];
-//    } withFailure:^(NSError *error) {
-//        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download HTML content for message: %@", error.description ?: @"Unknown Error"]];
-//    }];
+// sets up the message UI. It is still hidden. Wait until
+// the actual HTML content is loaded before animating appearance
+- (void)setupInitialMessageUI {
+    self.view.alpha = 0.0;
     
     let messageSubview = [[OSInAppMessageView alloc] initWithMessage:self.message];
     self.messageView = messageSubview;
@@ -106,6 +116,46 @@
     [self setupGestureRecognizers];
 }
 
+- (void)displayMessage {
+    [UIView animateWithDuration:0.3 animations:^{
+        self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
+        self.view.alpha = 1.0;
+    } completion:^(BOOL finished) {
+        if (!finished)
+            return;
+        
+        [self animateAppearance];
+    }];
+    
+    
+    // If the message has a max display time, set up the timer now
+    if (self.message.maxDisplayTime > 0.0f) {
+        let timer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime target:self selector:@selector(maxDisplayTimeTimerFinished) userInfo:nil repeats:false];
+        
+        self.dismissalTimer = timer;
+    }
+}
+
+- (void)maxDisplayTimeTimerFinished {
+    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+}
+
+- (void)loadMessageContent {
+    //TODO: This code is to be used when the API supports real in-app messages
+//    [self.message loadHTMLContentWithResult:^(NSString * _Nonnull html) {
+//        [self displayMessageWithHTML:html];
+//    } withFailure:^(NSError *error) {
+//        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download HTML content for message: %@", error.description ?: @"Unknown Error"]];
+//    }];
+}
+
+/**
+    Sets up the message view in its initial (hidden) position
+    Adds constraints so that the message view has the correct size.
+ 
+    Once the HTML content is loaded, we call animateAppearance() to
+    show the message view.
+*/
 - (void)addConstraintsForMessage {
     
     NSLayoutAnchor *top = self.view.topAnchor, *bottom = self.view.bottomAnchor, *leading = self.view.leadingAnchor, *trailing = self.view.trailingAnchor, *center = self.view.centerXAnchor;
@@ -181,6 +231,8 @@
     [self.view layoutIfNeeded];
 }
 
+// Dismisses the message view with a given direction (up or down) and velocity
+// If velocity == 0.0, the default dismiss velocity will be used.
 - (void)dismissMessageWithDirection:(BOOL)up withVelocity:(double)velocity {
     // inactivate the current Y constraints
     self.finalYConstraint.active = false;
@@ -222,6 +274,8 @@
     }];
 }
 
+// Once HTML is loaded, the message should be presented. This method
+// animates the actual appearance of the message view.
 - (void)animateAppearance {
     self.initialYConstraint.priority = LOW_CONSTRAINT_PRIORITY;
     
@@ -236,6 +290,8 @@
     self.panVerticalConstraint.active = true;
 }
 
+// Adds the pan recognizer (for swiping up and down)
+// and the tap recognizer (for dismissing)
 - (void)setupGestureRecognizers {
     // Pan gesture recognizer for swiping
     let recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerDidMove:)];
@@ -270,6 +326,12 @@
     // Set up the pan constraints to move the view
     if (sender.state == UIGestureRecognizerStateBegan) {
         [self beginPanAtLocation:location];
+        
+        // since the user interacted with the content, cancel the
+        // max display time timer if it is scheduled
+        if (self.dismissalTimer)
+            [self.dismissalTimer invalidate];
+        
         return;
     }
     
@@ -312,6 +374,8 @@
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
+// Returns a boolean indicating if the message view should be dismissed
+// for the given pan offset (ie. if the user has panned far enough up or down)
 - (BOOL)shouldDismissMessageWithPanGestureOffset:(double)offset withVelocity:(double)velocity {
     
     // For Centered notifications, only true if the user was swiping
