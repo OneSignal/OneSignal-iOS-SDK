@@ -56,28 +56,11 @@
 }
 
 - (BOOL)dynamicTriggerShouldFire:(OSTrigger *)trigger withMessageId:(NSString *)messageId {
+    
     if (!trigger.value)
         return false;
     
-    if ([trigger.property isEqualToString:OS_SDK_VERSION_TRIGGER]) {
-        return [trigger.value isEqualToString:OS_SDK_VERSION];
-    } else if ([trigger.property isEqualToString:OS_DEVICE_TYPE_TRIGGER]) {
-        
-        
-        let isTablet = OneSignalHelper.isTablet;
-        
-        let matches = [trigger.value isEqualToString:(isTablet ? OS_DEVICE_TYPE_TABLET : OS_DEVICE_TYPE_PHONE)];
-        
-        return trigger.operatorType == OSTriggerOperatorTypeEqualTo ? matches : !matches;
-    }
-    
-    //currently all other supported dunamic triggers are time-based triggers
-    return [self timeBasedDynamicTriggerIsTrue:trigger withMessageId:messageId];
-}
-
-- (BOOL)timeBasedDynamicTriggerIsTrue:(OSTrigger *)trigger withMessageId:(NSString *)messageId {
     @synchronized (self.scheduledMessages) {
-        
         // All time-based trigger values should be numbers (either timestamps or offsets)
         if (![trigger.value isKindOfClass:[NSNumber class]])
             return false;

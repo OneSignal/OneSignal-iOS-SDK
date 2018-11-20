@@ -276,20 +276,6 @@
     XCTAssertTrue(full == OSInAppMessageDisplayTypeFullScreen);
 }
 
-- (void)testDynamicTriggerWithDeviceTypeTriggerForTablet {
-    [OneSignalHelperOverrider setOverrideIsTablet:true];
-    let trigger = [OSTrigger triggerWithProperty:OS_DEVICE_TYPE_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:OS_DEVICE_TYPE_TABLET];
-    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
-    XCTAssertTrue(triggered);
-}
-
-- (void)testDynamicTriggerWithDeviceTypeTriggerForPhone {
-    [OneSignalHelperOverrider setOverrideIsTablet:false];
-    let trigger = [OSTrigger triggerWithProperty:OS_DEVICE_TYPE_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:OS_DEVICE_TYPE_PHONE];
-    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
-    XCTAssertTrue(triggered);
-}
-
 - (void)testDynamicTriggerWithExactTimeTrigger {
     let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
     let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
@@ -323,13 +309,6 @@
     XCTAssertFalse(triggered);
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
     XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.1f);
-}
-
-- (void)testDynamicTriggerSDKVersion {
-    let trigger = [OSTrigger triggerWithProperty:OS_SDK_VERSION_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:OS_SDK_VERSION];
-    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
-    
-    XCTAssertTrue(triggered);
 }
 
 /**
