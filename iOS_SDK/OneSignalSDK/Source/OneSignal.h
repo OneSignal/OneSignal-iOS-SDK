@@ -485,10 +485,10 @@ typedef void (^OSEmailSuccessBlock)();
 
 // In App Messaging Trigger methods
 + (void)setTriggerForKey:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
-+ (void)setTriggers:(NSDictionary<NSString * _Nonnull, id _Nonnull> * _Nonnull)triggers;
++ (void)setTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
 + (void)removeTriggerForKey:(NSString * _Nonnull)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString * _Nonnull> * _Nonnull)keys;
-+ (NSDictionary<NSString * _Nonnull, id _Nonnull> * _Nonnull)getTriggers;
++ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
++ (NSDictionary<NSString *, id> * _Nonnull)getTriggers;
 + (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 @end
