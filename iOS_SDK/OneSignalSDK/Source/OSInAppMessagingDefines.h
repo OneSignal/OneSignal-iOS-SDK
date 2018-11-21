@@ -70,7 +70,7 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_TIME_TRIGGER @"os_time"
 
 // Macro to verify that a string is a correct dynamic trigger
-#define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time"] containsObject:type]
+#define OS_IS_DYNAMIC_TRIGGER(type) [@[OS_SESSION_DURATION_TRIGGER, OS_TIME_TRIGGER] containsObject:type]
 
 // Maps OSInAppMessageDisplayType cases to the equivalent OSInAppMessageDisplayPosition cases
 #define OS_DISPLAY_POSITION_FOR_TYPE(inAppMessageType) [[@[@(OSInAppMessageDisplayPositionTop), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionBottom)] objectAtIndex: inAppMessageType] intValue]

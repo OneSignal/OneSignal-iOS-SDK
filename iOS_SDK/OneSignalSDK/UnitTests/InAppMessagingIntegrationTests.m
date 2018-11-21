@@ -194,4 +194,22 @@
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
 }
 
+// Tests adding & removing trigger values using the public OneSignal trigger methods
+- (void)testRemoveTriggers {
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignal setTriggerForKey:@"test1" withValue:@"value1"];
+    
+    [OneSignal setTriggers:@{@"test2" : @33}];
+    
+    [OneSignal removeTriggerForKey:@"test1"];
+    
+    XCTAssertEqualObjects(OneSignal.getTriggers[@"test2"], @33);
+    
+    XCTAssertNil(OneSignal.getTriggers[@"test1"]);
+    
+    XCTAssertEqualObjects([OneSignal getTriggerValueForKey:@"test2"], @33);
+}
+
 @end

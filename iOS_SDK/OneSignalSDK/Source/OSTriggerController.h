@@ -47,6 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
+- (NSDictionary<NSString *, id> *)getTriggers;
+- (id)getTriggerValueForKey:(NSString *)key;
 
 @end
 

@@ -66,6 +66,18 @@
     }
 }
 
+- (NSDictionary<NSString *, id> *)getTriggers {
+    @synchronized (self.triggers) {
+        return self.triggers;
+    }
+}
+
+- (id)getTriggerValueForKey:(NSString *)key {
+    @synchronized (self.triggers) {
+        return self.triggers[key];
+    }
+}
+
 #pragma mark Private Methods
 
 /**
@@ -90,6 +102,8 @@
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
+            let lastElement = i == conditions.count - 1;
+            
             if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
                 continue;
@@ -99,7 +113,7 @@
                 if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
                     // the condition for this trigger is true since the value doesn't exist
                     // either loop to the next condition, or return true if we are the last condition
-                    if (i == conditions.count - 1) {
+                    if (lastElement) {
                         return true;
                     } else continue;
                 } else {
@@ -109,7 +123,7 @@
             
             // the Exists operator requires no comparisons or equality check
             if (trigger.operatorType == OSTriggerOperatorTypeExists) {
-                if (i == conditions.count - 1)
+                if (lastElement)
                     return true;
                 else continue;
             }
@@ -119,14 +133,14 @@
             if (trigger.operatorType == OSTriggerOperatorTypeContains) {
                 if (![self array:realValue containsValue:trigger.value])
                     break;
-                else if (i == conditions.count - 1)
+                else if (lastElement)
                     return true;
                 else continue;
             } else if (![trigger.value isKindOfClass:[realValue class]] ||
                 ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
                 ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
                 break;
-            } else if (i == conditions.count - 1) {
+            } else if (lastElement) {
                 return true;
             }
         }

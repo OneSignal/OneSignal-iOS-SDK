@@ -449,12 +449,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
-// In App Messaging Trigger methods
-+ (void)setTriggerForKey:(NSString *)key withValue:(id)value;
-+ (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
-+ (void)removeTriggerForKey:(NSString *)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
-
 //TODO: Remove this method. It only exists here temporarily while building IAM, for testing purposes.
 + (void)testShowMessageWithType:(OSInAppMessageDisplayType)type;
 
@@ -488,6 +482,14 @@ typedef void (^OSEmailSuccessBlock)();
 + (void)logoutEmail;
 + (void)setEmail:(NSString * _Nonnull)email;
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken;
+
+// In App Messaging Trigger methods
++ (void)setTriggerForKey:(NSString * )key withValue:(id)value;
++ (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
++ (void)removeTriggerForKey:(NSString *)key;
++ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
++ (NSDictionary<NSString *, id> *)getTriggers;
++ (id)getTriggerValueForKey:(NSString *)key;
 
 @end
 

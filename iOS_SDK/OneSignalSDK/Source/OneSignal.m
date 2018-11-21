@@ -2395,6 +2395,22 @@ static NSString *_lastnonActiveMessageId;
     [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
 }
 
++ (NSDictionary<NSString *, id> *)getTriggers {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggers"])
+        return nil;
+    
+    return [OSMessagingController.sharedInstance getTriggers];
+}
+
++ (id)getTriggerValueForKey:(NSString *)key {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggerValueForKey:"])
+        return nil;
+    
+    return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
+}
+
 @end
 
 // Swizzles UIApplication class to swizzling the following:

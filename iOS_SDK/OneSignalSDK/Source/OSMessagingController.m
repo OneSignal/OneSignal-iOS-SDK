@@ -123,6 +123,14 @@
     [self.triggerController removeTriggersForKeys:keys];
 }
 
+- (NSDictionary<NSString *, id> *)getTriggers {
+    return self.triggerController.getTriggers;
+}
+
+- (id)getTriggerValueForKey:(NSString *)key {
+    return [self.triggerController getTriggerValueForKey:key];
+}
+
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 -(void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
