@@ -452,7 +452,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 //TODO: Remove this method. It only exists here temporarily while building IAM, for testing purposes.
 + (void)testShowMessageWithType:(OSInAppMessageDisplayType)type;
 
-+ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate;
++ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate> _Nonnull)delegate;
 
 // iOS 10 only
 // Process from Notification Service Extension.
@@ -484,12 +484,12 @@ typedef void (^OSEmailSuccessBlock)();
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken;
 
 // In App Messaging Trigger methods
-+ (void)setTriggerForKey:(NSString * )key withValue:(id)value;
-+ (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
-+ (void)removeTriggerForKey:(NSString *)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
-+ (NSDictionary<NSString *, id> *)getTriggers;
-+ (id)getTriggerValueForKey:(NSString *)key;
++ (void)setTriggerForKey:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
++ (void)setTriggers:(NSDictionary<NSString * _Nonnull, id _Nonnull> * _Nonnull)triggers;
++ (void)removeTriggerForKey:(NSString * _Nonnull)key;
++ (void)removeTriggersForKeys:(NSArray<NSString * _Nonnull> * _Nonnull)keys;
++ (NSDictionary<NSString * _Nonnull, id _Nonnull> * _Nonnull)getTriggers;
++ (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 @end
 
