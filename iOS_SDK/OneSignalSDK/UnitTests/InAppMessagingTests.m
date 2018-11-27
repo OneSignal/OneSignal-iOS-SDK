@@ -327,5 +327,22 @@
     }
 }
 
+
+// test to ensure that time-based triggers don't schedule timers
+// until all other triggers evaluate to true.
+- (void)testHandlesMultipleMixedTriggers {
+    let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
+    let secondTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
+    let thirdTrigger = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger, thirdTrigger]]];
+    
+    [self.triggerController addTriggers:@{@"prop1" : @4}];
+    
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
+    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
+}
+
+
 @end
 

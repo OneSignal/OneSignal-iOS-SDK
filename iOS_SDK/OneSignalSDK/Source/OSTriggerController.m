@@ -99,54 +99,53 @@
         //dynamic triggers should be handled after looping through all other triggers
         NSMutableArray<OSTrigger *> *dynamicTriggers = [NSMutableArray new];
         
+        // will be set to false if any non-time-based trigger evaluates to false
+        // This way we don't bother scheduling timers if the message can't be shown anyways
+        BOOL evaluateDynamicTriggers = true;
+        
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
-            
-            let lastElement = i == conditions.count - 1;
             
             if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
                 continue;
             } else if (!self.triggers[trigger.property]) {
                 // the value doesn't exist
-                
                 if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
                     (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
                     // the condition for this trigger is true since the value doesn't exist
                     // either loop to the next condition, or return true if we are the last condition
-                    if (lastElement) {
-                        return true;
-                    } else
-                        continue;
+                    continue;
                 } else {
+                    evaluateDynamicTriggers = false;
                     break;
                 }
             } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
-                if (lastElement)
-                    return true;
-                else
-                    continue;
+                continue;
             } else if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
+                evaluateDynamicTriggers = false;
                 break;
             }
             
             id realValue = self.triggers[trigger.property];
             
             if (trigger.operatorType == OSTriggerOperatorTypeContains) {
-                if (![self array:realValue containsValue:trigger.value])
+                if (![self array:realValue containsValue:trigger.value]) {
+                    evaluateDynamicTriggers = false;
                     break;
-                else if (lastElement)
-                    return true;
-                else
-                    continue;
+                }
             } else if (![trigger.value isKindOfClass:[realValue class]] ||
                 ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
                 ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
+                evaluateDynamicTriggers = false;
                 break;
-            } else if (lastElement) {
-                return true;
             }
         }
+        
+        if (evaluateDynamicTriggers && dynamicTriggers.count == 0)
+            return true;
+        else if (!evaluateDynamicTriggers)
+            continue;
         
         for (int i = 0; i < dynamicTriggers.count; i++) {
             let trigger = dynamicTriggers[i];
