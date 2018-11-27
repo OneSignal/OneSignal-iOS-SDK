@@ -94,14 +94,14 @@
     };
 }
 
-+ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(NSString *)operator withValue:(id)value {
++ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(OSTriggerOperatorType)operator withValue:(id)value {
     let testMessage = (NSMutableDictionary *)[[self testMessageJson] mutableCopy];
     
     testMessage[@"triggers"] = @[
          @[
              @{
                  @"property" : property,
-                 @"operator" : operator,
+                 @"operator" : OS_OPERATOR_TO_STRING(operator),
                  @"value" : value
              }
          ]

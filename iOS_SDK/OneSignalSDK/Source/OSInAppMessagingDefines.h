@@ -82,8 +82,10 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_DISPLAY_TYPE_FOR_STRING(stringType) (OSInAppMessageDisplayType)[@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] indexOfObject: stringType]
 #define OS_DISPLAY_TYPE_TO_STRING(displayType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] objectAtIndex: displayType]
 
+#define OS_OPERATOR_STRINGS @[@"greater", @"less", @"equal", @"not_equal", @"less_or_equal", @"greater_or_equal", @"exists", @"not_exists", @"in"]
+
 // Converts OSTriggerOperatorType enum cases to and from strings
-#define OS_OPERATOR_TO_STRING(operator) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] objectAtIndex: operator]
-#define OS_OPERATOR_FROM_STRING(operatorString) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] indexOfObject: operatorString]
+#define OS_OPERATOR_TO_STRING(operator) [OS_OPERATOR_STRINGS objectAtIndex: operator]
+#define OS_OPERATOR_FROM_STRING(operatorString) [OS_OPERATOR_STRINGS indexOfObject: operatorString]
 
 #endif /* OSInAppMessagingDefines_h */

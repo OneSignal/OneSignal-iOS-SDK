@@ -89,7 +89,7 @@
     correctly sets up a timer for the 30 seconds
 */
 - (void)testMessageIsScheduled {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"==" withValue:@30];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -108,7 +108,7 @@
     test verifies that the message actually gets displayed.
 */
 - (void)testMessageIsDisplayed {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@"<" withValue:@10.0];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -126,8 +126,8 @@
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop2" withValue:@3];
     
-    let firstMessage = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"prop1" withOperator:@">" withValue:@0];
-    let secondMessage = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"prop2" withOperator:@"<" withValue:@4];
+    let firstMessage = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@0];
+    let secondMessage = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"prop2" withOperator:OSTriggerOperatorTypeLessThan withValue:@4];
     
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[firstMessage, secondMessage]];
     
@@ -146,7 +146,7 @@
     
     OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
     
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:@">=" withValue:@0.05];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
     
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     

@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (OSInAppMessage *)testMessage;
 + (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
 + (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages;
-+ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(NSString *)operator withValue:(id)value;
++ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(OSTriggerOperatorType)operator withValue:(id)value;
 @end
 
 NS_ASSUME_NONNULL_END

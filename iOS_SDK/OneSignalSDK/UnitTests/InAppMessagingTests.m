@@ -66,7 +66,7 @@
         @[
             @{
                 @"property" : @"view_controller",
-                @"operator" : @"==",
+                @"operator" : OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeEqualTo),
                 @"value" : @"home_vc"
             }
         ]
@@ -161,12 +161,22 @@
     return [self.triggerController messageMatchesTriggers:message];
 }
 
-// tests all operators to make sure they correctly handle cases where the local value is not set
+// tests operators to make sure they correctly handle cases where the local value is not set
 - (void)testNilLocalValuesForOperators {
     
+    let operatorStrings = @[
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeGreaterThan),
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeLessThan),
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeEqualTo),
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeLessThanOrEqualTo),
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeGreaterThanOrEqualTo),
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeContains),
+        OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeExists)
+    ];
+    
     // all of these trigger evaluations should return false if the local value is nil.
-    // The only special cases are the "not_exists" and "!=" operators.
-    for (NSString *operatorString in @[@">", @"<", @"==", @"<=", @">=", @"contains", @"exists"]) {
+    // The only special cases are the "not_exists" and "not_equal" operators.
+    for (NSString *operatorString in operatorStrings) {
         let operator = (OSTriggerOperatorType)OS_OPERATOR_FROM_STRING(operatorString);
         XCTAssertFalse([self setupComparativeOperatorTest:operator withTriggerValue:@3 withLocalValue:nil]);
     }
@@ -298,33 +308,6 @@
     XCTAssertFalse(triggered);
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
     XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.1f);
-}
-
-/**
-    Triggers don't have unique ID's, but because some triggers create timers, we need a way
-    to refer back to triggers after a period of time to make sure we don't create duplicates.
-*/
-- (void)testTriggerIdentifier {
-    let correctValues = @{
-        @"prop1" : @"prop1>=3",
-        @"prop2" : @"prop2<=0.2",
-        @"prop3" : @"prop3==test",
-        @"os_session_duration" : @"os_session_duration>30"
-    };
-    
-    let triggers = @[
-        [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3],
-        [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@0.2],
-        [OSTrigger triggerWithProperty:@"prop3" withOperator:OSTriggerOperatorTypeEqualTo withValue:@"test"],
-        [OSTrigger triggerWithProperty:@"os_session_duration" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@30.0]
-    ];
-    
-    // OSTrigger should produce unique identifier strings that exactly match the values in "correctValues"
-    for (OSTrigger *trigger in triggers) {
-        let triggerIdentifier = [trigger uniqueIdentifierForTriggerFromMessageWithMessageId:OS_TEST_MESSAGE_ID];
-        let correctIdentifier = [[correctValues[trigger.property] stringByAppendingString:@"::"] stringByAppendingString:OS_TEST_MESSAGE_ID];
-        XCTAssertEqualObjects(triggerIdentifier, correctIdentifier);
-    }
 }
 
 
