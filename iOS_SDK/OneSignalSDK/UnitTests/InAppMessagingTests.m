@@ -149,105 +149,94 @@
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
 }
 
-- (void)testExistsOperator {
-    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
-    // the property 'prop1' has not been set on local triggers, so the
-    // Exists operator should return false
-    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
-    
-    [self.triggerController addTriggers:@{@"prop1" : @"test"}];
-    
-    // Now that we have set a value for 'prop1', the check should return true
-    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
-}
-
-- (void)testNotExistsOperator {
-    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
-    // the property 'prop1' has not been set on local triggers, so the
-    // NotExists operator should return true
-    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
-    
-    [self.triggerController addTriggers:@{@"prop1" : @"test"}];
-    
-    // Now that we have set a value for 'prop1', the check should return false
-    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
-}
-
-- (void)testNotEqualToOperator {
-    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotEqualTo withValue:@3];
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
-    [self.triggerController addTriggers:@{@"prop1" : @2}];
-    
-    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
-    
-    [self.triggerController addTriggers:@{@"prop1" : @3}];
-    
-    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
-}
-
-- (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTrigger:(id)triggerValue withLocalValue:(id)localValue {
+- (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTriggerValue:(id)triggerValue withLocalValue:(id)localValue {
     let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self.triggerController addTriggers:@{@"prop1" : localValue}];
+    if (localValue)
+        [self.triggerController addTriggers:@{@"prop1" : localValue}];
+    else
+        [self.triggerController removeTriggersForKeys:@[@"prop1"]];
     
     return [self.triggerController messageMatchesTriggers:message];
 }
 
+// tests all operators to make sure they correctly handle cases where the local value is not set
+- (void)testNilLocalValuesForOperators {
+    
+    // all of these trigger evaluations should return false if the local value is nil.
+    // The only special cases are the "not_exists" and "!=" operators.
+    for (NSString *operatorString in @[@">", @"<", @"==", @"<=", @">=", @"contains", @"exists"]) {
+        let operator = (OSTriggerOperatorType)OS_OPERATOR_FROM_STRING(operatorString);
+        XCTAssertFalse([self setupComparativeOperatorTest:operator withTriggerValue:@3 withLocalValue:nil]);
+    }
+}
+
 - (void)testGreaterThan {
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTrigger:@3 withLocalValue:@3.1]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTrigger:@2.1 withLocalValue:@2]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTriggerValue:@3 withLocalValue:@3.1]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTriggerValue:@2.1 withLocalValue:@2]);
 }
 
 - (void)testGreaterThanOrEqualTo {
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTrigger:@3 withLocalValue:@3]);
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTrigger:@2 withLocalValue:@2.9]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTrigger:@5 withLocalValue:@4]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@3 withLocalValue:@3]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@2 withLocalValue:@2.9]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@5 withLocalValue:@4]);
 }
 
 - (void)testEqualTo {
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTrigger:@0.1 withLocalValue:@0.1]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTrigger:@0.0 withLocalValue:@2]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@0.1 withLocalValue:@0.1]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@0.0 withLocalValue:@2]);
 }
 
 - (void)testLessThan {
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTrigger:@2 withLocalValue:@1.9]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTrigger:@3 withLocalValue:@4]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTriggerValue:@2 withLocalValue:@1.9]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTriggerValue:@3 withLocalValue:@4]);
 }
 
 - (void)testLessThanOrEqualTo {
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTrigger:@5 withLocalValue:@4]);
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTrigger:@3 withLocalValue:@3]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTrigger:@3 withLocalValue:@4]);
-}
-
-- (void)testInvalidOperator {
-    let triggerJson = @{
-        @"property" : @"prop1",
-        @"operator" : @"<<<",
-        @"value" : @2
-    };
-    
-    // When invalid JSON is encountered, the in-app message should
-    // not initialize and should return nil
-    XCTAssertNil([OSInAppMessageTestHelper testMessageWithTriggersJson:@[@[triggerJson]]]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@5 withLocalValue:@4]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@3 withLocalValue:@3]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@3 withLocalValue:@4]);
 }
 
 - (void)testNumericContainsOperator {
     let localArray = @[@1, @2, @3];
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@2 withLocalValue:localArray]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@4 withLocalValue:localArray]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTriggerValue:@2 withLocalValue:localArray]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTriggerValue:@4 withLocalValue:localArray]);
 }
 
 - (void)testStringContainsOperator {
     let localArray = @[@"test1", @"test2", @"test3"];
-    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@"test2" withLocalValue:localArray]);
-    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTrigger:@"test5" withLocalValue:localArray]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTriggerValue:@"test2" withLocalValue:localArray]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeContains withTriggerValue:@"test5" withLocalValue:localArray]);
+}
+
+- (void)testExistsOperator {
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeExists withTriggerValue:nil withLocalValue:@3]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeExists withTriggerValue:nil withLocalValue:nil]);
+}
+
+- (void)testNotExistsOperator {
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotExists withTriggerValue:nil withLocalValue:nil]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotExists withTriggerValue:nil withLocalValue:@4]);
+}
+
+- (void)testNotEqualToOperator {
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:nil]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:@2]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:@3]);
+}
+
+- (void)testInvalidOperator {
+    let triggerJson = @{
+                        @"property" : @"prop1",
+                        @"operator" : @"<<<",
+                        @"value" : @2
+                        };
+    
+    // When invalid JSON is encountered, the in-app message should
+    // not initialize and should return nil
+    XCTAssertNil([OSInAppMessageTestHelper testMessageWithTriggersJson:@[@[triggerJson]]]);
 }
 
 // Tests the macro that gets the Display Type's equivalent OSInAppMessageDisplayPosition
