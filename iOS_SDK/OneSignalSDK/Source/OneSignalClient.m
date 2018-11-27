@@ -245,7 +245,14 @@
         return;
     
     NSError *error;
+    
     let data = [NSJSONSerialization dataWithJSONObject:request.parameters options:NSJSONWritingPrettyPrinted error:&error];
+    
+    if (error || !data) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to print the parameters of %@ with JSON serialization error: %@.", NSStringFromClass([request class]), error.description]];
+        return;
+    }
+    
     let jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"HTTP Request (%@) with URL: %@, with parameters: %@", NSStringFromClass([request class]), request.urlRequest.URL.absoluteString, jsonString]];
