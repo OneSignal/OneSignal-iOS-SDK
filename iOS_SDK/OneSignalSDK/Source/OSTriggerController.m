@@ -110,22 +110,24 @@
             } else if (!self.triggers[trigger.property]) {
                 // the value doesn't exist
                 
-                if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
+                if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
+                    (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
                     // the condition for this trigger is true since the value doesn't exist
                     // either loop to the next condition, or return true if we are the last condition
                     if (lastElement) {
                         return true;
-                    } else continue;
+                    } else
+                        continue;
                 } else {
                     break;
                 }
-            }
-            
-            // the Exists operator requires no comparisons or equality check
-            if (trigger.operatorType == OSTriggerOperatorTypeExists) {
+            } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
                 if (lastElement)
                     return true;
-                else continue;
+                else
+                    continue;
+            } else if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
+                break;
             }
             
             id realValue = self.triggers[trigger.property];
@@ -135,7 +137,8 @@
                     break;
                 else if (lastElement)
                     return true;
-                else continue;
+                else
+                    continue;
             } else if (![trigger.value isKindOfClass:[realValue class]] ||
                 ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
                 ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
