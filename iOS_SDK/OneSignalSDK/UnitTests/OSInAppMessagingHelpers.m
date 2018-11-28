@@ -34,13 +34,18 @@
 
 @implementation OSTrigger (Test)
 
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value {
++ (instancetype)triggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value {
     OSTrigger *trigger = [OSTrigger new];
     trigger.property = property;
     trigger.operatorType = type;
     trigger.value = value;
+    trigger.triggerId = triggerId;
     
     return trigger;
+}
+
++ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value {
+    return [OSTrigger triggerWithProperty:property withId:@"test_trigger_id" withOperator:type withValue:value];
 }
 
 @end
@@ -94,15 +99,16 @@
     };
 }
 
-+ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withOperator:(OSTriggerOperatorType)operator withValue:(id)value {
++ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value {
     let testMessage = (NSMutableDictionary *)[[self testMessageJson] mutableCopy];
     
     testMessage[@"triggers"] = @[
          @[
              @{
                  @"property" : property,
-                 @"operator" : OS_OPERATOR_TO_STRING(operator),
-                 @"value" : value
+                 @"operator" : OS_OPERATOR_TO_STRING(type),
+                 @"value" : value,
+                 @"id" : triggerId
              }
          ]
      ];

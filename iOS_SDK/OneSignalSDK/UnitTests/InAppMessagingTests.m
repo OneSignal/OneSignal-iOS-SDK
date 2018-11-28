@@ -65,6 +65,7 @@
     testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:@[
         @[
             @{
+                @"id" : @"test_trigger_id",
                 @"property" : @"view_controller",
                 @"operator" : OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeEqualTo),
                 @"value" : @"home_vc"
@@ -314,9 +315,9 @@
 // test to ensure that time-based triggers don't schedule timers
 // until all other triggers evaluate to true.
 - (void)testHandlesMultipleMixedTriggers {
-    let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
-    let secondTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
-    let thirdTrigger = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
+    let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withId:@"test_id_1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
+    let secondTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withId:@"test_id_2" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
+    let thirdTrigger = [OSTrigger triggerWithProperty:@"prop2" withId:@"test_id_3" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger, thirdTrigger]]];
     

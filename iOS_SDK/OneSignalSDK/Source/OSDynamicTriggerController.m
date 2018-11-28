@@ -65,10 +65,8 @@
         if (![trigger.value isKindOfClass:[NSNumber class]])
             return false;
         
-        let triggerId = [trigger uniqueIdentifierForTriggerFromMessageWithMessageId:messageId];
-        
         // This would mean we've already set up a timer for this message trigger
-        if ([self.scheduledMessages containsObject:triggerId])
+        if ([self.scheduledMessages containsObject:trigger.triggerId])
             return false;
         
         let requiredTimeValue = [trigger.value doubleValue];
@@ -98,12 +96,12 @@
             return false;
         
         // if we reach this point, it means we need to return false and set up a timer for a future time
-        let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"messageId" : messageId, @"trigger" : trigger} repeats:false];
+        let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"trigger" : trigger} repeats:false];
         
         if (timer)
             [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         
-        [self.scheduledMessages addObject:triggerId];
+        [self.scheduledMessages addObject:trigger.triggerId];
     }
     
     return false;
@@ -140,10 +138,9 @@
 
 - (void)timerFiredForMessage:(NSTimer *)timer {
     @synchronized (self.scheduledMessages) {
-        let messageId = (NSString *)timer.userInfo[@"messageId"];
         let trigger = (OSTrigger *)timer.userInfo[@"trigger"];
         
-        [self.scheduledMessages removeObject:[trigger uniqueIdentifierForTriggerFromMessageWithMessageId:messageId]];
+        [self.scheduledMessages removeObject:trigger.triggerId];
         
         [self.delegate dynamicTriggerFired];
     }

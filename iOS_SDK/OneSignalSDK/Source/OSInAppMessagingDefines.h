@@ -32,9 +32,7 @@
 
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionBottom,
-    
     OSInAppMessageDisplayPositionTop,
-    
     OSInAppMessageDisplayPositionCentered
 };
 
