@@ -39,6 +39,9 @@
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalHelperOverrider.h"
 #import "OneSignalCommonDefines.h"
+#import "NSString+OneSignal.h"
+#import "OneSignalOverrider.h"
+#import "OSInAppMessageAction.h"
 
 /**
  Test to make sure that OSInAppMessage correctly
@@ -52,6 +55,7 @@
 
 @implementation InAppMessagingTests {
     OSInAppMessage *testMessage;
+    OSInAppMessageAction *testAction;
 }
 
 // called before each test
@@ -72,6 +76,13 @@
             }
         ]
     ]];
+    
+    testAction = [OSInAppMessageAction instanceWithJson:@{
+        @"action_id" : @"test_id",
+        @"url" : @"https://www.onesignal.com",
+        @"url_target" : @"browser",
+        @"close" : @false
+    }];
     
     self.triggerController = [OSTriggerController new];
 }
@@ -98,6 +109,22 @@
     XCTAssertEqual(testMessage.triggers.firstObject.firstObject.operatorType, OSTriggerOperatorTypeEqualTo);
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.property, @"view_controller");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.value, @"home_vc");
+}
+
+- (void)testCorrectlyParsedActionId {
+    XCTAssertEqualObjects(testAction.actionId, @"test_id");
+}
+
+- (void)testCorrectlyParsedActionUrl {
+    XCTAssertEqualObjects(testAction.actionUrl.absoluteString, @"https://www.onesignal.com");
+}
+
+- (void)testCorrectlyParsedActionType {
+    XCTAssertEqual(testAction.urlActionType, OSInAppMessageActionUrlTypeSafari);
+}
+
+- (void)testCorrectlyParsedActionClose {
+    XCTAssertFalse(testAction.close);
 }
 
 #pragma mark Message Trigger Logic Tests
@@ -326,7 +353,6 @@
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
 }
-
 
 @end
 

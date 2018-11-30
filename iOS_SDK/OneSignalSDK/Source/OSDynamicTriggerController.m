@@ -125,15 +125,10 @@
             return OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeNotEqualTo:
             return !OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
-        case OSTriggerOperatorTypeExists:
-        case OSTriggerOperatorTypeNotExists:
-        case OSTriggerOperatorTypeContains:
+        default:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
             return false;
     }
-    
-    
-    return false;
 }
 
 - (void)timerFiredForMessage:(NSTimer *)timer {
