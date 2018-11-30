@@ -89,7 +89,7 @@
     correctly sets up a timer for the 30 seconds
 */
 - (void)testMessageIsScheduled {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id" withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_SESSION_DURATION_TRIGGER withId:@"test_id" withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -110,7 +110,7 @@
     test verifies that the message actually gets displayed.
 */
 - (void)testMessageIsDisplayed {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_SESSION_DURATION_TRIGGER withId:@"test_id" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -148,7 +148,7 @@
     
     OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
     
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_SESSION_DURATION_TRIGGER withId:@"test_id" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
     
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -180,12 +180,7 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger]]];
     
-    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
-    
-    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
-    
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [self initializeOnesignalWithMessage:message];
     
     // the timer shouldn't be scheduled yet
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -212,6 +207,100 @@
     XCTAssertNil(OneSignal.getTriggers[@"test1"]);
     
     XCTAssertEqualObjects([OneSignal getTriggerValueForKey:@"test2"], @33);
+}
+
+- (void)testExactTimeTrigger {
+    NSTimerOverrider.shouldScheduleTimers = false;
+    
+    let targetTimestamp = NSDate.date.timeIntervalSince1970 + 10.0f;
+    
+    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    
+    [self initializeOnesignalWithMessage:message];
+    
+    // Check to make sure the timer was actually scheduled
+    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
+    
+    // check to make sure the timer was scheduled to fire at the desired time
+    XCTAssertTrue(OS_ROUGHLY_EQUAL(NSDate.date.timeIntervalSince1970 + NSTimerOverrider.mostRecentTimerInterval, targetTimestamp));
+}
+
+// If a message is scheduled to be displayed in the past, it should not be shown at all.
+- (void)testExpiredExactTimeTrigger {
+    
+    // This prevents timers from actually being scheduled. But if a timer is created,
+    // this doesn't prevent the NSTimerOverrider.hasScheduledTimer from being set to true
+    NSTimerOverrider.shouldScheduleTimers = false;
+    
+    // some time in the past, the exact offset doesn't matter
+    let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
+    
+    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    
+    [self initializeOnesignalWithMessage:message];
+    
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+}
+
+// This test checks to make sure that if you are using the > operator for an exact time trigger,
+// the message is still displayed even after the time is passed. For example, if you set a message
+// to be displayed at OR after April 11th @ 10AM PST, but it is currently April 12th, the message
+// should still be shown since you used the > (greater than) operator.
+- (void)testPastButValidExactTimeTrigger {
+    NSTimerOverrider.shouldScheduleTimers = false;
+    
+    let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
+    
+    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(targetTimestamp)];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    
+    [self initializeOnesignalWithMessage:message];
+    
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+    
+    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 1);
+}
+
+// Tests a message with a more complex set of triggers specifying that the message should be
+// shown between a window of dates, and that the session duration should be > 30 seconds
+- (void)testWindowedMessage {
+    NSTimerOverrider.shouldScheduleTimers = false;
+    
+    OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
+    
+    let beginWindowTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
+    let endWindowTimestamp = NSDate.date.timeIntervalSince1970 + 1000.0f;
+    
+    let beginWindowTrigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(beginWindowTimestamp)];
+    let endWindowTrigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeLessThan withValue:@(endWindowTimestamp)];
+    let sessionDurationTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@30.0f];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[beginWindowTrigger, endWindowTrigger, sessionDurationTrigger]]];
+    
+    [self initializeOnesignalWithMessage:message];
+    
+    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
+    
+    // Two timers should be scheduled for this message, one for the end window trigger (T+1000 seconds) and another for
+    // the session duration trigger (T+30 seconds). Which timer gets scheduled first doesn't really matter, we only care
+    // to make sure that one of the timers was for 30 seconds. 
+    XCTAssertTrue(OS_ROUGHLY_EQUAL(NSTimerOverrider.mostRecentTimerInterval, 30.0f) || OS_ROUGHLY_EQUAL(NSTimerOverrider.previousMostRecentTimeInterval, 30.0f));
+}
+
+// helper method that adds an OSInAppMessage to the registration
+// mock response JSON and initializes the OneSignal SDK
+- (void)initializeOnesignalWithMessage:(OSInAppMessage *)message {
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+    
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
 }
 
 @end

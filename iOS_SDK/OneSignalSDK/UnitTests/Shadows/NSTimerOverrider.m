@@ -52,7 +52,11 @@
 
 static BOOL _shouldScheduleTimers = false;
 static BOOL _hasScheduledTimer = false;
+
+// The most recently scheduled delay/interval for NSTimer
 static NSTimeInterval _mostRecentTimerInterval = 0.0f;
+
+static NSTimeInterval _previousMostRecentTimeInterval = 0.0f;
 
 +(void)load {
     swizzleClassMethodWithCategoryImplementation([NSTimer class], @selector(timerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideTimerWithTimeInterval:target:selector:userInfo:repeats:));
@@ -69,6 +73,7 @@ static NSTimeInterval _mostRecentTimerInterval = 0.0f;
 }
 
 +(void)setMostRecentTimerInterval:(NSTimeInterval)mostRecentTimerInterval {
+    _previousMostRecentTimeInterval = _mostRecentTimerInterval;
     _mostRecentTimerInterval = mostRecentTimerInterval;
 }
 
