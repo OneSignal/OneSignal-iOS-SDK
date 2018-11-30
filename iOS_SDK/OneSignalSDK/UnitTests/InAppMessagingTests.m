@@ -109,6 +109,7 @@
     XCTAssertEqual(testMessage.triggers.firstObject.firstObject.operatorType, OSTriggerOperatorTypeEqualTo);
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.property, @"view_controller");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.value, @"home_vc");
+    XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.triggerId, @"test_trigger_id");
 }
 
 - (void)testCorrectlyParsedActionId {
