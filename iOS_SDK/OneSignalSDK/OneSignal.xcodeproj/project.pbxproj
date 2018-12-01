@@ -213,6 +213,10 @@
 		CAB269DA21B0B6F000F8A43C /* OSInAppMessageAction.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */; };
 		CAB269DB21B0B6F000F8A43C /* OSInAppMessageAction.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */; };
 		CAB269DC21B0B6F000F8A43C /* OSInAppMessageAction.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */; };
+		CAB269DF21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = CAB269DD21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h */; };
+		CAB269E021B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */; };
+		CAB269E121B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */; };
+		CAB269E221B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */; };
 		CAB4112920852E48005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112A20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
 		CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */; };
@@ -393,6 +397,8 @@
 		CAAE0DFC2195216900A57402 /* OneSignalOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalOverrider.m; sourceTree = "<group>"; };
 		CAB269D721B0B6F000F8A43C /* OSInAppMessageAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageAction.h; sourceTree = "<group>"; };
 		CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageAction.m; sourceTree = "<group>"; };
+		CAB269DD21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageBridgeEvent.h; sourceTree = "<group>"; };
+		CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageBridgeEvent.m; sourceTree = "<group>"; };
 		CAB4112720852E48005A70D1 /* DelayedInitializationParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelayedInitializationParameters.h; sourceTree = "<group>"; };
 		CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelayedInitializationParameters.m; sourceTree = "<group>"; };
 		CAB411AC208931EE005A70D1 /* DummyNotificationCenterDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DummyNotificationCenterDelegate.h; sourceTree = "<group>"; };
@@ -720,6 +726,8 @@
 				CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */,
 				CAB269D721B0B6F000F8A43C /* OSInAppMessageAction.h */,
 				CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */,
+				CAB269DD21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h */,
+				CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */,
 			);
 			name = "In-App Messaging";
 			sourceTree = "<group>";
@@ -769,6 +777,7 @@
 				912412391E73342200E41FD7 /* OneSignalWebView.h in Headers */,
 				CACBAAA0218A6243000ACAA5 /* OSInAppMessage.h in Headers */,
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
+				CAB269DF21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h in Headers */,
 				CA1A6E7520DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h in Headers */,
 				9129C6BD1E89E7AB009CB6A0 /* OSSubscription.h in Headers */,
 				CA7FC89F21927229002C4FD9 /* OSDynamicTriggerController.h in Headers */,
@@ -958,6 +967,7 @@
 				912412321E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				CA4742E5218B8FF30020DC8C /* OSTriggerController.m in Sources */,
 				CA70E3352023D51000019273 /* OneSignalSetEmailParameters.m in Sources */,
+				CAB269E021B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */,
 				91B6EA411E85D38F00B5CF01 /* OSObservable.m in Sources */,
 				4529DF0C1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				91F58D891E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
@@ -1008,6 +1018,7 @@
 				0338566C1FBBDB150002F7C1 /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
 				CA4742E6218B8FF30020DC8C /* OSTriggerController.m in Sources */,
 				CA70E3362023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
+				CAB269E121B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */,
 				912412271E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				912412331E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				91B6EA421E85D38F00B5CF01 /* OSObservable.m in Sources */,
@@ -1054,6 +1065,7 @@
 				CAAE0DFD2195216900A57402 /* OneSignalOverrider.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CA8E190B2194FE0B009DA223 /* OSMessagingControllerOverrider.m in Sources */,
+				CAB269E221B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */,
 				CAA4ED0120646762005BD59B /* BadgeTests.m in Sources */,
 				912412491E73369800E41FD7 /* OneSignalHelper.m in Sources */,
 				CA1A6E7820DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m in Sources */,
