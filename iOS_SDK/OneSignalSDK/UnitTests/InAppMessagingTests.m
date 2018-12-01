@@ -104,7 +104,7 @@
 }
 
 -(void)testCorrectlyParsedMessageId {
-    XCTAssertTrue([testMessage.messageId isEqualToString:OS_TEST_MESSAGE_ID]);
+    XCTAssertTrue([testMessage.messageId containsString:OS_TEST_MESSAGE_ID]);
 }
 
 -(void)testCorrectlyParsedContentId {

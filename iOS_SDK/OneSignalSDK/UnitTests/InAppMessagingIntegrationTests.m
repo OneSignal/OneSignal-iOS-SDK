@@ -283,6 +283,23 @@
     XCTAssertTrue(OS_ROUGHLY_EQUAL(NSTimerOverrider.mostRecentTimerInterval, 30.0f) || OS_ROUGHLY_EQUAL(NSTimerOverrider.previousMostRecentTimeInterval, 30.0f));
 }
 
+// Tests to make sure that the "os_viewed_message" trigger works correctly.
+// It is used to limit how many times a message is shown
+- (void)testDisplayLimitMessage {
+    let trigger = [OSTrigger triggerWithProperty:OS_VIEWED_MESSAGE withOperator:OSTriggerOperatorTypeLessThan withValue:@1];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    
+    [self initializeOnesignalWithMessage:message];
+    
+    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 1);
+    
+    [OSMessagingController.sharedInstance didUpdateMessagesForSession:@[message]];
+    
+    // the message should not have been shown.
+    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 1);
+}
+
 // helper method that adds an OSInAppMessage to the registration
 // mock response JSON and initializes the OneSignal SDK
 - (void)initializeOnesignalWithMessage:(OSInAppMessage *)message {

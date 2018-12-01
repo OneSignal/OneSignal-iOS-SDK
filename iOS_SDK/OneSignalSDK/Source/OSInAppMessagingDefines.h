@@ -67,6 +67,10 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
 #define OS_TIME_TRIGGER @"os_time"
 
+// Trigger for previously viewed messages
+#define OS_VIEWED_MESSAGE @"os_viewed_message"
+#define OS_VIEWED_MESSAGE_TRIGGER(messageId) [OS_VIEWED_MESSAGE stringByAppendingString:messageId]
+
 // Macro to verify that a string is a correct dynamic trigger
 #define OS_IS_DYNAMIC_TRIGGER(type) [@[OS_SESSION_DURATION_TRIGGER, OS_TIME_TRIGGER] containsObject:type]
 

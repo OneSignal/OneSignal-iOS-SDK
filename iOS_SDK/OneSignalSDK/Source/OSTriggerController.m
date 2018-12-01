@@ -109,7 +109,7 @@
             if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
                 continue;
-            } else if (!self.triggers[trigger.property]) {
+            } else if (!self.triggers[trigger.property] && ![trigger.property isEqualToString:OS_VIEWED_MESSAGE]) {
                 // the value doesn't exist
                 if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
                     (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
@@ -128,6 +128,12 @@
             }
             
             id realValue = self.triggers[trigger.property];
+            
+            // The logic for making sure messages can only be shown X times
+            // is the same as triggers, except the value (view_count) comes from
+            // a different source
+            if ([OS_VIEWED_MESSAGE isEqualToString:trigger.property])
+                realValue = @([self viewCountForMessageId:message.messageId]);
             
             if (trigger.operatorType == OSTriggerOperatorTypeContains) {
                 if (![self array:realValue containsValue:trigger.value]) {
@@ -213,6 +219,31 @@
     }
     
     return false;
+}
+
+- (void)displayedMessage:(OSInAppMessage *)message {
+    var messageViewCount = 1;
+    
+    let key = OS_VIEWED_MESSAGE_TRIGGER(message.messageId);
+    
+    let previousCount = (NSNumber *)[self.defaults objectForKey:key];
+    
+    if ([previousCount isKindOfClass:[NSNumber class]])
+        messageViewCount += [previousCount intValue];
+    
+    [self.defaults setObject:@(messageViewCount) forKey:key];
+    [self.defaults synchronize];
+}
+
+- (int)viewCountForMessageId:(NSString *)messageId {
+    let key = OS_VIEWED_MESSAGE_TRIGGER(messageId);
+    
+    let count = (NSNumber *)[self.defaults objectForKey:key];
+    
+    if (count)
+        return [count intValue];
+    else
+        return 0;
 }
 
 - (NSDictionary<NSString *, id> * _Nullable)triggersFromUserDefaults {
