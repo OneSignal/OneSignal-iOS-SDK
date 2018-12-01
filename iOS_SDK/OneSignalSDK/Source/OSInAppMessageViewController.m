@@ -408,10 +408,16 @@
 }
 
 // This delegate function gets called when an action button is tapped on the IAM
-- (void)messageViewDidTapAction:(NSString *)action {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+- (void)messageViewActionOccurredWithBody:(NSData *)body {
+    let action = [OSInAppMessageAction instanceWithData:body];
     
-    [self.delegate messageViewDidSelectAction:action];
+    if (action)
+        [self.delegate messageViewDidSelectAction:action];
+    
+    if (action.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
+        [self.messageView loadReplacementURL:action.actionUrl];
+    else if (action.close)
+        [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
 - (void)messageViewDidFailToProcessAction {

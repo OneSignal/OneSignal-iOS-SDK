@@ -42,6 +42,7 @@
 #import "NSString+OneSignal.h"
 #import "OneSignalOverrider.h"
 #import "OSInAppMessageAction.h"
+#import "OSInAppMessageBridgeEvent.h"
 
 /**
  Test to make sure that OSInAppMessage correctly
@@ -56,6 +57,7 @@
 @implementation InAppMessagingTests {
     OSInAppMessage *testMessage;
     OSInAppMessageAction *testAction;
+    OSInAppMessageBridgeEvent *testBridgeEvent;
 }
 
 // called before each test
@@ -77,12 +79,17 @@
         ]
     ]];
     
-    testAction = [OSInAppMessageAction instanceWithJson:@{
-        @"action_id" : @"test_id",
-        @"url" : @"https://www.onesignal.com",
-        @"url_target" : @"browser",
-        @"close" : @false
+    testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
+        @"type" : @"action_taken",
+        @"body" : @{
+            @"action_id" : @"test_id",
+            @"url" : @"https://www.onesignal.com",
+            @"url_target" : @"browser",
+            @"close" : @false
+        }
     }];
+    
+    testAction = testBridgeEvent.userAction;
     
     self.triggerController = [OSTriggerController new];
 }
@@ -126,6 +133,26 @@
 
 - (void)testCorrectlyParsedActionClose {
     XCTAssertFalse(testAction.close);
+}
+
+- (void)testCorrectlyParsedActionBridgeEvent {
+    XCTAssertEqual(testBridgeEvent.type, OSInAppMessageBridgeEventTypeActionTaken);
+}
+
+- (void)testCorrectlyParsedRenderingCompleteBridgeEvent {
+    let type = [OSInAppMessageBridgeEvent instanceWithJson:@{@"type" : @"rendering_complete"}].type;
+    XCTAssertEqual(type, OSInAppMessageBridgeEventTypePageRenderingComplete);
+}
+
+- (void)testHandlesInvalidBridgeEventType {
+    
+    // the SDK should simply return nil if it receives invalid event JSON
+    let invalidJson = @{
+        @"type" : @"action_taken",
+        @"body" : @[@"test"]
+    };
+    
+    XCTAssertNil([OSInAppMessageBridgeEvent instanceWithJson:invalidJson]);
 }
 
 #pragma mark Message Trigger Logic Tests

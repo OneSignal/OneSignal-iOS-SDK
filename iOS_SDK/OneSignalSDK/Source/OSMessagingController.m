@@ -27,6 +27,8 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h"
+#import "OSInAppMessageAction.h"
+#import "OneSignalHelper.h"
 
 @interface OSMessagingController ()
 
@@ -114,6 +116,20 @@
     }
 }
 
+- (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
+    switch (action.urlActionType) {
+            case OSInAppMessageActionUrlTypeSafari:
+            [[UIApplication sharedApplication] openURL:action.actionUrl options:@{} completionHandler:^(BOOL success) {}];
+            break;
+        case OSInAppMessageActionUrlTypeWebview:
+            [OneSignalHelper displayWebView:action.actionUrl];
+            break;
+        case OSInAppMessageActionUrlTypeReplaceContent:
+            // this case is handled by the in-app message view controller.
+            break;
+    }
+}
+
 #pragma mark Trigger Methods
 - (void)setTriggers:(NSDictionary<NSString *, id> *)triggers {
     [self.triggerController addTriggers:triggers];
@@ -150,9 +166,12 @@
     }
 }
 
--(void)messageViewDidSelectAction:(NSString *)actionId {
+- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action {
+    if (action.actionUrl)
+        [self handleMessageActionWithURL:action];
+    
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
-        [delegate handleMessageAction:actionId];
+        [delegate handleMessageAction:action.actionId];
 }
 
 #pragma mark OSTriggerControllerDelegate Methods

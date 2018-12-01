@@ -26,26 +26,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import "OSInAppMessage.h"
-#import "OSInAppMessageView.h"
+#import "OSJSONHandling.h"
 #import "OSInAppMessageAction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol OSInAppMessaveViewControllerDelegate <NSObject>
+typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
+    OSInAppMessageBridgeEventTypePageRenderingComplete,
+    
+    OSInAppMessageBridgeEventTypeActionTaken
+};
 
-- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action;
+@interface OSInAppMessageBridgeEvent : NSObject <OSJSONDecodable>
 
-- (void)messageViewControllerWasDismissed;
+@property (nonatomic) OSInAppMessageBridgeEventType type;
 
-@end
+@property (strong, nonatomic, nullable) OSInAppMessageAction *userAction;
 
-
-@interface OSInAppMessageViewController : UIViewController <OSInAppMessageViewDelegate>
-@property (weak, nonatomic, nullable) id<OSInAppMessaveViewControllerDelegate> delegate;
-
--(instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
 @end
 
 NS_ASSUME_NONNULL_END

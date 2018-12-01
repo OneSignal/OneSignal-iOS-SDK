@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)messageViewDidLoadMessageContent;
 - (void)messageViewFailedToLoadMessageContent;
-- (void)messageViewDidTapAction:(NSString *)action;
+- (void)messageViewActionOccurredWithBody:(NSData *)body;
 - (void)messageViewDidFailToProcessAction;
 
 @end
@@ -46,6 +46,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
+
+- (void)loadReplacementURL:(NSURL *)url;
 
 @end
 
