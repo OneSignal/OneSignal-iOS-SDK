@@ -690,6 +690,21 @@
 			path = Source;
 			sourceTree = "<group>";
 		};
+		CA6B3CB621B5CF2600AA6A65 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				CA47439B2190FEA80020DC8C /* OSTrigger.h */,
+				CA47439C2190FEA80020DC8C /* OSTrigger.m */,
+				CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */,
+				CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */,
+				CAB269D721B0B6F000F8A43C /* OSInAppMessageAction.h */,
+				CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */,
+				CAB269DD21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h */,
+				CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		CA7FC88F21925253002C4FD9 /* UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -701,33 +716,26 @@
 			name = UI;
 			sourceTree = "<group>";
 		};
-		CA7FC89C21926B6B002C4FD9 /* Triggers */ = {
+		CA7FC89C21926B6B002C4FD9 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				CA47439B2190FEA80020DC8C /* OSTrigger.h */,
-				CA47439C2190FEA80020DC8C /* OSTrigger.m */,
+				CACBAA90218A6242000ACAA5 /* OSMessagingController.h */,
+				CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */,
 				CA7FC89D21927229002C4FD9 /* OSDynamicTriggerController.h */,
 				CA7FC89E21927229002C4FD9 /* OSDynamicTriggerController.m */,
 				CA4742E2218B8FF30020DC8C /* OSTriggerController.h */,
 				CA4742E3218B8FF30020DC8C /* OSTriggerController.m */,
 			);
-			name = Triggers;
+			name = Controller;
 			sourceTree = "<group>";
 		};
 		CACBAA8C218A6226000ACAA5 /* In-App Messaging */ = {
 			isa = PBXGroup;
 			children = (
-				CA7FC88F21925253002C4FD9 /* UI */,
-				CA7FC89C21926B6B002C4FD9 /* Triggers */,
 				CACBAA8F218A6242000ACAA5 /* OSInAppMessagingDefines.h */,
-				CACBAA90218A6242000ACAA5 /* OSMessagingController.h */,
-				CACBAA8E218A6242000ACAA5 /* OSMessagingController.m */,
-				CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */,
-				CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */,
-				CAB269D721B0B6F000F8A43C /* OSInAppMessageAction.h */,
-				CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */,
-				CAB269DD21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h */,
-				CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */,
+				CA7FC88F21925253002C4FD9 /* UI */,
+				CA7FC89C21926B6B002C4FD9 /* Controller */,
+				CA6B3CB621B5CF2600AA6A65 /* Model */,
 			);
 			name = "In-App Messaging";
 			sourceTree = "<group>";
