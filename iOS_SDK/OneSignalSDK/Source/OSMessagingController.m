@@ -171,7 +171,7 @@
         [self handleMessageActionWithURL:action];
     
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
-        [delegate handleMessageAction:action.actionId];
+        [delegate handleMessageAction:action];
 }
 
 #pragma mark OSTriggerControllerDelegate Methods

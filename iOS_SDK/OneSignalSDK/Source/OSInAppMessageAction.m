@@ -26,7 +26,6 @@
  */
 
 #import "OSInAppMessageAction.h"
-#import "OneSignal.h"
 
 @implementation OSInAppMessageAction
 
@@ -66,6 +65,8 @@
     else
         action.close = true; //default behavior
     
+    if ([json[@"data"] isKindOfClass:[NSDictionary class]])
+        action.additionalData = json[@"data"];
     
     return action;
 }

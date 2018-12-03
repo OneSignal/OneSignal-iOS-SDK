@@ -87,13 +87,26 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
     OSInAppMessageDisplayTypeBottomBanner
 };
 
+@interface OSInAppMessageAction : NSObject
+
+/** The unique UUID identifier for this action */
+@property (strong, nonatomic, nonnull) NSString *actionId;
+
+/** The URL (if any) that should be opened when the action occurs */
+@property (strong, nonatomic, nullable) NSURL *actionUrl;
+
+/** Allows actions to contain metadata. Unimplemented for now  */
+@property (strong, nonatomic, nullable) NSDictionary *additionalData;
+
+@end
+
 @protocol OSInAppMessageDelegate <NSObject>
 @optional
 - (void)willDisplayInAppMessageWithType:(OSInAppMessageDisplayType)type;
 @optional
 - (void)didFinishDisplayingInAppMessage;
 @optional
-- (void)handleMessageAction:(NSString * _Nonnull)actionId NS_SWIFT_NAME(handleMessageAction(action:));
+- (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
 @interface OSNotificationAction : NSObject

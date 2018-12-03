@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSJSONHandling.h"
+#import "OneSignal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,19 +39,15 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
     OSInAppMessageActionUrlTypeReplaceContent
 };
 
-@interface OSInAppMessageAction : NSObject <OSJSONDecodable>
-
-/** The unique UUID identifier for this action */
-@property (strong, nonatomic, nonnull) NSString *actionId;
-
-/** The URL (if any) that should be opened when the action occurs */
-@property (strong, nonatomic, nullable) NSURL *actionUrl;
+@interface OSInAppMessageAction () <OSJSONDecodable>
 
 /** Determines where the URL is loaded, ie. app opens a webview */
 @property (nonatomic) OSInAppMessageActionUrlType urlActionType;
 
 /** Determines if the action causes the in-app message to close */
 @property (nonatomic) BOOL close;
+
+/** Additional properties defined in OneSignal.h as a public category */
 
 @end
 
