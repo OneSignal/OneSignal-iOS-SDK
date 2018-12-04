@@ -319,3 +319,17 @@
     return request;
 }
 @end
+
+@implementation OSRequestUpdateExternalUserId
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withOneSignalUserId:(NSString *)userId appId:(NSString *)appId {
+    let request = [OSRequestUpdateExternalUserId new];
+    NSLog(@"App ID: %@, external ID: %@", appId, externalId);
+    request.parameters = @{@"app_id" : appId, @"external_user_id" : externalId ?: @""};
+    request.method = PUT;
+    request.path = [NSString stringWithFormat:@"players/%@", userId];
+    
+    return request;
+}
+
+@end

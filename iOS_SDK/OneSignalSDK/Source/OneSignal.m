@@ -192,6 +192,9 @@ BOOL usesAutoPrompt = false;
 
 static BOOL providesAppNotificationSettings = false;
 
+static BOOL performedOnSessionRequest = false;
+static NSString *pendingExternalUserId;
+
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
     NSInteger op = value;
@@ -386,6 +389,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     maxApnsWait = APNS_TIMEOUT;
     reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
+    
+    performedOnSessionRequest = false;
+    pendingExternalUserId = nil;
 }
 
 // Set to false as soon as it's read.
@@ -1476,6 +1482,14 @@ static dispatch_queue_t serialQueue;
                    ONESIGNAL_VERSION, @"sdk",
                    nil];
     
+    // should be set to true even before the API request is finished
+    performedOnSessionRequest = true;
+    
+    if (pendingExternalUserId) {
+        dataDic[@"external_user_id"] = pendingExternalUserId;
+        pendingExternalUserId = nil;
+    }
+    
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
     
@@ -2282,6 +2296,36 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];
     }];
 }
+
++ (void)setExternalUserId:(NSString * _Nonnull)externalId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
+        return;
+    
+    if (!performedOnSessionRequest) {
+        // will be sent as part of the registration/on_session request
+        pendingExternalUserId = externalId;
+        return;
+    } else if (!self.currentSubscriptionState.userId || !self.app_id) {
+        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external-userID while %@ is not set", self.app_id == nil ? @"app ID" : @"OneSignal user ID"]];
+        return;
+    }
+    
+    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:nil onFailure:^(NSError *error) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to set external ID: %@", error.description]];
+    }];
+}
+
++ (void)removeExternalUserId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
+        return;
+    
+    [self setExternalUserId:@""];
+}
+
 
 @end
 
