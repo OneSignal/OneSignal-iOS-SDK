@@ -1485,10 +1485,10 @@ static dispatch_queue_t serialQueue;
     // should be set to true even before the API request is finished
     performedOnSessionRequest = true;
     
-    if (pendingExternalUserId) {
+    if (pendingExternalUserId && ![self.existingExternalUserId isEqualToString:pendingExternalUserId])
         dataDic[@"external_user_id"] = pendingExternalUserId;
-        pendingExternalUserId = nil;
-    }
+    
+    pendingExternalUserId = nil;
     
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
@@ -1645,7 +1645,13 @@ static dispatch_queue_t serialQueue;
             
         }
         
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        // If the external user ID was sent as part of this request, we need to save it
+        // The 'successfullySentExternalUserId' method already calls NSUserDefaults synchronize
+        // so there is no need to call it again
+        if (dataDic[@"external_user_id"])
+            [self successfullySentExternalUserId:dataDic[@"external_user_id"]];
+        else
+            [[NSUserDefaults standardUserDefaults] synchronize];
         
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         waitingForOneSReg = false;
@@ -2303,6 +2309,9 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
         return;
     
+    if ([self.existingExternalUserId isEqualToString:externalId])
+        return;
+    
     if (!performedOnSessionRequest) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
@@ -2312,9 +2321,21 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:nil onFailure:^(NSError *error) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
+        // the success/fail callbacks always execute on the main thread
+        [self successfullySentExternalUserId:externalId];
+    } onFailure:^(NSError *error) {
         [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to set external ID: %@", error.description]];
     }];
+}
+
++ (NSString *)existingExternalUserId {
+    return [NSUserDefaults.standardUserDefaults stringForKey:EXTERNAL_USER_ID] ?: @"";
+}
+
++ (void)successfullySentExternalUserId:(NSString *)externalId {
+    [NSUserDefaults.standardUserDefaults setObject:externalId forKey:EXTERNAL_USER_ID];
+    [NSUserDefaults.standardUserDefaults synchronize];
 }
 
 + (void)removeExternalUserId {
