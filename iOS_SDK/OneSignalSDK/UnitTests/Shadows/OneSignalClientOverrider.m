@@ -31,7 +31,6 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalClient.h"
-#import "OneSignalRequest.h"
 #import "OneSignalSelectorHelpers.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
@@ -49,9 +48,9 @@ static BOOL executeInstantaneously = true;
 static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
-static NSMutableArray<NSString *> *executedRequestTypes;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
 static BOOL disableOverride = false;
+static NSMutableArray<OneSignalRequest *> *executedRequests;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -63,7 +62,7 @@ static BOOL disableOverride = false;
     
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     
-    executedRequestTypes = [[NSMutableArray alloc] init];
+    executedRequests = [NSMutableArray new];
 }
 
 // Calling this function twice results in reversing the swizzle
@@ -81,7 +80,7 @@ static BOOL disableOverride = false;
     __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
     
     for (NSString *key in requests.allKeys) {
-        [executedRequestTypes addObject:NSStringFromClass([requests[key] class])];
+        [executedRequests addObject:requests[key]];
         
         [OneSignalClient.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
             results[key] = result;
@@ -108,7 +107,7 @@ static BOOL disableOverride = false;
     if (disableOverride)
         return [self overrideExecuteRequest:request onSuccess:successBlock onFailure:failureBlock];
     
-    [executedRequestTypes addObject:NSStringFromClass([request class])];
+    [executedRequests addObject:request];
     
     if (executeInstantaneously) {
         [OneSignalClientOverrider finishExecutingRequest:request onSuccess:successBlock onFailure:failureBlock];
@@ -148,8 +147,8 @@ static BOOL disableOverride = false;
 }
 
 +(BOOL)hasExecutedRequestOfType:(Class)type {
-    for (id requestType in executedRequestTypes)
-        if ([requestType isEqualToString:NSStringFromClass(type)])
+    for (OneSignalRequest *request in executedRequests)
+        if ([request isKindOfClass:type])
             return true;
     
     return false;
@@ -173,7 +172,7 @@ static BOOL disableOverride = false;
     networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequest = nil;
-    [executedRequestTypes removeAllObjects];
+    [executedRequests removeAllObjects];
 }
 
 +(void)setLastHTTPRequest:(NSDictionary*)value {
@@ -205,6 +204,10 @@ static BOOL disableOverride = false;
 
 +(void)setShouldUseProvisionalAuth:(BOOL)provisional {
     shouldUseProvisionalAuthorization = provisional;
+}
+
++(NSArray<OneSignalRequest *> *)executedRequests {
+    return executedRequests;
 }
 
 @end

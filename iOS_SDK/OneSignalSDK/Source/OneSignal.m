@@ -2321,10 +2321,18 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
+    let requests = [NSMutableDictionary new];
+    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
+    
+    if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
+        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
         // the success/fail callbacks always execute on the main thread
         [self successfullySentExternalUserId:externalId];
-    } onFailure:^(NSError *error) {
+    } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
+        // if either request fails, this block is executed
+        NSError *error = errors[@"push"] ?: errors[@"email"];
         [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to set external ID: %@", error.description]];
     }];
 }
