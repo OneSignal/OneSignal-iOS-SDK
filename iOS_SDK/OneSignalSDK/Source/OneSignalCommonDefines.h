@@ -52,6 +52,7 @@
 #define PERMISSION_ACCEPTED @"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"
 #define PERMISSION_PROVISIONAL_STATUS @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"
 #define PERMISSION_PROVIDES_NOTIFICATION_SETTINGS @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"
+#define EXTERNAL_USER_ID @"OS_EXTERNAL_USER_ID"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use

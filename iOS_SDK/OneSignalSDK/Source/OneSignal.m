@@ -192,6 +192,9 @@ BOOL usesAutoPrompt = false;
 
 static BOOL providesAppNotificationSettings = false;
 
+static BOOL performedOnSessionRequest = false;
+static NSString *pendingExternalUserId;
+
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
     NSInteger op = value;
@@ -386,6 +389,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     maxApnsWait = APNS_TIMEOUT;
     reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
+    
+    performedOnSessionRequest = false;
+    pendingExternalUserId = nil;
 }
 
 // Set to false as soon as it's read.
@@ -1476,6 +1482,14 @@ static dispatch_queue_t serialQueue;
                    ONESIGNAL_VERSION, @"sdk",
                    nil];
     
+    // should be set to true even before the API request is finished
+    performedOnSessionRequest = true;
+    
+    if (pendingExternalUserId && ![self.existingExternalUserId isEqualToString:pendingExternalUserId])
+        dataDic[@"external_user_id"] = pendingExternalUserId;
+    
+    pendingExternalUserId = nil;
+    
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
     
@@ -1631,7 +1645,13 @@ static dispatch_queue_t serialQueue;
             
         }
         
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        // If the external user ID was sent as part of this request, we need to save it
+        // The 'successfullySentExternalUserId' method already calls NSUserDefaults synchronize
+        // so there is no need to call it again
+        if (dataDic[@"external_user_id"])
+            [self successfullySentExternalUserId:dataDic[@"external_user_id"]];
+        else
+            [[NSUserDefaults standardUserDefaults] synchronize];
         
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         waitingForOneSReg = false;
@@ -2282,6 +2302,59 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];
     }];
 }
+
++ (void)setExternalUserId:(NSString * _Nonnull)externalId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
+        return;
+    
+    if ([self.existingExternalUserId isEqualToString:externalId])
+        return;
+    
+    if (!performedOnSessionRequest) {
+        // will be sent as part of the registration/on_session request
+        pendingExternalUserId = externalId;
+        return;
+    } else if (!self.currentSubscriptionState.userId || !self.app_id) {
+        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external-userID while %@ is not set", self.app_id == nil ? @"app ID" : @"OneSignal user ID"]];
+        return;
+    }
+    
+    let requests = [NSMutableDictionary new];
+    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
+    
+    if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
+        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
+        // the success/fail callbacks always execute on the main thread
+        [self successfullySentExternalUserId:externalId];
+    } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
+        // if either request fails, this block is executed
+        NSError *error = errors[@"push"] ?: errors[@"email"];
+        [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to set external ID: %@", error.description]];
+    }];
+}
+
++ (NSString *)existingExternalUserId {
+    return [NSUserDefaults.standardUserDefaults stringForKey:EXTERNAL_USER_ID] ?: @"";
+}
+
++ (void)successfullySentExternalUserId:(NSString *)externalId {
+    [NSUserDefaults.standardUserDefaults setObject:externalId forKey:EXTERNAL_USER_ID];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
++ (void)removeExternalUserId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
+        return;
+    
+    [self setExternalUserId:@""];
+}
+
 
 @end
 

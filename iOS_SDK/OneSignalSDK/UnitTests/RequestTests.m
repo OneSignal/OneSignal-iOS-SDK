@@ -268,6 +268,14 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3}));
 }
 
-
+- (void)testSendExternalUserId {
+    let request = [OSRequestUpdateExternalUserId withUserId:@"test_external" withOneSignalUserId:testUserId appId:testAppId];
+    
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : @"test_external"}));
+}
 
 @end

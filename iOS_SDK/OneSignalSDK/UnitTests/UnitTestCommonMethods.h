@@ -29,6 +29,8 @@
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
 
+#define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
+
 NSString * serverUrlWithPath(NSString *path);
 
 @interface UnitTestCommonMethods : NSObject
