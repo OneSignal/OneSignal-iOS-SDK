@@ -99,60 +99,30 @@
         //dynamic triggers should be handled after looping through all other triggers
         NSMutableArray<OSTrigger *> *dynamicTriggers = [NSMutableArray new];
         
-        // will be set to false if any non-time-based trigger evaluates to false
-        // This way we don't bother scheduling timers if the message can't be shown anyways
-        BOOL evaluateDynamicTriggers = true;
+        var foundFalseTrigger = false;
         
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
             if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
-                continue;
-            } else if (!self.triggers[trigger.property] && ![trigger.property isEqualToString:OS_VIEWED_MESSAGE]) {
-                // the value doesn't exist
-                if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
-                    (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
-                    // the condition for this trigger is true since the value doesn't exist
-                    // either loop to the next condition, or return true if we are the last condition
-                    continue;
-                } else {
-                    evaluateDynamicTriggers = false;
-                    break;
-                }
-            } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
-                continue;
-            } else if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
-                evaluateDynamicTriggers = false;
-                break;
-            }
-            
-            id realValue = self.triggers[trigger.property];
-            
-            // The logic for making sure messages can only be shown X times
-            // is the same as triggers, except the value (view_count) comes from
-            // a different source
-            if ([OS_VIEWED_MESSAGE isEqualToString:trigger.property])
-                realValue = @([self viewCountForMessageId:message.messageId]);
-            
-            if (trigger.operatorType == OSTriggerOperatorTypeContains) {
-                if (![self array:realValue containsValue:trigger.value]) {
-                    evaluateDynamicTriggers = false;
-                    break;
-                }
-            } else if (![trigger.value isKindOfClass:[realValue class]] ||
-                ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
-                ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
-                evaluateDynamicTriggers = false;
+            } else if (![self evaluateTrigger:trigger forMessage:message]) {
+                foundFalseTrigger = true;
                 break;
             }
         }
         
-        if (evaluateDynamicTriggers && dynamicTriggers.count == 0)
-            return true;
-        else if (!evaluateDynamicTriggers)
+        // if we found a trigger that evaluates to false, loop to the next AND block
+        if (foundFalseTrigger) {
             continue;
+        } else if (dynamicTriggers.count == 0) {
+            // no trigger was false and there are no triggers left to evaluate, so the
+            // AND block is true and we should return true.
+            return true;
+        }
         
+        // if we reach this point, all normal (non-time-based) triggers evaluated to true
+        // now we can start setting up timers if needed.
         for (int i = 0; i < dynamicTriggers.count; i++) {
             let trigger = dynamicTriggers[i];
             
@@ -167,6 +137,45 @@
     }
     
     return false;
+}
+
+- (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessage *)message {
+    if (!self.triggers[trigger.property] && ![trigger.property isEqualToString:OS_VIEWED_MESSAGE]) {
+        // the value doesn't exist
+        if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
+            (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
+            // the condition for this trigger is true since the value doesn't exist
+            // either loop to the next condition, or return true if we are the last condition
+            return true;
+        } else {
+            return false;
+        }
+    } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
+        return true;
+    } else if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
+        return false;
+    }
+    
+    //if we reach this point, the trigger has been set locally
+    id realValue = self.triggers[trigger.property];
+    
+    // The logic for making sure messages can only be shown X times
+    // is the same as triggers, except the value (view_count) comes from
+    // a different source
+    if ([OS_VIEWED_MESSAGE isEqualToString:trigger.property])
+        realValue = @([self viewCountForMessageId:message.messageId]);
+    
+    if (trigger.operatorType == OSTriggerOperatorTypeContains) {
+        if (![self array:realValue containsValue:trigger.value]) {
+            return false;
+        }
+    } else if (![trigger.value isKindOfClass:[realValue class]] ||
+               ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
+               ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
+        return false;
+    }
+    
+    return true;
 }
 
 - (BOOL)triggerValue:(id)triggerValue isEqualToValue:(id)value {
