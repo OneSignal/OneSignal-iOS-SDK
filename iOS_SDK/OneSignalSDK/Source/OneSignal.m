@@ -1748,8 +1748,9 @@ static dispatch_queue_t serialQueue;
             @[
                 @{
                     @"property" : @"view_controller",
-                    @"operator" : @"==",
-                    @"value" : @"test_vc"
+                    @"operator" : @"equal",
+                    @"value" : @"test_vc",
+                    @"id" : @"test"
                 }
             ]
         ]
