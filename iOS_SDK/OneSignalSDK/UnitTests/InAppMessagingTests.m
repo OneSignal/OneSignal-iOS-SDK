@@ -107,8 +107,9 @@
     XCTAssertTrue([testMessage.messageId containsString:OS_TEST_MESSAGE_ID]);
 }
 
--(void)testCorrectlyParsedContentId {
-    XCTAssertTrue([testMessage.contentId isEqualToString:@"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba"]);
+-(void)testCorrectlyParsedVariants {
+    NSDictionary *appVariants = testMessage.variants[@"app"];
+    XCTAssertTrue([appVariants[@"default"] isEqualToString:@"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba"]);
 }
 
 -(void)testCorrectlyParsedTriggers {
