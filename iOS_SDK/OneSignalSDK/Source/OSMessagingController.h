@@ -33,7 +33,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSMessagingController : NSObject <OSInAppMessaveViewControllerDelegate, OSTriggerControllerDelegate>
+@interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate>
 
 + (OSMessagingController *)sharedInstance;
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;

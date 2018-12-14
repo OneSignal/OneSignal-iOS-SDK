@@ -33,7 +33,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol OSInAppMessaveViewControllerDelegate <NSObject>
+@protocol OSInAppMessageViewControllerDelegate <NSObject>
 
 - (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId;
 
@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface OSInAppMessageViewController : UIViewController <OSInAppMessageViewDelegate>
-@property (weak, nonatomic, nullable) id<OSInAppMessaveViewControllerDelegate> delegate;
+@property (weak, nonatomic, nullable) id<OSInAppMessageViewControllerDelegate> delegate;
 
 -(instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
 @end
