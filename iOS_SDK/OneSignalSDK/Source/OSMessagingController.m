@@ -30,6 +30,7 @@
 #import "Requests.h"
 #import "OneSignalClient.h"
 #import "OneSignalInternal.h"
+#import "OSInAppMessageAction.h"
 
 @interface OSMessagingController ()
 
@@ -123,6 +124,20 @@
     }
 }
 
+- (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
+    switch (action.urlActionType) {
+            case OSInAppMessageActionUrlTypeSafari:
+            [[UIApplication sharedApplication] openURL:action.actionUrl options:@{} completionHandler:^(BOOL success) {}];
+            break;
+        case OSInAppMessageActionUrlTypeWebview:
+            [OneSignalHelper displayWebView:action.actionUrl];
+            break;
+        case OSInAppMessageActionUrlTypeReplaceContent:
+            // this case is handled by the in-app message view controller.
+            break;
+    }
+}
+
 #pragma mark Trigger Methods
 - (void)setTriggers:(NSDictionary<NSString *, id> *)triggers {
     [self.triggerController addTriggers:triggers];
@@ -130,6 +145,14 @@
 
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
     [self.triggerController removeTriggersForKeys:keys];
+}
+
+- (NSDictionary<NSString *, id> *)getTriggers {
+    return self.triggerController.getTriggers;
+}
+
+- (id)getTriggerValueForKey:(NSString *)key {
+    return [self.triggerController getTriggerValueForKey:key];
 }
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
@@ -151,14 +174,17 @@
     }
 }
 
-- (void)messageViewDidSelectAction:(NSString *)actionId withMessageId:(NSString *)messageId {
-    for (id<OSInAppMessageDelegate> delegate in self.delegates)
-        [delegate handleMessageAction:actionId];
+- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId {
+    if (action.actionUrl)
+        [self handleMessageActionWithURL:action];
     
+    for (id<OSInAppMessageDelegate> delegate in self.delegates)
+        [delegate handleMessageAction:action];
+  
     let metricsRequest = [OSRequestInAppMessageOpened withAppId:OneSignal.app_id
                                                  withPlayerId:OneSignal.currentSubscriptionState.userId
                                                  withMessageId:messageId
-                                                 withActionId:actionId];
+                                                 withActionId:action.actionId];
     
     [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
 }

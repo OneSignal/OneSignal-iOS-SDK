@@ -46,6 +46,10 @@
 + (instancetype)instanceWithJson:(NSDictionary *)json {
     let newTrigger = [OSTrigger new];
     
+    if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
+        newTrigger.triggerId = (NSString *)json[@"id"];
+    else return nil;
+    
     if (json[@"property"] && [json[@"property"] isKindOfClass:[NSString class]])
         newTrigger.property = (NSString *)json[@"property"];
     else return nil;
@@ -70,6 +74,7 @@
 - (NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
+    json[@"id"] = self.triggerId;
     json[@"property"] = self.property;
     json[@"operator"] = OS_OPERATOR_TO_STRING(self.operatorType);
     
@@ -77,15 +82,6 @@
         json[@"value"] = self.value;
     
     return json;
-}
-
-
-// Returns a unique string for this trigger
-- (NSString *)uniqueIdentifierForTriggerFromMessageWithMessageId:(NSString *)messageId {
-    if (self.value)
-        return [[[self.property stringByAppendingString:OS_OPERATOR_TO_STRING(self.operatorType)] stringByAppendingString:[NSString stringWithFormat:@"%@::", self.value]] stringByAppendingString:messageId];
-    else
-        return [[[self.property stringByAppendingString:OS_OPERATOR_TO_STRING(self.operatorType)] stringByAppendingString:@"::"] stringByAppendingString:messageId];
 }
 
 @end

@@ -66,6 +66,18 @@
     }
 }
 
+- (NSDictionary<NSString *, id> *)getTriggers {
+    @synchronized (self.triggers) {
+        return self.triggers;
+    }
+}
+
+- (id)getTriggerValueForKey:(NSString *)key {
+    @synchronized (self.triggers) {
+        return self.triggers[key];
+    }
+}
+
 #pragma mark Private Methods
 
 /**
@@ -87,50 +99,30 @@
         //dynamic triggers should be handled after looping through all other triggers
         NSMutableArray<OSTrigger *> *dynamicTriggers = [NSMutableArray new];
         
+        var foundFalseTrigger = false;
+        
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
             if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
-                continue;
-            } else if (!self.triggers[trigger.property]) {
-                // the value doesn't exist
-                
-                if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
-                    // the condition for this trigger is true since the value doesn't exist
-                    // either loop to the next condition, or return true if we are the last condition
-                    if (i == conditions.count - 1) {
-                        return true;
-                    } else continue;
-                } else {
-                    break;
-                }
-            }
-            
-            // the Exists operator requires no comparisons or equality check
-            if (trigger.operatorType == OSTriggerOperatorTypeExists) {
-                if (i == conditions.count - 1)
-                    return true;
-                else continue;
-            }
-            
-            id realValue = self.triggers[trigger.property];
-            
-            if (trigger.operatorType == OSTriggerOperatorTypeContains) {
-                if (![self array:realValue containsValue:trigger.value])
-                    break;
-                else if (i == conditions.count - 1)
-                    return true;
-                else continue;
-            } else if (![trigger.value isKindOfClass:[realValue class]] ||
-                ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
-                ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
+            } else if (![self evaluateTrigger:trigger forMessage:message]) {
+                foundFalseTrigger = true;
                 break;
-            } else if (i == conditions.count - 1) {
-                return true;
             }
         }
         
+        // if we found a trigger that evaluates to false, loop to the next AND block
+        if (foundFalseTrigger) {
+            continue;
+        } else if (dynamicTriggers.count == 0) {
+            // no trigger was false and there are no triggers left to evaluate, so the
+            // AND block is true and we should return true.
+            return true;
+        }
+        
+        // if we reach this point, all normal (non-time-based) triggers evaluated to true
+        // now we can start setting up timers if needed.
         for (int i = 0; i < dynamicTriggers.count; i++) {
             let trigger = dynamicTriggers[i];
             
@@ -145,6 +137,45 @@
     }
     
     return false;
+}
+
+- (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessage *)message {
+    if (!self.triggers[trigger.property] && ![trigger.property isEqualToString:OS_VIEWED_MESSAGE]) {
+        // the value doesn't exist
+        if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
+            (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
+            // the condition for this trigger is true since the value doesn't exist
+            // either loop to the next condition, or return true if we are the last condition
+            return true;
+        } else {
+            return false;
+        }
+    } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
+        return true;
+    } else if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
+        return false;
+    }
+    
+    //if we reach this point, the trigger has been set locally
+    id realValue = self.triggers[trigger.property];
+    
+    // The logic for making sure messages can only be shown X times
+    // is the same as triggers, except the value (view_count) comes from
+    // a different source
+    if ([OS_VIEWED_MESSAGE isEqualToString:trigger.property])
+        realValue = @([self viewCountForMessageId:message.messageId]);
+    
+    if (trigger.operatorType == OSTriggerOperatorTypeContains) {
+        if (![self array:realValue containsValue:trigger.value]) {
+            return false;
+        }
+    } else if (![trigger.value isKindOfClass:[realValue class]] ||
+               ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
+               ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
+        return false;
+    }
+    
+    return true;
 }
 
 - (BOOL)triggerValue:(id)triggerValue isEqualToValue:(id)value {
@@ -197,6 +228,31 @@
     }
     
     return false;
+}
+
+- (void)displayedMessage:(OSInAppMessage *)message {
+    var messageViewCount = 1;
+    
+    let key = OS_VIEWED_MESSAGE_TRIGGER(message.messageId);
+    
+    let previousCount = (NSNumber *)[self.defaults objectForKey:key];
+    
+    if ([previousCount isKindOfClass:[NSNumber class]])
+        messageViewCount += [previousCount intValue];
+    
+    [self.defaults setObject:@(messageViewCount) forKey:key];
+    [self.defaults synchronize];
+}
+
+- (int)viewCountForMessageId:(NSString *)messageId {
+    let key = OS_VIEWED_MESSAGE_TRIGGER(messageId);
+    
+    let count = (NSNumber *)[self.defaults objectForKey:key];
+    
+    if (count)
+        return [count intValue];
+    else
+        return 0;
 }
 
 - (NSDictionary<NSString *, id> * _Nullable)triggersFromUserDefaults {

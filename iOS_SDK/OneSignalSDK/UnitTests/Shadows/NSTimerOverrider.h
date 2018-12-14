@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (class, nonatomic) NSTimeInterval mostRecentTimerInterval;
 
+@property (class, nonatomic) NSTimeInterval previousMostRecentTimeInterval;
+
 @property (class, nonatomic) BOOL shouldScheduleTimers;
 
 @property (class, nonatomic) BOOL hasScheduledTimer;

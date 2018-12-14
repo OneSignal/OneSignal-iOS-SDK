@@ -26,30 +26,29 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSTrigger.h"
-#import "OSInAppMessage.h"
-#import "OSMessagingController.h"
-
-#define OS_TEST_MESSAGE_ID @"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba"
+#import "OSJSONHandling.h"
+#import "OneSignal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSTrigger (Test)
-+ (instancetype)triggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
-@end
+typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
+    OSInAppMessageActionUrlTypeSafari,
+    
+    OSInAppMessageActionUrlTypeWebview,
+    
+    OSInAppMessageActionUrlTypeReplaceContent
+};
 
-@interface OSMessagingController (Test)
-- (void)reset;
-- (void)setTriggerWithName:(NSString *)name withValue:(id)value;
-@end
+@interface OSInAppMessageAction () <OSJSONDecodable>
 
-@interface OSInAppMessageTestHelper : NSObject
-+ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
-+ (OSInAppMessage *)testMessage;
-+ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
-+ (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages;
-+ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value;
+/** Determines where the URL is loaded, ie. app opens a webview */
+@property (nonatomic) OSInAppMessageActionUrlType urlActionType;
+
+/** Determines if the action causes the in-app message to close */
+@property (nonatomic) BOOL close;
+
+/** Additional properties defined in OneSignal.h as a public category */
+
 @end
 
 NS_ASSUME_NONNULL_END

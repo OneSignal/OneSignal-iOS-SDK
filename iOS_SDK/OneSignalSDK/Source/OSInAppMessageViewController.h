@@ -29,12 +29,13 @@
 #import <UIKit/UIKit.h>
 #import "OSInAppMessage.h"
 #import "OSInAppMessageView.h"
+#import "OSInAppMessageAction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSInAppMessaveViewControllerDelegate <NSObject>
 
-- (void)messageViewDidSelectAction:(NSString *)actionId withMessageId:(NSString *)messageId;
+- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId;
 
 - (void)messageViewControllerWasDismissed;
 

@@ -32,9 +32,7 @@
 
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionBottom,
-    
     OSInAppMessageDisplayPositionTop,
-    
     OSInAppMessageDisplayPositionCentered
 };
 
@@ -68,15 +66,13 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 // Dynamic trigger property types
 #define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
 #define OS_TIME_TRIGGER @"os_time"
-#define OS_SDK_VERSION_TRIGGER @"os_sdk_version"
-#define OS_DEVICE_TYPE_TRIGGER @"os_device_type"
 
-// Defines the two (current) device types
-#define OS_DEVICE_TYPE_TABLET @"tablet"
-#define OS_DEVICE_TYPE_PHONE @"phone"
+// Trigger for previously viewed messages
+#define OS_VIEWED_MESSAGE @"os_viewed_message"
+#define OS_VIEWED_MESSAGE_TRIGGER(messageId) [OS_VIEWED_MESSAGE stringByAppendingString:messageId]
 
 // Macro to verify that a string is a correct dynamic trigger
-#define OS_IS_DYNAMIC_TRIGGER(type) [@[@"os_session_duration", @"os_time", @"os_sdk_version"] containsObject:type]
+#define OS_IS_DYNAMIC_TRIGGER(type) [@[OS_SESSION_DURATION_TRIGGER, OS_TIME_TRIGGER] containsObject:type]
 
 // Maps OSInAppMessageDisplayType cases to the equivalent OSInAppMessageDisplayPosition cases
 #define OS_DISPLAY_POSITION_FOR_TYPE(inAppMessageType) [[@[@(OSInAppMessageDisplayPositionTop), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionBottom)] objectAtIndex: inAppMessageType] intValue]
@@ -88,8 +84,10 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_DISPLAY_TYPE_FOR_STRING(stringType) (OSInAppMessageDisplayType)[@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] indexOfObject: stringType]
 #define OS_DISPLAY_TYPE_TO_STRING(displayType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] objectAtIndex: displayType]
 
+#define OS_OPERATOR_STRINGS @[@"greater", @"less", @"equal", @"not_equal", @"less_or_equal", @"greater_or_equal", @"exists", @"not_exists", @"in"]
+
 // Converts OSTriggerOperatorType enum cases to and from strings
-#define OS_OPERATOR_TO_STRING(operator) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] objectAtIndex: operator]
-#define OS_OPERATOR_FROM_STRING(operatorString) [@[@">", @"<", @"==", @"!=", @"<=", @">=", @"exists", @"not_exists", @"contains"] indexOfObject: operatorString]
+#define OS_OPERATOR_TO_STRING(operator) [OS_OPERATOR_STRINGS objectAtIndex: operator]
+#define OS_OPERATOR_FROM_STRING(operatorString) [OS_OPERATOR_STRINGS indexOfObject: operatorString]
 
 #endif /* OSInAppMessagingDefines_h */

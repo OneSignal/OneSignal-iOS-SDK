@@ -141,7 +141,6 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
         lastHTTPRequest = parameters;
         lastHTTPRequestType = NSStringFromClass([request class]);
         
-        NSLog(@"Mock responses: %@", mockResponses);
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]])
                 successBlock(@{@"fba": @true, IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth), IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization)});

@@ -1748,8 +1748,9 @@ static dispatch_queue_t serialQueue;
             @[
                 @{
                     @"property" : @"view_controller",
-                    @"operator" : @"==",
-                    @"value" : @"test_vc"
+                    @"operator" : @"equal",
+                    @"value" : @"test_vc",
+                    @"id" : @"test"
                 }
             ]
         ]
@@ -2393,6 +2394,22 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
+}
+
++ (NSDictionary<NSString *, id> *)getTriggers {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggers"])
+        return nil;
+    
+    return [OSMessagingController.sharedInstance getTriggers];
+}
+
++ (id)getTriggerValueForKey:(NSString *)key {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggerValueForKey:"])
+        return nil;
+    
+    return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
 }
 
 @end

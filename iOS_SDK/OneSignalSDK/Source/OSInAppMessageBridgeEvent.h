@@ -26,30 +26,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSTrigger.h"
-#import "OSInAppMessage.h"
-#import "OSMessagingController.h"
-
-#define OS_TEST_MESSAGE_ID @"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba"
+#import "OSJSONHandling.h"
+#import "OSInAppMessageAction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSTrigger (Test)
-+ (instancetype)triggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
-@end
+typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
+    OSInAppMessageBridgeEventTypePageRenderingComplete,
+    
+    OSInAppMessageBridgeEventTypeActionTaken
+};
 
-@interface OSMessagingController (Test)
-- (void)reset;
-- (void)setTriggerWithName:(NSString *)name withValue:(id)value;
-@end
+@interface OSInAppMessageBridgeEvent : NSObject <OSJSONDecodable>
 
-@interface OSInAppMessageTestHelper : NSObject
-+ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
-+ (OSInAppMessage *)testMessage;
-+ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
-+ (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages;
-+ (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value;
+@property (nonatomic) OSInAppMessageBridgeEventType type;
+
+@property (strong, nonatomic, nullable) OSInAppMessageAction *userAction;
+
 @end
 
 NS_ASSUME_NONNULL_END

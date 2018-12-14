@@ -28,6 +28,7 @@
 #import "OSInAppMessageView.h"
 #import "OneSignalHelper.h"
 #import <WebKit/WebKit.h>
+#import "OSInAppMessageAction.h"
 
 @interface OSInAppMessageView ()
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
@@ -83,17 +84,11 @@
 }
 
 - (void)iosListenerFiredWithMessage:(WKScriptMessage *)message {
-    NSError *error;
-    NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:[message.body dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingAllowFragments error:&error];
-    
-    NSString *action = jsonData[@"action"];
-    
-    if (!jsonData || !action) {
-        [self.delegate messageViewDidFailToProcessAction];
-        return;
-    }
-    
-    [self.delegate messageViewDidTapAction:action];
+    [self.delegate messageViewActionOccurredWithBody:message.body];
+}
+
+- (void)loadReplacementURL:(NSURL *)url {
+    [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
 #pragma mark WKWebViewNavigationDelegate Methods

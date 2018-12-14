@@ -87,13 +87,26 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
     OSInAppMessageDisplayTypeBottomBanner
 };
 
+@interface OSInAppMessageAction : NSObject
+
+/** The unique UUID identifier for this action */
+@property (strong, nonatomic, nonnull) NSString *actionId;
+
+/** The URL (if any) that should be opened when the action occurs */
+@property (strong, nonatomic, nullable) NSURL *actionUrl;
+
+/** Allows actions to contain metadata. Unimplemented for now  */
+@property (strong, nonatomic, nullable) NSDictionary *additionalData;
+
+@end
+
 @protocol OSInAppMessageDelegate <NSObject>
 @optional
 - (void)willDisplayInAppMessageWithType:(OSInAppMessageDisplayType)type;
 @optional
 - (void)didFinishDisplayingInAppMessage;
 @optional
-- (void)handleMessageAction:(NSString * _Nonnull)actionId NS_SWIFT_NAME(handleMessageAction(action:));
+- (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
 @interface OSNotificationAction : NSObject
@@ -449,16 +462,10 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
-// In App Messaging Trigger methods
-+ (void)setTriggerForKey:(NSString *)key withValue:(id)value;
-+ (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
-+ (void)removeTriggerForKey:(NSString *)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
-
 //TODO: Remove this method. It only exists here temporarily while building IAM, for testing purposes.
 + (void)testShowMessageWithType:(OSInAppMessageDisplayType)type;
 
-+ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate;
++ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate> _Nonnull)delegate;
 
 // iOS 10 only
 // Process from Notification Service Extension.
@@ -488,6 +495,14 @@ typedef void (^OSEmailSuccessBlock)();
 + (void)logoutEmail;
 + (void)setEmail:(NSString * _Nonnull)email;
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken;
+
+// In App Messaging Trigger methods
++ (void)setTriggerForKey:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
++ (void)setTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
++ (void)removeTriggerForKey:(NSString * _Nonnull)key;
++ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
++ (NSDictionary<NSString *, id> * _Nonnull)getTriggers;
++ (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 @end
 
