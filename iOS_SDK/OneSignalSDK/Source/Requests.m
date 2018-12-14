@@ -352,3 +352,16 @@
     return request;
 }
 @end
+
+@implementation OSRequestLoadInAppMessageContent
++ (instancetype _Nonnull)withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variantId {
+    let request = [OSRequestLoadInAppMessageContent new];
+    
+    request.dataRequest = true;
+    request.requestContentType = @"text/html";
+    request.method = GET;
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html", messageId, variantId];
+    
+    return request;
+}
+@end

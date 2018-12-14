@@ -290,4 +290,18 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"action_id" : @"test_button_id"}));
 }
 
+- (void)testLoadMessageContent {
+    let request = [OSRequestLoadInAppMessageContent withMessageId:testInAppMessageId withVariantId:@"test_variant_id"];
+    
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/variants/test_variant_id/html", testInAppMessageId]);
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(request.dataRequest);
+    
+    XCTAssertTrue([request.urlRequest.HTTPMethod isEqualToString:@"GET"]);
+    
+    XCTAssertTrue([request.urlRequest.allHTTPHeaderFields[@"Accept"] isEqualToString:@"text/html"]);
+}
+
 @end

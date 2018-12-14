@@ -90,4 +90,6 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_OPERATOR_TO_STRING(operator) [OS_OPERATOR_STRINGS objectAtIndex: operator]
 #define OS_OPERATOR_FROM_STRING(operatorString) [OS_OPERATOR_STRINGS indexOfObject: operatorString]
 
+#define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
+
 #endif /* OSInAppMessagingDefines_h */

@@ -102,5 +102,9 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withActionId:(NSString * _Nonnull)actionId;
 @end
 
+@interface OSRequestLoadInAppMessageContent : OneSignalRequest
++ (instancetype _Nonnull)withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
+@end
+
 #endif /* Requests_h */
 
