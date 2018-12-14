@@ -1639,8 +1639,8 @@ static dispatch_queue_t serialQueue;
             
         }
         
-        if (results[@"push"][@"messages"]) {
-            [self receivedInAppMessageJson:results[@"push"][@"messages"]];
+        if (results[@"push"][@"in_app_messages"]) {
+            [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
         }
         
         [[NSUserDefaults standardUserDefaults] synchronize];

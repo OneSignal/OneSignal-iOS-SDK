@@ -97,7 +97,7 @@ int messageIdIncrementer = 0;
     return @{
         @"id" : @"1234",
         @"success" : @1,
-        @"messages" : messages
+        @"in_app_messages" : messages
     };
 }
 
