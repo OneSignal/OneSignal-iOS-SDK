@@ -412,7 +412,7 @@
     let action = [OSInAppMessageAction instanceWithData:body];
     
     if (action)
-        [self.delegate messageViewDidSelectAction:action];
+        [self.delegate messageViewDidSelectAction:action withMessageId:self.message.messageId];
     
     if (action.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
         [self.messageView loadReplacementURL:action.actionUrl];

@@ -319,3 +319,36 @@
     return request;
 }
 @end
+
+@implementation OSRequestInAppMessageViewed
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId {
+    let request = [OSRequestInAppMessageViewed new];
+    
+    request.parameters = @{
+        @"player_id" : playerId,
+        @"app_id" : appId
+    };
+    
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"in_app_messages/impression/%@", messageId];
+    
+    return request;
+}
+@end
+
+@implementation OSRequestInAppMessageOpened
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withActionId:(NSString * _Nonnull)actionId {
+    let request = [OSRequestInAppMessageOpened new];
+    
+    request.parameters = @{
+        @"player_id" : playerId,
+        @"app_id" : appId,
+        @"action_id" : actionId
+    };
+    
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"in_app_messages/engagement/%@", messageId];
+    
+    return request;
+}
+@end
