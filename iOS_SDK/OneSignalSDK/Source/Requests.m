@@ -325,10 +325,9 @@
     let request = [OSRequestInAppMessageViewed new];
     
     request.parameters = @{
-                           @"player_id" : playerId,
-                           @"app_id" : appId,
-                           @"message_id" : messageId
-                           };
+        @"player_id" : playerId,
+        @"app_id" : appId
+    };
     
     request.method = POST;
     request.path = [NSString stringWithFormat:@"in_app_messages/impression/%@", messageId];
@@ -348,7 +347,7 @@
     };
     
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"in_app_messages/impression/engagement/%@", messageId];
+    request.path = [NSString stringWithFormat:@"in_app_messages/engagement/%@", messageId];
     
     return request;
 }
