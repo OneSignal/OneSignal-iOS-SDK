@@ -277,13 +277,13 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"message_id" : testInAppMessageId}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId}));
 }
 
 - (void)testInAppMessageOpened {
     let request = [OSRequestInAppMessageOpened withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId withActionId:@"test_button_id"];
     
-    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/impression/engagement/%@", testInAppMessageId]);
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/engagement/%@", testInAppMessageId]);
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
