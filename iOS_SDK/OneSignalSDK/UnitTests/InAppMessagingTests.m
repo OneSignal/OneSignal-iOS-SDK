@@ -108,8 +108,8 @@
 }
 
 -(void)testCorrectlyParsedVariants {
-    NSDictionary *appVariants = testMessage.variants[@"app"];
-    XCTAssertTrue([appVariants[@"default"] isEqualToString:@"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba"]);
+    NSDictionary *appVariants = testMessage.variants[@"ios"];
+    XCTAssertTrue([appVariants[@"default"] isEqualToString:OS_TEST_MESSAGE_VARIANT_ID]);
 }
 
 -(void)testCorrectlyParsedTriggers {

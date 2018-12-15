@@ -31,6 +31,10 @@
 #import "OSMessagingController.h"
 
 #define OS_TEST_MESSAGE_ID @"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba"
+#define OS_TEST_MESSAGE_VARIANT_ID @"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba"
+#define OS_TEST_ENGLISH_VARIANT_ID @"11e4-bed1-df8f05be55ba-m8dh7234f-d8cc"
+
+#define OS_DUMMY_HTML @"<html><h1>Hello World</h1></html>"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -59,8 +59,12 @@ int messageIdIncrementer = 0;
         @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
         @"id" : [NSString stringWithFormat:@"%@_%i", OS_TEST_MESSAGE_ID, ++messageIdIncrementer],
         @"variants" : @{
-            @"app" : @{
-                @"default" : @"m8dh7234f-d8cc-11e4-bed1-df8f05be55ba"
+            @"ios" : @{
+                @"default" : OS_TEST_MESSAGE_VARIANT_ID,
+                @"en" : OS_TEST_ENGLISH_VARIANT_ID
+            },
+            @"all" : @{
+                @"default" : @"should_never_be_used_by_any_test"
             }
         },
         @"triggers" : @[]

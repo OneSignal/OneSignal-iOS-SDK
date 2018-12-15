@@ -32,12 +32,14 @@
 
 @implementation OSInAppMessage (OSInAppMessageController)
 
-- (void)loadMessageHTMLContentForLanguage:(NSString *)isoLanguageCode withResult:(OSDataRequestSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock {
-    let variantId = [self preferredVariantIdForLanguage:isoLanguageCode];
+- (void)loadMessageHTMLContentWithResult:(OSDataRequestSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock {
+    let preferredLanguages = [NSLocale preferredLanguages];
+    
+    let variantId = [self preferredVariantIdForLanguages:preferredLanguages];
     
     if (!variantId) {
         if (failureBlock)
-            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Unable to find variant ID for language (%@) for message ID: %@", isoLanguageCode, self.messageId]}]);
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Unable to find variant ID for languages (%@) for message ID: %@", preferredLanguages, self.messageId]}]);
         
         return;
     }
@@ -47,18 +49,33 @@
     [OneSignalClient.sharedClient executeDataRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
-- (NSString * _Nullable)preferredVariantIdForLanguage:(NSString *)isoLanguageCode {
+/**
+    The platform type should take precedence over a language match.
+    So if, for example, a message has an 'ios' variant but it only
+    has 'default' (no language variants), the SDK will prefer this
+    variant over lower platforms (ie. 'all') even if they have a
+    matching language.
+*/
+- (NSString * _Nullable)preferredVariantIdForLanguages:(NSArray<NSString *> *)isoLanguageCodes {
     NSString *variantId;
     
     for (NSString *type in PREFERRED_VARIANT_ORDER) {
         if (self.variants[type]) {
-            if (self.variants[type][isoLanguageCode]) {
-                variantId = self.variants[type][isoLanguageCode];
-                break;
-            } else if (self.variants[type][@"default"]) {
+            for (NSString *isoLanguageCode in isoLanguageCodes) {
+                if (self.variants[type][isoLanguageCode]) {
+                    variantId = self.variants[type][isoLanguageCode];
+                    break;
+                }
+            }
+            
+            if (!variantId && self.variants[type][@"default"]) {
                 variantId = self.variants[type][@"default"];
                 break;
             }
+        }
+        
+        if (variantId) {
+            break;
         }
     }
     

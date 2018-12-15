@@ -28,6 +28,8 @@
 #import "OSInAppMessageViewController.h"
 #import "OSInAppMessageView.h"
 #import "OneSignalHelper.h"
+#import "OSInAppMessageController.h"
+#import "OneSignalCommonDefines.h"
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
@@ -140,12 +142,26 @@
 }
 
 - (void)loadMessageContent {
-    //TODO: This code is to be used when the API supports real in-app messages
-//    [self.message loadHTMLContentWithResult:^(NSString * _Nonnull html) {
-//        [self displayMessageWithHTML:html];
-//    } withFailure:^(NSError *error) {
-//        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download HTML content for message: %@", error.description ?: @"Unknown Error"]];
-//    }];
+    [self.message loadMessageHTMLContentWithResult:^(NSData *data) {
+        if (!data) {
+            [self encounteredErrorLoadingMessageContent:nil];
+            return;
+        }
+        
+        let htmlContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        
+        let baseUrl = [NSURL URLWithString:SERVER_URL];
+        
+        [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
+    } failure:^(NSError *error) {
+        [self encounteredErrorLoadingMessageContent:error];
+    }];
+}
+
+- (void)encounteredErrorLoadingMessageContent:(NSError * _Nullable)error {
+    let message = [NSString stringWithFormat:@"An error occurred while attempting to load message content: %@", error.description ?: @"Unknown Error"];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
 }
 
 /**
