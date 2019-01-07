@@ -31,9 +31,9 @@
 #import "OneSignalClient.h"
 #import "OneSignalInternal.h"
 #import "OSInAppMessageAction.h"
+#import "OSInAppMessageController.h"
 
 @interface OSMessagingController ()
-
 @property (strong, nonatomic, nullable) UIWindow *window;
 @property (weak, nonatomic, nullable) OSInAppMessageViewController *messageViewController;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
