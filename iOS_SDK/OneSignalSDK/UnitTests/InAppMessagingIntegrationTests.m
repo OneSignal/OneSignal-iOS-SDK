@@ -348,7 +348,9 @@
     let action = [OSInAppMessageAction new];
     action.actionId = @"test_action_id";
     
-    [OSMessagingController.sharedInstance messageViewDidSelectAction:action withMessageId:message[@"id"]];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:action withMessageId:message[@"id"] forVariantId:testMessage.variantId];
     
     // The action should cause an "opened" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageOpened class]));

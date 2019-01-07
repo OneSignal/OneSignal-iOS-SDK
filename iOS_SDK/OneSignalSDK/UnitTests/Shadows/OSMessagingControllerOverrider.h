@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingController (Tests)
 - (void)resetState;
-- (void)messageViewDidSelectAction:(NSString *)actionId withMessageId:(NSString *)messageId;
+- (void)messageViewDidSelectAction:(NSString *)actionId withMessageId:(NSString *)messageId forVariantId:(NSString *)variantId;
 @end
 
 NS_ASSUME_NONNULL_END

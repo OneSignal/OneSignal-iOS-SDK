@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)loadMessageHTMLContentWithResult:(OSDataRequestSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock;
 
+- (NSString * _Nullable)variantId;
+
 @end
 
 

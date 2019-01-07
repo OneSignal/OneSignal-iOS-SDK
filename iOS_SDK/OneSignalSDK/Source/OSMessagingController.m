@@ -89,7 +89,8 @@
         
         let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.app_id
                                                      withPlayerId:OneSignal.currentSubscriptionState.userId
-                                                     withMessageId:message.messageId];
+                                                     withMessageId:message.messageId
+                                                     forVariantId:message.variantId];
         
         [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
     };
@@ -174,7 +175,7 @@
     }
 }
 
-- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId {
+- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId forVariantId:(NSString *)variantId {
     if (action.actionUrl)
         [self handleMessageActionWithURL:action];
     
@@ -184,6 +185,7 @@
     let metricsRequest = [OSRequestInAppMessageOpened withAppId:OneSignal.app_id
                                                  withPlayerId:OneSignal.currentSubscriptionState.userId
                                                  withMessageId:messageId
+                                                 forVariantId: variantId
                                                  withActionId:action.actionId];
     
     [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];

@@ -33,13 +33,11 @@
 @implementation OSInAppMessage (OSInAppMessageController)
 
 - (void)loadMessageHTMLContentWithResult:(OSDataRequestSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock {
-    let preferredLanguages = [NSLocale preferredLanguages];
-    
-    let variantId = [self preferredVariantIdForLanguages:preferredLanguages];
+    let variantId = [self variantId];
     
     if (!variantId) {
         if (failureBlock)
-            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Unable to find variant ID for languages (%@) for message ID: %@", preferredLanguages, self.messageId]}]);
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Unable to find variant ID for languages (%@) for message ID: %@", NSLocale.preferredLanguages, self.messageId]}]);
         
         return;
     }
@@ -56,7 +54,9 @@
     variant over lower platforms (ie. 'all') even if they have a
     matching language.
 */
-- (NSString * _Nullable)preferredVariantIdForLanguages:(NSArray<NSString *> *)isoLanguageCodes {
+- (NSString * _Nullable)variantId {
+    let isoLanguageCodes = [NSLocale preferredLanguages];
+    
     NSString *variantId;
     
     for (NSString *type in PREFERRED_VARIANT_ORDER) {
