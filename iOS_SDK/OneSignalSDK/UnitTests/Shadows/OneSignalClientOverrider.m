@@ -35,6 +35,7 @@
 #import "OneSignalSelectorHelpers.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessagingHelpers.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -61,6 +62,8 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     //with refactored networking code, need to replace the implementation of the execute request method so tests don't actually execite HTTP requests
     injectToProperClass(@selector(overrideExecuteRequest:onSuccess:onFailure:), @selector(executeRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
     injectToProperClass(@selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:), @selector(executeSimultaneousRequests:withSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
+    injectToProperClass(@selector(overrideExecuteDataRequest:onSuccess:onFailure:), @selector(executeDataRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
+    
     
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     
@@ -122,6 +125,33 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     }
 }
 
+- (void)overrideExecuteDataRequest:(OneSignalRequest *)request onSuccess:(OSDataRequestSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    if (disableOverride)
+        return [self overrideExecuteDataRequest:request onSuccess:successBlock onFailure:failureBlock];
+    
+    if (executeInstantaneously) {
+        [OneSignalClientOverrider finishExecutingDataRequest:request onSuccess:successBlock onFailure:failureBlock];
+    } else {
+        dispatch_async(executionQueue, ^{
+            [OneSignalClientOverrider finishExecutingDataRequest:request onSuccess:successBlock onFailure:failureBlock];
+        });
+    }
+}
+
++ (void)finishExecutingDataRequest:(OneSignalRequest *)request onSuccess:(OSDataRequestSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    @synchronized (lastHTTPRequest) {
+        NSLog(@"completing HTTP data request: %@", NSStringFromClass([request class]));
+        
+        [self didCompleteRequest:request];
+        
+        if (successBlock) {
+            let resultData = [OS_DUMMY_HTML dataUsingEncoding:NSUTF8StringEncoding];
+            
+            successBlock(resultData);
+        }
+    }
+}
+
 + (void)finishExecutingRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     @synchronized(lastHTTPRequest) {
         NSLog(@"completing HTTP request: %@", NSStringFromClass([request class]));
@@ -131,15 +161,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
         if (!parameters[@"app_id"] && ![request.urlRequest.URL.absoluteString containsString:@"/apps/"])
             _XCTPrimitiveFail(currentTestInstance, @"All request should include an app_id");
         
-        networkRequestCount++;
-        
-        id url = [request.urlRequest URL];
-        NSLog(@"url: %@", url);
-        NSLog(@"parameters: %@", parameters);
-        
-        lastUrl = [url absoluteString];
-        lastHTTPRequest = parameters;
-        lastHTTPRequestType = NSStringFromClass([request class]);
+        [self didCompleteRequest:request];
         
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]])
@@ -150,6 +172,20 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
                 successBlock(@{@"id": @"1234"});
         }
     }
+}
+
++ (void)didCompleteRequest:(OneSignalRequest *)request {
+    NSMutableDictionary *parameters = [request.parameters mutableCopy];
+    
+    networkRequestCount++;
+    
+    id url = [request.urlRequest URL];
+    NSLog(@"url: %@", url);
+    NSLog(@"parameters: %@", parameters);
+    
+    lastUrl = [url absoluteString];
+    lastHTTPRequest = parameters;
+    lastHTTPRequestType = NSStringFromClass([request class]);
 }
 
 +(BOOL)hasExecutedRequestOfType:(Class)type {

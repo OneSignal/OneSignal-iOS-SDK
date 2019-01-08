@@ -321,33 +321,48 @@
 @end
 
 @implementation OSRequestInAppMessageViewed
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString *)variantId {
     let request = [OSRequestInAppMessageViewed new];
     
     request.parameters = @{
         @"player_id" : playerId,
-        @"app_id" : appId
+        @"app_id" : appId,
+        @"variant_id" : variantId
     };
     
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"in_app_messages/impression/%@", messageId];
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/impression", messageId];
     
     return request;
 }
 @end
 
 @implementation OSRequestInAppMessageOpened
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withActionId:(NSString * _Nonnull)actionId {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString *)variantId withActionId:(NSString * _Nonnull)actionId {
     let request = [OSRequestInAppMessageOpened new];
     
     request.parameters = @{
         @"player_id" : playerId,
         @"app_id" : appId,
-        @"action_id" : actionId
+        @"action_id" : actionId,
+        @"variant_id" : variantId
     };
     
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"in_app_messages/engagement/%@", messageId];
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/engagement", messageId];
+    
+    return request;
+}
+@end
+
+@implementation OSRequestLoadInAppMessageContent
++ (instancetype _Nonnull)withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variantId {
+    let request = [OSRequestLoadInAppMessageContent new];
+    
+    request.dataRequest = true;
+    request.requestContentType = @"text/html";
+    request.method = GET;
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html", messageId, variantId];
     
     return request;
 }

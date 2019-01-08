@@ -56,8 +56,8 @@
         message.messageId = json[@"id"];
     else return nil;
     
-    if (json[@"content_id"] && [json[@"content_id"] isKindOfClass:[NSString class]])
-        message.contentId = json[@"content_id"];
+    if (json[@"variants"] && [json[@"variants"] isKindOfClass:[NSDictionary class]])
+        message.variants = json[@"variants"];
     else return nil;
     
     if (json[@"max_display_time"] && [json[@"max_display_time"] isKindOfClass:[NSNumber class]]) {
@@ -97,7 +97,7 @@
     
     json[@"type"] = OS_DISPLAY_TYPE_TO_STRING(self.type);
     json[@"id"] = self.messageId;
-    json[@"content_id"] = self.contentId;
+    json[@"variants"] = self.variants;
     
     if (self.maxDisplayTime != -1.0f)
         json[@"max_display_time"] = @(self.maxDisplayTime);
