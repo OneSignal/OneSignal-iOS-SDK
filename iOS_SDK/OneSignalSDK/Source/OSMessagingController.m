@@ -44,6 +44,8 @@
 
 @implementation OSMessagingController
 
+@synthesize messagingEnabled = _messagingEnabled;
+
 + (OSMessagingController *)sharedInstance {
     static OSMessagingController *sharedInstance = nil;
     static dispatch_once_t once;
@@ -62,9 +64,27 @@
         self.triggerController.delegate = self;
         
         self.messageDisplayQueue = [NSMutableArray new];
+        
+        // boolean that controls if in-app messaging is enabled
+        // true by default. 
+        if ([NSUserDefaults.standardUserDefaults objectForKey:OS_IN_APP_MESSAGING_ENABLED])
+            _messagingEnabled = [NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED];
+        else
+            _messagingEnabled = true;
     }
     
     return self;
+}
+
+-(BOOL)messagingEnabled {
+    return _messagingEnabled;
+}
+
+-(void)setMessagingEnabled:(BOOL)iamEnabled {
+    _messagingEnabled = iamEnabled;
+    
+    [NSUserDefaults.standardUserDefaults setBool:iamEnabled forKey:OS_IN_APP_MESSAGING_ENABLED];
+    [NSUserDefaults.standardUserDefaults synchronize];
 }
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
@@ -78,6 +98,11 @@
 }
 
 -(void)presentInAppMessage:(OSInAppMessage *)message {
+    
+    // if false, the app specifically disabled in-app messages for this device.
+    if (!self.messagingEnabled)
+        return;
+    
     @synchronized (self.messageDisplayQueue) {
         [self.messageDisplayQueue addObject:message];
         

@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate>
 
+@property (nonatomic) BOOL messagingEnabled; // defaults to true
+
 + (OSMessagingController *)sharedInstance;
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;
 - (void)presentInAppMessage:(OSInAppMessage *)message;
