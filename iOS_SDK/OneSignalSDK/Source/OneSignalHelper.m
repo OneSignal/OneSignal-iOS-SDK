@@ -624,19 +624,6 @@ static OneSignal* singleInstance = nil;
     content.categoryIdentifier = newCategoryIdentifier;
 }
 
-+ (NSMutableSet<UNNotificationCategory*>*)existingCategories {
-    __block NSMutableSet* allCategories;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    let notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
-    [notificationCenter getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *categories) {
-        allCategories = [categories mutableCopy];
-        dispatch_semaphore_signal(semaphore);
-    }];
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-    
-    return allCategories;
-}
-
 + (void)addAttachments:(OSNotificationPayload*)payload
  toNotificationContent:(UNMutableNotificationContent*)content {
     if (!payload.attachments)
