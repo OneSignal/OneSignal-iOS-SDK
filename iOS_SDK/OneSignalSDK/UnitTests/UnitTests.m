@@ -26,21 +26,13 @@
  */
 
 #import <XCTest/XCTest.h>
-
 #import "UnitTestCommonMethods.h"
-
 #import <objc/runtime.h>
-
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import <UserNotifications/UserNotifications.h>
-
-
 #import "UncaughtExceptionHandler.h"
-
-
 #import "OneSignal.h"
-
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
@@ -50,15 +42,14 @@
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OSPermission.h"
 #import "OSNotificationPayload+Internal.h"
-
 #include <pthread.h>
 #include <mach/mach.h>
-
 #include "TestHelperFunctions.h"
-
 #import "UnitTestAppDelegate.h"
-
 #import "OneSignalExtensionBadgeHandler.h"
+#import "DummyNotificationCenterDelegate.h"
+#import "OneSignalDialogControllerOverrider.h"
+#import "OneSignalNotificationCategoryController.h"
 
 // Shadows
 #import "NSObjectOverrider.h"
@@ -79,9 +70,7 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
-#import "DummyNotificationCenterDelegate.h"
 
-#import "OneSignalDialogControllerOverrider.h"
 
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
@@ -2235,6 +2224,55 @@ didReceiveRemoteNotification:userInfo
     // the registration request should not have included external user ID
     // since it had been set already to the same value in a previous session
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"]);
+}
+
+// Tests to make sure that the SDK clears out registered categories when it has saved
+// more than MAX_CATEGORIES_SIZE number of UNNotificationCategory objects. Also tests
+// to make sure that the SDK generates correct
+- (void)testCategoryControllerClearsNotificationCategories {
+    let controller = [OneSignalNotificationCategoryController new];
+    
+    NSMutableArray<NSString *> *generatedIds = [NSMutableArray new];
+    
+    for (int i = 0; i < MAX_CATEGORIES_SIZE + 3; i++) {
+        let testId = NSUUID.UUID.UUIDString;
+        
+        let newId = [controller registerNotificationCategoryForNotificationId:testId];
+        
+        let expected = [NSString stringWithFormat:@"__onesignal__dynamic__%@", testId];
+        
+        XCTAssertEqualObjects(newId, expected);
+        
+        [generatedIds addObject:newId];
+    }
+    
+    let currentlySavedCategoryIds = [controller existingRegisteredCategoryIds];
+    
+    XCTAssertEqual(currentlySavedCategoryIds.count, MAX_CATEGORIES_SIZE);
+    
+    for (int i = 0; i < MAX_CATEGORIES_SIZE; i++)
+        XCTAssertEqualObjects(generatedIds[generatedIds.count - 1 - i], currentlySavedCategoryIds[currentlySavedCategoryIds.count - 1 - i]);
+}
+
+- (void)testNotificationWithButtonsRegistersUniqueCategory {
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let notification = (NSDictionary *)[self exampleNotificationJSONWithMediaURL:@"https://www.onesignal.com"];
+    
+    let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:notification];
+    
+    let content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    let ids = OneSignalNotificationCategoryController.sharedInstance.existingRegisteredCategoryIds;
+    
+    XCTAssertEqual(ids.count, 1);
+    
+    XCTAssertEqualObjects(ids.firstObject, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
 }
 
 @end
