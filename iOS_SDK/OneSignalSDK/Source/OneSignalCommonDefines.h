@@ -114,6 +114,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // before registering the user anyways
 #define APNS_TIMEOUT 25.0
 
+// The SDK saves a list of category ID's allowing multiple notifications
+// to have their own unique buttons/etc.
+#define SHARED_CATEGORY_LIST @"com.onesignal.shared_registered_categories"
+
 #ifndef OS_TEST
     // OneSignal API Client Defines
     #define REATTEMPT_DELAY 30.0
@@ -123,6 +127,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // Send tags batch delay
     #define SEND_TAGS_DELAY 5.0
+
+    // the max number of UNNotificationCategory ID's the SDK will register
+    #define MAX_CATEGORIES_SIZE 128
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -132,6 +139,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // Send tags batch delay
     #define SEND_TAGS_DELAY 0.005
+
+    // the max number of UNNotificationCategory ID's the SDK will register
+    #define MAX_CATEGORIES_SIZE 5
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

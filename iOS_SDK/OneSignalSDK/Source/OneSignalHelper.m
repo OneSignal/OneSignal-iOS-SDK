@@ -38,6 +38,7 @@
 #import "NSURL+OneSignal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalDialogController.h"
+#import "OneSignalNotificationCategoryController.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -596,9 +597,11 @@ static OneSignal* singleInstance = nil;
         finalActionArray = actionArray;
     
     // Get a full list of categories so we don't replace any exisiting ones.
-    var allCategories = [self existingCategories];
+    var allCategories = OneSignalNotificationCategoryController.sharedInstance.existingCategories;
     
-    let category = [UNNotificationCategory categoryWithIdentifier:@"__dynamic__"
+    let newCategoryIdentifier = [OneSignalNotificationCategoryController.sharedInstance registerNotificationCategoryForNotificationId:payload.notificationID];
+    
+    let category = [UNNotificationCategory categoryWithIdentifier:newCategoryIdentifier
                                                           actions:finalActionArray
                                                 intentIdentifiers:@[]
                                                           options:UNNotificationCategoryOptionCustomDismissAction];
@@ -606,7 +609,7 @@ static OneSignal* singleInstance = nil;
     if (allCategories) {
         let newCategorySet = [NSMutableSet new];
         for(UNNotificationCategory *existingCategory in allCategories) {
-            if (![existingCategory.identifier isEqualToString:@"__dynamic__"])
+            if (![existingCategory.identifier isEqualToString:newCategoryIdentifier])
                 [newCategorySet addObject:existingCategory];
         }
         
@@ -618,20 +621,7 @@ static OneSignal* singleInstance = nil;
     
     [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:allCategories];
     
-    content.categoryIdentifier = @"__dynamic__";
-}
-
-+ (NSMutableSet<UNNotificationCategory*>*)existingCategories {
-    __block NSMutableSet* allCategories;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    let notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
-    [notificationCenter getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *categories) {
-        allCategories = [categories mutableCopy];
-        dispatch_semaphore_signal(semaphore);
-    }];
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-    
-    return allCategories;
+    content.categoryIdentifier = newCategoryIdentifier;
 }
 
 + (void)addAttachments:(OSNotificationPayload*)payload
