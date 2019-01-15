@@ -44,6 +44,7 @@
         self.translatesAutoresizingMaskIntoConstraints = false;
         [self setupWebview];
         
+        // TODO: This is here for debugging/testing purposes until the backend implementation is available
         switch (self.message.type) {
             case OSInAppMessageDisplayTypeTopBanner:
             case OSInAppMessageDisplayTypeBottomBanner:
@@ -59,6 +60,10 @@
     }
     
     return self;
+}
+
+- (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
+    [self.webView loadHTMLString:html baseURL:url];
 }
 
 - (void)setupWebview {

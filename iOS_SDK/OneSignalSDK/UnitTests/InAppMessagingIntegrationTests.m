@@ -48,6 +48,8 @@
 #import "OSMessagingControllerOverrider.h"
 #import "OneSignalOverrider.h"
 #import "OneSignalClientOverrider.h"
+#import "NSLocaleOverrider.h"
+#import "OSInAppMessageController.h"
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -349,7 +351,9 @@
     let action = [OSInAppMessageAction new];
     action.actionId = @"test_action_id";
     
-    [OSMessagingController.sharedInstance messageViewDidSelectAction:action withMessageId:(NSString *)message[@"id"]];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:action withMessageId:message[@"id"] forVariantId:testMessage.variantId];
     
     // The action should cause an "opened" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageOpened class]));
@@ -382,12 +386,85 @@
     // the trigger should immediately evaluate to true and should
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
-    
+
     [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // no message should have been shown
     XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 0);
+}
+
+/**
+ This tests to make sure that:
+    (A) The SDK picks the correct language variant to use for in-app messages.
+    (B) The SDK loads HTML content with the correct URL
+*/
+- (void)testMessageHTMLLoadWithCorrectLanguage {
+    let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let message = [OSInAppMessage instanceWithJson:messageJson];
+    
+    [NSLocaleOverrider setPreferredLanguagesArray:@[@"es", @"en"]];
+    
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let expectation = [self expectationWithDescription:@"wait_for_message_html"];
+    expectation.expectedFulfillmentCount = 1;
+    expectation.assertForOverFulfill = true;
+    
+    [message loadMessageHTMLContentWithResult:^(NSData *data) {
+        XCTAssertNotNil(data);
+        
+        let html = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        
+        XCTAssertEqualObjects(html, OS_DUMMY_HTML);
+        
+        [expectation fulfill];
+    } failure:^(NSError *error) {
+        XCTFail(@"Failure occurred: %@", error);
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestLoadInAppMessageContent class]));
+    
+    let url = OneSignalClientOverrider.lastUrl;
+    
+    XCTAssertTrue([url containsString:OS_TEST_ENGLISH_VARIANT_ID]);
+    XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
+}
+
+/**
+    This test doesn't check the actual load result (the above test already does this),
+    this test makes sure that if there is no matching preferred language that the
+    SDK will use the 'default' variant.
+*/
+- (void)testMessageHTMLLoadWithDefaultLanguage {
+    let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let message = [OSInAppMessage instanceWithJson:messageJson];
+    
+    [NSLocaleOverrider setPreferredLanguagesArray:@[@"kl"]]; //kl = klingon
+
+    let expectation = [self expectationWithDescription:@"wait_for_message_html"];
+    expectation.expectedFulfillmentCount = 1;
+    expectation.assertForOverFulfill = true;
+    
+    [message loadMessageHTMLContentWithResult:^(NSData *data) {
+        [expectation fulfill];
+    } failure:^(NSError *error) {
+        XCTFail(@"Failure occurred: %@", error);
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestLoadInAppMessageContent class]));
+    
+    let url = OneSignalClientOverrider.lastUrl;
+    
+    XCTAssertTrue([url containsString:OS_TEST_MESSAGE_VARIANT_ID]);
+    XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
 }
 
 @end

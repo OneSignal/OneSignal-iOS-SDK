@@ -95,11 +95,15 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString *)variantId;
 @end
 
 @interface OSRequestInAppMessageOpened : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withActionId:(NSString * _Nonnull)actionId;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString *)variantId withActionId:(NSString * _Nonnull)actionId;
+@end
+
+@interface OSRequestLoadInAppMessageContent : OneSignalRequest
++ (instancetype _Nonnull)withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
 @end
 
 #endif /* Requests_h */
