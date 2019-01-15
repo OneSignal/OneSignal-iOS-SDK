@@ -1736,7 +1736,7 @@ didReceiveRemoteNotification:userInfo
     UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure butons were added.
-    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     // Make sure attachments were NOT added.
     //   We should not try to download attachemts as iOS is about to kill the extension and this will take to much time.
     XCTAssertNil(content.attachments);
