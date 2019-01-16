@@ -1759,8 +1759,17 @@ static dispatch_queue_t serialQueue;
     [[OSMessagingController sharedInstance] presentInAppMessage:message];
 }
 
+// In-App Messaging Public Methods
 + (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate {
     [[OSMessagingController sharedInstance] addMessageDelegate:delegate];
+}
+
++ (void)setInAppMessagingEnabled:(BOOL)inAppMessagingEnabled {
+    OSMessagingController.sharedInstance.messagingEnabled = inAppMessagingEnabled;
+}
+
++ (BOOL)inAppMessagingEnabled {
+    return OSMessagingController.sharedInstance.messagingEnabled;
 }
 
 + (void)sendPurchases:(NSArray*)purchases {

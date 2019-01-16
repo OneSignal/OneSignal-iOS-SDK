@@ -372,6 +372,8 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
+@property (nonatomic, class) BOOL inAppMessagingEnabled;
+
 extern NSString* const ONESIGNAL_VERSION;
 
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {

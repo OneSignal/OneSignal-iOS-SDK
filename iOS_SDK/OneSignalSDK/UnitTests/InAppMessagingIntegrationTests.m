@@ -84,6 +84,9 @@
     [OSMessagingController.sharedInstance resetState];
     
     NSTimerOverrider.shouldScheduleTimers = true;
+    
+    //set to true so that we don't interfere with other tests
+    OneSignal.inAppMessagingEnabled = true;
 }
 
 /**
@@ -356,6 +359,41 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageOpened class]));
 }
 
+// Since we override NSUserDefaults and it gets reset between tests, there is no need to
+// worry about conflicts with other tests when modifying the inAppMessagingEnabled parameter
+- (void)testDisableInAppMessagesPersistence {
+    XCTAssertNil([NSUserDefaults.standardUserDefaults objectForKey:OS_IN_APP_MESSAGING_ENABLED]);
+    
+    // should be true by default
+    XCTAssertTrue(OneSignal.inAppMessagingEnabled);
+    
+    // this change should be persisted to NSUserDefaults immediately
+    OneSignal.inAppMessagingEnabled = false;
+    
+    XCTAssertFalse([NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED]);
+    
+    XCTAssertFalse(OneSignal.inAppMessagingEnabled);
+}
+
+- (void)testDisablingMessagesPreventsDisplay {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // this should prevent message from being shown
+    OneSignal.inAppMessagingEnabled = false;
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // no message should have been shown
+    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 0);
+}
+
 /**
  This tests to make sure that:
     (A) The SDK picks the correct language variant to use for in-app messages.
@@ -408,10 +446,7 @@
     let message = [OSInAppMessage instanceWithJson:messageJson];
     
     [NSLocaleOverrider setPreferredLanguagesArray:@[@"kl"]]; //kl = klingon
-    
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
+
     let expectation = [self expectationWithDescription:@"wait_for_message_html"];
     expectation.expectedFulfillmentCount = 1;
     expectation.assertForOverFulfill = true;
@@ -431,6 +466,5 @@
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_VARIANT_ID]);
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
 }
-
 
 @end
