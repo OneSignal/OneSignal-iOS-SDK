@@ -35,7 +35,6 @@
 
 @interface OSMessagingController ()
 @property (strong, nonatomic, nullable) UIWindow *window;
-@property (weak, nonatomic, nullable) OSInAppMessageViewController *messageViewController;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
@@ -103,6 +102,11 @@
     if (!self.messagingEnabled)
         return;
     
+    if (message.variantId == nil) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants]];
+        return;
+    }
+    
     @synchronized (self.messageDisplayQueue) {
         [self.messageDisplayQueue addObject:message];
         
@@ -131,9 +135,8 @@
         
         let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
         viewController.delegate = self;
-        self.messageViewController = viewController;
         
-        self.window.rootViewController = self.messageViewController;
+        self.window.rootViewController = viewController;
         self.window.backgroundColor = [UIColor clearColor];
         self.window.opaque = true;
         [self.window makeKeyAndVisible];

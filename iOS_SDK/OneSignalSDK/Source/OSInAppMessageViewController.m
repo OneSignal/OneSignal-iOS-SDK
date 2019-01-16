@@ -99,6 +99,8 @@
     [super viewWillDisappear:animated];
     
     [self.dismissalTimer invalidate];
+    
+    [self.messageView removeScriptMessageHandler];
 }
 
 // sets up the message UI. It is still hidden. Wait until
@@ -106,7 +108,7 @@
 - (void)setupInitialMessageUI {
     self.view.alpha = 0.0;
     
-    let messageSubview = [[OSInAppMessageView alloc] initWithMessage:self.message];
+    let messageSubview = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
     self.messageView = messageSubview;
     self.messageView.delegate = self;
     
@@ -455,6 +457,11 @@
 
 - (void)messageViewDidFailToProcessAction {
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+}
+
+-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    // currently unimplemented
+    NSLog(@"Received script message: %@", message.body);
 }
 
 @end

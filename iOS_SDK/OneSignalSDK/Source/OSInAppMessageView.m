@@ -38,11 +38,11 @@
 
 @implementation OSInAppMessageView
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage {
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler {
     if (self = [super init]) {
         self.message = inAppMessage;
         self.translatesAutoresizingMaskIntoConstraints = false;
-        [self setupWebview];
+        [self setupWebviewWithMessageHandler:messageHandler];
         
         // TODO: This is here for debugging/testing purposes until the backend implementation is available
         switch (self.message.type) {
@@ -66,9 +66,9 @@
     [self.webView loadHTMLString:html baseURL:url];
 }
 
-- (void)setupWebview {
+- (void)setupWebviewWithMessageHandler:(id<WKScriptMessageHandler>)handler {
     let configuration = [WKWebViewConfiguration new];
-    [configuration.userContentController addScriptMessageHandler:self name:@"iosListener"];
+    [configuration.userContentController addScriptMessageHandler:handler name:@"iosListener"];
     
     self.webView = [[WKWebView alloc] initWithFrame:self.bounds configuration:configuration];
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
@@ -86,6 +86,12 @@
     [self.webView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor].active = true;
     
     [self layoutIfNeeded];
+}
+
+// NOTE: Make sure to call this method when the message view gets dismissed
+// Otherwise a memory leak will occur and the entire view controller will be leaked
+- (void)removeScriptMessageHandler {
+    [self.webView.configuration.userContentController removeScriptMessageHandlerForName:@"iosListener"];
 }
 
 - (void)iosListenerFiredWithMessage:(WKScriptMessage *)message {

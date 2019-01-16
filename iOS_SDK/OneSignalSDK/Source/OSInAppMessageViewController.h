@@ -30,6 +30,7 @@
 #import "OSInAppMessage.h"
 #import "OSInAppMessageView.h"
 #import "OSInAppMessageAction.h"
+#import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-@interface OSInAppMessageViewController : UIViewController <OSInAppMessageViewDelegate>
+@interface OSInAppMessageViewController : UIViewController <OSInAppMessageViewDelegate, WKScriptMessageHandler>
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewControllerDelegate> delegate;
 
 -(instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;

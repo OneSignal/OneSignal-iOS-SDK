@@ -42,14 +42,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 
-@interface OSInAppMessageView : UIView <WKNavigationDelegate, WKScriptMessageHandler>
+@interface OSInAppMessageView : UIView <WKNavigationDelegate>
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
 
 - (void)loadReplacementURL:(NSURL *)url;
 
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
+
+- (void)removeScriptMessageHandler;
 
 @end
 
