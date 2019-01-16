@@ -51,10 +51,10 @@
                 [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/banner.html"]]];
                 break;
             case OSInAppMessageDisplayTypeFullScreen:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/full_screen.html"]]];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/testmsg.html"]]];
                 break;
             case OSInAppMessageDisplayTypeCenteredModal:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/centered_modal.html"]]];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/testmsg.html"]]];
                 break;
         }
     }

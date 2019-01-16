@@ -1744,6 +1744,11 @@ static dispatch_queue_t serialQueue;
          @"type" : typeString,
          @"id" : @"test_id",
          @"content_id" : @"test_content",
+         @"variants" : @{
+             @"ios" : @{
+                 @"en" : @"abc123"
+             }
+         },
          @"triggers" : @[
             @[
                 @{

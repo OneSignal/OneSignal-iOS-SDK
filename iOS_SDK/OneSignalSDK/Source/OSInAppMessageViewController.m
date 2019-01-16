@@ -90,7 +90,9 @@
     [self setupInitialMessageUI];
     
     // loads the HTML content
-    [self loadMessageContent];
+    // TODO: Uncomment this when the API for in-app messages is available
+    // so that we can begin real testing.
+//    [self loadMessageContent];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -173,11 +175,13 @@
 */
 - (void)addConstraintsForMessage {
     
+    // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
     NSLayoutAnchor *top = self.view.topAnchor, *bottom = self.view.bottomAnchor, *leading = self.view.leadingAnchor, *trailing = self.view.trailingAnchor, *center = self.view.centerXAnchor;
     NSLayoutDimension *height = self.view.heightAnchor;
     
     // The safe area represents the anchors that are not obscurable by  UI such
     // as a notch or a rounded corner on newer iOS devices like iPhone X
+    // Note that Safe Area layout guides were only introduced in iOS 11
     if (@available(iOS 11, *)) {
         let safeArea = self.view.safeAreaLayoutGuide;
         top = safeArea.topAnchor, bottom = safeArea.bottomAnchor, leading = safeArea.leadingAnchor, trailing = safeArea.trailingAnchor, center = safeArea.centerXAnchor;
@@ -187,36 +191,33 @@
     // The spacing between the message view & edges
     let marginSpacing = MESSAGE_MARGIN * [UIScreen mainScreen].bounds.size.width;
     
+    // Full screen messages don't care about aspect ratio, it's always full screen,
+    // thus instead of setting height based on aspect ratio we simply set it to be
+    // the same height as the display (subtracting the margin)
+    if (self.message.type == OSInAppMessageDisplayTypeFullScreen) {
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:1.0 constant:-2.0f * marginSpacing];
+    } else {
+        // Configures the aspect ratio depending on the message type
+        let aspectRatio = (self.message.type == OSInAppMessageDisplayTypeCenteredModal) ? CENTERED_MODAL_ASPECT_RATIO : BANNER_ASPECT_RATIO;
+        
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.messageView.widthAnchor multiplier:1.0f/aspectRatio constant:0.0f];
+    }
+    
     // Constrains the message view to a max width to look better on iPads & landscape
     var maxWidth = MIN(self.view.bounds.size.height, self.view.bounds.size.width);
     maxWidth -= 2 * marginSpacing;
     
-    // Configures the aspect ratio depending on the message type
-    var aspectRatio = BANNER_ASPECT_RATIO;
-    
-    if (self.message.type == OSInAppMessageDisplayTypeFullScreen)
-        aspectRatio = UIScreen.mainScreen.bounds.size.width / UIScreen.mainScreen.bounds.size.height;
-    else if (self.message.type == OSInAppMessageDisplayTypeCenteredModal)
-        aspectRatio = CENTERED_MODAL_ASPECT_RATIO;
-    
     // pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
     let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing];
-    leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
-    rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
-    leftConstraint.active = true;
-    rightConstraint.active = true;
     
+    // Ensure the message view is always centered horizontally
     [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
     
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
     [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-(2.0f * marginSpacing)].active = true;
     
-    
-    self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.messageView.widthAnchor multiplier:1.0f/aspectRatio constant:0.0f];
-    self.heightConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
-    self.heightConstraint.active = true;
     
     // add Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
@@ -242,13 +243,29 @@
             break;
     }
     
+    // We use different constraint priorities so that, by changing them, we can do stuff
+    // like animating the dismissal of the message view by simply changing one of the
+    // Y constraint's priority. Constraints with higher priority take precedence over
+    // constraints with lower priorities.
+    self.heightConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
     self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
     self.finalYConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
     self.panVerticalConstraint.priority = HIGHEST_CONSTRAINT_PRIORITY;
+    leftConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    rightConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
+    
+    // Constraints should all be active except for the panVerticalConstraint, which
+    // is only active when the user is panning (swiping)
     self.panVerticalConstraint.active = false;
+    self.heightConstraint.active = true;
     self.initialYConstraint.active = true;
     self.finalYConstraint.active = true;
+    leftConstraint.active = true;
+    rightConstraint.active = true;
     
+    // Adding all of these constraints has caused the view's needsLayout property
+    // to become true, so when we call layoutIfNeeded, it causes the view
+    // hierarchy to be updated and our constraints get applied.
     [self.view layoutIfNeeded];
 }
 
