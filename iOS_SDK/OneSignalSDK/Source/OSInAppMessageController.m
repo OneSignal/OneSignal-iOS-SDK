@@ -61,7 +61,10 @@
     
     for (NSString *type in PREFERRED_VARIANT_ORDER) {
         if (self.variants[type]) {
-            for (NSString *isoLanguageCode in isoLanguageCodes) {
+            for (NSString *code in isoLanguageCodes) {
+                // we only want the first two characters, ie. "en-US" we want "en"
+                let isoLanguageCode = [code substringToIndex:2];
+                
                 if (self.variants[type][isoLanguageCode]) {
                     variantId = self.variants[type][isoLanguageCode];
                     break;
