@@ -207,7 +207,10 @@
     
     // Constrains the message view to a max width to look better on iPads & landscape
     var maxWidth = MIN(self.view.bounds.size.height, self.view.bounds.size.width);
-    maxWidth -= 2 * marginSpacing;
+    maxWidth -= 2.0f * marginSpacing;
+    
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad)
+        maxWidth /= 1.75f;
     
     // pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
@@ -219,7 +222,6 @@
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
     [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-(2.0f * marginSpacing)].active = true;
-    
     
     // add Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
