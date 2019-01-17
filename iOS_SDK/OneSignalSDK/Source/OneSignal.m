@@ -2413,7 +2413,7 @@ static NSString *_lastnonActiveMessageId;
 + (NSDictionary<NSString *, id> *)getTriggers {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggers"])
-        return nil;
+        return @{};
     
     return [OSMessagingController.sharedInstance getTriggers];
 }

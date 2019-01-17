@@ -300,7 +300,7 @@
         dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
     }
     
-    [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
         self.view.backgroundColor = [UIColor clearColor];
         self.view.alpha = 0.0f;
         [self.view layoutIfNeeded];
