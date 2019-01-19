@@ -30,6 +30,7 @@
 #import "OneSignalHelper.h"
 #import "OSInAppMessageController.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessageBridgeEvent.h"
 
 #define HIGHEST_CONSTRAINT_PRIORITY 999.0f
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
@@ -434,6 +435,25 @@
     }
 }
 
+// This delegate function gets called when an action button is tapped on the IAM
+- (void)actionOccurredWithBody:(NSData *)body {
+    let event = [OSInAppMessageBridgeEvent instanceWithData:body];
+    
+    if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
+        // The page is fully loaded and should now be displayed
+        // TODO: We currently use the WKNavigationDelegate in OSInAppMessageView to figure out when the page is loaded
+        // Once we've implemented this in JS, we can remove the "messageViewDidLoadMessageContent()" delegate method
+        [self loadMessageContent];
+    } else if (event.type == OSInAppMessageBridgeEventTypeActionTaken && event.userAction) {
+        [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
+        
+        if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
+            [self.messageView loadReplacementURL:event.userAction.actionUrl];
+        else if (event.userAction.close)
+            [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+    }
+}
+
 #pragma mark OSInAppMessageViewDelegate Methods
 // The message view is not displayed until content is fully loaded
 -(void)messageViewDidLoadMessageContent {
@@ -444,19 +464,6 @@
     [self.delegate messageViewControllerWasDismissed];
 }
 
-// This delegate function gets called when an action button is tapped on the IAM
-- (void)messageViewActionOccurredWithBody:(NSData *)body {
-    let action = [OSInAppMessageAction instanceWithData:body];
-    
-    if (action)
-        [self.delegate messageViewDidSelectAction:action withMessageId:self.message.messageId forVariantId:self.message.variantId];
-    
-    if (action.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
-        [self.messageView loadReplacementURL:action.actionUrl];
-    else if (action.close)
-        [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
-}
-
 - (void)messageViewDidFailToProcessAction {
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
@@ -464,6 +471,9 @@
 -(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     // currently unimplemented
     NSLog(@"Received script message: %@", message.body);
+    
+    
+    [self actionOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 @end

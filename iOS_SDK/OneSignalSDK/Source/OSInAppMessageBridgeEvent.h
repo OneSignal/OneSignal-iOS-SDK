@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OSJSONHandling.h"
 #import "OSInAppMessageAction.h"
+#import "OSInAppMessagingDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

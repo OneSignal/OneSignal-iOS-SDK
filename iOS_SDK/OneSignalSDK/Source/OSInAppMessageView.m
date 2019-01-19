@@ -94,10 +94,6 @@
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:@"iosListener"];
 }
 
-- (void)iosListenerFiredWithMessage:(WKScriptMessage *)message {
-    [self.delegate messageViewActionOccurredWithBody:message.body];
-}
-
 - (void)loadReplacementURL:(NSURL *)url {
     [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
 }

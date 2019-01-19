@@ -35,7 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)messageViewDidLoadMessageContent;
 - (void)messageViewFailedToLoadMessageContent;
-- (void)messageViewActionOccurredWithBody:(NSData *)body;
 - (void)messageViewDidFailToProcessAction;
 
 @end

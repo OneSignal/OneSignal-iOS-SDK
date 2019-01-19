@@ -93,4 +93,10 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
 
+
+#define OS_BRIDGE_EVENT_TYPES @[@"rendering_complete", @"action_taken"]
+#define OS_IS_VALID_BRIDGE_EVENT_TYPE(string) [OS_BRIDGE_EVENT_TYPES containsObject:string]
+#define OS_BRIDGE_EVENT_TYPE_FROM_STRING(string) (OSInAppMessageBridgeEventType)[OS_BRIDGE_EVENT_TYPES indexOfObject:string]
+
+
 #endif /* OSInAppMessagingDefines_h */
