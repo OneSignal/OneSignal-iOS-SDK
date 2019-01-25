@@ -48,9 +48,10 @@
 +(instancetype)instanceWithJson:(NSDictionary *)json {
     OSInAppMessageAction *action = [OSInAppMessageAction new];
     
-    if ([json[@"action_id"] isKindOfClass:[NSString class]])
-        action.actionId = json[@"action_id"];
-    else return nil;
+    if ([json[@"id"] isKindOfClass:[NSString class]])
+        action.actionId = json[@"id"];
+    else
+        return nil;
     
     if ([json[@"url"] isKindOfClass:[NSString class]])
         action.actionUrl = [NSURL URLWithString:json[@"url"]];

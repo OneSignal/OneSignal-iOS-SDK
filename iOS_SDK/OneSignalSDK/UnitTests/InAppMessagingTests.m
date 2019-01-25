@@ -82,7 +82,7 @@
     testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
         @"type" : @"action_taken",
         @"body" : @{
-            @"action_id" : @"test_id",
+            @"id" : @"test_id",
             @"url" : @"https://www.onesignal.com",
             @"url_target" : @"browser",
             @"close" : @false
