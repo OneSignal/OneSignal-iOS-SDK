@@ -30,7 +30,7 @@
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageAction.h"
 
-@interface OSInAppMessageView ()
+@interface OSInAppMessageView () <UIScrollViewDelegate>
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
@@ -72,6 +72,7 @@
     
     self.webView = [[WKWebView alloc] initWithFrame:self.bounds configuration:configuration];
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
+    self.webView.scrollView.delegate = self;
     self.webView.scrollView.scrollEnabled = false;
     self.webView.navigationDelegate = self;
     
@@ -107,6 +108,15 @@
     self.loaded = true;
     
     [self.delegate messageViewDidLoadMessageContent];
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return nil;
+}
+
+// Disable pinch zooming
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView
+                          withView:(UIView *)view {
+    if (scrollView.pinchGestureRecognizer)
+        scrollView.pinchGestureRecognizer.enabled = false;
 }
 
 @end
