@@ -106,8 +106,8 @@
         return;
     
     self.loaded = true;
-    
-    [self.delegate messageViewDidLoadMessageContent];
+}
+
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
     return nil;
 }

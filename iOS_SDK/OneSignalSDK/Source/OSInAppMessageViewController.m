@@ -441,10 +441,12 @@
     
     if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
         // The page is fully loaded and should now be displayed
-        // TODO: We currently use the WKNavigationDelegate in OSInAppMessageView to figure out when the page is loaded
-        // Once we've implemented this in JS, we can remove the "messageViewDidLoadMessageContent()" delegate method
-        [self loadMessageContent];
-    } else if (event.type == OSInAppMessageBridgeEventTypeActionTaken && event.userAction) {
+        // This is only fired once the javascript on the page sends the "rendering_complete" type event
+        // TODO: Before this event even we need to init the WebView with Tags and other data.
+        //   This way in the future we can add liquid template support to the javascript webview to eval on.
+        [self displayMessage];
+    }
+    else if (event.type == OSInAppMessageBridgeEventTypeActionTaken && event.userAction) {
         [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
         
         if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
@@ -455,11 +457,6 @@
 }
 
 #pragma mark OSInAppMessageViewDelegate Methods
-// The message view is not displayed until content is fully loaded
--(void)messageViewDidLoadMessageContent {
-    [self displayMessage];
-}
-
 -(void)messageViewFailedToLoadMessageContent {
     [self.delegate messageViewControllerWasDismissed];
 }

@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSInAppMessageViewDelegate <NSObject>
 
-- (void)messageViewDidLoadMessageContent;
 - (void)messageViewFailedToLoadMessageContent;
 - (void)messageViewDidFailToProcessAction;
 
