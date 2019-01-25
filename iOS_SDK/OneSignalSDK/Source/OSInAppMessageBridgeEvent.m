@@ -47,18 +47,22 @@
     
     if ([json[@"type"] isKindOfClass:[NSString class]] && OS_IS_VALID_BRIDGE_EVENT_TYPE(json[@"type"]))
         instance.type = OS_BRIDGE_EVENT_TYPE_FROM_STRING(json[@"type"]);
-    else return nil;
+    else
+        return nil;
     
     if (instance.type == OSInAppMessageBridgeEventTypeActionTaken) {
         // deserialize the action JSON
         if ([json[@"body"] isKindOfClass:[NSDictionary class]]) {
+            
             let action = [OSInAppMessageAction instanceWithJson:json[@"body"]];
             
             if (!action)
                 return nil;
             
             instance.userAction = action;
-        } else return nil;
+        }
+        else
+            return nil;
     }
     
     return instance;

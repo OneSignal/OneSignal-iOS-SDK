@@ -127,6 +127,8 @@
 
 - (void)displayMessage:(OSInAppMessage *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
+        // TODO: Set this up AFTER the in app message loads.
+        //       Otherwise while loading this blocks input from the UI
         if (!self.window) {
             self.window = [[UIWindow alloc] init];
             self.window.windowLevel = UIWindowLevelAlert;

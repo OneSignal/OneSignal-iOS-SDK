@@ -113,8 +113,8 @@
     self.messageView = messageSubview;
     self.messageView.delegate = self;
     
-    self.messageView.translatesAutoresizingMaskIntoConstraints = false;
-    self.messageView.backgroundColor = [UIColor blackColor];
+    // TODO: We should not need this so we can remove.
+    // self.messageView.backgroundColor = [UIColor blackColor];
     self.messageView.layer.cornerRadius = 10.0f;
     self.messageView.clipsToBounds = true;
     
@@ -222,6 +222,7 @@
     
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
+    // Makes sure our webview is newer taller than our screen.
     [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-(2.0f * marginSpacing)].active = true;
     
     // add Y constraints
@@ -451,7 +452,7 @@
         
         if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
             [self.messageView loadReplacementURL:event.userAction.actionUrl];
-        else if (event.userAction.close)
+        if (event.userAction.close)
             [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
     }
 }
@@ -466,9 +467,7 @@
 }
 
 -(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-    // currently unimplemented
     NSLog(@"Received script message: %@", message.body);
-    
     
     [self actionOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }

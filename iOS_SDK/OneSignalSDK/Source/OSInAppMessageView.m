@@ -48,13 +48,13 @@
         switch (self.message.type) {
             case OSInAppMessageDisplayTypeTopBanner:
             case OSInAppMessageDisplayTypeBottomBanner:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/banner.html"]]];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.165:3000/iam_banner_test.html"]]];
                 break;
             case OSInAppMessageDisplayTypeFullScreen:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/testmsg.html"]]];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.165:3000/iam_fullscreen_test.html"]]];
                 break;
             case OSInAppMessageDisplayTypeCenteredModal:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.hesse.io/testmsg.html"]]];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.165:3000/iam_fullscreen_test.html"]]];
                 break;
         }
     }
