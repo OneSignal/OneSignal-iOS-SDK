@@ -2382,7 +2382,10 @@ static NSString *_lastnonActiveMessageId;
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
     if ([[processInfo processName] isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [[processInfo processName] isEqualToString:@"IBDesignablesAgent-iOS"])
         return;
-    
+
+	if ([[processInfo processName] isEqualToString:@"xctest"])
+		return;
+
     if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
         return;
 
