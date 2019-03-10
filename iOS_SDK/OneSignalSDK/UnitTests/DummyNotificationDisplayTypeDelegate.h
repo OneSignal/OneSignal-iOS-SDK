@@ -25,16 +25,21 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import <Foundation/Foundation.h>
+#import "OneSignal.h"
 
-@implementation DummyNotificationCenterDelegate
+NS_ASSUME_NONNULL_BEGIN
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-    
-}
+@interface DummyNotificationDisplayTypeDelegate : NSObject <OSNotificationDisplayTypeDelegate>
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    
-}
+@property (strong, nonatomic) NSString *notificationId;
+
+@property (nonatomic) OSNotificationDisplayType overrideDisplayType;
+
+// Each time the OSNotificationDisplayTypeDelegate.willPresentNotificationWithPayload()
+// method is called, this int is incremented
+@property (nonatomic) int numberOfCalls;
 
 @end
+
+NS_ASSUME_NONNULL_END
