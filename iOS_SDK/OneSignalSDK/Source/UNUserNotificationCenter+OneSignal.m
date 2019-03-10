@@ -49,6 +49,7 @@
 @interface OneSignal (UN_extra)
 + (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
++ (OSNotificationDisplayType)displayTypeForNotificationPayload:(NSDictionary *)payload;
 @end
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
@@ -176,17 +177,22 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
     NSUInteger completionHandlerOptions = 0;
-    switch (OneSignal.inFocusDisplayType) {
+    
+    let messagePayload = notification.request.content.userInfo;
+    
+    let displayType = [OneSignal displayTypeForNotificationPayload:messagePayload];
+    
+    switch (displayType) {
         case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
         case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
         case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
         default: break;
     }
     
-    let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
+    let notShown = displayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
     
     if ([OneSignal app_id])
-        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:notShown];
+        [OneSignal notificationReceived:messagePayload isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
