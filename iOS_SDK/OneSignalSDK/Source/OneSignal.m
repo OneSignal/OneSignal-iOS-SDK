@@ -1761,7 +1761,9 @@ static NSString *_lastnonActiveMessageId;
 + (OSNotificationDisplayType)displayTypeForNotificationPayload:(NSDictionary *)payload {
     var type = self.inFocusDisplayType;
     
-    if (![OneSignalHelper isOneSignalPayload:payload])
+    // check to make sure the app is in focus and it's a OneSignal notification
+    if (![OneSignalHelper isOneSignalPayload:payload]
+        || UIApplication.sharedApplication.applicationState != UIApplicationStateActive)
         return type;
     
     let osPayload = [OSNotificationPayload parseWithApns:payload];
