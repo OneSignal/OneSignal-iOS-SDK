@@ -195,6 +195,15 @@ static BOOL providesAppNotificationSettings = false;
 static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
 
+// Notification Display Type Delegate
+static __weak id<OSNotificationDisplayTypeDelegate> _displayDelegate;
+
+// Display type is used in multiple areas of the SDK
+// To avoid calling the delegate multiple times, we store
+// the type and notification ID for each notification
+static NSString *_lastCustomDisplayTypeNotificationId;
+static OSNotificationDisplayType _lastCustomDisplayType;
+
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
     NSInteger op = value;
@@ -392,6 +401,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
+    
+    _displayDelegate = nil;
+    _lastCustomDisplayTypeNotificationId = nil;
 }
 
 // Set to false as soon as it's read.
@@ -876,6 +888,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     return status;
 }
 
++ (void)setNotificationDisplayTypeDelegate:(NSObject<OSNotificationDisplayTypeDelegate> *)delegate {
+    _displayDelegate = delegate;
+}
 
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
@@ -1743,6 +1758,27 @@ static NSString *_lastAppActiveMessageId;
 static NSString *_lastnonActiveMessageId;
 + (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
++ (OSNotificationDisplayType)displayTypeForNotificationPayload:(NSDictionary *)payload {
+    var type = self.inFocusDisplayType;
+    
+    if (![OneSignalHelper isOneSignalPayload:payload])
+        return type;
+    
+    let osPayload = [OSNotificationPayload parseWithApns:payload];
+    
+    // Prevent calling the delegate multiple times for the same payload
+    if (_lastCustomDisplayTypeNotificationId && [osPayload.notificationID isEqualToString:_lastCustomDisplayTypeNotificationId])
+        return _lastCustomDisplayType;
+    
+    if (_displayDelegate) {
+        [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload forDisplayType:&type];
+        _lastCustomDisplayType = type;
+        _lastCustomDisplayTypeNotificationId = osPayload.notificationID;
+    }
+    
+    return type;
+}
+
 // Entry point for the following:
 //  - 1. (iOS all) - Opening notifications
 //  - 2. Notification received
@@ -1774,7 +1810,9 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
+        let displayType = [self displayTypeForNotificationPayload:messageDict];
+        
+        let inAppAlert = (displayType == OSNotificationDisplayTypeInAppAlert);
         
         // Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
@@ -1784,7 +1822,7 @@ static NSString *_lastnonActiveMessageId;
         
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
-        [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType];
+        [OneSignalHelper handleNotificationReceived:displayType];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];

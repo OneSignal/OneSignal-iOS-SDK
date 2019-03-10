@@ -47,7 +47,6 @@
 #include "TestHelperFunctions.h"
 #import "UnitTestAppDelegate.h"
 #import "OneSignalExtensionBadgeHandler.h"
-#import "DummyNotificationCenterDelegate.h"
 #import "OneSignalDialogControllerOverrider.h"
 #import "OneSignalNotificationCategoryController.h"
 
@@ -63,6 +62,10 @@
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
+
+// Dummies
+#import "DummyNotificationDisplayTypeDelegate.h"
+#import "DummyNotificationCenterDelegate.h"
 
 // Networking
 #import "OneSignalClient.h"
@@ -2273,6 +2276,52 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(ids.firstObject, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     
     XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+}
+
+- (void)testOverrideNotificationDisplayType {
+    let dummyDelegate = [DummyNotificationDisplayTypeDelegate new];
+    
+    id userInfo = @{@"aps": @{
+                            @"mutable-content": @1,
+                            @"alert": @{@"body": @"Message Body", @"title": @"title"},
+                            @"thread-id": @"test1"
+                            },
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf",
+                            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                            }};
+    
+    __block BOOL openedWasFire = false;
+    id receiveBlock = ^(OSNotificationOpenedResult *result) {
+        openedWasFire = true;
+    };
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
+    
+    [OneSignal setNotificationDisplayTypeDelegate:dummyDelegate];
+    
+    [OneSignal setInFocusDisplayType:OSNotificationDisplayTypeNone];
+    
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Even though the display type is set to None, this should
+    // cause the SDK to present this notification as an alert
+    dummyDelegate.overrideDisplayType = OSNotificationDisplayTypeInAppAlert;
+    
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    [notifCenterDelegate userNotificationCenter:notifCenter
+                        willPresentNotification:[notifResponse notification]
+                          withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    
+    // Assert that an alert view was actually presented
+    XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
+    
+    XCTAssertEqual(dummyDelegate.numberOfCalls, 1);
 }
 
 @end

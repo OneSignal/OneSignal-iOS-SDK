@@ -25,16 +25,24 @@
  * THE SOFTWARE.
  */
 
-#import "DummyNotificationCenterDelegate.h"
+#import "DummyNotificationDisplayTypeDelegate.h"
+#import "OneSignal.h"
 
-@implementation DummyNotificationCenterDelegate
+@implementation DummyNotificationDisplayTypeDelegate
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+- (instancetype)init {
+    if (self = [super init])
+        _numberOfCalls = 0;
     
+    return self;
 }
 
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload forDisplayType:(OSNotificationDisplayType *)type {
+    _notificationId = payload.notificationID;
     
+    *type = _overrideDisplayType;
+    
+    _numberOfCalls += 1;
 }
 
 @end

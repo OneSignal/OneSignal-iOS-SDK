@@ -156,6 +156,7 @@
 		CA08FC801FE99B25004C445F /* Requests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08FC7D1FE99B25004C445F /* Requests.m */; };
 		CA08FC811FE99B25004C445F /* Requests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08FC7D1FE99B25004C445F /* Requests.m */; };
 		CA08FC871FE99BB4004C445F /* OneSignalClientOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */; };
+		CA15C4132235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CA15C4122235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.m */; };
 		CA1A6E6920DC2E31001C41B9 /* OneSignalDialogController.h in Headers */ = {isa = PBXBuildFile; fileRef = CA1A6E6720DC2E31001C41B9 /* OneSignalDialogController.h */; };
 		CA1A6E6A20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E6820DC2E31001C41B9 /* OneSignalDialogController.m */; };
 		CA1A6E6B20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E6820DC2E31001C41B9 /* OneSignalDialogController.m */; };
@@ -312,6 +313,8 @@
 		CA08FC7D1FE99B25004C445F /* Requests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Requests.m; sourceTree = "<group>"; };
 		CA08FC821FE99BB4004C445F /* OneSignalClientOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalClientOverrider.h; sourceTree = "<group>"; };
 		CA08FC831FE99BB4004C445F /* OneSignalClientOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalClientOverrider.m; sourceTree = "<group>"; };
+		CA15C4112235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DummyNotificationDisplayTypeDelegate.h; sourceTree = "<group>"; };
+		CA15C4122235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DummyNotificationDisplayTypeDelegate.m; sourceTree = "<group>"; };
 		CA1A6E6720DC2E31001C41B9 /* OneSignalDialogController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalDialogController.h; sourceTree = "<group>"; };
 		CA1A6E6820DC2E31001C41B9 /* OneSignalDialogController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalDialogController.m; sourceTree = "<group>"; };
 		CA1A6E6D20DC2E73001C41B9 /* OneSignalDialogRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalDialogRequest.h; sourceTree = "<group>"; };
@@ -480,6 +483,8 @@
 				4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */,
 				CAB411AC208931EE005A70D1 /* DummyNotificationCenterDelegate.h */,
 				CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */,
+				CA15C4112235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.h */,
+				CA15C4122235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -909,6 +914,7 @@
 				4529DEE41FA82C6200CEAB1D /* NSURLSessionOverrider.m in Sources */,
 				4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */,
 				CA42CAC320D99CB90001F2F2 /* ProvisionalAuthorizationTests.m in Sources */,
+				CA15C4132235C34E00A432F0 /* DummyNotificationDisplayTypeDelegate.m in Sources */,
 				CAB4112B20852E4C005A70D1 /* DelayedInitializationParameters.m in Sources */,
 				912412341E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				912412101E73342200E41FD7 /* OneSignal.m in Sources */,
