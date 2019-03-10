@@ -2302,6 +2302,8 @@ didReceiveRemoteNotification:userInfo
     
     [OneSignal setInFocusDisplayType:OSNotificationDisplayTypeNone];
     
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
+    
     [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
