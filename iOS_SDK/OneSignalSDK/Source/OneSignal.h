@@ -213,10 +213,14 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionProvisional
 };
 
+typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
+
 // Notification Display Type Delegate
 // Allows apps to customize per-notification display-type
 @protocol OSNotificationDisplayTypeDelegate <NSObject>
-- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload forDisplayType:(OSNotificationDisplayType *)type;
+- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload
+                           withDefaultDisplayType:(OSNotificationDisplayType)displayType
+                                   withCompletion:(OSNotificationDisplayTypeResponse)completion;
 @end
 
 

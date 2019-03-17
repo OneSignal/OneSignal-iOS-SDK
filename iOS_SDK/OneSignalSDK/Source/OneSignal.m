@@ -201,8 +201,7 @@ static __weak id<OSNotificationDisplayTypeDelegate> _displayDelegate;
 // Display type is used in multiple areas of the SDK
 // To avoid calling the delegate multiple times, we store
 // the type and notification ID for each notification
-static NSString *_lastCustomDisplayTypeNotificationId;
-static OSNotificationDisplayType _lastCustomDisplayType;
+static NSMutableDictionary<NSString *, NSNumber *> *_displayTypeMap;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -403,7 +402,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     pendingExternalUserId = nil;
     
     _displayDelegate = nil;
-    _lastCustomDisplayTypeNotificationId = nil;
+    _displayTypeMap = [NSMutableDictionary new];
 }
 
 // Set to false as soon as it's read.
@@ -1758,27 +1757,37 @@ static NSString *_lastAppActiveMessageId;
 static NSString *_lastnonActiveMessageId;
 + (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
-+ (OSNotificationDisplayType)displayTypeForNotificationPayload:(NSDictionary *)payload {
-    var type = self.inFocusDisplayType;
-    
-    // check to make sure the app is in focus and it's a OneSignal notification
-    if (![OneSignalHelper isOneSignalPayload:payload]
-        || UIApplication.sharedApplication.applicationState != UIApplicationStateActive)
-        return type;
-    
-    let osPayload = [OSNotificationPayload parseWithApns:payload];
-    
-    // Prevent calling the delegate multiple times for the same payload
-    if (_lastCustomDisplayTypeNotificationId && [osPayload.notificationID isEqualToString:_lastCustomDisplayTypeNotificationId])
-        return _lastCustomDisplayType;
-    
-    if (_displayDelegate) {
-        [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload forDisplayType:&type];
-        _lastCustomDisplayType = type;
-        _lastCustomDisplayTypeNotificationId = osPayload.notificationID;
-    }
-    
-    return type;
++ (void)displayTypeForNotificationPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion {
+    [OneSignalHelper runOnMainThread:^{
+        var type = self.inFocusDisplayType;
+        
+        // check to make sure the app is in focus and it's a OneSignal notification
+        if (![OneSignalHelper isOneSignalPayload:payload]
+            || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
+            completion(type);
+            return;
+        }
+        
+        let osPayload = [OSNotificationPayload parseWithApns:payload];
+        
+        let notificationId = osPayload.notificationID;
+        
+        // Prevent calling the delegate multiple times for the same payload
+        if (_displayTypeMap[osPayload.notificationID]) {
+            type = (OSNotificationDisplayType)[_displayTypeMap[osPayload.notificationID] intValue];
+            completion(type);
+        } else if (_displayDelegate) {
+            [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload withDefaultDisplayType:type withCompletion:^(OSNotificationDisplayType displayType) {
+                [OneSignalHelper runOnMainThread:^{
+                    _displayTypeMap[notificationId] = @((int)displayType);
+                    completion(displayType);
+                }];
+            }];
+        } else {
+            _displayTypeMap[notificationId] = @((int)type);
+            completion(type);
+        }
+    }];
 }
 
 // Entry point for the following:
@@ -1812,19 +1821,22 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        let displayType = [self displayTypeForNotificationPayload:messageDict];
-        
-        let inAppAlert = (displayType == OSNotificationDisplayTypeInAppAlert);
-        
-        // Make sure it is not a silent one do display, if inAppAlerts are enabled
-        if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
-            [OneSignalAlertView showInAppAlert:messageDict];
-            return;
-        }
-        
-        // App is active and a notification was received without inApp display. Display type is none or notification
-        // Call Received Block
-        [OneSignalHelper handleNotificationReceived:displayType];
+        [self displayTypeForNotificationPayload:messageDict withCompletion:^(OSNotificationDisplayType displayType) {
+            let inAppAlert = (displayType == OSNotificationDisplayTypeInAppAlert);
+            
+            // Make sure it is not a silent one do display, if inAppAlerts are enabled
+            if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
+                [OneSignalAlertView showInAppAlert:messageDict];
+                return;
+            }
+            
+            // App is active and a notification was received without inApp display. Display type is none or notification
+            // Call Received Block
+            [OneSignalHelper handleNotificationReceived:displayType];
+            
+            if (opened)
+                [self openedNotificationWithDisplayType:displayType withPayload:messageDict isActive:isActive];
+        }];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1832,18 +1844,21 @@ static NSString *_lastnonActiveMessageId;
             return;
         if (newId)
             _lastnonActiveMessageId = newId;
+        
+        if (opened)
+            [self openedNotificationWithDisplayType:OneSignal.inFocusDisplayType withPayload:messageDict isActive:isActive];
     }
+}
+
++ (void)openedNotificationWithDisplayType:(OSNotificationDisplayType)displayType withPayload:(NSDictionary *)payload isActive:(BOOL)isActive {
+    //app was in background / not running and opened due to a tap on a notification or an action check what type
+    OSNotificationActionType type = OSNotificationActionTypeOpened;
     
-    if (opened) {
-        //app was in background / not running and opened due to a tap on a notification or an action check what type
-        OSNotificationActionType type = OSNotificationActionTypeOpened;
-        
-        if (messageDict[@"custom"][@"a"][@"actionSelected"] || messageDict[@"actionSelected"])
-            type = OSNotificationActionTypeActionTaken;
-        
-        // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
-    }
+    if (payload[@"custom"][@"a"][@"actionSelected"] || payload[@"actionSelected"])
+        type = OSNotificationActionTypeActionTaken;
+    
+    // Call Action Block
+    [OneSignal handleNotificationOpened:payload isActive:isActive actionType:type displayType:displayType];
 }
 
 + (NSString*) checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {

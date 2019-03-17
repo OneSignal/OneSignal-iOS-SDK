@@ -37,10 +37,10 @@
     return self;
 }
 
-- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload forDisplayType:(OSNotificationDisplayType *)type {
+- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload withDefaultDisplayType:(OSNotificationDisplayType)displayType withCompletion:(OSNotificationDisplayTypeResponse)completion {
     _notificationId = payload.notificationID;
     
-    *type = _overrideDisplayType;
+    completion(_overrideDisplayType);
     
     _numberOfCalls += 1;
 }
