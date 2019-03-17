@@ -77,7 +77,7 @@
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal setInFocusNotificationDisplayTypeDelegate:self];
+    [OneSignal setNotificationDisplayTypeDelegate:self];
     
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -99,11 +99,13 @@
     
 }
 
-- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload forDisplayType:(OSNotificationDisplayType *)type {
+- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload withDefaultDisplayType:(OSNotificationDisplayType)displayType withCompletion:(OSNotificationDisplayTypeResponse)completion {
     if (payload.additionalData[@"overrideDisplayType"]) {
-        OSNotificationDisplayType newType = (OSNotificationDisplayType)[payload.additionalData[@"displayType"] intValue];
+        OSNotificationDisplayType newType = (OSNotificationDisplayType)[payload.additionalData[@"overrideDisplayType"] intValue];
         
-        *type = newType;
+        completion(newType);
+    } else {
+        completion(displayType);
     }
 }
 
