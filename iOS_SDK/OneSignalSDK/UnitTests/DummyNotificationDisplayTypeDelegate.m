@@ -31,8 +31,10 @@
 @implementation DummyNotificationDisplayTypeDelegate
 
 - (instancetype)init {
-    if (self = [super init])
+    if (self = [super init]) {
         _numberOfCalls = 0;
+        _shouldFireCompletionBlock = false;
+    }
     
     return self;
 }
@@ -40,7 +42,8 @@
 - (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload withDefaultDisplayType:(OSNotificationDisplayType)displayType withCompletion:(OSNotificationDisplayTypeResponse)completion {
     _notificationId = payload.notificationID;
     
-    completion(_overrideDisplayType);
+    if (_shouldFireCompletionBlock)
+        completion(_overrideDisplayType);
     
     _numberOfCalls += 1;
 }
