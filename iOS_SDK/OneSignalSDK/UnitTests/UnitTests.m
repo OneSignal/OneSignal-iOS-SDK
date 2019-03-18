@@ -2076,7 +2076,7 @@ didReceiveRemoteNotification:userInfo
         [expectation fulfill];
     });
     
-    [self waitForExpectations:@[expectation] timeout:0.1];
+    [self waitForExpectations:@[expectation] timeout:0.2];
     
     // If APNS didn't respond within X seconds, the SDK
     // should have registered the user with OneSignal
@@ -2278,9 +2278,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
 }
 
-- (void)testOverrideNotificationDisplayType {
-    let dummyDelegate = [DummyNotificationDisplayTypeDelegate new];
-    
+- (NSDictionary *)setUpNotificationDisplayTypeTestWithDummyDelegate:(DummyNotificationDisplayTypeDelegate *)dummyDelegate withDisplayType:(OSNotificationDisplayType)displayType {
     id userInfo = @{@"aps": @{
                             @"mutable-content": @1,
                             @"alert": @{@"body": @"Message Body", @"title": @"title"},
@@ -2291,25 +2289,30 @@ didReceiveRemoteNotification:userInfo
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             }};
     
-    __block BOOL openedWasFire = false;
-    id receiveBlock = ^(OSNotificationOpenedResult *result) {
-        openedWasFire = true;
-    };
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:nil];
     
     [OneSignal setNotificationDisplayTypeDelegate:dummyDelegate];
     
-    [OneSignal setInFocusDisplayType:OSNotificationDisplayTypeNone];
+    [OneSignal setInFocusDisplayType:displayType];
     
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
     
     [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // Even though the display type is set to None, this should
+    return userInfo;
+}
+
+- (void)testOverrideNotificationDisplayType {
+    let dummyDelegate = [DummyNotificationDisplayTypeDelegate new];
+    
+    // Even though the display type will be set to None, this should
     // cause the SDK to present this notification as an alert
     dummyDelegate.overrideDisplayType = OSNotificationDisplayTypeInAppAlert;
+    dummyDelegate.shouldFireCompletionBlock = true;
+    
+    let userInfo = [self setUpNotificationDisplayTypeTestWithDummyDelegate:dummyDelegate
+                                                           withDisplayType:OSNotificationDisplayTypeNone];
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];

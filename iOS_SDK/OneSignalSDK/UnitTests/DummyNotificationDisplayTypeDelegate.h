@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) OSNotificationDisplayType overrideDisplayType;
 
+@property (nonatomic) BOOL shouldFireCompletionBlock;
+
 // Each time the OSNotificationDisplayTypeDelegate.willPresentNotificationWithPayload()
 // method is called, this int is incremented
 @property (nonatomic) int numberOfCalls;

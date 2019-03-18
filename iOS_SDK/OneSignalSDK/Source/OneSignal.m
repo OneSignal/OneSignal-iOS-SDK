@@ -201,7 +201,9 @@ static __weak id<OSNotificationDisplayTypeDelegate> _displayDelegate;
 // Display type is used in multiple areas of the SDK
 // To avoid calling the delegate multiple times, we store
 // the type and notification ID for each notification
+// These data structures *MUST* be accessed on the main thread only
 static NSMutableDictionary<NSString *, NSNumber *> *_displayTypeMap;
+static NSMutableDictionary<NSString *, NSMutableArray<OSNotificationDisplayTypeResponse> *> *_pendingDisplayTypeCallbacks;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -403,6 +405,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     _displayDelegate = nil;
     _displayTypeMap = [NSMutableDictionary new];
+    _pendingDisplayTypeCallbacks = [NSMutableDictionary new];
 }
 
 // Set to false as soon as it's read.
@@ -1759,6 +1762,12 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)displayTypeForNotificationPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion {
     [OneSignalHelper runOnMainThread:^{
+        if (!_displayTypeMap)
+            _displayTypeMap = [NSMutableDictionary new];
+        
+        if (!_pendingDisplayTypeCallbacks)
+            _pendingDisplayTypeCallbacks = [NSMutableDictionary new];
+        
         var type = self.inFocusDisplayType;
         
         // check to make sure the app is in focus and it's a OneSignal notification
@@ -1773,21 +1782,62 @@ static NSString *_lastnonActiveMessageId;
         let notificationId = osPayload.notificationID;
         
         // Prevent calling the delegate multiple times for the same payload
-        if (_displayTypeMap[osPayload.notificationID]) {
+        // Checks to see if there is a pending delegate request
+        if (_pendingDisplayTypeCallbacks[notificationId]) {
+            [_pendingDisplayTypeCallbacks[notificationId] addObject:completion];
+            // checks to see if the delegate already responded for this notification
+        } else if (_displayTypeMap[osPayload.notificationID]) {
             type = (OSNotificationDisplayType)[_displayTypeMap[osPayload.notificationID] intValue];
             completion(type);
         } else if (_displayDelegate) {
+            NSMutableArray *callbacks = [NSMutableArray new];
+            [callbacks addObject:completion];
+            [_pendingDisplayTypeCallbacks setObject:callbacks forKey:notificationId];
+            
+            NSTimer *watchdogTimer = [NSTimer scheduledTimerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT
+                                                                      target:self
+                                                                    selector:@selector(watchdogTimerFired:)
+                                                                    userInfo:notificationId
+                                                                     repeats:false];
+            
             [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload withDefaultDisplayType:type withCompletion:^(OSNotificationDisplayType displayType) {
                 [OneSignalHelper runOnMainThread:^{
+                    NSMutableArray<OSNotificationDisplayTypeResponse> *callbacks = _pendingDisplayTypeCallbacks[notificationId];
+                    
+                    if (!callbacks || callbacks.count == 0)
+                        return;
+                    
+                    [watchdogTimer invalidate];
+                    [_pendingDisplayTypeCallbacks removeObjectForKey:notificationId];
                     _displayTypeMap[notificationId] = @((int)displayType);
-                    completion(displayType);
+                    
+                    for (OSNotificationDisplayTypeResponse callback in callbacks)
+                        callback(displayType);
                 }];
             }];
         } else {
+            // No delegate is set; uses the main display type set with OneSignal.setInFocusDisplayType()
             _displayTypeMap[notificationId] = @((int)type);
             completion(type);
         }
     }];
+}
+
+// If this is called, it means OSNotificationDisplayTypeDelegate did not execute the callback
+// within the max time range, and timed out. We must display the notification anyways
+// using the default display type to avoid dropping notifications.
++ (void)watchdogTimerFired:(NSTimer *)timer {
+    NSString *notificationId = (NSString *)timer.userInfo;
+    NSMutableArray<OSNotificationDisplayTypeResponse> *callbacks = _pendingDisplayTypeCallbacks[notificationId];
+    
+    // Check just in case the app called the callback just as this timer fired
+    if (!callbacks || callbacks.count == 0)
+        return;
+    
+    [_pendingDisplayTypeCallbacks removeObjectForKey:notificationId];
+    
+    for (OSNotificationDisplayTypeResponse completion in callbacks)
+        completion(_inFocusDisplayType);
 }
 
 // Entry point for the following:
