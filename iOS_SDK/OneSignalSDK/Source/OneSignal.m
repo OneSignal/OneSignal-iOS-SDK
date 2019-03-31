@@ -1800,7 +1800,7 @@ static NSString *_lastnonActiveMessageId;
                                                                     userInfo:notificationId
                                                                      repeats:false];
             
-            [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload withDefaultDisplayType:type withCompletion:^(OSNotificationDisplayType displayType) {
+            [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload withCompletion:^(OSNotificationDisplayType displayType) {
                 [OneSignalHelper runOnMainThread:^{
                     NSMutableArray<OSNotificationDisplayTypeResponse> *callbacks = _pendingDisplayTypeCallbacks[notificationId];
                     
