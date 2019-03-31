@@ -149,7 +149,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
     // the callback to set the display type for a given notification
-    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.2
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

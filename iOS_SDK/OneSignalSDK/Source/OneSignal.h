@@ -219,7 +219,6 @@ typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType disp
 // Allows apps to customize per-notification display-type
 @protocol OSNotificationDisplayTypeDelegate <NSObject>
 - (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload
-                           withDefaultDisplayType:(OSNotificationDisplayType)displayType
                                    withCompletion:(OSNotificationDisplayTypeResponse)completion;
 @end
 

@@ -39,7 +39,8 @@
     return self;
 }
 
-- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload withDefaultDisplayType:(OSNotificationDisplayType)displayType withCompletion:(OSNotificationDisplayTypeResponse)completion {
+- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload
+                                   withCompletion:(OSNotificationDisplayTypeResponse)completion {
     _notificationId = payload.notificationID;
     
     if (_shouldFireCompletionBlock)
