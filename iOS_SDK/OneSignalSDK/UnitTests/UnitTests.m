@@ -1918,7 +1918,10 @@ didReceiveRemoteNotification:userInfo
 }
   
 //tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
-- (void)testSwizzling {
+// TODO: This test causes the UNUserNotificationCenter singleton's Delegate property to get nullified
+// Unfortunately the fix is not as simple as just setting it back to the original when the test is done
+// To avoid breaking other tests, this test should be executed last, and since tests are alphabetical order, adding Z's does this.
+- (void)testZSwizzling {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     
     DummyNotificationCenterDelegate *delegate = [[DummyNotificationCenterDelegate alloc] init];
