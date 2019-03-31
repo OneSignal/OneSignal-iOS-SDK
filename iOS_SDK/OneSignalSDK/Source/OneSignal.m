@@ -1836,6 +1836,8 @@ static NSString *_lastnonActiveMessageId;
     
     [_pendingDisplayTypeCallbacks removeObjectForKey:notificationId];
     
+    _displayTypeMap[notificationId] = @(_inFocusDisplayType);
+    
     for (OSNotificationDisplayTypeResponse completion in callbacks)
         completion(_inFocusDisplayType);
 }
