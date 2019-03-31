@@ -99,13 +99,12 @@
     
 }
 
-- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload withDefaultDisplayType:(OSNotificationDisplayType)displayType withCompletion:(OSNotificationDisplayTypeResponse)completion {
+- (void)willPresentInFocusNotificationWithPayload:(OSNotificationPayload *)payload
+                                   withCompletion:(OSNotificationDisplayTypeResponse)completion {
     if (payload.additionalData[@"overrideDisplayType"]) {
         OSNotificationDisplayType newType = (OSNotificationDisplayType)[payload.additionalData[@"overrideDisplayType"] intValue];
         
         completion(newType);
-    } else {
-        completion(displayType);
     }
 }
 

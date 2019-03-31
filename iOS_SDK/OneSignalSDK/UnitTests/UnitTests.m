@@ -2281,7 +2281,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
 }
 
-- (NSDictionary *)setUpNotificationDisplayTypeTestWithDummyDelegate:(DummyNotificationDisplayTypeDelegate *)dummyDelegate withDisplayType:(OSNotificationDisplayType)displayType {
+- (NSDictionary *)setUpNotificationDisplayTypeTestWithDummyDelegate:(DummyNotificationDisplayTypeDelegate *)dummyDelegate withDisplayType:(OSNotificationDisplayType)displayType withNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)receivedBlock {
     id userInfo = @{@"aps": @{
                             @"mutable-content": @1,
                             @"alert": @{@"body": @"Message Body", @"title": @"title"},
@@ -2292,7 +2292,9 @@ didReceiveRemoteNotification:userInfo
                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
                             }};
     
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:nil];
+    [OneSignal initWithLaunchOptions:@{} appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:receivedBlock handleNotificationAction:nil settings:@{}];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
     
     [OneSignal setNotificationDisplayTypeDelegate:dummyDelegate];
     
@@ -2300,7 +2302,6 @@ didReceiveRemoteNotification:userInfo
     
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
     
-    [UnitTestCommonMethods resumeApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     return userInfo;
@@ -2315,7 +2316,8 @@ didReceiveRemoteNotification:userInfo
     dummyDelegate.shouldFireCompletionBlock = true;
     
     let userInfo = [self setUpNotificationDisplayTypeTestWithDummyDelegate:dummyDelegate
-                                                           withDisplayType:OSNotificationDisplayTypeNone];
+                                                           withDisplayType:OSNotificationDisplayTypeNone
+                                             withNotificationReceivedBlock:nil];
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
@@ -2330,6 +2332,47 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
     
     XCTAssertEqual(dummyDelegate.numberOfCalls, 1);
+}
+
+// If the OSNotificationDisplayTypeDelegate never fires its completion block, the SDK should
+// time out after a period of time and use the existing default inFocusDisplayType
+// If we set it using OneSignal.setInFocusDisplayType(alert) we can make sure that the
+// timeout logic completed correctly by making sure the dummy notification was displayed as an alert
+- (void)testTimeoutOverrideNotificationDisplayType {
+    let dummyDelegate = [DummyNotificationDisplayTypeDelegate new];
+    
+    dummyDelegate.overrideDisplayType = OSNotificationDisplayTypeNone;
+    dummyDelegate.shouldFireCompletionBlock = false;
+    
+    let expectation = [self expectationWithDescription:@"wait_for_timeout"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    let receivedBlock = ^(OSNotification *notification) {
+        [expectation fulfill];
+    };
+    
+    let userInfo = [self setUpNotificationDisplayTypeTestWithDummyDelegate:dummyDelegate
+                                                           withDisplayType:OSNotificationDisplayTypeInAppAlert
+                                             withNotificationReceivedBlock:receivedBlock];
+    
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
+    
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    [notifCenterDelegate userNotificationCenter:notifCenter
+                        willPresentNotification:[notifResponse notification]
+                          withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError * _Nullable error) {
+        // by this point, the SDK will have timed out waiting for the display delegate
+        // and should continue handling the notification with the default display type
+        XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
+        
+        XCTAssertEqual(dummyDelegate.numberOfCalls, 1);
+    }];
 }
 
 @end
