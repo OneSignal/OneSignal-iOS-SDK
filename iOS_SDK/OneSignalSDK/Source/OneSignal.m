@@ -1722,48 +1722,6 @@ static dispatch_queue_t serialQueue;
     return false;
 }
 
-+ (void)testShowMessageWithType:(OSInAppMessageDisplayType)type {
-    NSString *typeString;
-    
-    switch (type) {
-        case OSInAppMessageDisplayTypeCenteredModal:
-            typeString = @"centered_modal";
-            break;
-        case OSInAppMessageDisplayTypeTopBanner:
-            typeString = @"top_banner";
-            break;
-        case OSInAppMessageDisplayTypeFullScreen:
-            typeString = @"full_screen";
-            break;
-        case OSInAppMessageDisplayTypeBottomBanner:
-            typeString = @"bottom_banner";
-            break;
-    }
-    
-    let message = [OSInAppMessage instanceWithJson:@{
-         @"type" : typeString,
-         @"id" : @"test_id",
-         @"content_id" : @"test_content",
-         @"variants" : @{
-             @"ios" : @{
-                 @"en" : @"abc123"
-             }
-         },
-         @"triggers" : @[
-            @[
-                @{
-                    @"property" : @"view_controller",
-                    @"operator" : @"equal",
-                    @"value" : @"test_vc",
-                    @"id" : @"test"
-                }
-            ]
-        ]
-     }];
-    
-    [[OSMessagingController sharedInstance] presentInAppMessage:message];
-}
-
 // In-App Messaging Public Methods
 + (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate {
     [[OSMessagingController sharedInstance] addMessageDelegate:delegate];

@@ -35,6 +35,7 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionTop,
     OSInAppMessageDisplayPositionCentered
 };
+#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(position) [@[@"bottom",@"top",@"center"] indexOfObject:position]
 
 typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
     OSTriggerOperatorTypeGreaterThan,
@@ -74,16 +75,6 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 
 // Macro to verify that a string is a correct dynamic trigger
 #define OS_IS_DYNAMIC_TRIGGER(type) [@[OS_SESSION_DURATION_TRIGGER, OS_TIME_TRIGGER] containsObject:type]
-
-// Maps OSInAppMessageDisplayType cases to the equivalent OSInAppMessageDisplayPosition cases
-#define OS_DISPLAY_POSITION_FOR_TYPE(inAppMessageType) [[@[@(OSInAppMessageDisplayPositionTop), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionCentered), @(OSInAppMessageDisplayPositionBottom)] objectAtIndex: inAppMessageType] intValue]
-
-// Checks if a string is a valid display type
-#define OS_IS_VALID_DISPLAY_TYPE(stringType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] containsObject: stringType]
-
-// Converts OSInAppMessageDisplayType enum cases to and from strings
-#define OS_DISPLAY_TYPE_FOR_STRING(stringType) (OSInAppMessageDisplayType)[@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] indexOfObject: stringType]
-#define OS_DISPLAY_TYPE_TO_STRING(displayType) [@[@"top_banner", @"centered_modal", @"full_screen", @"bottom_banner"] objectAtIndex: displayType]
 
 #define OS_OPERATOR_STRINGS @[@"greater", @"less", @"equal", @"not_equal", @"less_or_equal", @"greater_or_equal", @"exists", @"not_exists", @"in"]
 

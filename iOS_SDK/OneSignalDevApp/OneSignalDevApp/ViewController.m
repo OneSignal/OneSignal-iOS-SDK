@@ -130,19 +130,6 @@
     [OneSignal consentGranted:(bool)sender.selectedSegmentIndex];
 }
 
-- (IBAction)showTopBannerButtonPressed:(id)sender {
-    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeTopBanner];
-}
-- (IBAction)showBottomBannerButtonPressed:(id)sender {
-    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeBottomBanner];
-}
-- (IBAction)showCenteredModalButtonPressed:(id)sender {
-    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeCenteredModal];
-}
-- (IBAction)showFullScreenButtonPressed:(id)sender {
-    [OneSignal testShowMessageWithType:OSInAppMessageDisplayTypeFullScreen];
-}
-
 -(void)handleMessageAction:(NSString *)actionId {
     NSLog(@"View controller did get action: %@", actionId);
 }

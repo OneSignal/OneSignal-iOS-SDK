@@ -103,7 +103,7 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestLoadInAppMessageContent : OneSignalRequest
-+ (instancetype _Nonnull)withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
 @end
 
 #endif /* Requests_h */

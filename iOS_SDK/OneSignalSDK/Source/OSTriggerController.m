@@ -94,6 +94,9 @@
     Supports both String and Numeric value types & comparisons
 */
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message {
+    if (message.triggers.count == 0)
+        return true;
+    
     for (NSArray <OSTrigger *> *conditions in message.triggers) {
         
         //dynamic triggers should be handled after looping through all other triggers
@@ -104,18 +107,18 @@
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
-            if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
+            if (OS_IS_DYNAMIC_TRIGGER(trigger.property))
                 [dynamicTriggers addObject:trigger];
-            } else if (![self evaluateTrigger:trigger forMessage:message]) {
+            else if (![self evaluateTrigger:trigger forMessage:message]) {
                 foundFalseTrigger = true;
                 break;
             }
         }
         
         // if we found a trigger that evaluates to false, loop to the next AND block
-        if (foundFalseTrigger) {
+        if (foundFalseTrigger)
             continue;
-        } else if (dynamicTriggers.count == 0) {
+        else if (dynamicTriggers.count == 0) {
             // no trigger was false and there are no triggers left to evaluate, so the
             // AND block is true and we should return true.
             return true;
@@ -128,11 +131,10 @@
             
             // even if the trigger evaluates as "false" now, it may become true in the future
             // (for exmaple if it's a session-duration trigger that launches a timer)
-            if (![self.dynamicTriggerController dynamicTriggerShouldFire:trigger withMessageId:message.messageId]) {
+            if (![self.dynamicTriggerController dynamicTriggerShouldFire:trigger withMessageId:message.messageId])
                 break;
-            } else if (i == dynamicTriggers.count - 1) {
+            else if (i == dynamicTriggers.count - 1)
                 return true;
-            }
         }
     }
     

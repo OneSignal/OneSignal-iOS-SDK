@@ -32,7 +32,7 @@
 
 @implementation OSInAppMessage (OSInAppMessageController)
 
-- (void)loadMessageHTMLContentWithResult:(OSDataRequestSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock {
+- (void)loadMessageHTMLContentWithResult:(OSResultSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock {
     let variantId = [self variantId];
     
     if (!variantId) {
@@ -42,9 +42,9 @@
         return;
     }
     
-    let request = [OSRequestLoadInAppMessageContent withMessageId:self.messageId withVariantId:variantId];
+    let request = [OSRequestLoadInAppMessageContent withAppId:OneSignal.app_id withMessageId:self.messageId withVariantId:variantId];
     
-    [OneSignalClient.sharedClient executeDataRequest:request onSuccess:successBlock onFailure:failureBlock];
+    [OneSignalClient.sharedClient executeRequest:request onSuccess:successBlock onFailure:failureBlock];
 }
 
 /**

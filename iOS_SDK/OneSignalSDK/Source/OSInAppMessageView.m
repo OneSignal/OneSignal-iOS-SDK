@@ -43,27 +43,18 @@
         self.message = inAppMessage;
         self.translatesAutoresizingMaskIntoConstraints = false;
         [self setupWebviewWithMessageHandler:messageHandler];
-        
-        // TODO: This is here for debugging/testing purposes until the backend implementation is available
-        switch (self.message.type) {
-            case OSInAppMessageDisplayTypeTopBanner:
-            case OSInAppMessageDisplayTypeBottomBanner:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.165:3000/iam_banner_test.html"]]];
-                break;
-            case OSInAppMessageDisplayTypeFullScreen:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.165:3000/iam_fullscreen_test.html"]]];
-                break;
-            case OSInAppMessageDisplayTypeCenteredModal:
-                [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://192.168.2.165:3000/iam_fullscreen_test.html"]]];
-                break;
-        }
     }
     
     return self;
 }
 
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
-    [self.webView loadHTMLString:html baseURL:url];
+    // UI Update must be done on the main thread
+    NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
+     dispatch_sync(dispatch_get_main_queue(), ^{
+         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
+         [self.webView loadHTMLString:html baseURL:url];
+     });
 }
 
 - (void)setupWebviewWithMessageHandler:(id<WKScriptMessageHandler>)handler {

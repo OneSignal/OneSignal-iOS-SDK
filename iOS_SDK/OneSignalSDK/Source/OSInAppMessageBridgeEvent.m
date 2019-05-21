@@ -64,8 +64,31 @@
         else
             return nil;
     }
+    else if (instance.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
+        instance.rendingComplete = [OSInAppMessageBridgeEventRendingComplete instanceWithJson:json];
+    }
     
     return instance;
 }
 
+@end
+
+
+@implementation OSInAppMessageBridgeEventRendingComplete
++(instancetype)instanceWithData:(NSData *)data {
+    return nil;
+}
+
++(instancetype)instanceWithJson:(NSDictionary *)json {
+    let instance = [OSInAppMessageBridgeEventRendingComplete new];
+    
+    if (json[@"displayLocation"])
+        instance.displayLocation = OS_IN_APP_DISPLAY_POSITION_FROM_STRING(json[@"displayLocation"]);
+    else
+        instance.displayLocation = OSInAppMessageDisplayPositionCentered;
+    
+    if (json[@"pageMetaData"][@"rect"][@"height"])
+        instance.height = json[@"pageMetaData"][@"rect"][@"height"];
+    return instance;
+}
 @end

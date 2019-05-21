@@ -46,25 +46,15 @@
 + (instancetype)instanceWithJson:(NSDictionary * _Nonnull)json {
     let message = [OSInAppMessage new];
     
-    if (json[@"type"] != nil && [json[@"type"] isKindOfClass:[NSString class]] && OS_IS_VALID_DISPLAY_TYPE(json[@"type"]))
-        message.type = OS_DISPLAY_TYPE_FOR_STRING(json[@"type"]);
-    else return nil;
-    
-    message.position = OS_DISPLAY_POSITION_FOR_TYPE(message.type);
-    
     if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
         message.messageId = json[@"id"];
-    else return nil;
+    else
+        return nil;
     
     if (json[@"variants"] && [json[@"variants"] isKindOfClass:[NSDictionary class]])
         message.variants = json[@"variants"];
-    else return nil;
-    
-    if (json[@"max_display_time"] && [json[@"max_display_time"] isKindOfClass:[NSNumber class]]) {
-        message.maxDisplayTime = [json[@"max_display_time"] doubleValue];
-    } else {
-        message.maxDisplayTime = -1.0f;
-    }
+    else
+        return nil;
     
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
@@ -75,9 +65,9 @@
             for (NSDictionary *triggerJson in list) {
                 let trigger = [OSTrigger instanceWithJson:triggerJson];
                 
-                if (trigger) {
+                if (trigger)
                     [subTriggers addObject:trigger];
-                } else {
+                else {
                     [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Trigger JSON is invalid: %@", triggerJson]];
                     return nil;
                 }
@@ -87,7 +77,9 @@
         }
         
         message.triggers = triggers;
-    } else return nil;
+    }
+    else
+        return nil;
     
     return message;
 }
@@ -95,7 +87,6 @@
 -(NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
-    json[@"type"] = OS_DISPLAY_TYPE_TO_STRING(self.type);
     json[@"id"] = self.messageId;
     json[@"variants"] = self.variants;
     

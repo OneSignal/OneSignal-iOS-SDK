@@ -43,7 +43,7 @@
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
 
 // The actual message subview
-@property (weak, nonatomic, nullable) OSInAppMessageView *messageView;
+@property (nonatomic, nullable) OSInAppMessageView *messageView;
 
 // Before the message display animation, this constrains the Y position
 // of the message to be off-screen
@@ -86,14 +86,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Sets up the message view in a hidden position while we wait
-    // for the actual HTML content to load
-    [self setupInitialMessageUI];
-    
+    self.messageView = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
     // loads the HTML content
-    // TODO: Uncomment this when the API for in-app messages is available
-    // so that we can begin real testing.
-//    [self loadMessageContent];
+    [self loadMessageContent];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -107,10 +102,10 @@
 // sets up the message UI. It is still hidden. Wait until
 // the actual HTML content is loaded before animating appearance
 - (void)setupInitialMessageUI {
-    self.view.alpha = 0.0;
+//    self.view.alpha = 0.0;
     
-    let messageSubview = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
-    self.messageView = messageSubview;
+    NSLog(@"setupInitialMessageUI");
+    
     self.messageView.delegate = self;
     
     // TODO: We should not need this so we can remove.
@@ -126,6 +121,11 @@
 }
 
 - (void)displayMessage {
+    NSLog(@"displayMessage");
+    
+    // Sets up the message view in a hidden position while we wait
+    [self setupInitialMessageUI];
+    
     [UIView animateWithDuration:0.3 animations:^{
         self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
         self.view.alpha = 1.0;
@@ -147,16 +147,17 @@
 }
 
 - (void)loadMessageContent {
-    [self.message loadMessageHTMLContentWithResult:^(NSData *data) {
+    [self.message loadMessageHTMLContentWithResult:^(NSDictionary *data) {
         if (!data) {
             [self encounteredErrorLoadingMessageContent:nil];
             return;
         }
         
-        let htmlContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"htmlContent.html: %@", data[@"hmtl"]);
         
         let baseUrl = [NSURL URLWithString:SERVER_URL];
         
+        NSString* htmlContent = data[@"html"];
         [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
     } failure:^(NSError *error) {
         [self encounteredErrorLoadingMessageContent:error];
@@ -197,14 +198,19 @@
     // Full screen messages don't care about aspect ratio, it's always full screen,
     // thus instead of setting height based on aspect ratio we simply set it to be
     // the same height as the display (subtracting the margin)
-    if (self.message.type == OSInAppMessageDisplayTypeFullScreen) {
+    
+    // If we don't have a height then show fullscreen
+    
+    NSLog(@"[UIScreen mainScreen].bounds.size.width: %f", [UIScreen mainScreen].bounds.size.width);
+    
+    NSLog(@"self.message.height: %@", self.message.height);
+    NSLog(@"self.message.height.: %f", self.message.height.doubleValue);
+    NSLog(@"UIScreen.mainScreen.scale.: %f", UIScreen.mainScreen.scale);
+    
+    if (!self.message.height)
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:1.0 constant:-2.0f * marginSpacing];
-    } else {
-        // Configures the aspect ratio depending on the message type
-        let aspectRatio = (self.message.type == OSInAppMessageDisplayTypeCenteredModal) ? CENTERED_MODAL_ASPECT_RATIO : BANNER_ASPECT_RATIO;
-        
-        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.messageView.widthAnchor multiplier:1.0f/aspectRatio constant:0.0f];
-    }
+    else
+       self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
     
     // Constrains the message view to a max width to look better on iPads & landscape
     var maxWidth = MIN(self.view.bounds.size.height, self.view.bounds.size.width);
@@ -436,11 +442,17 @@
     }
 }
 
-// This delegate function gets called when an action button is tapped on the IAM
-- (void)actionOccurredWithBody:(NSData *)body {
+// This delegate function gets called when in-app html is load or action button is tapped
+- (void)jsEventOccurredWithBody:(NSData *)body {
     let event = [OSInAppMessageBridgeEvent instanceWithData:body];
     
+    NSLog(@"actionOccurredWithBody:event: %@", event);
+    NSLog(@"actionOccurredWithBody:event.type: %d", event.type);
+    
     if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
+        self.message.position = event.rendingComplete.displayLocation;
+        self.message.height = event.rendingComplete.height;
+        
         // The page is fully loaded and should now be displayed
         // This is only fired once the javascript on the page sends the "rendering_complete" type event
         // TODO: Before this event even we need to init the WebView with Tags and other data.
@@ -467,9 +479,8 @@
 }
 
 -(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-    NSLog(@"Received script message: %@", message.body);
-    
-    [self actionOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Received in-app script message: %@", message.body]];
+    [self jsEventOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 @end

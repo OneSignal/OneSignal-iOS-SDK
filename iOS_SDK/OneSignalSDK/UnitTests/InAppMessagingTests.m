@@ -99,10 +99,6 @@
 }
 
 #pragma mark Message JSON Parsing Tests
-- (void)testCorrectlyParsedType {
-    XCTAssertTrue(testMessage.type == OSInAppMessageDisplayTypeCenteredModal);
-}
-
 -(void)testCorrectlyParsedMessageId {
     XCTAssertTrue([testMessage.messageId containsString:OS_TEST_MESSAGE_ID]);
 }
@@ -304,32 +300,6 @@
     // When invalid JSON is encountered, the in-app message should
     // not initialize and should return nil
     XCTAssertNil([OSInAppMessageTestHelper testMessageWithTriggersJson:@[@[triggerJson]]]);
-}
-
-// Tests the macro that gets the Display Type's equivalent OSInAppMessageDisplayPosition
-- (void)testDisplayTypeConversion {
-    let top = OS_DISPLAY_POSITION_FOR_TYPE(OSInAppMessageDisplayTypeTopBanner);
-    let bottom = OS_DISPLAY_POSITION_FOR_TYPE(OSInAppMessageDisplayTypeBottomBanner);
-    let modal = OS_DISPLAY_POSITION_FOR_TYPE(OSInAppMessageDisplayTypeCenteredModal);
-    let full = OS_DISPLAY_POSITION_FOR_TYPE(OSInAppMessageDisplayTypeFullScreen);
-    
-    XCTAssertTrue(top == OSInAppMessageDisplayPositionTop);
-    XCTAssertTrue(bottom == OSInAppMessageDisplayPositionBottom);
-    XCTAssertTrue(modal == OSInAppMessageDisplayPositionCentered);
-    XCTAssertTrue(full == OSInAppMessageDisplayPositionCentered);
-}
-
-// Tests the macro to convert strings to OSInAppMessageDisplayType
-- (void)testStringToDisplayTypeConversion {
-    let top = OS_DISPLAY_TYPE_FOR_STRING(@"top_banner");
-    let bottom = OS_DISPLAY_TYPE_FOR_STRING(@"bottom_banner");
-    let modal = OS_DISPLAY_TYPE_FOR_STRING(@"centered_modal");
-    let full = OS_DISPLAY_TYPE_FOR_STRING(@"full_screen");
-    
-    XCTAssertTrue(top == OSInAppMessageDisplayTypeTopBanner);
-    XCTAssertTrue(bottom == OSInAppMessageDisplayTypeBottomBanner);
-    XCTAssertTrue(modal == OSInAppMessageDisplayTypeCenteredModal);
-    XCTAssertTrue(full == OSInAppMessageDisplayTypeFullScreen);
 }
 
 - (void)testDynamicTriggerWithExactTimeTrigger {

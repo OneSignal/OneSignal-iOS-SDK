@@ -75,18 +75,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     OSNotificationDisplayTypeNotification
 };
 
-
-//TODO: Remove this enum. It only exists here temporarily while building IAM, for testing purposes.
-typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
-    OSInAppMessageDisplayTypeTopBanner,
-    
-    OSInAppMessageDisplayTypeCenteredModal,
-    
-    OSInAppMessageDisplayTypeFullScreen,
-    
-    OSInAppMessageDisplayTypeBottomBanner
-};
-
 @interface OSInAppMessageAction : NSObject
 
 /** The unique UUID identifier for this action */
@@ -101,10 +89,6 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayType) {
 @end
 
 @protocol OSInAppMessageDelegate <NSObject>
-@optional
-- (void)willDisplayInAppMessageWithType:(OSInAppMessageDisplayType)type;
-@optional
-- (void)didFinishDisplayingInAppMessage;
 @optional
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
@@ -463,9 +447,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
-
-//TODO: Remove this method. It only exists here temporarily while building IAM, for testing purposes.
-+ (void)testShowMessageWithType:(OSInAppMessageDisplayType)type;
 
 + (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate> _Nonnull)delegate;
 

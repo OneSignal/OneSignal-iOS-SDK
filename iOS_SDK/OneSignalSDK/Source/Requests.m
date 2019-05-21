@@ -356,12 +356,11 @@
 @end
 
 @implementation OSRequestLoadInAppMessageContent
-+ (instancetype _Nonnull)withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variantId {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variantId {
     let request = [OSRequestLoadInAppMessageContent new];
     
-    request.dataRequest = true;
-    request.requestContentType = @"text/html";
     request.method = GET;
+    request.parameters = @{@"app_id": appId};
     request.path = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html", messageId, variantId];
     
     return request;
