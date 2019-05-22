@@ -117,11 +117,11 @@
 }
 
 - (void)testCorrectlyParsedActionId {
-    XCTAssertEqualObjects(testAction.actionId, @"test_id");
+    XCTAssertEqualObjects(testAction.clickId, @"test_id");
 }
 
 - (void)testCorrectlyParsedActionUrl {
-    XCTAssertEqualObjects(testAction.actionUrl.absoluteString, @"https://www.onesignal.com");
+    XCTAssertEqualObjects(testAction.clickUrl.absoluteString, @"https://www.onesignal.com");
 }
 
 - (void)testCorrectlyParsedActionType {

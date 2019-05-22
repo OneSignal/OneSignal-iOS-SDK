@@ -278,22 +278,36 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 
 - (void)testInAppMessageViewed {
     let request = [OSRequestInAppMessageViewed withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId forVariantId:testInAppMessageVariantId];
-    
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/impression", testInAppMessageId]);
     
-    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
-    
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"variant_id" : testInAppMessageVariantId}));
+    XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
+       @"device_type": @0,
+       @"player_id": testUserId,
+       @"app_id": testAppId,
+       @"variant_id": testInAppMessageVariantId
+    }));
 }
 
 - (void)testInAppMessageOpened {
-    let request = [OSRequestInAppMessageOpened withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId forVariantId:testInAppMessageVariantId withActionId:@"test_button_id"];
+    let request = [OSRequestInAppMessageOpened
+                   withAppId:testAppId
+                   withPlayerId:testUserId
+                   withMessageId:testInAppMessageId
+                   forVariantId:testInAppMessageVariantId
+                   withClickType:@"button"
+                   withClickId:@"test_button_id"];
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/click", testInAppMessageId]);
     
-    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/engagement", testInAppMessageId]);
-    
-    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
-    
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"action_id" : @"test_button_id", @"variant_id" : testInAppMessageVariantId}));
+    XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
+       @"device_type": @0,
+       @"player_id": testUserId,
+       @"app_id": testAppId,
+       @"click_type": @"button",
+       @"click_id": @"test_button_id",
+       @"variant_id": testInAppMessageVariantId
+   }));
 }
 
 - (void)testLoadMessageContent {

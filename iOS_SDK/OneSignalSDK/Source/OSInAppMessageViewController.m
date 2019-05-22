@@ -459,11 +459,11 @@
         //   This way in the future we can add liquid template support to the javascript webview to eval on.
         [self displayMessage];
     }
-    else if (event.type == OSInAppMessageBridgeEventTypeActionTaken && event.userAction) {
+    else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
         [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
         
         if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
-            [self.messageView loadReplacementURL:event.userAction.actionUrl];
+            [self.messageView loadReplacementURL:event.userAction.clickUrl];
         if (event.userAction.close)
             [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
     }

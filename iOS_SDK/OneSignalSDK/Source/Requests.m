@@ -321,13 +321,17 @@
 @end
 
 @implementation OSRequestInAppMessageViewed
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString *)variantId {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                      forVariantId:(NSString *)variantId {
     let request = [OSRequestInAppMessageViewed new];
     
     request.parameters = @{
-        @"player_id" : playerId,
-        @"app_id" : appId,
-        @"variant_id" : variantId
+       @"device_type": @0,
+       @"player_id": playerId,
+       @"app_id": appId,
+       @"variant_id": variantId
     };
     
     request.method = POST;
@@ -338,25 +342,34 @@
 @end
 
 @implementation OSRequestInAppMessageOpened
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString *)variantId withActionId:(NSString * _Nonnull)actionId {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                      forVariantId:(NSString * _Nonnull)variantId
+                     withClickType:(NSString * _Nonnull)clickType
+                       withClickId:(NSString * _Nonnull)clickId {
     let request = [OSRequestInAppMessageOpened new];
     
     request.parameters = @{
-        @"player_id" : playerId,
-        @"app_id" : appId,
-        @"action_id" : actionId,
-        @"variant_id" : variantId
+       @"device_type": @0,
+       @"player_id": playerId,
+       @"app_id": appId,
+       @"variant_id": variantId,
+       @"click_type": clickType,
+       @"click_id": clickId ?: @""
     };
     
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"in_app_messages/%@/engagement", messageId];
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/click", messageId];
     
     return request;
 }
 @end
 
 @implementation OSRequestLoadInAppMessageContent
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variantId {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                     withMessageId:(NSString * _Nonnull)messageId
+                     withVariantId:(NSString * _Nonnull)variantId {
     let request = [OSRequestLoadInAppMessageContent new];
     
     request.method = GET;

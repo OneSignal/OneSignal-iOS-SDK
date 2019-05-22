@@ -48,13 +48,17 @@
 +(instancetype)instanceWithJson:(NSDictionary *)json {
     OSInAppMessageAction *action = [OSInAppMessageAction new];
     
+    if ([json[@"click_type"] isKindOfClass:[NSString class]])
+        action.clickType = json[@"click_type"];
+    
     if ([json[@"id"] isKindOfClass:[NSString class]])
-        action.actionId = json[@"id"];
-    else
-        return nil;
+        action.clickId = json[@"id"];
+    
+    if ([json[@"id"] isKindOfClass:[NSString class]])
+        action.clickId = json[@"id"];
     
     if ([json[@"url"] isKindOfClass:[NSString class]])
-        action.actionUrl = [NSURL URLWithString:json[@"url"]];
+        action.clickUrl = [NSURL URLWithString:json[@"url"]];
     
     if ([json[@"url_target"] isKindOfClass:[NSString class]] && OS_IS_VALID_URL_ACTION(json[@"url_target"]))
         action.urlActionType = OS_URL_ACTION_TYPE_FROM_STRING(json[@"url_target"]);

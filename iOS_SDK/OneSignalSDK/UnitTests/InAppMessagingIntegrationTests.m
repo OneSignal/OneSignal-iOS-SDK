@@ -349,7 +349,8 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction new];
-    action.actionId = @"test_action_id";
+    action.clickType = @"button";
+    action.clickId = @"test_action_id";
     
     let testMessage = [OSInAppMessage instanceWithJson:message];
     

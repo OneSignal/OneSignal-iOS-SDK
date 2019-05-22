@@ -158,10 +158,10 @@
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
     switch (action.urlActionType) {
             case OSInAppMessageActionUrlTypeSafari:
-            [[UIApplication sharedApplication] openURL:action.actionUrl options:@{} completionHandler:^(BOOL success) {}];
+            [[UIApplication sharedApplication] openURL:action.clickUrl options:@{} completionHandler:^(BOOL success) {}];
             break;
         case OSInAppMessageActionUrlTypeWebview:
-            [OneSignalHelper displayWebView:action.actionUrl];
+            [OneSignalHelper displayWebView:action.clickUrl];
             break;
         case OSInAppMessageActionUrlTypeReplaceContent:
             // this case is handled by the in-app message view controller.
@@ -206,17 +206,18 @@
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId forVariantId:(NSString *)variantId {
-    if (action.actionUrl)
+    if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
         [delegate handleMessageAction:action];
   
     let metricsRequest = [OSRequestInAppMessageOpened withAppId:OneSignal.app_id
-                                                 withPlayerId:OneSignal.currentSubscriptionState.userId
-                                                 withMessageId:messageId
-                                                 forVariantId: variantId
-                                                 withActionId:action.actionId];
+                                                   withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                  withMessageId:messageId
+                                                   forVariantId:variantId
+                                                  withClickType:action.clickType
+                                                    withClickId:action.clickId];
     
     [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
 }

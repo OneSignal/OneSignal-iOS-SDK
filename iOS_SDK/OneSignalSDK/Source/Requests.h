@@ -99,7 +99,12 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestInAppMessageOpened : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId withActionId:(NSString * _Nonnull)actionId;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                      forVariantId:(NSString * _Nonnull)variantId
+                     withClickType:(NSString * _Nonnull)clickType
+                       withClickId:(NSString * _Nonnull)clickId;
 @end
 
 @interface OSRequestLoadInAppMessageContent : OneSignalRequest

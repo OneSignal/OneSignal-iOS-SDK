@@ -77,11 +77,14 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @interface OSInAppMessageAction : NSObject
 
-/** The unique UUID identifier for this action */
-@property (strong, nonatomic, nonnull) NSString *actionId;
+/** The type of element that was clicked, button or image */
+@property (strong, nonatomic, nonnull) NSString *clickType;
+
+/** The unique identifier for this click */
+@property (strong, nonatomic, nonnull) NSString *clickId;
 
 /** The URL (if any) that should be opened when the action occurs */
-@property (strong, nonatomic, nullable) NSURL *actionUrl;
+@property (strong, nonatomic, nullable) NSURL *clickUrl;
 
 /** Allows actions to contain metadata. Unimplemented for now  */
 @property (strong, nonatomic, nullable) NSDictionary *additionalData;
