@@ -30,6 +30,8 @@
 #import "OneSignalHelper.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessagingHelpers.h"
+#import "OneSignalClientOverrider.h"
 
 @interface RequestTests : XCTestCase
 
@@ -42,6 +44,7 @@
     NSString *testMessageId;
     NSString *testEmailAddress;
     NSString *testInAppMessageId;
+    NSString *testInAppMessageAppId;
     NSString *testInAppMessageVariantId;
 }
 
@@ -55,6 +58,7 @@
     testEmailAddress = @"test@test.com";
     testMessageId = @"test_message_id";
     testInAppMessageId = @"test_in_app_message_id";
+    testInAppMessageAppId = @"test_in_app_message_app_id";
     testInAppMessageVariantId = @"test_in_app_message_variant_id";
 }
 
@@ -293,17 +297,23 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testLoadMessageContent {
-    let request = [OSRequestLoadInAppMessageContent withMessageId:testInAppMessageId withVariantId:testInAppMessageVariantId];
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
-    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html", testInAppMessageId, testInAppMessageVariantId]);
+    let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
     
-    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    let request = [OSRequestLoadInAppMessageContent withAppId:testInAppMessageAppId withMessageId:testInAppMessageId withVariantId:testInAppMessageVariantId];
     
-    XCTAssertTrue(request.dataRequest);
+    let iamUrlPath = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html?app_id=%@",
+                      testInAppMessageId,
+                      testInAppMessageVariantId,
+                      testInAppMessageAppId
+    ];
     
-    XCTAssertTrue([request.urlRequest.HTTPMethod isEqualToString:@"GET"]);
-    
-    XCTAssertTrue([request.urlRequest.allHTTPHeaderFields[@"Accept"] isEqualToString:@"text/html"]);
+    XCTAssertEqualObjects(request.urlRequest.URL.absoluteString, correctUrlWithPath(iamUrlPath));
+    XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"GET");
+    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
+    XCTAssertFalse(request.dataRequest);
 }
 
 @end

@@ -126,6 +126,13 @@ int messageIdIncrementer = 0;
     return testMessage;
 }
 
++ (NSDictionary*)testInAppMessageGetContainsWithHTML:(NSString*)html {
+    return @{
+      @"html": html,
+      @"display_duration": @123
+    };
+}
+
 @end
 
 

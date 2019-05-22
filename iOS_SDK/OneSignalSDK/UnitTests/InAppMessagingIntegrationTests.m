@@ -400,6 +400,11 @@
     (B) The SDK loads HTML content with the correct URL
 */
 - (void)testMessageHTMLLoadWithCorrectLanguage {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
+    
     let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let message = [OSInAppMessage instanceWithJson:messageJson];
@@ -413,12 +418,12 @@
     expectation.expectedFulfillmentCount = 1;
     expectation.assertForOverFulfill = true;
     
-    [message loadMessageHTMLContentWithResult:^(NSData *data) {
+    [message loadMessageHTMLContentWithResult:^(NSDictionary *data) {
         XCTAssertNotNil(data);
         
-        let html = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"HERE: %@", data);
         
-        XCTAssertEqualObjects(html, OS_DUMMY_HTML);
+        XCTAssertEqualObjects(data[@"html"], OS_DUMMY_HTML);
         
         [expectation fulfill];
     } failure:^(NSError *error) {
@@ -441,6 +446,11 @@
     SDK will use the 'default' variant.
 */
 - (void)testMessageHTMLLoadWithDefaultLanguage {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
+    
     let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let message = [OSInAppMessage instanceWithJson:messageJson];
@@ -451,7 +461,7 @@
     expectation.expectedFulfillmentCount = 1;
     expectation.assertForOverFulfill = true;
     
-    [message loadMessageHTMLContentWithResult:^(NSData *data) {
+    [message loadMessageHTMLContentWithResult:^(NSDictionary *data) {
         [expectation fulfill];
     } failure:^(NSError *error) {
         XCTFail(@"Failure occurred: %@", error);
