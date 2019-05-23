@@ -460,8 +460,8 @@
         [self displayMessage];
     }
     else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
-        [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
-        
+        if (event.userAction.clickType)
+            [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
         if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
             [self.messageView loadReplacementURL:event.userAction.clickUrl];
         if (event.userAction.close)
