@@ -38,7 +38,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    [FIRApp configure];
+//    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
@@ -62,7 +62,7 @@
     };
     
     [OneSignal initWithLaunchOptions:launchOptions
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+                               appId:[AppDelegate getOneSignalAppId]
           handleNotificationReceived:notificationReceiverBlock
             handleNotificationAction:openNotificationHandler
                             settings:@{kOSSettingsKeyAutoPrompt: @false,
@@ -80,6 +80,21 @@
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
+}
+
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
+
++ (NSString*)getOneSignalAppId {
+    NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
+    if (!onesignalAppId)
+        onesignalAppId = @"7451b741-ab9b-43f7-aa21-5f4ffb22af17";
+    
+    return onesignalAppId;
+}
+
++ (void) setOneSignalAppId:(NSString*)onesignalAppId {
+    [[NSUserDefaults standardUserDefaults] setObject:onesignalAppId forKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {

@@ -29,6 +29,7 @@
 // This project exisits to make testing OneSignal SDK changes.
 
 #import "ViewController.h"
+#import "AppDelegate.h"
 
 
 @interface ViewController ()
@@ -47,6 +48,8 @@
     self.activityIndicatorView.hidden = true;
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
+    
+    self.textField.text = [AppDelegate getOneSignalAppId];
     
     [OneSignal addInAppMessageActionHandler:self];
 }
@@ -84,31 +87,9 @@
     
 }
 
-- (IBAction)setEmailButtonPressed:(UIButton *)sender
-{
-    [self changeAnimationState:true];
-    [OneSignal setEmail:self.textField.text withEmailAuthHashToken:@"aa3e3201f8f8bfd2fcbe8a899c161b7acb5a86545196c5465bef47fd757ca356" withSuccess:^{
-        NSLog(@"Successfully sent email");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self changeAnimationState:false];
-        });
-    } withFailure:^(NSError *error) {
-        NSLog(@"Encountered error: %@", error);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self changeAnimationState:false];
-        });
-    }];
+- (IBAction)setEmailButtonPressed:(UIButton *)sender {
+    [AppDelegate setOneSignalAppId:self.textField.text];
 }
-
-- (IBAction)logoutButtonPressed:(UIButton *)sender
-{
-    [OneSignal logoutEmailWithSuccess:^{
-        NSLog(@"Successfully logged out of email");
-    } withFailure:^(NSError *error) {
-        NSLog(@"Encountered error while logging out of email: %@", error);
-    }];
-}
-
 
 - (void)promptForNotificationsWithNativeiOS10Code {
     id responseBlock = ^(BOOL granted, NSError* error) {
