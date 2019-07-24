@@ -929,6 +929,8 @@ static OneSignal* singleInstance = nil;
 static NSString *_customBaseUrl = SERVER_URL;
 
 + (void)setCustomBaseUrl:(NSString*)baseUrl {
+    if (baseUrl == nil) { return; }
+
     NSString *lastSymbol = [baseUrl substringFromIndex:(baseUrl.length - 1)];
     if (![lastSymbol isEqualToString:@"/"]) {
         baseUrl = [baseUrl stringByAppendingString:@"/"];
