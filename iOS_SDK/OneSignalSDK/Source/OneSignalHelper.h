@@ -75,6 +75,10 @@
 + (NSString*)hashUsingMD5:(NSString*)string;
 + (NSString*)trimURLSpacing:(NSString*)url;
 
+// Custom baseUrl
++ (void)setCustomBaseUrl:(NSString*)baseUrl;
++ (NSString*)customBaseUrl;
+
 #pragma clang diagnostic pop
 @end
 

@@ -431,6 +431,11 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: NULL handleNotificationAction : actionCallback settings: settings];
 }
 
++ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings baseUrl:(NSString*)baseUrl {
+    [OneSignalHelper setCustomBaseUrl:baseUrl];
+    return [self initWithLaunchOptions: launchOptions appId: appId handleNotificationReceived: receivedCallback handleNotificationAction : actionCallback settings: settings];
+}
+
 // NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
 //         Ensure a 2nd call can be made later with the appId from the developer's code.
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {

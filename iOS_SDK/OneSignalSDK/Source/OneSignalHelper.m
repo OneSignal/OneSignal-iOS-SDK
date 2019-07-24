@@ -926,6 +926,20 @@ static OneSignal* singleInstance = nil;
     return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
+static NSString *_customBaseUrl = SERVER_URL;
+
++ (void)setCustomBaseUrl:(NSString*)baseUrl {
+    NSString *lastSymbol = [baseUrl substringFromIndex:(baseUrl.length - 1)];
+    if (![lastSymbol isEqualToString:@"/"]) {
+        baseUrl = [baseUrl stringByAppendingString:@"/"];
+    }
+    _customBaseUrl = baseUrl;
+}
+
++ (NSString*)customBaseUrl {
+    return _customBaseUrl;
+}
+
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop

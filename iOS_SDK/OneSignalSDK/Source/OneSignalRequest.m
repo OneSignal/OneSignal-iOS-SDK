@@ -43,7 +43,8 @@
 
 -(NSMutableURLRequest *)urlRequest {
     //build URL
-    let urlString = [[SERVER_URL stringByAppendingString:API_VERSION] stringByAppendingString:self.path];
+    //    let urlString = [[SERVER_URL stringByAppendingString:API_VERSION] stringByAppendingString:self.path];
+    let urlString = [[[OneSignalHelper customBaseUrl] stringByAppendingString:API_VERSION] stringByAppendingString:self.path];
     
     let request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
