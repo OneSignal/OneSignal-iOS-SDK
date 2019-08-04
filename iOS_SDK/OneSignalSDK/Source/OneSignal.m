@@ -2084,20 +2084,24 @@ static NSString *_lastnonActiveMessageId;
         [self fireIdsAvailableCallback];
 }
 
-+ (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
++ (void)didRegisterForRemoteNotifications:(UIApplication *)app
+                              deviceToken:(NSData *)inDeviceToken {
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
-    
-    let trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
-    let parsedDeviceToken = [[trimmedDeviceToken componentsSeparatedByString:@" "] componentsJoinedByString:@""];
-    
-    
-    [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
-    
-    waitingForApnsResponse = false;
-    
+
     if (!app_id)
         return;
+
+    NSString *parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
+
+    [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
+
+    if (!parsedDeviceToken) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Unable to convert APNS device token to a string"];
+        return;
+    }
+    
+    waitingForApnsResponse = false;
     
     [OneSignal updateDeviceToken:parsedDeviceToken onSuccess:^(NSDictionary* results) {
         [OneSignal onesignal_Log:ONE_S_LL_INFO message:[NSString stringWithFormat: @"Device Registered with OneSignal: %@", self.currentSubscriptionState.userId]];

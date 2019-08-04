@@ -59,4 +59,15 @@
     return MIME_MAP[self];
 }
 
++ (NSString *)hexStringFromData:(NSData *)data
+{
+    NSMutableString *parsedDeviceToken = [NSMutableString new];
+    const char *byteArray = (char *)data.bytes;
+
+    for (int i = 0; i < data.length; i++)
+        [parsedDeviceToken appendFormat:@"%02.2hhx", byteArray[i]];
+
+    return [parsedDeviceToken copy];
+}
+
 @end
