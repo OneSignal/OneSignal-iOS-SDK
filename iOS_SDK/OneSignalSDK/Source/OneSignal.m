@@ -2089,9 +2089,6 @@ static NSString *_lastnonActiveMessageId;
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
 
-    if (!app_id)
-        return;
-
     NSString *parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
 
     [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
@@ -2102,6 +2099,9 @@ static NSString *_lastnonActiveMessageId;
     }
     
     waitingForApnsResponse = false;
+
+    if (!app_id)
+        return;
     
     [OneSignal updateDeviceToken:parsedDeviceToken onSuccess:^(NSDictionary* results) {
         [OneSignal onesignal_Log:ONE_S_LL_INFO message:[NSString stringWithFormat: @"Device Registered with OneSignal: %@", self.currentSubscriptionState.userId]];
