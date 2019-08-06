@@ -31,7 +31,11 @@
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 
+#define HTTP_HEADER_KEY_OS_VERSION @"SDK-Version"
+#define HTTP_HEADER_PREFIX_OS_VERSION @"onesignal/ios/"
+
 @implementation OneSignalRequest
+
 - (id)init {
     if (self = [super init]) {
         
@@ -62,6 +66,9 @@
     
     // usually just application/json
     [request setValue:self.requestContentType forHTTPHeaderField:@"Accept"];
+    
+    let versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, OS_SDK_VERSION];
+    [request setValue:versionString forHTTPHeaderField:HTTP_HEADER_KEY_OS_VERSION];
     
     [request setHTTPMethod:httpMethodString(self.method)];
     
