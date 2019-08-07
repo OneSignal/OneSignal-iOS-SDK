@@ -17,5 +17,8 @@
 - (NSString *)fileExtensionForMimeType;
 - (NSString *)supportedFileExtension;
 
+// returns a lower case hex representation of the data
++ (NSString *)hexStringFromData:(NSData *)data;
+
 @end
 #endif

@@ -35,6 +35,10 @@
 
 +(void)setCurrentUIApplicationState:(UIApplicationState)value;
 
++ (void)setAPNSTokenLength:(int)tokenLength;
+
++ (NSString *)mockAPNSToken;
+
 +(UILocalNotification*)lastUILocalNotification;
 
 +(void)runBackgroundThreads;
