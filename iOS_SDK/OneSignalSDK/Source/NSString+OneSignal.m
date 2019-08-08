@@ -7,6 +7,7 @@
 
 #import "NSString+OneSignal.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalHelper.h"
 
 #define MIME_MAP @{@"audio/aiff" : @"aiff", @"audio/x-wav" : @"wav", @"audio/mpeg" : @"mp3", @"video/mp4" : @"mp4", @"image/jpeg" : @"jpeg", @"image/jpg" : @"jpg", @"image/png" : @"png", @"image/gif" : @"gif", @"video/mpeg" : @"mpeg", @"video/mpg" : @"mpg", @"video/avi" : @"avi", @"sound/m4a" : @"m4a", @"video/m4v" : @"m4v"}
 
@@ -59,15 +60,19 @@
     return MIME_MAP[self];
 }
 
-+ (NSString *)hexStringFromData:(NSData *)data
-{
-    NSMutableString *parsedDeviceToken = [NSMutableString new];
-    const char *byteArray = (char *)data.bytes;
-
-    for (int i = 0; i < data.length; i++)
-        [parsedDeviceToken appendFormat:@"%02.2hhx", byteArray[i]];
-
-    return [parsedDeviceToken copy];
+// Converts a nonnull NSData into a NSString in a lower case hex format.
++ (nullable NSString *)hexStringFromData:(nonnull NSData *)data {
+    let dataLength = data.length;
+    if (dataLength == 0)
+        return nil;
+    
+    let dataBtyes = (unsigned char *)data.bytes;
+    let hexString  = [NSMutableString stringWithCapacity:dataLength * 2];
+    for (var i = 0; i < dataLength; i++)
+        [hexString appendFormat:@"%02x", dataBtyes[i]];
+    
+    // Copy to make immutable
+    return hexString.copy;
 }
 
 @end

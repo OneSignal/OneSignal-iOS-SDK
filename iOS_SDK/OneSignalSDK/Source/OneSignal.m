@@ -2089,7 +2089,7 @@ static NSString *_lastnonActiveMessageId;
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
 
-    NSString *parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
+    let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
 
     [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
 
