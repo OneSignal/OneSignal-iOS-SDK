@@ -310,6 +310,10 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return true;
 }
 
++ (BOOL)isInAppPreviewNotification:(NSDictionary *)msg {
+    return msg[@"custom"][@"a"][@"os_in_app_message_preview_id"] != nil;
+}
+
 + (void)lastMessageReceived:(NSDictionary*)message {
     lastMessageReceived = message;
 }

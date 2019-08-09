@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (OSMessagingController *)sharedInstance;
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;
 - (void)presentInAppMessage:(OSInAppMessage *)message;
+- (void)presentInAppPreviewMessage:(OSInAppMessage *)message;
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages;
 
 - (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;

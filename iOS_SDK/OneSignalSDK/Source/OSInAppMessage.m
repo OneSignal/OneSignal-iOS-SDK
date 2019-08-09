@@ -84,6 +84,13 @@
     return message;
 }
 
++ (instancetype)instancePreviewWithJson:(NSDictionary *)json {
+    let message = [OSInAppMessage new];
+    NSString *previewUUID= json[@"custom"][@"a"][@"os_in_app_message_preview_id"];
+    message.previewUUID = previewUUID;
+    return message;
+}
+
 -(NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     

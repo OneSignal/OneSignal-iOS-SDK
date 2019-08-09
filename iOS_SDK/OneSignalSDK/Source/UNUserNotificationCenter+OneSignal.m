@@ -175,18 +175,22 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
+    NSDictionary * userInfo =notification.request.content.userInfo;
+    let isInAppPreview = [OneSignalHelper isInAppPreviewNotification:userInfo];
+
     NSUInteger completionHandlerOptions = 0;
-    switch (OneSignal.inFocusDisplayType) {
-        case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
-        case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
-        case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
-        default: break;
+    if (!isInAppPreview) {
+        switch (OneSignal.inFocusDisplayType) {
+            case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
+            case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
+            case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
+            default: break;
+        }
     }
-    
     let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
     
     if ([OneSignal app_id])
-        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:notShown];
+        [OneSignal notificationReceived:userInfo isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])

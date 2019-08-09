@@ -125,6 +125,12 @@
     };
 }
 
+- (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
+    @synchronized (self.messageDisplayQueue) {
+        [self displayMessage:message];
+    };
+}
+
 - (void)displayMessage:(OSInAppMessage *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
         // TODO: Set this up AFTER the in app message loads.
@@ -189,6 +195,9 @@
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 -(void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
+        if ([self.messageDisplayQueue count] == 0)
+            return;
+        
         [self.messageDisplayQueue removeObjectAtIndex:0];
         
         if (self.messageDisplayQueue.count > 0) {

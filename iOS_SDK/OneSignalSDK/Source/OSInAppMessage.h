@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) OSInAppMessageDisplayPosition position;
 @property (nonatomic) NSNumber *height;
+@property (nonatomic) NSString *previewUUID;
 @property (nonatomic) NSTimeInterval maxDisplayTime;
 
 @end
