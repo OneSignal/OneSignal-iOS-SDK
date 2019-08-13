@@ -34,6 +34,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OSInAppMessage : NSObject <OSJSONDecodable, OSJSONEncodable>
+
 @property (strong, nonatomic, nonnull) NSString *messageId;
 @property (strong, nonatomic, nonnull) NSDictionary<NSString *, NSDictionary <NSString *, NSString *> *> *variants;
 @property (strong, nonatomic, nonnull) NSArray<NSArray <OSTrigger *> *> *triggers;
@@ -41,6 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) OSInAppMessageDisplayPosition position;
 @property (nonatomic) NSNumber *height;
 @property (nonatomic) NSTimeInterval maxDisplayTime;
+
+- (BOOL)isBanner;
 
 @end
 

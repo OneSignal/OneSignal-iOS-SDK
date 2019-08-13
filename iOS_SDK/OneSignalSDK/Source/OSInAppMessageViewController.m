@@ -45,7 +45,7 @@
 // The actual message subview
 @property (nonatomic, nullable) OSInAppMessageView *messageView;
 
-// Before the message display animation, this constrains the Y position
+// Before the top and bottom banner IAMs display, this constrains the Y position
 // of the message to be off-screen
 @property (strong, nonatomic, nonnull) NSLayoutConstraint *initialYConstraint;
 
@@ -60,6 +60,9 @@
 
 // This tap recognizer lets us dismiss the message if the user taps the background
 @property (weak, nonatomic, nullable) UITapGestureRecognizer *tapGestureRecognizer;
+
+// Previous orinetation which is assigned at the end of a device orinetation change
+@property (nonatomic) UIDeviceOrientation previousOrientation;
 
 // This point represents the X/Y location of where the most recent
 // pan gesture started. Used to determine the offset
@@ -99,19 +102,18 @@
     [self.messageView removeScriptMessageHandler];
 }
 
-// sets up the message UI. It is still hidden. Wait until
+// Sets up the message UI. It is still hidden. Wait until
 // the actual HTML content is loaded before animating appearance
 - (void)setupInitialMessageUI {
-//    self.view.alpha = 0.0;
-    
     NSLog(@"setupInitialMessageUI");
     
     self.messageView.delegate = self;
     
-    // TODO: We should not need this so we can remove.
-    // self.messageView.backgroundColor = [UIColor blackColor];
-    self.messageView.layer.cornerRadius = 10.0f;
-    self.messageView.clipsToBounds = true;
+    // Add drop shadow to the messageView
+    self.messageView.layer.shadowOffset = CGSizeMake(0, 3);
+    self.messageView.layer.shadowColor = [[UIColor blackColor] CGColor];
+    self.messageView.layer.shadowRadius = 3.0f;
+    self.messageView.layer.shadowOpacity = 0.55f;
     
     [self.view addSubview:self.messageView];
     
@@ -126,8 +128,11 @@
     // Sets up the message view in a hidden position while we wait
     [self setupInitialMessageUI];
     
+    // Only the center modal and full screen (both centered) IAM should have a dark background
+    // So get the alpha based on the IAM being a banner or not
+    double alphaBackground = [self.message isBanner] ? 0.0 : 0.5;
     [UIView animateWithDuration:0.3 animations:^{
-        self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
+        self.view.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:alphaBackground];
         self.view.alpha = 1.0;
     } completion:^(BOOL finished) {
         if (!finished)
@@ -135,7 +140,6 @@
         
         [self animateAppearance];
     }];
-    
     
     // If the message has a max display time, set up the timer now
     if (self.message.maxDisplayTime > 0.0f)
@@ -178,9 +182,12 @@
     show the message view.
 */
 - (void)addConstraintsForMessage {
-    
     // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
-    NSLayoutAnchor *top = self.view.topAnchor, *bottom = self.view.bottomAnchor, *leading = self.view.leadingAnchor, *trailing = self.view.trailingAnchor, *center = self.view.centerXAnchor;
+    NSLayoutAnchor *top = self.view.topAnchor,
+                   *bottom = self.view.bottomAnchor,
+                   *leading = self.view.leadingAnchor,
+                   *trailing = self.view.trailingAnchor,
+                   *center = self.view.centerXAnchor;
     NSLayoutDimension *height = self.view.heightAnchor;
     
     // The safe area represents the anchors that are not obscurable by  UI such
@@ -192,32 +199,22 @@
         height = safeArea.heightAnchor;
     }
     
+    CGRect mainBounds = [[UIScreen mainScreen] bounds];
+    CGFloat scale = UIScreen.mainScreen.scale;
     // The spacing between the message view & edges
-    let marginSpacing = MESSAGE_MARGIN * [UIScreen mainScreen].bounds.size.width;
+    let marginSpacing = MESSAGE_MARGIN * scale;
     
-    // Full screen messages don't care about aspect ratio, it's always full screen,
-    // thus instead of setting height based on aspect ratio we simply set it to be
-    // the same height as the display (subtracting the margin)
+    NSLog(@"[UIScreen mainScreen].bounds.size.width: %f", mainBounds.size.width);
     
-    // If we don't have a height then show fullscreen
-    
-    NSLog(@"[UIScreen mainScreen].bounds.size.width: %f", [UIScreen mainScreen].bounds.size.width);
-    
-    NSLog(@"self.message.height: %@", self.message.height);
     NSLog(@"self.message.height.: %f", self.message.height.doubleValue);
     NSLog(@"UIScreen.mainScreen.scale.: %f", UIScreen.mainScreen.scale);
     
-    if (!self.message.height)
+    // Height constraint based on the IAM being full screen or any others with a specific height
+    // NOTE: full screen IAM payload has no height, so match screen height minus margins
+    if (self.message.position == OSInAppMessageDisplayPositionFullScreen)
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:1.0 constant:-2.0f * marginSpacing];
     else
-       self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
-    
-    // Constrains the message view to a max width to look better on iPads & landscape
-    var maxWidth = MIN(self.view.bounds.size.height, self.view.bounds.size.width);
-    maxWidth -= 2.0f * marginSpacing;
-    
-    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad)
-        maxWidth /= 1.75f;
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
     
     // pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
@@ -225,33 +222,42 @@
     
     // Ensure the message view is always centered horizontally
     [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
-    
+
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
-    // Makes sure our webview is newer taller than our screen.
-    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-(2.0f * marginSpacing)].active = true;
+    // Makes sure our webview is never taller than our screen.
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing].active = true;
     
-    // add Y constraints
+    // Set Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
     // there are two constraints: initial and final. At initialization, the initial
     // constraint has a higher priority. The pan constraint is used only when panning
+    double bannerWidth = mainBounds.size.width;
+    double bannerHeight = self.message.height.doubleValue;
+    double bannerMessageY = mainBounds.size.height - bannerHeight;
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop:
-            [self.messageView.widthAnchor constraintLessThanOrEqualToConstant:maxWidth].active = true;
+            self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
+            
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
             self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
             break;
-        case OSInAppMessageDisplayPositionCentered:
-            self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
-            self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
-            self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
-            break;
         case OSInAppMessageDisplayPositionBottom:
-            [self.messageView.widthAnchor constraintLessThanOrEqualToConstant:maxWidth].active = true;
+            self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
+            
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
             self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
             self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
+            break;
+        case OSInAppMessageDisplayPositionFullScreen:
+        case OSInAppMessageDisplayPositionCenterModal:
+            self.view.window.frame = [[UIScreen mainScreen] bounds];
+            
+            self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
+            self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
+            self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
+            self.messageView.transform = CGAffineTransformMakeScale(0, 0);
             break;
     }
     
@@ -259,6 +265,7 @@
     // like animating the dismissal of the message view by simply changing one of the
     // Y constraint's priority. Constraints with higher priority take precedence over
     // constraints with lower priorities.
+    // Sets the proper intro animation constraints
     self.heightConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
     self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
     self.finalYConstraint.priority = MEDIUM_CONSTRAINT_PRIORITY;
@@ -308,6 +315,9 @@
     if (dismissAnimationDuration > MAX_DISMISSAL_ANIMATION_DURATION) {
         animationOption = UIViewAnimationOptionCurveEaseIn;
         dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
+    } else if (dismissAnimationDuration < MIN_DISMISSAL_ANIMATION_DURATION) {
+        animationOption = UIViewAnimationOptionCurveEaseIn;
+        dismissAnimationDuration = MIN_DISMISSAL_ANIMATION_DURATION;
     }
     
     [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
@@ -324,12 +334,17 @@
     }];
 }
 
-// Once HTML is loaded, the message should be presented. This method
-// animates the actual appearance of the message view.
+/**
+    Once HTML is loaded, the message should be presented
+    This method animates the actual appearance of the message view
+    For banners the initialYConstraint is set to LOW_CONSTRAINT_PRIORITY
+    For center modal and full screen, the transform is set to CGAffineTransformIdentity (original scale)
+*/
 - (void)animateAppearance {
     self.initialYConstraint.priority = LOW_CONSTRAINT_PRIORITY;
     
     [UIView animateWithDuration:0.3f animations:^{
+        self.messageView.transform = CGAffineTransformIdentity;
         [self.view layoutIfNeeded];
     }];
 }
@@ -353,14 +368,18 @@
     
     self.panGestureRecognizer = recognizer;
     
-    // Tap gesture recognizer for tapping background (dismissing)
-    let tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGestureRecognizerDidTap:)];
-    
-    tapRecognizer.numberOfTapsRequired = 1;
-    
-    [self.view addGestureRecognizer:tapRecognizer];
-    
-    self.tapGestureRecognizer = tapRecognizer;
+    // Only center modal and full screen should dismiss on background click
+    // Banners will allow interacting with the view behind it still
+    if (![self.message isBanner]) {
+        // Tap gesture recognizer for tapping background (dismissing)
+        let tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGestureRecognizerDidTap:)];
+        
+        tapRecognizer.numberOfTapsRequired = 1;
+        
+        [self.view addGestureRecognizer:tapRecognizer];
+        
+        self.tapGestureRecognizer = tapRecognizer;
+    }
 }
 
 // Called when the user pans (swipes) the message view
@@ -377,15 +396,15 @@
     if (sender.state == UIGestureRecognizerStateBegan) {
         [self beginPanAtLocation:location];
         
-        // since the user interacted with the content, cancel the
-        // max display time timer if it is scheduled
+        // Since the user interacted with the content, cancel the
+        // Max display time timer if it is scheduled
         if (self.dismissalTimer)
             [self.dismissalTimer invalidate];
         
         return;
     }
     
-    // tells us the offset from the message view's normal position
+    // Tells us the offset from the message view's normal position
     let offset = self.initialGestureRecognizerLocation.y - location.y;
     
     if (sender.state == UIGestureRecognizerStateEnded) {
@@ -396,25 +415,43 @@
         // Indicates if the in-app message was swiped away
         if ([self shouldDismissMessageWithPanGestureOffset:offset withVelocity:velocity]) {
             
-            // Centered messages can be dismissed in either direction (up/down)
-            if (self.message.position == OSInAppMessageDisplayPositionCentered) {
-                [self dismissMessageWithDirection:offset > 0 withVelocity:velocity];
-            } else {
+            if ([self.message isBanner]) {
                 // Top messages can only be dismissed by swiping up
                 // Bottom messages can only be dismissed swiping down
                 [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:velocity];
+            } else {
+                // Centered messages can be dismissed in either direction (up/down)
+                [self dismissMessageWithDirection:offset > 0 withVelocity:velocity];
             }
         } else {
-            // The pan constraint is now inactive, calling layoutIfNeeded()
-            // will cause the message to snap back to normal position
+            // The pan constraint is now inactive, calling layoutIfNeeded() will cause the message to snap back to normal position
             [UIView animateWithDuration:0.3 animations:^{
                 [self.view layoutIfNeeded];
             }];
         }
     } else if (sender.state == UIGestureRecognizerStateChanged) {
-        // The pan interaction is in progress, move the view to match the offset
-        self.panVerticalConstraint.constant = self.finalYConstraint.constant - offset;
-        
+        switch (self.message.position) {
+            case OSInAppMessageDisplayPositionTop:
+                if (self.panVerticalConstraint.constant < self.finalYConstraint.constant + offset) {
+                    // The pan interaction is in progress, move the view to match the offset
+                    self.panVerticalConstraint.constant = self.finalYConstraint.constant - offset;
+                } else {
+                    self.panVerticalConstraint.constant = self.finalYConstraint.constant;
+                }
+                break;
+            case OSInAppMessageDisplayPositionBottom:
+                if (self.panVerticalConstraint.constant > self.finalYConstraint.constant + offset) {
+                    // The pan interaction is in progress, move the view to match the offset
+                    self.panVerticalConstraint.constant = self.finalYConstraint.constant - offset;
+                } else {
+                    self.panVerticalConstraint.constant = self.finalYConstraint.constant;
+                }
+                break;
+            case OSInAppMessageDisplayPositionFullScreen:
+            case OSInAppMessageDisplayPositionCenterModal:
+                self.panVerticalConstraint.constant = self.finalYConstraint.constant - offset;
+                break;
+        }
         [self.view layoutIfNeeded];
     }
 }
@@ -424,21 +461,20 @@
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
-// Returns a boolean indicating if the message view should be dismissed
-// for the given pan offset (ie. if the user has panned far enough up or down)
+// Returns a boolean indicating if the message view should be dismissed for the given pan offset (ie. if the user has panned far enough up or down)
 - (BOOL)shouldDismissMessageWithPanGestureOffset:(double)offset withVelocity:(double)velocity {
     
-    // For Centered notifications, only true if the user was swiping
-    // in the same direction as the dismissal
+    // For Centered notifications, only true if the user was swiping in the same direction as the dismissal
     BOOL dismissDirection = (offset > 0 && velocity <= 0) || (offset < 0 && velocity >= 0);
     
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop:
             return (offset > self.messageView.bounds.size.height / 2.0f);
-        case OSInAppMessageDisplayPositionCentered:
-            return dismissDirection && ((fabs(offset) > self.messageView.bounds.size.height / 2.0f) || (fabs(offset) > 100));
         case OSInAppMessageDisplayPositionBottom:
             return (fabs(offset) > self.messageView.bounds.size.height / 2.0f) && offset < 0;
+        case OSInAppMessageDisplayPositionFullScreen:
+        case OSInAppMessageDisplayPositionCenterModal:
+            return dismissDirection && ((fabs(offset) > self.messageView.bounds.size.height / 2.0f) || (fabs(offset) > 100));
     }
 }
 
@@ -449,28 +485,107 @@
     NSLog(@"actionOccurredWithBody:event: %@", event);
     NSLog(@"actionOccurredWithBody:event.type: %d", event.type);
     
-    if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
-        self.message.position = event.rendingComplete.displayLocation;
-        self.message.height = event.rendingComplete.height;
-        
-        // The page is fully loaded and should now be displayed
-        // This is only fired once the javascript on the page sends the "rendering_complete" type event
-        // TODO: Before this event even we need to init the WebView with Tags and other data.
-        //   This way in the future we can add liquid template support to the javascript webview to eval on.
-        [self displayMessage];
-    }
-    else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
-        if (event.userAction.clickType)
-            [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
-        if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
-            [self.messageView loadReplacementURL:event.userAction.clickUrl];
-        if (event.userAction.close)
-            [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+    if (event) {
+        if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
+            self.message.position = event.renderingComplete.displayLocation;
+            self.message.height = event.renderingComplete.height;
+            
+            // The page is fully loaded and should now be displayed
+            // This is only fired once the javascript on the page sends the "rendering_complete" type event
+            [self displayMessage];
+        }
+        else if (event.type == OSInAppMessageBridgeEventTypePageResize) {
+            // Once the IAM is shown after the rendering complete event, the resize event is triggered a few times
+            // Seems like the resize event is not necessary, but will further investigate
+            
+            // This would be the updated height from the resize event, but causes IAM to be cut off in all cases besides full screen (no height)
+//            self.message.height = event.resize.height;
+        }
+        else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
+            if (event.userAction.clickType)
+                [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
+            if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
+                [self.messageView loadReplacementURL:event.userAction.clickUrl];
+            if (event.userAction.close)
+                [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+        }
     }
 }
 
+// Override method for handling orientation change within a view controller on iOS 8 or higher
+// This specifcially handles the resizing and reanimation of a currently showing IAM
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    
+    NSLog(@"Screen Orientation Change Detected");
+    
+    // Get current orientation of the device
+    UIDeviceOrientation currentOrientation = UIDevice.currentDevice.orientation;
+    // Ignore changes in device orientation if or coming from unknown, face up, or face down
+    if ([self isValidOrientation: currentOrientation previous:self.previousOrientation]) {
+        NSLog(@"Orientation Change Ended: Invalid Orientation");
+        self.previousOrientation = currentOrientation;
+        return;
+    }
+    
+    // Code here will execute before the orientation change begins
+    // Equivalent to placing it in the deprecated method -[willRotateToInterfaceOrientation:duration:]
+    NSLog(@"Orientation Change Started: Hiding IAM");
+    
+    // Inactivate the pan constraint while changing the screen orientation
+    self.panVerticalConstraint.active = false;
+    // Hide the IAM and prepare animation based on display location
+    self.messageView.hidden = true;
+    
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        
+        // Execute code or animations during the orientation change
+        // You can pass nil or leave this block empty if not necessary
+        NSLog(@"Orientation Change Occuring: Modifying IAM");
+        CGRect mainBounds = [[UIScreen mainScreen] bounds];
+        double bannerWidth = mainBounds.size.width;
+        double bannerHeight = self.message.height.doubleValue;
+        double bannerMessageY = mainBounds.size.height - bannerHeight;
+        switch (self.message.position) {
+            case OSInAppMessageDisplayPositionTop:
+                self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
+                break;
+            case OSInAppMessageDisplayPositionBottom:
+                self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
+                break;
+            case OSInAppMessageDisplayPositionFullScreen:
+            case OSInAppMessageDisplayPositionCenterModal:
+                self.view.window.frame = [[UIScreen mainScreen] bounds];
+                
+                // Set the transform constraint to prepare the center modal and full screen IAMs to scale from small to large
+                self.messageView.transform = CGAffineTransformMakeScale(0, 0);
+                break;
+        }
+        
+        // Only matters for the top and bottom banner IAMs
+        // Prepares both to slide up or down when animating on to the screen
+        self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
+        
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        
+        // Code here will execute after the rotation has finished
+        // Equivalent to placing it in the deprecated method -[didRotateFromInterfaceOrientation:]
+        NSLog(@"Orientation Change Complete: Showing IAM");
+        // Show the IAM and reanimate on to the screen
+        self.messageView.hidden = false;
+        [self animateAppearance];
+        self.previousOrientation = currentOrientation;
+        
+    }];
+}
+
+- (BOOL)isValidOrientation:(UIDeviceOrientation)current previous:(UIDeviceOrientation)previous {
+    return !UIDeviceOrientationIsValidInterfaceOrientation(current) ||
+    (previous && !UIDeviceOrientationIsValidInterfaceOrientation(previous));
+}
+
 #pragma mark OSInAppMessageViewDelegate Methods
--(void)messageViewFailedToLoadMessageContent {
+- (void)messageViewFailedToLoadMessageContent {
     [self.delegate messageViewControllerWasDismissed];
 }
 
@@ -478,7 +593,7 @@
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
--(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Received in-app script message: %@", message.body]];
     [self jsEventOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }
