@@ -133,6 +133,7 @@
             self.window = [[UIWindow alloc] init];
             self.window.windowLevel = UIWindowLevelAlert;
             self.window.frame = [[UIScreen mainScreen] bounds];
+            self.window.clipsToBounds = true;
         }
         
         let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];

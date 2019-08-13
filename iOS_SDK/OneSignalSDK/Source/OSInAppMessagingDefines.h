@@ -33,9 +33,10 @@
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionBottom,
     OSInAppMessageDisplayPositionTop,
-    OSInAppMessageDisplayPositionCentered
+    OSInAppMessageDisplayPositionCenterModal,
+    OSInAppMessageDisplayPositionFullScreen
 };
-#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(position) [@[@"bottom",@"top",@"center"] indexOfObject:position]
+#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(position) [@[@"bottom_banner",@"top_banner",@"center_modal",@"full_screen"] indexOfObject:position]
 
 typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
     OSTriggerOperatorTypeGreaterThan,
@@ -52,13 +53,10 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 // Defines the amount of space (margins) in-app message views are given.
 // The higher this value is, the farther away from the edges of the screen
 // the in-app messages will be.
-#define MESSAGE_MARGIN 0.025f
+#define MESSAGE_MARGIN 8.0f
 
-// Aspect ratios for messages. Note that full-screen messages fill the screen
-#define BANNER_ASPECT_RATIO 2.3f
-#define CENTERED_MODAL_ASPECT_RATIO 0.81f
-
-// defines the slowest allowable dismissal speed for in-app messages.
+// defines the slowest and fastest allowable dismissal speed for in-app messages.
+#define MIN_DISMISSAL_ANIMATION_DURATION 0.1f
 #define MAX_DISMISSAL_ANIMATION_DURATION 0.3f
 
 // Key for NSUserDefaults trigger storage
@@ -85,7 +83,7 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
 
 
-#define OS_BRIDGE_EVENT_TYPES @[@"rendering_complete", @"action_taken"]
+#define OS_BRIDGE_EVENT_TYPES @[@"rendering_complete", @"action_taken", @"resize"]
 #define OS_IS_VALID_BRIDGE_EVENT_TYPE(string) [OS_BRIDGE_EVENT_TYPES containsObject:string]
 #define OS_BRIDGE_EVENT_TYPE_FROM_STRING(string) (OSInAppMessageBridgeEventType)[OS_BRIDGE_EVENT_TYPES indexOfObject:string]
 

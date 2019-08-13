@@ -66,6 +66,8 @@
     self.webView.scrollView.delegate = self;
     self.webView.scrollView.scrollEnabled = false;
     self.webView.navigationDelegate = self;
+    self.webView.layer.cornerRadius = 10.0f;
+    self.webView.layer.masksToBounds = true;
     
     [self addSubview:self.webView];
     
@@ -91,7 +93,7 @@
 }
 
 #pragma mark WKWebViewNavigationDelegate Methods
--(void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     //webview finished loading
     if (self.loaded)
         return;
