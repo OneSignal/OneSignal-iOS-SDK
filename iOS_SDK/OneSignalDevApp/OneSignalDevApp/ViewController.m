@@ -164,4 +164,12 @@
     return false;
 }
 
+- (IBAction)sendTestOutcomeEvent:(UIButton *)sender {
+    [OneSignal outcome:@"test" onSuccess:^(NSDictionary *result) {
+         NSLog(@"sendTestOutcomeEvent success");
+    } onFailure:^(NSError *error) {
+        NSLog(@"sendTestOutcomeEvent failure");
+    }];
+}
+
 @end

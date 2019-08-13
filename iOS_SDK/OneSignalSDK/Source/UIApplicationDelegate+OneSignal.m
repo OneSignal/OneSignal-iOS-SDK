@@ -42,7 +42,7 @@
 + (void) handleDidFailRegisterForRemoteNotification:(NSError*)error;
 + (void) updateNotificationTypes:(int)notificationTypes;
 + (NSString*) app_id;
-+ (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened;
++ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 + (BOOL) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
@@ -177,9 +177,11 @@ static NSArray* delegateSubclasses = nil;
 // Fallback method - Normally this would not fire as oneSignalRemoteSilentNotification below will fire instead. Was needed for iOS 6 support in the past.
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalReceivedRemoteNotification:userInfo:"];
-    
-    if ([OneSignal app_id])
-        [OneSignal notificationReceived:userInfo isActive:[application applicationState] == UIApplicationStateActive wasOpened:true];
+
+    if ([OneSignal app_id]) {
+        let isActive = [application applicationState] == UIApplicationStateActive;
+        [OneSignal notificationReceived:userInfo foreground:isActive isActive:isActive wasOpened:true];
+    }
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
         [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
@@ -198,7 +200,7 @@ static NSArray* delegateSubclasses = nil;
     
     if ([OneSignal app_id]) {
         if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
-            [OneSignal notificationReceived:userInfo isActive:YES wasOpened:NO];
+            [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:NO];
         else
             startedBackgroundJob = [OneSignal remoteSilentNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
     }
