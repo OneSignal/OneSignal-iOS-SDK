@@ -47,7 +47,9 @@
     NSString *testInAppMessageId;
     NSString *testInAppMessageAppId;
     NSString *testInAppMessageVariantId;
-
+    NSString *testNotificationId;
+    NSNumber *testDeviceType;
+    
     OSInAppMessageBridgeEvent *testBridgeEvent;
     OSInAppMessageAction *testAction;
 }
@@ -64,7 +66,9 @@
     testInAppMessageId = @"test_in_app_message_id";
     testInAppMessageAppId = @"test_in_app_message_app_id";
     testInAppMessageVariantId = @"test_in_app_message_variant_id";
-
+    testNotificationId = @"test_notification_id";
+    testDeviceType = @0;
+    
     testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
         @"type" : @"action_taken",
         @"body" : @{
@@ -166,6 +170,36 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"tags" : @{}, @"net_type" : @0}));
+}
+
+- (void)testSendDirectOutcome {
+    let request = [OSRequestSendOutcomesToServer directWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType timestamp:nil];
+    
+    let correctUrl = correctUrlWithPath(@"outcomes/measure");
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @YES, @"notification_id" : testNotificationId}));
+}
+
+- (void)testSendIndirectOutcome {
+    let request = [OSRequestSendOutcomesToServer indirectWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType timestamp:nil];
+    
+    let correctUrl = correctUrlWithPath(@"outcomes/measure");
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @NO, @"notification_id" : testNotificationId}));
+}
+
+- (void)testSendUnattributedOutcome {
+    let request = [OSRequestSendOutcomesToServer unattributedWithOutcomeId:@"test" appId:testAppId deviceType:testDeviceType];
+    
+    let correctUrl = correctUrlWithPath(@"outcomes/measure");
+    
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType}));
 }
 
 - (void)testUpdateDeviceToken {

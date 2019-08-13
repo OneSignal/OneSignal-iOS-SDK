@@ -37,6 +37,7 @@
 @interface OneSignal ()
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
+                      foreground:(BOOL)foreground
                         isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType
                      displayType:(OSNotificationDisplayType)displayType;
@@ -131,7 +132,7 @@ static NSMutableArray* delegateReference;
         mMessageDict = userInfo;
     }
     
-    [OneSignal handleNotificationOpened:mMessageDict isActive:YES actionType:actionType displayType:OSNotificationDisplayTypeInAppAlert];
+    [OneSignal handleNotificationOpened:mMessageDict foreground:YES isActive:YES actionType:actionType displayType:OSNotificationDisplayTypeInAppAlert];
     
     [delegateReference removeObject:self];
 }

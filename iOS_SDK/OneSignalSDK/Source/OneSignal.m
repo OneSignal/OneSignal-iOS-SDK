@@ -42,6 +42,9 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OneSignalOutcomeController.h"
+#import "SessionManager.h"
+#import "NotificationData.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -66,7 +69,6 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import "OneSignalSetEmailParameters.h"
-#import "OneSignalCommonDefines.h"
 #import "DelayedInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
@@ -187,6 +189,9 @@ NSString* emailToSet;
 NSMutableDictionary* tagsToSend;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
+
+SessionManager *sessionManager = nil;
+OneSignalOutcomesController *outcomeController = nil;
 
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
@@ -431,6 +436,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
     initializationTime = [NSDate date];
+    sessionManager = [[SessionManager alloc] init];
+    [sessionManager restartSession];
+    outcomeController = [[OneSignalOutcomesController alloc] initWithSessionManager:sessionManager];
     
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
     //the app ID is required to download parameters, so do not download params until the appID is provided
@@ -1427,7 +1435,6 @@ static BOOL waitingForOneSReg = false;
     return delta > minTimeThreshold;
 }
 
-
 + (void)registerUserAfterDelay {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
@@ -1470,6 +1477,7 @@ static dispatch_queue_t serialQueue;
     if (![self shouldRegisterNow])
         return;
     
+    [sessionManager restartSession];
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
@@ -1516,7 +1524,6 @@ static dispatch_queue_t serialQueue;
         dataDic[@"sdk_type"] = mSDKType;
         dataDic[@"ios_bundle"] = [[NSBundle mainBundle] bundleIdentifier];
     }
-    
     
     let preferredLanguages = [NSLocale preferredLanguages];
     if (preferredLanguages && preferredLanguages.count > 0)
@@ -1578,7 +1585,7 @@ static dispatch_queue_t serialQueue;
     
     if (self.currentEmailSubscriptionState.emailUserId && (!self.currentEmailSubscriptionState.requiresEmailAuth || self.currentEmailSubscriptionState.emailAuthCode)) {
         let emailDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
-        emailDataDic[@"device_type"] = @11;
+        emailDataDic[@"device_type"] = [NSNumber numberWithInt:DEVICE_TYPE_EMAIL];
         emailDataDic[@"email_auth_hash"] = self.currentEmailSubscriptionState.emailAuthCode;
         
         requests[@"email"] = [OSRequestRegisterUser withData:emailDataDic userId:self.currentEmailSubscriptionState.emailUserId];
@@ -1792,7 +1799,9 @@ static NSString *_lastnonActiveMessageId;
 //  - 2. Notification received
 //    - 2A. iOS 9  - Notification received while app is in focus.
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
-+ (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened {
+// isActive is not always true for when the application is on foreground, we need differentiation
+// between foreground and isActive
++ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened {
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
@@ -1849,7 +1858,7 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
+        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
     }
 }
 
@@ -1864,6 +1873,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
+                       foreground:(BOOL)foreground
                         isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType
                      displayType:(OSNotificationDisplayType)displayType {
@@ -1879,7 +1889,6 @@ static NSString *_lastnonActiveMessageId;
     onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
 
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
-    
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
     [OneSignal submitNotificationOpened:messageId];
@@ -1898,7 +1907,17 @@ static NSString *_lastnonActiveMessageId;
     
     //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
-    
+    if (!foreground) {
+        switch (displayType) {
+            case OSNotificationDisplayTypeNotification:
+                [NotificationData saveLastNotificationFromBackground:messageId];
+                [sessionManager onSessionFromNotification];
+                break;
+                
+            default:
+                break;
+        }
+    }
     //ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
     if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
         [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
@@ -2060,7 +2079,6 @@ static NSString *_lastnonActiveMessageId;
     var startedBackgroundJob = false;
     
     NSDictionary* richData = nil;
-    
     // TODO: Look into why the userInfo payload would be different here for displaying vs opening....
     // Check for buttons or attachments pre-2.4.0 version
     if ((userInfo[@"os_data"][@"buttons"] && [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]]) || userInfo[@"at"] || userInfo[@"o"])
@@ -2084,9 +2102,9 @@ static NSString *_lastnonActiveMessageId;
         
         if (application.applicationState == UIApplicationStateActive)
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
-        
+
         if (![OneSignalHelper isRemoteSilentNotification:userInfo])
-            [OneSignal notificationReceived:userInfo isActive:NO wasOpened:YES];
+            [OneSignal notificationReceived:userInfo foreground:application.applicationState == UIApplicationStateActive isActive:NO wasOpened:YES];
         
         return startedBackgroundJob;
     }
@@ -2095,8 +2113,10 @@ static NSString *_lastnonActiveMessageId;
         [OneSignalHelper lastMessageReceived:userInfo];
         if ([OneSignalHelper isRemoteSilentNotification:userInfo])
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
-        else
+        else {
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
+            [NotificationData saveLastNotificationFromBackground:nil];
+        }
     }
     
     return startedBackgroundJob;
@@ -2116,11 +2136,13 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     let isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-    [OneSignal notificationReceived:userInfo isActive:isActive wasOpened:YES];
+
+    [OneSignal notificationReceived:userInfo foreground:isActive isActive:isActive wasOpened:YES];
     
     // Notification Tapped or notification Action Tapped
     if (!isActive)
         [self handleNotificationOpened:userInfo
+                            foreground:isActive
                               isActive:isActive
                             actionType:OSNotificationActionTypeActionTaken
                            displayType:OSNotificationDisplayTypeNotification];
@@ -2243,7 +2265,8 @@ static NSString *_lastnonActiveMessageId;
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:@11 withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice
+                                                      withAppId:self.app_id withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_EMAIL] withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken] onSuccess:^(NSDictionary *result) {
             
             let emailPlayerId = (NSString *)result[@"id"];
             
@@ -2473,6 +2496,33 @@ static NSString *_lastnonActiveMessageId;
 
     [self setExternalUserId:@""];
 }
+
+/*
+ Start of outcome module
+ */
+
++ (void)outcome:(NSString * _Nonnull)name {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
+        return;
+    if (outcomeController == nil)
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
+    
+    [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:nil failureBlock:nil];
+}
+
++ (void)outcome:(NSString *)name onSuccess:(OSResultSuccessBlock)success onFailure:(OSFailureBlock)failure {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
+        return;
+    if (outcomeController == nil)
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
+    
+    [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+/*
+ End of outcome module
+ */
 
 @end
 

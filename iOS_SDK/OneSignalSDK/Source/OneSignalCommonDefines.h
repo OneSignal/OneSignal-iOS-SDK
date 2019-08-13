@@ -53,6 +53,9 @@
 #define PERMISSION_PROVISIONAL_STATUS @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"
 #define PERMISSION_PROVIDES_NOTIFICATION_SETTINGS @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"
 #define EXTERNAL_USER_ID @"OS_EXTERNAL_USER_ID"
+#define NOTIFICATION_ID @"NOTIFICATION_ID"
+#define NOTIFICATION_TIME @"NOTIFICATION_TIME"
+#define NOTIFICATION_FROM_BACKGROUND @"NOTIFICATION_FROM_BACKGROUND"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
@@ -91,6 +94,9 @@
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
+// OneSignal Session Types
+typedef enum {DIRECT, INDIRECT, UNATTRIBUTED, NONE} SessionState;
+
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define httpMethodString(enum) [@[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"] objectAtIndex:enum]
@@ -120,6 +126,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // The SDK saves a list of category ID's allowing multiple notifications
 // to have their own unique buttons/etc.
 #define SHARED_CATEGORY_LIST @"com.onesignal.shared_registered_categories"
+
+// Device type
+#define DEVICE_TYPE 0
+#define DEVICE_TYPE_EMAIL 11
 
 #ifndef OS_TEST
     // OneSignal API Client Defines
