@@ -143,7 +143,7 @@
         
         [self animateAppearance];
     }];
-    
+
     // If the message has a max display time, set up the timer now
     if (self.message.maxDisplayTime > 0.0f)
         self.dismissalTimer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime target:self selector:@selector(maxDisplayTimeTimerFinished) userInfo:nil repeats:false];
@@ -218,7 +218,7 @@
     let marginSpacing = MESSAGE_MARGIN * scale;
     
     NSLog(@"[UIScreen mainScreen].bounds.size.width: %f", mainBounds.size.width);
-    
+
     NSLog(@"self.message.height.: %f", self.message.height.doubleValue);
     NSLog(@"UIScreen.mainScreen.scale.: %f", UIScreen.mainScreen.scale);
     
@@ -228,7 +228,7 @@
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:1.0 constant:-2.0f * marginSpacing];
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
-    
+
     // pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
     let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing];
@@ -251,14 +251,14 @@
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop:
             self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
-            
+
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
             self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
             break;
         case OSInAppMessageDisplayPositionBottom:
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
-            
+
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
             self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
             self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
@@ -266,7 +266,7 @@
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
             self.view.window.frame = [[UIScreen mainScreen] bounds];
-            
+
             self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
             self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
             self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
@@ -386,11 +386,11 @@
     if (![self.message isBanner]) {
         // Tap gesture recognizer for tapping background (dismissing)
         let tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGestureRecognizerDidTap:)];
-        
+
         tapRecognizer.numberOfTapsRequired = 1;
-        
+
         [self.view addGestureRecognizer:tapRecognizer];
-        
+
         self.tapGestureRecognizer = tapRecognizer;
     }
 }
@@ -502,7 +502,7 @@
         if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
             self.message.position = event.renderingComplete.displayLocation;
             self.message.height = event.renderingComplete.height;
-            
+
             // The page is fully loaded and should now be displayed
             // This is only fired once the javascript on the page sends the "rendering_complete" type event
             [self displayMessage];
@@ -510,13 +510,13 @@
         else if (event.type == OSInAppMessageBridgeEventTypePageResize) {
             // Once the IAM is shown after the rendering complete event, the resize event is triggered a few times
             // Seems like the resize event is not necessary, but will further investigate
-            
+
             // This would be the updated height from the resize event, but causes IAM to be cut off in all cases besides full screen (no height)
 //            self.message.height = event.resize.height;
         }
         else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
             if (event.userAction.clickType)
-                [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
+                [self.delegate messageViewDidSelectAction:event.userAction isPreview:self.message.previewUUID != nil withMessageId:self.message.messageId forVariantId:self.message.variantId];
             if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
                 [self.messageView loadReplacementURL:event.userAction.clickUrl];
             if (event.userAction.close)
@@ -529,9 +529,9 @@
 // This specifcially handles the resizing and reanimation of a currently showing IAM
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    
+
     NSLog(@"Screen Orientation Change Detected");
-    
+
     // Get current orientation of the device
     UIDeviceOrientation currentOrientation = UIDevice.currentDevice.orientation;
     // Ignore changes in device orientation if or coming from unknown, face up, or face down
@@ -540,18 +540,18 @@
         self.previousOrientation = currentOrientation;
         return;
     }
-    
+
     // Code here will execute before the orientation change begins
     // Equivalent to placing it in the deprecated method -[willRotateToInterfaceOrientation:duration:]
     NSLog(@"Orientation Change Started: Hiding IAM");
-    
+
     // Inactivate the pan constraint while changing the screen orientation
     self.panVerticalConstraint.active = false;
     // Hide the IAM and prepare animation based on display location
     self.messageView.hidden = true;
-    
+
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        
+
         // Execute code or animations during the orientation change
         // You can pass nil or leave this block empty if not necessary
         NSLog(@"Orientation Change Occuring: Modifying IAM");
@@ -569,18 +569,18 @@
             case OSInAppMessageDisplayPositionFullScreen:
             case OSInAppMessageDisplayPositionCenterModal:
                 self.view.window.frame = [[UIScreen mainScreen] bounds];
-                
+
                 // Set the transform constraint to prepare the center modal and full screen IAMs to scale from small to large
                 self.messageView.transform = CGAffineTransformMakeScale(0, 0);
                 break;
         }
-        
+
         // Only matters for the top and bottom banner IAMs
         // Prepares both to slide up or down when animating on to the screen
         self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
-        
+
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        
+
         // Code here will execute after the rotation has finished
         // Equivalent to placing it in the deprecated method -[didRotateFromInterfaceOrientation:]
         NSLog(@"Orientation Change Complete: Showing IAM");
@@ -588,7 +588,7 @@
         self.messageView.hidden = false;
         [self animateAppearance];
         self.previousOrientation = currentOrientation;
-        
+
     }];
 }
 
