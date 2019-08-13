@@ -31,6 +31,10 @@
 
 @implementation OSInAppMessage
 
+- (BOOL)isBanner {
+    return self.position == OSInAppMessageDisplayPositionTop || self.position == OSInAppMessageDisplayPositionBottom;
+}
+
 + (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
