@@ -28,6 +28,7 @@
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
+#import "NotificationData.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
 
@@ -46,6 +47,8 @@
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
+    [NotificationData saveLastNotificationWithBackground:payload.notificationID wasOnBackground:[[UIApplication sharedApplication] applicationState] != UIApplicationStateActive];
+
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request
                                  withPayload:payload

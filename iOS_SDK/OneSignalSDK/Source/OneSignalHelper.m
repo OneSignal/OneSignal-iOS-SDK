@@ -40,6 +40,7 @@
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
+#import "NotificationData.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -50,7 +51,6 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
 
 @interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;
@@ -399,12 +399,20 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    
+
     // Prevent duplicate calls to same receive event
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
+    
+    switch (displayType) {
+        case OSNotificationDisplayTypeNotification:
+            [NotificationData saveLastNotification:lastMessageID];
+            break;
+        default:
+            break;
+    }
 
     if (![self handleIAMPreview:payload] && handleNotificationReceived)
         handleNotificationReceived(notification);

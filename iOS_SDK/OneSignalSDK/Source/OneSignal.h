@@ -396,7 +396,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*)message;
++ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*)message;
 
 // - Tagging
 + (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
@@ -488,6 +488,9 @@ typedef void (^OSEmailSuccessBlock)();
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
 + (void)removeExternalUserId;
+
++ (void)outcome:(NSString * _Nonnull)name;
++ (void)outcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock)success onFailure:(OSFailureBlock)failure;
 
 @end
 
