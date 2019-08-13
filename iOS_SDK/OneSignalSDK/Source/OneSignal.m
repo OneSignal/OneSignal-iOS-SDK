@@ -1553,7 +1553,6 @@ static dispatch_queue_t serialQueue;
         [OneSignalLocation clearLastLocation];
     }
     
-    
     let pushDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
     pushDataDic[@"identifier"] = self.currentSubscriptionState.pushToken;
     
@@ -1570,7 +1569,8 @@ static dispatch_queue_t serialQueue;
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         waitingForOneSReg = false;
-        
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
+         
         // Success, no more high priority
         nextRegistrationIsHighPriority = NO;
         
@@ -1678,6 +1678,11 @@ static dispatch_queue_t serialQueue;
     [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];
 }
 
++ (void)receivedInAppMessagePreviewJson:(NSDictionary *)messagesJson {
+    OSInAppMessage *message = [OSInAppMessage instancePreviewWithJson:messagesJson];
+    [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
+}
+
 +(NSString*)getUsableDeviceToken {
     if (mSubscriptionStatus < -1)
         return NULL;
@@ -1777,7 +1782,7 @@ static NSString *_lastnonActiveMessageId;
     if (![OneSignalHelper isOneSignalPayload:messageDict])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
+    onesignal_Log(ONE_S_LL_VERBOSE, @"notificationReceived:isActive called!");
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
@@ -1792,8 +1797,10 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
+        if ([self checkAndHandleInAppPreview:messageDict])
+            return;
         
+        let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
         // Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
             [OneSignalAlertView showInAppAlert:messageDict];
@@ -1843,6 +1850,11 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:isActive:actionType:displayType:"])
         return;
     
+    onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
+    
+    if ([self checkAndHandleInAppPreview:messageDict])
+        return;
+    
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
     // Notify backend that user opened the notification
@@ -1868,6 +1880,15 @@ static NSString *_lastnonActiveMessageId;
     if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
         [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
     }
+}
+
++ (BOOL)checkAndHandleInAppPreview:(NSDictionary*)messageDict {
+    let isInAppPreview = [OneSignalHelper isInAppPreviewNotification:messageDict];
+    if (isInAppPreview) {
+        [self receivedInAppMessagePreviewJson:messageDict];
+        return YES;
+    }
+    return NO;
 }
 
 + (BOOL)shouldPromptToShowURL {

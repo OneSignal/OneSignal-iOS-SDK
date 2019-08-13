@@ -56,6 +56,7 @@
 + (UILocalNotification*)prepareUILocalNotification:(OSNotificationPayload*)payload;
 + (BOOL)verifyURL:(NSString*)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
++ (BOOL)isInAppPreviewNotification:(NSDictionary*)msg;
 + (NSMutableSet<UNNotificationCategory*>*)existingCategories;
 + (void)addAttachments:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;
 + (void)addActionButtons:(OSNotificationPayload*)payload toNotificationContent:(UNMutableNotificationContent*)content;

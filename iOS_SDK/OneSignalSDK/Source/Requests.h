@@ -111,5 +111,9 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
 @end
 
+@interface OSRequestLoadInAppMessagePreviewContent : OneSignalRequest
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId previewUUID:(NSString * _Nonnull)previewUUID;
+@end
+
 #endif /* Requests_h */
 

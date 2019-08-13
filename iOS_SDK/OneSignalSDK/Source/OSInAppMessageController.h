@@ -33,7 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSInAppMessage (OSInAppMessageController)
 
-- (void)loadMessageHTMLContentWithResult:(OSResultSuccessBlock)successBlock failure:(OSFailureBlock)failureBlock;
+- (void)loadMessageHTMLContentWithResult:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock;
+- (void)loadPreviewMessageHTMLContentWithUUID:(NSString * _Nonnull)previewUUID success:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock;
 
 - (NSString * _Nullable)variantId;
 

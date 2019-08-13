@@ -379,3 +379,21 @@
     return request;
 }
 @end
+
+@implementation OSRequestLoadInAppMessagePreviewContent
+
++ (instancetype)withAppId:(NSString *)appId previewUUID:(NSString *)previewUUID {
+    let request = [OSRequestLoadInAppMessagePreviewContent new];
+    
+    request.method = GET;
+    request.parameters = @{
+      @"preview_id": previewUUID,
+      @"app_id": appId
+    };
+    
+    request.path = @"in_app_messages/device_preview";
+    
+    return request;
+}
+
+@end

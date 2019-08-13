@@ -91,7 +91,10 @@
     
     self.messageView = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
     // loads the HTML content
-    [self loadMessageContent];
+    if (self.message.previewUUID != nil)
+        [self loadPreviewMessageContent];
+    else
+        [self loadMessageContent];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -150,8 +153,8 @@
     [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
 }
 
-- (void)loadMessageContent {
-    [self.message loadMessageHTMLContentWithResult:^(NSDictionary *data) {
+- (OSResultSuccessBlock)messageContentOnSuccess {
+    return ^(NSDictionary *data) {
         if (!data) {
             [self encounteredErrorLoadingMessageContent:nil];
             return;
@@ -163,7 +166,17 @@
         
         NSString* htmlContent = data[@"html"];
         [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
-    } failure:^(NSError *error) {
+    };
+}
+
+- (void)loadMessageContent {
+    [self.message loadMessageHTMLContentWithResult:[self messageContentOnSuccess] failure:^(NSError *error) {
+        [self encounteredErrorLoadingMessageContent:error];
+    }];
+}
+
+- (void)loadPreviewMessageContent {
+    [self.message loadPreviewMessageHTMLContentWithUUID:self.message.previewUUID success:[self messageContentOnSuccess] failure:^(NSError *error) {
         [self encounteredErrorLoadingMessageContent:error];
     }];
 }
@@ -503,7 +516,7 @@
         }
         else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
             if (event.userAction.clickType)
-                [self.delegate messageViewDidSelectAction:event.userAction withMessageId:self.message.messageId forVariantId:self.message.variantId];
+                [self.delegate messageViewDidSelectAction:event.userAction isPreview:self.message.previewUUID != nil withMessageId:self.message.messageId forVariantId:self.message.variantId];
             if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
                 [self.messageView loadReplacementURL:event.userAction.clickUrl];
             if (event.userAction.close)

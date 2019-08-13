@@ -125,6 +125,12 @@
     };
 }
 
+- (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
+    @synchronized (self.messageDisplayQueue) {
+        [self displayMessage:message];
+    };
+}
+
 - (void)displayMessage:(OSInAppMessage *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
         // TODO: Set this up AFTER the in app message loads.
@@ -190,6 +196,10 @@
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 -(void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
+        //preview case
+        if ([self.messageDisplayQueue count] == 0)
+            return;
+        
         [self.messageDisplayQueue removeObjectAtIndex:0];
         
         if (self.messageDisplayQueue.count > 0) {
@@ -206,21 +216,23 @@
     }
 }
 
-- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action withMessageId:(NSString *)messageId forVariantId:(NSString *)variantId {
+- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action isPreview:(BOOL)isPreview withMessageId:(NSString *)messageId forVariantId:(NSString *)variantId {
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
     for (id<OSInAppMessageDelegate> delegate in self.delegates)
         [delegate handleMessageAction:action];
   
-    let metricsRequest = [OSRequestInAppMessageOpened withAppId:OneSignal.app_id
-                                                   withPlayerId:OneSignal.currentSubscriptionState.userId
-                                                  withMessageId:messageId
-                                                   forVariantId:variantId
-                                                  withClickType:action.clickType
-                                                    withClickId:action.clickId];
-    
-    [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
+    if (!isPreview) {
+        let metricsRequest = [OSRequestInAppMessageOpened withAppId:OneSignal.app_id
+                                                       withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                      withMessageId:messageId
+                                                       forVariantId:variantId
+                                                      withClickType:action.clickType
+                                                        withClickId:action.clickId];
+        
+        [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
+    }
 }
 
 #pragma mark OSTriggerControllerDelegate Methods
