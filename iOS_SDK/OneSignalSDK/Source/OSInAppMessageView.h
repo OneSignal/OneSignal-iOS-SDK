@@ -38,8 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-
-
 @interface OSInAppMessageView : UIView <WKNavigationDelegate>
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
 

@@ -63,7 +63,6 @@ UIViewController *viewControllerForPresentation;
         [_webView loadRequest:[NSURLRequest requestWithURL:_url]];
 }
 
-
 -(void)dismiss:(id)sender {
     [self.navigationController dismissViewControllerAnimated:true completion:^{
         //clear web view

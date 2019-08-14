@@ -1569,8 +1569,9 @@ static dispatch_queue_t serialQueue;
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         waitingForOneSReg = false;
+      
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
-         
+
         // Success, no more high priority
         nextRegistrationIsHighPriority = NO;
         

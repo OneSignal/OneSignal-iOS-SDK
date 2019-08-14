@@ -88,8 +88,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     self.messageView = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
+    self.messageView.delegate = self;
     // loads the HTML content
     if (self.message.previewUUID != nil)
         [self loadPreviewMessageContent];
@@ -496,7 +496,7 @@
     let event = [OSInAppMessageBridgeEvent instanceWithData:body];
     
     NSLog(@"actionOccurredWithBody:event: %@", event);
-    NSLog(@"actionOccurredWithBody:event.type: %d", event.type);
+    NSLog(@"actionOccurredWithBody:event.type: %lu", (unsigned long)event.type);
     
     if (event) {
         if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
@@ -505,7 +505,10 @@
 
             // The page is fully loaded and should now be displayed
             // This is only fired once the javascript on the page sends the "rendering_complete" type event
-            [self displayMessage];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.delegate webViewContentFinishedLoading];
+                [self displayMessage];
+            });
         }
         else if (event.type == OSInAppMessageBridgeEventTypePageResize) {
             // Once the IAM is shown after the rendering complete event, the resize event is triggered a few times

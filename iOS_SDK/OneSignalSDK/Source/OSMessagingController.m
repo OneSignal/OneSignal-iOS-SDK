@@ -39,6 +39,7 @@
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
+@property (strong, nullable) OSInAppMessageViewController *viewController;
 @end
 
 @implementation OSMessagingController
@@ -132,23 +133,11 @@
 }
 
 - (void)displayMessage:(OSInAppMessage *)message {
+    _viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
+    _viewController.delegate = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        // TODO: Set this up AFTER the in app message loads.
-        //       Otherwise while loading this blocks input from the UI
-        if (!self.window) {
-            self.window = [[UIWindow alloc] init];
-            self.window.windowLevel = UIWindowLevelAlert;
-            self.window.frame = [[UIScreen mainScreen] bounds];
-            self.window.clipsToBounds = true;
-        }
-        
-        let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
-        viewController.delegate = self;
-        
-        self.window.rootViewController = viewController;
-        self.window.backgroundColor = [UIColor clearColor];
-        self.window.opaque = true;
-        [self.window makeKeyAndVisible];
+        [[_viewController view] setNeedsLayout];
     });
 }
 
@@ -195,7 +184,10 @@
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 -(void)messageViewControllerWasDismissed {
-    @synchronized (self.messageDisplayQueue) {
+    @synchronized (self.messageDisplayQueue) {\
+      
+        _viewController = nil;
+      
         //preview case
         if ([self.messageDisplayQueue count] == 0)
             return;
@@ -233,6 +225,27 @@
 
         [OneSignalClient.sharedClient executeRequest:metricsRequest onSuccess:nil onFailure:nil];
     }
+}
+
+/*
+ This method must be call on the Main thread
+ */
+- (void)webViewContentFinishedLoading {
+    if (_viewController == nil) {
+        [self evaluateMessages];
+        return;
+    }
+    
+    if (!self.window) {
+        self.window = [[UIWindow alloc] init];
+        self.window.windowLevel = UIWindowLevelAlert;
+        self.window.frame = [[UIScreen mainScreen] bounds];
+    }
+    
+    self.window.rootViewController = _viewController;
+    self.window.backgroundColor = [UIColor clearColor];
+    self.window.opaque = true;
+    [self.window makeKeyAndVisible];
 }
 
 #pragma mark OSTriggerControllerDelegate Methods
