@@ -44,9 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface OSInAppMessageViewController : UIViewController <OSInAppMessageViewDelegate, WKScriptMessageHandler>
-@property (weak, nonatomic, nullable) id<OSInAppMessageViewControllerDelegate> delegate;
 
--(instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
+@property (weak, nonatomic, nullable) id<OSInAppMessageViewControllerDelegate> delegate;
+@property (strong, nonatomic, nonnull) OSInAppMessage *message;
+
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
+- (void)dismissMessageWithDirection:(BOOL)up withVelocity:(double)velocity;
+
 @end
 
 NS_ASSUME_NONNULL_END

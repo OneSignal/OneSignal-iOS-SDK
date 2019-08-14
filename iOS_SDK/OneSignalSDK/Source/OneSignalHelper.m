@@ -443,6 +443,10 @@ static NSString *_lastMessageIdFromAction;
     return @1;
 }
 
++ (BOOL)isValidOrientation:(UIDeviceOrientation)orientation {
+    return orientation && !UIDeviceOrientationIsValidInterfaceOrientation(orientation);
+}
+
 // Can call currentUserNotificationSettings
 + (BOOL) canGetNotificationTypes {
     return [OneSignalHelper isIOSVersionGreaterOrEqual:8];

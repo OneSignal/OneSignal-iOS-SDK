@@ -65,10 +65,10 @@
         
         self.messageDisplayQueue = [NSMutableArray new];
         
-        // boolean that controls if in-app messaging is enabled
-        // true by default. 
+        // BOOL that controls if in-app messaging is enabled
+        // Set true by default
         if ([NSUserDefaults.standardUserDefaults objectForKey:OS_IN_APP_MESSAGING_ENABLED])
-            _messagingEnabled = [NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED];
+           _messagingEnabled = [NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED];
         else
             _messagingEnabled = true;
     }
@@ -76,11 +76,11 @@
     return self;
 }
 
--(BOOL)messagingEnabled {
+- (BOOL)messagingEnabled {
     return _messagingEnabled;
 }
 
--(void)setMessagingEnabled:(BOOL)iamEnabled {
+- (void)setMessagingEnabled:(BOOL)iamEnabled {
     _messagingEnabled = iamEnabled;
     
     [NSUserDefaults.standardUserDefaults setBool:iamEnabled forKey:OS_IN_APP_MESSAGING_ENABLED];
@@ -97,7 +97,7 @@
     [self.delegates addObject:delegate];
 }
 
--(void)presentInAppMessage:(OSInAppMessage *)message {
+- (void)presentInAppMessage:(OSInAppMessage *)message {
     
     // if false, the app specifically disabled in-app messages for this device.
     if (!self.messagingEnabled)
@@ -128,7 +128,21 @@
 
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
     @synchronized (self.messageDisplayQueue) {
-        [self displayMessage:message];
+        
+        // Handle the dismissing of an old IAM when a new IAM preview is being shown
+        CGFloat delay = 0.0f;
+        if (self.window.rootViewController) {
+            // Get current OSInAppMessageViewController and dismiss current IAM showing using dismissMessageWithDirection method
+            OSInAppMessageViewController *currentController = (OSInAppMessageViewController *)self.window.rootViewController;
+            [currentController dismissMessageWithDirection:currentController.message.position == OSInAppMessageDisplayPositionTop
+                                              withVelocity:0.0f];
+            
+            // The MAX_DISMISSAL_ANIMATION_DURATION should be used to prevent the new IAM preview until dismissing is finished
+            delay = MAX_DISMISSAL_ANIMATION_DURATION;
+        }
+        
+        // Show new IAM preview after delay
+        [OneSignalHelper performSelector:@selector(displayMessage:) onMainThreadOnObject:self withObject:message afterDelay:delay];
     };
 }
 
@@ -141,7 +155,7 @@
     });
 }
 
-// checks to see if any messages should be shown now
+// Checks to see if any messages should be shown now
 - (void)evaluateMessages {
     for (OSInAppMessage *message in self.messages) {
         if ([self.triggerController messageMatchesTriggers:message]) {
@@ -153,14 +167,14 @@
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
     switch (action.urlActionType) {
-            case OSInAppMessageActionUrlTypeSafari:
+        case OSInAppMessageActionUrlTypeSafari:
             [[UIApplication sharedApplication] openURL:action.clickUrl options:@{} completionHandler:^(BOOL success) {}];
             break;
         case OSInAppMessageActionUrlTypeWebview:
             [OneSignalHelper displayWebView:action.clickUrl];
             break;
         case OSInAppMessageActionUrlTypeReplaceContent:
-            // this case is handled by the in-app message view controller.
+            // This case is handled by the in-app message view controller.
             break;
     }
 }
@@ -187,8 +201,8 @@
     @synchronized (self.messageDisplayQueue) {\
       
         _viewController = nil;
-      
-        //preview case
+
+        // Preview case
         if ([self.messageDisplayQueue count] == 0)
             return;
 
@@ -202,7 +216,7 @@
             
             [UIApplication.sharedApplication.delegate.window makeKeyWindow];
             
-            //nullify our reference to the window to ensure there are no leaks
+            // Null our reference to the window to ensure there are no leaks
             self.window = nil;
         }
     }
@@ -227,9 +241,7 @@
     }
 }
 
-/*
- This method must be call on the Main thread
- */
+// This method must be call on the Main thread
 - (void)webViewContentFinishedLoading {
     if (_viewController == nil) {
         [self evaluateMessages];
@@ -249,8 +261,8 @@
 }
 
 #pragma mark OSTriggerControllerDelegate Methods
--(void)triggerConditionChanged {
-    // we should re-evaluate all in-app messages
+- (void)triggerConditionChanged {
+    // We should re-evaluate all in-app messages
     [self evaluateMessages];
 }
 

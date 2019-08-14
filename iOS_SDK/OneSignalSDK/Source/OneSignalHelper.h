@@ -65,6 +65,9 @@
 // - Networking
 + (NSNumber*)getNetType;
 
+// Util
++ (BOOL)isValidOrientation:(UIDeviceOrientation)orientation;
+
 // Threading
 + (void)runOnMainThread:(void(^)())block;
 + (void)dispatch_async_on_main_queue:(void(^)())block;

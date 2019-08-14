@@ -39,9 +39,6 @@
 
 @interface OSInAppMessageViewController ()
 
-// The message object
-@property (strong, nonatomic, nonnull) OSInAppMessage *message;
-
 // The actual message subview
 @property (nonatomic, nullable) OSInAppMessageView *messageView;
 
@@ -88,13 +85,23 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // Add observers for BecomeActive and EnterBackground state so that the IAM can be shown correctly when leaving and entering the app (background)
+    [self addAppBecomeActiveObserver];
+    [self addAppEnterBackgroundObserver];
+  
     self.messageView = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
     self.messageView.delegate = self;
-    // loads the HTML content
+  
+    // Loads the HTML content for the IAM
     if (self.message.previewUUID != nil)
         [self loadPreviewMessageContent];
     else
         [self loadMessageContent];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -105,10 +112,37 @@
     [self.messageView removeScriptMessageHandler];
 }
 
-// Sets up the message UI. It is still hidden. Wait until
-// the actual HTML content is loaded before animating appearance
+- (void)applicationIsActive:(NSNotification *)notification {
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Active"];
+    
+    // Animate the showing of the IAM when opening the app from background
+    [self animateAppearance];
+}
+
+- (void)applicationIsInBackground:(NSNotification *)notification {
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Entered Background"];
+    
+    // Make sure pan constraint is no longer active so IAM does not stay in panned location
+    // Also make sure to set constraints regarding animations for rentry animation into the app
+    self.panVerticalConstraint.active = false;
+    if ([self.message isBanner])
+        self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
+    else
+        self.messageView.transform = CGAffineTransformMakeScale(0, 0);
+}
+
+- (void)addAppBecomeActiveObserver {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationIsActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+}
+
+- (void)addAppEnterBackgroundObserver {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationIsInBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+}
+
+// Sets up the message UI, while it is still hidden
+// Wait until the actual HTML content is loaded before animating appearance
 - (void)setupInitialMessageUI {
-    NSLog(@"setupInitialMessageUI");
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"In App Message Setup"];
     
     self.messageView.delegate = self;
     
@@ -126,7 +160,7 @@
 }
 
 - (void)displayMessage {
-    NSLog(@"displayMessage");
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Displaying In App Message"];
     
     // Sets up the message view in a hidden position while we wait
     [self setupInitialMessageUI];
@@ -160,7 +194,8 @@
             return;
         }
         
-        NSLog(@"htmlContent.html: %@", data[@"hmtl"]);
+        let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"hmtl"]];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
         
         let baseUrl = [NSURL URLWithString:SERVER_URL];
         
@@ -183,7 +218,6 @@
 
 - (void)encounteredErrorLoadingMessageContent:(NSError * _Nullable)error {
     let message = [NSString stringWithFormat:@"An error occurred while attempting to load message content: %@", error.description ?: @"Unknown Error"];
-    
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
 }
 
@@ -217,10 +251,12 @@
     // The spacing between the message view & edges
     let marginSpacing = MESSAGE_MARGIN * scale;
     
-    NSLog(@"[UIScreen mainScreen].bounds.size.width: %f", mainBounds.size.width);
-
-    NSLog(@"self.message.height.: %f", self.message.height.doubleValue);
-    NSLog(@"UIScreen.mainScreen.scale.: %f", UIScreen.mainScreen.scale);
+    let widthMessage = [NSString stringWithFormat:@"Screen Bounds Width: %f", mainBounds.size.width];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:widthMessage];
+    let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:heightMessage];
+    let scaleMessage = [NSString stringWithFormat:@"Screen Bounds Scale: %f", UIScreen.mainScreen.scale];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:scaleMessage];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
@@ -229,7 +265,7 @@
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
 
-    // pins the message view to the left & right
+    // Pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
     let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing];
     
@@ -533,20 +569,23 @@
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 
-    NSLog(@"Screen Orientation Change Detected");
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Screen Orientation Change Detected"];
 
     // Get current orientation of the device
     UIDeviceOrientation currentOrientation = UIDevice.currentDevice.orientation;
     // Ignore changes in device orientation if or coming from unknown, face up, or face down
-    if ([self isValidOrientation: currentOrientation previous:self.previousOrientation]) {
-        NSLog(@"Orientation Change Ended: Invalid Orientation");
+    if ([OneSignalHelper isValidOrientation: currentOrientation] &&
+        [OneSignalHelper isValidOrientation: self.previousOrientation]) {
+        
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Ended: Invalid Orientation (Face Up, Face Down, or Unknown)"];
+        
         self.previousOrientation = currentOrientation;
         return;
     }
 
     // Code here will execute before the orientation change begins
     // Equivalent to placing it in the deprecated method -[willRotateToInterfaceOrientation:duration:]
-    NSLog(@"Orientation Change Started: Hiding IAM");
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Started: Hiding IAM"];
 
     // Inactivate the pan constraint while changing the screen orientation
     self.panVerticalConstraint.active = false;
@@ -557,7 +596,7 @@
 
         // Execute code or animations during the orientation change
         // You can pass nil or leave this block empty if not necessary
-        NSLog(@"Orientation Change Occuring: Modifying IAM");
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Occuring: Modifying IAM"];
         CGRect mainBounds = [[UIScreen mainScreen] bounds];
         double bannerWidth = mainBounds.size.width;
         double bannerHeight = self.message.height.doubleValue;
@@ -586,18 +625,13 @@
 
         // Code here will execute after the rotation has finished
         // Equivalent to placing it in the deprecated method -[didRotateFromInterfaceOrientation:]
-        NSLog(@"Orientation Change Complete: Showing IAM");
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Complete: Showing IAM"];
         // Show the IAM and reanimate on to the screen
         self.messageView.hidden = false;
         [self animateAppearance];
         self.previousOrientation = currentOrientation;
 
     }];
-}
-
-- (BOOL)isValidOrientation:(UIDeviceOrientation)current previous:(UIDeviceOrientation)previous {
-    return !UIDeviceOrientationIsValidInterfaceOrientation(current) ||
-    (previous && !UIDeviceOrientationIsValidInterfaceOrientation(previous));
 }
 
 #pragma mark OSInAppMessageViewDelegate Methods
