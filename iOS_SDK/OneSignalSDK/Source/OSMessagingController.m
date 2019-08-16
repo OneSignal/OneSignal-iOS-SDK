@@ -68,7 +68,7 @@
         // BOOL that controls if in-app messaging is enabled
         // Set true by default
         if ([NSUserDefaults.standardUserDefaults objectForKey:OS_IN_APP_MESSAGING_ENABLED])
-           _messagingEnabled = [NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED];
+            _messagingEnabled = [NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED];
         else
             _messagingEnabled = true;
     }
@@ -129,29 +129,30 @@
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
     @synchronized (self.messageDisplayQueue) {
         
-        // Handle the dismissing of an old IAM when a new IAM preview is being shown
-        CGFloat delay = 0.0f;
-        if (self.window.rootViewController) {
-            // Get current OSInAppMessageViewController and dismiss current IAM showing using dismissMessageWithDirection method
-            OSInAppMessageViewController *currentController = (OSInAppMessageViewController *)self.window.rootViewController;
-            [currentController dismissMessageWithDirection:currentController.message.position == OSInAppMessageDisplayPositionTop
-                                              withVelocity:0.0f];
+        // If an IAM is currently showing add the preview right behind it in the messageDisplayQueue and then dismiss the current IAM
+        // Otherwise, Add it to the front of the messageDisplayQueue and call displayMessage
+        if (self.viewController && self.messageDisplayQueue.count > 0) {
             
-            // The MAX_DISMISSAL_ANIMATION_DURATION should be used to prevent the new IAM preview until dismissing is finished
-            delay = MAX_DISMISSAL_ANIMATION_DURATION;
+            // Add preview behind current displaying IAM in messageDisplayQueue
+            [self.messageDisplayQueue insertObject:message atIndex:1];
+            // Get current OSInAppMessageViewController and dismiss current IAM showing using dismissMessageWithDirection method
+            [self.viewController dismissCurrentInAppMessage];
+        } else {
+            
+            // Add preview to front of messageDisplayQueue
+            [self.messageDisplayQueue insertObject:message atIndex:0];
+            // Show new IAM preview
+            [self displayMessage:message];
         }
-        
-        // Show new IAM preview after delay
-        [OneSignalHelper performSelector:@selector(displayMessage:) onMainThreadOnObject:self withObject:message afterDelay:delay];
     };
 }
 
 - (void)displayMessage:(OSInAppMessage *)message {
-    _viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
-    _viewController.delegate = self;
+    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
+    self.viewController.delegate = self;
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[_viewController view] setNeedsLayout];
+        [[self.viewController view] setNeedsLayout];
     });
 }
 
@@ -159,7 +160,7 @@
 - (void)evaluateMessages {
     for (OSInAppMessage *message in self.messages) {
         if ([self.triggerController messageMatchesTriggers:message]) {
-            // we should show the message
+            // We should show the message
             [self presentInAppMessage:message];
         }
     }
@@ -197,16 +198,16 @@
 }
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
--(void)messageViewControllerWasDismissed {
-    @synchronized (self.messageDisplayQueue) {\
+- (void)messageViewControllerWasDismissed {
+    @synchronized (self.messageDisplayQueue) {
       
-        _viewController = nil;
+        self.viewController = nil;
+        
+        [self.messageDisplayQueue removeObjectAtIndex:0];
 
         // Preview case
         if ([self.messageDisplayQueue count] == 0)
             return;
-
-        [self.messageDisplayQueue removeObjectAtIndex:0];
         
         if (self.messageDisplayQueue.count > 0) {
             [self displayMessage:self.messageDisplayQueue.firstObject];
@@ -241,9 +242,9 @@
     }
 }
 
-// This method must be call on the Main thread
+// This method must be called on the Main thread
 - (void)webViewContentFinishedLoading {
-    if (_viewController == nil) {
+    if (self.viewController == nil) {
         [self evaluateMessages];
         return;
     }
@@ -257,6 +258,7 @@
     self.window.rootViewController = _viewController;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.opaque = true;
+    self.window.clipsToBounds = true;
     [self.window makeKeyAndVisible];
 }
 

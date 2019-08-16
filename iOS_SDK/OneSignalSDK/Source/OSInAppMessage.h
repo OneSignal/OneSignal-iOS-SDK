@@ -40,8 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic, nonnull) NSArray<NSArray <OSTrigger *> *> *triggers;
 
 @property (nonatomic) OSInAppMessageDisplayPosition position;
+@property (nonatomic) BOOL isPreview;
 @property (nonatomic) NSNumber *height;
-@property (nonatomic) NSString *previewUUID;
 @property (nonatomic) NSTimeInterval maxDisplayTime;
 
 - (BOOL)isBanner;

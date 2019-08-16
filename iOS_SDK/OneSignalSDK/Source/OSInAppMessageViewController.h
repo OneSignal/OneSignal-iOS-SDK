@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage;
-- (void)dismissMessageWithDirection:(BOOL)up withVelocity:(double)velocity;
+- (void)dismissCurrentInAppMessage;
 
 @end
 

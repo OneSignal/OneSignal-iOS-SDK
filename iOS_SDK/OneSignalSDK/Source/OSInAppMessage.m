@@ -91,7 +91,8 @@
 + (instancetype)instancePreviewWithJson:(NSDictionary *)json {
     let message = [OSInAppMessage new];
     NSString *previewUUID= json[@"custom"][@"a"][@"os_in_app_message_preview_id"];
-    message.previewUUID = previewUUID;
+    message.messageId = previewUUID;
+    message.isPreview = true;
     return message;
 }
 

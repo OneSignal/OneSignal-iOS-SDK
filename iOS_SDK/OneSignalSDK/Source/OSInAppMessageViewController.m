@@ -94,7 +94,7 @@
     self.messageView.delegate = self;
   
     // Loads the HTML content for the IAM
-    if (self.message.previewUUID != nil)
+    if (self.message.isPreview)
         [self loadPreviewMessageContent];
     else
         [self loadMessageContent];
@@ -184,7 +184,7 @@
 }
 
 - (void)maxDisplayTimeTimerFinished {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+    [self dismissCurrentInAppMessage:0.0f];
 }
 
 - (OSResultSuccessBlock)messageContentOnSuccess {
@@ -211,7 +211,7 @@
 }
 
 - (void)loadPreviewMessageContent {
-    [self.message loadPreviewMessageHTMLContentWithUUID:self.message.previewUUID success:[self messageContentOnSuccess] failure:^(NSError *error) {
+    [self.message loadPreviewMessageHTMLContentWithUUID:self.message.messageId success:[self messageContentOnSuccess] failure:^(NSError *error) {
         [self encounteredErrorLoadingMessageContent:error];
     }];
 }
@@ -337,17 +337,32 @@
     [self.view layoutIfNeeded];
 }
 
+// Calls dismissCurrentInAppMessage with velocity at 0.0f
+- (void)dismissCurrentInAppMessage {
+    BOOL isTopBanner = self.message.position == OSInAppMessageDisplayPositionTop;
+    [self dismissCurrentInAppMessage:isTopBanner
+                        withVelocity:0.0f];
+}
+
+// Calls dismissCurrentInAppMessage with specified velocity
+- (void)dismissCurrentInAppMessage:(double)velocity {
+    BOOL isTopBanner = self.message.position == OSInAppMessageDisplayPositionTop;
+    [self dismissCurrentInAppMessage:isTopBanner
+                        withVelocity:velocity];
+}
+
 // Dismisses the message view with a given direction (up or down) and velocity
 // If velocity == 0.0, the default dismiss velocity will be used.
-- (void)dismissMessageWithDirection:(BOOL)up withVelocity:(double)velocity {
-    // inactivate the current Y constraints
+- (void)dismissCurrentInAppMessage:(BOOL)up withVelocity:(double)velocity {
+    
+    // Inactivate the current Y constraints
     self.finalYConstraint.active = false;
     self.initialYConstraint.active = false;
     
     // The distance that the dismissal animation will travel
     var distance = 0.0f;
     
-    // add new Y constraints
+    // Add new Y constraints
     if (up) {
         distance = self.messageView.frame.origin.y + self.messageView.frame.size.height + 8.0f;
         [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f].active = true;
@@ -360,7 +375,7 @@
     
     var animationOption = UIViewAnimationOptionCurveLinear;
     
-    // impose a minimum animation speed (max duration)
+    // Impose a minimum animation speed (max duration)
     if (dismissAnimationDuration > MAX_DISMISSAL_ANIMATION_DURATION) {
         animationOption = UIViewAnimationOptionCurveEaseIn;
         dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
@@ -467,10 +482,10 @@
             if ([self.message isBanner]) {
                 // Top messages can only be dismissed by swiping up
                 // Bottom messages can only be dismissed swiping down
-                [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:velocity];
+                [self dismissCurrentInAppMessage:velocity];
             } else {
                 // Centered messages can be dismissed in either direction (up/down)
-                [self dismissMessageWithDirection:offset > 0 withVelocity:velocity];
+                [self dismissCurrentInAppMessage:offset > 0 withVelocity:velocity];
             }
         } else {
             // The pan constraint is now inactive, calling layoutIfNeeded() will cause the message to snap back to normal position
@@ -507,7 +522,7 @@
 
 // Called when the user taps on the background view
 - (void)tapGestureRecognizerDidTap:(UITapGestureRecognizer *)sender {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+    [self dismissCurrentInAppMessage];
 }
 
 // Returns a boolean indicating if the message view should be dismissed for the given pan offset (ie. if the user has panned far enough up or down)
@@ -543,7 +558,7 @@
             // This is only fired once the javascript on the page sends the "rendering_complete" type event
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate webViewContentFinishedLoading];
-                [self displayMessage];
+                [OneSignalHelper performSelector:@selector(displayMessage) onMainThreadOnObject:self withObject:nil afterDelay:0.0f];
             });
         }
         else if (event.type == OSInAppMessageBridgeEventTypePageResize) {
@@ -555,11 +570,11 @@
         }
         else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
             if (event.userAction.clickType)
-                [self.delegate messageViewDidSelectAction:event.userAction isPreview:self.message.previewUUID != nil withMessageId:self.message.messageId forVariantId:self.message.variantId];
+                [self.delegate messageViewDidSelectAction:event.userAction isPreview:self.message.isPreview withMessageId:self.message.messageId forVariantId:self.message.variantId];
             if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
                 [self.messageView loadReplacementURL:event.userAction.clickUrl];
             if (event.userAction.close)
-                [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+                [self dismissCurrentInAppMessage];
         }
     }
 }
@@ -640,7 +655,7 @@
 }
 
 - (void)messageViewDidFailToProcessAction {
-    [self dismissMessageWithDirection:self.message.position == OSInAppMessageDisplayPositionTop withVelocity:0.0f];
+    [self dismissCurrentInAppMessage];
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
