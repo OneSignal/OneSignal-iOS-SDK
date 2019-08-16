@@ -25,20 +25,12 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalCommonDefines.h"
+@interface OSLastNotification : NSObject
 
-@protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionRestart;
-@end
+@property (nonatomic, readonly) NSString *notificationId;
+@property (nonatomic, readonly) double arrivalTime;
+@property (nonatomic, readonly) BOOL wasOnBackground;
 
-@interface SessionManager : NSObject
-
-@property (nonatomic, readonly) SessionState session;
-
-- (id)init;
-- (void)setDelegate:(id <SessionStatusDelegate>)delegate;
-- (void)restartSession;
-- (void)onSessionStarted;
-- (void)onSessionFromNotification;
+- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
 
 @end

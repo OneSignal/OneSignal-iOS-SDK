@@ -29,8 +29,8 @@
 #import "OneSignalOutcomeController.h"
 #import "Requests.h"
 #import "OneSignalClient.h"
-#import "SessionManager.h"
-#import "NotificationData.h"
+#import "OneSignalSessionManager.h"
+#import "OneSignalNotificationData.h"
 
 @implementation OneSignalOutcomesController
 
@@ -38,10 +38,9 @@ NSString * const WEIGHT = @"weight";
 NSString * const TIMESTAMP = @"timestamp";
 
 NSMutableSet *outcomesSent;
-SessionManager *outcomesSessionManager;
+OneSignalSessionManager *outcomesSessionManager;
 
-- (id)initWithSessionManager:(SessionManager *)manager {
-    outcomesSessionManager = manager;
+- (id)init {
     outcomesSent = [NSMutableSet set];
     return self;
 }
@@ -95,7 +94,7 @@ SessionManager *outcomesSessionManager;
             successBlock:(OSResultSuccessBlock _Nullable)success
             failureBlock:(OSFailureBlock _Nullable)failure {
     
-    NSString *notificationId = [NotificationData getLastNotificationId];
+    NSString *notificationId = [OneSignalNotificationData getLastNotificationId];
     NSDictionary *requestParams = nil;
     if (weight != nil) {
         requestParams = @{ WEIGHT : weight };
@@ -106,7 +105,7 @@ SessionManager *outcomesSessionManager;
         return;
     }
     
-    switch ([outcomesSessionManager session]) {
+    switch ([OneSignalSessionManager session]) {
         case DIRECT:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending direct outcome"];
             [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer directWithOutcomeId:name appId:appId notificationId:notificationId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];

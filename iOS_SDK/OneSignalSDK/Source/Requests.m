@@ -281,6 +281,9 @@
 @end
 
 @implementation OSRequestOnFocus
+NSString * const IS_DIRECT = @"direct";
+NSString * const NOTIFICATION = @"notification_id";
+
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId badgeCount:(NSNumber * _Nonnull)badgeCount emailAuthToken:(NSString * _Nullable)emailAuthHash {
     let request = [OSRequestOnFocus new];
     
@@ -298,9 +301,14 @@
     return request;
 }
 
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId state:(NSString * _Nonnull)state type:(NSNumber * _Nonnull)type activeTime:(NSNumber * _Nonnull)activeTime netType:(NSNumber * _Nonnull)netType emailAuthToken:(NSString * _Nullable)emailAuthHash {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                              state:(NSString * _Nonnull)state
+                               type:(NSNumber * _Nonnull)type
+                         activeTime:(NSNumber * _Nonnull)activeTime
+                            netType:(NSNumber * _Nonnull)netType
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash {
     let request = [OSRequestOnFocus new];
-    
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
@@ -318,6 +326,37 @@
     
     return request;
 }
+
++ (instancetype)withUserId:(NSString *)userId
+                     appId:(NSString *)appId
+                     state:(NSString *)state
+                      type:(NSNumber *)type
+                activeTime:(NSNumber *)activeTime
+                   netType:(NSNumber *)netType
+            emailAuthToken:(NSString *)emailAuthHash
+             directSession:(BOOL)directSession
+            notificationId:(NSString *)notificationId {
+    let request = [OSRequestOnFocus new];
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"state"] = state;
+    params[@"type"] = type;
+    params[@"active_time"] = activeTime;
+    params[@"net_type"] = netType;
+    params[IS_DIRECT] = @(directSession);
+    params[NOTIFICATION] = notificationId;
+    
+    if (emailAuthHash && emailAuthHash.length > 0)
+        params[@"email_auth_hash"] = emailAuthHash;
+    
+    request.parameters = params;
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
+    
+    return request;
+}
+
 @end
 
 @implementation OSRequestInAppMessageViewed
@@ -413,8 +452,6 @@
 @implementation OSRequestSendOutcomesToServer
 NSString * const APP_ID = @"app_id";
 NSString * const DEVICE = @"device_type";
-NSString * const IS_DIRECT = @"direct";
-NSString * const NOTIFICATION = @"notification_id";
 NSString * const OUTCOME_ID = @"id";
 
 + (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId

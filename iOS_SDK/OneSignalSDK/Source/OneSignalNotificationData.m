@@ -28,11 +28,11 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
-#import "NotificationData.h"
-#import "LastNotification.h"
+#import "OneSignalNotificationData.h"
+#import "OSLastNotification.h"
 #import "OneSignalExtensionBadgeHandler.h"
 
-@implementation NotificationData
+@implementation OneSignalNotificationData
 
 +(NSString*)appGroupKey {
     return [OneSignalExtensionBadgeHandler appGroupName];
@@ -41,7 +41,7 @@
 + (void)saveLastNotificationFromBackground:(NSString * _Nullable)notificationId {
     if (notificationId == nil) {
         let lastNotificationId = [self getLastNotificationId];
-        if (lastNotificationId != nil)
+        if (lastNotificationId)
             [self saveLastNotificationWithBackground:lastNotificationId wasOnBackground:YES];
     } else {
         [self saveLastNotificationWithBackground:notificationId wasOnBackground:YES];
@@ -66,9 +66,9 @@
     [userDefaults synchronize];
 }
 
-+ (LastNotification * _Nonnull)getLastNotification {
++ (OSLastNotification * _Nonnull)getLastNotification {
     let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    return [[LastNotification alloc] initWithParamsNotificationId:[userDefaults stringForKey:NOTIFICATION_ID]
+    return [[OSLastNotification alloc] initWithParamsNotificationId:[userDefaults stringForKey:NOTIFICATION_ID]
                                                        arrivalTime:[userDefaults doubleForKey:NOTIFICATION_TIME]
                                                    wasOnBackground:[userDefaults boolForKey:NOTIFICATION_FROM_BACKGROUND]];
 }

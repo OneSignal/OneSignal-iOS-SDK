@@ -25,14 +25,14 @@
  * THE SOFTWARE.
  */
 
-#import "LastNotification.h"
+#import "OSLastNotification.h"
 
-@interface NotificationData : NSObject
+@interface OneSignalNotificationData : NSObject
 
 + (void)saveLastNotificationFromBackground:(NSString * _Nullable)notificationId;
 + (void)saveLastNotification:(NSString * _Nullable)notificationId;
 + (void)saveLastNotificationWithBackground:(NSString *  _Nullable)notificationId wasOnBackground:(BOOL)wasOnBackground;
-+ (LastNotification * _Nonnull)getLastNotification;
++ (OSLastNotification * _Nonnull)getLastNotification;
 + (NSString * _Nullable)getLastNotificationId;
 
 @end

@@ -25,12 +25,12 @@
  * THE SOFTWARE.
  */
 
-#import "SessionManager.h"
+#import "OneSignalSessionManager.h"
 #import "OneSignal.h"
 
 @interface OneSignalOutcomesController : NSObject
 
-- (id _Nonnull)initWithSessionManager:(SessionManager *_Nonnull)manager;
+- (id _Nonnull)init;
 
 - (void)clearOutcomes;
 - (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
