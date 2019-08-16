@@ -490,9 +490,12 @@ typedef void (^OSEmailSuccessBlock)();
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
 + (void)removeExternalUserId;
 
++ (void)uniqueOutcome:(NSString * _Nonnull)name;
++ (void)uniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure;
 + (void)outcome:(NSString * _Nonnull)name;
-+ (void)outcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock)success onFailure:(OSFailureBlock)failure;
-
++ (void)outcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure;
++ (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
++ (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure;
 @end
 
 #pragma clang diagnostic pop

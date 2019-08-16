@@ -34,14 +34,22 @@
 
 @implementation OneSignalOutcomesController
 
-SessionManager *outcomesSessionManager = nil;
+NSString * const WEIGHT = @"weight";
+NSString * const TIMESTAMP = @"timestamp";
+
+NSMutableSet *outcomesSent;
+SessionManager *outcomesSessionManager;
 
 - (id)initWithSessionManager:(SessionManager *)manager {
     outcomesSessionManager = manager;
+    outcomesSent = [NSMutableSet set];
     return self;
 }
 
-- (void)sendOutcomeEventRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure  {
+- (void)sendOutcomeEventRequest:(OneSignalRequest * _Nonnull)request
+                   successBlock:(OSResultSuccessBlock _Nullable)success
+                   failureBlock:(OSFailureBlock _Nullable)failure  {
+    
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
         if (success != nil) {
             success(result);
@@ -54,26 +62,63 @@ SessionManager *outcomesSessionManager = nil;
     }];
 }
 
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure {
+- (void)clearOutcomes {
+    outcomesSent = [NSMutableSet set];
+}
+
+- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+                         appId:(NSString * _Nonnull)appId
+                    deviceType:(NSNumber * _Nonnull)deviceType
+                  successBlock:(OSResultSuccessBlock _Nullable)success
+                  failureBlock:(OSFailureBlock _Nullable)failure {
+    if ([outcomesSent containsObject:name]) {
+        //Outcome already sent
+        return;
+    }
+    [outcomesSent addObject:name];
+    [self sendOutcomeEvent:name appId:appId deviceType:deviceType successBlock:success failureBlock:failure];
+}
+
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSResultSuccessBlock _Nullable)success
+            failureBlock:(OSFailureBlock _Nullable)failure {
+    
+    [self sendOutcomeEvent:name value:nil appId:appId deviceType:deviceType successBlock:success failureBlock:failure];
+}
+
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name
+                   value:(NSNumber * _Nullable)weight
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSResultSuccessBlock _Nullable)success
+            failureBlock:(OSFailureBlock _Nullable)failure {
+    
     NSString *notificationId = [NotificationData getLastNotificationId];
+    NSDictionary *requestParams = nil;
+    if (weight != nil) {
+        requestParams = @{ WEIGHT : weight };
+    }
+    
     if (notificationId == nil || [notificationId length] == 0) {
-        [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer unattributedWithOutcomeId:name appId:appId deviceType:deviceType] successBlock:success failureBlock:failure];
+        [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer unattributedWithOutcomeId:name appId:appId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
         return;
     }
     
     switch ([outcomesSessionManager session]) {
         case DIRECT:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending direct outcome"];
-            [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer directWithOutcomeId:name appId:appId notificationId:notificationId deviceType:deviceType timestamp:nil] successBlock:success failureBlock:failure];
+            [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer directWithOutcomeId:name appId:appId notificationId:notificationId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;
         case INDIRECT:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending indirect outcome"];
-            [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer indirectWithOutcomeId:name appId:appId notificationId:notificationId deviceType:deviceType timestamp:nil] successBlock:success failureBlock:failure];
+            [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer indirectWithOutcomeId:name appId:appId notificationId:notificationId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;
         case UNATTRIBUTED:
         case NONE:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending unattributed outcome"];
-            [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer unattributedWithOutcomeId:name appId:appId deviceType:deviceType] successBlock:success failureBlock:failure];
+            [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer unattributedWithOutcomeId:name appId:appId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;
     }
 }

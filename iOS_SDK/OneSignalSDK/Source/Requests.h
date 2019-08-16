@@ -120,9 +120,22 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestSendOutcomesToServer : OneSignalRequest
-+ (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId appId:(NSString * _Nonnull)appId notificationId:(NSString * _Nullable)notificationId deviceType:(NSNumber * _Nonnull)deviceType timestamp:(NSNumber *)timestamp;
-+ (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId appId:(NSString * _Nonnull)appId notificationId:(NSString * _Nullable)notificationId deviceType:(NSNumber * _Nonnull)deviceType timestamp:(NSNumber *)timestamp;
-+ (instancetype _Nonnull)unattributedWithOutcomeId:(NSString * _Nonnull)outcomeId appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType;
++ (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId
+                                       appId:(NSString * _Nonnull)appId
+                              notificationId:(NSString * _Nullable)notificationId
+                                  deviceType:(NSNumber * _Nonnull)deviceType
+                               requestParams:(NSDictionary * _Nullable)requestParams;
+
++ (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId
+                                         appId:(NSString * _Nonnull)appId
+                                notificationId:(NSString * _Nullable)notificationId
+                                    deviceType:(NSNumber * _Nonnull)deviceType
+                                 requestParams:(NSDictionary * _Nullable)requestParams;
+
++ (instancetype _Nonnull)unattributedWithOutcomeId:(NSString * _Nonnull)outcomeId
+                                             appId:(NSString * _Nonnull)appId
+                                        deviceType:(NSNumber * _Nonnull)deviceType
+                                     requestParams:(NSDictionary * _Nullable)requestParams;
 @end
 
 #endif /* Requests_h */

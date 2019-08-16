@@ -37,18 +37,27 @@ const int HALF_MINUTE_SECONDS = 30;
 
 @interface SessionManager ()
 @property (nonatomic, readwrite) SessionState session;
+@property (nonatomic, weak) id <SessionStatusDelegate> delegate;
 @end
 
 @implementation SessionManager
 
-- (id) init {
+- (id)init
+{
+    self = [super init];
     _session = NONE;
     return self;
+}
+
+- (void)setDelegate:(id<SessionStatusDelegate>)delegate {
+    _delegate = delegate;
 }
 
 - (void)restartSession {
     _session = NONE;
     [self onSessionStarted];
+    if (_delegate != nil)
+        [_delegate onSessionRestart];
 }
 
 - (void)onSessionStarted {

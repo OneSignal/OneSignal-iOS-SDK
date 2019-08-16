@@ -27,11 +27,16 @@
 
 #import "OneSignalCommonDefines.h"
 
+@protocol SessionStatusDelegate <NSObject>
++ (void)onSessionRestart;
+@end
+
 @interface SessionManager : NSObject
 
 @property (nonatomic, readonly) SessionState session;
 
 - (id)init;
+- (void)setDelegate:(id <SessionStatusDelegate>)delegate;
 - (void)restartSession;
 - (void)onSessionStarted;
 - (void)onSessionFromNotification;
