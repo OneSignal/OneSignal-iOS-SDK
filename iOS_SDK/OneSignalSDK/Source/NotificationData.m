@@ -62,7 +62,7 @@
     [userDefaults setObject:notificationId forKey:NOTIFICATION_ID];
     [userDefaults setObject:[NSNumber numberWithDouble:timeInSeconds] forKey:NOTIFICATION_TIME];
     [userDefaults setBool:wasOnBackground forKey:NOTIFICATION_FROM_BACKGROUND];
-    
+
     [userDefaults synchronize];
 }
 

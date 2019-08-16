@@ -170,6 +170,8 @@
     } onFailure:^(NSError *error) {
         NSLog(@"sendTestOutcomeEvent failure");
     }];
+    
+    [OneSignal outcome:@"TestWithValue" value:@1.1];
 }
 
 @end

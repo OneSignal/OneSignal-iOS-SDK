@@ -126,6 +126,9 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 @implementation OSPendingCallbacks
 @end
 
+@interface OneSignal (SessionStatusDelegate)
+@end
+
 @implementation OneSignal
 
 NSString* const ONESIGNAL_VERSION = @"021102";
@@ -232,7 +235,6 @@ static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
     }
     return _osNotificationSettings;
 }
-
 
 // static property def for currentPermissionState
 static OSPermissionState* _currentPermissionState;
@@ -436,7 +438,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
     initializationTime = [NSDate date];
+    //Outcomes initializers
     sessionManager = [[SessionManager alloc] init];
+    [sessionManager setDelegate:(id<SessionStatusDelegate>)self];
     [sessionManager restartSession];
     outcomeController = [[OneSignalOutcomesController alloc] initWithSessionManager:sessionManager];
     
@@ -1913,7 +1917,6 @@ static NSString *_lastnonActiveMessageId;
                 [NotificationData saveLastNotificationFromBackground:messageId];
                 [sessionManager onSessionFromNotification];
                 break;
-                
             default:
                 break;
         }
@@ -2500,29 +2503,68 @@ static NSString *_lastnonActiveMessageId;
 /*
  Start of outcome module
  */
-
-+ (void)outcome:(NSString * _Nonnull)name {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
-        return;
-    if (outcomeController == nil)
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
-    
-    [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:nil failureBlock:nil];
++ (void)uniqueOutcome:(NSString * _Nonnull)name {
+    [self uniqueOutcome:name onSuccess:nil onFailure:nil];
 }
 
-+ (void)outcome:(NSString *)name onSuccess:(OSResultSuccessBlock)success onFailure:(OSFailureBlock)failure {
++ (void)uniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"uniqueOutcome:onSuccess:onFailure:"])
+        return;
+    if (outcomeController == nil) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+        return;
+    }
+
+    [outcomeController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+
++ (void)outcome:(NSString * _Nonnull)name {
+    [self outcome:name onSuccess:nil onFailure:nil];
+}
+
++ (void)outcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
         return;
-    if (outcomeController == nil)
+    if (outcomeController == nil) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
+        return;
+    }
     
     [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+
++ (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
+    [self outcome:name value:value onSuccess:nil onFailure:nil];
+}
+
++ (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
+        return;
+    if (outcomeController == nil) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
+        return;
+    }
+    if (value == nil) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Value must not be null"];
+        return;
+    }
+
+    [outcomeController sendOutcomeEvent:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
 }
 /*
  End of outcome module
  */
+@end
+
+@implementation OneSignal (SessionStatusDelegate)
+
++ (void)onSessionRestart {
+    if (outcomeController != nil)
+        [outcomeController clearOutcomes];
+}
 
 @end
 

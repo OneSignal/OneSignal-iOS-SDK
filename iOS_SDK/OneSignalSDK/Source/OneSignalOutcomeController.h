@@ -32,6 +32,9 @@
 
 - (id _Nonnull)initWithSessionManager:(SessionManager *_Nonnull)manager;
 
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock)success failureBlock:(OSFailureBlock)failure;
+- (void)clearOutcomes;
+- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name value:(NSNumber * _Nullable)weight appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
 
 @end
