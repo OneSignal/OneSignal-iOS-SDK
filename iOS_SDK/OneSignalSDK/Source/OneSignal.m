@@ -43,8 +43,8 @@
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotificationPayload+Internal.h"
 #import "OneSignalOutcomeController.h"
-#import "SessionManager.h"
-#import "NotificationData.h"
+#import "OneSignalSessionManager.h"
+#import "OneSignalNotificationData.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -193,7 +193,6 @@ NSMutableDictionary* tagsToSend;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 
-SessionManager *sessionManager = nil;
 OneSignalOutcomesController *outcomeController = nil;
 
 int mLastNotificationTypes = -1;
@@ -439,10 +438,9 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     initializationTime = [NSDate date];
     //Outcomes initializers
-    sessionManager = [[SessionManager alloc] init];
-    [sessionManager setDelegate:(id<SessionStatusDelegate>)self];
-    [sessionManager restartSession];
-    outcomeController = [[OneSignalOutcomesController alloc] initWithSessionManager:sessionManager];
+    [OneSignalSessionManager setDelegate:(id<SessionStatusDelegate>)self];
+    [OneSignalSessionManager restartSession];
+    outcomeController = [[OneSignalOutcomesController alloc] init];
     
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
     //the app ID is required to download parameters, so do not download params until the appID is provided
@@ -1481,7 +1479,7 @@ static dispatch_queue_t serialQueue;
     if (![self shouldRegisterNow])
         return;
     
-    [sessionManager restartSession];
+    [OneSignalSessionManager restartSession];
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
@@ -1914,8 +1912,8 @@ static NSString *_lastnonActiveMessageId;
     if (!foreground) {
         switch (displayType) {
             case OSNotificationDisplayTypeNotification:
-                [NotificationData saveLastNotificationFromBackground:messageId];
-                [sessionManager onSessionFromNotification];
+                [OneSignalNotificationData saveLastNotificationFromBackground:messageId];
+                [OneSignalSessionManager onSessionFromNotification];
                 break;
             default:
                 break;
@@ -2118,7 +2116,7 @@ static NSString *_lastnonActiveMessageId;
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
         else {
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
-            [NotificationData saveLastNotificationFromBackground:nil];
+            [OneSignalNotificationData saveLastNotificationFromBackground:nil];
         }
     }
     
@@ -2528,7 +2526,7 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
         return;
     if (outcomeController == nil) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
     
@@ -2544,7 +2542,7 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
         return;
     if (outcomeController == nil) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init firts"];
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
     if (value == nil) {
@@ -2562,7 +2560,7 @@ static NSString *_lastnonActiveMessageId;
 @implementation OneSignal (SessionStatusDelegate)
 
 + (void)onSessionRestart {
-    if (outcomeController != nil)
+    if (outcomeController)
         [outcomeController clearOutcomes];
 }
 
