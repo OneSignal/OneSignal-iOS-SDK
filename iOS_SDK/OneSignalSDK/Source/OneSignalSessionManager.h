@@ -25,16 +25,18 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "LastNotification.h"
+#import "OneSignalCommonDefines.h"
 
-@implementation LastNotification
+@protocol SessionStatusDelegate <NSObject>
++ (void)onSessionRestart;
+@end
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground {
-    _notificationId = notificationId;
-    _arrivalTime = arrivalTime;
-    _wasOnBackground = wasOnBackground;
-    return self;
-}
+@interface OneSignalSessionManager : NSObject
+
++ (SessionState)session;
++ (void)setDelegate:(id <SessionStatusDelegate>)delegate;
++ (void)restartSession;
++ (void)onSessionStarted;
++ (void)onSessionFromNotification;
 
 @end

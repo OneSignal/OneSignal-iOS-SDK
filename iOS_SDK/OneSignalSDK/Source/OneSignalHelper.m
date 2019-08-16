@@ -40,7 +40,7 @@
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
-#import "NotificationData.h"
+#import "OneSignalNotificationData.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -408,7 +408,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     switch (displayType) {
         case OSNotificationDisplayTypeNotification:
-            [NotificationData saveLastNotification:lastMessageID];
+            [OneSignalNotificationData saveLastNotification:lastMessageID];
             break;
         default:
             break;

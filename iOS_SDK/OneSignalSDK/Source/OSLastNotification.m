@@ -25,12 +25,16 @@
  * THE SOFTWARE.
  */
 
-@interface LastNotification : NSObject
+#import <Foundation/Foundation.h>
+#import "OSLastNotification.h"
 
-@property (nonatomic, readonly) NSString *notificationId;
-@property (nonatomic, readonly) double arrivalTime;
-@property (nonatomic, readonly) BOOL wasOnBackground;
+@implementation OSLastNotification
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
+- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground {
+    _notificationId = notificationId;
+    _arrivalTime = arrivalTime;
+    _wasOnBackground = wasOnBackground;
+    return self;
+}
 
 @end

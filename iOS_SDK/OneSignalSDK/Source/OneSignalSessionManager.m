@@ -26,46 +26,37 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "SessionManager.h"
+#import "OneSignalSessionManager.h"
 #import "OneSignalCommonDefines.h"
-#import "NotificationData.h"
-#import "LastNotification.h"
+#import "OneSignalNotificationData.h"
 #import "OneSignal.h"
 
 const int TWENTY_FOUR_HOURS_SECONDS = 24 * 60 * 60;
 const int HALF_MINUTE_SECONDS = 30;
 
-@interface SessionManager ()
-@property (nonatomic, readwrite) SessionState session;
-@property (nonatomic, weak) id <SessionStatusDelegate> delegate;
-@end
+@implementation OneSignalSessionManager
 
-@implementation SessionManager
-
-- (id)init
-{
-    self = [super init];
-    _session = NONE;
-    return self;
-}
-
-- (void)setDelegate:(id<SessionStatusDelegate>)delegate {
+static id<SessionStatusDelegate> _delegate;
++ (void)setDelegate:(id<SessionStatusDelegate>)delegate {
     _delegate = delegate;
 }
 
-- (void)restartSession {
+static SessionState _session = NONE;
++ (SessionState)session { return _session; }
+
++ (void)restartSession {
     _session = NONE;
     [self onSessionStarted];
-    if (_delegate != nil)
+    if (_delegate)
         [_delegate onSessionRestart];
 }
 
-- (void)onSessionStarted {
++ (void)onSessionStarted {
     if (_session != NONE) {
         return;
     }
 
-    LastNotification *lastNotification = [NotificationData getLastNotification];
+    OSLastNotification *lastNotification = [OneSignalNotificationData getLastNotification];
     NSString *notificationId = lastNotification.notificationId;
     double notificationTime = lastNotification.arrivalTime;
     BOOL wasOnBackground = lastNotification.wasOnBackground;
@@ -88,12 +79,12 @@ const int HALF_MINUTE_SECONDS = 30;
     }
 }
 
-- (void)onSessionNotInfluenced {
++ (void)onSessionNotInfluenced {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Not influenced sesssion"];
     _session = UNATTRIBUTED;
 }
 
-- (void)onSessionFromNotification {
++ (void)onSessionFromNotification {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Direct sesssion"];
     _session = DIRECT;
 }

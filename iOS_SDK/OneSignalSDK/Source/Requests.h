@@ -91,8 +91,28 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestOnFocus : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId badgeCount:(NSNumber * _Nonnull)badgeCount emailAuthToken:(NSString * _Nullable)emailAuthHash;
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId state:(NSString * _Nonnull)state type:(NSNumber * _Nonnull)type activeTime:(NSNumber * _Nonnull)activeTime netType:(NSNumber * _Nonnull)netType emailAuthToken:(NSString * _Nullable)emailAuthHash;
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                         badgeCount:(NSNumber * _Nonnull)badgeCount
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash;
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                              state:(NSString * _Nonnull)state
+                               type:(NSNumber * _Nonnull)type
+                         activeTime:(NSNumber * _Nonnull)activeTime
+                            netType:(NSNumber * _Nonnull)netType
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash;
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                              state:(NSString * _Nonnull)state
+                               type:(NSNumber * _Nonnull)type
+                         activeTime:(NSNumber * _Nonnull)activeTime
+                            netType:(NSNumber * _Nonnull)netType
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash
+                      directSession:(BOOL)directSession
+                     notificationId:(NSString * _Nullable)notificationId;
 @end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest
