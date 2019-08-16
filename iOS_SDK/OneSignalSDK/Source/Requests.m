@@ -416,10 +416,12 @@ NSString * const DEVICE = @"device_type";
 NSString * const IS_DIRECT = @"direct";
 NSString * const NOTIFICATION = @"notification_id";
 NSString * const OUTCOME_ID = @"id";
-NSString * const WEIGHT = @"weight";
-NSString * const TIMESTAMP = @"timestamp";
 
-+ (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId appId:(NSString * _Nonnull)appId notificationId:(NSString * _Nullable)notificationId deviceType:(NSNumber * _Nonnull)deviceType timestamp:(NSNumber *)timestamp {
++ (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId
+                                       appId:(NSString * _Nonnull)appId
+                              notificationId:(NSString * _Nullable)notificationId
+                                  deviceType:(NSNumber * _Nonnull)deviceType
+                            requestParams:(NSDictionary * _Nullable)requestParams {
     let request = [OSRequestSendOutcomesToServer new];
     
     let params = [NSMutableDictionary new];
@@ -429,8 +431,11 @@ NSString * const TIMESTAMP = @"timestamp";
     params[OUTCOME_ID] = outcomeId;
     params[NOTIFICATION] = notificationId;
     
-    if (timestamp != nil) {
-        params[TIMESTAMP] = timestamp;
+    if (requestParams != nil) {
+        for (NSString *key in requestParams) {
+            id value = requestParams[key];
+            params[key] = value;
+        }
     }
     
     request.parameters = params;
@@ -440,7 +445,11 @@ NSString * const TIMESTAMP = @"timestamp";
     return request;
 }
 
-+ (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId appId:(NSString * _Nonnull)appId notificationId:(NSString * _Nullable)notificationId deviceType:(NSNumber * _Nonnull)deviceType timestamp:(NSNumber *)timestamp {
++ (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId
+                                         appId:(NSString * _Nonnull)appId
+                                notificationId:(NSString * _Nullable)notificationId
+                                    deviceType:(NSNumber * _Nonnull)deviceType
+                                 requestParams:(NSDictionary * _Nullable)requestParams {
     let request = [OSRequestSendOutcomesToServer new];
     
     let params = [NSMutableDictionary new];
@@ -450,8 +459,11 @@ NSString * const TIMESTAMP = @"timestamp";
     params[OUTCOME_ID] = outcomeId;
     params[NOTIFICATION] = notificationId;
     
-    if (timestamp != nil) {
-        params[TIMESTAMP] = timestamp;
+    if (requestParams != nil) {
+        for (NSString *key in requestParams) {
+            id value = requestParams[key];
+            params[key] = value;
+        }
     }
     
     request.parameters = params;
@@ -461,13 +473,23 @@ NSString * const TIMESTAMP = @"timestamp";
     return request;
 }
 
-+ (instancetype _Nonnull)unattributedWithOutcomeId:(NSString * _Nonnull)outcomeId appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType {
++ (instancetype _Nonnull)unattributedWithOutcomeId:(NSString * _Nonnull)outcomeId
+                                             appId:(NSString * _Nonnull)appId
+                                        deviceType:(NSNumber * _Nonnull)deviceType
+                                     requestParams:(NSDictionary * _Nullable)requestParams {
     let request = [OSRequestSendOutcomesToServer new];
     
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
     params[DEVICE] = deviceType;
     params[OUTCOME_ID] = outcomeId;
+    
+    if (requestParams != nil) {
+        for (NSString *key in requestParams) {
+            id value = requestParams[key];
+            params[key] = value;
+        }
+    }
     
     request.parameters = params;
     request.method = POST;

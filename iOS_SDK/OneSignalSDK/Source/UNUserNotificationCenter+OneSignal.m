@@ -44,7 +44,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @interface OneSignal (UN_extra)
-+ (void)notificationReceived:(NSDictionary*)messageDict isActive:(BOOL)isActive wasOpened:(BOOL)opened;
++ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
 @end
 
@@ -169,7 +169,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
             completionHandler(7);
         return;
     }
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
     NSDictionary * userInfo =notification.request.content.userInfo;
@@ -188,7 +188,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
     
     if ([OneSignal app_id])
-        [OneSignal notificationReceived:userInfo isActive:YES wasOpened:notShown];
+        [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
@@ -214,7 +214,6 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
-    
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
         if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
@@ -266,8 +265,9 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
-    
-    [OneSignal notificationReceived:userInfo isActive:isActive wasOpened:YES];
+    let isAppForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+
+    [OneSignal notificationReceived:userInfo foreground:isAppForeground isActive:isActive wasOpened:YES];
     
 }
 
