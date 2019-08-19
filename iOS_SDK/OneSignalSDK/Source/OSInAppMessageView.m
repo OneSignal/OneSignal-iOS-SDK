@@ -29,11 +29,16 @@
 #import "OneSignalHelper.h"
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageAction.h"
+#import "OneSignalViewHelper.h"
 
-@interface OSInAppMessageView () <UIScrollViewDelegate>
+@interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
+
+@property (strong, nonatomic, nullable) NSLayoutConstraint *webViewHeightConstraint;
+@property (strong, nonatomic, nullable) NSLayoutConstraint *webViewWidthConstraint;
+
 @end
 
 @implementation OSInAppMessageView
@@ -61,11 +66,59 @@
     let configuration = [WKWebViewConfiguration new];
     [configuration.userContentController addScriptMessageHandler:handler name:@"iosListener"];
     
-    self.webView = [[WKWebView alloc] initWithFrame:self.bounds configuration:configuration];
+    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+    
+    // WebView should use mainBounds as frame since we need to make sure it spans full possible screen size
+    // to prevent text wrapping while obtaining true height of message from JS
+    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    mainBounds.size.width -= (2.0 * marginSpacing);
+    
+    // Setup WebView, delegates, and disable scrolling inside of the WebView
+    self.webView = [[WKWebView alloc] initWithFrame:mainBounds configuration:configuration];
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
+    self.webView.UIDelegate = self;
+    self.webView.navigationDelegate = self;
     self.webView.scrollView.delegate = self;
     self.webView.scrollView.scrollEnabled = false;
-    self.webView.navigationDelegate = self;
+    
+    [self layoutIfNeeded];
+}
+
+/*
+ Method for resetting the height of the WebView so the JS can calculate the new height
+ WebView will have margins accounted for on width, but height just needs to be phone height or larger
+ The issue is that text wrapping can cause incorrect height issues so width is the real concern here
+ */
+- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (CGFloat height)) completion {
+    
+    [self.webView removeFromSuperview];
+    
+    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    mainBounds.size.width -= (2.0 * marginSpacing);
+    [self.webView setFrame:mainBounds];
+    [self layoutIfNeeded];
+    
+    // TODO: Make sure backend fix is made to handle the JS call for height update
+    [self.webView evaluateJavaScript:OS_JS_GET_PAGE_META_DATA_METHOD completionHandler:^(NSString *result, NSError *error) {
+        if (error) {
+            NSString *message = [NSString stringWithFormat:@"%@ Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
+            return;
+        }
+        NSString *message = [NSString stringWithFormat:@"%@ Success: %@", OS_JS_GET_PAGE_META_DATA_METHOD, result];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
+
+        // TODO: We will want to extract the height from the result and pass it to the current messageView
+        completion(0);
+    }];
+}
+
+/*
+ Should be called after the height of the message has been calculated by the JS event (rendering_complete or manual adjustment)
+ This will set the true contraints and add the WebView to the messageView as a subView
+ */
+- (void)setupWebViewConstraint {
     self.webView.layer.cornerRadius = 10.0f;
     self.webView.layer.masksToBounds = true;
     
@@ -82,7 +135,7 @@
     [self layoutIfNeeded];
 }
 
-// NOTE: Make sure to call this method when the message view gets dismissed
+// Make sure to call this method when the message view gets dismissed
 // Otherwise a memory leak will occur and the entire view controller will be leaked
 - (void)removeScriptMessageHandler {
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:@"iosListener"];

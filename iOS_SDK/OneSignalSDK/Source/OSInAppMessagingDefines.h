@@ -67,6 +67,9 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
 #define OS_TIME_TRIGGER @"os_time"
 
+// JavaScript method names
+#define OS_JS_GET_PAGE_META_DATA_METHOD @"getPageMetaData()"
+
 // Trigger for previously viewed messages
 #define OS_VIEWED_MESSAGE @"os_viewed_message"
 #define OS_VIEWED_MESSAGE_TRIGGER(messageId) [OS_VIEWED_MESSAGE stringByAppendingString:messageId]

@@ -28,6 +28,7 @@
 #import "OSInAppMessageViewController.h"
 #import "OSInAppMessageView.h"
 #import "OneSignalHelper.h"
+#import "OneSignalViewHelper.h"
 #import "OSInAppMessageController.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessageBridgeEvent.h"
@@ -240,16 +241,19 @@
     // The safe area represents the anchors that are not obscurable by  UI such
     // as a notch or a rounded corner on newer iOS devices like iPhone X
     // Note that Safe Area layout guides were only introduced in iOS 11
+    
     if (@available(iOS 11, *)) {
         let safeArea = self.view.safeAreaLayoutGuide;
-        top = safeArea.topAnchor, bottom = safeArea.bottomAnchor, leading = safeArea.leadingAnchor, trailing = safeArea.trailingAnchor, center = safeArea.centerXAnchor;
+        top = safeArea.topAnchor;
+        bottom = safeArea.bottomAnchor;
+        leading = safeArea.leadingAnchor;
+        trailing = safeArea.trailingAnchor;
+        center = safeArea.centerXAnchor;
         height = safeArea.heightAnchor;
     }
     
     CGRect mainBounds = [[UIScreen mainScreen] bounds];
-    CGFloat scale = UIScreen.mainScreen.scale;
-    // The spacing between the message view & edges
-    let marginSpacing = MESSAGE_MARGIN * scale;
+    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
     
     let widthMessage = [NSString stringWithFormat:@"Screen Bounds Width: %f", mainBounds.size.width];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:widthMessage];
@@ -258,10 +262,15 @@
     let scaleMessage = [NSString stringWithFormat:@"Screen Bounds Scale: %f", UIScreen.mainScreen.scale];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:scaleMessage];
     
+    // The aspect ratio for each type (ie. Banner) determines the height normally
+    // However the actual height of the HTML content takes priority.
+    // Makes sure our webview is never taller than our screen.
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing].active = true;
+    
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
     if (self.message.position == OSInAppMessageDisplayPositionFullScreen)
-        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:self.view.heightAnchor multiplier:1.0 constant:-2.0f * marginSpacing];
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing];
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
 
@@ -271,21 +280,22 @@
     
     // Ensure the message view is always centered horizontally
     [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
-
-    // The aspect ratio for each type (ie. Banner) determines the height normally
-    // However the actual height of the HTML content takes priority.
-    // Makes sure our webview is never taller than our screen.
-    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing].active = true;
     
     // Set Y constraints
     // Since we animate the appearance of the message (ie. slide in from top),
     // there are two constraints: initial and final. At initialization, the initial
     // constraint has a higher priority. The pan constraint is used only when panning
     double bannerWidth = mainBounds.size.width;
-    double bannerHeight = self.message.height.doubleValue;
+    double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
     double bannerMessageY = mainBounds.size.height - bannerHeight;
     switch (self.message.position) {
         case OSInAppMessageDisplayPositionTop:
+            if (@available(iOS 11, *)) {
+                UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+                bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
+            }
+            double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
+            bannerHeight += statusBarHeight;
             self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
@@ -293,6 +303,11 @@
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
             break;
         case OSInAppMessageDisplayPositionBottom:
+            if (@available(iOS 11, *)) {
+                UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+                bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
+                bannerMessageY = mainBounds.size.height - bannerHeight;
+            }
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
@@ -611,16 +626,36 @@
 
         // Execute code or animations during the orientation change
         // You can pass nil or leave this block empty if not necessary
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Occuring: Modifying IAM"];
+        
         CGRect mainBounds = [[UIScreen mainScreen] bounds];
+        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+        
+        // TODO: Uncomment and finish this once backend (JS) changes for getPageMetaData() are merged
+//        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(CGFloat height) {
+//
+//        }];
+        
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Occuring: Modifying IAM"];
         double bannerWidth = mainBounds.size.width;
-        double bannerHeight = self.message.height.doubleValue;
+        double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
         double bannerMessageY = mainBounds.size.height - bannerHeight;
         switch (self.message.position) {
             case OSInAppMessageDisplayPositionTop:
+                if (@available(iOS 11, *)) {
+                    UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+                    bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
+                } else {
+                    double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
+                    bannerHeight += statusBarHeight;
+                }
                 self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
                 break;
             case OSInAppMessageDisplayPositionBottom:
+                if (@available(iOS 11, *)) {
+                    UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
+                    bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
+                    bannerMessageY = mainBounds.size.height - bannerHeight;
+                }
                 self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
                 break;
             case OSInAppMessageDisplayPositionFullScreen:
@@ -660,6 +695,9 @@
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Received in-app script message: %@", message.body]];
+    
+    [self.messageView setupWebViewConstraint];
+    
     [self jsEventOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }
 

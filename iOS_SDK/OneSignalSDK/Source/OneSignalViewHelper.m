@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,33 +25,15 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
-#import "OSInAppMessage.h"
+#import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
+#import "OneSignalViewHelper.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation OneSignalViewHelper : NSObject 
 
-@protocol OSInAppMessageViewDelegate <NSObject>
-
-- (void)messageViewFailedToLoadMessageContent;
-- (void)messageViewDidFailToProcessAction;
-
-@end
-
-@interface OSInAppMessageView : UIView <WKNavigationDelegate>
-@property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
-
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
-
-- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (CGFloat height)) completion;
-- (void)setupWebViewConstraint;
-
-- (void)loadReplacementURL:(NSURL *)url;
-
-- (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
-
-- (void)removeScriptMessageHandler;
++ (CGFloat)sizeToScale:(float)size {
+    float scale = (float) UIScreen.mainScreen.scale;
+    return (CGFloat) (size * scale);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

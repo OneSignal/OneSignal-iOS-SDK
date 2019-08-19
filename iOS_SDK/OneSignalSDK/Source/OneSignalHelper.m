@@ -452,7 +452,7 @@ static NSString *_lastMessageIdFromAction;
     return [OneSignalHelper isIOSVersionGreaterOrEqual:8];
 }
 
-// For iOS 9 and 8
+// For iOS 8 and 9
 + (UILocalNotification*)createUILocalNotification:(OSNotificationPayload*)payload {
     let notification = [UILocalNotification new];
     

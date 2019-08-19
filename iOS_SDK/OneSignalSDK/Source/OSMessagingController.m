@@ -204,10 +204,6 @@
         self.viewController = nil;
         
         [self.messageDisplayQueue removeObjectAtIndex:0];
-
-        // Preview case
-        if ([self.messageDisplayQueue count] == 0)
-            return;
         
         if (self.messageDisplayQueue.count > 0) {
             [self displayMessage:self.messageDisplayQueue.firstObject];
@@ -244,7 +240,7 @@
 
 // This method must be called on the Main thread
 - (void)webViewContentFinishedLoading {
-    if (self.viewController == nil) {
+    if (!self.viewController) {
         [self evaluateMessages];
         return;
     }
