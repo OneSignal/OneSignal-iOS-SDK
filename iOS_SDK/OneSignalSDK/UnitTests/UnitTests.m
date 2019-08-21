@@ -2386,4 +2386,10 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
 }
 
+- (void)testHexStringFromDataWithInvalidValues {
+    XCTAssertNil([NSString hexStringFromData:nil]);
+    XCTAssertNil([NSString hexStringFromData:NULL]);
+    XCTAssertNil([NSString hexStringFromData:[NSData new]]);
+}
+
 @end
