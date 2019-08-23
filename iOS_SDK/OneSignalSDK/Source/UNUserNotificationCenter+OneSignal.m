@@ -36,6 +36,7 @@
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OneSignalCommonDefines.h"
+#import "OSNotificationPayload+Internal.h"
 
 
 #if XC8_AVAILABLE
@@ -176,10 +177,11 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
     NSDictionary * userInfo =notification.request.content.userInfo;
-    let isInAppPreview = [OneSignalHelper isInAppPreviewNotification:userInfo];
+    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:userInfo];
+    NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
 
     NSUInteger completionHandlerOptions = 0;
-    if (!isInAppPreview) {
+    if (!uuid) {
         switch (OneSignal.inFocusDisplayType) {
             case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
             case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound

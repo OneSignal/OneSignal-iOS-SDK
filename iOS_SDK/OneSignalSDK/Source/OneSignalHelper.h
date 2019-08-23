@@ -43,6 +43,7 @@
 + (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType;
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
++ (BOOL)handleIAMPreview:(OSNotificationPayload *)payload;
 
 // - iOS 10
 + (BOOL)isIOSVersionGreaterOrEqual:(float)version;

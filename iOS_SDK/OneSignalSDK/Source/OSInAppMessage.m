@@ -27,7 +27,7 @@
 
 #import "OSInAppMessage.h"
 #import "OneSignalHelper.h"
-#import "OneSignal.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation OSInAppMessage
 
@@ -88,10 +88,9 @@
     return message;
 }
 
-+ (instancetype)instancePreviewWithJson:(NSDictionary *)json {
++ (instancetype)instancePreviewFromPayload:(OSNotificationPayload *)payload {
     let message = [OSInAppMessage new];
-    NSString *previewUUID= json[@"custom"][@"a"][@"os_in_app_message_preview_id"];
-    message.messageId = previewUUID;
+    message.messageId = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
     message.isPreview = true;
     return message;
 }

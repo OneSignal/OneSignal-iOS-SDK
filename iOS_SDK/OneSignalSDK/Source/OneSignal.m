@@ -1679,11 +1679,6 @@ static dispatch_queue_t serialQueue;
     [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];
 }
 
-+ (void)receivedInAppMessagePreviewJson:(NSDictionary *)messagesJson {
-    OSInAppMessage *message = [OSInAppMessage instancePreviewWithJson:messagesJson];
-    [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
-}
-
 +(NSString*)getUsableDeviceToken {
     if (mSubscriptionStatus < -1)
         return NULL;
@@ -1798,9 +1793,6 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        if ([self checkAndHandleInAppPreview:messageDict])
-            return;
-        
         let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
         // Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
@@ -1851,10 +1843,12 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:isActive:actionType:displayType:"])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
-    
-    if ([self checkAndHandleInAppPreview:messageDict])
+    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
+    if ([OneSignalHelper handleIAMPreview:payload]) {
         return;
+    }
+    
+    onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
     
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
@@ -1881,15 +1875,6 @@ static NSString *_lastnonActiveMessageId;
     if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
         [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
     }
-}
-
-+ (BOOL)checkAndHandleInAppPreview:(NSDictionary*)messageDict {
-    let isInAppPreview = [OneSignalHelper isInAppPreviewNotification:messageDict];
-    if (isInAppPreview) {
-        [self receivedInAppMessagePreviewJson:messageDict];
-        return YES;
-    }
-    return NO;
 }
 
 + (BOOL)shouldPromptToShowURL {

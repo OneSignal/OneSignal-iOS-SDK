@@ -38,6 +38,7 @@
 #import "NSURL+OneSignal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalDialogController.h"
+#import "OSMessagingController.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -310,10 +311,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return true;
 }
 
-+ (BOOL)isInAppPreviewNotification:(NSDictionary *)msg {
-    return msg[@"custom"][@"a"][@"os_in_app_message_preview_id"] != nil;
-}
-
 + (void)lastMessageReceived:(NSDictionary*)message {
     lastMessageReceived = message;
 }
@@ -397,7 +394,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
 }
 
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
-    if (!handleNotificationReceived || ![self isOneSignalPayload:lastMessageReceived])
+    if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
@@ -408,8 +405,9 @@ OSHandleNotificationActionBlock handleNotificationAction;
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
-    
-    handleNotificationReceived(notification);
+
+    if (![self handleIAMPreview:payload] && handleNotificationReceived)
+        handleNotificationReceived(notification);
 }
 
 static NSString *_lastMessageIdFromAction;
@@ -433,6 +431,16 @@ static NSString *_lastMessageIdFromAction;
     if (!handleNotificationAction)
         return;
     handleNotificationAction(result);
+}
+
++ (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
+    NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
+    if (uuid) {
+        OSInAppMessage *message = [OSInAppMessage instancePreviewFromPayload:payload];
+        [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
+        return YES;
+    }
+    return NO;
 }
 
 +(NSNumber*)getNetType {
