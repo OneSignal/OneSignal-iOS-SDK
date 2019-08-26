@@ -182,7 +182,7 @@
     // the timer shouldn't be scheduled yet
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
-    [OneSignal setTriggerForKey:@"prop1" withValue:@2];
+    [OneSignal addTrigger:@"prop1" withValue:@2];
     
     // the timer should be scheduled now that the other trigger condition is true
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
@@ -193,17 +193,30 @@
     [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    [OneSignal setTriggerForKey:@"test1" withValue:@"value1"];
+    [OneSignal addTrigger:@"test1" withValue:@"value1"];
+    XCTAssertTrue([OneSignal getTriggers].count == 1);
     
-    [OneSignal setTriggers:@{@"test2" : @33}];
+    [OneSignal addTriggers:@{@"test2" : @33}];
+    XCTAssertEqualObjects(OneSignal.getTriggers[@"test2"], @33);
+    XCTAssertTrue([OneSignal getTriggers].count == 2);
+    
+    [OneSignal addTriggers:@{@"test2" : @"44"}];
+    XCTAssertTrue([OneSignal getTriggers].count == 2);
+    
+    [OneSignal addTriggers:@{@"test3" : @""}];
+    XCTAssertTrue([OneSignal getTriggers].count == 3);
     
     [OneSignal removeTriggerForKey:@"test1"];
-    
-    XCTAssertEqualObjects(OneSignal.getTriggers[@"test2"], @33);
-    
     XCTAssertNil(OneSignal.getTriggers[@"test1"]);
+    XCTAssertNil([OneSignal getTriggerValueForKey:@"test1"]);
     
-    XCTAssertEqualObjects([OneSignal getTriggerValueForKey:@"test2"], @33);
+    XCTAssertEqualObjects(OneSignal.getTriggers[@"test2"], @"44");
+    XCTAssertEqualObjects([OneSignal getTriggerValueForKey:@"test3"], @"");
+
+    [OneSignal removeTriggerForKey:@"test2"];
+    [OneSignal removeTriggerForKey:@"test3"];
+    
+    XCTAssertTrue([OneSignal getTriggers].count == 0);
 }
 
 - (void)testExactTimeTrigger {
@@ -289,23 +302,6 @@
     XCTAssertTrue(OS_ROUGHLY_EQUAL(NSTimerOverrider.mostRecentTimerInterval, 30.0f) || OS_ROUGHLY_EQUAL(NSTimerOverrider.previousMostRecentTimeInterval, 30.0f));
 }
 
-// Tests to make sure that the "os_viewed_message" trigger works correctly.
-// It is used to limit how many times a message is shown
-- (void)testDisplayLimitMessage {
-    let trigger = [OSTrigger triggerWithProperty:OS_VIEWED_MESSAGE withOperator:OSTriggerOperatorTypeLessThan withValue:@1];
-    
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
-    [self initializeOnesignalWithMessage:message];
-    
-    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 1);
-    
-    [OSMessagingController.sharedInstance didUpdateMessagesForSession:@[message]];
-    
-    // the message should not have been shown.
-    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 1);
-}
-
 // helper method that adds an OSInAppMessage to the registration
 // mock response JSON and initializes the OneSignal SDK
 - (void)initializeOnesignalWithMessage:(OSInAppMessage *)message {
@@ -354,8 +350,7 @@
     
     let testMessage = [OSInAppMessage instanceWithJson:message];
     
-    [OSMessagingController.sharedInstance messageViewDidSelectAction:action withMessageId:message[@"id"] forVariantId:testMessage.variantId];
-    
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:action isPreview:NO withMessageId:message[@"id"] forVariantId:testMessage.variantId];
     // The action should cause an "opened" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageOpened class]));
 }

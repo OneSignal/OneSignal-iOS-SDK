@@ -200,6 +200,17 @@
     
     // the trigger controller will have no value for 'prop1'
     XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
+    
+    [self.triggerController addTriggers:@{
+        @"prop1" : @7,
+    }];
+    
+    XCTAssertTrue([self.triggerController messageMatchesTriggers:message]);
+    
+    [self.triggerController removeTriggersForKeys:@[@"prop1"]];
+    
+    // the trigger controller will have no value for 'prop1'
+    XCTAssertFalse([self.triggerController messageMatchesTriggers:message]);
 }
 
 - (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTriggerValue:(id)triggerValue withLocalValue:(id)localValue {
@@ -238,28 +249,51 @@
 - (void)testGreaterThan {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTriggerValue:@3 withLocalValue:@3.1]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTriggerValue:@2.1 withLocalValue:@2]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTriggerValue:@3 withLocalValue:@"3.1"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThan withTriggerValue:@2.1 withLocalValue:@"2"]);
 }
 
 - (void)testGreaterThanOrEqualTo {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@3 withLocalValue:@3]);
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@2 withLocalValue:@2.9]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@5 withLocalValue:@4]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@3 withLocalValue:@"3"]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@2 withLocalValue:@"2.9"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeGreaterThanOrEqualTo withTriggerValue:@5 withLocalValue:@"4"]);
 }
 
 - (void)testEqualTo {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@0.1 withLocalValue:@0.1]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@0.0 withLocalValue:@2]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@0.1 withLocalValue:@"0.1"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@0.0 withLocalValue:@"2"]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@"0.1" withLocalValue:@"0.1"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@"0.0" withLocalValue:@"2"]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@"0.1" withLocalValue:@0.1]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeEqualTo withTriggerValue:@"0.0" withLocalValue:@2]);
 }
 
 - (void)testLessThan {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTriggerValue:@2 withLocalValue:@1.9]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTriggerValue:@3 withLocalValue:@4]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTriggerValue:@2 withLocalValue:@"1.9"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThan withTriggerValue:@3 withLocalValue:@"4"]);
 }
 
 - (void)testLessThanOrEqualTo {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@5 withLocalValue:@4]);
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@3 withLocalValue:@3]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@3 withLocalValue:@4]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@5 withLocalValue:@"4"]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@3 withLocalValue:@"3"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeLessThanOrEqualTo withTriggerValue:@3 withLocalValue:@"4"]);
 }
 
 - (void)testNumericContainsOperator {
@@ -276,18 +310,32 @@
 
 - (void)testExistsOperator {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeExists withTriggerValue:nil withLocalValue:@3]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeExists withTriggerValue:nil withLocalValue:@"3"]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeExists withTriggerValue:nil withLocalValue:nil]);
 }
 
 - (void)testNotExistsOperator {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotExists withTriggerValue:nil withLocalValue:nil]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotExists withTriggerValue:nil withLocalValue:@4]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotExists withTriggerValue:nil withLocalValue:@"4"]);
 }
 
 - (void)testNotEqualToOperator {
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:nil]);
     XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:@2]);
     XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:@3]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@"3" withLocalValue:nil]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@"3" withLocalValue:@2]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@"3" withLocalValue:@3]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@"3" withLocalValue:nil]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@"3" withLocalValue:@"2"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@"3" withLocalValue:@"3"]);
+    
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:nil]);
+    XCTAssertTrue([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:@"2"]);
+    XCTAssertFalse([self setupComparativeOperatorTest:OSTriggerOperatorTypeNotEqualTo withTriggerValue:@3 withLocalValue:@"3"]);
 }
 
 - (void)testInvalidOperator {

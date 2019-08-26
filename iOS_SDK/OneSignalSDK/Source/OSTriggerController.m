@@ -31,7 +31,6 @@
 
 @interface OSTriggerController ()
 @property (strong, nonatomic, nonnull) NSMutableDictionary<NSString *, id> *triggers;
-@property (strong, nonatomic, nonnull) NSUserDefaults *defaults;
 @property (strong, nonatomic, nonnull) OSDynamicTriggerController *dynamicTriggerController;
 @end
 
@@ -39,8 +38,7 @@
 
 - (instancetype _Nonnull)init {
     if (self = [super init]) {
-        self.triggers = ([[self triggersFromUserDefaults] mutableCopy] ?: [NSMutableDictionary<NSString *, id> new]);
-        self.defaults = [NSUserDefaults standardUserDefaults];
+        self.triggers = [NSMutableDictionary<NSString *, id> new];
         self.dynamicTriggerController = [OSDynamicTriggerController new];
         self.dynamicTriggerController.delegate = self;
     }
@@ -96,9 +94,7 @@
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message {
     if (message.triggers.count == 0)
         return true;
-    
     for (NSArray <OSTrigger *> *conditions in message.triggers) {
-        
         //dynamic triggers should be handled after looping through all other triggers
         NSMutableArray<OSTrigger *> *dynamicTriggers = [NSMutableArray new];
         
@@ -107,9 +103,9 @@
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
-            if (OS_IS_DYNAMIC_TRIGGER(trigger.property))
+            if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
                 [dynamicTriggers addObject:trigger];
-            else if (![self evaluateTrigger:trigger forMessage:message]) {
+            } else if (![self evaluateTrigger:trigger forMessage:message]) {
                 foundFalseTrigger = true;
                 break;
             }
@@ -161,23 +157,19 @@
     //if we reach this point, the trigger has been set locally
     id realValue = self.triggers[trigger.property];
     
-    // The logic for making sure messages can only be shown X times
-    // is the same as triggers, except the value (view_count) comes from
-    // a different source
-    if ([OS_VIEWED_MESSAGE isEqualToString:trigger.property])
-        realValue = @([self viewCountForMessageId:message.messageId]);
-    
     if (trigger.operatorType == OSTriggerOperatorTypeContains) {
-        if (![self array:realValue containsValue:trigger.value]) {
-            return false;
-        }
-    } else if (![trigger.value isKindOfClass:[realValue class]] ||
-               ([trigger.value isKindOfClass:[NSNumber class]] && ![self trigger:trigger matchesNumericValue:realValue]) ||
-               ([trigger.value isKindOfClass:[NSString class]] && ![self trigger:trigger matchesStringValue:realValue])) {
-        return false;
+        return [self array:realValue containsValue:trigger.value];
+    } else if ([trigger.value isKindOfClass:[NSNumber class]] && [realValue isKindOfClass:[NSNumber class]] &&
+                [self trigger:trigger.value matchesNumericValue:realValue operatorType:trigger.operatorType]) {
+        return true;
+    } else if ([trigger.value isKindOfClass:[NSString class]] && [realValue isKindOfClass:[NSString class]] &&
+                [self trigger:trigger.value matchesStringValue:realValue operatorType:trigger.operatorType]) {
+        return true;
+    } else if ([self triggerMatchesFlex:trigger matchesStringValue:realValue]) {
+        return true;
     }
-    
-    return true;
+
+    return false;
 }
 
 - (BOOL)triggerValue:(id)triggerValue isEqualToValue:(id)value {
@@ -196,75 +188,60 @@
     return false;
 }
 
-- (BOOL)trigger:(OSTrigger *)trigger matchesStringValue:(NSString *)realValue {
-    switch (trigger.operatorType) {
-        case OSTriggerOperatorTypeEqualTo:
-            return [realValue isEqualToString:trigger.value];
-        case OSTriggerOperatorTypeNotEqualTo:
-            return [realValue isEqualToString:trigger.value];
-        default:
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to use an invalid comparison operator (%@) on a string type", OS_OPERATOR_TO_STRING(trigger.operatorType)]];
+- (BOOL)triggerMatchesFlex:(OSTrigger *)trigger matchesStringValue:(id)realValue {
+    if (![trigger value])
+        return false;
+    
+    if ([trigger operatorType] == OSTriggerOperatorTypeEqualTo || [trigger operatorType] == OSTriggerOperatorTypeNotEqualTo)
+        return [self trigger:[trigger.value description] matchesStringValue:[realValue description] operatorType:trigger.operatorType];
+    
+    if ([trigger.value isKindOfClass:[NSNumber class]] && [realValue isKindOfClass:[NSString class]]) {
+        NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+        formatter.numberStyle = NSNumberFormatterDecimalStyle;
+        NSNumber *realValueFormatted = [formatter numberFromString:realValue];
+        return [self trigger:trigger.value matchesNumericValue:realValueFormatted operatorType:trigger.operatorType];
     }
     
     return false;
 }
 
-- (BOOL)trigger:(OSTrigger *)trigger matchesNumericValue:(id)realValue {
-    switch (trigger.operatorType) {
-        case OSTriggerOperatorTypeGreaterThan:
-            return [realValue doubleValue] > [trigger.value doubleValue];
+- (BOOL)trigger:(NSString *)value matchesStringValue:(NSString *)realValue operatorType:(OSTriggerOperatorType)operatorType {
+    switch (operatorType) {
         case OSTriggerOperatorTypeEqualTo:
-            return [realValue isEqualToNumber:trigger.value];
+            return [realValue isEqualToString:value];
         case OSTriggerOperatorTypeNotEqualTo:
-            return ![realValue isEqualToNumber:trigger.value];
+            return ![realValue isEqualToString:value];
+        default:
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to use an invalid comparison operator (%@) on a string type", OS_OPERATOR_TO_STRING(operatorType)]];
+    }
+    
+    return false;
+}
+
+- (BOOL)trigger:(NSNumber *)value matchesNumericValue:(id)realValue operatorType:(OSTriggerOperatorType)operatorType{
+    switch (operatorType) {
+        case OSTriggerOperatorTypeGreaterThan:
+            return [realValue doubleValue] > [value doubleValue];
+        case OSTriggerOperatorTypeEqualTo:
+            return [realValue isEqualToNumber:value];
+        case OSTriggerOperatorTypeNotEqualTo:
+            return ![realValue isEqualToNumber:value];
         case OSTriggerOperatorTypeLessThan:
-            return [realValue doubleValue] < [trigger.value doubleValue];
+            return [realValue doubleValue] < [value doubleValue];
         case OSTriggerOperatorTypeLessThanOrEqualTo:
-            return [realValue doubleValue] <= [trigger.value doubleValue];
+            return [realValue doubleValue] <= [value doubleValue];
         case OSTriggerOperatorTypeGreaterThanOrEqualTo:
-            return [realValue doubleValue] >= [trigger.value doubleValue];
+            return [realValue doubleValue] >= [value doubleValue];
         case OSTriggerOperatorTypeExists:
         case OSTriggerOperatorTypeNotExists:
         case OSTriggerOperatorTypeContains:
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(trigger.operatorType)]];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(operatorType)]];
     }
     
     return false;
 }
 
-- (void)displayedMessage:(OSInAppMessage *)message {
-    var messageViewCount = 1;
-    
-    let key = OS_VIEWED_MESSAGE_TRIGGER(message.messageId);
-    
-    let previousCount = (NSNumber *)[self.defaults objectForKey:key];
-    
-    if ([previousCount isKindOfClass:[NSNumber class]])
-        messageViewCount += [previousCount intValue];
-    
-    [self.defaults setObject:@(messageViewCount) forKey:key];
-    [self.defaults synchronize];
-}
-
-- (int)viewCountForMessageId:(NSString *)messageId {
-    let key = OS_VIEWED_MESSAGE_TRIGGER(messageId);
-    
-    let count = (NSNumber *)[self.defaults objectForKey:key];
-    
-    if (count)
-        return [count intValue];
-    else
-        return 0;
-}
-
-- (NSDictionary<NSString *, id> * _Nullable)triggersFromUserDefaults {
-    return [self.defaults dictionaryForKey:OS_TRIGGERS_KEY];
-}
-
 - (void)didUpdateTriggers {
-    [self.defaults setObject:self.triggers forKey:OS_TRIGGERS_KEY];
-    [self.defaults synchronize];
-    
     [self.delegate triggerConditionChanged];
 }
 

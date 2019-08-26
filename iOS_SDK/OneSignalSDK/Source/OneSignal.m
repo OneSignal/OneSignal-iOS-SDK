@@ -2333,10 +2333,10 @@ static NSString *_lastnonActiveMessageId;
     return sessionLaunchTime;
 }
 
-+ (void)setTriggerForKey:(NSString *)key withValue:(id)value {
++ (void)addTrigger:(NSString *)key withValue:(id)value {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setTriggerForKey:withValue:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
         return;
     
     if (!key) {
@@ -2347,9 +2347,9 @@ static NSString *_lastnonActiveMessageId;
     [OSMessagingController.sharedInstance setTriggers:@{key : value}];
 }
 
-+ (void)setTriggers:(NSDictionary<NSString *, id> *)triggers {
++ (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setTriggers:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
         return;
     
     [OSMessagingController.sharedInstance setTriggers:triggers];

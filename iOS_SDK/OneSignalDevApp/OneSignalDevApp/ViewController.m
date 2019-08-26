@@ -36,6 +36,8 @@
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITextField *triggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *triggerValue;
 
 @end
 
@@ -59,6 +61,15 @@
     self.activityIndicatorView.hidden = !animating;
 }
 
+- (IBAction)sendTrigger:(id)sender {
+    NSString *key = [_triggerKey text];
+    NSString *value = [_triggerValue text];
+    
+    if (key && value && [key length] && [value length]) {
+        [OneSignal addTrigger:key withValue:value];
+    }
+}
+
 - (IBAction)sendTagButton:(id)sender {
     //[self promptForNotificationsWithNativeiOS10Code];
     
@@ -67,8 +78,6 @@
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationsWithUserResponse: %d", accepted);
     }];
-    
-    
     
     [OneSignal sendTag:@"key1"
                  value:@"value1"

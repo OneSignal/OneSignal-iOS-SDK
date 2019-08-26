@@ -84,4 +84,8 @@
     return json;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat: @"OSTrigger: triggerId=%@ property=%@ operatorType=%lu value=%@", _triggerId, _property, (unsigned long)_operatorType, _value];
+}
+
 @end
