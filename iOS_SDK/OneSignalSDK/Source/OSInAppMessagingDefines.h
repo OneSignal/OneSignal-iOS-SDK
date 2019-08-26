@@ -62,6 +62,9 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 // Key for NSUserDefaults trigger storage
 #define OS_TRIGGERS_KEY @"OS_IN_APP_MESSAGING_TRIGGERS"
 #define OS_IN_APP_MESSAGING_ENABLED @"OS_IAM_ENABLED"
+#define OS_IAM_SEEN_SET_KEY @"OS_IAM_SEEN_SET"
+#define OS_IAM_CLICKED_SET_KEY @"OS_IAM_CLICKED_SET"
+#define OS_IAM_IMPRESSIONED_SET_KEY @"OS_IAM_IMPRESSIONED_SET"
 
 // Dynamic trigger property types
 #define OS_SESSION_DURATION_TRIGGER @"os_session_duration"

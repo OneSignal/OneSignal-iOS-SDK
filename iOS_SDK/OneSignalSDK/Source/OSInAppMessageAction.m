@@ -45,7 +45,7 @@
     return [self instanceWithJson:json];
 }
 
-+(instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype)instanceWithJson:(NSDictionary *)json {
     OSInAppMessageAction *action = [OSInAppMessageAction new];
     
     if ([json[@"click_type"] isKindOfClass:[NSString class]])
@@ -54,11 +54,11 @@
     if ([json[@"id"] isKindOfClass:[NSString class]])
         action.clickId = json[@"id"];
     
-    if ([json[@"id"] isKindOfClass:[NSString class]])
-        action.clickId = json[@"id"];
-    
     if ([json[@"url"] isKindOfClass:[NSString class]])
         action.clickUrl = [NSURL URLWithString:json[@"url"]];
+    
+    if ([json[@"name"] isKindOfClass:[NSString class]])
+        action.clickName = json[@"name"];
     
     if ([json[@"url_target"] isKindOfClass:[NSString class]] && OS_IS_VALID_URL_ACTION(json[@"url_target"]))
         action.urlActionType = OS_URL_ACTION_TYPE_FROM_STRING(json[@"url_target"]);
@@ -66,12 +66,9 @@
         action.urlActionType = OSInAppMessageActionUrlTypeWebview;
     
     if ([json[@"close"] isKindOfClass:[NSNumber class]])
-        action.close = [json[@"close"] boolValue];
+        action.closesMessage = [json[@"close"] boolValue];
     else
-        action.close = true; //default behavior
-    
-    if ([json[@"data"] isKindOfClass:[NSDictionary class]])
-        action.additionalData = json[@"data"];
+        action.closesMessage = true; // Default behavior
     
     return action;
 }

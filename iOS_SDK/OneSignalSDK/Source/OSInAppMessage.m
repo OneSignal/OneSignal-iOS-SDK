@@ -35,6 +35,12 @@
     return self.position == OSInAppMessageDisplayPositionTop || self.position == OSInAppMessageDisplayPositionBottom;
 }
 
+- (BOOL)takeActionAsUnique {
+    if (self.actionTaken)
+        return false;
+    return self.actionTaken = true;
+}
+
 + (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];

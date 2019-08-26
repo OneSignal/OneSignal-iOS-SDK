@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,29 +26,17 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessage.h"
-#import "OSInAppMessageViewController.h"
-#import "OneSignal.h"
-#import "OSTriggerController.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface OneSignalUserDefaults : NSObject
 
-@interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate>
++ (BOOL)keyExists:(NSString *)key;
 
-@property (nonatomic) BOOL messagingEnabled; // defaults to true
+// NSUserDefaults for storing and getting booleans
++ (void)saveBool:(BOOL)boolean withKey:(NSString *)key;
++ (BOOL)getSavedBool:(NSString *)key default:(BOOL)boolean;
 
-+ (OSMessagingController *)sharedInstance;
-- (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;
-- (void)presentInAppMessage:(OSInAppMessage *)message;
-- (void)presentInAppPreviewMessage:(OSInAppMessage *)message;
-- (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages;
-- (void)messageViewImpressionRequest:(OSInAppMessage *)message;
-
-- (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
-- (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
-- (NSDictionary<NSString *, id> *)getTriggers;
-- (id)getTriggerValueForKey:(NSString *)key;
+// NSUserDefaults for storing and getting sets
++ (void)saveSet:(NSSet *)set withKey:(NSString *)key;
++ (NSSet *)getSavedSet:(NSString *)key;
 
 @end
-
-NS_ASSUME_NONNULL_END

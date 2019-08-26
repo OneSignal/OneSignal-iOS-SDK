@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalRequest.h"
 #import "OneSignalLocation.h"
+#import "OSInAppMessageAction.h"
 
 #ifndef OneSignalRequests_h
 #define OneSignalRequests_h
@@ -98,13 +99,12 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId;
 @end
 
-@interface OSRequestInAppMessageOpened : OneSignalRequest
+@interface OSRequestInAppMessageClicked : OneSignalRequest
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                       forVariantId:(NSString * _Nonnull)variantId
-                     withClickType:(NSString * _Nonnull)clickType
-                       withClickId:(NSString * _Nonnull)clickId;
+                     withAction:(OSInAppMessageAction * _Nonnull)action;
 @end
 
 @interface OSRequestLoadInAppMessageContent : OneSignalRequest

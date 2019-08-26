@@ -43,8 +43,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
 
-- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (CGFloat height)) completion;
-- (void)setupWebViewConstraint;
+- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion;
+
+- (void)setupWebViewConstraints;
 
 - (void)loadReplacementURL:(NSURL *)url;
 

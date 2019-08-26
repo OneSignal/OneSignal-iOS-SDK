@@ -71,6 +71,7 @@
 #import "OneSignalDialogController.h"
 
 #import "OSMessagingController.h"
+#import "OSInAppMessageAction.h"
 #import "OSInAppMessage.h"
 
 #pragma clang diagnostic push

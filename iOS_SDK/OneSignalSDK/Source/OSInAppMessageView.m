@@ -31,7 +31,9 @@
 #import "OSInAppMessageAction.h"
 #import "OneSignalViewHelper.h"
 
+
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
+
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
@@ -40,6 +42,7 @@
 @property (strong, nonatomic, nullable) NSLayoutConstraint *webViewWidthConstraint;
 
 @end
+
 
 @implementation OSInAppMessageView
 
@@ -75,11 +78,6 @@
     
     // Setup WebView, delegates, and disable scrolling inside of the WebView
     self.webView = [[WKWebView alloc] initWithFrame:mainBounds configuration:configuration];
-    self.webView.translatesAutoresizingMaskIntoConstraints = false;
-    self.webView.UIDelegate = self;
-    self.webView.navigationDelegate = self;
-    self.webView.scrollView.delegate = self;
-    self.webView.scrollView.scrollEnabled = false;
     
     [self layoutIfNeeded];
 }
@@ -89,36 +87,45 @@
  WebView will have margins accounted for on width, but height just needs to be phone height or larger
  The issue is that text wrapping can cause incorrect height issues so width is the real concern here
  */
-- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (CGFloat height)) completion {
-    
+- (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion {
     [self.webView removeFromSuperview];
     
     CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
     CGRect mainBounds = UIScreen.mainScreen.bounds;
     mainBounds.size.width -= (2.0 * marginSpacing);
-    [self.webView setFrame:mainBounds];
-    [self layoutIfNeeded];
     
-    // TODO: Make sure backend fix is made to handle the JS call for height update
-    [self.webView evaluateJavaScript:OS_JS_GET_PAGE_META_DATA_METHOD completionHandler:^(NSString *result, NSError *error) {
+    [self.webView setFrame:mainBounds];
+    [self.webView layoutIfNeeded];
+    
+    // Evaluate JS getPageMetaData() method to obtain the updated height for the messageView to contain the webView contents
+    [self.webView evaluateJavaScript:OS_JS_GET_PAGE_META_DATA_METHOD completionHandler:^(NSDictionary *result, NSError *error) {
         if (error) {
-            NSString *message = [NSString stringWithFormat:@"%@ Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
+            NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
             return;
         }
-        NSString *message = [NSString stringWithFormat:@"%@ Success: %@", OS_JS_GET_PAGE_META_DATA_METHOD, result];
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
+        NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_JS_GET_PAGE_META_DATA_METHOD, result];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
+        
+        [self setupWebViewConstraints];
 
-        // TODO: We will want to extract the height from the result and pass it to the current messageView
-        completion(0);
+        // Extract the height from the result and pass it to the current messageView
+        NSNumber *height = [self extractHeightFromMetaDataPayload:result];
+        completion(height);
     }];
 }
 
-/*
- Should be called after the height of the message has been calculated by the JS event (rendering_complete or manual adjustment)
- This will set the true contraints and add the WebView to the messageView as a subView
- */
-- (void)setupWebViewConstraint {
+- (NSNumber *)extractHeightFromMetaDataPayload:(NSDictionary *)result {
+    return @([result[@"rect"][@"height"] intValue]);
+}
+
+- (void)setupWebViewConstraints {
+    self.webView.translatesAutoresizingMaskIntoConstraints = false;
+    self.webView.UIDelegate = self;
+    self.webView.navigationDelegate = self;
+    self.webView.scrollView.delegate = self;
+    self.webView.scrollView.scrollEnabled = false;
+    
     self.webView.layer.cornerRadius = 10.0f;
     self.webView.layer.masksToBounds = true;
     
@@ -135,8 +142,10 @@
     [self layoutIfNeeded];
 }
 
-// Make sure to call this method when the message view gets dismissed
-// Otherwise a memory leak will occur and the entire view controller will be leaked
+/*
+ Make sure to call this method when the message view gets dismissed
+ Otherwise a memory leak will occur and the entire view controller will be leaked
+ */
 - (void)removeScriptMessageHandler {
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:@"iosListener"];
 }
@@ -147,7 +156,7 @@
 
 #pragma mark WKWebViewNavigationDelegate Methods
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
-    //webview finished loading
+    // WebView finished loading
     if (self.loaded)
         return;
     
@@ -158,9 +167,9 @@
     return nil;
 }
 
-// Disable pinch zooming
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView
                           withView:(UIView *)view {
+    // Disable pinch zooming
     if (scrollView.pinchGestureRecognizer)
         scrollView.pinchGestureRecognizer.enabled = false;
 }

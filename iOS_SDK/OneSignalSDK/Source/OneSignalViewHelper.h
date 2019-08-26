@@ -29,6 +29,21 @@
 
 @interface OneSignalViewHelper : NSObject
 
+/*
+ A simplified enum for UIDeviceOrientation with just invalid, portrait, and landscape
+ */
+typedef NS_ENUM(NSInteger, ViewOrientation) {
+    OrientationInvalid,
+    OrientationPortrait,
+    OrientationLandscape,
+};
+
++ (ViewOrientation)validateOrientation:(UIDeviceOrientation)orientation;
+
 + (CGFloat)sizeToScale:(float)size;
+
++ (CGRect)getScreenBounds;
+
++ (float)getScreenScale;
 
 @end

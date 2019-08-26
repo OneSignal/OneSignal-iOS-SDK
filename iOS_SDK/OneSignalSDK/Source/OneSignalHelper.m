@@ -155,8 +155,7 @@
 @end
 
 @implementation OSNotification
-@synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType;
-@synthesize mutableContent = _mutableContent;
+@synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType, mutableContent = _mutableContent;
 
 - (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType {
     self = [super init];
@@ -549,8 +548,6 @@ static OneSignal* singleInstance = nil;
     return randomString;
 }
 
-#if XC8_AVAILABLE
-
 + (void)registerAsUNNotificationCenterDelegate {
     let curNotifCenter = [UNUserNotificationCenter currentNotificationCenter];
     
@@ -827,8 +824,6 @@ static OneSignal* singleInstance = nil;
     }
      */
 }
-
-#endif
 
 + (BOOL)verifyURL:(NSString *)urlString {
     if (urlString) {

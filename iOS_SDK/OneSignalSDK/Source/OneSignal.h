@@ -44,12 +44,7 @@
 ***/
 
 #import <Foundation/Foundation.h>
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000
-#define XC8_AVAILABLE 1
 #import <UserNotifications/UserNotifications.h>
-#endif
-
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -77,17 +72,11 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @interface OSInAppMessageAction : NSObject
 
-/** The type of element that was clicked, button or image */
+// The type of element that was clicked, button or image
 @property (strong, nonatomic, nonnull) NSString *clickType;
 
-/** The unique identifier for this click */
+// The unique identifier for this click
 @property (strong, nonatomic, nonnull) NSString *clickId;
-
-/** The URL (if any) that should be opened when the action occurs */
-@property (strong, nonatomic, nullable) NSURL *clickUrl;
-
-/** Allows actions to contain metadata. Unimplemented for now  */
-@property (strong, nonatomic, nullable) NSDictionary *additionalData;
 
 @end
 
@@ -198,11 +187,8 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly, getter=isSilentNotification)BOOL silentNotification;
 
 /* iOS 10+: Indicates whether or not the received notification has mutableContent : 1 assigned to its payload
- Used for UNNotificationServiceExtension to launch extension.
-*/
-#if XC8_AVAILABLE
+ Used for UNNotificationServiceExtension to launch extension. */
 @property(readonly, getter=hasMutableContent)BOOL mutableContent;
-#endif
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString*)stringify;

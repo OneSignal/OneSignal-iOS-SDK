@@ -31,6 +31,10 @@
 #import "TestHelperFunctions.h"
 #import "NSTimerOverrider.h"
 #import "OSTriggerController.h"
+#import "OneSignalClientOverrider.h"
+#import "Requests.h"
+#import "OneSignalHelper.h"
+#import "OSMessagingController.h"
 
 // The displayMessage method is private, we'll expose it here
 @interface OSMessagingController ()
@@ -62,6 +66,8 @@ static NSMutableArray<OSInAppMessage *> *_displayedMessages;
 
 - (void)overrideDisplayMessage:(OSInAppMessage *)message {
     [_displayedMessages addObject:message];
+    
+    [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
 }
 
 + (void)reset {

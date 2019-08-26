@@ -41,13 +41,20 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 @interface OSInAppMessageAction () <OSJSONDecodable>
 
-/** Determines where the URL is loaded, ie. app opens a webview */
+// The action name attached to the IAM action
+@property (strong, nonatomic, nullable) NSString *clickName;
+
+// The URL (if any) that should be opened when the action occurs
+@property (strong, nonatomic, nullable) NSURL *clickUrl;
+
+// Whether or not the click action is first click on the IAM
+@property (nonatomic) BOOL firstClick;
+
+// Whether or not the click action dismisses the message
+@property (nonatomic) BOOL closesMessage;
+
+// Determines where the URL is loaded, ie. app opens a webview
 @property (nonatomic) OSInAppMessageActionUrlType urlActionType;
-
-/** Determines if the action causes the in-app message to close */
-@property (nonatomic) BOOL close;
-
-/** Additional properties defined in OneSignal.h as a public category */
 
 @end
 

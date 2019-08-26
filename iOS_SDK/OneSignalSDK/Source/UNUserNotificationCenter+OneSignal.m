@@ -38,9 +38,6 @@
 #import "OneSignalCommonDefines.h"
 #import "OSNotificationPayload+Internal.h"
 
-
-#if XC8_AVAILABLE
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -341,5 +338,3 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
-
-#endif

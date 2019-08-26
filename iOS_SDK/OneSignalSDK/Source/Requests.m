@@ -341,22 +341,21 @@
 }
 @end
 
-@implementation OSRequestInAppMessageOpened
+@implementation OSRequestInAppMessageClicked
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
                       forVariantId:(NSString * _Nonnull)variantId
-                     withClickType:(NSString * _Nonnull)clickType
-                       withClickId:(NSString * _Nonnull)clickId {
-    let request = [OSRequestInAppMessageOpened new];
+                     withAction:(OSInAppMessageAction * _Nonnull)action {
+    let request = [OSRequestInAppMessageClicked new];
     
     request.parameters = @{
+       @"app_id": appId,
        @"device_type": @0,
        @"player_id": playerId,
-       @"app_id": appId,
+       @"click_id": action.clickId ?: @"",
        @"variant_id": variantId,
-       @"click_type": clickType,
-       @"click_id": clickId ?: @""
+       @"first_click": @(action.firstClick)
     };
     
     request.method = POST;

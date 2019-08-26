@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSInAppMessageViewControllerDelegate <NSObject>
 
-- (void)messageViewDidSelectAction:(OSInAppMessageAction *)action isPreview:(BOOL)isPreview withMessageId:(NSString *)messageId forVariantId:(NSString *)variantId;
+- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action;
 - (void)messageViewControllerWasDismissed;
 - (void)webViewContentFinishedLoading;
 

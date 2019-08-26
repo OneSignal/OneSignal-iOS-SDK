@@ -60,7 +60,7 @@
 @property (weak, nonatomic, nullable) UITapGestureRecognizer *tapGestureRecognizer;
 
 // Previous orinetation which is assigned at the end of a device orinetation change
-@property (nonatomic) UIDeviceOrientation previousOrientation;
+@property (nonatomic) ViewOrientation previousOrientation;
 
 // This point represents the X/Y location of where the most recent
 // pan gesture started. Used to determine the offset
@@ -90,7 +90,7 @@
     // Add observers for BecomeActive and EnterBackground state so that the IAM can be shown correctly when leaving and entering the app (background)
     [self addAppBecomeActiveObserver];
     [self addAppEnterBackgroundObserver];
-  
+    
     self.messageView = [[OSInAppMessageView alloc] initWithMessage:self.message withScriptMessageHandler:self];
     self.messageView.delegate = self;
   
@@ -140,12 +140,16 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationIsInBackground:) name:UIApplicationDidEnterBackgroundNotification object:nil];
 }
 
-// Sets up the message UI, while it is still hidden
-// Wait until the actual HTML content is loaded before animating appearance
+/*
+ Sets up the message UI, while it is still hidden
+ Wait until the actual HTML content is loaded before animating appearance
+ */
 - (void)setupInitialMessageUI {
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"In App Message Setup"];
     
     self.messageView.delegate = self;
+    
+    [self.messageView setupWebViewConstraints];
     
     // Add drop shadow to the messageView
     self.messageView.layer.shadowOffset = CGSizeMake(0, 3);
@@ -222,13 +226,11 @@
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
 }
 
-/**
-    Sets up the message view in its initial (hidden) position
-    Adds constraints so that the message view has the correct size.
- 
-    Once the HTML content is loaded, we call animateAppearance() to
-    show the message view.
-*/
+/*
+ Sets up the message view in its initial (hidden) position
+ Adds constraints so that the message view has the correct size
+ Once the HTML content is loaded, we call animateAppearance() to show the message view
+ */
 - (void)addConstraintsForMessage {
     // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
     NSLayoutAnchor *top = self.view.topAnchor,
@@ -241,7 +243,6 @@
     // The safe area represents the anchors that are not obscurable by  UI such
     // as a notch or a rounded corner on newer iOS devices like iPhone X
     // Note that Safe Area layout guides were only introduced in iOS 11
-    
     if (@available(iOS 11, *)) {
         let safeArea = self.view.safeAreaLayoutGuide;
         top = safeArea.topAnchor;
@@ -252,20 +253,17 @@
         height = safeArea.heightAnchor;
     }
     
-    CGRect mainBounds = [[UIScreen mainScreen] bounds];
+    CGRect mainBounds = [OneSignalViewHelper getScreenBounds];
     CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
     
-    let widthMessage = [NSString stringWithFormat:@"Screen Bounds Width: %f", mainBounds.size.width];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:widthMessage];
+    let screenHeight = [NSString stringWithFormat:@"Screen Bounds Height: %f", mainBounds.size.height];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:screenHeight];
+    let screenWidth = [NSString stringWithFormat:@"Screen Bounds Width: %f", mainBounds.size.width];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:screenWidth];
     let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:heightMessage];
-    let scaleMessage = [NSString stringWithFormat:@"Screen Bounds Scale: %f", UIScreen.mainScreen.scale];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:scaleMessage];
-    
-    // The aspect ratio for each type (ie. Banner) determines the height normally
-    // However the actual height of the HTML content takes priority.
-    // Makes sure our webview is never taller than our screen.
-    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing].active = true;
+    let screenScale = [NSString stringWithFormat:@"Screen Bounds Scale: %f", UIScreen.mainScreen.scale];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:screenScale];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
@@ -273,6 +271,11 @@
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing];
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
+    
+    // The aspect ratio for each type (ie. Banner) determines the height normally
+    // However the actual height of the HTML content takes priority.
+    // Makes sure our webview is never taller than our screen.
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing].active = true;
 
     // Pins the message view to the left & right
     let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
@@ -316,7 +319,7 @@
             break;
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
-            self.view.window.frame = [[UIScreen mainScreen] bounds];
+            self.view.window.frame = mainBounds;
 
             self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
             self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
@@ -366,8 +369,10 @@
                         withVelocity:velocity];
 }
 
-// Dismisses the message view with a given direction (up or down) and velocity
-// If velocity == 0.0, the default dismiss velocity will be used.
+/*
+ Dismisses the message view with a given direction (up or down) and velocity
+ If velocity == 0.0, the default dismiss velocity will be used
+ */
 - (void)dismissCurrentInAppMessage:(BOOL)up withVelocity:(double)velocity {
     
     // Inactivate the current Y constraints
@@ -413,12 +418,12 @@
     }];
 }
 
-/**
-    Once HTML is loaded, the message should be presented
-    This method animates the actual appearance of the message view
-    For banners the initialYConstraint is set to LOW_CONSTRAINT_PRIORITY
-    For center modal and full screen, the transform is set to CGAffineTransformIdentity (original scale)
-*/
+/*
+ Once HTML is loaded, the message should be presented
+ This method animates the actual appearance of the message view
+ For banners the initialYConstraint is set to LOW_CONSTRAINT_PRIORITY
+ For center modal and full screen, the transform is set to CGAffineTransformIdentity (original scale)
+ */
 - (void)animateAppearance {
     self.initialYConstraint.priority = LOW_CONSTRAINT_PRIORITY;
     
@@ -434,8 +439,9 @@
     self.panVerticalConstraint.active = true;
 }
 
-// Adds the pan recognizer (for swiping up and down)
-// and the tap recognizer (for dismissing)
+/*
+ Adds the pan recognizer (for swiping up and down) and the tap recognizer (for dismissing)
+ */
 - (void)setupGestureRecognizers {
     // Pan gesture recognizer for swiping
     let recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerDidMove:)];
@@ -461,7 +467,9 @@
     }
 }
 
-// Called when the user pans (swipes) the message view
+/*
+ Called when the user pans (swipes) the message view
+ */
 - (void)panGestureRecognizerDidMove:(UIPanGestureRecognizer *)sender {
     
     // Tells us the location of the gesture inside the entire view
@@ -535,12 +543,16 @@
     }
 }
 
-// Called when the user taps on the background view
+/*
+ Called when the user taps on the background view
+ */
 - (void)tapGestureRecognizerDidTap:(UITapGestureRecognizer *)sender {
     [self dismissCurrentInAppMessage];
 }
 
-// Returns a boolean indicating if the message view should be dismissed for the given pan offset (ie. if the user has panned far enough up or down)
+/*
+ Returns a boolean indicating if the message view should be dismissed for the given pan offset (ie. if the user has panned far enough up or down)
+ */
 - (BOOL)shouldDismissMessageWithPanGestureOffset:(double)offset withVelocity:(double)velocity {
     
     // For Centered notifications, only true if the user was swiping in the same direction as the dismissal
@@ -557,12 +569,16 @@
     }
 }
 
-// This delegate function gets called when in-app html is load or action button is tapped
+/*
+ This delegate function gets called when in-app html is load or action button is tapped
+ */
 - (void)jsEventOccurredWithBody:(NSData *)body {
     let event = [OSInAppMessageBridgeEvent instanceWithData:body];
     
-    NSLog(@"actionOccurredWithBody:event: %@", event);
-    NSLog(@"actionOccurredWithBody:event.type: %lu", (unsigned long)event.type);
+    NSString *eventMessage = [NSString stringWithFormat:@"Action Occured with Event: %@", event];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:eventMessage];
+    NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occured with Event Type: %lu", (unsigned long)event.type];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:eventTypeMessage];
     
     if (event) {
         if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
@@ -577,110 +593,85 @@
             });
         }
         else if (event.type == OSInAppMessageBridgeEventTypePageResize) {
-            // Once the IAM is shown after the rendering complete event, the resize event is triggered a few times
-            // Seems like the resize event is not necessary, but will further investigate
-
-            // This would be the updated height from the resize event, but causes IAM to be cut off in all cases besides full screen (no height)
+            // Unused resize event for IAM during actions like orientation changes and displaying an IAM
 //            self.message.height = event.resize.height;
         }
         else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
             if (event.userAction.clickType)
-                [self.delegate messageViewDidSelectAction:event.userAction isPreview:self.message.isPreview withMessageId:self.message.messageId forVariantId:self.message.variantId];
+                [self.delegate messageViewDidSelectAction:self.message withAction:event.userAction];
             if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
                 [self.messageView loadReplacementURL:event.userAction.clickUrl];
-            if (event.userAction.close)
+            if (event.userAction.closesMessage)
                 [self dismissCurrentInAppMessage];
         }
     }
 }
 
-// Override method for handling orientation change within a view controller on iOS 8 or higher
-// This specifcially handles the resizing and reanimation of a currently showing IAM
+/*
+ Override method for handling orientation change within a view controller on iOS 8 or higher
+ This specifically handles the resizing and reanimation of a currently showing IAM
+ */
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator {
     [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 
+    /*
+     Code here will execute before the orientation change begins
+     */
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Screen Orientation Change Detected"];
 
     // Get current orientation of the device
-    UIDeviceOrientation currentOrientation = UIDevice.currentDevice.orientation;
-    // Ignore changes in device orientation if or coming from unknown, face up, or face down
-    if ([OneSignalHelper isValidOrientation: currentOrientation] &&
-        [OneSignalHelper isValidOrientation: self.previousOrientation]) {
+    UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
+    ViewOrientation currentOrientation = [OneSignalViewHelper validateOrientation:currentDeviceOrientation];
+    // Ignore changes in device orientation if or coming from same orientation or orientation is invalid
+    if (currentOrientation == OrientationInvalid) {
         
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Ended: Invalid Orientation (Face Up, Face Down, or Unknown)"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Ended: Orientation same as previous or invalid orientation"];
         
         self.previousOrientation = currentOrientation;
+        
         return;
     }
+    
+    self.previousOrientation = currentOrientation;
 
-    // Code here will execute before the orientation change begins
-    // Equivalent to placing it in the deprecated method -[willRotateToInterfaceOrientation:duration:]
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Started: Hiding IAM"];
 
-    // Inactivate the pan constraint while changing the screen orientation
+    // Deactivate the pan constraint while changing the screen orientation
     self.panVerticalConstraint.active = false;
     // Hide the IAM and prepare animation based on display location
     self.messageView.hidden = true;
-
+    
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-
-        // Execute code or animations during the orientation change
-        // You can pass nil or leave this block empty if not necessary
         
-        CGRect mainBounds = [[UIScreen mainScreen] bounds];
-        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+        /*
+         Code here will execute during the rotation
+         */
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Occurring: Removing all previous IAM constraints"];
         
-        // TODO: Uncomment and finish this once backend (JS) changes for getPageMetaData() are merged
-//        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(CGFloat height) {
-//
-//        }];
-        
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Occuring: Modifying IAM"];
-        double bannerWidth = mainBounds.size.width;
-        double bannerHeight = self.message.height.doubleValue + (2.0f * marginSpacing);
-        double bannerMessageY = mainBounds.size.height - bannerHeight;
-        switch (self.message.position) {
-            case OSInAppMessageDisplayPositionTop:
-                if (@available(iOS 11, *)) {
-                    UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
-                    bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
-                } else {
-                    double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
-                    bannerHeight += statusBarHeight;
-                }
-                self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
-                break;
-            case OSInAppMessageDisplayPositionBottom:
-                if (@available(iOS 11, *)) {
-                    UIEdgeInsets safeAreaInsets = self.view.window.safeAreaInsets;
-                    bannerHeight += safeAreaInsets.top + safeAreaInsets.bottom;
-                    bannerMessageY = mainBounds.size.height - bannerHeight;
-                }
-                self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
-                break;
-            case OSInAppMessageDisplayPositionFullScreen:
-            case OSInAppMessageDisplayPositionCenterModal:
-                self.view.window.frame = [[UIScreen mainScreen] bounds];
-
-                // Set the transform constraint to prepare the center modal and full screen IAMs to scale from small to large
-                self.messageView.transform = CGAffineTransformMakeScale(0, 0);
-                break;
-        }
-
-        // Only matters for the top and bottom banner IAMs
-        // Prepares both to slide up or down when animating on to the screen
-        self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
+        // Remove all of the constraints connected to the messageView
+        [self.messageView removeConstraints:[self.messageView constraints]];
 
     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-
-        // Code here will execute after the rotation has finished
-        // Equivalent to placing it in the deprecated method -[didRotateFromInterfaceOrientation:]
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Complete: Showing IAM"];
-        // Show the IAM and reanimate on to the screen
-        self.messageView.hidden = false;
-        [self animateAppearance];
-        self.previousOrientation = currentOrientation;
-
+        
+        /*
+         Code here will execute after the rotation has finished
+         */
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
+        
+        // Evaluate the JS getPageMetaData() to obtain the new height for the webView and use it within the completion callback to set the new height
+        [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
+            
+            // Assign new height to message
+            self.message.height = newHeight;
+            
+            // Add all of the constraints using the new message height obtained from JS code
+            [self addConstraintsForMessage];
+            
+            // Reanimate and show IAM
+            self.messageView.hidden = false;
+            [self animateAppearance];
+        }];
     }];
 }
 
@@ -695,9 +686,6 @@
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Received in-app script message: %@", message.body]];
-    
-    [self.messageView setupWebViewConstraint];
-    
     [self jsEventOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
