@@ -72,6 +72,7 @@
         @[
             @{
                 @"id" : @"test_trigger_id",
+                @"kind" : @"view_controller",
                 @"property" : @"view_controller",
                 @"operator" : OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeEqualTo),
                 @"value" : @"home_vc"
@@ -111,7 +112,7 @@
 -(void)testCorrectlyParsedTriggers {
     XCTAssertTrue(testMessage.triggers.count == 1);
     XCTAssertEqual(testMessage.triggers.firstObject.firstObject.operatorType, OSTriggerOperatorTypeEqualTo);
-    XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.property, @"view_controller");
+    XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.kind, @"view_controller");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.value, @"home_vc");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.triggerId, @"test_trigger_id");
 }
@@ -340,7 +341,7 @@
 
 - (void)testInvalidOperator {
     let triggerJson = @{
-                        @"property" : @"prop1",
+                        @"kind" : @"prop1",
                         @"operator" : @"<<<",
                         @"value" : @2
                         };

@@ -34,12 +34,13 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 @interface OneSignal ()
+
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
                         isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType
                      displayType:(OSNotificationDisplayType)displayType;
-@end
 
+@end
 
 @implementation OneSignalAlertView
 
@@ -55,7 +56,8 @@
                      delegate:oneSignalAlertViewDelegate
                      cancelButtonTitle:NSLocalizedString(@"Close", nil)
                      otherButtonTitles:nil, nil];
-    // Add Buttons
+    
+    // Add action buttons to payload
     if (payload.actionButtons) {
         for(id button in payload.actionButtons)
             [alertView addButtonWithTitle:button[@"text"]];
@@ -64,7 +66,7 @@
     [alertView show];
     
     // Message received that was displayed (Foreground + InAppAlert is true)
-    // Call Received Block
+    // Call received callback
     [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert];
 }
 
@@ -75,8 +77,10 @@
 
 NSDictionary* mMessageDict;
 
-// delegateReference exist to keep ARC from cleaning up this object when it goes out of scope.
-// This is becuase UIAlertView delegate is set to weak instead of strong
+/*
+ delegateReference exist to keep ARC from cleaning up this object when it goes out of scope.
+ This is becuase UIAlertView delegate is set to weak instead of strong
+ */
 static NSMutableArray* delegateReference;
 
 - (id)initWithMessageDict:(NSDictionary*)messageDict {
@@ -100,7 +104,7 @@ static NSMutableArray* delegateReference;
         
         NSMutableDictionary* userInfo = [mMessageDict mutableCopy];
         
-        //fixed for iOS 7, which has 'actionbuttons' as a root property of the dict, not in 'os_data'
+        // Fixed for iOS 7, which has 'actionbuttons' as a root property of the dict, not in 'os_data'
         if (mMessageDict[@"os_data"] && !mMessageDict[@"actionbuttons"]) {
             if ([mMessageDict[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]])
                 userInfo[@"actionSelected"] = mMessageDict[@"os_data"][@"buttons"][@"o"][buttonIndex - 1][@"i"];

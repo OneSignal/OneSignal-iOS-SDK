@@ -36,6 +36,7 @@
 
 + (instancetype)triggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value {
     OSTrigger *trigger = [OSTrigger new];
+    trigger.kind = property;
     trigger.property = property;
     trigger.operatorType = type;
     trigger.value = value;
@@ -115,6 +116,7 @@ int messageIdIncrementer = 0;
     testMessage[@"triggers"] = @[
          @[
              @{
+                 @"kind" : property,
                  @"property" : property,
                  @"operator" : OS_OPERATOR_TO_STRING(type),
                  @"value" : value,

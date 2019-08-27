@@ -33,9 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSTriggerControllerDelegate <NSObject>
 
-// This is called when, for example, a dynamic trigger timer reaches the end
-// and the message should be shown (assuming no other triggers are false for that message)
-// It is also called when the app changes trigger values
+/*
+ Called when a dynamic trigger timer ends
+ The message should be shown (assuming no other triggers are false for that message)
+ It is also called when the app changes trigger values
+ */
 - (void)triggerConditionChanged;
 
 @end
@@ -49,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (NSDictionary<NSString *, id> *)getTriggers;
 - (id)getTriggerValueForKey:(NSString *)key;
+- (void)timeSinceLastMessage:(NSDate *)date;
 
 @end
 

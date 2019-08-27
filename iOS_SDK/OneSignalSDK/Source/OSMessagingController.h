@@ -35,7 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate>
 
-@property (nonatomic) BOOL messagingEnabled; // defaults to true
+@property (nonatomic) BOOL messagingEnabled; // Defaults to true
+
+// Tracks when an IAM is showing or not, useful for deciding to show or hide an IAM
+// Toggled in two places dismissing/displaying
+@property (nonatomic) BOOL isInAppMessageShowing;
 
 + (OSMessagingController *)sharedInstance;
 - (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;

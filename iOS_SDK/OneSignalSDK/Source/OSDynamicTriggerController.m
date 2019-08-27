@@ -30,18 +30,19 @@
 #import "OneSignalHelper.h"
 #import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
+#import "OSMessagingController.h"
 
 @interface OSDynamicTriggerController ()
 
-/**
-    Maps messageId's to future scheduled time-based triggers
-    For example, a message might conceivably have a session_duration trigger
-    and an os_time trigger both scheduled for the future
- 
-    This dictionary prevents the SDK from scheduling multiple duplicate timers
-    for the same messageId + trigger type.
-*/
-@property (strong, nonatomic, nonnull) NSMutableArray<NSString *> *scheduledMessages;
+/*
+ Maps messageId's to future scheduled time-based triggers
+ For example, a message might conceivably have a session_duration trigger
+ and an os_time trigger both scheduled for the future
+
+ This dictionary prevents the SDK from scheduling multiple duplicate timers
+ for the same messageId + trigger type
+ */
+@property (strong, nonatomic, nonnull) NSMutableSet<NSString *> *scheduledMessages;
 
 @end
 
@@ -49,7 +50,8 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.scheduledMessages = [NSMutableArray new];
+        self.scheduledMessages = [NSMutableSet new];
+        self.timeSinceLastMessage = [NSDate distantPast];
     }
     
     return self;
@@ -65,37 +67,42 @@
         if (![trigger.value isKindOfClass:[NSNumber class]])
             return false;
         
-        // This would mean we've already set up a timer for this message trigger
+        // Timer already set for this message trigger
         if ([self.scheduledMessages containsObject:trigger.triggerId])
             return false;
         
         let requiredTimeValue = [trigger.value doubleValue];
         
-        // how long to set the timer for (if needed)
+        // How long to set the timer for (if needed)
         var offset = 0.0f;
         
-        // check what type of trigger it is
-        if ([trigger.property isEqualToString:OS_SESSION_DURATION_TRIGGER]) {
+        // Check what type of trigger it is
+        if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME]) {
             let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
             
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType])
                 return true;
             
             offset = requiredTimeValue - currentDuration;
-        } else if ([trigger.property isEqualToString:OS_TIME_TRIGGER]) {
-            let currentTimestamp = [[NSDate date] timeIntervalSince1970];
+        } else if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE]) {
             
-            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentTimestamp forOperator:trigger.operatorType])
+            // Make sure no IAM are showng before handling "since_last_message" trigger kind
+            if (OSMessagingController.sharedInstance.isInAppMessageShowing)
+                return false;
+            
+            let timestampSinceLastMessage = fabs([self.timeSinceLastMessage timeIntervalSinceNow]);
+            
+            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:timestampSinceLastMessage forOperator:trigger.operatorType])
                 return true;
             
-            offset = requiredTimeValue - currentTimestamp;
+            offset = requiredTimeValue - timestampSinceLastMessage;
         }
         
-        // don't schedule timers for the past
+        // Don't schedule timers for the past
         if (offset <= 0.0f)
             return false;
         
-        // if we reach this point, it means we need to return false and set up a timer for a future time
+        // If we reach this point, it means we need to return false and set up a timer for a future time
         let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"trigger" : trigger} repeats:false];
         
         if (timer)
@@ -107,19 +114,19 @@
     return false;
 }
 
-/**
-    Time-based triggers can use operators like < to trigger at specific times.
-    For example, the "session duration" trigger can be triggered 
+/*
+ Time-based triggers can use operators like < to trigger at specific times.
+ For example, the "session duration" trigger can be triggered
 */
 - (BOOL)evaluateTimeInterval:(NSTimeInterval)timeInterval withCurrentValue:(NSTimeInterval)currentTimeInterval forOperator:(OSTriggerOperatorType)operator {
     switch (operator) {
         case OSTriggerOperatorTypeLessThan:
             return currentTimeInterval < timeInterval;
-        case OSTriggerOperatorTypeLessThanOrEqualTo: //due to potential floating point error, consider very small differences to be equal
+        case OSTriggerOperatorTypeLessThanOrEqualTo: // Due to potential floating point error, consider very small differences to be equal
             return currentTimeInterval <= timeInterval || OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeGreaterThan:
             return currentTimeInterval > timeInterval;
-        case OSTriggerOperatorTypeGreaterThanOrEqualTo: //due to potential floating point error, consider very small differences to be equal
+        case OSTriggerOperatorTypeGreaterThanOrEqualTo: // Due to potential floating point error, consider very small differences to be equal
             return currentTimeInterval >= timeInterval || OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         case OSTriggerOperatorTypeEqualTo:
             return OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);

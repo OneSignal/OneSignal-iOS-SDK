@@ -39,18 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface OSInAppMessageView : UIView <WKNavigationDelegate>
+
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
-
 - (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion;
-
 - (void)setupWebViewConstraints;
-
 - (void)loadReplacementURL:(NSURL *)url;
-
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
-
 - (void)removeScriptMessageHandler;
 
 @end

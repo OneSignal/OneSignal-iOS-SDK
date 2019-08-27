@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSTrigger : NSObject <OSJSONDecodable, OSJSONEncodable>
 
 @property (strong, nonatomic, nonnull) NSString *triggerId;
+@property (strong, nonatomic, nonnull) NSString *kind;
 @property (strong, nonatomic, nonnull) NSString *property;
 @property (nonatomic) OSTriggerOperatorType operatorType;
 @property (strong, nonatomic, nullable) id value;

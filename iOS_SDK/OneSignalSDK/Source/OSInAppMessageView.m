@@ -38,9 +38,6 @@
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
 
-@property (strong, nonatomic, nullable) NSLayoutConstraint *webViewHeightConstraint;
-@property (strong, nonatomic, nullable) NSLayoutConstraint *webViewWidthConstraint;
-
 @end
 
 

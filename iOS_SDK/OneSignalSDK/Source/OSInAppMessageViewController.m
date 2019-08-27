@@ -185,7 +185,11 @@
 
     // If the message has a max display time, set up the timer now
     if (self.message.maxDisplayTime > 0.0f)
-        self.dismissalTimer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime target:self selector:@selector(maxDisplayTimeTimerFinished) userInfo:nil repeats:false];
+        self.dismissalTimer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime
+                                                               target:self
+                                                             selector:@selector(maxDisplayTimeTimerFinished)
+                                                             userInfo:nil
+                                                              repeats:false];
 }
 
 - (void)maxDisplayTimeTimerFinished {

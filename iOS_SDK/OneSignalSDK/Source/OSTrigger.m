@@ -54,6 +54,10 @@
         newTrigger.property = (NSString *)json[@"property"];
     else return nil;
     
+    if (json[@"kind"] && [json[@"kind"] isKindOfClass:[NSString class]])
+        newTrigger.kind = (NSString *)json[@"kind"];
+    else return nil;
+    
     if (json[@"operator"] && [json[@"operator"] isKindOfClass:[NSString class]]) {
         int num = (int)OS_OPERATOR_FROM_STRING(json[@"operator"]);
         
@@ -75,6 +79,7 @@
     let json = [NSMutableDictionary new];
     
     json[@"id"] = self.triggerId;
+    json[@"kind"] = self.kind;
     json[@"property"] = self.property;
     json[@"operator"] = OS_OPERATOR_TO_STRING(self.operatorType);
     

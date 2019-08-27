@@ -31,12 +31,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSDynamicTriggerControllerDelegate <NSObject>
+
 - (void)dynamicTriggerFired;
+
 @end
 
 @interface OSDynamicTriggerController : NSObject
 
 @property (weak, nonatomic, nullable) id<OSDynamicTriggerControllerDelegate> delegate;
+@property (nonatomic) NSDate *timeSinceLastMessage;
 
 - (BOOL)dynamicTriggerShouldFire:(OSTrigger *)trigger withMessageId:(NSString *)messageId;
 

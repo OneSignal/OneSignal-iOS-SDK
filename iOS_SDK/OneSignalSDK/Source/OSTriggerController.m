@@ -51,7 +51,7 @@
     @synchronized (self.triggers) {
         [self.triggers addEntriesFromDictionary:triggers];
         
-        [self didUpdateTriggers];
+        [self.delegate triggerConditionChanged];
     }
 }
 
@@ -60,7 +60,7 @@
         for (NSString *key in keys)
             [self.triggers removeObjectForKey:key];
         
-        [self didUpdateTriggers];
+        [self.delegate triggerConditionChanged];
     }
 }
 
@@ -78,32 +78,36 @@
 
 #pragma mark Private Methods
 
-/**
-    Triggers on a message are structured as a 2D array, where the outer array represents OR conditions
-    and the inner array represents AND conditions.
- 
-    Because of this structure, we use a nested for-loop. In the inner loop, it continues to evaluate. If
-    at any point it determines a trigger condition is FALSE, it breaks and the outer loop continues to
-    the next OR statement.
- 
-    But if the inner loop never hits a condition that is FALSE, it continues looping until it hits the
-    last condition. If the last condition is also true, it returns YES for the entire method.
- 
-    Supports both String and Numeric value types & comparisons
-*/
+- (void)timeSinceLastMessage:(NSDate *)date {
+    self.dynamicTriggerController.timeSinceLastMessage = date;
+}
+
+/*
+ Triggers on a message are structured as a 2D array, where the outer array represents OR conditions
+ and the inner array represents AND conditions.
+
+ Because of this structure, we use a nested for-loop. In the inner loop, it continues to evaluate. If
+ at any point it determines a trigger condition is FALSE, it breaks and the outer loop continues to
+ the next OR statement.
+
+ But if the inner loop never hits a condition that is FALSE, it continues looping until it hits the
+ last condition. If the last condition is also true, it returns YES for the entire method.
+
+ Supports both String and Numeric value types & comparisons
+ */
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message {
     if (message.triggers.count == 0)
         return true;
     for (NSArray <OSTrigger *> *conditions in message.triggers) {
-        //dynamic triggers should be handled after looping through all other triggers
+
+        // Dynamic triggers should be handled after looping through all other triggers
         NSMutableArray<OSTrigger *> *dynamicTriggers = [NSMutableArray new];
         
         var foundFalseTrigger = false;
-        
         for (int i = 0; i < conditions.count; i++) {
             let trigger = conditions[i];
             
-            if (OS_IS_DYNAMIC_TRIGGER(trigger.property)) {
+            if (OS_IS_DYNAMIC_TRIGGER_KIND(trigger.kind))
                 [dynamicTriggers addObject:trigger];
             } else if (![self evaluateTrigger:trigger forMessage:message]) {
                 foundFalseTrigger = true;
@@ -111,43 +115,40 @@
             }
         }
         
-        // if we found a trigger that evaluates to false, loop to the next AND block
+        // If we found a trigger that evaluates to false, loop to the next AND block
         if (foundFalseTrigger)
             continue;
         else if (dynamicTriggers.count == 0) {
-            // no trigger was false and there are no triggers left to evaluate, so the
+            // No trigger was false and there are no triggers left to evaluate, so the
             // AND block is true and we should return true.
             return true;
         }
         
-        // if we reach this point, all normal (non-time-based) triggers evaluated to true
-        // now we can start setting up timers if needed.
+        // If we reach this point, all normal (non-time-based) triggers evaluated to true
+        // now we can start setting up timers if needed
         for (int i = 0; i < dynamicTriggers.count; i++) {
             let trigger = dynamicTriggers[i];
             
-            // even if the trigger evaluates as "false" now, it may become true in the future
-            // (for exmaple if it's a session-duration trigger that launches a timer)
+            // Even if the trigger evaluates as "false" now, it may become true in the future
+            // Ex. if it's a session-duration trigger that launches a timer
             if (![self.dynamicTriggerController dynamicTriggerShouldFire:trigger withMessageId:message.messageId])
                 break;
             else if (i == dynamicTriggers.count - 1)
                 return true;
         }
     }
-    
     return false;
 }
 
 - (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessage *)message {
-    if (!self.triggers[trigger.property] && ![trigger.property isEqualToString:OS_VIEWED_MESSAGE]) {
-        // the value doesn't exist
-        if (trigger.operatorType == OSTriggerOperatorTypeNotExists ||
-            (trigger.operatorType == OSTriggerOperatorTypeNotEqualTo && trigger.value != nil)) {
-            // the condition for this trigger is true since the value doesn't exist
-            // either loop to the next condition, or return true if we are the last condition
-            return true;
-        } else {
-            return false;
-        }
+    if (!self.triggers[trigger.kind] && ![trigger.kind isEqualToString:OS_VIEWED_MESSAGE]) {
+        // The value doesn't exist
+        
+        // The condition for this trigger is true since the value doesn't exist
+        // Either loop to the next condition, or return true if we are the last condition
+        return trigger.operatorType == OSTriggerOperatorTypeNotExists ||
+        (trigger.value && trigger.operatorType == OSTriggerOperatorTypeNotEqualTo);
+
     } else if (trigger.operatorType == OSTriggerOperatorTypeExists) {
         return true;
     } else if (trigger.operatorType == OSTriggerOperatorTypeNotExists) {
@@ -174,8 +175,8 @@
 
 - (BOOL)triggerValue:(id)triggerValue isEqualToValue:(id)value {
     return ([triggerValue isKindOfClass:[value class]] &&
-     (([triggerValue isKindOfClass:[NSNumber class]] && [triggerValue isEqualToNumber:value]) ||
-      ([triggerValue isKindOfClass:[NSString class]] && [triggerValue isEqualToString:value])));
+            (([triggerValue isKindOfClass:[NSNumber class]] && [triggerValue isEqualToNumber:value]) ||
+             ([triggerValue isKindOfClass:[NSString class]] && [triggerValue isEqualToString:value])));
 }
 
 - (BOOL)array:(NSArray *)array containsValue:(id)value {
@@ -214,7 +215,6 @@
         default:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to use an invalid comparison operator (%@) on a string type", OS_OPERATOR_TO_STRING(operatorType)]];
     }
-    
     return false;
 }
 
@@ -237,16 +237,7 @@
         case OSTriggerOperatorTypeContains:
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(operatorType)]];
     }
-    
     return false;
-}
-
-- (void)didUpdateTriggers {
-    [self.delegate triggerConditionChanged];
-}
-
--(void)dynamicTriggerFired {
-    [self.delegate triggerConditionChanged];
 }
 
 @end

@@ -120,9 +120,14 @@
         return;
     
     if (message.variantId == nil) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants]];
+        let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
         return;
     }
+    
+    // Check if the message already exists in the display queue
+    if ([self.messageDisplayQueue containsObject:message])
+        return;
     
     @synchronized (self.messageDisplayQueue) {
         [self.messageDisplayQueue addObject:message];
@@ -263,6 +268,9 @@
     @synchronized (self.messageDisplayQueue) {
         self.isInAppMessageShowing = false;
       
+        // Reset time since last IAM
+        [self.triggerController timeSinceLastMessage:[NSDate new]];
+
         // Null the current IAM viewController to prepare for next IAM if one exists
         self.viewController = nil;
         
@@ -282,6 +290,9 @@
             self.window.hidden = true;
             [UIApplication.sharedApplication.delegate.window makeKeyWindow];
             self.window = nil;
+            
+            // Evaulate any IAMs (could be new or have now satisfied trigger conditions)
+            [self evaluateMessages];
         }
     }
 }

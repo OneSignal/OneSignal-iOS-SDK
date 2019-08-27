@@ -51,13 +51,13 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 
-
 @interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;
     NSURLResponse* response;
     BOOL done;
     NSFileHandle* outputHandle;
 }
+
 @property (readonly, getter=isDone) BOOL done;
 @property (readonly) NSError* error;
 @property (readonly) NSURLResponse* response;
@@ -448,10 +448,6 @@ static NSString *_lastMessageIdFromAction;
     if (status == ReachableViaWiFi)
         return @0;
     return @1;
-}
-
-+ (BOOL)isValidOrientation:(UIDeviceOrientation)orientation {
-    return orientation && !UIDeviceOrientationIsValidInterfaceOrientation(orientation);
 }
 
 // Can call currentUserNotificationSettings

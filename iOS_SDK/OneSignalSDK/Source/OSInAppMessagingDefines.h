@@ -30,14 +30,20 @@
 
 #import "OneSignal.h"
 
+// IAM display position enums
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
     OSInAppMessageDisplayPositionBottom,
     OSInAppMessageDisplayPositionTop,
     OSInAppMessageDisplayPositionCenterModal,
     OSInAppMessageDisplayPositionFullScreen
 };
-#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(position) [@[@"bottom_banner",@"top_banner",@"center_modal",@"full_screen"] indexOfObject:position]
+// IAM display position strings
+#define OS_IN_APP_DISPLAY_POSITION_STRING @[@"bottom_banner",@"top_banner",@"center_modal",@"full_screen"]
+// Convert string to OSInAppMessageDisplayPosition enum and vice veras
+#define OS_IN_APP_DISPLAY_POSITION_TO_STRING(position) [OS_OPERATOR_STRINGS objectAtIndex:position]
+#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(position) [OS_IN_APP_DISPLAY_POSITION_STRING indexOfObject:position]
 
+// Trigger operator enums
 typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
     OSTriggerOperatorTypeGreaterThan,
     OSTriggerOperatorTypeLessThan,
@@ -49,26 +55,31 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
     OSTriggerOperatorTypeNotExists,
     OSTriggerOperatorTypeContains
 };
+// Trigger operator strings
+#define OS_OPERATOR_STRINGS @[@"greater", @"less", @"equal", @"not_equal", @"less_or_equal", @"greater_or_equal", @"exists", @"not_exists", @"in"]
+// Convert string to OSTriggerOperatorType enum and vice versa
+#define OS_OPERATOR_TO_STRING(operator) [OS_OPERATOR_STRINGS objectAtIndex:operator]
+#define OS_OPERATOR_FROM_STRING(operatorString) [OS_OPERATOR_STRINGS indexOfObject:operatorString]
 
-// Defines the amount of space (margins) in-app message views are given.
-// The higher this value is, the farther away from the edges of the screen
-// the in-app messages will be.
+// Defines the amount of space (margins) in-app message views are given
+// The higher this value is, the farther away from the edges of the screen the in-app messages will be
 #define MESSAGE_MARGIN 8.0f
 
-// defines the slowest and fastest allowable dismissal speed for in-app messages.
+// Defines the slowest and fastest allowable dismissal speed for in-app messages
 #define MIN_DISMISSAL_ANIMATION_DURATION 0.1f
 #define MAX_DISMISSAL_ANIMATION_DURATION 0.3f
 
-// Key for NSUserDefaults trigger storage
-#define OS_TRIGGERS_KEY @"OS_IN_APP_MESSAGING_TRIGGERS"
-#define OS_IN_APP_MESSAGING_ENABLED @"OS_IAM_ENABLED"
+// Keys for NSUserDefaults
 #define OS_IAM_SEEN_SET_KEY @"OS_IAM_SEEN_SET"
 #define OS_IAM_CLICKED_SET_KEY @"OS_IAM_CLICKED_SET"
 #define OS_IAM_IMPRESSIONED_SET_KEY @"OS_IAM_IMPRESSIONED_SET"
 
-// Dynamic trigger property types
-#define OS_SESSION_DURATION_TRIGGER @"os_session_duration"
-#define OS_TIME_TRIGGER @"os_time"
+// Dynamic trigger types
+#define OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME @"session_time"
+#define OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE @"min_time_since"
+#define OS_DYNAMIC_TRIGGER_KIND_STRINGS @[OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE]
+// Verify that a string is a valid dynamic trigger
+#define OS_IS_DYNAMIC_TRIGGER_KIND(kind) [OS_DYNAMIC_TRIGGER_KIND_STRINGS containsObject:kind]
 
 // JavaScript method names
 #define OS_JS_GET_PAGE_META_DATA_METHOD @"getPageMetaData()"
@@ -77,21 +88,10 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_VIEWED_MESSAGE @"os_viewed_message"
 #define OS_VIEWED_MESSAGE_TRIGGER(messageId) [OS_VIEWED_MESSAGE stringByAppendingString:messageId]
 
-// Macro to verify that a string is a correct dynamic trigger
-#define OS_IS_DYNAMIC_TRIGGER(type) [@[OS_SESSION_DURATION_TRIGGER, OS_TIME_TRIGGER] containsObject:type]
-
-#define OS_OPERATOR_STRINGS @[@"greater", @"less", @"equal", @"not_equal", @"less_or_equal", @"greater_or_equal", @"exists", @"not_exists", @"in"]
-
-// Converts OSTriggerOperatorType enum cases to and from strings
-#define OS_OPERATOR_TO_STRING(operator) [OS_OPERATOR_STRINGS objectAtIndex: operator]
-#define OS_OPERATOR_FROM_STRING(operatorString) [OS_OPERATOR_STRINGS indexOfObject: operatorString]
-
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
-
 
 #define OS_BRIDGE_EVENT_TYPES @[@"rendering_complete", @"action_taken", @"resize"]
 #define OS_IS_VALID_BRIDGE_EVENT_TYPE(string) [OS_BRIDGE_EVENT_TYPES containsObject:string]
 #define OS_BRIDGE_EVENT_TYPE_FROM_STRING(string) (OSInAppMessageBridgeEventType)[OS_BRIDGE_EVENT_TYPES indexOfObject:string]
-
 
 #endif /* OSInAppMessagingDefines_h */
