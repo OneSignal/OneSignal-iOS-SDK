@@ -51,10 +51,6 @@
 // Tracking for impessions so that an IAM is only tracked once and not several times if it is reshown
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *impressionedInAppMessages;
 
-// Tracks when an IAM is showing or not, useful for deciding to show or hide an IAM
-// Toggled in two places dismissing/displaying
-@property (nonatomic) BOOL isInAppMessageShowing;
-
 // Click action block to allow overridden behavior when clicking an IAM
 @property (strong, nonatomic, nullable) OSHandleInAppMessageActionClickBlock actionClickBlock;
 

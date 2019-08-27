@@ -109,7 +109,7 @@
             
             if (OS_IS_DYNAMIC_TRIGGER_KIND(trigger.kind))
                 [dynamicTriggers addObject:trigger];
-            } else if (![self evaluateTrigger:trigger forMessage:message]) {
+            else if (![self evaluateTrigger:trigger forMessage:message]) {
                 foundFalseTrigger = true;
                 break;
             }
@@ -141,7 +141,7 @@
 }
 
 - (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessage *)message {
-    if (!self.triggers[trigger.kind] && ![trigger.kind isEqualToString:OS_VIEWED_MESSAGE]) {
+    if (!self.triggers[trigger.property] && ![trigger.property isEqualToString:OS_VIEWED_MESSAGE]) {
         // The value doesn't exist
         
         // The condition for this trigger is true since the value doesn't exist

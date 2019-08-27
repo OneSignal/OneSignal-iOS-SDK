@@ -169,6 +169,8 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* iOS 10+ : Groups notifications into threads */
 @property(readonly)NSString *threadId;
 
++ (instancetype)parseWithApns:(NSDictionary*)message;
+
 @end
 
 // ## OneSignal OSNotification

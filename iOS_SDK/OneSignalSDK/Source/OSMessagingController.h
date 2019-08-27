@@ -37,6 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
   
 @property (nonatomic) BOOL isInAppMessagingPaused;
 
+// Tracks when an IAM is showing or not, useful for deciding to show or hide an IAM
+// Toggled in two places dismissing/displaying
+@property (nonatomic) BOOL isInAppMessageShowing;
+
 + (OSMessagingController *)sharedInstance;
 - (void)presentInAppMessage:(OSInAppMessage *)message;
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message;
