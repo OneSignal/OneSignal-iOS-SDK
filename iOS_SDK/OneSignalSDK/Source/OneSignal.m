@@ -2344,7 +2344,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OSMessagingController.sharedInstance setTriggers:@{key : value}];
+    [OSMessagingController.sharedInstance addTriggers:@{key : value}];
 }
 
 + (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
@@ -2352,7 +2352,7 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
         return;
     
-    [OSMessagingController.sharedInstance setTriggers:triggers];
+    [OSMessagingController.sharedInstance addTriggers:triggers];
 }
 
 + (void)removeTriggerForKey:(NSString *)key {

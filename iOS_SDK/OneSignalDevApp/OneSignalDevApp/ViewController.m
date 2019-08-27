@@ -33,11 +33,15 @@
 
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
-@property (weak, nonatomic) IBOutlet UITextField *triggerKey;
-@property (weak, nonatomic) IBOutlet UITextField *triggerValue;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
+@property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
+@property (weak, nonatomic) IBOutlet UILabel *infoLabel;
 
 @end
 
@@ -51,7 +55,12 @@
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
     
-    self.textField.text = [AppDelegate getOneSignalAppId];
+    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger)[OneSignal inAppMessagingEnabled];
+    
+    self.appIdTextField.text = [AppDelegate getOneSignalAppId];
+    
+    self.infoLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    self.infoLabel.numberOfLines = 0;
 }
 
 - (void)changeAnimationState:(BOOL)animating {
@@ -59,12 +68,29 @@
     self.activityIndicatorView.hidden = !animating;
 }
 
-- (IBAction)sendTrigger:(id)sender {
-    NSString *key = [_triggerKey text];
-    NSString *value = [_triggerValue text];
+- (IBAction)addTriggerAction:(id)sender {
+    NSString *key = [self.addTriggerKey text];
+    NSString *value = [self.addTriggerValue text];
     
     if (key && value && [key length] && [value length]) {
         [OneSignal addTrigger:key withValue:value];
+    }
+}
+
+- (IBAction)removeTriggerAction:(id)sender {
+    NSString *key = [self.removeTriggerKey text];
+    
+    if (key && [key length]) {
+        [OneSignal removeTriggerForKey:key];
+    }
+}
+
+- (IBAction)getTriggersAction:(id)sender {
+    NSString *key = [self.getTriggerKey text];
+    
+    if (key && [key length]) {
+        id value = [OneSignal getTriggerValueForKey:key];
+        self.infoLabel.text = [NSString stringWithFormat:@"Key: %@ Value: %@", key, value];
     }
 }
 
@@ -95,7 +121,7 @@
 }
 
 - (IBAction)setEmailButtonPressed:(UIButton *)sender {
-    [AppDelegate setOneSignalAppId:self.textField.text];
+    [AppDelegate setOneSignalAppId:self.appIdTextField.text];
 }
 
 - (void)promptForNotificationsWithNativeiOS10Code {
@@ -116,6 +142,11 @@
 - (IBAction)consentSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller consent granted: %i", (int)sender.selectedSegmentIndex);
     [OneSignal consentGranted:(bool)sender.selectedSegmentIndex];
+}
+
+- (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
+    NSLog(@"View controller in app messaging paused: %i", (int)sender.selectedSegmentIndex);
+    [OneSignal setInAppMessagingEnabled:(bool)sender.selectedSegmentIndex];
 }
 
 -(void)handleMessageAction:(NSString *)actionId {

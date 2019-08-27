@@ -244,7 +244,7 @@
 }
 
 #pragma mark Trigger Methods
-- (void)setTriggers:(NSDictionary<NSString *, id> *)triggers {
+- (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
     [self.triggerController addTriggers:triggers];
 }
 

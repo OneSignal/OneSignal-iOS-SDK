@@ -155,7 +155,7 @@
         return false;
     }
     
-    //if we reach this point, the trigger has been set locally
+    // If we reach this point, the trigger has been set locally
     id realValue = self.triggers[trigger.property];
     
     if (trigger.operatorType == OSTriggerOperatorTypeContains) {
@@ -238,6 +238,10 @@
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(operatorType)]];
     }
     return false;
+}
+
+- (void)dynamicTriggerFired {
+    [self.delegate triggerConditionChanged];
 }
 
 @end

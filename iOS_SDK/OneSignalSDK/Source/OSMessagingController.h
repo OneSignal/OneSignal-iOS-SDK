@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)isInAppMessagingPaused;
 - (void)setInAppMessagingPaused:(BOOL)pause;
-- (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
+- (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (NSDictionary<NSString *, id> *)getTriggers;
 - (id)getTriggerValueForKey:(NSString *)key;
