@@ -30,6 +30,7 @@
 #import "OneSignalHelper.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessageBridgeEvent.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalClientOverrider.h"
 
@@ -46,6 +47,9 @@
     NSString *testInAppMessageId;
     NSString *testInAppMessageAppId;
     NSString *testInAppMessageVariantId;
+    
+    OSInAppMessageBridgeEvent *testBridgeEvent;
+    OSInAppMessageAction *testAction;
 }
 
 - (void)setUp {
@@ -60,6 +64,19 @@
     testInAppMessageId = @"test_in_app_message_id";
     testInAppMessageAppId = @"test_in_app_message_app_id";
     testInAppMessageVariantId = @"test_in_app_message_variant_id";
+    
+    testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
+        @"type" : @"action_taken",
+        @"body" : @{
+                @"id" : @"test_id",
+                @"url" : @"https://www.onesignal.com",
+                @"url_target" : @"browser",
+                @"close" : @false
+                }
+        }];
+    
+    testAction = testBridgeEvent.userAction;
+    testAction.firstClick = true;
 }
 
 NSString *urlStringForRequest(OneSignalRequest *request) {
@@ -289,24 +306,23 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     }));
 }
 
-- (void)testInAppMessageOpened {
-    let request = [OSRequestInAppMessageOpened
+- (void)testInAppMessageClicked {
+    let request = [OSRequestInAppMessageClicked
                    withAppId:testAppId
                    withPlayerId:testUserId
                    withMessageId:testInAppMessageId
                    forVariantId:testInAppMessageVariantId
-                   withClickType:@"button"
-                   withClickId:@"test_button_id"];
+                   withAction:testAction];
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/click", testInAppMessageId]);
     
     XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
+       @"app_id": testAppId,
        @"device_type": @0,
        @"player_id": testUserId,
-       @"app_id": testAppId,
-       @"click_type": @"button",
-       @"click_id": @"test_button_id",
-       @"variant_id": testInAppMessageVariantId
+       @"click_id": testAction.clickId ?: @"",
+       @"variant_id": testInAppMessageVariantId,
+       @"first_click": @(testAction.firstClick)
    }));
 }
 

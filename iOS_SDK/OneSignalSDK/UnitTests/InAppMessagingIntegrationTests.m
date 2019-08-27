@@ -85,8 +85,8 @@
     
     NSTimerOverrider.shouldScheduleTimers = true;
     
-    //set to true so that we don't interfere with other tests
-    OneSignal.inAppMessagingEnabled = true;
+    // Set to false so that we don't interfere with other tests
+    [OneSignal pauseInAppMessaging:false];
 }
 
 /**
@@ -120,10 +120,10 @@
     [self initializeOnesignalWithMessage:message];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
-    XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
 }
 
-// if we have two messages that are both valid to displayed (triggers are all true),
+// if we have two messages that are both valid to displayed add them to the queue (triggers are all true),
 - (void)testMessagesDontOverlap {
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop2" withValue:@3];
@@ -139,7 +139,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
-    XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 2);
 }
 
 - (void)testMessageDisplayedAfterTimer {
@@ -160,7 +160,7 @@
     expectation.expectedFulfillmentCount = 1;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.06 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssertTrue(OSMessagingControllerOverrider.displayedMessages.count == 1);
+        XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
         
         [expectation fulfill];
     });
@@ -273,7 +273,7 @@
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
-    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 1);
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 }
 
 // Tests a message with a more complex set of triggers specifying that the message should be
@@ -330,7 +330,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
 }
 
-- (void)testMessageOpenedLaunchesAPIRequest {
+- (void)testMessageClickedLaunchesAPIRequest {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -350,25 +350,9 @@
     
     let testMessage = [OSInAppMessage instanceWithJson:message];
     
-    [OSMessagingController.sharedInstance messageViewDidSelectAction:action isPreview:NO withMessageId:message[@"id"] forVariantId:testMessage.variantId];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "opened" API request
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageOpened class]));
-}
-
-// Since we override NSUserDefaults and it gets reset between tests, there is no need to
-// worry about conflicts with other tests when modifying the inAppMessagingEnabled parameter
-- (void)testDisableInAppMessagesPersistence {
-    XCTAssertNil([NSUserDefaults.standardUserDefaults objectForKey:OS_IN_APP_MESSAGING_ENABLED]);
-    
-    // should be true by default
-    XCTAssertTrue(OneSignal.inAppMessagingEnabled);
-    
-    // this change should be persisted to NSUserDefaults immediately
-    OneSignal.inAppMessagingEnabled = false;
-    
-    XCTAssertFalse([NSUserDefaults.standardUserDefaults boolForKey:OS_IN_APP_MESSAGING_ENABLED]);
-    
-    XCTAssertFalse(OneSignal.inAppMessagingEnabled);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageClicked class]));
 }
 
 - (void)testDisablingMessagesPreventsDisplay {
@@ -377,7 +361,7 @@
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
     // this should prevent message from being shown
-    OneSignal.inAppMessagingEnabled = false;
+    [OneSignal pauseInAppMessaging:true];
     
     // the trigger should immediately evaluate to true and should
     // be shown once the SDK is fully initialized.
@@ -387,7 +371,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // no message should have been shown
-    XCTAssertEqual(OSMessagingControllerOverrider.displayedMessages.count, 0);
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
 }
 
 /**

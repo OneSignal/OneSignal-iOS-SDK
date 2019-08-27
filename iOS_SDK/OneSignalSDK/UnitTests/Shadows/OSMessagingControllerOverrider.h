@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingControllerOverrider : NSObject
 
-@property (class, nonatomic) NSArray<OSInAppMessage *> *displayedMessages;
+@property (class, nonatomic) NSArray<OSInAppMessage *> *messageDisplayQueue;
 
 + (void)reset;
 

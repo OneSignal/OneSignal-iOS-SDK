@@ -38,7 +38,6 @@
 @interface OSMessagingController ()
 
 @property (strong, nonatomic, nullable) UIWindow *window;
-@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageDelegate> *delegates;
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
@@ -56,13 +55,16 @@
 // Toggled in two places dismissing/displaying
 @property (nonatomic) BOOL isInAppMessageShowing;
 
+// Click action block to allow overridden behavior when clicking an IAM
+@property (strong, nonatomic, nullable) OSHandleInAppMessageActionClickBlock actionClickBlock;
+
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
 @end
 
 
 @implementation OSMessagingController
-@synthesize messagingEnabled = _messagingEnabled;
+@synthesize isInAppMessagingPaused = _isInAppMessagingPaused;
 
 + (OSMessagingController *)sharedInstance {
     static OSMessagingController *sharedInstance = nil;
@@ -75,7 +77,6 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.delegates = [NSMutableArray<OSInAppMessageDelegate> new];
         self.messages = [NSArray<OSInAppMessage *> new];
         
         self.triggerController = [OSTriggerController new];
@@ -88,19 +89,19 @@
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults getSavedSet:OS_IAM_CLICKED_SET_KEY]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults getSavedSet:OS_IAM_IMPRESSIONED_SET_KEY]];
         
-        // BOOL that controls if in-app messaging is enabled (true by default)
-        _messagingEnabled = true;
+        // BOOL that controls if in-app messaging is paused or not (false by default)
+        [self setInAppMessagingPaused:false];
     }
     
     return self;
 }
 
-- (BOOL)messagingEnabled {
-    return _messagingEnabled;
+- (BOOL)isInAppMessagingPaused {
+    return _isInAppMessagingPaused;
 }
 
-- (void)setMessagingEnabled:(BOOL)iamEnabled {
-    _messagingEnabled = iamEnabled;
+- (void)setInAppMessagingPaused:(BOOL)pause {
+    _isInAppMessagingPaused = pause;
 }
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
@@ -109,14 +110,14 @@
     [self evaluateMessages];
 }
 
-- (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate {
-    [self.delegates addObject:delegate];
+- (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)actionClickBlock {
+    self.actionClickBlock = actionClickBlock;
 }
 
 - (void)presentInAppMessage:(OSInAppMessage *)message {
     
     // Check if the app disabled IAMs for this device
-    if (!self.messagingEnabled)
+    if (_isInAppMessagingPaused)
         return;
     
     if (message.variantId == nil) {
@@ -304,8 +305,8 @@
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    for (id<OSInAppMessageDelegate> delegate in self.delegates)
-        [delegate handleMessageAction:action];
+    if (self.actionClickBlock)
+        self.actionClickBlock(action);
   
     // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked

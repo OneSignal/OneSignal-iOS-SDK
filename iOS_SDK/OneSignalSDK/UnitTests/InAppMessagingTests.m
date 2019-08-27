@@ -130,7 +130,7 @@
 }
 
 - (void)testCorrectlyParsedActionClose {
-    XCTAssertFalse(testAction.close);
+    XCTAssertFalse(testAction.closesMessage);
 }
 
 - (void)testCorrectlyParsedActionBridgeEvent {

@@ -52,8 +52,6 @@
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
     
     self.textField.text = [AppDelegate getOneSignalAppId];
-    
-    [OneSignal addInAppMessageActionHandler:self];
 }
 
 - (void)changeAnimationState:(BOOL)animating {

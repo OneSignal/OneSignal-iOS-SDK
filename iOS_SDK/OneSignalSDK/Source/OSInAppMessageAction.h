@@ -41,17 +41,11 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 @interface OSInAppMessageAction () <OSJSONDecodable>
 
-// The action name attached to the IAM action
-@property (strong, nonatomic, nullable) NSString *clickName;
+// The type of element that was clicked, button or image
+@property (strong, nonatomic, nonnull) NSString *clickType;
 
-// The URL (if any) that should be opened when the action occurs
-@property (strong, nonatomic, nullable) NSURL *clickUrl;
-
-// Whether or not the click action is first click on the IAM
-@property (nonatomic) BOOL firstClick;
-
-// Whether or not the click action dismisses the message
-@property (nonatomic) BOOL closesMessage;
+// The unique identifier for this click
+@property (strong, nonatomic, nonnull) NSString *clickId;
 
 // Determines where the URL is loaded, ie. app opens a webview
 @property (nonatomic) OSInAppMessageActionUrlType urlActionType;

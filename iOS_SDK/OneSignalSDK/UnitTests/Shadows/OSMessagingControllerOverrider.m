@@ -74,11 +74,11 @@ static NSMutableArray<OSInAppMessage *> *_displayedMessages;
     [_displayedMessages removeAllObjects];
 }
 
-+(NSArray *)displayedMessages {
++(NSArray *)messageDisplayQueue {
     return _displayedMessages;
 }
 
-+(void)setDisplayedMessages:(NSArray *)displayedMessages {
++(void)setMessageDisplayQueue:(NSArray *)displayedMessages {
     _displayedMessages = [displayedMessages mutableCopy];
 }
 

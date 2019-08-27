@@ -53,13 +53,20 @@
         [alert show];
     };
     
-    
-    [OneSignal setSubscription:true];
-    
-    
     id notificationReceiverBlock = ^(OSNotification *notification) {
         NSLog(@"Received Notification - %@", notification.payload.notificationID);
     };
+    
+    // Example block for IAM action click handler
+    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
+        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", action];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
+    };
+    
+    [OneSignal setSubscription:true];
+    
+    // Example setter for IAM action click handler using OneSignal public method
+    [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
     
     [OneSignal initWithLaunchOptions:launchOptions
                                appId:[AppDelegate getOneSignalAppId]
@@ -76,6 +83,8 @@
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
+    
+    [OneSignal pauseInAppMessaging:false];
     
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     

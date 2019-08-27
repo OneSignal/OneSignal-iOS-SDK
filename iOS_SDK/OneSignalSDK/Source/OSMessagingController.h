@@ -34,24 +34,23 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate>
-
-@property (nonatomic) BOOL messagingEnabled; // Defaults to true
-
-// Tracks when an IAM is showing or not, useful for deciding to show or hide an IAM
-// Toggled in two places dismissing/displaying
-@property (nonatomic) BOOL isInAppMessageShowing;
+  
+@property (nonatomic) BOOL isInAppMessagingPaused;
 
 + (OSMessagingController *)sharedInstance;
-- (void)addMessageDelegate:(id<OSInAppMessageDelegate>)delegate;
 - (void)presentInAppMessage:(OSInAppMessage *)message;
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message;
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages;
 - (void)messageViewImpressionRequest:(OSInAppMessage *)message;
 
+- (BOOL)isInAppMessagingPaused;
+- (void)setInAppMessagingPaused:(BOOL)pause;
 - (void)setTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (NSDictionary<NSString *, id> *)getTriggers;
 - (id)getTriggerValueForKey:(NSString *)key;
+
+- (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)actionClickBlock;
 
 @end
 

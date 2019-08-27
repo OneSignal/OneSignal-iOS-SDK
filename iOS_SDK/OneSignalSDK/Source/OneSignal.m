@@ -1725,16 +1725,16 @@ static dispatch_queue_t serialQueue;
 }
 
 // In-App Messaging Public Methods
-+ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate>)delegate {
-    [[OSMessagingController sharedInstance] addMessageDelegate:delegate];
++ (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)clickActionBlock {
+    [OSMessagingController.sharedInstance setInAppMessageClickHandler:clickActionBlock];
 }
 
-+ (void)setInAppMessagingEnabled:(BOOL)inAppMessagingEnabled {
-    OSMessagingController.sharedInstance.messagingEnabled = inAppMessagingEnabled;
++ (void)pauseInAppMessaging:(BOOL)pause {
+    [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
 }
 
-+ (BOOL)inAppMessagingEnabled {
-    return OSMessagingController.sharedInstance.messagingEnabled;
++ (BOOL)isInAppMessagingPaused {
+    return [OSMessagingController.sharedInstance isInAppMessagingPaused];
 }
 
 + (void)sendPurchases:(NSArray*)purchases {

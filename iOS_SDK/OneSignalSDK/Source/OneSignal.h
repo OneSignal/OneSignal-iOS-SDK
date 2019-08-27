@@ -72,11 +72,17 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @interface OSInAppMessageAction : NSObject
 
-// The type of element that was clicked, button or image
-@property (strong, nonatomic, nonnull) NSString *clickType;
+// The action name attached to the IAM action
+@property (strong, nonatomic, nullable) NSString *clickName;
 
-// The unique identifier for this click
-@property (strong, nonatomic, nonnull) NSString *clickId;
+// The URL (if any) that should be opened when the action occurs
+@property (strong, nonatomic, nullable) NSURL *clickUrl;
+
+// Whether or not the click action is first click on the IAM
+@property (nonatomic) BOOL firstClick;
+
+// Whether or not the click action dismisses the message
+@property (nonatomic) BOOL closesMessage;
 
 @end
 
@@ -313,6 +319,9 @@ typedef void (^OSHandleNotificationReceivedBlock)(OSNotification* notification);
 /*Block for handling a user reaction to a notification*/
 typedef void (^OSHandleNotificationActionBlock)(OSNotificationOpenedResult * result);
 
+/*Block for hanlding user click on an in app message*/
+typedef void (^OSHandleInAppMessageActionClickBlock)(OSInAppMessageAction* action);
+
 /*Dictionary of keys to pass alongside the init settings*/
     
 /*Let OneSignal directly prompt for push notifications on init*/
@@ -344,8 +353,6 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
-
-@property (nonatomic, class) BOOL inAppMessagingEnabled;
 
 extern NSString* const ONESIGNAL_VERSION;
 
@@ -422,6 +429,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
 
 + (void)setSubscription:(BOOL)enable;
++ (void)pauseInAppMessaging:(BOOL)pause;
 
 // - Posting Notification
 + (void)postNotification:(NSDictionary*)jsonData;
@@ -437,7 +445,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 
-+ (void)addInAppMessageActionHandler:(id<OSInAppMessageDelegate> _Nonnull)delegate;
++ (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)delegate;
 
 // iOS 10 only
 // Process from Notification Service Extension.
