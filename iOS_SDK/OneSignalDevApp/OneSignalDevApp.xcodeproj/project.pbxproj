@@ -292,11 +292,6 @@
 							};
 						};
 					};
-					CA29515B2167F2500064227A = {
-						CreatedOnToolsVersion = 10.0;
-						DevelopmentTeam = 4ZR3G6ZK9T;
-						ProvisioningStyle = Automatic;
-					};
 				};
 			};
 			buildConfigurationList = 9112E87D1E724C320022A1CB /* Build configuration list for PBXProject "OneSignalDevApp" */;
@@ -304,6 +299,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -552,24 +548,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		CA29515C2167F2500064227A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		CA29515D2167F2500064227A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};

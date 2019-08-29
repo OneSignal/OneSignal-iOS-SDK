@@ -39,6 +39,7 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
 @property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
+@property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
 @property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
 @property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
@@ -55,7 +56,7 @@
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
     
-    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger)[OneSignal inAppMessagingEnabled];
+    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal isInAppMessagingPaused];
     
     self.appIdTextField.text = [AppDelegate getOneSignalAppId];
     
@@ -146,7 +147,7 @@
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller in app messaging paused: %i", (int)sender.selectedSegmentIndex);
-    [OneSignal setInAppMessagingEnabled:(bool)sender.selectedSegmentIndex];
+    [OneSignal pauseInAppMessaging:(bool)sender.selectedSegmentIndex];
 }
 
 -(void)handleMessageAction:(NSString *)actionId {

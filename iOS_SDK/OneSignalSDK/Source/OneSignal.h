@@ -431,6 +431,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
 
 + (void)setSubscription:(BOOL)enable;
++ (BOOL)isInAppMessagingPaused;
 + (void)pauseInAppMessaging:(BOOL)pause;
 
 // - Posting Notification

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -21,28 +21,31 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="820"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="Dse-f7-S3F">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" delaysContentTouches="NO" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="Dse-f7-S3F">
                                 <rect key="frame" x="0.0" y="20" width="375" height="800"/>
                                 <subviews>
                                     <view autoresizesSubviews="NO" clipsSubviews="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="6dV-2z-2jJ">
                                         <rect key="frame" x="0.0" y="-40" width="375" height="850"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kp7-Oh-BQ1" userLabel="Update App Id">
+                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kp7-Oh-BQ1" userLabel="Update App Id">
                                                 <rect key="frame" x="138" y="177" width="99" height="30"/>
+                                                <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Update App Id"/>
                                                 <connections>
                                                     <action selector="setEmailButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pqk-hg-Tf4"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="H3K-GA-smE">
-                                                <rect key="frame" x="151.5" y="215" width="72" height="30"/>
+                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="H3K-GA-smE">
+                                                <rect key="frame" x="151.66666666666666" y="215" width="72" height="30"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Send Tags"/>
                                                 <connections>
                                                     <action selector="sendTagButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bug-x1-TIR"/>
                                                 </connections>
                                             </button>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Key" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cWh-Hu-7CP">
-                                                <rect key="frame" x="46.5" y="437" width="132" height="30"/>
+                                                <rect key="frame" x="46.666666666666657" y="437" width="132" height="30"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="30" id="Gjd-Jn-5nw"/>
                                                     <constraint firstAttribute="width" constant="132" id="JPj-Bi-2sh"/>
@@ -52,7 +55,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Consent Status:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j3e-42-uww">
-                                                <rect key="frame" x="112.5" y="65" width="150" height="20"/>
+                                                <rect key="frame" x="112.66666666666669" y="65" width="150" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="150" id="WYp-C4-HKj"/>
                                                 </constraints>
@@ -66,6 +69,7 @@
                                                     <segment title="Not Granted"/>
                                                     <segment title="Granted"/>
                                                 </segments>
+                                                <color key="tintColor" red="1" green="0.13671011566193114" blue="0.017019837433124962" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <connections>
                                                     <action selector="consentSegmentedControlValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="oL2-15-pJ0"/>
                                                 </connections>
@@ -85,23 +89,13 @@
                                                     <segment title="Pause"/>
                                                     <segment title="Enable"/>
                                                 </segments>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <connections>
                                                     <action selector="inAppMessagingSegmentedControlValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="QUP-tp-uvZ"/>
                                                 </connections>
                                             </segmentedControl>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A38-En-69W">
-                                                <rect key="frame" x="195.5" y="437" width="133" height="30"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="30" id="A7v-h4-L7l"/>
-                                                    <constraint firstAttribute="width" constant="133" id="HMN-lK-tEV"/>
-                                                </constraints>
-                                                <state key="normal" title="Remove Trigger"/>
-                                                <connections>
-                                                    <action selector="removeTriggerAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4DE-7g-p3p"/>
-                                                </connections>
-                                            </button>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Key" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ykz-Wq-cb5">
-                                                <rect key="frame" x="46.5" y="361" width="134" height="30"/>
+                                                <rect key="frame" x="46.666666666666657" y="361" width="134" height="30"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="30" id="SHA-bV-TaJ"/>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="XJ5-CT-d92"/>
@@ -111,15 +105,16 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="79P-xw-1Q5">
+                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="79P-xw-1Q5">
                                                 <rect key="frame" x="147" y="399" width="81" height="30"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Add Trigger"/>
                                                 <connections>
                                                     <action selector="addTriggerAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="O5G-8h-taa"/>
                                                 </connections>
                                             </button>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Value" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="G56-cW-rWo">
-                                                <rect key="frame" x="195.5" y="361" width="133" height="30"/>
+                                                <rect key="frame" x="195.66666666666663" y="361" width="133" height="30"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="30" id="wqN-3C-Dyq"/>
                                                 </constraints>
@@ -128,7 +123,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="OneSignal App Id" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="TVC-yc-aRa">
-                                                <rect key="frame" x="14.5" y="139" width="346" height="30"/>
+                                                <rect key="frame" x="14.666666666666657" y="139" width="346" height="30"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="346" id="e0v-aD-g31"/>
                                                 </constraints>
@@ -137,7 +132,7 @@
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Key" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bmb-ib-r40">
-                                                <rect key="frame" x="46.5" y="485" width="132" height="30"/>
+                                                <rect key="frame" x="46.666666666666657" y="485" width="132" height="30"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="132" id="3Xq-vi-qN5"/>
                                                     <constraint firstAttribute="height" constant="30" id="APV-Hl-r5G"/>
@@ -146,15 +141,16 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="idh-ud-yeY">
-                                                <rect key="frame" x="195.5" y="485" width="133" height="30"/>
+                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="idh-ud-yeY">
+                                                <rect key="frame" x="195.66666666666663" y="485" width="133" height="30"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Get Trigger Value"/>
                                                 <connections>
                                                     <action selector="getTriggersAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LKi-cP-Qoo"/>
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="310" translatesAutoresizingMaskIntoConstraints="NO" id="7au-a5-gty">
-                                                <rect key="frame" x="46.5" y="555" width="282" height="28"/>
+                                                <rect key="frame" x="46.666666666666657" y="555" width="282" height="28"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="28" id="4X2-d1-LW8"/>
                                                 </constraints>
@@ -162,6 +158,18 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A38-En-69W">
+                                                <rect key="frame" x="195.66666666666663" y="437" width="133" height="30"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="30" id="A7v-h4-L7l"/>
+                                                    <constraint firstAttribute="width" constant="133" id="HMN-lK-tEV"/>
+                                                </constraints>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Remove Trigger"/>
+                                                <connections>
+                                                    <action selector="removeTriggerAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4DE-7g-p3p"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -221,6 +229,7 @@
                     </view>
                     <size key="freeformSize" width="375" height="820"/>
                     <connections>
+                        <outlet property="addTriggerButton" destination="79P-xw-1Q5" id="eNO-ar-yk2"/>
                         <outlet property="addTriggerKey" destination="Ykz-Wq-cb5" id="JiT-E7-Dof"/>
                         <outlet property="addTriggerValue" destination="G56-cW-rWo" id="sVO-uj-cMD"/>
                         <outlet property="appIdTextField" destination="TVC-yc-aRa" id="rpy-F9-eKJ"/>
