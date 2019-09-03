@@ -95,7 +95,7 @@
     correctly sets up a timer for the 30 seconds
 */
 - (void)testMessageIsScheduled {
-    let trigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -113,7 +113,7 @@
     test verifies that the message actually gets displayed.
 */
 - (void)testMessageIsDisplayed {
-    let trigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -148,7 +148,7 @@
     
     OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
     
-    let trigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -173,7 +173,7 @@
 // no point in setting up a timer until that condition changes.
 - (void)testDelaysSettingUpTimers {
     let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
-    let secondTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
+    let secondTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger]]];
     
@@ -224,7 +224,7 @@
     
     let targetTimestamp = NSDate.date.timeIntervalSince1970 + 10.0f;
     
-    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -247,7 +247,7 @@
     // some time in the past, the exact offset doesn't matter
     let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
     
-    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -265,7 +265,7 @@
     
     let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
     
-    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(targetTimestamp)];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(targetTimestamp)];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -286,9 +286,9 @@
     let beginWindowTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
     let endWindowTimestamp = NSDate.date.timeIntervalSince1970 + 1000.0f;
     
-    let beginWindowTrigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(beginWindowTimestamp)];
-    let endWindowTrigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeLessThan withValue:@(endWindowTimestamp)];
-    let sessionDurationTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@30.0f];
+    let beginWindowTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(beginWindowTimestamp)];
+    let endWindowTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeLessThan withValue:@(endWindowTimestamp)];
+    let sessionDurationTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@30.0f];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[beginWindowTrigger, endWindowTrigger, sessionDurationTrigger]]];
     
