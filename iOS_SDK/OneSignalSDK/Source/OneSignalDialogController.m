@@ -75,7 +75,7 @@
 
 - (void)displayDialog:(OSDialogRequest * _Nonnull)request {
     //iOS 7
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:8]) {
+    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
         
         let alertView = [[UIAlertView alloc] initWithTitle:request.title message:request.message delegate:self cancelButtonTitle:request.cancelTitle otherButtonTitles:request.actionTitle, nil];
         

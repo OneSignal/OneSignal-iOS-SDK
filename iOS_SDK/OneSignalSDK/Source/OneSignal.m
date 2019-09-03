@@ -202,7 +202,7 @@ static BOOL providesAppNotificationSettings = false;
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
     NSInteger op = value;
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10] && OSNotificationDisplayTypeNotification == op)
+    if (SYSTEM_VERSION_LESS_THAN(@"10.0") && OSNotificationDisplayTypeNotification == op)
         op = OSNotificationDisplayTypeInAppAlert;
     
     _inFocusDisplayType = op;
@@ -215,9 +215,9 @@ static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayType
 static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
     if (!_osNotificationSettings) {
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10])
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
             _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-        else if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
+        else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
             _osNotificationSettings = [OneSignalNotificationSettingsIOS8 new];
         else
             _osNotificationSettings = [OneSignalNotificationSettingsIOS7 new];
@@ -456,7 +456,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
             registeredWithApple = self.currentPermissionState.accepted;
         else
             registeredWithApple = self.currentSubscriptionState.pushToken || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -481,7 +481,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
             usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         
-        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
+        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0"))
             providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
@@ -614,7 +614,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
-    if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0"))
         [self.osNotificationSettings registerForProvisionalAuthorization:completionHandler];
     else
         onesignal_Log(ONE_S_LL_WARN, @"registerForProvisionalAuthorization is only available in iOS 12+.");
@@ -758,7 +758,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)presentAppSettings {
     
     //only supported in 10+
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10.0])
+    if (SYSTEM_VERSION_LESS_THAN(@"10.0"))
         return;
     
     let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
@@ -783,7 +783,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // iOS 8+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:8])
+    if (SYSTEM_VERSION_LESS_THAN(@"8.0"))
         return false;
     
     if (waitingForApnsResponse)
@@ -1786,6 +1786,10 @@ static NSString *_lastnonActiveMessageId;
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
     
+    BOOL isPreview = [[OSNotificationPayload parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
+    if (isPreview && SYSTEM_VERSION_LESS_THAN(@"10.0"))
+        return;
+    
     if (isActive) {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastAppActiveMessageId];
@@ -1922,7 +1926,7 @@ static NSString *_lastnonActiveMessageId;
         disableBadgeClearing = NO;
     
     if (disableBadgeClearing ||
-        ([OneSignalHelper isIOSVersionGreaterOrEqual:8] && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+        (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0") && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
@@ -1979,7 +1983,7 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
     
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
+    if (SYSTEM_VERSION_LESS_THAN(@"10.0")) {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         [userDefaults setBool:true forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
         [userDefaults synchronize];
@@ -2039,11 +2043,10 @@ static NSString *_lastnonActiveMessageId;
     if (richData) {
         let osPayload = [OSNotificationPayload parseWithApns:userInfo];
         
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0")) {
             startedBackgroundJob = true;
             [OneSignalHelper addNotificationRequest:osPayload completionHandler:completionHandler];
-        }
-        else {
+        } else {
             let notification = [OneSignalHelper prepareUILocalNotification:osPayload];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
@@ -2409,7 +2412,6 @@ static NSString *_lastnonActiveMessageId;
 //  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
 //            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
 @implementation UIApplication (OneSignal)
-#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     

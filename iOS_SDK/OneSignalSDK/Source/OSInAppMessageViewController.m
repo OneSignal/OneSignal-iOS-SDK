@@ -62,6 +62,8 @@
 // Previous orinetation which is assigned at the end of a device orinetation change
 @property (nonatomic) ViewOrientation previousOrientation;
 
+@property (nonatomic) ViewOrientation orientationOnBackground;
+
 // This point represents the X/Y location of where the most recent
 // pan gesture started. Used to determine the offset
 @property (nonatomic) CGPoint initialGestureRecognizerLocation;
@@ -71,7 +73,12 @@
 
 // This timer is used to dismiss in-app messages if the "max_display_time" is set
 // We start the timer once the message is displayed (not during loading the content)
+@property (nonatomic) double maxDisplayTime;
+
+// This timer is used to dismiss in-app messages if the "max_display_time" is set
+// We start the timer once the message is displayed (not during loading the content)
 @property (weak, nonatomic, nullable) NSTimer *dismissalTimer;
+
 @end
 
 @implementation OSInAppMessageViewController
@@ -115,21 +122,27 @@
 
 - (void)applicationIsActive:(NSNotification *)notification {
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Active"];
-    
-    // Animate the showing of the IAM when opening the app from background
-    [self animateAppearance];
+
+    // Get current orientation of the device
+    UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
+    ViewOrientation currentOrientation = [OneSignalViewHelper validateOrientation:currentDeviceOrientation];
+
+    if (self.orientationOnBackground == currentOrientation) {
+        // Animate the showing of the IAM when opening the app from background
+        [self animateAppearance];
+    }
 }
 
 - (void)applicationIsInBackground:(NSNotification *)notification {
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Entered Background"];
     
+    // Get current orientation of the device
+    UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
+    self.orientationOnBackground = [OneSignalViewHelper validateOrientation:currentDeviceOrientation];
+    
     // Make sure pan constraint is no longer active so IAM does not stay in panned location
-    // Also make sure to set constraints regarding animations for rentry animation into the app
     self.panVerticalConstraint.active = false;
-    if ([self.message isBanner])
-        self.initialYConstraint.priority = HIGH_CONSTRAINT_PRIORITY;
-    else
-        self.messageView.transform = CGAffineTransformMakeScale(0, 0);
+    self.messageView.hidden = true;
 }
 
 - (void)addAppBecomeActiveObserver {
@@ -184,8 +197,8 @@
     }];
 
     // If the message has a max display time, set up the timer now
-    if (self.message.maxDisplayTime > 0.0f)
-        self.dismissalTimer = [NSTimer scheduledTimerWithTimeInterval:self.message.maxDisplayTime
+    if (self.maxDisplayTime > 0.0f)
+        self.dismissalTimer = [NSTimer scheduledTimerWithTimeInterval:self.maxDisplayTime
                                                                target:self
                                                              selector:@selector(maxDisplayTimeTimerFinished)
                                                              userInfo:nil
@@ -207,9 +220,10 @@
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
         
         let baseUrl = [NSURL URLWithString:SERVER_URL];
-        
         NSString* htmlContent = data[@"html"];
         [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
+        
+        self.maxDisplayTime = [data[@"display_duration"] doubleValue];
     };
 }
 
@@ -432,6 +446,7 @@
     self.initialYConstraint.priority = LOW_CONSTRAINT_PRIORITY;
     
     [UIView animateWithDuration:0.3f animations:^{
+        self.messageView.hidden = false;
         self.messageView.transform = CGAffineTransformIdentity;
         [self.view layoutIfNeeded];
     }];
@@ -622,12 +637,15 @@
      Code here will execute before the orientation change begins
      */
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Screen Orientation Change Detected"];
+    
+    UIApplicationState appState = UIApplication.sharedApplication.applicationState;
 
     // Get current orientation of the device
     UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
     ViewOrientation currentOrientation = [OneSignalViewHelper validateOrientation:currentDeviceOrientation];
     // Ignore changes in device orientation if or coming from same orientation or orientation is invalid
-    if (currentOrientation == OrientationInvalid) {
+    if (currentOrientation == OrientationInvalid &&
+        (appState == UIApplicationStateInactive || appState == UIApplicationStateBackground)) {
         
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Ended: Orientation same as previous or invalid orientation"];
         
@@ -673,7 +691,6 @@
             [self addConstraintsForMessage];
             
             // Reanimate and show IAM
-            self.messageView.hidden = false;
             [self animateAppearance];
         }];
     }];

@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import "OneSignalCommonDefines.h"
 #import "OneSignalAlertViewDelegate.h"
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
@@ -47,8 +48,7 @@
 + (void)showInAppAlert:(NSDictionary*)messageDict {
     let payload = [OSNotificationPayload parseWithApns:messageDict];
     
-    id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc]
-                                         initWithMessageDict:messageDict];
+    id oneSignalAlertViewDelegate = [[OneSignalAlertViewDelegate alloc] initWithMessageDict:messageDict];
 
     let alertView = [[UIAlertView alloc]
                      initWithTitle:payload.title
@@ -62,7 +62,7 @@
         for(id button in payload.actionButtons)
             [alertView addButtonWithTitle:button[@"text"]];
     }
-
+    
     [alertView show];
     
     // Message received that was displayed (Foreground + InAppAlert is true)

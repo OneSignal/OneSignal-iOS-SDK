@@ -34,7 +34,6 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 
-
 @interface OSMessagingController ()
 
 @property (strong, nonatomic, nullable) UIWindow *window;
@@ -58,7 +57,6 @@
 
 @end
 
-
 @implementation OSMessagingController
 @synthesize isInAppMessagingPaused = _isInAppMessagingPaused;
 
@@ -66,7 +64,11 @@
     static OSMessagingController *sharedInstance = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        sharedInstance = [OSMessagingController new];
+        // Make sure only devices with iOS 10 or newer can use IAMs
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+            sharedInstance = [OSMessagingController new];
+        else
+            sharedInstance = [DummyOSMessagingController new];
     });
     return sharedInstance;
 }
@@ -122,11 +124,11 @@
         return;
     }
     
-    // Check if the message already exists in the display queue
-    if ([self.messageDisplayQueue containsObject:message])
-        return;
-    
     @synchronized (self.messageDisplayQueue) {
+        // Check if the message already exists in the display queue
+        if ([self isMessageInDisplayQueue:message.messageId])
+            return;
+        
         [self.messageDisplayQueue addObject:message];
         
         // Return early if an IAM is already showing
@@ -135,6 +137,15 @@
         
         [self displayMessage:message];
     };
+}
+
+- (BOOL)isMessageInDisplayQueue:(NSString *)messageId {
+    for (OSInAppMessage *message in self.messageDisplayQueue) {
+        if (message.messageId == messageId) {
+            return true;
+        }
+    }
+    return false;
 }
 
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
@@ -364,5 +375,34 @@
     // We should re-evaluate all in-app messages
     [self evaluateMessages];
 }
+
+@end
+
+@implementation DummyOSMessagingController
+
++ (OSMessagingController *)sharedInstance {return nil; }
+- (instancetype)init { self = [super init]; return self; }
+- (BOOL)isInAppMessagingPaused { return false; }
+- (void)setInAppMessagingPaused:(BOOL)pause {}
+- (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {}
+- (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)actionClickBlock {}
+- (void)presentInAppMessage:(OSInAppMessage *)message {}
+- (void)presentInAppPreviewMessage:(OSInAppMessage *)message {}
+- (void)displayMessage:(OSInAppMessage *)message {}
+- (void)messageViewImpressionRequest:(OSInAppMessage *)message {}
+- (void)evaluateMessages {}
+- (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message { return false; }
+- (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {}
+#pragma mark Trigger Methods
+- (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {}
+- (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
+- (NSDictionary<NSString *, id> *)getTriggers { return @{}; }
+- (id)getTriggerValueForKey:(NSString *)key { return 0; }
+#pragma mark OSInAppMessageViewControllerDelegate Methods
+- (void)messageViewControllerWasDismissed {}
+- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {}
+- (void)webViewContentFinishedLoading {}
+#pragma mark OSTriggerControllerDelegate Methods
+- (void)triggerConditionChanged {}
 
 @end

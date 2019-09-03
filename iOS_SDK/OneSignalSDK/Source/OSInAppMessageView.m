@@ -76,6 +76,8 @@
     // Setup WebView, delegates, and disable scrolling inside of the WebView
     self.webView = [[WKWebView alloc] initWithFrame:mainBounds configuration:configuration];
     
+    [self addSubview:self.webView];
+    
     [self layoutIfNeeded];
 }
 
@@ -85,7 +87,7 @@
  The issue is that text wrapping can cause incorrect height issues so width is the real concern here
  */
 - (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion {
-    [self.webView removeFromSuperview];
+    [self.webView removeConstraints:[self.webView constraints]];
     
     CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
     CGRect mainBounds = UIScreen.mainScreen.bounds;
@@ -117,6 +119,8 @@
 }
 
 - (void)setupWebViewConstraints {
+    [self.webView removeConstraints:[self.webView constraints]];
+    
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
     self.webView.UIDelegate = self;
     self.webView.navigationDelegate = self;
@@ -125,8 +129,6 @@
     
     self.webView.layer.cornerRadius = 10.0f;
     self.webView.layer.masksToBounds = true;
-    
-    [self addSubview:self.webView];
     
     if (@available(iOS 11, *))
         self.webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;

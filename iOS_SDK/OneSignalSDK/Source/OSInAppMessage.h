@@ -43,7 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL actionTaken;
 @property (nonatomic) BOOL isPreview;
 @property (nonatomic) NSNumber *height;
-@property (nonatomic) NSTimeInterval maxDisplayTime;
 
 - (BOOL)isBanner;
 - (BOOL)takeActionAsUnique;

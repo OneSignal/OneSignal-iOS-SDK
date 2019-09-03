@@ -452,7 +452,7 @@ static NSString *_lastMessageIdFromAction;
 
 // Can call currentUserNotificationSettings
 + (BOOL) canGetNotificationTypes {
-    return [OneSignalHelper isIOSVersionGreaterOrEqual:8];
+    return SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0");
 }
 
 // For iOS 8 and 9
@@ -527,10 +527,6 @@ static OneSignal* singleInstance = nil;
     }
     
     return singleInstance;
-}
-
-+ (BOOL)isIOSVersionGreaterOrEqual:(float)version {
-    return [[[UIDevice currentDevice] systemVersion] floatValue] >= version;
 }
 
 +(NSString*)randomStringWithLength:(int)length {

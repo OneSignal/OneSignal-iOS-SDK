@@ -107,9 +107,6 @@
     json[@"id"] = self.messageId;
     json[@"variants"] = self.variants;
     
-    if (self.maxDisplayTime != -1.0f)
-        json[@"max_display_time"] = @(self.maxDisplayTime);
-    
     let triggers = [NSMutableArray new];
     
     for (NSArray *andBlock in self.triggers) {

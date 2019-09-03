@@ -58,4 +58,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface DummyOSMessagingController : OSMessagingController @end
+
 NS_ASSUME_NONNULL_END

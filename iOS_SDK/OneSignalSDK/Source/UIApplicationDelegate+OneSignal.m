@@ -29,7 +29,9 @@
 #import <UIKit/UIKit.h>
 
 #import "UIApplicationDelegate+OneSignal.h"
+#import "OSNotificationPayload+Internal.h"
 #import "OneSignal.h"
+#import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
 #import "OneSignalLocation.h"
 #import "OneSignalSelectorHelpers.h"
@@ -121,7 +123,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 + (void)sizzlePreiOS10MethodsPhase1 {
-    if ([OneSignalHelper isIOSVersionGreaterOrEqual:10])
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
         return;
     
     injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
@@ -135,7 +137,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 + (void)sizzlePreiOS10MethodsPhase2 {
-    if ([OneSignalHelper isIOSVersionGreaterOrEqual:10])
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
         return;
     
     injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:),
