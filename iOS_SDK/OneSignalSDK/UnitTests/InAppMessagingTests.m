@@ -43,7 +43,6 @@
 #import "OneSignalOverrider.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageBridgeEvent.h"
-
 /**
  Test to make sure that OSInAppMessage correctly
  implements the OSJSONDecodable protocol
@@ -352,24 +351,31 @@
 }
 
 - (void)testDynamicTriggerWithExactTimeTrigger {
-    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
-    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
+    
+    OSDynamicTriggerController *controller = [OSDynamicTriggerController new];
+    controller.timeSinceLastMessage = [NSDate dateWithTimeIntervalSince1970:0];
+    let triggered = [controller dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
 
     XCTAssertTrue(triggered);
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
 }
 
 - (void)testDynamicTriggerSchedulesExactTimeTrigger {
-    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] + 5.0f)];
-    let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
+    let difference = 10;
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
+    
+    OSDynamicTriggerController *controller = [OSDynamicTriggerController new];
+    controller.timeSinceLastMessage = [NSDate dateWithTimeIntervalSince1970:difference];
+    let triggered = [controller dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
 
     XCTAssertFalse(triggered);
-    XCTAssertTrue(OS_ROUGHLY_EQUAL(NSTimerOverrider.mostRecentTimerInterval, 5.0f));
+    XCTAssertTrue(NSTimerOverrider.mostRecentTimerInterval < difference);
 }
 
 // Ensure that the Exact Time trigger will not fire after the date has passed
 - (void)testDynamicTriggerDoesntTriggerPastTime {
-    let trigger = [OSTrigger triggerWithProperty:OS_TIME_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] - 5.0f)];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] - 5.0f)];
     let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
 
     XCTAssertFalse(triggered);
@@ -378,7 +384,7 @@
 
 // The session duration trigger is set to fire in 30 seconds into the session
 - (void)testDynamicTriggerSessionDurationLaunchesTimer {
-    let trigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
+    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
     let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
     
     XCTAssertFalse(triggered);
@@ -391,7 +397,7 @@
 // until all other triggers evaluate to true.
 - (void)testHandlesMultipleMixedTriggers {
     let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withId:@"test_id_1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
-    let secondTrigger = [OSTrigger triggerWithProperty:OS_SESSION_DURATION_TRIGGER withId:@"test_id_2" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
+    let secondTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id_2" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
     let thirdTrigger = [OSTrigger triggerWithProperty:@"prop2" withId:@"test_id_3" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger, thirdTrigger]]];
