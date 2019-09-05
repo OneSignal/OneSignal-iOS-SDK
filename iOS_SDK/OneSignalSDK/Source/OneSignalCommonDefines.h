@@ -52,6 +52,7 @@
 #define PERMISSION_ACCEPTED @"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"
 #define PERMISSION_PROVISIONAL_STATUS @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"
 #define PERMISSION_PROVIDES_NOTIFICATION_SETTINGS @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"
+#define EXTERNAL_USER_ID @"OS_EXTERNAL_USER_ID"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
@@ -116,6 +117,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // before registering the user anyways
 #define APNS_TIMEOUT 25.0
 
+// The SDK saves a list of category ID's allowing multiple notifications
+// to have their own unique buttons/etc.
+#define SHARED_CATEGORY_LIST @"com.onesignal.shared_registered_categories"
+
 #ifndef OS_TEST
     // OneSignal API Client Defines
     #define REATTEMPT_DELAY 30.0
@@ -125,6 +130,13 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // Send tags batch delay
     #define SEND_TAGS_DELAY 5.0
+
+    // the max number of UNNotificationCategory ID's the SDK will register
+    #define MAX_CATEGORIES_SIZE 128
+
+    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
+    // the callback to set the display type for a given notification
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -134,6 +146,13 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // Send tags batch delay
     #define SEND_TAGS_DELAY 0.005
+
+    // the max number of UNNotificationCategory ID's the SDK will register
+    #define MAX_CATEGORIES_SIZE 5
+
+    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
+    // the callback to set the display type for a given notification
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

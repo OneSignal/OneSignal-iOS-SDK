@@ -52,6 +52,8 @@ static BOOL blockApnsResponse;
 
 static NSURL* lastOpenedUrl;
 
+static int apnsTokenLength = 32;
+
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
@@ -73,6 +75,7 @@ static NSURL* lastOpenedUrl;
     didFailRegistarationErrorCode = 0;
     currentUIApplicationState = UIApplicationStateActive;
     lastUIUserNotificationSettings = nil;
+    apnsTokenLength = 32;
 }
 
 +(void)setCurrentUIApplicationState:(UIApplicationState)value {
@@ -96,6 +99,19 @@ static NSURL* lastOpenedUrl;
 
 +(void)setBlockApnsResponse:(BOOL)block {
     blockApnsResponse = true;
+}
+
++ (void)setAPNSTokenLength:(int)tokenLength {
+    apnsTokenLength = tokenLength;
+}
+
++ (NSString *)mockAPNSToken {
+    NSMutableString *token = [NSMutableString new];
+
+    for (int i = 0; i < apnsTokenLength * 2; i++)
+        [token appendString:@"0"];
+
+    return token;
 }
 
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
@@ -130,9 +146,9 @@ static NSURL* lastOpenedUrl;
     id app = [UIApplication sharedApplication];
     id appDelegate = [[UIApplication sharedApplication] delegate];
     
-    char bytes[32];
-    memset(bytes, 0, 32);
-    id deviceToken = [NSData dataWithBytes:bytes length:32];
+    char bytes[apnsTokenLength];
+    memset(bytes, 0, apnsTokenLength);
+    id deviceToken = [NSData dataWithBytes:bytes length:apnsTokenLength];
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 

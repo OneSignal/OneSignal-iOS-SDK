@@ -33,6 +33,5 @@
 
 @interface ViewController : UIViewController <OSInAppMessageDelegate>
 
-
 @end
 

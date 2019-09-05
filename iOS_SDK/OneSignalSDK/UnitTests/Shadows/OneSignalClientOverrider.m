@@ -31,7 +31,6 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalClient.h"
-#import "OneSignalRequest.h"
 #import "OneSignalSelectorHelpers.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
@@ -50,9 +49,9 @@ static BOOL executeInstantaneously = true;
 static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
-static NSMutableArray<NSString *> *executedRequestTypes;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
 static BOOL disableOverride = false;
+static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 
 + (void)load {
@@ -67,7 +66,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     
-    executedRequestTypes = [[NSMutableArray alloc] init];
+    executedRequests = [NSMutableArray new];
     
     mockResponses = [NSMutableDictionary new];
 }
@@ -87,7 +86,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
     
     for (NSString *key in requests.allKeys) {
-        [executedRequestTypes addObject:NSStringFromClass([requests[key] class])];
+        [executedRequests addObject:requests[key]];
         
         [OneSignalClient.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
             results[key] = result;
@@ -114,7 +113,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     if (disableOverride)
         return [self overrideExecuteRequest:request onSuccess:successBlock onFailure:failureBlock];
     
-    [executedRequestTypes addObject:NSStringFromClass([request class])];
+    [executedRequests addObject:request];
     
     if (executeInstantaneously) {
         [OneSignalClientOverrider finishExecutingRequest:request onSuccess:successBlock onFailure:failureBlock];
@@ -189,8 +188,8 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 }
 
 +(BOOL)hasExecutedRequestOfType:(Class)type {
-    for (id requestType in executedRequestTypes)
-        if ([requestType isEqualToString:NSStringFromClass(type)])
+    for (OneSignalRequest *request in executedRequests)
+        if ([request isKindOfClass:type])
             return true;
     
     return false;
@@ -214,7 +213,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequest = nil;
-    [executedRequestTypes removeAllObjects];
+    [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
 }
 
@@ -249,6 +248,10 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     shouldUseProvisionalAuthorization = provisional;
 }
 
++(NSArray<OneSignalRequest *> *)executedRequests {
+    return executedRequests;
+}
+    
 + (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response {
     [mockResponses setObject:response forKey:request];
 }

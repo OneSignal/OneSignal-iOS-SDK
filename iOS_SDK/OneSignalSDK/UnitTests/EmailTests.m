@@ -544,4 +544,29 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignalClientOverrider reset:self];
 }
 
+- (void)testSetExternalIdForEmailPlayer {
+    [UnitTestCommonMethods runBackgroundThreads];
+    [self setupEmailTest];
+    
+    [OneSignal setEmail:@"test@test.com"];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    int currentRequestCount = OneSignalClientOverrider.networkRequestCount;
+    
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let emailPlayerId = OneSignal.getPermissionSubscriptionState.emailSubscriptionStatus.emailUserId;
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, currentRequestCount + 2);
+    
+    for (OneSignalRequest *request in OneSignalClientOverrider.executedRequests)
+        if ([request isKindOfClass:[OSRequestUpdateExternalUserId class]] && [request.urlRequest.URL.absoluteString containsString:emailPlayerId])
+            XCTAssertEqualObjects(request.parameters[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+    
+    // lastly, check to make sure that calling setExternalUserId() again with the same
+    // ID doesn't create a duplicate API request
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, currentRequestCount + 2);
+}
+
 @end

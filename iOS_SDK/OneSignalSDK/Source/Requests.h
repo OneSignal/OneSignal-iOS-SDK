@@ -115,5 +115,9 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId previewUUID:(NSString * _Nonnull)previewUUID;
 @end
 
+@interface OSRequestUpdateExternalUserId : OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withOneSignalUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId;
+@end
+
 #endif /* Requests_h */
 

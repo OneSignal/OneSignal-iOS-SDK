@@ -39,8 +39,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OSTrigger (Test)
-+ (instancetype)triggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
++ (instancetype)triggerWithKind:(NSString *)kind withProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value;
++ (instancetype)dynamicTriggerWithKind:(NSString *)kind withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
++ (instancetype)dynamicTriggerWithKind:(NSString *)kind withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
++ (instancetype)customTriggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value;
++ (instancetype)customTriggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value;
 @end
 
 @interface OSMessagingController (Test)

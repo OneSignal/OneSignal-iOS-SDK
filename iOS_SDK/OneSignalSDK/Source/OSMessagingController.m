@@ -65,7 +65,7 @@
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         // Make sure only devices with iOS 10 or newer can use IAMs
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
             sharedInstance = [OSMessagingController new];
         else
             sharedInstance = [DummyOSMessagingController new];

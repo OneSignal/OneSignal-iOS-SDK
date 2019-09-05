@@ -78,13 +78,11 @@
     [OneSignal promptLocation];
     [OneSignal sendTag:@"someKey1122" value:@"03222017"];
     
-    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeNotification;
-    
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal pauseInAppMessaging:false];
+    [OneSignal pauseInAppMessages:false];
     
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -96,7 +94,7 @@
 + (NSString*)getOneSignalAppId {
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
     if (!onesignalAppId)
-        onesignalAppId = @"7451b741-ab9b-43f7-aa21-5f4ffb22af17";
+        onesignalAppId = @"3beb3078-e0f1-4629-af17-fde833b9f716";
     
     return onesignalAppId;
 }
@@ -120,7 +118,6 @@
     NSLog(@"onOSEmailSubscriptionChanged: %@", stateChanges);
     
 }
-
 
 - (void)applicationWillResignActive:(UIApplication *)application {
 }

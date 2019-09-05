@@ -86,7 +86,7 @@
     NSTimerOverrider.shouldScheduleTimers = true;
     
     // Set to false so that we don't interfere with other tests
-    [OneSignal pauseInAppMessaging:false];
+    [OneSignal pauseInAppMessages:false];
 }
 
 /**
@@ -95,7 +95,7 @@
     correctly sets up a timer for the 30 seconds
 */
 - (void)testMessageIsScheduled {
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -113,7 +113,7 @@
     test verifies that the message actually gets displayed.
 */
 - (void)testMessageIsDisplayed {
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -143,12 +143,7 @@
 }
 
 - (void)testMessageDisplayedAfterTimer {
-    
-    NSTimerOverrider.shouldScheduleTimers = true;
-    
-    OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
-    
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -172,8 +167,8 @@
 // will set up a timer. However, if a normal value-based trigger condition is not true, there is
 // no point in setting up a timer until that condition changes.
 - (void)testDelaysSettingUpTimers {
-    let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
-    let secondTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
+    let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
+    let secondTrigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger]]];
     
@@ -219,41 +214,33 @@
     XCTAssertTrue([OneSignal getTriggers].count == 0);
 }
 
-- (void)testExactTimeTrigger {
-    NSTimerOverrider.shouldScheduleTimers = false;
-    
-    let targetTimestamp = NSDate.date.timeIntervalSince1970 + 10.0f;
-    
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
+- (void)testTimeSinceLastInAppMessageTrigger_withNoPreviousInAppMessages {
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@10];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     [self initializeOnesignalWithMessage:message];
     
-    // Check to make sure the timer was actually scheduled
-    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
+    // Check to make sure the timer was not scheduled since the IAM should just show instantly
+    XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
-    // check to make sure the timer was scheduled to fire at the desired time
-    XCTAssertTrue(OS_ROUGHLY_EQUAL(NSDate.date.timeIntervalSince1970 + NSTimerOverrider.mostRecentTimerInterval, targetTimestamp));
+    // IAM should be shown instantly and be within the messageDisplayQueue
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
 }
 
 // If a message is scheduled to be displayed in the past, it should not be shown at all.
 - (void)testExpiredExactTimeTrigger {
-    
-    // This prevents timers from actually being scheduled. But if a timer is created,
-    // this doesn't prevent the NSTimerOverrider.hasScheduledTimer from being set to true
-    NSTimerOverrider.shouldScheduleTimers = false;
-    
-    // some time in the past, the exact offset doesn't matter
-    let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
-    
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@(targetTimestamp)];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@-10];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     [self initializeOnesignalWithMessage:message];
     
+    // Check to make sure the timer was not scheduled since the IAM should just show instantly
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
+    
+    // IAM should be shown instantly and be within the messageDisplayQueue essentially ignoring the negative number in seconds
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
 }
 
 // This test checks to make sure that if you are using the > operator for an exact time trigger,
@@ -265,7 +252,7 @@
     
     let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
     
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(targetTimestamp)];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(targetTimestamp)];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -274,32 +261,6 @@
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
-}
-
-// Tests a message with a more complex set of triggers specifying that the message should be
-// shown between a window of dates, and that the session duration should be > 30 seconds
-- (void)testWindowedMessage {
-    NSTimerOverrider.shouldScheduleTimers = false;
-    
-    OneSignalOverrider.shouldOverrideSessionLaunchTime = true;
-    
-    let beginWindowTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
-    let endWindowTimestamp = NSDate.date.timeIntervalSince1970 + 1000.0f;
-    
-    let beginWindowTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(beginWindowTimestamp)];
-    let endWindowTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeLessThan withValue:@(endWindowTimestamp)];
-    let sessionDurationTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@30.0f];
-    
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[beginWindowTrigger, endWindowTrigger, sessionDurationTrigger]]];
-    
-    [self initializeOnesignalWithMessage:message];
-    
-    XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
-    
-    // Two timers should be scheduled for this message, one for the end window trigger (T+1000 seconds) and another for
-    // the session duration trigger (T+30 seconds). Which timer gets scheduled first doesn't really matter, we only care
-    // to make sure that one of the timers was for 30 seconds.
-    XCTAssertTrue(OS_ROUGHLY_EQUAL(NSTimerOverrider.mostRecentTimerInterval, 30.0f) || OS_ROUGHLY_EQUAL(NSTimerOverrider.previousMostRecentTimeInterval, 30.0f));
 }
 
 // helper method that adds an OSInAppMessage to the registration
@@ -315,7 +276,7 @@
 
 // when an in-app message is displayed to the user, the SDK should launch an API request
 - (void)testMessageViewedLaunchesViewedAPIRequest {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -331,7 +292,7 @@
 }
 
 - (void)testMessageClickedLaunchesAPIRequest {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
@@ -356,12 +317,12 @@
 }
 
 - (void)testDisablingMessagesPreventsDisplay {
-    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
     // this should prevent message from being shown
-    [OneSignal pauseInAppMessaging:true];
+    [OneSignal pauseInAppMessages:true];
     
     // the trigger should immediately evaluate to true and should
     // be shown once the SDK is fully initialized.
@@ -385,7 +346,7 @@
     let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
     
-    let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let message = [OSInAppMessage instanceWithJson:messageJson];
     
@@ -431,7 +392,7 @@
     let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
     
-    let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:@"os_session_duration" withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let message = [OSInAppMessage instanceWithJson:messageJson];
     

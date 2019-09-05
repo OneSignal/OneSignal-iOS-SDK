@@ -147,12 +147,21 @@
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller in app messaging paused: %i", (int)sender.selectedSegmentIndex);
-    [OneSignal pauseInAppMessaging:(bool)sender.selectedSegmentIndex];
+    [OneSignal pauseInAppMessages:(bool)sender.selectedSegmentIndex];
 }
 
 -(void)handleMessageAction:(NSString *)actionId {
     NSLog(@"View controller did get action: %@", actionId);
 }
 
+- (IBAction)removeExternalIdButtonPressed:(UIButton *)sender {
+    [OneSignal removeExternalUserId];
+}
+
+#pragma mark UITextFieldDelegate Methods
+-(BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return false;
+}
 
 @end

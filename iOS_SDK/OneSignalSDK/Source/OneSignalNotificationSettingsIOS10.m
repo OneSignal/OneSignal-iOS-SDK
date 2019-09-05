@@ -81,11 +81,11 @@ static dispatch_queue_t serialQueue;
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
             
             // check if using provisional notifications
-            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0") && settings.authorizationStatus == provisionalStatus)
+            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
                 status.notificationTypes += PROVISIONAL_UNAUTHORIZATIONOPTION;
             
             // also check if 'deliver quietly' is enabled.
-            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0") && settings.notificationCenterSetting == UNNotificationSettingEnabled)
+            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
                 status.notificationTypes += 16;
             
             self.useCachedStatus = true;
@@ -149,7 +149,7 @@ static dispatch_queue_t serialQueue;
     
     UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0") && [OneSignal providesAppNotificationSettings]) {
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"] && [OneSignal providesAppNotificationSettings]) {
         options += PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION;
     }
     
@@ -161,7 +161,7 @@ static dispatch_queue_t serialQueue;
 
 - (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
     
-    if (SYSTEM_VERSION_LESS_THAN(@"12.0")) {
+    if ([OneSignalHelper isIOSVersionLessThan:@"12.0"]) {
         return;
     }
     

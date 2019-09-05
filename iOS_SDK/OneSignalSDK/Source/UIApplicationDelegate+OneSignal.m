@@ -123,7 +123,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 + (void)sizzlePreiOS10MethodsPhase1 {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
     injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
@@ -137,7 +137,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 + (void)sizzlePreiOS10MethodsPhase2 {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
     injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:),

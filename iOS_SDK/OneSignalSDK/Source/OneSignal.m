@@ -126,7 +126,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = OS_SDK_VERSION;
+NSString* const ONESIGNAL_VERSION = @"021100";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -199,10 +199,13 @@ BOOL usesAutoPrompt = false;
 
 static BOOL providesAppNotificationSettings = false;
 
+static BOOL performedOnSessionRequest = false;
+static NSString *pendingExternalUserId;
+
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
     NSInteger op = value;
-    if (SYSTEM_VERSION_LESS_THAN(@"10.0") && OSNotificationDisplayTypeNotification == op)
+    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"] && OSNotificationDisplayTypeNotification == op)
         op = OSNotificationDisplayTypeInAppAlert;
     
     _inFocusDisplayType = op;
@@ -215,9 +218,9 @@ static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayType
 static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
     if (!_osNotificationSettings) {
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0"))
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
             _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-        else if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
+        else if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
             _osNotificationSettings = [OneSignalNotificationSettingsIOS8 new];
         else
             _osNotificationSettings = [OneSignalNotificationSettingsIOS7 new];
@@ -395,6 +398,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
     
     sessionLaunchTime = [NSDate date];
+    performedOnSessionRequest = false;
+    pendingExternalUserId = nil;
 }
 
 // Set to false as soon as it's read.
@@ -456,7 +461,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
             registeredWithApple = self.currentPermissionState.accepted;
         else
             registeredWithApple = self.currentSubscriptionState.pushToken || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -481,7 +486,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
             usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         
-        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0"))
+        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
             providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
@@ -614,7 +619,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0"))
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
         [self.osNotificationSettings registerForProvisionalAuthorization:completionHandler];
     else
         onesignal_Log(ONE_S_LL_WARN, @"registerForProvisionalAuthorization is only available in iOS 12+.");
@@ -758,7 +763,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)presentAppSettings {
     
     //only supported in 10+
-    if (SYSTEM_VERSION_LESS_THAN(@"10.0"))
+    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"])
         return;
     
     let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
@@ -783,7 +788,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // iOS 8+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {
-    if (SYSTEM_VERSION_LESS_THAN(@"8.0"))
+    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
         return false;
     
     if (waitingForApnsResponse)
@@ -878,7 +883,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     return status;
 }
-
 
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
@@ -1485,6 +1489,14 @@ static dispatch_queue_t serialQueue;
                    ONESIGNAL_VERSION, @"sdk",
                    nil];
     
+    // should be set to true even before the API request is finished
+    performedOnSessionRequest = true;
+    
+    if (pendingExternalUserId && ![self.existingExternalUserId isEqualToString:pendingExternalUserId])
+        dataDic[@"external_user_id"] = pendingExternalUserId;
+    
+    pendingExternalUserId = nil;
+    
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
     
@@ -1647,6 +1659,14 @@ static dispatch_queue_t serialQueue;
         
         [[NSUserDefaults standardUserDefaults] synchronize];
         
+        // If the external user ID was sent as part of this request, we need to save it
+        // The 'successfullySentExternalUserId' method already calls NSUserDefaults synchronize
+        // so there is no need to call it again
+        if (dataDic[@"external_user_id"])
+            [self successfullySentExternalUserId:dataDic[@"external_user_id"]];
+        else
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         waitingForOneSReg = false;
         
@@ -1729,7 +1749,7 @@ static dispatch_queue_t serialQueue;
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:clickActionBlock];
 }
 
-+ (void)pauseInAppMessaging:(BOOL)pause {
++ (void)pauseInAppMessages:(BOOL)pause {
     [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
 }
 
@@ -1787,7 +1807,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     
     BOOL isPreview = [[OSNotificationPayload parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
-    if (isPreview && SYSTEM_VERSION_LESS_THAN(@"10.0"))
+    if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"])
         return;
     
     if (isActive) {
@@ -1800,7 +1820,7 @@ static NSString *_lastnonActiveMessageId;
         
         let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
         // Make sure it is not a silent one do display, if inAppAlerts are enabled
-        if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
+        if (inAppAlert && !isPreview && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
             [OneSignalAlertView showInAppAlert:messageDict];
             return;
         }
@@ -1816,14 +1836,14 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastnonActiveMessageId = newId;
     }
-    
+
     if (opened) {
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         OSNotificationActionType type = OSNotificationActionTypeOpened;
-        
+
         if (messageDict[@"custom"][@"a"][@"actionSelected"] || messageDict[@"actionSelected"])
             type = OSNotificationActionTypeActionTaken;
-        
+
         // Call Action Block
         [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
     }
@@ -1926,7 +1946,7 @@ static NSString *_lastnonActiveMessageId;
         disableBadgeClearing = NO;
     
     if (disableBadgeClearing ||
-        (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0") && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+        ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"] && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
@@ -1983,7 +2003,7 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
     
-    if (SYSTEM_VERSION_LESS_THAN(@"10.0")) {
+    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"]) {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         [userDefaults setBool:true forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
         [userDefaults synchronize];
@@ -2007,18 +2027,22 @@ static NSString *_lastnonActiveMessageId;
         [self fireIdsAvailableCallback];
 }
 
-+ (void)didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
++ (void)didRegisterForRemoteNotifications:(UIApplication *)app
+                              deviceToken:(NSData *)inDeviceToken {
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
-    
-    let trimmedDeviceToken = [[inDeviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
-    let parsedDeviceToken = [[trimmedDeviceToken componentsSeparatedByString:@" "] componentsJoinedByString:@""];
-    
-    
+
+    let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
+
     [OneSignal onesignal_Log:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
+
+    if (!parsedDeviceToken) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Unable to convert APNS device token to a string"];
+        return;
+    }
     
     waitingForApnsResponse = false;
-    
+
     if (!app_id)
         return;
     
@@ -2043,7 +2067,7 @@ static NSString *_lastnonActiveMessageId;
     if (richData) {
         let osPayload = [OSNotificationPayload parseWithApns:userInfo];
         
-        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"10.0")) {
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             startedBackgroundJob = true;
             [OneSignalHelper addNotificationRequest:osPayload completionHandler:completionHandler];
         } else {
@@ -2395,6 +2419,58 @@ static NSString *_lastnonActiveMessageId;
     return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
 }
 
++ (void)setExternalUserId:(NSString * _Nonnull)externalId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
+        return;
+    
+    if ([self.existingExternalUserId isEqualToString:externalId])
+        return;
+    
+    if (!performedOnSessionRequest) {
+        // will be sent as part of the registration/on_session request
+        pendingExternalUserId = externalId;
+        return;
+    } else if (!self.currentSubscriptionState.userId || !self.app_id) {
+        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external-userID while %@ is not set", self.app_id == nil ? @"app ID" : @"OneSignal user ID"]];
+        return;
+    }
+    
+    let requests = [NSMutableDictionary new];
+    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
+    
+    if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
+        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
+        // the success/fail callbacks always execute on the main thread
+        [self successfullySentExternalUserId:externalId];
+    } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
+        // if either request fails, this block is executed
+        NSError *error = errors[@"push"] ?: errors[@"email"];
+        [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to set external ID: %@", error.description]];
+    }];
+}
+
++ (NSString *)existingExternalUserId {
+    return [NSUserDefaults.standardUserDefaults stringForKey:EXTERNAL_USER_ID] ?: @"";
+}
+
++ (void)successfullySentExternalUserId:(NSString *)externalId {
+    [NSUserDefaults.standardUserDefaults setObject:externalId forKey:EXTERNAL_USER_ID];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
++ (void)removeExternalUserId {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
+        return;
+    
+    [self setExternalUserId:@""];
+}
+
 @end
 
 // Swizzles UIApplication class to swizzling the following:
@@ -2421,7 +2497,7 @@ static NSString *_lastnonActiveMessageId;
     if ([[processInfo processName] isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [[processInfo processName] isEqualToString:@"IBDesignablesAgent-iOS"])
         return;
     
-    if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
+    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
         return;
 
     // Double loading of class detection.

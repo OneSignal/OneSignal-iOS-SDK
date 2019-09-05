@@ -31,9 +31,11 @@
 
 @interface OneSignalHelperOverrider : NSObject
 
-+(void)setMockIOSVersion:(float)value;
-+(float)mockIOSVersion;
-+(void)runBackgroundThreads;
-+(void)setOverrideIsTablet:(BOOL)shouldBeTablet;
++ (void)setMockIOSVersion:(float)value;
++ (float)mockIOSVersion;
++ (void)runBackgroundThreads;
++ (void)setOverrideIsTablet:(BOOL)shouldBeTablet;
+
++ (BOOL)overrideIsIOSVersionGreaterThanOrEqual:(NSString *)version;
 
 @end

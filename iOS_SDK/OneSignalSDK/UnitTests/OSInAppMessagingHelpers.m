@@ -30,13 +30,11 @@
 #import "OSTriggerController.h"
 #import "OSMessagingController.h"
 
-
-
 @implementation OSTrigger (Test)
 
-+ (instancetype)triggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value {
++ (instancetype)triggerWithKind:(NSString *)kind withProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value {
     OSTrigger *trigger = [OSTrigger new];
-    trigger.kind = property;
+    trigger.kind = kind;
     trigger.property = property;
     trigger.operatorType = type;
     trigger.value = value;
@@ -45,8 +43,20 @@
     return trigger;
 }
 
-+ (instancetype)triggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value {
-    return [OSTrigger triggerWithProperty:property withId:@"test_trigger_id" withOperator:type withValue:value];
++ (instancetype)dynamicTriggerWithKind:(NSString *)kind withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value {
+    return [OSTrigger triggerWithKind:kind withProperty:@"dynamic" withId:triggerId withOperator:type withValue:value];
+}
+
++ (instancetype)dynamicTriggerWithKind:(NSString *)kind withOperator:(OSTriggerOperatorType)type withValue:(id _Nullable)value {
+    return [OSTrigger triggerWithKind:kind withProperty:@"dynamic" withId:@"test_trigger_id" withOperator:type withValue:value];
+}
+
++ (instancetype)customTriggerWithProperty:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value {
+    return [OSTrigger triggerWithKind:@"custom" withProperty:property withId:triggerId withOperator:type withValue:value];
+}
+
++ (instancetype)customTriggerWithProperty:(NSString *)property withOperator:(OSTriggerOperatorType)type withValue:(id)value {
+    return [OSTrigger triggerWithKind:@"custom" withProperty:property withId:@"test_trigger_id" withOperator:type withValue:value];
 }
 
 @end

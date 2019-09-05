@@ -61,53 +61,56 @@
     
     if (!trigger.value)
         return false;
-    
+
     @synchronized (self.scheduledMessages) {
         // All time-based trigger values should be numbers (either timestamps or offsets)
         if (![trigger.value isKindOfClass:[NSNumber class]])
             return false;
-        
+
         // Timer already set for this message trigger
         if ([self.scheduledMessages containsObject:trigger.triggerId])
             return false;
-        
+
         let requiredTimeValue = [trigger.value doubleValue];
-        
+
         // How long to set the timer for (if needed)
         var offset = 0.0f;
-        
+
         // Check what type of trigger it is
         if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME]) {
             let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
-            
+
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType])
                 return true;
-            
+
             offset = requiredTimeValue - currentDuration;
         } else if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE]) {
-            
+
             // Make sure no IAM are showng before handling "since_last_message" trigger kind
             if (OSMessagingController.sharedInstance.isInAppMessageShowing)
                 return false;
-            
+
             let timestampSinceLastMessage = fabs([self.timeSinceLastMessage timeIntervalSinceNow]);
-            
+
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:timestampSinceLastMessage forOperator:trigger.operatorType])
                 return true;
-            
+
             offset = requiredTimeValue - timestampSinceLastMessage;
         }
-        
+
         // Don't schedule timers for the past
         if (offset <= 0.0f)
             return false;
-        
+
         // If we reach this point, it means we need to return false and set up a timer for a future time
-        let timer = [NSTimer timerWithTimeInterval:offset target:self selector:@selector(timerFiredForMessage:) userInfo:@{@"trigger" : trigger} repeats:false];
-        
+        let timer = [NSTimer timerWithTimeInterval:offset
+                                            target:self
+                                          selector:@selector(timerFiredForMessage:)
+                                          userInfo:@{@"trigger" : trigger}
+                                           repeats:false];
         if (timer)
             [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-        
+
         [self.scheduledMessages addObject:trigger.triggerId];
     }
     
@@ -141,9 +144,9 @@
 - (void)timerFiredForMessage:(NSTimer *)timer {
     @synchronized (self.scheduledMessages) {
         let trigger = (OSTrigger *)timer.userInfo[@"trigger"];
-        
+
         [self.scheduledMessages removeObject:trigger.triggerId];
-        
+
         [self.delegate dynamicTriggerFired];
     }
 }

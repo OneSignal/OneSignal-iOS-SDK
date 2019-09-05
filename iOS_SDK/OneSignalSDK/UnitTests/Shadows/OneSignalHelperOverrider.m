@@ -49,15 +49,18 @@ static bool overrideIsTablet = false;
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
     
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetAppName), [OneSignalHelper class], @selector(getAppName));
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterOrEqual:));
+    
+    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsIOSVersionGreaterThanOrEqual:), [OneSignalHelper class], @selector(isIOSVersionGreaterThanOrEqual:));
+    
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsTablet), [OneSignalHelper class], @selector(isTablet));
 }
 
-+(void)setMockIOSVersion:(float)value {
++ (void)setMockIOSVersion:(float)value {
     mockIOSVersion = value;
 }
-+(float)mockIOSVersion {
+
++ (float)mockIOSVersion {
     return mockIOSVersion;
 }
 
@@ -69,12 +72,12 @@ static bool overrideIsTablet = false;
     return @"App Name";
 }
 
-+(void)setOverrideIsTablet:(BOOL)shouldBeTablet {
+ +(void)setOverrideIsTablet:(BOOL)shouldBeTablet {
     overrideIsTablet = shouldBeTablet;
 }
 
-+ (BOOL)overrideIsIOSVersionGreaterOrEqual:(float)version {
-    return mockIOSVersion >= version;
++ (BOOL)overrideIsIOSVersionGreaterThanOrEqual:(NSString *)version {
+    return mockIOSVersion >= [version floatValue];
 }
 
 + (void) overrideDispatch_async_on_main_queue:(void(^)())block {

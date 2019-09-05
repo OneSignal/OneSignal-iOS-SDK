@@ -26,21 +26,13 @@
  */
 
 #import <XCTest/XCTest.h>
-
 #import "UnitTestCommonMethods.h"
-
 #import <objc/runtime.h>
-
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import <UserNotifications/UserNotifications.h>
-
-
 #import "UncaughtExceptionHandler.h"
-
-
 #import "OneSignal.h"
-
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
@@ -50,15 +42,13 @@
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OSPermission.h"
 #import "OSNotificationPayload+Internal.h"
-
 #include <pthread.h>
 #include <mach/mach.h>
-
 #include "TestHelperFunctions.h"
-
 #import "UnitTestAppDelegate.h"
-
 #import "OneSignalExtensionBadgeHandler.h"
+#import "OneSignalDialogControllerOverrider.h"
+#import "OneSignalNotificationCategoryController.h"
 
 // Shadows
 #import "NSObjectOverrider.h"
@@ -73,15 +63,16 @@
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
 
+// Dummies
+#import "DummyNotificationCenterDelegate.h"
+
 // Networking
 #import "OneSignalClient.h"
 #import "Requests.h"
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
-#import "DummyNotificationCenterDelegate.h"
 
-#import "OneSignalDialogControllerOverrider.h"
 
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
@@ -166,7 +157,7 @@
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
     NSLog(@"RAN A FEW CONDITIONALS: %@", OneSignalClientOverrider.lastHTTPRequest);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
@@ -345,6 +336,7 @@
     OneSignalHelperOverrider.mockIOSVersion = 7;
     [self sharedTestPermissionChangeObserver];
 }
+
 - (void)sharedTestPermissionChangeObserver {
     
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
@@ -1747,7 +1739,7 @@ didReceiveRemoteNotification:userInfo
     UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure butons were added.
-    XCTAssertEqualObjects(content.categoryIdentifier, @"__dynamic__");
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     // Make sure attachments were NOT added.
     //   We should not try to download attachemts as iOS is about to kill the extension and this will take to much time.
     XCTAssertNil(content.attachments);
@@ -1926,7 +1918,10 @@ didReceiveRemoteNotification:userInfo
 }
   
 //tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
-- (void)testSwizzling {
+// TODO: This test causes the UNUserNotificationCenter singleton's Delegate property to get nullified
+// Unfortunately the fix is not as simple as just setting it back to the original when the test is done
+// To avoid breaking other tests, this test should be executed last, and since tests are alphabetical order, adding Z's does this.
+- (void)testZSwizzling {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     
     DummyNotificationCenterDelegate *delegate = [[DummyNotificationCenterDelegate alloc] init];
@@ -2084,7 +2079,7 @@ didReceiveRemoteNotification:userInfo
         [expectation fulfill];
     });
     
-    [self waitForExpectations:@[expectation] timeout:0.1];
+    [self waitForExpectations:@[expectation] timeout:0.2];
     
     // If APNS didn't respond within X seconds, the SDK
     // should have registered the user with OneSignal
@@ -2150,6 +2145,151 @@ didReceiveRemoteNotification:userInfo
     let notification = [OSNotificationPayload parseWithApns:newFormat];
     
     XCTAssertTrue(notification.actionButtons.count == 0);
+}
+
+- (void)testSetExternalUserIdWithRegistration {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
+}
+
+- (void)testSetExternalUserIdAfterRegistration {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+}
+
+- (void)testRemoveExternalUserId {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignal removeExternalUserId];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
+}
+
+// Tests to make sure that the SDK will not send an external ID if it already successfully sent the same ID
+- (void)testDoesntSendExistingExternalUserIdAfterRegistration {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
+    
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    
+    // the PUT request to set external ID should not happen since the external ID
+    // is the same as it was during registration
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
+}
+
+- (void)testDoesntSendExistingExternalUserIdBeforeRegistration {
+    //mimics a previous session where the external user ID was set
+    [NSUserDefaults.standardUserDefaults setObject:TEST_EXTERNAL_USER_ID forKey:EXTERNAL_USER_ID];
+    [NSUserDefaults.standardUserDefaults synchronize];
+    
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
+    
+    // the registration request should not have included external user ID
+    // since it had been set already to the same value in a previous session
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"]);
+}
+
+// Tests to make sure that the SDK clears out registered categories when it has saved
+// more than MAX_CATEGORIES_SIZE number of UNNotificationCategory objects. Also tests
+// to make sure that the SDK generates correct
+- (void)testCategoryControllerClearsNotificationCategories {
+    let controller = [OneSignalNotificationCategoryController new];
+    
+    NSMutableArray<NSString *> *generatedIds = [NSMutableArray new];
+    
+    for (int i = 0; i < MAX_CATEGORIES_SIZE + 3; i++) {
+        let testId = NSUUID.UUID.UUIDString;
+        
+        let newId = [controller registerNotificationCategoryForNotificationId:testId];
+        
+        let expected = [NSString stringWithFormat:@"__onesignal__dynamic__%@", testId];
+        
+        XCTAssertEqualObjects(newId, expected);
+        
+        [generatedIds addObject:newId];
+    }
+    
+    let currentlySavedCategoryIds = [controller existingRegisteredCategoryIds];
+    
+    XCTAssertEqual(currentlySavedCategoryIds.count, MAX_CATEGORIES_SIZE);
+    
+    for (int i = 0; i < MAX_CATEGORIES_SIZE; i++)
+        XCTAssertEqualObjects(generatedIds[generatedIds.count - 1 - i], currentlySavedCategoryIds[currentlySavedCategoryIds.count - 1 - i]);
+}
+
+- (void)testNotificationWithButtonsRegistersUniqueCategory {
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let notification = (NSDictionary *)[self exampleNotificationJSONWithMediaURL:@"https://www.onesignal.com"];
+    
+    let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:notification];
+    
+    let content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    
+    let ids = OneSignalNotificationCategoryController.sharedInstance.existingRegisteredCategoryIds;
+    
+    XCTAssertEqual(ids.count, 1);
+    
+    XCTAssertEqualObjects(ids.firstObject, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    
+    XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+}
+
+- (void)testAllowsIncreasedAPNSTokenSize
+{
+    [UIApplicationOverrider setAPNSTokenLength:64];
+
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
 }
 
 @end

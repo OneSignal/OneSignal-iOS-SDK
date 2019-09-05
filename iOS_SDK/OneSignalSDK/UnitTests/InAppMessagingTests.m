@@ -154,7 +154,7 @@
 
 #pragma mark Message Trigger Logic Tests
 -(void)testTriggersWithOneCondition {
-    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
+    let trigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     [self.triggerController addTriggers:@{@"prop1" : @1}];
@@ -165,8 +165,8 @@
 }
 
 -(void)testTriggersWithTwoConditions {
-    let trigger1 = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
-    let trigger2 = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
+    let trigger1 = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
+    let trigger2 = [OSTrigger customTriggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger1, trigger2]]];
     
     [self.triggerController addTriggers:@{
@@ -179,8 +179,8 @@
 }
 
 -(void)testTriggersWithOrCondition {
-    let trigger1 = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
-    let trigger2 = [OSTrigger triggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
+    let trigger1 = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeLessThanOrEqualTo withValue:@-3];
+    let trigger2 = [OSTrigger customTriggerWithProperty:@"prop2" withOperator:OSTriggerOperatorTypeEqualTo withValue:@2];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger1], @[trigger2]]];
     
     // The first trigger should evaluate to false, but since the first level array
@@ -195,7 +195,7 @@
 }
 
 -(void)testTriggerWithMissingValue {
-    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
+    let trigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@2];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     // the trigger controller will have no value for 'prop1'
@@ -214,7 +214,7 @@
 }
 
 - (BOOL)setupComparativeOperatorTest:(OSTriggerOperatorType)operator withTriggerValue:(id)triggerValue withLocalValue:(id)localValue {
-    let trigger = [OSTrigger triggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
+    let trigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:operator withValue:triggerValue];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
     if (localValue)
@@ -351,7 +351,7 @@
 }
 
 - (void)testDynamicTriggerWithExactTimeTrigger {
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
     
     OSDynamicTriggerController *controller = [OSDynamicTriggerController new];
     controller.timeSinceLastMessage = [NSDate dateWithTimeIntervalSince1970:0];
@@ -363,7 +363,7 @@
 
 - (void)testDynamicTriggerSchedulesExactTimeTrigger {
     let difference = 10;
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
     
     OSDynamicTriggerController *controller = [OSDynamicTriggerController new];
     controller.timeSinceLastMessage = [NSDate dateWithTimeIntervalSince1970:difference];
@@ -375,7 +375,7 @@
 
 // Ensure that the Exact Time trigger will not fire after the date has passed
 - (void)testDynamicTriggerDoesntTriggerPastTime {
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] - 5.0f)];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970] - 5.0f)];
     let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
 
     XCTAssertFalse(triggered);
@@ -384,7 +384,7 @@
 
 // The session duration trigger is set to fire in 30 seconds into the session
 - (void)testDynamicTriggerSessionDurationLaunchesTimer {
-    let trigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
     let triggered = [[OSDynamicTriggerController new] dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
     
     XCTAssertFalse(triggered);
@@ -396,9 +396,9 @@
 // test to ensure that time-based triggers don't schedule timers
 // until all other triggers evaluate to true.
 - (void)testHandlesMultipleMixedTriggers {
-    let firstTrigger = [OSTrigger triggerWithProperty:@"prop1" withId:@"test_id_1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
-    let secondTrigger = [OSTrigger triggerWithProperty:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id_2" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
-    let thirdTrigger = [OSTrigger triggerWithProperty:@"prop2" withId:@"test_id_3" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
+    let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withId:@"test_id_1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
+    let secondTrigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id_2" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
+    let thirdTrigger = [OSTrigger customTriggerWithProperty:@"prop2" withId:@"test_id_3" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger, thirdTrigger]]];
     

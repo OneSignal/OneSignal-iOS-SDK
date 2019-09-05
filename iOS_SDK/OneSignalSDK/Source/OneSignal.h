@@ -50,8 +50,6 @@
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 
-#define OS_SDK_VERSION @"021100"
-
 /* The action type associated to an OSNotificationAction object */
 typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
     OSNotificationActionTypeOpened,
@@ -169,7 +167,10 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* iOS 10+ : Groups notifications into threads */
 @property(readonly)NSString *threadId;
 
-+ (instancetype)parseWithApns:(NSDictionary*)message;
+/* Parses an APS push payload into a OSNotificationPayload object.
+   Useful to call from your NotificationServiceExtension when the
+      didReceiveNotificationRequest:withContentHandler: method fires. */
++ (instancetype)parseWithApns:(nonnull NSDictionary*)message;
 
 @end
 
@@ -229,6 +230,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionProvisional
 };
 
+typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
 
 
 // Permission Classes
@@ -432,7 +434,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 + (void)setSubscription:(BOOL)enable;
 + (BOOL)isInAppMessagingPaused;
-+ (void)pauseInAppMessaging:(BOOL)pause;
++ (void)pauseInAppMessages:(BOOL)pause;
 
 // - Posting Notification
 + (void)postNotification:(NSDictionary*)jsonData;
@@ -486,6 +488,8 @@ typedef void (^OSEmailSuccessBlock)();
 + (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
 + (NSDictionary<NSString *, id> * _Nonnull)getTriggers;
 + (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
++ (void)setExternalUserId:(NSString * _Nonnull)externalId;
++ (void)removeExternalUserId;
 
 @end
 

@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import "OneSignalRequest.h"
 
 @interface OneSignalClientOverrider : NSObject
 +(void)reset:(XCTestCase*)testInstance;
@@ -44,6 +45,7 @@
 +(BOOL)hasExecutedRequestOfType:(Class)type;
 +(void)setShouldUseProvisionalAuth:(BOOL)provisional;
 +(void)disableExecuteRequestOverride:(BOOL)disable;
++(NSArray<OneSignalRequest *> *)executedRequests;
 + (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
 @end
 

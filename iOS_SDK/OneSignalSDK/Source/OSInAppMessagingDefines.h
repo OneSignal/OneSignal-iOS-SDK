@@ -74,19 +74,23 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_IAM_CLICKED_SET_KEY @"OS_IAM_CLICKED_SET"
 #define OS_IAM_IMPRESSIONED_SET_KEY @"OS_IAM_IMPRESSIONED_SET"
 
-// Dynamic trigger types
+// Dynamic trigger kind types
+#define OS_DYNAMIC_TRIGGER_KIND_CUSTOM @"custom"
 #define OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME @"session_time"
 #define OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE @"min_time_since"
 #define OS_DYNAMIC_TRIGGER_KIND_STRINGS @[OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME, OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE]
 // Verify that a string is a valid dynamic trigger
 #define OS_IS_DYNAMIC_TRIGGER_KIND(kind) [OS_DYNAMIC_TRIGGER_KIND_STRINGS containsObject:kind]
 
+// Trigger property types
+#define OS_TRIGGER_PROPERTY_SESSION_TIME @"playtime"
+#define OS_TRIGGER_PROPERTY_MIN_TIME_SINCE @"time_since_last_iam"
+#define OS_TRIGGER_PROPERTY_STRINGS @[OS_TRIGGER_PROPERTY_SESSION_TIME, OS_TRIGGER_PROPERTY_MIN_TIME_SINCE]
+// Verify that a string is a valid dynamic trigger
+#define OS_IS_TRIGGER_PROPERTY(kind) [OS_TRIGGER_PROPERTY_STRINGS containsObject:property]
+
 // JavaScript method names
 #define OS_JS_GET_PAGE_META_DATA_METHOD @"getPageMetaData()"
-
-// Trigger for previously viewed messages
-#define OS_VIEWED_MESSAGE @"os_viewed_message"
-#define OS_VIEWED_MESSAGE_TRIGGER(messageId) [OS_VIEWED_MESSAGE stringByAppendingString:messageId]
 
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
 
