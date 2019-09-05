@@ -59,7 +59,11 @@
     
     // Example block for IAM action click handler
     id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
-        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", action];
+        NSString *message = [NSString stringWithFormat:@"Click Action Occurred: clickName:%@ clickUrl:%@ firstClick:%i closesMessage:%i",
+                             action.clickName,
+                             action.clickUrl,
+                             action.firstClick,
+                             action.closesMessage];
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
     };
     

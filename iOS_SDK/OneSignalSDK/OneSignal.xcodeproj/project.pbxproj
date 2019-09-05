@@ -149,6 +149,8 @@
 		9D3300F723145AF3000F0A83 /* OneSignalUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F323145AF3000F0A83 /* OneSignalUserDefaults.m */; };
 		9D3300F823145AF3000F0A83 /* OneSignalUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F323145AF3000F0A83 /* OneSignalUserDefaults.m */; };
 		9D3300FA23149DAE000F0A83 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
+		9D59C2F82321C7720008ECCF /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
+		9D59C2F92321C7780008ECCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
 		9DDFEEF223189C0800EAE0BB /* OneSignalViewHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D3300F423145AF3000F0A83 /* OneSignalViewHelper.h */; };
 		9DDFEEF323189C0E00EAE0BB /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
 		9DDFEEF423189C1100EAE0BB /* OneSignalUserDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D3300F123145AF3000F0A83 /* OneSignalUserDefaults.h */; };
@@ -457,6 +459,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D59C2F92321C7780008ECCF /* CoreGraphics.framework in Frameworks */,
+				9D59C2F82321C7720008ECCF /* WebKit.framework in Frameworks */,
 				3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */,
 				3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */,
 				91719A9C1E80839500DBE43C /* UserNotifications.framework in Frameworks */,
