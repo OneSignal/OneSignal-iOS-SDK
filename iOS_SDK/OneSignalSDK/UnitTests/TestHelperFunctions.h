@@ -27,3 +27,4 @@
 
 void DumpObjcMethods(Class clz);
 BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
+void swizzleClassMethodWithCategoryImplementation(Class class, SEL original, SEL new);

@@ -70,6 +70,10 @@
 #import "DelayedInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
+#import "OSMessagingController.h"
+#import "OSInAppMessageAction.h"
+#import "OSInAppMessage.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -122,7 +126,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021002";
+NSString* const ONESIGNAL_VERSION = @"021100";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -169,6 +173,9 @@ static NSDate *initializationTime;
 static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
 static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
 
+// Set when the app is launched
+static NSDate *sessionLaunchTime;
+
 //the iOS Native SDK will use the plist flag to enable privacy consent
 //however wrapper SDK's will use a method call before initialization
 //this boolean flag is switched on to enable this behavior
@@ -195,20 +202,10 @@ static BOOL providesAppNotificationSettings = false;
 static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
 
-// Notification Display Type Delegate
-static __weak id<OSNotificationDisplayTypeDelegate> _displayDelegate;
-
-// Display type is used in multiple areas of the SDK
-// To avoid calling the delegate multiple times, we store
-// the type and notification ID for each notification
-// These data structures *MUST* be accessed on the main thread only
-static NSMutableDictionary<NSString *, NSNumber *> *_displayTypeMap;
-static NSMutableDictionary<NSString *, NSMutableArray<OSNotificationDisplayTypeResponse> *> *_pendingDisplayTypeCallbacks;
-
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
     NSInteger op = value;
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10] && OSNotificationDisplayTypeNotification == op)
+    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"] && OSNotificationDisplayTypeNotification == op)
         op = OSNotificationDisplayTypeInAppAlert;
     
     _inFocusDisplayType = op;
@@ -221,9 +218,9 @@ static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayType
 static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
     if (!_osNotificationSettings) {
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10])
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
             _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-        else if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
+        else if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
             _osNotificationSettings = [OneSignalNotificationSettingsIOS8 new];
         else
             _osNotificationSettings = [OneSignalNotificationSettingsIOS7 new];
@@ -399,13 +396,10 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     
     maxApnsWait = APNS_TIMEOUT;
     reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
-    
+
+    sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
-    
-    _displayDelegate = nil;
-    _displayTypeMap = [NSMutableDictionary new];
-    _pendingDisplayTypeCallbacks = [NSMutableDictionary new];
 }
 
 // Set to false as soon as it's read.
@@ -467,7 +461,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         
         [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
         
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:8])
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
             registeredWithApple = self.currentPermissionState.accepted;
         else
             registeredWithApple = self.currentSubscriptionState.pushToken || [userDefaults boolForKey:@"GT_REGISTERED_WITH_APPLE"];
@@ -492,7 +486,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
         if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
             usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
         
-        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
+        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
             providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
         
         // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
@@ -625,7 +619,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
-    if ([OneSignalHelper isIOSVersionGreaterOrEqual:12.0])
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
         [self.osNotificationSettings registerForProvisionalAuthorization:completionHandler];
     else
         onesignal_Log(ONE_S_LL_WARN, @"registerForProvisionalAuthorization is only available in iOS 12+.");
@@ -769,7 +763,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)presentAppSettings {
     
     //only supported in 10+
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10.0])
+    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"])
         return;
     
     let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
@@ -794,7 +788,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // iOS 8+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:8])
+    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
         return false;
     
     if (waitingForApnsResponse)
@@ -888,10 +882,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     status.emailSubscriptionStatus = self.currentEmailSubscriptionState;
     
     return status;
-}
-
-+ (void)setNotificationDisplayTypeDelegate:(NSObject<OSNotificationDisplayTypeDelegate> *)delegate {
-    _displayDelegate = delegate;
 }
 
 // onOSPermissionChanged should only fire if something changed.
@@ -1501,12 +1491,12 @@ static dispatch_queue_t serialQueue;
     
     // should be set to true even before the API request is finished
     performedOnSessionRequest = true;
-    
+
     if (pendingExternalUserId && ![self.existingExternalUserId isEqualToString:pendingExternalUserId])
         dataDic[@"external_user_id"] = pendingExternalUserId;
-    
+
     pendingExternalUserId = nil;
-    
+
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
     
@@ -1575,8 +1565,7 @@ static dispatch_queue_t serialQueue;
         dataDic[@"loc_acc"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
         [OneSignalLocation clearLastLocation];
     }
-    
-    
+
     let pushDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
     pushDataDic[@"identifier"] = self.currentSubscriptionState.pushToken;
     
@@ -1593,7 +1582,9 @@ static dispatch_queue_t serialQueue;
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         waitingForOneSReg = false;
-        
+
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
+
         // Success, no more high priority
         nextRegistrationIsHighPriority = NO;
         
@@ -1662,6 +1653,12 @@ static dispatch_queue_t serialQueue;
             
         }
         
+        if (results[@"push"][@"in_app_messages"]) {
+            [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
+        }
+
+        [[NSUserDefaults standardUserDefaults] synchronize];
+
         // If the external user ID was sent as part of this request, we need to save it
         // The 'successfullySentExternalUserId' method already calls NSUserDefaults synchronize
         // so there is no need to call it again
@@ -1688,6 +1685,19 @@ static dispatch_queue_t serialQueue;
             }
         }
     }];
+}
+
++ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
+    let messages = [NSMutableArray new];
+
+    for (NSDictionary *messageJson in messagesJson) {
+        let message = [OSInAppMessage instanceWithJson:messageJson];
+
+        if (message)
+            [messages addObject:message];
+    }
+
+    [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];
 }
 
 +(NSString*)getUsableDeviceToken {
@@ -1734,6 +1744,19 @@ static dispatch_queue_t serialQueue;
     return false;
 }
 
+// In-App Messaging Public Methods
++ (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)clickActionBlock {
+    [OSMessagingController.sharedInstance setInAppMessageClickHandler:clickActionBlock];
+}
+
++ (void)pauseInAppMessages:(BOOL)pause {
+    [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
+}
+
++ (BOOL)isInAppMessagingPaused {
+    return [OSMessagingController.sharedInstance isInAppMessagingPaused];
+}
+
 + (void)sendPurchases:(NSArray*)purchases {
     
     // return if the user has not granted privacy permissions
@@ -1760,88 +1783,6 @@ static NSString *_lastAppActiveMessageId;
 static NSString *_lastnonActiveMessageId;
 + (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
-+ (void)displayTypeForNotificationPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion {
-    [OneSignalHelper runOnMainThread:^{
-        if (!_displayTypeMap)
-            _displayTypeMap = [NSMutableDictionary new];
-        
-        if (!_pendingDisplayTypeCallbacks)
-            _pendingDisplayTypeCallbacks = [NSMutableDictionary new];
-        
-        var type = self.inFocusDisplayType;
-        
-        // check to make sure the app is in focus and it's a OneSignal notification
-        if (![OneSignalHelper isOneSignalPayload:payload]
-            || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
-            completion(type);
-            return;
-        }
-        
-        let osPayload = [OSNotificationPayload parseWithApns:payload];
-        
-        let notificationId = osPayload.notificationID;
-        
-        // Prevent calling the delegate multiple times for the same payload
-        // Checks to see if there is a pending delegate request
-        if (_pendingDisplayTypeCallbacks[notificationId]) {
-            [_pendingDisplayTypeCallbacks[notificationId] addObject:completion];
-            // checks to see if the delegate already responded for this notification
-        } else if (_displayTypeMap[osPayload.notificationID]) {
-            type = (OSNotificationDisplayType)[_displayTypeMap[osPayload.notificationID] intValue];
-            completion(type);
-        } else if (_displayDelegate) {
-            NSMutableArray *callbacks = [NSMutableArray new];
-            [callbacks addObject:completion];
-            [_pendingDisplayTypeCallbacks setObject:callbacks forKey:notificationId];
-            
-            NSTimer *watchdogTimer = [NSTimer scheduledTimerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT
-                                                                      target:self
-                                                                    selector:@selector(watchdogTimerFired:)
-                                                                    userInfo:notificationId
-                                                                     repeats:false];
-            
-            [_displayDelegate willPresentInFocusNotificationWithPayload:osPayload withCompletion:^(OSNotificationDisplayType displayType) {
-                [OneSignalHelper runOnMainThread:^{
-                    NSMutableArray<OSNotificationDisplayTypeResponse> *callbacks = _pendingDisplayTypeCallbacks[notificationId];
-                    
-                    if (!callbacks || callbacks.count == 0)
-                        return;
-                    
-                    [watchdogTimer invalidate];
-                    [_pendingDisplayTypeCallbacks removeObjectForKey:notificationId];
-                    _displayTypeMap[notificationId] = @((int)displayType);
-                    
-                    for (OSNotificationDisplayTypeResponse callback in callbacks)
-                        callback(displayType);
-                }];
-            }];
-        } else {
-            // No delegate is set; uses the main display type set with OneSignal.setInFocusDisplayType()
-            _displayTypeMap[notificationId] = @((int)type);
-            completion(type);
-        }
-    }];
-}
-
-// If this is called, it means OSNotificationDisplayTypeDelegate did not execute the callback
-// within the max time range, and timed out. We must display the notification anyways
-// using the default display type to avoid dropping notifications.
-+ (void)watchdogTimerFired:(NSTimer *)timer {
-    NSString *notificationId = (NSString *)timer.userInfo;
-    NSMutableArray<OSNotificationDisplayTypeResponse> *callbacks = _pendingDisplayTypeCallbacks[notificationId];
-    
-    // Check just in case the app called the callback just as this timer fired
-    if (!callbacks || callbacks.count == 0)
-        return;
-    
-    [_pendingDisplayTypeCallbacks removeObjectForKey:notificationId];
-    
-    _displayTypeMap[notificationId] = @(_inFocusDisplayType);
-    
-    for (OSNotificationDisplayTypeResponse completion in callbacks)
-        completion(_inFocusDisplayType);
-}
-
 // Entry point for the following:
 //  - 1. (iOS all) - Opening notifications
 //  - 2. Notification received
@@ -1858,13 +1799,17 @@ static NSString *_lastnonActiveMessageId;
     if (![OneSignalHelper isOneSignalPayload:messageDict])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, @"notificationOpened:isActive called!");
+    onesignal_Log(ONE_S_LL_VERBOSE, @"notificationReceived:isActive called!");
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
     
+    BOOL isPreview = [[OSNotificationPayload parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
+    if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"])
+        return;
+
     if (isActive) {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastAppActiveMessageId];
@@ -1873,22 +1818,16 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        [self displayTypeForNotificationPayload:messageDict withCompletion:^(OSNotificationDisplayType displayType) {
-            let inAppAlert = (displayType == OSNotificationDisplayTypeInAppAlert);
-            
-            // Make sure it is not a silent one do display, if inAppAlerts are enabled
-            if (inAppAlert && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
-                [OneSignalAlertView showInAppAlert:messageDict];
-                return;
-            }
-            
-            // App is active and a notification was received without inApp display. Display type is none or notification
-            // Call Received Block
-            [OneSignalHelper handleNotificationReceived:displayType];
-            
-            if (opened)
-                [self openedNotificationWithDisplayType:displayType withPayload:messageDict isActive:isActive];
-        }];
+        let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
+        // Make sure it is not a silent one do display, if inAppAlerts are enabled
+        if (inAppAlert && !isPreview && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
+            [OneSignalAlertView showInAppAlert:messageDict];
+            return;
+        }
+        
+        // App is active and a notification was received without inApp display. Display type is none or notification
+        // Call Received Block
+        [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1896,21 +1835,18 @@ static NSString *_lastnonActiveMessageId;
             return;
         if (newId)
             _lastnonActiveMessageId = newId;
-        
-        if (opened)
-            [self openedNotificationWithDisplayType:OneSignal.inFocusDisplayType withPayload:messageDict isActive:isActive];
     }
-}
 
-+ (void)openedNotificationWithDisplayType:(OSNotificationDisplayType)displayType withPayload:(NSDictionary *)payload isActive:(BOOL)isActive {
-    //app was in background / not running and opened due to a tap on a notification or an action check what type
-    OSNotificationActionType type = OSNotificationActionTypeOpened;
-    
-    if (payload[@"custom"][@"a"][@"actionSelected"] || payload[@"actionSelected"])
-        type = OSNotificationActionTypeActionTaken;
-    
-    // Call Action Block
-    [OneSignal handleNotificationOpened:payload isActive:isActive actionType:type displayType:displayType];
+    if (opened) {
+        //app was in background / not running and opened due to a tap on a notification or an action check what type
+        OSNotificationActionType type = OSNotificationActionTypeOpened;
+
+        if (messageDict[@"custom"][@"a"][@"actionSelected"] || messageDict[@"actionSelected"])
+            type = OSNotificationActionTypeActionTaken;
+
+        // Call Action Block
+        [OneSignal handleNotificationOpened:messageDict isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
+    }
 }
 
 + (NSString*) checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {
@@ -1931,7 +1867,14 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:isActive:actionType:displayType:"])
         return;
-    
+
+    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
+    if ([OneSignalHelper handleIAMPreview:payload]) {
+        return;
+    }
+
+    onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
+
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     
     // Notify backend that user opened the notification
@@ -2003,7 +1946,7 @@ static NSString *_lastnonActiveMessageId;
         disableBadgeClearing = NO;
     
     if (disableBadgeClearing ||
-        ([OneSignalHelper isIOSVersionGreaterOrEqual:8] && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+        ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"] && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
@@ -2060,7 +2003,7 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
     
-    if (![OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
+    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"]) {
         NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
         [userDefaults setBool:true forKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
         [userDefaults synchronize];
@@ -2097,7 +2040,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Unable to convert APNS device token to a string"];
         return;
     }
-    
+
     waitingForApnsResponse = false;
 
     if (!app_id)
@@ -2124,11 +2067,10 @@ static NSString *_lastnonActiveMessageId;
     if (richData) {
         let osPayload = [OSNotificationPayload parseWithApns:userInfo];
         
-        if ([OneSignalHelper isIOSVersionGreaterOrEqual:10]) {
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             startedBackgroundJob = true;
             [OneSignalHelper addNotificationRequest:osPayload completionHandler:completionHandler];
-        }
-        else {
+        } else {
             let notification = [OneSignalHelper prepareUILocalNotification:osPayload];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
@@ -2414,15 +2356,78 @@ static NSString *_lastnonActiveMessageId;
     }];
 }
 
++ (NSDate *)sessionLaunchTime {
+    return sessionLaunchTime;
+}
+
++ (void)addTrigger:(NSString *)key withValue:(id)value {
+
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
+        return;
+
+    if (!key) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
+        return;
+    }
+
+    [OSMessagingController.sharedInstance addTriggers:@{key : value}];
+}
+
++ (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
+        return;
+
+    [OSMessagingController.sharedInstance addTriggers:triggers];
+}
+
++ (void)removeTriggerForKey:(NSString *)key {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
+        return;
+
+    if (!key) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
+        return;
+    }
+
+    [OSMessagingController.sharedInstance removeTriggersForKeys:@[key]];
+}
+
++ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
+        return;
+
+    [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
+}
+
++ (NSDictionary<NSString *, id> *)getTriggers {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggers"])
+        return @{};
+
+    return [OSMessagingController.sharedInstance getTriggers];
+}
+
++ (id)getTriggerValueForKey:(NSString *)key {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggerValueForKey:"])
+        return nil;
+
+    return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
+}
+
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
         return;
-    
+
     if ([self.existingExternalUserId isEqualToString:externalId])
         return;
-    
+
     if (!performedOnSessionRequest) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
@@ -2431,13 +2436,13 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external-userID while %@ is not set", self.app_id == nil ? @"app ID" : @"OneSignal user ID"]];
         return;
     }
-    
+
     let requests = [NSMutableDictionary new];
     requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
-    
+
     if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
         requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
-    
+
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
         // the success/fail callbacks always execute on the main thread
         [self successfullySentExternalUserId:externalId];
@@ -2458,14 +2463,13 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)removeExternalUserId {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
         return;
-    
+
     [self setExternalUserId:@""];
 }
-
 
 @end
 
@@ -2484,7 +2488,6 @@ static NSString *_lastnonActiveMessageId;
 //  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
 //            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
 @implementation UIApplication (OneSignal)
-#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 + (void)load {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
@@ -2494,7 +2497,7 @@ static NSString *_lastnonActiveMessageId;
     if ([[processInfo processName] isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [[processInfo processName] isEqualToString:@"IBDesignablesAgent-iOS"])
         return;
     
-    if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"7.0"))
+    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
         return;
 
     // Double loading of class detection.
@@ -2503,14 +2506,15 @@ static NSString *_lastnonActiveMessageId;
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
         return;
     }
-    
-    
+
     // Swizzle - UIApplication delegate
     injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     [self setupUNUserNotificationCenterDelegate];
+
+    sessionLaunchTime = [NSDate date];
 }
 
 /*

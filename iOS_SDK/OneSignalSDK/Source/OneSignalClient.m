@@ -137,6 +137,14 @@
         return;
     }
     
+    if (request.dataRequest) {
+        if (failureBlock) {
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to execute a data-only API request (%@) using OneSignalClient's executeRequest: method, which only accepts JSON-based API requests", NSStringFromClass(request.class)]}]);
+        }
+        
+        return;
+    }
+    
     if (![self validRequest:request]) {
         [self handleMissingAppIdError:failureBlock withRequest:request];
         return;
@@ -165,6 +173,14 @@
         return;
     }
     
+    if (request.dataRequest) {
+        if (failureBlock) {
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to execute a data-only API request (%@) using OneSignalClient's executeRequest: method, which only accepts JSON-based API requests", NSStringFromClass(request.class)]}]);
+        }
+        
+        return;
+    }
+    
     __block NSURLResponse *httpResponse;
     __block NSError *httpError;
     
@@ -182,6 +198,40 @@
     dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, REQUEST_TIMEOUT_RESOURCE * NSEC_PER_SEC));
     
     [self handleJSONNSURLResponse:httpResponse data:nil error:httpError isAsync:false withRequest:request onSuccess:successBlock onFailure:failureBlock];
+}
+
+- (void)executeDataRequest:(OneSignalRequest *)request onSuccess:(OSDataRequestSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    [self prettyPrintDebugStatementWithRequest:request];
+    
+    if (!request.dataRequest) {
+        if (failureBlock) {
+            failureBlock([NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Attempted to execute an API request (%@) using OneSignalClient's executeDataRequest: method, which only accepts data based requests", NSStringFromClass(request.class)]}]);
+        }
+        
+        return;
+    }
+    
+    var session = request.disableLocalCaching ? self.noCacheSession : self.sharedSession;
+    
+    let task = [session dataTaskWithRequest:request.urlRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSError *requestError = error;
+        int status = (int)((NSHTTPURLResponse *)response).statusCode;
+        
+        if (requestError || status >= 300) {
+            if (!requestError)
+                requestError = [NSError errorWithDomain:@"onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"Request (%@)encountered an unknown error with HTTP status code %i", NSStringFromClass([request class]), status]}];
+            
+            if (failureBlock)
+                failureBlock(requestError);
+            
+            return;
+        }
+        
+        if (successBlock)
+            successBlock(data);
+    }];
+    
+    [task resume];
 }
 
 - (void)handleMissingAppIdError:(OSFailureBlock)failureBlock withRequest:(OneSignalRequest *)request {

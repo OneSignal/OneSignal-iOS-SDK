@@ -30,6 +30,9 @@
 #import "OneSignalHelper.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessageBridgeEvent.h"
+#import "OSInAppMessagingHelpers.h"
+#import "OneSignalClientOverrider.h"
 
 @interface RequestTests : XCTestCase
 
@@ -41,6 +44,12 @@
     NSString *testEmailUserId;
     NSString *testMessageId;
     NSString *testEmailAddress;
+    NSString *testInAppMessageId;
+    NSString *testInAppMessageAppId;
+    NSString *testInAppMessageVariantId;
+
+    OSInAppMessageBridgeEvent *testBridgeEvent;
+    OSInAppMessageAction *testAction;
 }
 
 - (void)setUp {
@@ -52,6 +61,22 @@
     testEmailUserId = @"test_email_user_id";
     testEmailAddress = @"test@test.com";
     testMessageId = @"test_message_id";
+    testInAppMessageId = @"test_in_app_message_id";
+    testInAppMessageAppId = @"test_in_app_message_app_id";
+    testInAppMessageVariantId = @"test_in_app_message_variant_id";
+
+    testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
+        @"type" : @"action_taken",
+        @"body" : @{
+                @"id" : @"test_id",
+                @"url" : @"https://www.onesignal.com",
+                @"url_target" : @"browser",
+                @"close" : @false
+                }
+        }];
+
+    testAction = testBridgeEvent.userAction;
+    testAction.firstClick = true;
 }
 
 NSString *urlStringForRequest(OneSignalRequest *request) {
@@ -268,13 +293,66 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3}));
 }
 
+- (void)testInAppMessageViewed {
+    let request = [OSRequestInAppMessageViewed withAppId:testAppId withPlayerId:testUserId withMessageId:testInAppMessageId forVariantId:testInAppMessageVariantId];
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/impression", testInAppMessageId]);
+
+    XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
+       @"device_type": @0,
+       @"player_id": testUserId,
+       @"app_id": testAppId,
+       @"variant_id": testInAppMessageVariantId
+    }));
+}
+
+- (void)testInAppMessageClicked {
+    let request = [OSRequestInAppMessageClicked
+                   withAppId:testAppId
+                   withPlayerId:testUserId
+                   withMessageId:testInAppMessageId
+                   forVariantId:testInAppMessageVariantId
+                   withAction:testAction];
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/click", testInAppMessageId]);
+
+    XCTAssertEqualObjects(correctUrl, request.urlRequest.URL.absoluteString);
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
+       @"app_id": testAppId,
+       @"device_type": @0,
+       @"player_id": testUserId,
+       @"click_id": testAction.clickId ?: @"",
+       @"variant_id": testInAppMessageVariantId,
+       @"first_click": @(testAction.firstClick)
+   }));
+}
+
+- (void)testLoadMessageContent {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+
+    let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
+
+    let request = [OSRequestLoadInAppMessageContent withAppId:testInAppMessageAppId withMessageId:testInAppMessageId withVariantId:testInAppMessageVariantId];
+
+    let iamUrlPath = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html?app_id=%@",
+                      testInAppMessageId,
+                      testInAppMessageVariantId,
+                      testInAppMessageAppId
+    ];
+
+    XCTAssertEqualObjects(request.urlRequest.URL.absoluteString, correctUrlWithPath(iamUrlPath));
+    XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"GET");
+    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
+    XCTAssertFalse(request.dataRequest);
+}
+
 - (void)testSendExternalUserId {
     let request = [OSRequestUpdateExternalUserId withUserId:@"test_external" withOneSignalUserId:testUserId appId:testAppId];
-    
+
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
-    
+
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
-    
+
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : @"test_external"}));
 }
 

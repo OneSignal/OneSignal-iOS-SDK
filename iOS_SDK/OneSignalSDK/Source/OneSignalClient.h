@@ -32,6 +32,8 @@
 #ifndef OneSignalClient_h
 #define OneSignalClient_h
 
+typedef void (^OSDataRequestSuccessBlock)(NSData *data);
+
 typedef void (^OSMultipleFailureBlock)(NSDictionary<NSString *, NSError *> *errors);
 typedef void (^OSMultipleSuccessBlock)(NSDictionary<NSString *, NSDictionary *> *results);
 
@@ -39,6 +41,9 @@ typedef void (^OSMultipleSuccessBlock)(NSDictionary<NSString *, NSDictionary *> 
 + (OneSignalClient *)sharedClient;
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 - (void)executeSynchronousRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
+
+// ie. for loading HTML or other non-JSON based requests
+- (void)executeDataRequest:(OneSignalRequest *)request onSuccess:(OSDataRequestSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
 
 // Executes multiple OneSignalRequest's simultaneously, needs a unique identifier for each request
 - (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock;

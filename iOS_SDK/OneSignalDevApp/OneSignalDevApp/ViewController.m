@@ -29,14 +29,20 @@
 // This project exisits to make testing OneSignal SDK changes.
 
 #import "ViewController.h"
+#import "AppDelegate.h"
 
-#import <OneSignal/OneSignal.h>
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
-@property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
+@property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
+@property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
+@property (weak, nonatomic) IBOutlet UILabel *infoLabel;
 
 @end
 
@@ -49,14 +55,44 @@
     self.activityIndicatorView.hidden = true;
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
-    
-    self.textField.delegate = self;
-    self.externalIdTextField.delegate = self;
+
+    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal isInAppMessagingPaused];
+
+    self.appIdTextField.text = [AppDelegate getOneSignalAppId];
+
+    self.infoLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    self.infoLabel.numberOfLines = 0;
 }
 
 - (void)changeAnimationState:(BOOL)animating {
     animating ? [self.activityIndicatorView startAnimating] : [self.activityIndicatorView stopAnimating];
     self.activityIndicatorView.hidden = !animating;
+}
+
+- (IBAction)addTriggerAction:(id)sender {
+    NSString *key = [self.addTriggerKey text];
+    NSString *value = [self.addTriggerValue text];
+
+    if (key && value && [key length] && [value length]) {
+        [OneSignal addTrigger:key withValue:value];
+    }
+}
+
+- (IBAction)removeTriggerAction:(id)sender {
+    NSString *key = [self.removeTriggerKey text];
+
+    if (key && [key length]) {
+        [OneSignal removeTriggerForKey:key];
+    }
+}
+
+- (IBAction)getTriggersAction:(id)sender {
+    NSString *key = [self.getTriggerKey text];
+
+    if (key && [key length]) {
+        id value = [OneSignal getTriggerValueForKey:key];
+        self.infoLabel.text = [NSString stringWithFormat:@"Key: %@ Value: %@", key, value];
+    }
 }
 
 - (IBAction)sendTagButton:(id)sender {
@@ -67,9 +103,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationsWithUserResponse: %d", accepted);
     }];
-    
-    
-    
+
     [OneSignal sendTag:@"key1"
                  value:@"value1"
              onSuccess:^(NSDictionary *result) {
@@ -87,31 +121,9 @@
     
 }
 
-- (IBAction)setEmailButtonPressed:(UIButton *)sender
-{
-    [self changeAnimationState:true];
-    [OneSignal setEmail:self.textField.text withEmailAuthHashToken:@"aa3e3201f8f8bfd2fcbe8a899c161b7acb5a86545196c5465bef47fd757ca356" withSuccess:^{
-        NSLog(@"Successfully sent email");
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self changeAnimationState:false];
-        });
-    } withFailure:^(NSError *error) {
-        NSLog(@"Encountered error: %@", error);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self changeAnimationState:false];
-        });
-    }];
+- (IBAction)setEmailButtonPressed:(UIButton *)sender {
+    [AppDelegate setOneSignalAppId:self.appIdTextField.text];
 }
-
-- (IBAction)logoutButtonPressed:(UIButton *)sender
-{
-    [OneSignal logoutEmailWithSuccess:^{
-        NSLog(@"Successfully logged out of email");
-    } withFailure:^(NSError *error) {
-        NSLog(@"Encountered error while logging out of email: %@", error);
-    }];
-}
-
 
 - (void)promptForNotificationsWithNativeiOS10Code {
     id responseBlock = ^(BOOL granted, NSError* error) {
@@ -133,8 +145,13 @@
     [OneSignal consentGranted:(bool)sender.selectedSegmentIndex];
 }
 
-- (IBAction)setExternalIdButtonPressed:(UIButton *)sender {
-    [OneSignal setExternalUserId:self.externalIdTextField.text];
+- (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
+    NSLog(@"View controller in app messaging paused: %i", (int)sender.selectedSegmentIndex);
+    [OneSignal pauseInAppMessages:(bool)sender.selectedSegmentIndex];
+}
+
+-(void)handleMessageAction:(NSString *)actionId {
+    NSLog(@"View controller did get action: %@", actionId);
 }
 
 - (IBAction)removeExternalIdButtonPressed:(UIButton *)sender {

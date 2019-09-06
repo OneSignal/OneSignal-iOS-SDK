@@ -29,9 +29,9 @@
 // This project exisits to make testing OneSignal SDK changes.
 
 #import <UIKit/UIKit.h>
+#import <OneSignal/OneSignal.h>
 
-@interface ViewController : UIViewController <UITextFieldDelegate>
-
+@interface ViewController : UIViewController <OSInAppMessageDelegate>
 
 @end
 
