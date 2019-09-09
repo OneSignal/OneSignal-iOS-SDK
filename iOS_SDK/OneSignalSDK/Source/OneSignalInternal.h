@@ -56,6 +56,8 @@
 + (void)setWaitingForApnsResponse:(BOOL)value;
 + (BOOL)shouldPromptToShowURL;
 
++ (NSDate *)sessionLaunchTime;
+
 @property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
 
 @property (class) OSPermissionState* currentPermissionState;

@@ -34,7 +34,7 @@
 @property(nonatomic)WKWebView *webView;
 @property(nonatomic)UIActivityIndicatorView *uiBusy;
 
--(void)dismiss:(id)sender;
--(void)showInApp;
+- (void)dismiss:(id)sender;
+- (void)showInApp;
 
 @end
