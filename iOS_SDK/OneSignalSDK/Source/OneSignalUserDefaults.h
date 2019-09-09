@@ -61,3 +61,16 @@
 - (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;
 
 @end
+
+@interface OneSignalSharedUserDefaults : NSObject
+
++ (NSUserDefaults*)getSharedUserDefault;
++ (BOOL)keyExists:(NSString *)key;
+
++ (void)saveString:(NSString *)value withKey:(NSString *)key;
++ (NSString *)getSavedString:(NSString *)key defaultValue:(NSString *)value;
+
++ (void)saveBool:(BOOL)boolean withKey:(NSString *)key;
++ (BOOL)getSavedBool:(NSString *)key defaultValue:(BOOL)boolean;
+
+@end

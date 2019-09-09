@@ -27,7 +27,7 @@
 
 #import "OSSubscription.h"
 #import "OneSignalCommonDefines.h"
-
+#import "OneSignalUserDefaults.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -44,9 +44,9 @@
     _accpeted = permission;
     
     NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    _userId = [userDefaults stringForKey:USERID];
     _pushToken = [userDefaults stringForKey:DEVICE_TOKEN];
     _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION] == nil;
+    _userId = [OneSignalSharedUserDefaults getSavedString:USERID_LAST defaultValue:nil];
     
     return self;
 }
@@ -59,12 +59,12 @@
 }
 
 - (instancetype)initAsFrom {
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
-    _userId = [userDefaults stringForKey:USERID_LAST];
     _pushToken = [userDefaults stringForKey:PUSH_TOKEN];
     _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION_SETTING] == nil;
     _accpeted = [userDefaults boolForKey:ACCEPTED_PERMISSION];
+    _userId = [OneSignalSharedUserDefaults getSavedString:USERID_LAST defaultValue:nil];
     
     return self;
 }
@@ -77,9 +77,10 @@
         strUserSubscriptionSetting = @"no";
     
     [userDefaults setObject:strUserSubscriptionSetting forKey:SUBSCRIPTION_SETTING];
-    [userDefaults setObject:_userId forKey:USERID_LAST];
     [userDefaults setObject:_pushToken forKey:PUSH_TOKEN];
     [userDefaults setBool:_accpeted forKey:ACCEPTED_PERMISSION];
+    
+    [OneSignalSharedUserDefaults saveString:_userId withKey:USERID_LAST];
     
     [userDefaults synchronize];
 }
@@ -96,7 +97,6 @@
     
     return copy;
 }
-
 
 - (void)onChanged:(OSPermissionState*)state {
     [self setAccepted:state.accepted];

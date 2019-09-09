@@ -42,6 +42,7 @@
 #import "OneSignalNotificationCategoryController.h"
 #import "OSOutcomesUtils.h"
 #import <sys/utsname.h>
+#import "OSReceiveReceiptController.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -52,6 +53,10 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+@interface OneSignal ()
++ (NSString*)mUserId;
+@end
 
 @interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;
@@ -411,12 +416,14 @@ OSHandleNotificationActionBlock handleNotificationAction;
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
                      message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
-    
+
+    [[[OSReceiveReceiptController alloc] init] sendReceiveReceiptWithPlayerId:[OneSignal mUserId] notificationId:lastMessageID appId:OneSignal.app_id];
+
     if (handleNotificationReceived)
-        handleNotificationReceived(notification);
+       handleNotificationReceived(notification);
 }
 
 static NSString *_lastMessageIdFromAction;
@@ -445,7 +452,7 @@ static NSString *_lastMessageIdFromAction;
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
     NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
-        
+
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
         OSInAppMessage *message = [OSInAppMessage instancePreviewFromPayload:payload];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
@@ -487,7 +494,7 @@ static NSString *_lastMessageIdFromAction;
 // If a macOS Catalyst app, return "Mac"
 + (NSString*)getDeviceVariant {
     let systemInfoMachine = [self getSystemInfoMachine];
-    
+
     // x86_64 could mean an iOS Simulator or Catalyst app on macOS
     if ([systemInfoMachine isEqualToString:@"x86_64"]) {
         let systemName = UIDevice.currentDevice.systemName;
@@ -498,7 +505,7 @@ static NSString *_lastMessageIdFromAction;
             return @"Mac";
         }
     }
-    
+
     return systemInfoMachine;
 }
 

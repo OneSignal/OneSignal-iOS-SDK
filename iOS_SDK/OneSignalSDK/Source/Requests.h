@@ -153,5 +153,9 @@ NS_ASSUME_NONNULL_END
                                       deviceType:(NSNumber * _Nonnull)deviceType;
 @end
 
+@interface OSRequestReceiveReceipts : OneSignalRequest
++ (instancetype _Nonnull)withPlayerId:(NSString * _Nullable)playerId notificationId:(NSString * _Nonnull)notificationId appId:(NSString * _Nonnull)appId;
+@end
+
 #endif /* Requests_h */
 

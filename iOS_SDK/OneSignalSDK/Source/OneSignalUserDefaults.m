@@ -144,3 +144,49 @@
 }
 
 @end
+
+@implementation OneSignalSharedUserDefaults : NSObject
+
++ (NSUserDefaults*)getSharedUserDefault {
+    return [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+}
+
++ (BOOL)keyExists:(NSString *)key {
+    return [[OneSignalSharedUserDefaults getSharedUserDefault] objectForKey:key] != nil;
+}
+
++ (void)saveString:(NSString *)value withKey:(NSString *)key {
+    NSUserDefaults *userDefaultsShared = [OneSignalSharedUserDefaults getSharedUserDefault];
+    [userDefaultsShared setObject:value forKey:key];
+    [userDefaultsShared synchronize];
+}
+
++ (NSString *)getSavedString:(NSString *)key defaultValue:(NSString *)value {
+    // If the key exists in NSUserDefaults return the set
+    if ([OneSignalSharedUserDefaults keyExists:key])
+        return [[OneSignalSharedUserDefaults getSharedUserDefault] objectForKey:key];
+    
+    // Return default boolean passed in if no boolean for key exists
+    return value;
+}
+
++ (void)saveBool:(BOOL)boolean withKey:(NSString *)key {
+    NSUserDefaults *userDefaultsShared = [OneSignalSharedUserDefaults getSharedUserDefault];
+    [userDefaultsShared setBool:boolean forKey:key];
+    [userDefaultsShared synchronize];
+}
+
++ (BOOL)getSavedBool:(NSString *)key defaultValue:(BOOL)boolean {
+    // If the key exists in NSUserDefaults return the set
+    if ([OneSignalSharedUserDefaults keyExists:key])
+        return (BOOL) [[OneSignalSharedUserDefaults getSharedUserDefault] boolForKey:key];
+    
+    // Return default boolean passed in if no boolean for key exists
+    return boolean;
+}
+
++ (NSString *)appGroupKey {
+    return [OneSignalExtensionBadgeHandler appGroupName];
+}
+
+@end

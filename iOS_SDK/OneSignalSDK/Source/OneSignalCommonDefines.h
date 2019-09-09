@@ -70,6 +70,7 @@
 #define CACHED_RECEIVED_NOTIFICATION_IDS @"CACHED_RECEIVED_NOTIFICATION_IDS"
 #define CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT @"CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"
 #define CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT @"CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT"
+#define APP_ID @"GT_APP_ID"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
@@ -84,6 +85,7 @@
 // iOS Parameter Names
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
+#define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
@@ -123,6 +125,9 @@ typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 // OneSignal Focus Types
 typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOT_ATTRIBUTED"] objectAtIndex:enum]
+
+// Receive receipts
+#define ONESIGNAL_ENABLE_RECEIVE_RECEIPTS @"OS_ENABLE_RECEIVE_RECEIPTS"
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;

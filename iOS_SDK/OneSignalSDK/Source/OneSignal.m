@@ -460,7 +460,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     [OneSignalCacheCleaner cleanCachedUserData];
     _sessionManager = [[OneSignalSessionManager alloc] init:self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
-    
+
     // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
@@ -476,7 +476,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     let userDefaults = [NSUserDefaults standardUserDefaults];
     
     let success = [self initAppId:appId
-                 withUserDefaults:userDefaults
+                 withUserDefaults:[[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]]
                         withSettings:settings];
     if (!success)
         return self;
@@ -524,7 +524,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             [self checkProvisionalAuthorizationStatus];
             [self registerForAPNsToken];
         }
-        
+
         /* Check if in-app setting passed assigned
          *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
          *  Priority for kOSSettingsKeyInFocusDisplayOption.
@@ -589,6 +589,10 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     return self;
 }
 
++ (NSString *)appGroupKey {
+    return [OneSignalExtensionBadgeHandler appGroupName];
+}
+
 +(bool)initAppId:(NSString*)appId withUserDefaults:(NSUserDefaults*)userDefaults withSettings:(NSDictionary*)settings {
     if (appId)
         app_id = appId;
@@ -598,18 +602,17 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         if (app_id == nil)
             app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
     }
-    
+
     if (!app_id) {
-        app_id  = [userDefaults stringForKey:@"GT_APP_ID"];
+        app_id  = [userDefaults stringForKey:APP_ID];
         if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
             onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
         else
             return true;
-    }
-    else if (![app_id isEqualToString:[userDefaults stringForKey:@"GT_APP_ID"]]) {
+    } else if (![app_id isEqualToString:[userDefaults stringForKey:APP_ID]]) {
         // Handle changes to the app id. This might happen on a developer's device when testing
         // Will also run the first time OneSignal is initialized
-        [userDefaults setObject:app_id forKey:@"GT_APP_ID"];
+        [userDefaults setObject:app_id forKey:APP_ID];
         [userDefaults setObject:nil forKey:USERID];
         [userDefaults synchronize];
     }
@@ -735,7 +738,10 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             
             [self checkProvisionalAuthorizationStatus];
         }
-        
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] && result[IOS_RECEIVE_RECEIPTS_ENABLE] != [NSNull null] && [result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]) {
+            [OneSignalSharedUserDefaults saveBool:YES withKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS];
+        }
+
         [OSOutcomesUtils saveOutcomeParamsForApp:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
@@ -1372,7 +1378,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     let isPushTokenDifferent = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken];
     self.currentSubscriptionState.pushToken = deviceToken;
-    
+
     // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
     // The goal is to only have 1 server call.
     [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
@@ -1389,7 +1395,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)playerPutForPushTokenAndNotificationTypes {
       onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal PUT to updated pushToken and/or notificationTypes!");
-      
+
       let request = [OSRequestUpdateDeviceToken
           withUserId:self.currentSubscriptionState.userId
           appId:self.app_id
@@ -1432,20 +1438,20 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
     
     if ([self isImmediatePlayerCreateOrOnSession])
         return true;
-    
+
     if (isOnSessionSuccessfulForCurrentState)
         return false;
     
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDouble:USER_LAST_CLOSED_TIME defaultValue:0];
-    
+
     if (lastTimeClosed == 0) {
         onesignal_Log(ONE_S_LL_DEBUG, @"shouldRegisterNow: lastTimeClosed: default.");
         return true;
     }
-    
+
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"shouldRegisterNow: lastTimeClosed: %f", lastTimeClosed]);
-    
+
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
@@ -1504,7 +1510,7 @@ static dispatch_queue_t serialQueue;
     
     let infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString* build = infoDictionary[(NSString*)kCFBundleVersionKey];
-    
+
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    app_id, @"app_id",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
@@ -1538,7 +1544,7 @@ static dispatch_queue_t serialQueue;
         dataDic[@"sdk_type"] = mSDKType;
         dataDic[@"ios_bundle"] = [[NSBundle mainBundle] bundleIdentifier];
     }
-    
+
     let preferredLanguages = [NSLocale preferredLanguages];
     if (preferredLanguages && preferredLanguages.count > 0)
         dataDic[@"language"] = [preferredLanguages objectAtIndex:0];
@@ -1611,7 +1617,7 @@ static dispatch_queue_t serialQueue;
         isOnSessionSuccessfulForCurrentState = true;
 
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
-        
+
         //update email player ID
         if (results[@"email"] && results[@"email"][@"id"]) {
             
@@ -1646,7 +1652,7 @@ static dispatch_queue_t serialQueue;
                         callbackSet.successBlock(dataDic[@"tags"]);
                 }
             }
-            
+
             if (tagsToSend)
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             
@@ -1899,7 +1905,7 @@ static NSString *_lastnonActiveMessageId;
     
     onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! foreground: %@ notificationId: %@ displayType: %lu",
                                      foreground ? @"YES" : @"NO", messageId, (unsigned long)displayType]);
-    
+
     // Try to fetch the open url to launch
     [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
     
@@ -2502,7 +2508,7 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcome:onSuccess:"])
         return;
-    
+
     if (!_outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
@@ -2510,7 +2516,7 @@ static NSString *_lastnonActiveMessageId;
 
     if (![self isValidOutcomeEntry:name])
         return;
-    
+
     [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
@@ -2522,7 +2528,7 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendUniqueOutcome:onSuccess:"])
         return;
-    
+
     if (!_outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
@@ -2542,7 +2548,7 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:"])
         return;
-    
+
     if (!_outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;

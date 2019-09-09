@@ -31,6 +31,8 @@
 #import "OSOutcomesUtils.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OSSubscription.h"
+#import "OSReceiveReceiptController.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
@@ -40,13 +42,17 @@
         replacementContent = [request.content mutableCopy];
     
     let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
-    
+
     //handle badge count
     [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotificationPayload:payload withMutableNotificationContent:replacementContent];
     
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
+    // Track Receive Receipt
+    let controller = [[OSReceiveReceiptController alloc] init];
+    [controller sendReceiveReceiptCachedWithNotification:payload.notificationID];
+
     [OSOutcomesUtils saveReceivedNotificationFromBackground:payload.notificationID];
 
     // Action Buttons
