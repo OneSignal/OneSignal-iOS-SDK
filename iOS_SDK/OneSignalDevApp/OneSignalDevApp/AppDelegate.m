@@ -42,7 +42,7 @@
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_ERROR];
     
     OneSignal.inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
     
@@ -98,7 +98,7 @@
 + (NSString*)getOneSignalAppId {
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
     if (!onesignalAppId)
-        onesignalAppId = @"77e32082-ea27-42e3-a898-c72e141824ef";
+        onesignalAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
 
     return onesignalAppId;
 }
