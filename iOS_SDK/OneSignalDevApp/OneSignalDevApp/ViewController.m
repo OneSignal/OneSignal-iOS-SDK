@@ -43,6 +43,12 @@
 @property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
 @property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
+@property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeName;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
+@property (weak, nonatomic) IBOutlet UITextView *result;
 
 @end
 
@@ -165,13 +171,50 @@
 }
 
 - (IBAction)sendTestOutcomeEvent:(UIButton *)sender {
-    [OneSignal outcome:@"test" onSuccess:^(NSDictionary *result) {
-         NSLog(@"sendTestOutcomeEvent success");
+    [OneSignal outcome:[_outcomeName text] onSuccess:^(NSDictionary *result) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _result.text = [NSString stringWithFormat:@"sendTestOutcomeEvent success %@", result];
+            [self.view endEditing:YES];
+        });
     } onFailure:^(NSError *error) {
-        NSLog(@"sendTestOutcomeEvent failure");
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _result.text = [NSString stringWithFormat:@"sendTestOutcomeEvent fail %@", error];
+            [self.view endEditing:YES];
+        });
     }];
-    
-    [OneSignal outcome:@"TestWithValue" value:@1.1];
+}
+- (IBAction)sendValueOutcomeEvent:(id)sender {
+    if ([_outcomeValue text]) {
+        NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+        formatter.numberStyle = NSNumberFormatterDecimalStyle;
+        NSNumber *value = [formatter numberFromString:[_outcomeValue text]];
+        
+        [OneSignal outcome:[_outcomeValueName text] value:value onSuccess:^(NSDictionary *result) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                _result.text = [NSString stringWithFormat:@"sendValueOutcomeEvent success %@", result];
+                [self.view endEditing:YES];
+            });
+        } onFailure:^(NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                _result.text = [NSString stringWithFormat:@"sendValueOutcomeEvent fail %@", error];
+                [self.view endEditing:YES];
+            });
+        }];
+    }
+}
+
+- (IBAction)sendUniqueOutcomeEvent:(id)sender {
+    [OneSignal uniqueOutcome:[_outcomeUniqueName text] onSuccess:^(NSDictionary *result) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _result.text = [NSString stringWithFormat:@"sendUniqueOutcomeEvent success %@", result];
+            [self.view endEditing:YES];
+        });
+    } onFailure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _result.text = [NSString stringWithFormat:@"sendUniqueOutcomeEvent fail %@", error];
+            [self.view endEditing:YES];
+        });
+    }];
 }
 
 @end

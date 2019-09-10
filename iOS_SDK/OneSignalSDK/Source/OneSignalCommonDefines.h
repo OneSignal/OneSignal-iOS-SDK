@@ -30,7 +30,7 @@
 
 // networking
 #define API_VERSION @"api/v1/"
-#define SERVER_URL @"https://onesignal.com/"
+#define SERVER_URL @"https://staging-01.onesignal.com/"
 
 // NSUserDefaults parameter names
 #define EMAIL_AUTH_CODE @"GT_EMAIL_AUTH_CODE"
