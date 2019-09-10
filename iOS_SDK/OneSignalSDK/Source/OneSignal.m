@@ -2510,6 +2510,10 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
+    if (name == nil || [name length] == 0) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
+        return;
+    }
 
     [outcomeController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
 }
@@ -2526,6 +2530,10 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
+    if (name == nil || [name length] == 0) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
+        return;
+    }
     
     [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
 }
@@ -2540,6 +2548,10 @@ static NSString *_lastnonActiveMessageId;
         return;
     if (outcomeController == nil) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+        return;
+    }
+    if (name == nil || [name length] == 0) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
         return;
     }
     if (value == nil) {
