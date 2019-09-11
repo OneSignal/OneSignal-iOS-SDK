@@ -2500,8 +2500,9 @@ static NSString *_lastnonActiveMessageId;
 	if ([[processInfo processName] isEqualToString:@"xctest"])
 		return;
 
-    if (SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"8.0"))
-        return;
+	if ([OneSignalHelper isIOSVersionLessThan:@"8.0"]) {
+		return;
+	}
 
     // Double loading of class detection.
     BOOL existing = injectSelector([OneSignalAppDelegate class], @selector(oneSignalLoadedTagSelector:), self, @selector(oneSignalLoadedTagSelector:));
