@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalRequest.h"
 #import "OneSignalLocation.h"
+#import "OSInAppMessageAction.h"
 
 #ifndef OneSignalRequests_h
 #define OneSignalRequests_h
@@ -92,6 +93,26 @@ NS_ASSUME_NONNULL_END
 @interface OSRequestOnFocus : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId badgeCount:(NSNumber * _Nonnull)badgeCount emailAuthToken:(NSString * _Nullable)emailAuthHash;
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId state:(NSString * _Nonnull)state type:(NSNumber * _Nonnull)type activeTime:(NSNumber * _Nonnull)activeTime netType:(NSNumber * _Nonnull)netType emailAuthToken:(NSString * _Nullable)emailAuthHash;
+@end
+
+@interface OSRequestInAppMessageViewed : OneSignalRequest
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId;
+@end
+
+@interface OSRequestInAppMessageClicked : OneSignalRequest
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                      forVariantId:(NSString * _Nonnull)variantId
+                     withAction:(OSInAppMessageAction * _Nonnull)action;
+@end
+
+@interface OSRequestLoadInAppMessageContent : OneSignalRequest
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
+@end
+
+@interface OSRequestLoadInAppMessagePreviewContent : OneSignalRequest
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId previewUUID:(NSString * _Nonnull)previewUUID;
 @end
 
 @interface OSRequestUpdateExternalUserId : OneSignalRequest

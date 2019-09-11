@@ -31,7 +31,9 @@
 #import "OneSignalHelper.h"
 
 @interface OneSignal ()
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
+
++ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
+
 @end
 
 @implementation OneSignalWebView
@@ -39,11 +41,11 @@
 UINavigationController *navController;
 UIViewController *viewControllerForPresentation;
 
--(void)viewDidLoad {
+- (void)viewDidLoad {
     [super viewDidLoad];
     
-    _webView = [UIWebView new];
-    _webView.delegate = self;
+    _webView = [WKWebView new];
+    _webView.navigationDelegate = self;
     [self.view addSubview:_webView];
     
     [self pinSubviewToMarginsWithSubview:_webView withSuperview:self.view];
@@ -57,37 +59,38 @@ UIViewController *viewControllerForPresentation;
 }
 
 
--(void)viewDidAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if (_url)
         [_webView loadRequest:[NSURLRequest requestWithURL:_url]];
 }
 
-
--(void)dismiss:(id)sender {
+- (void)dismiss:(id)sender {
     [self.navigationController dismissViewControllerAnimated:true completion:^{
-        //clear web view
+        // Clear web view
         [_webView loadHTMLString:@"" baseURL:nil];
         if (viewControllerForPresentation)
             [viewControllerForPresentation.view removeFromSuperview];
     }];
 }
 
--(void)webViewDidStartLoad:(UIWebView *)webView {
+-(void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
     [_uiBusy startAnimating];
 }
 
--(void)webViewDidFinishLoad:(UIWebView *)webView {
-    self.title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-    self.navigationController.title = self.title;
-    [_uiBusy stopAnimating];
+-(void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    [_webView evaluateJavaScript:@"document.title" completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+        self.title = result;
+        self.navigationController.title = self.title;
+        [_uiBusy stopAnimating];
+    }];
 }
 
--(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+-(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
 }
 
--(void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
+- (void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
     subview.translatesAutoresizingMaskIntoConstraints = false;
     
     let attributes = @[@(NSLayoutAttributeTop), @(NSLayoutAttributeBottom), @(NSLayoutAttributeLeading), @(NSLayoutAttributeTrailing)];
@@ -100,8 +103,8 @@ UIViewController *viewControllerForPresentation;
     [superview layoutIfNeeded];
 }
 
--(void)showInApp {
-    // if already presented, no need to present again
+- (void)showInApp {
+    // If already presented, no need to present again
     if (!navController) {
         navController = [[UINavigationController alloc] initWithRootViewController:self];
         navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;

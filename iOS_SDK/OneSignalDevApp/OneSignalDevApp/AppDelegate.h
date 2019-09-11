@@ -35,6 +35,8 @@
 
 @property (strong, nonatomic) UIWindow *window;
 
++ (NSString*)getOneSignalAppId;
++ (void) setOneSignalAppId:(NSString*)onesignalAppId;
 
 @end
 

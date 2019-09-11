@@ -37,9 +37,6 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OneSignalCommonDefines.h"
 
-
-#if XC8_AVAILABLE
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -175,18 +172,23 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
+    NSDictionary * userInfo =notification.request.content.userInfo;
+    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:userInfo];
+    NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
+
     NSUInteger completionHandlerOptions = 0;
-    switch (OneSignal.inFocusDisplayType) {
-        case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
-        case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
-        case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
-        default: break;
+    if (!uuid) {
+        switch (OneSignal.inFocusDisplayType) {
+            case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
+            case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
+            case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
+            default: break;
+        }
     }
-    
     let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
     
     if ([OneSignal app_id])
-        [OneSignal notificationReceived:notification.request.content.userInfo isActive:YES wasOpened:notShown];
+        [OneSignal notificationReceived:userInfo isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
     if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
@@ -335,5 +337,3 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
-
-#endif

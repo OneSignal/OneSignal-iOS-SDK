@@ -31,11 +31,25 @@
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 
+#define HTTP_HEADER_KEY_OS_VERSION @"SDK-Version"
+#define HTTP_HEADER_PREFIX_OS_VERSION @"onesignal/ios/"
+
 @implementation OneSignalRequest
+
 - (id)init {
     if (self = [super init]) {
+        
         self.reattemptCount = 0;
+        
+        // sets default values that are true for most requests
+        // the following parameters can be overridden by subclasses
         self.disableLocalCaching = false;
+        
+        // Most requests in our SDK are API requests that return JSON
+        // However some requests want to load non-JSON data like HTML
+        // In those cases, `dataRequest` should be true
+        self.dataRequest = false;
+        self.requestContentType = @"application/json";
     }
     
     return self;
@@ -47,8 +61,15 @@
     
     let request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    if (!self.dataRequest)
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    
+    // usually just application/json
+    [request setValue:self.requestContentType forHTTPHeaderField:@"Accept"];
+    
+    let versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, ONESIGNAL_VERSION];
+    [request setValue:versionString forHTTPHeaderField:HTTP_HEADER_KEY_OS_VERSION];
+    
     [request setHTTPMethod:httpMethodString(self.method)];
     
     switch (self.method) {

@@ -320,16 +320,92 @@
 }
 @end
 
-@implementation OSRequestUpdateExternalUserId
+@implementation OSRequestInAppMessageViewed
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                      forVariantId:(NSString *)variantId {
+    let request = [OSRequestInAppMessageViewed new];
 
+    request.parameters = @{
+       @"device_type": @0,
+       @"player_id": playerId,
+       @"app_id": appId,
+       @"variant_id": variantId
+    };
+
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/impression", messageId];
+
+    return request;
+}
+@end
+
+@implementation OSRequestInAppMessageClicked
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                      forVariantId:(NSString * _Nonnull)variantId
+                     withAction:(OSInAppMessageAction * _Nonnull)action {
+    let request = [OSRequestInAppMessageClicked new];
+
+    request.parameters = @{
+       @"app_id": appId,
+       @"device_type": @0,
+       @"player_id": playerId,
+       @"click_id": action.clickId ?: @"",
+       @"variant_id": variantId,
+       @"first_click": @(action.firstClick)
+    };
+
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/click", messageId];
+
+    return request;
+}
+@end
+
+@implementation OSRequestLoadInAppMessageContent
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                     withMessageId:(NSString * _Nonnull)messageId
+                     withVariantId:(NSString * _Nonnull)variantId {
+    let request = [OSRequestLoadInAppMessageContent new];
+
+    request.method = GET;
+    request.parameters = @{@"app_id": appId};
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html", messageId, variantId];
+
+    return request;
+}
+@end
+
+@implementation OSRequestLoadInAppMessagePreviewContent
+
++ (instancetype)withAppId:(NSString *)appId previewUUID:(NSString *)previewUUID {
+    let request = [OSRequestLoadInAppMessagePreviewContent new];
+
+    request.method = GET;
+    request.parameters = @{
+      @"preview_id": previewUUID,
+      @"app_id": appId
+    };
+
+    request.path = @"in_app_messages/device_preview";
+
+    return request;
+}
+@end
+
+@implementation OSRequestUpdateExternalUserId
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withOneSignalUserId:(NSString *)userId appId:(NSString *)appId {
+    NSString *msg = [NSString stringWithFormat:@"App ID: %@, external ID: %@", appId, externalId];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:msg];
+
     let request = [OSRequestUpdateExternalUserId new];
-    NSLog(@"App ID: %@, external ID: %@", appId, externalId);
     request.parameters = @{@"app_id" : appId, @"external_user_id" : externalId ?: @""};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
-    
+
     return request;
 }
-
 @end

@@ -86,6 +86,9 @@
 #define ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED @"OS_LAST_RECIEVED_GAF_CAMPAIGN"
 #define ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED @"OS_LAST_RECIEVED_NOTIFICATION_ID"
 
+// APNS params
+#define ONESIGNAL_IAM_PREVIEW @"os_in_app_message_preview_id"
+
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
 // OneSignal API Client Defines
@@ -130,6 +133,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 128
+
+    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
+    // the callback to set the display type for a given notification
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -142,9 +149,18 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 5
+
+    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
+    // the callback to set the display type for a given notification
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
 #endif
 
 // A max timeout for a request, which might include multiple reattempts
 #define MAX_TIMEOUT ((REQUEST_TIMEOUT_REQUEST * MAX_ATTEMPT_COUNT) + (REATTEMPT_DELAY * MAX_ATTEMPT_COUNT)) * NSEC_PER_SEC
+
+// To save battery, NSTimer is not exceedingly accurate so timestamp values may be a bit inaccurate
+// To make up for this, we can check to make sure the values are close enough to account for
+// variance and floating-point error.
+#define OS_ROUGHLY_EQUAL(left, right) (fabs(left - right) < 0.03)
 
 #endif /* OneSignalCommonDefines_h */

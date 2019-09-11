@@ -171,8 +171,9 @@ static OneSignalLocation* singleInstance = nil;
     // Check for location in plist
     if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)])
         return;
-    
-    if ([clLocationManagerClass performSelector:@selector(authorizationStatus)] == 0 && !prompt)
+    int permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    // return if permission not determined and should not prompt
+    if (permissionStatus == 0 && !prompt)
         return;
     
     locationManager = [[clLocationManagerClass alloc] init];
@@ -186,15 +187,17 @@ static OneSignalLocation* singleInstance = nil;
         //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
         NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
-        if(backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription) {
+        // use background location updates if always permission granted or prompt allowed
+        if(backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == 3 || prompt)) {
             [locationManager performSelector:@selector(requestAlwaysAuthorization)];
             if (deviceOSVersion >= 9.0) {
                 [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
             }
         }
         
-        else if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"])
-            [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+        else if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+            if (permissionStatus == 0) [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+        }
         
         else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
     }
