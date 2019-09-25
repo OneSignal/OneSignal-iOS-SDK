@@ -121,14 +121,14 @@
 }
 
 - (void)applicationIsActive:(NSNotification *)notification {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Active"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Active"];
 
     // Animate the showing of the IAM when opening the app from background
     [self animateAppearance];
 }
 
 - (void)applicationIsInBackground:(NSNotification *)notification {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Entered Background"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Entered Background"];
     
     // Get current orientation of the device
     UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
@@ -152,7 +152,10 @@
  Wait until the actual HTML content is loaded before animating appearance
  */
 - (void)setupInitialMessageUI {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"In App Message Setup"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message"];
+    
+    // Remove all of the constraints connected to the messageView
+    [self.messageView removeConstraints:[self.messageView constraints]];
     
     self.messageView.delegate = self;
     
@@ -172,7 +175,7 @@
 }
 
 - (void)displayMessage {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Displaying In App Message"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Displaying In App Message"];
     
     // Sets up the message view in a hidden position while we wait
     [self setupInitialMessageUI];
@@ -211,7 +214,7 @@
         }
         
         let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"hmtl"]];
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
         
         let baseUrl = [NSURL URLWithString:SERVER_URL];
         NSString* htmlContent = data[@"html"];
@@ -244,6 +247,8 @@
  Once the HTML content is loaded, we call animateAppearance() to show the message view
  */
 - (void)addConstraintsForMessage {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message Constraints"];
+    
     // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
     NSLayoutAnchor *top = self.view.topAnchor,
                    *bottom = self.view.bottomAnchor,
@@ -269,13 +274,13 @@
     CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
     
     let screenHeight = [NSString stringWithFormat:@"Screen Bounds Height: %f", mainBounds.size.height];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:screenHeight];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:screenHeight];
     let screenWidth = [NSString stringWithFormat:@"Screen Bounds Width: %f", mainBounds.size.width];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:screenWidth];
-    let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:heightMessage];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:screenWidth];
     let screenScale = [NSString stringWithFormat:@"Screen Bounds Scale: %f", UIScreen.mainScreen.scale];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:screenScale];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:screenScale];
+    let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:heightMessage];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
@@ -589,9 +594,9 @@
     let event = [OSInAppMessageBridgeEvent instanceWithData:body];
     
     NSString *eventMessage = [NSString stringWithFormat:@"Action Occured with Event: %@", event];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:eventMessage];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventMessage];
     NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occured with Event Type: %lu", (unsigned long)event.type];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:eventTypeMessage];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventTypeMessage];
     
     if (event) {
         if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
@@ -630,7 +635,7 @@
     /*
      Code here will execute before the orientation change begins
      */
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Screen Orientation Change Detected"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Screen Orientation Change Detected"];
     
     UIApplicationState appState = UIApplication.sharedApplication.applicationState;
 
@@ -641,7 +646,7 @@
     if (currentOrientation == OrientationInvalid &&
         (appState == UIApplicationStateInactive || appState == UIApplicationStateBackground)) {
         
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Ended: Orientation same as previous or invalid orientation"];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Ended: Orientation same as previous or invalid orientation"];
         
         self.previousOrientation = currentOrientation;
         
@@ -650,7 +655,7 @@
     
     self.previousOrientation = currentOrientation;
 
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Started: Hiding IAM"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Started: Hiding IAM"];
 
     // Deactivate the pan constraint while changing the screen orientation
     self.panVerticalConstraint.active = false;
@@ -662,7 +667,7 @@
         /*
          Code here will execute during the rotation
          */
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Occurring: Removing all previous IAM constraints"];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Occurring: Removing all previous IAM constraints"];
         
         // Remove all of the constraints connected to the messageView
         [self.messageView removeConstraints:[self.messageView constraints]];
@@ -672,11 +677,11 @@
         /*
          Code here will execute after the rotation has finished
          */
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
         
         // Evaluate the JS getPageMetaData() to obtain the new height for the webView and use it within the completion callback to set the new height
         [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
             
             // Assign new height to message
             self.message.height = newHeight;
