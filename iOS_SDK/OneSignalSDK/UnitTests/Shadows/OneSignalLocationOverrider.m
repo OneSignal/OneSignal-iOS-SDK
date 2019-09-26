@@ -25,33 +25,84 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+#import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
+
+#import "TestHelperFunctions.h"
+#import "OneSignalSelectorHelpers.h"
+
+#import "OneSignalLocation.h"
 #import "OneSignalLocationOverrider.h"
 
 @implementation OneSignalLocationOverrider
 
-os_last_location *lastLocationMock;
+// BOOL to track whetehr the LocationServices prompt has been seen
+bool startedMock;
+// int representing the current permission status for LocationServices
+int permissionStatusMock;
 
-+ (os_last_location*)lastLocationMock {
-    return lastLocationMock;
-}
+// Location updates require a mocked manager and set of locations to be passed in
+CLLocationManager* locationManager;
+NSArray *locations;
 
-+ (void)clearLastLocation {
-    lastLocationMock = nil;
-}
-
-+ (void)grantLocationPermission {
-
-    if (![OneSignal isLocationShared])
-        return;
++ (void)load {
     
-    if (!lastLocationMock)
-        lastLocationMock = (os_last_location*)malloc(sizeof(os_last_location));
+    injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideStarted), [OneSignalLocation class], @selector(started));
+    injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideAuthorizationStatus), [CLLocationManager class], @selector(authorizationStatus));
+    
+    injectSelector([OneSignalLocationOverrider class], @selector(overrideRequestAlwaysAuthorization), [CLLocationManager class], @selector(requestAlwaysAuthorization));
+    injectSelector([OneSignalLocationOverrider class], @selector(overrideRequestWhenInUseAuthorization), [CLLocationManager class], @selector(requestWhenInUseAuthorization));
+    injectSelector([OneSignalLocationOverrider class], @selector(overrideStartUpdatingLocation), [CLLocationManager class], @selector(startUpdatingLocation));
+    
+    // Never asked use for location service permission
+    startedMock = false;
+    // Set permission status for location services to 0 (not granted)
+    permissionStatusMock = 0;
+    
+    // Create a mock location manager
+    locationManager = [self createLocationManager];
+    // Creater a mock array of locations
+    id location = [self createLocation];
+    locations = @[location];
+}
 
-    lastLocationMock->verticalAccuracy = 1.0;
-    lastLocationMock->horizontalAccuracy = 2.0;
-    lastLocationMock->cords.latitude = 3.0;
-    lastLocationMock->cords.longitude = 4.0;
++ (bool)overrideStarted {
+    return startedMock;
+}
+
+// Create a mocked location manager for use in overrider
++ (CLLocationManager*)createLocationManager {
+    return [[CLLocationManager alloc] init];
+}
+
+// Create a mocked location for use in overrider
++ (CLLocation*)createLocation {
+    return [[CLLocation alloc] initWithLatitude:3.0 longitude:4.0];
+}
+
+// Simulate granting location services
+// The `locationManager` method is called after a user clicks the `Allow` button in the LocationServices alert because
+// a location update is triggered
++ (void)grantLocationServices {
+    // Reset started to false (never seen prompt before)
+    startedMock = false;
+    [OneSignalLocation internalGetLocation:true];
+}
+
++ (int)overrideAuthorizationStatus {
+    return permissionStatusMock;
+}
+
+- (void)overrideRequestAlwaysAuthorization {
+    [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
+}
+
+- (void)overrideRequestWhenInUseAuthorization {
+    [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
+}
+
+- (void)overrideStartUpdatingLocation {
+    [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
 }
 
 @end

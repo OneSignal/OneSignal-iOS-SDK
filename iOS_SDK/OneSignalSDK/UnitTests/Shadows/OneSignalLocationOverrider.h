@@ -28,13 +28,14 @@
 #ifndef OneSignalLocationOverrider_h
 #define OneSignalLocationOverrider_h
 
-#import "OneSignalLocation.h"
-
 @interface OneSignalLocationOverrider : NSObject
 
-+ (os_last_location*)lastLocationMock;
-+ (void)clearLastLocation;
-+ (void)grantLocationPermission;
++ (bool)overrideStarted;
++ (void)grantLocationServices;
++ (int)overrideAuthorizationStatus;
+- (void)overrideRequestAlwaysAuthorization;
+- (void)overrideRequestWhenInUseAuthorization;
+- (void)overrideStartUpdatingLocation;
 
 @end
 
