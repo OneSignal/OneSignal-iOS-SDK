@@ -30,7 +30,7 @@
 
 #import "TestHelperFunctions.h"
 #import "OneSignalSelectorHelpers.h"
-
+#import "OneSignalHelperOverrider.h"
 #import "OneSignalLocation.h"
 #import "OneSignalLocationOverrider.h"
 
@@ -40,6 +40,10 @@
 bool startedMock;
 // int representing the current permission status for LocationServices
 int permissionStatusMock;
+// BOOL to track whether or not location request was made (NSLocationAlwaysUsageDescription, NSLocationAlwaysAndWhenInUseUsageDescription)
+bool calledRequestAlwaysAuthorization;
+// BOOL to track whether or not location request was made (NSLocationWhenInUseUsageDescription)
+bool calledRequestWhenInUseAuthorization;
 
 // Location updates require a mocked manager and set of locations to be passed in
 CLLocationManager* locationManager;
@@ -58,6 +62,9 @@ NSArray *locations;
     startedMock = false;
     // Set permission status for location services to 0 (not granted)
     permissionStatusMock = 0;
+    // Never made a request for location based on info.plist params
+    calledRequestAlwaysAuthorization = false;
+    calledRequestWhenInUseAuthorization = false;
     
     // Create a mock location manager
     locationManager = [self createLocationManager];
@@ -84,8 +91,14 @@ NSArray *locations;
 // The `locationManager` method is called after a user clicks the `Allow` button in the LocationServices alert because
 // a location update is triggered
 + (void)grantLocationServices {
+    
     // Reset started to false (never seen prompt before)
     startedMock = false;
+    
+    // Reset request flags
+    calledRequestAlwaysAuthorization = false;
+    calledRequestWhenInUseAuthorization = false;
+    
     [OneSignalLocation internalGetLocation:true];
 }
 
@@ -94,15 +107,20 @@ NSArray *locations;
 }
 
 - (void)overrideRequestAlwaysAuthorization {
-    [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
+    // Overriden to do nothing, causes a inof.plist warning failing our tests
+    calledRequestAlwaysAuthorization = true;
 }
 
 - (void)overrideRequestWhenInUseAuthorization {
-    [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
+    // Overriden to do nothing, causes a inof.plist warning failing our tests
+    calledRequestWhenInUseAuthorization = true;
 }
 
 - (void)overrideStartUpdatingLocation {
-    [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
+    // If iOS is less than 8.0, the startUpdatingLocation prompts the user
+    // Otherwise, we want to check if the location request was made for info.plist params
+    if (OneSignalHelperOverrider.mockIOSVersion < 8.0 || calledRequestAlwaysAuthorization || calledRequestWhenInUseAuthorization)
+        [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
 }
 
 @end

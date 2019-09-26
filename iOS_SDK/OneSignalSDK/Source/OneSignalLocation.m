@@ -204,11 +204,12 @@ static OneSignalLocation* singleInstance = nil;
         }
         
         else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
-    } else {
-        
-        // iOS 6 and 7 prompts for location here.
-        [locationManager performSelector:@selector(startUpdatingLocation)];
     }
+        
+    // For iOS 6 and 7, location services are prompted here
+    // This method is also used for getting the location manager to obtain an initial location fix
+    // and will notify your delegate by calling its locationManager:didUpdateLocations: method
+    [locationManager performSelector:@selector(startUpdatingLocation)];
     
     started = true;
 }

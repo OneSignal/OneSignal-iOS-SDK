@@ -257,7 +257,7 @@
     [self assertLocationShared_withGrantLocationServices];
 }
 
-- (void)testLocationPromptAcceptedWithSetLocationShared_iOS7 {
+- (void)testLocationPromptAcceptedWithSetLocationShared_iOS7AndUnder {
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
     [self initOneSignalAndThreadWait];
