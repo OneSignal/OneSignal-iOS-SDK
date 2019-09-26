@@ -214,8 +214,8 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     
-    // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent])
+    // return if the user has not granted privacy permissions or location shared is false
+    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared])
         return;
     
     [manager performSelector:@selector(stopUpdatingLocation)];

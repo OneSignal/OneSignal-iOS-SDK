@@ -62,6 +62,7 @@
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
+#import "OneSignalLocationOverrider.h"
 
 // Dummies
 #import "DummyNotificationCenterDelegate.h"
@@ -218,6 +219,22 @@
 		XCTAssertNotEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are equal %@ %@", semantic, [raw one_getSemanticVersion] );
 	}];
 
+}
+
+- (void)testLocationPromptAcceptedWithSetLocationShared {
+    [self initOneSignalAndThreadWait];
+    
+    [OneSignal setLocationShared:false];
+    [OneSignalLocationOverrider grantLocationPermission];
+
+    XCTAssertFalse([OneSignalLocationOverrider lastLocationMock]);
+    [OneSignalLocationOverrider clearLastLocation];
+
+    [OneSignal setLocationShared:true];
+    [OneSignalLocationOverrider grantLocationPermission];
+
+    XCTAssertTrue([OneSignalLocationOverrider lastLocationMock]);
+    [OneSignalLocationOverrider clearLastLocation];
 }
 
 - (void)testRegisterationOniOS7 {
