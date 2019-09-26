@@ -107,12 +107,12 @@ NSArray *locations;
 }
 
 - (void)overrideRequestAlwaysAuthorization {
-    // Overriden to do nothing, causes a inof.plist warning failing our tests
+    // Overriden to do nothing, causes a info.plist warning failing our tests
     calledRequestAlwaysAuthorization = true;
 }
 
 - (void)overrideRequestWhenInUseAuthorization {
-    // Overriden to do nothing, causes a inof.plist warning failing our tests
+    // Overriden to do nothing, causes a info.plist warning failing our tests
     calledRequestWhenInUseAuthorization = true;
 }
 
