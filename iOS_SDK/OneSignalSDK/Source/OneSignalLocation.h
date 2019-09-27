@@ -41,8 +41,12 @@ typedef struct os_last_location {
     double horizontalAccuracy;
 } os_last_location;
 
-
 @interface OneSignalLocation : NSObject
+
++ (OneSignalLocation*) sharedInstance;
++ (bool)started;
++ (void)internalGetLocation:(bool)prompt;
+- (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations;
 + (void) getLocation:(bool)prompt;
 + (void) sendLocation;
 + (os_last_location*)lastLocation;

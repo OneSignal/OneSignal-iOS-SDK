@@ -126,7 +126,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021100";
+NSString* const ONESIGNAL_VERSION = @"021101";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -1300,6 +1300,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         return;
     
     [OneSignalLocation getLocation:true];
+}
+
++ (BOOL)isLocationShared {
+    return mShareLocation;
 }
 
 
