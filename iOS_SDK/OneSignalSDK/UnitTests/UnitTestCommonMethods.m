@@ -46,6 +46,7 @@
 #import "NSTimerOverrider.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OneSignalLocation.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];

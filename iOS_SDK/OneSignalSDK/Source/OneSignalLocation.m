@@ -86,6 +86,11 @@ static OneSignalLocation* singleInstance = nil;
 + (os_last_location*)lastLocation {
     return lastLocation;
 }
+
++ (bool)started {
+    return started;
+}
+
 + (void)clearLastLocation {
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
        lastLocation = nil;
@@ -113,7 +118,7 @@ static OneSignalLocation* singleInstance = nil;
     if ([OneSignal requiresUserPrivacyConsent])
         return;
     
-    if(!locationManager || !started) return;
+    if(!locationManager || ![self started]) return;
     
     /**
      We have a state switch
@@ -162,8 +167,8 @@ static OneSignalLocation* singleInstance = nil;
 
 
 
-+ (void) internalGetLocation:(bool)prompt {
-    if (started)
++ (void)internalGetLocation:(bool)prompt {
+    if ([self started])
         return;
     
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
@@ -179,8 +184,7 @@ static OneSignalLocation* singleInstance = nil;
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
     
-    float deviceOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
-    if (deviceOSVersion >= 8.0) {
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"]) {
         
         //Check info plist for request descriptions
         //LocationAlways > LocationWhenInUse > No entry (Log error)
@@ -188,24 +192,24 @@ static OneSignalLocation* singleInstance = nil;
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
         NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
         // use background location updates if always permission granted or prompt allowed
-        if(backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == 3 || prompt)) {
+        if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == 3 || prompt)) {
             [locationManager performSelector:@selector(requestAlwaysAuthorization)];
-            if (deviceOSVersion >= 9.0) {
+            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"]) {
                 [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
             }
         }
         
-        else if([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+        else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
             if (permissionStatus == 0) [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
         }
         
         else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
     }
-    
-    // iOS 6 and 7 prompts for location here.
+        
+    // For iOS 6 and 7, location services are prompted here
+    // This method is also used for getting the location manager to obtain an initial location fix
+    // and will notify your delegate by calling its locationManager:didUpdateLocations: method
     [locationManager performSelector:@selector(startUpdatingLocation)];
-    
-    
     
     started = true;
 }
@@ -214,8 +218,8 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     
-    // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent])
+    // return if the user has not granted privacy permissions or location shared is false
+    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared])
         return;
     
     [manager performSelector:@selector(stopUpdatingLocation)];

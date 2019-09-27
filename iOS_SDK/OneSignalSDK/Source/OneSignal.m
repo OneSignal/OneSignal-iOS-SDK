@@ -1302,6 +1302,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignalLocation getLocation:true];
 }
 
++ (BOOL)isLocationShared {
+    return mShareLocation;
+}
+
 
 + (void) handleDidFailRegisterForRemoteNotification:(NSError*)err {
     waitingForApnsResponse = false;

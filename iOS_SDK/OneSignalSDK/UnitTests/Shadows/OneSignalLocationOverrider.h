@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2016 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,34 +25,18 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalLocation_h
-#define OneSignalLocation_h
+#ifndef OneSignalLocationOverrider_h
+#define OneSignalLocationOverrider_h
 
-#import <Foundation/Foundation.h>
+@interface OneSignalLocationOverrider : NSObject
 
-typedef struct os_location_coordinate {
-    double latitude;
-    double longitude;
-} os_location_coordinate;
-
-typedef struct os_last_location {
-    os_location_coordinate cords;
-    double verticalAccuracy;
-    double horizontalAccuracy;
-} os_last_location;
-
-@interface OneSignalLocation : NSObject
-
-+ (OneSignalLocation*) sharedInstance;
-+ (bool)started;
-+ (void)internalGetLocation:(bool)prompt;
-- (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations;
-+ (void) getLocation:(bool)prompt;
-+ (void) sendLocation;
-+ (os_last_location*)lastLocation;
-+ (void)clearLastLocation;
-+ (void)onfocus:(BOOL)isActive;
++ (bool)overrideStarted;
++ (void)grantLocationServices;
++ (int)overrideAuthorizationStatus;
+- (void)overrideRequestAlwaysAuthorization;
+- (void)overrideRequestWhenInUseAuthorization;
+- (void)overrideStartUpdatingLocation;
 
 @end
 
-#endif /* OneSignalLocation_h */
+#endif /* OneSignalLocationOverrider_h */
