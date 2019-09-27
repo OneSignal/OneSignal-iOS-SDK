@@ -79,6 +79,10 @@
 // We start the timer once the message is displayed (not during loading the content)
 @property (weak, nonatomic, nullable) NSTimer *dismissalTimer;
 
+// BOOL to track when an IAM has strated UI setup so we know when to bypass UI changes on dismissal or not
+// This is a fail safe for cases where global contraints are nil and we try to modify them on dismisal of an IAM
+@property (nonatomic) BOOL didPageRenderingComplete;
+
 @end
 
 @implementation OSInAppMessageViewController
@@ -154,9 +158,6 @@
 - (void)setupInitialMessageUI {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message"];
     
-    // Remove all of the constraints connected to the messageView
-    [self.messageView removeConstraints:[self.messageView constraints]];
-    
     self.messageView.delegate = self;
     
     [self.messageView setupWebViewConstraints];
@@ -175,7 +176,7 @@
 }
 
 - (void)displayMessage {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Displaying In App Message"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Displaying In-App Message"];
     
     // Sets up the message view in a hidden position while we wait
     [self setupInitialMessageUI];
@@ -231,9 +232,11 @@
 }
 
 - (void)loadPreviewMessageContent {
-    [self.message loadPreviewMessageHTMLContentWithUUID:self.message.messageId success:[self messageContentOnSuccess] failure:^(NSError *error) {
-        [self encounteredErrorLoadingMessageContent:error];
-    }];
+    [self.message loadPreviewMessageHTMLContentWithUUID:self.message.messageId
+                                                success:[self messageContentOnSuccess]
+                                                failure:^(NSError *error) {
+                                                    [self encounteredErrorLoadingMessageContent:error];
+                                                }];
 }
 
 - (void)encounteredErrorLoadingMessageContent:(NSError * _Nullable)error {
@@ -392,47 +395,58 @@
  */
 - (void)dismissCurrentInAppMessage:(BOOL)up withVelocity:(double)velocity {
     
-    // Inactivate the current Y constraints
-    self.finalYConstraint.active = false;
-    self.initialYConstraint.active = false;
+    // Validate whether or not WebView actually rendered the IAM code, which we lead to global constraits not being nil
+    if (self.didPageRenderingComplete) {
+        
+        // Inactivate the current Y constraints
+        self.finalYConstraint.active = false;
+        self.initialYConstraint.active = false;
+        
+        // The distance that the dismissal animation will travel
+        var distance = 0.0f;
+        
+        // Add new Y constraints
+        if (up) {
+            distance = self.messageView.frame.origin.y + self.messageView.frame.size.height + 8.0f;
+            [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f].active = true;
+        } else {
+            distance = self.view.frame.size.height - self.messageView.frame.origin.y + 8.0f;
+            [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f].active = true;
+        }
     
-    // The distance that the dismissal animation will travel
-    var distance = 0.0f;
-    
-    // Add new Y constraints
-    if (up) {
-        distance = self.messageView.frame.origin.y + self.messageView.frame.size.height + 8.0f;
-        [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f].active = true;
+        var dismissAnimationDuration = velocity != 0.0f ? distance / fabs(velocity) : 0.3f;
+        
+        var animationOption = UIViewAnimationOptionCurveLinear;
+        
+        // Impose a minimum animation speed (max duration)
+        if (dismissAnimationDuration > MAX_DISMISSAL_ANIMATION_DURATION) {
+            animationOption = UIViewAnimationOptionCurveEaseIn;
+            dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
+        } else if (dismissAnimationDuration < MIN_DISMISSAL_ANIMATION_DURATION) {
+            animationOption = UIViewAnimationOptionCurveEaseIn;
+            dismissAnimationDuration = MIN_DISMISSAL_ANIMATION_DURATION;
+        }
+        
+        [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
+            self.view.backgroundColor = [UIColor clearColor];
+            self.view.alpha = 0.0f;
+            [self.view layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            if (!finished)
+                return;
+            
+            [self dismissViewControllerAnimated:false completion:nil];
+        
+            self.didPageRenderingComplete = false;
+            [self.delegate messageViewControllerWasDismissed];
+        }];
     } else {
-        distance = self.view.frame.size.height - self.messageView.frame.origin.y + 8.0f;
-        [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f].active = true;
-    }
-    
-    var dismissAnimationDuration = velocity != 0.0f ? distance / fabs(velocity) : 0.3f;
-    
-    var animationOption = UIViewAnimationOptionCurveLinear;
-    
-    // Impose a minimum animation speed (max duration)
-    if (dismissAnimationDuration > MAX_DISMISSAL_ANIMATION_DURATION) {
-        animationOption = UIViewAnimationOptionCurveEaseIn;
-        dismissAnimationDuration = MAX_DISMISSAL_ANIMATION_DURATION;
-    } else if (dismissAnimationDuration < MIN_DISMISSAL_ANIMATION_DURATION) {
-        animationOption = UIViewAnimationOptionCurveEaseIn;
-        dismissAnimationDuration = MIN_DISMISSAL_ANIMATION_DURATION;
-    }
-    
-    [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
-        self.view.backgroundColor = [UIColor clearColor];
-        self.view.alpha = 0.0f;
-        [self.view layoutIfNeeded];
-    } completion:^(BOOL finished) {
-        if (!finished)
-            return;
         
-        [self dismissViewControllerAnimated:false completion:nil];
-        
+        // If the rendering event never occurs any constraints being adjusted for dismissal will be nil
+        // and we should bypass dismissal adjustments and animations and skip straight to the OSMessagingController callback for dismissing
+        self.didPageRenderingComplete = false;
         [self.delegate messageViewControllerWasDismissed];
-    }];
+    }
 }
 
 /*
@@ -600,6 +614,10 @@
     
     if (event) {
         if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
+            
+            // BOOL set to true since the JS event fired, meaning the WebView was populated properly with the IAM code
+            self.didPageRenderingComplete = true;
+            
             self.message.position = event.renderingComplete.displayLocation;
             self.message.height = event.renderingComplete.height;
 
