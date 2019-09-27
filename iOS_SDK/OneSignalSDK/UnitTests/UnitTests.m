@@ -92,6 +92,11 @@
 - (void)setUp {
     [super setUp];
     
+    // Only enable remote-notifications in UIBackgroundModes
+    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
+    // Clear last location stored
+    [OneSignalLocation clearLastLocation];
+    
     OneSignalHelperOverrider.mockIOSVersion = 10;
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];

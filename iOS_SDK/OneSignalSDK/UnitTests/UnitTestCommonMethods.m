@@ -148,9 +148,6 @@ NSString * serverUrlWithPath(NSString *path) {
     if (setupUIApplicationDelegate)
         return;
     
-    // Only enable remote-notifications in UIBackgroundModes
-    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
-    
     // Normally this just loops internally, overwrote _run to work around this.
     UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
     
@@ -163,7 +160,6 @@ NSString * serverUrlWithPath(NSString *path) {
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
     OneSignalHelperOverrider.mockIOSVersion = 10;
-    [OneSignalLocation clearLastLocation];
 }
 
 + (void)setCurrentNotificationPermissionAsUnanswered {
