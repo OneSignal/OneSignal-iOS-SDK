@@ -2506,17 +2506,8 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)uniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"uniqueOutcome:onSuccess:onFailure:"])
+    if (![self outcomeEntryValidation:name])
         return;
-    if (outcomeController == nil) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
-        return;
-    }
-    if (name == nil || [name length] == 0) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
-        return;
-    }
 
     [outcomeController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
 }
@@ -2526,17 +2517,8 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)outcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
+    if (![self outcomeEntryValidation:name])
         return;
-    if (outcomeController == nil) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
-        return;
-    }
-    if (name == nil || [name length] == 0) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
-        return;
-    }
     
     [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
 }
@@ -2546,23 +2528,29 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
+    if (![self outcomeEntryValidation:name])
         return;
-    if (outcomeController == nil) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
-        return;
-    }
-    if (name == nil || [name length] == 0) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
-        return;
-    }
     if (value == nil) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Value must not be null"];
         return;
     }
 
     [outcomeController sendOutcomeEvent:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+
++ (BOOL)outcomeEntryValidation:(NSString * _Nonnull)name {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
+        return NO;
+    if (outcomeController == nil) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+        return NO;
+    }
+    if (name == nil || [name length] == 0) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
+        return NO;
+    }
+    return YES;
 }
 /*
  End of outcome module
