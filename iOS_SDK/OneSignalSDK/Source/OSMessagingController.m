@@ -171,14 +171,14 @@
 
 - (void)displayMessage:(OSInAppMessage *)message {
     self.isInAppMessageShowing = true;
+    
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
     self.viewController.delegate = self;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewController view] setNeedsLayout];
+        [self messageViewImpressionRequest:message];
     });
-    
-    [self messageViewImpressionRequest:message];
 }
 
 /*
@@ -294,12 +294,11 @@
             [self displayMessage:self.messageDisplayQueue.firstObject];
             return;
         } else {
-            // Hide and null our reference to the window to ensure there are no leaks
+            // Hide the window and call makeKeyWindow to ensure the IAM will not be shown
             self.window.hidden = true;
             [UIApplication.sharedApplication.delegate.window makeKeyWindow];
-            self.window = nil;
             
-            // Evaulate any IAMs (could be new or have now satisfied trigger conditions)
+            // Evaulate any IAMs (could be new IAM or added trigger conditions)
             [self evaluateMessages];
         }
     }

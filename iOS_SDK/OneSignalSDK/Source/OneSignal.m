@@ -1873,9 +1873,8 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
-    if ([OneSignalHelper handleIAMPreview:payload]) {
+    if ([OneSignalHelper handleIAMPreview:payload])
         return;
-    }
 
     onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
 
