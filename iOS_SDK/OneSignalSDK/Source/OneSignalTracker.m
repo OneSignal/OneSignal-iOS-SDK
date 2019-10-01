@@ -131,10 +131,10 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (wasBadgeSet && !toBackground) {
         NSMutableDictionary *requests = [NSMutableDictionary new];
         
-        requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:nil];
+        requests[@"push"] = [OSRequestBadgeCount withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:nil];
         
         if ([OneSignal mEmailUserId])
-            requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken]];
+            requests[@"email"] = [OSRequestBadgeCount withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken]];
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
         
@@ -153,20 +153,31 @@ static BOOL lastOnFocusWasToBackground = YES;
         
         NSMutableDictionary *requests = [NSMutableDictionary new];
         NSString *notificationId = [OneSignalNotificationData getLastNotificationId];
-        SessionState session = [OneSignalSessionManager session];
+        SessionOutcome session = [OneSignalSessionManager session];
+        NSNumber *deviceType = [NSNumber numberWithInt:DEVICE_TYPE];
         
-        if (session == NONE || session == UNATTRIBUTED || notificationId == nil || [notificationId length] == 0) {
-            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil];
-            
-            if ([OneSignal mEmailUserId])
-                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken]];
-        } else {
-            BOOL direct = session == DIRECT;
-            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil directSession:direct notificationId:notificationId];
-            
-            if ([OneSignal mEmailUserId])
-                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken] directSession:direct notificationId:notificationId];
-        }
+        requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId]
+                                                   appId:[OneSignal app_id]
+                                                   state:@"ping"
+                                                    type:@1
+                                              activeTime:@(timeToPingWith)
+                                                 netType:[OneSignalHelper getNetType]
+                                          emailAuthToken:nil
+                                              deviceType:deviceType
+                                          sessionOutcome:session
+                                          notificationId:notificationId];
+                   
+        if ([OneSignal mEmailUserId])
+            requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId]
+                                                        appId:[OneSignal app_id]
+                                                        state:@"ping"
+                                                         type:@1
+                                                   activeTime:@(timeToPingWith)
+                                                      netType:[OneSignalHelper getNetType]
+                                               emailAuthToken:[OneSignal mEmailAuthToken]
+                                                   deviceType:deviceType
+                                               sessionOutcome:session
+                                               notificationId:notificationId];
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
         

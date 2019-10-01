@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface OSRequestSubmitNotificationOpened : OneSignalRequest
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId;
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(NSNumber *)deviceType;
 @end
 
 @interface OSRequestSyncHashedEmail : OneSignalRequest
@@ -90,20 +90,14 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash;
 @end
 
-@interface OSRequestOnFocus : OneSignalRequest
+@interface OSRequestBadgeCount : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
                          badgeCount:(NSNumber * _Nonnull)badgeCount
                      emailAuthToken:(NSString * _Nullable)emailAuthHash;
+@end
 
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                              state:(NSString * _Nonnull)state
-                               type:(NSNumber * _Nonnull)type
-                         activeTime:(NSNumber * _Nonnull)activeTime
-                            netType:(NSNumber * _Nonnull)netType
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash;
-
+@interface OSRequestOnFocus : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
                               state:(NSString * _Nonnull)state
@@ -111,7 +105,8 @@ NS_ASSUME_NONNULL_END
                          activeTime:(NSNumber * _Nonnull)activeTime
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
-                      directSession:(BOOL)directSession
+                         deviceType:(NSNumber * _Nonnull)deviceType
+                     sessionOutcome:(SessionOutcome)session
                      notificationId:(NSString * _Nullable)notificationId;
 @end
 

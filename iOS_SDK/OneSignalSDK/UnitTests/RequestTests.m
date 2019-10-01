@@ -173,7 +173,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendDirectOutcome {
-    let request = [OSRequestSendOutcomesToServer directWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType timestamp:nil];
+    let request = [OSRequestSendOutcomesToServer directWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType requestParams:nil];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     
@@ -183,17 +183,17 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendIndirectOutcome {
-    let request = [OSRequestSendOutcomesToServer indirectWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType timestamp:nil];
+    let request = [OSRequestSendOutcomesToServer indirectWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType requestParams: @{ @"weight" : @1 }];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @NO, @"notification_id" : testNotificationId}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @NO, @"weight" : @1, @"notification_id" : testNotificationId}));
 }
 
 - (void)testSendUnattributedOutcome {
-    let request = [OSRequestSendOutcomesToServer unattributedWithOutcomeId:@"test" appId:testAppId deviceType:testDeviceType];
+    let request = [OSRequestSendOutcomesToServer unattributedWithOutcomeId:@"test" appId:testAppId deviceType:testDeviceType requestParams:nil];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     
@@ -259,13 +259,13 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSubmitNotificationOpened {
-    let request = [OSRequestSubmitNotificationOpened withUserId:testUserId appId:testAppId wasOpened:true messageId:testMessageId];
+    let request = [OSRequestSubmitNotificationOpened withUserId:testUserId appId:testAppId wasOpened:true messageId:testMessageId withDeviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"notifications/%@", testMessageId]);
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"opened" : @1}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"player_id" : testUserId, @"app_id" : testAppId, @"opened" : @1, @"device_type": testDeviceType}));
 }
 
 - (void)testRegisterUser {
@@ -310,13 +310,13 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testOnFocus {
-    let firstRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId badgeCount:@0 emailAuthToken:nil];
+    let firstRequest = [OSRequestBadgeCount withUserId:testUserId appId:testAppId badgeCount:@0 emailAuthToken:nil];
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
     
     XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
     
-    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId state:@"test_state" type:@1 activeTime:@2 netType:@3 emailAuthToken:nil];
+    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId state:@"test_state" type:@1 activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType sessionOutcome:INDIRECT notificationId:testNotificationId];
     
     let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
     
@@ -324,7 +324,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     XCTAssertTrue(checkHttpBody(firstRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0}));
     
-    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3}));
+    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_id": testNotificationId}));
 }
 
 - (void)testInAppMessageViewed {

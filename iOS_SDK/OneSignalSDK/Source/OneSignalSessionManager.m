@@ -27,7 +27,6 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalSessionManager.h"
-#import "OneSignalCommonDefines.h"
 #import "OneSignalNotificationData.h"
 #import "OneSignal.h"
 
@@ -41,8 +40,8 @@ static id<SessionStatusDelegate> _delegate;
     _delegate = delegate;
 }
 
-static SessionState _session = NONE;
-+ (SessionState)session { return _session; }
+static SessionOutcome _session = NONE;
++ (SessionOutcome)session { return _session; }
 
 + (void)restartSession {
     _session = NONE;

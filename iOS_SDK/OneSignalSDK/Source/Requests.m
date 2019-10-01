@@ -214,10 +214,10 @@
 @end
 
 @implementation OSRequestSubmitNotificationOpened
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId {
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(nonnull NSNumber *)deviceType{
     let request = [OSRequestSubmitNotificationOpened new];
     
-    request.parameters = @{@"player_id" : userId ?: [NSNull null], @"app_id" : appId ?: [NSNull null], @"opened" : @(opened)};
+    request.parameters = @{@"player_id" : userId ?: [NSNull null], @"app_id" : appId ?: [NSNull null], @"opened" : @(opened), @"device_type": deviceType};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@", messageId];
     
@@ -280,12 +280,13 @@
 }
 @end
 
-@implementation OSRequestOnFocus
-NSString * const IS_DIRECT = @"direct";
-NSString * const NOTIFICATION = @"notification_id";
+@implementation OSRequestBadgeCount
 
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId badgeCount:(NSNumber * _Nonnull)badgeCount emailAuthToken:(NSString * _Nullable)emailAuthHash {
-    let request = [OSRequestOnFocus new];
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                         badgeCount:(NSNumber * _Nonnull)badgeCount
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash {
+    let request = [OSRequestBadgeCount new];
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
@@ -301,13 +302,24 @@ NSString * const NOTIFICATION = @"notification_id";
     return request;
 }
 
+@end
+
+@implementation OSRequestOnFocus
+
+NSString * const IS_DIRECT = @"direct";
+NSString * const NOTIFICATION = @"notification_id";
+
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
                               state:(NSString * _Nonnull)state
                                type:(NSNumber * _Nonnull)type
                          activeTime:(NSNumber * _Nonnull)activeTime
                             netType:(NSNumber * _Nonnull)netType
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash {
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash
+                         deviceType:(NSNumber * _Nonnull)deviceType
+                     sessionOutcome:(SessionOutcome)session
+                     notificationId:(NSString * _Nullable)notificationId {
+    
     let request = [OSRequestOnFocus new];
     
     let params = [NSMutableDictionary new];
@@ -316,36 +328,13 @@ NSString * const NOTIFICATION = @"notification_id";
     params[@"type"] = type;
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
+    params[@"device_type"] = deviceType;
     
-    if (emailAuthHash && emailAuthHash.length > 0)
-        params[@"email_auth_hash"] = emailAuthHash;
-    
-    request.parameters = params;
-    request.method = POST;
-    request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
-    
-    return request;
-}
-
-+ (instancetype)withUserId:(NSString *)userId
-                     appId:(NSString *)appId
-                     state:(NSString *)state
-                      type:(NSNumber *)type
-                activeTime:(NSNumber *)activeTime
-                   netType:(NSNumber *)netType
-            emailAuthToken:(NSString *)emailAuthHash
-             directSession:(BOOL)directSession
-            notificationId:(NSString *)notificationId {
-    let request = [OSRequestOnFocus new];
-    
-    let params = [NSMutableDictionary new];
-    params[@"app_id"] = appId;
-    params[@"state"] = state;
-    params[@"type"] = type;
-    params[@"active_time"] = activeTime;
-    params[@"net_type"] = netType;
-    params[IS_DIRECT] = @(directSession);
-    params[NOTIFICATION] = notificationId;
+    if (notificationId && notificationId.length > 0 && (session == INDIRECT || session == DIRECT)) {
+        // Only add outcome is_direct param if INDIRECT or DIRECT outcome session and notificationId exists
+        params[NOTIFICATION] = notificationId;
+        params[IS_DIRECT] = @(session == DIRECT);
+    }
     
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;

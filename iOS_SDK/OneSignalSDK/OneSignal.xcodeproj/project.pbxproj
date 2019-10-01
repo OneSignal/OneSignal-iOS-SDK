@@ -64,6 +64,9 @@
 		7A12EBDD23060B37005C4FA5 /* OSLastNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSLastNotification.m */; };
 		7ADE379422E8B69C00263048 /* OneSignalOutcomesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ADE379322E8B69C00263048 /* OneSignalOutcomesController.m */; };
 		7ADE37AD22F2554400263048 /* OneSignalOutcomesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ADE379322E8B69C00263048 /* OneSignalOutcomesController.m */; };
+		7AF8FDBB2332A58900A19245 /* OneSignalSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD523060A6F005C4FA5 /* OneSignalSessionManager.m */; };
+		7AF8FDBC2332A5A600A19245 /* OneSignalNotificationData.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD923060AEE005C4FA5 /* OneSignalNotificationData.m */; };
+		7AF8FDBD2332A5C200A19245 /* OSLastNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSLastNotification.m */; };
 		911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 911E2CBC1E398AB3003112A4 /* UnitTests.m */; };
 		911E2CC51E398B53003112A4 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		911E2CC61E398B97003112A4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
@@ -1138,6 +1141,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AF8FDBD2332A5C200A19245 /* OSLastNotification.m in Sources */,
+				7AF8FDBC2332A5A600A19245 /* OneSignalNotificationData.m in Sources */,
+				7AF8FDBB2332A58900A19245 /* OneSignalSessionManager.m in Sources */,
 				7ADE37AD22F2554400263048 /* OneSignalOutcomesController.m in Sources */,
 				4529DEF61FA8460C00CEAB1D /* UnitTestAppDelegate.m in Sources */,
 				91F58D8B1E7C9A240017D24D /* OneSignalNotificationSettingsIOS7.m in Sources */,
