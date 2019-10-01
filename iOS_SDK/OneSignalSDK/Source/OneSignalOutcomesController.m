@@ -29,7 +29,6 @@
 #import "OneSignalOutcomeController.h"
 #import "Requests.h"
 #import "OneSignalClient.h"
-#import "OneSignalSessionManager.h"
 #import "OneSignalNotificationData.h"
 
 @implementation OneSignalOutcomesController

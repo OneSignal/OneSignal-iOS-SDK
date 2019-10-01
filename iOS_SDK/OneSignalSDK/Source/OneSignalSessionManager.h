@@ -33,7 +33,7 @@
 
 @interface OneSignalSessionManager : NSObject
 
-+ (SessionState)session;
++ (SessionOutcome)session;
 + (void)setDelegate:(id <SessionStatusDelegate>)delegate;
 + (void)restartSession;
 + (void)onSessionStarted;
