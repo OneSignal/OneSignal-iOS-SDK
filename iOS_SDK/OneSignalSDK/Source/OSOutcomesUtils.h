@@ -26,13 +26,22 @@
  */
 
 #import "OSLastNotification.h"
+#import "OneSignalCommonDefines.h"
 
-@interface OneSignalNotificationData : NSObject
+@interface OSOutcomesUtils : NSObject
 
-+ (void)saveLastNotificationFromBackground:(NSString * _Nullable)notificationId;
-+ (void)saveLastNotification:(NSString * _Nullable)notificationId;
-+ (void)saveLastNotificationWithBackground:(NSString *  _Nullable)notificationId wasOnBackground:(BOOL)wasOnBackground;
-+ (OSLastNotification * _Nonnull)getLastNotification;
-+ (NSString * _Nullable)getLastNotificationId;
++ (void)saveLastNotificationWithBackground:(NSString * _Nullable)notificationId wasOnBackground:(BOOL)wasOnBackground;
++ (void)saveOutcomesParams:(NSDictionary * _Nonnull)params;
++ (void)saveOpenedByNotification:(NSString * _Nullable)notificationId;
++ (void)saveLastSession:(SessionState)session notificationIds:(NSArray * _Nullable)notificationIds;
+
++ (NSArray * _Nullable)getNotifications;
++ (NSInteger)getNotificationLimit;
++ (NSInteger)getIndirectAttributionWindow;
++ (BOOL)isDirectSessionEnabled;
++ (BOOL)isIndirectSessionEnabled;
++ (BOOL)isUnattributedSessionEnabled;
++ (NSString *_Nullable)wasOpenedByNotification;
++ (SessionState)getLastSession:(NSArray * __autoreleasing *)notificationIds;
 
 @end

@@ -40,7 +40,7 @@
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
-#import "OneSignalNotificationData.h"
+#import "OSOutcomesUtils.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -394,6 +394,10 @@ OSHandleNotificationActionBlock handleNotificationAction;
 }
 
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
+    [self handleNotificationReceived:displayType fromBackground:NO];
+}
+
++ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background {
     if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
@@ -407,16 +411,18 @@ OSHandleNotificationActionBlock handleNotificationAction;
     // The payload is a valid OneSignal notification payload and is not a preview
     // Proceed and treat as a normal OneSignal notification
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-
+    
     // Prevent duplicate calls to same receive event
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
     
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",
+                                                       lastMessageID, (unsigned long)displayType]];
     switch (displayType) {
         case OSNotificationDisplayTypeNotification:
-            [OneSignalNotificationData saveLastNotification:lastMessageID];
+            [OSOutcomesUtils saveLastNotificationWithBackground:lastMessageID wasOnBackground:background];
             break;
         default:
             break;
