@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,20 @@
  * THE SOFTWARE.
  */
 
-@interface OSLastNotification : NSObject
+@interface OneSignalSharedUserDefaults : NSObject
 
-@property (nonatomic, readonly) NSString *notificationId;
-//In Seconds
-@property (nonatomic, readonly) double arrivalTime;
-@property (nonatomic, readonly) BOOL wasOnBackground;
++ (NSUserDefaults*)getSharedUserDefault;
++ (BOOL)keyExists:(NSString *)key;
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
++ (void)saveString:(NSString *)value withKey:(NSString *)key;
++ (NSString *)getSavedString:(NSString *)key defaultValue:(NSString *)value;
++ (void)saveBool:(BOOL)boolean withKey:(NSString *)key;
++ (BOOL)getSavedBool:(NSString *)key defaultValue:(BOOL)value;
++ (void)saveInteger:(NSInteger)integer withKey:(NSString *)key;
++ (NSInteger)getSavedInteger:(NSString *)key defaultValue:(NSInteger)value;
++ (void)saveCodeableData:(id)data withKey:(NSString *)key;
++ (nullable id)getSavedCodeableData:(NSString *)key;
++ (void)saveObject:(id)object withKey:(NSString *)key;
++ (nullable id)getSavedObject:(NSString *)key defaultValue:(id)value;
 
 @end

@@ -44,7 +44,7 @@
 #import "OSNotificationPayload+Internal.h"
 #import "OneSignalOutcomeController.h"
 #import "OneSignalSessionManager.h"
-#import "OneSignalNotificationData.h"
+#import "OSOutcomesUtils.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -439,7 +439,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     initializationTime = [NSDate date];
     //Outcomes initializers
     [OneSignalSessionManager setDelegate:(id<SessionStatusDelegate>)self];
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager initLastSession];
     outcomeController = [[OneSignalOutcomesController alloc] init];
     
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
@@ -459,7 +459,6 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     let success = [self initAppId:appId
                  withUserDefaults:userDefaults
                         withSettings:settings];
-    
     if (!success)
         return self;
     
@@ -721,6 +720,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             [self checkProvisionalAuthorizationStatus];
         }
         
+        [OSOutcomesUtils saveOutcomesParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         downloadedParameters = true;
@@ -940,7 +940,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [self fireIdsAvailableCallback];
 }
 
-+ (void) fireIdsAvailableCallback {
++ (void)fireIdsAvailableCallback {
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1030,7 +1030,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 // Called only with a delay to batch network calls.
-+ (void) sendTagsToServer {
++ (void)sendTagsToServer {
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1313,7 +1313,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 
-+ (void) handleDidFailRegisterForRemoteNotification:(NSError*)err {
++ (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
     waitingForApnsResponse = false;
     
     if (err.code == 3000) {
@@ -1717,7 +1717,7 @@ static dispatch_queue_t serialQueue;
 }
 
 // Updates the server with the new user's notification setting or subscription status changes
-+ (BOOL) sendNotificationTypesUpdate {
++ (BOOL)sendNotificationTypesUpdate {
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1810,7 +1810,8 @@ static NSString *_lastnonActiveMessageId;
     if (![OneSignalHelper isOneSignalPayload:messageDict])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, @"notificationReceived:isActive called!");
+    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"notificationReceived called! foreground: %@ isActive: %@ opened: %@",
+                                     foreground ? @"YES" : @"NO", isActive ? @"YES" : @"NO", opened ? @"YES" : @"NO"]);
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
@@ -1860,7 +1861,7 @@ static NSString *_lastnonActiveMessageId;
     }
 }
 
-+ (NSString*) checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {
++ (NSString*)checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {
     if (customDict && customDict[@"i"]) {
         NSString* currentNotificationId = customDict[@"i"];
         if ([currentNotificationId isEqualToString:lastMessageId])
@@ -1877,7 +1878,7 @@ static NSString *_lastnonActiveMessageId;
                      displayType:(OSNotificationDisplayType)displayType {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:isActive:actionType:displayType:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:foreground:isActive:actionType:displayType:"])
         return;
 
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
@@ -1885,12 +1886,13 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
 
-    onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
-
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
     [OneSignal submitNotificationOpened:messageId];
+    
+    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! foreground: %@ notificationId: %@ displayType: %lu",
+                                     foreground ? @"YES" : @"NO", messageId, (unsigned long)displayType]);
     
     //Try to fetch the open url to launch
     [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
@@ -1907,14 +1909,7 @@ static NSString *_lastnonActiveMessageId;
     //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground) {
-        switch (displayType) {
-            case OSNotificationDisplayTypeNotification:
-                [OneSignalNotificationData saveLastNotificationFromBackground:messageId];
-                [OneSignalSessionManager onSessionFromNotification];
-                break;
-            default:
-                break;
-        }
+        [OneSignalSessionManager onSessionFromNotification:messageId];
     }
     //ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
     if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
@@ -1956,7 +1951,7 @@ static NSString *_lastnonActiveMessageId;
     }
 }
     
-+ (BOOL) clearBadgeCount:(BOOL)fromNotifOpened {
++ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened {
     
     NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
     
@@ -1982,7 +1977,7 @@ static NSString *_lastnonActiveMessageId;
     return wasBadgeSet;
 }
 
-+ (int) getNotificationTypes {
++ (int)getNotificationTypes {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"getNotificationTypes:mSubscriptionStatus: %d", mSubscriptionStatus]];
     
     if (mSubscriptionStatus < -9)
@@ -2081,7 +2076,7 @@ static NSString *_lastnonActiveMessageId;
     // Check for buttons or attachments pre-2.4.0 version
     if ((userInfo[@"os_data"][@"buttons"] && [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]]) || userInfo[@"at"] || userInfo[@"o"])
         richData = userInfo;
-    
+
     // Generate local notification for action button and/or attachments.
     if (richData) {
         let osPayload = [OSNotificationPayload parseWithApns:userInfo];
@@ -2111,10 +2106,8 @@ static NSString *_lastnonActiveMessageId;
         [OneSignalHelper lastMessageReceived:userInfo];
         if ([OneSignalHelper isRemoteSilentNotification:userInfo])
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
-        else {
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
-            [OneSignalNotificationData saveLastNotificationFromBackground:nil];
-        }
+        else
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:YES];
     }
     
     return startedBackgroundJob;

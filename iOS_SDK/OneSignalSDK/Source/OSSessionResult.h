@@ -25,13 +25,14 @@
  * THE SOFTWARE.
  */
 
-@interface OSLastNotification : NSObject
+#import "OneSignalCommonDefines.h"
 
-@property (nonatomic, readonly) NSString *notificationId;
-//In Seconds
-@property (nonatomic, readonly) double arrivalTime;
-@property (nonatomic, readonly) BOOL wasOnBackground;
+@interface OSSessionResult : NSObject
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
+@property (nonatomic, readonly) NSArray * _Nullable notificationIds;
+@property (nonatomic, readonly) SessionState session;
+
+- (id _Nonnull )initWithNotificationIds:(NSArray * _Nullable)notificationIds session:(SessionState)session;
+- (id _Nonnull )initWithSession:(SessionState)session;
 
 @end

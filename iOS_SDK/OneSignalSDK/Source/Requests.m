@@ -307,19 +307,16 @@
 @implementation OSRequestOnFocus
 
 NSString * const IS_DIRECT = @"direct";
-NSString * const NOTIFICATION = @"notification_id";
+NSString * const NOTIFICATION_IDS = @"notification_ids";
 
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                              state:(NSString * _Nonnull)state
-                               type:(NSNumber * _Nonnull)type
-                         activeTime:(NSNumber * _Nonnull)activeTime
-                            netType:(NSNumber * _Nonnull)netType
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash
-                         deviceType:(NSNumber * _Nonnull)deviceType
-                     sessionOutcome:(SessionOutcome)session
-                     notificationId:(NSString * _Nullable)notificationId {
-    
++ (instancetype)withUserId:(NSString *)userId
+                     appId:(NSString *)appId
+                     state:(NSString *)state
+                      type:(NSNumber *)type
+                activeTime:(NSNumber *)activeTime
+                   netType:(NSNumber *)netType
+            emailAuthToken:(NSString *)emailAuthHash
+                deviceType:(NSNumber * _Nonnull)deviceType {
     let request = [OSRequestOnFocus new];
     
     let params = [NSMutableDictionary new];
@@ -330,11 +327,38 @@ NSString * const NOTIFICATION = @"notification_id";
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
     
-    if (notificationId && notificationId.length > 0 && (session == INDIRECT || session == DIRECT)) {
-        // Only add outcome is_direct param if INDIRECT or DIRECT outcome session and notificationId exists
-        params[NOTIFICATION] = notificationId;
-        params[IS_DIRECT] = @(session == DIRECT);
-    }
+    if (emailAuthHash && emailAuthHash.length > 0)
+        params[@"email_auth_hash"] = emailAuthHash;
+    
+    request.parameters = params;
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
+    
+    return request;
+}
+
++ (instancetype)withUserId:(NSString *)userId
+                     appId:(NSString *)appId
+                     state:(NSString *)state
+                      type:(NSNumber *)type
+                activeTime:(NSNumber *)activeTime
+                   netType:(NSNumber *)netType
+            emailAuthToken:(NSString *)emailAuthHash
+                deviceType:(NSNumber * _Nonnull)deviceType
+             directSession:(BOOL)directSession
+            notificationIds:(NSArray *)notificationIds {
+    let request = [OSRequestOnFocus new];
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"state"] = state;
+    params[@"type"] = type;
+    params[@"active_time"] = activeTime;
+    params[@"net_type"] = netType;
+    params[@"device_type"] = deviceType;
+    
+    params[IS_DIRECT] = @(directSession);
+    params[NOTIFICATION_IDS] = notificationIds;
     
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
@@ -445,7 +469,7 @@ NSString * const OUTCOME_ID = @"id";
 
 + (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId
                                        appId:(NSString * _Nonnull)appId
-                              notificationId:(NSString * _Nullable)notificationId
+                              notificationIds:(NSArray * _Nonnull)notificationIds
                                   deviceType:(NSNumber * _Nonnull)deviceType
                             requestParams:(NSDictionary * _Nullable)requestParams {
     let request = [OSRequestSendOutcomesToServer new];
@@ -455,7 +479,7 @@ NSString * const OUTCOME_ID = @"id";
     params[DEVICE] = deviceType;
     params[IS_DIRECT] = @YES;
     params[OUTCOME_ID] = outcomeId;
-    params[NOTIFICATION] = notificationId;
+    params[NOTIFICATION_IDS] = notificationIds;
     
     if (requestParams != nil) {
         for (NSString *key in requestParams) {
@@ -473,7 +497,7 @@ NSString * const OUTCOME_ID = @"id";
 
 + (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId
                                          appId:(NSString * _Nonnull)appId
-                                notificationId:(NSString * _Nullable)notificationId
+                                notificationIds:(NSArray * _Nonnull)notificationIds
                                     deviceType:(NSNumber * _Nonnull)deviceType
                                  requestParams:(NSDictionary * _Nullable)requestParams {
     let request = [OSRequestSendOutcomesToServer new];
@@ -483,7 +507,7 @@ NSString * const OUTCOME_ID = @"id";
     params[DEVICE] = deviceType;
     params[IS_DIRECT] = @NO;
     params[OUTCOME_ID] = outcomeId;
-    params[NOTIFICATION] = notificationId;
+    params[NOTIFICATION_IDS] = notificationIds;
     
     if (requestParams != nil) {
         for (NSString *key in requestParams) {

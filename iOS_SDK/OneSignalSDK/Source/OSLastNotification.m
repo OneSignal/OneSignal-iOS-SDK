@@ -37,4 +37,23 @@
     return self;
 }
 
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:_notificationId forKey:@"notificationId"];
+    [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
+    [encoder encodeBool:_wasOnBackground forKey:@"wasOnBackground"];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
+        _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
+        _wasOnBackground = [decoder decodeBoolForKey:@"wasOnBackground"];
+    }
+    return self;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f wasOnBackground: %@", _notificationId, _arrivalTime, _wasOnBackground ? @"YES" : @"NO"];
+}
 @end

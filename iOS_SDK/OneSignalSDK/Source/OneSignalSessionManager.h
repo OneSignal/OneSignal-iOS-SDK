@@ -26,6 +26,7 @@
  */
 
 #import "OneSignalCommonDefines.h"
+#import "OSSessionResult.h"
 
 @protocol SessionStatusDelegate <NSObject>
 + (void)onSessionRestart;
@@ -33,10 +34,11 @@
 
 @interface OneSignalSessionManager : NSObject
 
-+ (SessionOutcome)session;
-+ (void)setDelegate:(id <SessionStatusDelegate>)delegate;
++ (SessionState)session;
++ (OSSessionResult *_Nonnull)sessionResult;
++ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
++ (void)initLastSession;
 + (void)restartSession;
-+ (void)onSessionStarted;
-+ (void)onSessionFromNotification;
++ (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
 
 @end

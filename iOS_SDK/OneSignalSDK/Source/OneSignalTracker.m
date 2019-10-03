@@ -32,7 +32,7 @@
 #import "OneSignalWebView.h"
 #import "OneSignalClient.h"
 #import "Requests.h"
-#import "OneSignalNotificationData.h"
+#import "OSOutcomesUtils.h"
 #import "OneSignalSessionManager.h"
 
 @interface OneSignal ()
@@ -66,18 +66,16 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 
-+ (void) beginBackgroundFocusTask {
++ (void)beginBackgroundFocusTask {
     focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
         [OneSignalTracker endBackgroundFocusTask];
     }];
 }
 
-+ (void) endBackgroundFocusTask {
++ (void)endBackgroundFocusTask {
     [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
 }
-
-
 
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
@@ -144,6 +142,8 @@ static BOOL lastOnFocusWasToBackground = YES;
     // Update the playtime on the server when the app put into the background or the device goes to sleep mode.
     if (toBackground)
         [self sendBackgroundFocusPing:timeToPingWith];
+    else
+        [OneSignalSessionManager initLastSession];
 }
 
 + (void)sendBackgroundFocusPing:(NSTimeInterval)timeToPingWith {
@@ -151,34 +151,26 @@ static BOOL lastOnFocusWasToBackground = YES;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignalTracker beginBackgroundFocusTask];
         
-        NSMutableDictionary *requests = [NSMutableDictionary new];
-        NSString *notificationId = [OneSignalNotificationData getLastNotificationId];
-        SessionOutcome session = [OneSignalSessionManager session];
         NSNumber *deviceType = [NSNumber numberWithInt:DEVICE_TYPE];
+        NSMutableDictionary *requests = [NSMutableDictionary new];
         
-        requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId]
-                                                   appId:[OneSignal app_id]
-                                                   state:@"ping"
-                                                    type:@1
-                                              activeTime:@(timeToPingWith)
-                                                 netType:[OneSignalHelper getNetType]
-                                          emailAuthToken:nil
-                                              deviceType:deviceType
-                                          sessionOutcome:session
-                                          notificationId:notificationId];
-                   
-        if ([OneSignal mEmailUserId])
-            requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId]
-                                                        appId:[OneSignal app_id]
-                                                        state:@"ping"
-                                                         type:@1
-                                                   activeTime:@(timeToPingWith)
-                                                      netType:[OneSignalHelper getNetType]
-                                               emailAuthToken:[OneSignal mEmailAuthToken]
-                                                   deviceType:deviceType
-                                               sessionOutcome:session
-                                               notificationId:notificationId];
+        OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
+        SessionState session = sessionResult.session;
+        BOOL influencedSession = session == DIRECT || session == INDIRECT;
         
+        if (!influencedSession) {
+            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil deviceType:deviceType];
+            
+            if ([OneSignal mEmailUserId])
+                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken] deviceType:deviceType];
+        } else {
+            BOOL direct = session == DIRECT;
+            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil deviceType:deviceType directSession:direct notificationIds:sessionResult.notificationIds];
+            
+            if ([OneSignal mEmailUserId])
+                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken] deviceType:deviceType directSession:direct notificationIds:sessionResult.notificationIds];
+        }
+
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
         
         [OneSignalTracker endBackgroundFocusTask];
