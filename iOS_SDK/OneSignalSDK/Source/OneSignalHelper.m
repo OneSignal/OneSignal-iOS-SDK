@@ -436,10 +436,14 @@ static NSString *_lastMessageIdFromAction;
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
     NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
+        
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
         OSInAppMessage *message = [OSInAppMessage instancePreviewFromPayload:payload];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
         return YES;
     }
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Not Detected, Handle Normal Notification"];
     return NO;
 }
 

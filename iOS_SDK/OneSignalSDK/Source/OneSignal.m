@@ -126,7 +126,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021100";
+NSString* const ONESIGNAL_VERSION = @"021102";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -1302,6 +1302,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignalLocation getLocation:true];
 }
 
++ (BOOL)isLocationShared {
+    return mShareLocation;
+}
+
 
 + (void) handleDidFailRegisterForRemoteNotification:(NSError*)err {
     waitingForApnsResponse = false;
@@ -1869,9 +1873,8 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
-    if ([OneSignalHelper handleIAMPreview:payload]) {
+    if ([OneSignalHelper handleIAMPreview:payload])
         return;
-    }
 
     onesignal_Log(ONE_S_LL_VERBOSE, @"handleNotificationOpened:isActive called!");
 

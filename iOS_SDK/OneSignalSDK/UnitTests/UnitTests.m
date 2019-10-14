@@ -26,6 +26,7 @@
  */
 
 #import <XCTest/XCTest.h>
+#import <CoreLocation/CoreLocation.h>
 #import "UnitTestCommonMethods.h"
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
@@ -62,6 +63,8 @@
 #import "UIAlertViewOverrider.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
 #import "OneSignalClientOverrider.h"
+#import "OneSignalLocation.h"
+#import "OneSignalLocationOverrider.h"
 
 // Dummies
 #import "DummyNotificationCenterDelegate.h"
@@ -89,14 +92,17 @@
 - (void)setUp {
     [super setUp];
     
+    // Only enable remote-notifications in UIBackgroundModes
+    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
+    // Clear last location stored
+    [OneSignalLocation clearLastLocation];
+    
     OneSignalHelperOverrider.mockIOSVersion = 10;
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
     UNUserNotificationCenterOverrider.notifTypesOverride = 7;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
-    
-    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
     [NSUserDefaultsOverrider clearInternalDictionary];
     
@@ -218,6 +224,66 @@
 		XCTAssertNotEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are equal %@ %@", semantic, [raw one_getSemanticVersion] );
 	}];
 
+}
+
+- (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_AlwaysUsage {
+    OneSignalHelperOverrider.mockIOSVersion = 8;
+    
+    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification", @"location"],
+                                             @"NSLocationAlwaysUsageDescription" : @YES
+                                             };
+    
+    [self initOneSignalAndThreadWait];
+    
+    [self assertLocationShared_withGrantLocationServices];
+}
+
+- (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_AlwaysAndWhenInUseUsage {
+    OneSignalHelperOverrider.mockIOSVersion = 8;
+    
+    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification", @"location"],
+                                             @"NSLocationAlwaysAndWhenInUseUsageDescription" : @YES
+                                             };
+    
+    [self initOneSignalAndThreadWait];
+    
+    [self assertLocationShared_withGrantLocationServices];
+}
+
+- (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_WhenInUseUsage {
+    OneSignalHelperOverrider.mockIOSVersion = 8;
+    
+    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"],
+                                             @"NSLocationWhenInUseUsageDescription" : @YES
+                                             };
+    
+    [self initOneSignalAndThreadWait];
+    
+    [self assertLocationShared_withGrantLocationServices];
+}
+
+- (void)testLocationPromptAcceptedWithSetLocationShared_iOS7AndUnder {
+    OneSignalHelperOverrider.mockIOSVersion = 7;
+    
+    [self initOneSignalAndThreadWait];
+    
+    [self assertLocationShared_withGrantLocationServices];
+}
+
+- (void)assertLocationShared_withGrantLocationServices {
+    // Set location shared false
+    [OneSignal setLocationShared:false];
+    // Simulate user granting location services
+    [OneSignalLocationOverrider grantLocationServices];
+    // Last location should not exist since we are not sharing location
+    XCTAssertFalse([OneSignalLocation lastLocation]);
+    
+    // Set location shared true
+    [OneSignal setLocationShared:true];
+    // Simulate user granting location services
+    [OneSignalLocationOverrider grantLocationServices];
+    // Last location should not exist since we are not sharing location
+    XCTAssertTrue([OneSignalLocation lastLocation]);
 }
 
 - (void)testRegisterationOniOS7 {
