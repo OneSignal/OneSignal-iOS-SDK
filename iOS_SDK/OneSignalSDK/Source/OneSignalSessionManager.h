@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@
 + (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
 + (void)initLastSession;
 + (void)restartSession;
++ (void)clearSessionData;
 + (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
 
 @end
