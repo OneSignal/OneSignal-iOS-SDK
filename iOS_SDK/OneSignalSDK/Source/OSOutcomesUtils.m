@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ static int DEFAULT_NOTIFICATION_LIMIT = 10;
         NSMutableArray *notificationIdsMutable = [notifications mutableCopy];
         long lengthDifference = [notificationIdsMutable count] - notificationLimit;
         
-        NSMutableArray *toDelete = [NSMutableArray init];
+        NSMutableArray *toDelete = [NSMutableArray new];
         for (int i = 0; i < lengthDifference; i++) {
             [toDelete addObject:[notificationIdsMutable objectAtIndex:i]];
         }

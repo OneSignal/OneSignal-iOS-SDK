@@ -67,14 +67,15 @@
 
 + (void)saveInteger:(NSInteger)integer withKey:(NSString *)key {
     NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
-    [userDefaults setInteger:integer forKey:key];
+    [userDefaults setObject:[NSString stringWithFormat:@"%li", (long)integer] forKey:key];
     [userDefaults synchronize];
 }
 
 + (NSInteger)getSavedInteger:(NSString *)key defaultValue:(NSInteger)value {
-    if ([OneSignalSharedUserDefaults keyExists:key])
-        return [[OneSignalSharedUserDefaults getSharedUserDefault] integerForKey:key];
-    
+    if ([OneSignalSharedUserDefaults keyExists:key]) {
+        NSString *result = [self getSavedObject:key defaultValue:[NSString stringWithFormat:@"%li", (long)value]];
+        return [result intValue];
+    }
     return value;
 }
 

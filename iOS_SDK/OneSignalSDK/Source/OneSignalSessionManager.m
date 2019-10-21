@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -60,7 +60,12 @@ static SessionState _session = NONE;
             lastNotificationId = [notificationsIds firstObject];
             break;
         case INDIRECT:
-            notificationsReceived = notificationsIds;
+            [self setDirectSession];
+            if (lastNotificationId) {
+                _session = DIRECT;
+            } else {
+                notificationsReceived = notificationsIds;
+            }
             break;
         default:
             //Override session if one with more priority recently happened
@@ -71,13 +76,18 @@ static SessionState _session = NONE;
 
 + (void)restartSession {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session restarted"];
-    _session = NONE;
-    lastNotificationId = nil;
-    notificationsReceived = nil;
+    [self clearSessionData];
     
     [self onSessionStarted];
     if (_delegate)
         [_delegate onSessionRestart];
+}
+
++ (void)clearSessionData {
+    _session = NONE;
+    lastNotificationId = nil;
+    notificationsReceived = nil;
+    [OSOutcomesUtils saveLastSession:NONE notificationIds:nil];
 }
 
 + (void)onSessionStarted {
@@ -99,7 +109,7 @@ static SessionState _session = NONE;
     [OSOutcomesUtils saveLastSession:_session notificationIds:notificationIds];
 }
 
-+ (void)setNotificationsReceived {
++ (void)setDirectSession {
     if (lastNotificationId)
         //Direct session was recently set
         return;
@@ -110,8 +120,13 @@ static SessionState _session = NONE;
         lastNotificationId = directNotificationId;
         notificationsReceived = nil;
         [OSOutcomesUtils saveOpenedByNotification:nil];
-        return;
     }
+}
+
++ (void)setNotificationsReceived {
+    [self setDirectSession];
+    if (lastNotificationId)
+        return;
     
     NSArray *lastNotifications = [OSOutcomesUtils getNotifications];
     if (!lastNotifications || [lastNotifications count] == 0)

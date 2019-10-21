@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,9 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalSessionManager.h"
 #import "OneSignal.h"
+#import "OneSignalSessionManager.h"
+#import "OneSignalUserDefaults.h"
 
 @interface OneSignalOutcomesController : NSObject
 

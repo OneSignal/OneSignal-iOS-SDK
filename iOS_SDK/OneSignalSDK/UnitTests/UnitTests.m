@@ -187,8 +187,6 @@
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
-    
-    
 }
 
 - (void)testVersionStringLength {
@@ -217,7 +215,6 @@
 	[versionsThatFail enumerateKeysAndObjectsUsingBlock:^(NSString* raw, NSString* semantic, BOOL* stop) {
 		XCTAssertNotEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are equal %@ %@", semantic, [raw one_getSemanticVersion] );
 	}];
-
 }
 
 - (void)testRegisterationOniOS7 {

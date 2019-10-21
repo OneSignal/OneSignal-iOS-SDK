@@ -173,23 +173,25 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendDirectOutcome {
-    let request = [OSRequestSendOutcomesToServer directWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType requestParams:nil];
+    let request = [OSRequestSendOutcomesToServer directWithOutcomeId:@"test" appId:testAppId notificationIds:[NSArray arrayWithObject:testNotificationId] deviceType:testDeviceType requestParams:nil];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
+    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
-    
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @YES, @"notification_id" : testNotificationId}));
+
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @YES, @"notification_ids" : testNotificationIds}));
 }
 
 - (void)testSendIndirectOutcome {
-    let request = [OSRequestSendOutcomesToServer indirectWithOutcomeId:@"test" appId:testAppId notificationId:testNotificationId deviceType:testDeviceType requestParams: @{ @"weight" : @1 }];
+    let request = [OSRequestSendOutcomesToServer indirectWithOutcomeId:@"test" appId:testAppId notificationIds:[NSArray arrayWithObject:testNotificationId] deviceType:testDeviceType requestParams: @{ @"weight" : @1 }];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
+    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @NO, @"weight" : @1, @"notification_id" : testNotificationId}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"id" : @"test", @"device_type" : testDeviceType, @"direct" : @NO, @"weight" : @1, @"notification_ids" : testNotificationIds}));
 }
 
 - (void)testSendUnattributedOutcome {
@@ -313,18 +315,19 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     let firstRequest = [OSRequestBadgeCount withUserId:testUserId appId:testAppId badgeCount:@0 emailAuthToken:nil];
     
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
+    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     
     XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
     
-    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId state:@"test_state" type:@1 activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType sessionOutcome:INDIRECT notificationId:testNotificationId];
-    
+    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId state:@"test_state" type:@1 activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType directSession:NO notificationIds:[NSArray arrayWithObject:testNotificationId]];
+
     let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
     
     XCTAssertTrue([secondCorrectUrl isEqualToString:secondRequest.urlRequest.URL.absoluteString]);
     
     XCTAssertTrue(checkHttpBody(firstRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0}));
     
-    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_id": testNotificationId}));
+    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_ids": testNotificationIds}));
 }
 
 - (void)testInAppMessageViewed {
