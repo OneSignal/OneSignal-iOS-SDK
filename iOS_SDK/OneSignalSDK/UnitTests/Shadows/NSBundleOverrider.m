@@ -66,6 +66,8 @@ static BOOL privacyState = false;
 - (nullable id)overrideObjectForInfoDictionaryKey:(NSString*)key {
     if (privacyState && [key isEqualToString:ONESIGNAL_REQUIRE_PRIVACY_CONSENT])
         return @true;
+    else if ([@"CFBundlePackageType" isEqualToString:key])
+        return @"APPL";
     else
         return nsbundleDictionary[key];
 }
