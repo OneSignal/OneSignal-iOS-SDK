@@ -194,10 +194,10 @@
 - (void)testOutcomeLastSessionDirectToDirect {
     [self setOutcomesParamsEnabled];
     
-    [OneSignalSessionManager onSessionFromNotification:testNotificationId];
+    [OneSignalSessionManager onSessionFromNotification:@"test"];
     [OneSignalSessionManager initLastSession];
     
-    [OneSignalSessionManager onSessionFromNotification:@"test"];
+    [OneSignalSessionManager onSessionFromNotification:testNotificationId];
     [OneSignalSessionManager initLastSession];
     
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];

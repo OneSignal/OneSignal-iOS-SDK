@@ -40,6 +40,26 @@
 
 /*
  Save a set in NSUserDefaults with a key
+*/
++ (void)saveObject:(id)object withKey:(NSString *)key {
+    [NSUserDefaults.standardUserDefaults setObject:object forKey:key];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
+/*
+ Get an object from NSUserDefaults with a key
+*/
++ (id)getSavedObject:(NSString *)key defaultValue:(id)object {
+    // If the key exists in NSUserDefaults return the object
+    if ([OneSignalUserDefaults keyExists:key])
+        return [NSUserDefaults.standardUserDefaults objectForKey:key];
+    
+    // Return default boolean passed in if no boolean for key exists
+    return object;
+}
+
+/*
+ Save a set in NSUserDefaults with a key
  */
 + (void)saveBool:(BOOL)boolean withKey:(NSString *)key {
     [NSUserDefaults.standardUserDefaults setBool:boolean forKey:key];
@@ -56,6 +76,19 @@
     
     // Return default boolean passed in if no boolean for key exists
     return boolean;
+}
+
++ (void)saveDouble:(double)value withKey:(NSString *)key {
+    [NSUserDefaults.standardUserDefaults setDouble:value forKey:key];
+    [NSUserDefaults.standardUserDefaults synchronize];
+}
+
++ (double)getSavedDouble:(NSString *)key default:(double)value {
+    if ([OneSignalUserDefaults keyExists:key])
+        return (BOOL) [NSUserDefaults.standardUserDefaults doubleForKey:key];
+    
+    // Return default boolean passed in if no boolean for key exists
+    return value;
 }
 
 /*

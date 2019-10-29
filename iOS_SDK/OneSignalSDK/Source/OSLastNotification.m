@@ -52,8 +52,22 @@
     return self;
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f wasOnBackground: %@", _notificationId, _arrivalTime, _wasOnBackground ? @"YES" : @"NO"];
 }
+
+- (BOOL)isEqual:(OSLastNotification *)other {
+    if (other == self) {
+        return YES;
+    } else if (![super isEqual:other]) {
+        return NO;
+    } else {
+        return [other notificationId] == _notificationId;
+    }
+}
+
+- (NSUInteger)hash {
+    return [_notificationId hash];
+}
+
 @end

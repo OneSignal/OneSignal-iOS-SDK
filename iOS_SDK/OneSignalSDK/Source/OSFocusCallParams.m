@@ -25,21 +25,25 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalCommonDefines.h"
-#import "OSSessionResult.h"
+#import <Foundation/Foundation.h>
+#import "OSFocusCallParams.h"
 
-@protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult;
-@end
+@implementation OSFocusCallParams
 
-@interface OneSignalSessionManager : NSObject
+- (id)initWithParamsAppId:(NSString *)appId userId:(NSString *)userId emailUserId:(NSString *)emailUserId emailAuthToken:(NSString *)emailAuthToken netType:(NSNumber *)netType timeElapsed:(NSTimeInterval)timeElapsed notificationIds:(NSArray *)notificationIds direct:(BOOL)direct {
+    _appId = appId;
+    _userId = userId;
+    _emailUserId = emailUserId;
+    _emailAuthToken = emailAuthToken;
+    _netType = netType;
+    _timeElapsed = timeElapsed;
+    _notificationIds = notificationIds;
+    _direct = direct;
+    return self;
+}
 
-+ (SessionState)session;
-+ (OSSessionResult *_Nonnull)sessionResult;
-+ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
-+ (void)initLastSession;
-+ (void)restartSession;
-+ (void)clearSessionData;
-+ (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
-
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"OSFocusCallParams appId: %@ userId: %@ emailUserId: %@ emailAuthToken: %@ netType: %@ timeElapsed: %f notificationIds: %@ isDirect: %@", _appId, _userId, _emailUserId, _emailAuthToken, _netType, _timeElapsed, _notificationIds, _direct ? @"YES" : @"NO"];
+}
 @end

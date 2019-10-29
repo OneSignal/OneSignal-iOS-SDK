@@ -37,8 +37,8 @@ const int MAX_DIRECT_SESSION_TIME_SET = 10;
 
 @implementation OneSignalSessionManager
 
-NSArray *notificationsReceived = nil;
-NSString *lastNotificationId = nil;
+NSArray *indirectNotificationIds = nil;
+NSString *directNotificationId = nil;
 
 static id<SessionStatusDelegate> _delegate;
 + (void)setDelegate:(id<SessionStatusDelegate>)delegate {
@@ -55,38 +55,57 @@ static SessionState _session = NONE;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Session lastSession: %@ notificationsIds: %@", sessionStateString(lastSession), notificationsIds]];
     _session = lastSession;
     
+    if (_session == NONE) {
+        //First Session Init
+        [self onSessionStarted];
+        return;
+    }
+    
     switch (_session) {
         case DIRECT:
-            lastNotificationId = [notificationsIds firstObject];
+            directNotificationId = [notificationsIds firstObject];
             break;
         case INDIRECT:
-            [self setDirectSession];
-            if (lastNotificationId) {
-                _session = DIRECT;
-            } else {
-                notificationsReceived = notificationsIds;
-            }
+            indirectNotificationIds = notificationsIds;
             break;
         default:
-            //Override session if one with more priority recently happened
-            [self onSessionStarted];
             break;
+    }
+    
+    OSSessionResult *lastSessionResult = [self sessionResult];
+    //Override session if one with more priority recently happened
+    BOOL upgraded = [self attemptSessionUpgrade];
+    
+    if (upgraded) {
+        NSArray *notificationIds = _session == DIRECT ? [NSArray arrayWithObject:directNotificationId] : indirectNotificationIds;
+        [OSOutcomesUtils saveLastSession:_session notificationIds:notificationIds];
+        
+        if (_delegate)
+            [_delegate onSessionEnding:lastSessionResult];
     }
 }
 
 + (void)restartSession {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session restarted"];
-    [self clearSessionData];
+    OSSessionResult *lastSessionResult = [self sessionResult];
+    SessionState lastSession = _session;
+    NSString *lastDirectNotificationId = directNotificationId;
+    NSArray *lastIndirectNotificationIds = indirectNotificationIds;
     
+    [self clearSessionData];
     [self onSessionStarted];
-    if (_delegate)
-        [_delegate onSessionRestart];
+    
+    BOOL sessionChanged = [self hasSessionChanged:lastSession lastDirectNotificationId:lastDirectNotificationId lastIndirectNotificationIds:lastIndirectNotificationIds];
+    if (sessionChanged &&_delegate) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session changed ending last session"];
+        [_delegate onSessionEnding:lastSessionResult];
+    }
 }
 
 + (void)clearSessionData {
     _session = NONE;
-    lastNotificationId = nil;
-    notificationsReceived = nil;
+    directNotificationId = nil;
+    indirectNotificationIds = nil;
     [OSOutcomesUtils saveLastSession:NONE notificationIds:nil];
 }
 
@@ -94,49 +113,160 @@ static SessionState _session = NONE;
     [self setNotificationsReceived];
     NSArray *notificationIds;
     
-    if (lastNotificationId) {
-        notificationIds = [NSArray arrayWithObject:lastNotificationId];
-        [self onSessionDirect];
-    } else if (notificationsReceived && [notificationsReceived count] > 0) {
-        notificationIds = notificationsReceived;
-        [self onSessionInfluenced];
+    if (directNotificationId) {
+        notificationIds = [NSArray arrayWithObject:directNotificationId];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Direct session with notification: %@", directNotificationId]];
+        _session = DIRECT;
+    } else if (indirectNotificationIds && [indirectNotificationIds count] > 0) {
+        notificationIds = indirectNotificationIds;
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Indirect session"];
+        _session = INDIRECT;
     } else {
         notificationIds = nil;
-        [self onSessionNotInfluenced];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Not influenced session"];
+        _session = UNATTRIBUTED;
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Session saveLastSession: %@ notificationsIds: %@", sessionStateString(_session), notificationIds]];
     [OSOutcomesUtils saveLastSession:_session notificationIds:notificationIds];
 }
 
-+ (void)setDirectSession {
-    if (lastNotificationId)
-        //Direct session was recently set
++ (void)onSessionFromNotification:(NSString *)notificationId {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onSessionFromNotification session with notification: %@", directNotificationId]];
+    BOOL sessionUpdated = [self setSession:DIRECT newDirectNotificationId:notificationId newIndirectNotificationIds:nil];
+    if (sessionUpdated) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Direct session with notification: %@", directNotificationId]];
+        //What will happend if application was closen and not in background
+        [OSOutcomesUtils saveOpenedByNotification:notificationId];
+    }
+}
+
++ (BOOL)compareSessions:(SessionState)currentSession currentDirectNotificationId:(NSString *)currentDirectNotificationId currentIndirectNotificationIds:(NSArray *)currentIndirectNotificationIds newSession:(SessionState)newSession newDirectNotificationId:(NSString *)newDirectNotificationId newIndirectNotificationIds:(NSArray *)newIndirectNotificationIds {
+      if (currentSession != newSession)
+          return true;
+
+      // Allow updating a direct session to a new direct when a new notification is clicked
+      if (currentSession == DIRECT &&
+          newDirectNotificationId != nil &&
+              currentDirectNotificationId != newDirectNotificationId) {
+          return true;
+      }
+
+      // Allow updating an indirect session to a new indirect when a new notification is received
+      if (currentSession == INDIRECT &&
+         newIndirectNotificationIds != nil &&
+         [newIndirectNotificationIds count] > 0 &&
+          ![newIndirectNotificationIds isEqualToArray:currentIndirectNotificationIds]) {
+          return true;
+      }
+
+      return false;
+}
+
++ (BOOL)hasSessionChanged:(SessionState)lastSession lastDirectNotificationId:(NSString *)lastDirectNotificationId lastIndirectNotificationIds:(NSArray *)lastIndirectNotificationIds {
+    return [self compareSessions:lastSession currentDirectNotificationId:lastDirectNotificationId currentIndirectNotificationIds:lastIndirectNotificationIds newSession:_session newDirectNotificationId:directNotificationId newIndirectNotificationIds:indirectNotificationIds];
+}
+
++ (BOOL)willChangeSession:(SessionState)newSession newDirectNotificationId:(NSString *)newDirectNotificationId newIndirectNotificationIds:(NSArray *)newIndirectNotificationIds {
+    return [self compareSessions:_session currentDirectNotificationId:directNotificationId currentIndirectNotificationIds:indirectNotificationIds newSession:newSession newDirectNotificationId:newDirectNotificationId newIndirectNotificationIds:newIndirectNotificationIds];
+}
+
++ (BOOL)setSession:(SessionState)newSession newDirectNotificationId:(NSString *)newDirectNotificationId newIndirectNotificationIds:(NSArray *)newIndirectNotificationIds {
+    if (![self willChangeSession:newSession newDirectNotificationId:newDirectNotificationId newIndirectNotificationIds:newIndirectNotificationIds])
+        return false;
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString
+                                                       stringWithFormat:@"OSSession changed from session %@ with direct notification %@ indirect notification %@ to session %@ direct notification %@ indirect notification %@", sessionStateString(_session), directNotificationId, indirectNotificationIds, sessionStateString(newSession), newDirectNotificationId, newIndirectNotificationIds]];
+    
+    OSSessionResult *lastSessionResult = [self sessionResult];
+    if (_delegate)
+        [_delegate onSessionEnding:lastSessionResult];
+
+    _session = newSession;
+    directNotificationId = newDirectNotificationId;
+    indirectNotificationIds = newIndirectNotificationIds;
+    
+    return true;
+}
+
+/**
+    Attempt to override the current session before the 30 second session minimum
+    This should only be done in a upward direction:
+      * UNATTRIBUTED can become INDIRECT or DIRECT
+      * INDIRECT can become DIRECT
+      * DIRECT can become DIRECT
+*/
++ (BOOL)attemptSessionUpgrade {
+    NSString *lastDirectNotificationId = [OSOutcomesUtils wasOpenedByNotification];
+    if (lastDirectNotificationId) {
+        return [self setSession:DIRECT newDirectNotificationId:lastDirectNotificationId newIndirectNotificationIds:nil];
+    }
+        
+    if (_session == UNATTRIBUTED) {
+        NSArray *lastNotificationsReceivedIds = [self getLastNotificationsReceivedIds];
+        if (lastNotificationsReceivedIds && [lastNotificationsReceivedIds count] > 0) {
+            return [self setSession:INDIRECT newDirectNotificationId:nil newIndirectNotificationIds:lastNotificationsReceivedIds];
+        }
+    }
+    
+    return false;
+}
+
++ (OSSessionResult *)sessionResult {
+    if (_session == DIRECT && directNotificationId) {
+        if ([OSOutcomesUtils isDirectSessionEnabled]) {
+            NSArray *notificationIds = [NSArray arrayWithObject:directNotificationId];
+        
+            return [[OSSessionResult alloc] initWithNotificationIds:notificationIds session:DIRECT];
+        }
+    } else if (_session == INDIRECT && indirectNotificationIds) {
+        if ([OSOutcomesUtils isIndirectSessionEnabled])
+             return [[OSSessionResult alloc] initWithNotificationIds:indirectNotificationIds session:INDIRECT];
+    } else if ([OSOutcomesUtils isUnattributedSessionEnabled]) {
+         return [[OSSessionResult alloc] initWithSession:UNATTRIBUTED];
+    }
+    
+    return [[OSSessionResult alloc] initWithSession:DISABLED];
+}
+
++ (void)setNotificationsReceived {
+    [self setDirectSessionIfExists];
+    if (directNotificationId)
         return;
     
-    NSString *directNotificationId = [OSOutcomesUtils wasOpenedByNotification];
+    directNotificationId = nil;
+    indirectNotificationIds = [self getLastNotificationsReceivedIds];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Session notifications: %@", indirectNotificationIds]];
+}
+
++ (void)setDirectSessionIfExists {
     if (directNotificationId) {
+        //Direct session was recently set
+        indirectNotificationIds = nil;
+        return;
+    }
+    
+    NSString *lastDirectNotificationId = [OSOutcomesUtils wasOpenedByNotification];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Session lastDirectNotificationId: %@", lastDirectNotificationId]];
+    
+    if (lastDirectNotificationId) {
         //Direct session from application being closed and opened by notification
-        lastNotificationId = directNotificationId;
-        notificationsReceived = nil;
+        directNotificationId = lastDirectNotificationId;
+        indirectNotificationIds = nil;
         [OSOutcomesUtils saveOpenedByNotification:nil];
     }
 }
 
-+ (void)setNotificationsReceived {
-    [self setDirectSession];
-    if (lastNotificationId)
-        return;
-    
++ (NSArray *)getLastNotificationsReceivedIds {
     NSArray *lastNotifications = [OSOutcomesUtils getNotifications];
     if (!lastNotifications || [lastNotifications count] == 0)
         //Unattributed session
-        return;
+        return nil;
     
     NSMutableArray *notificationsIds = [NSMutableArray new];
     NSInteger attributionWindowInSeconds = [OSOutcomesUtils getIndirectAttributionWindow] * 60;
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
-    
+   
     for (OSLastNotification *notification in lastNotifications) {
         long difference = currentTime - notification.arrivalTime;
         if (difference <= attributionWindowInSeconds) {
@@ -144,48 +274,7 @@ static SessionState _session = NONE;
         }
     }
     
-    lastNotificationId = nil;
-    notificationsReceived = notificationsIds;
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Session notifications: %@", notificationsReceived]];
+    return notificationsIds;
 }
 
-+ (void)onSessionNotInfluenced {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Not influenced session"];
-    _session = UNATTRIBUTED;
-}
-
-+ (void)onSessionInfluenced {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Indirect session"];
-    _session = INDIRECT;
-}
-
-+ (void)onSessionDirect {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Direct session with notification: %@", lastNotificationId]];
-    _session = DIRECT;
-}
-
-+ (void)onSessionFromNotification:(NSString *)notificationId {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onSessionFromNotification session with notification: %@", lastNotificationId]];
-    lastNotificationId = notificationId;
-    [self onSessionDirect];
-    
-    [OSOutcomesUtils saveOpenedByNotification:notificationId];
-}
-
-+ (OSSessionResult *)sessionResult {
-    if (_session == DIRECT && lastNotificationId) {
-        if ([OSOutcomesUtils isDirectSessionEnabled]) {
-            NSArray *notificationIds = [NSArray arrayWithObject:lastNotificationId];
-        
-            return [[OSSessionResult alloc] initWithNotificationIds:notificationIds session:DIRECT];
-        }
-    } else if (_session == INDIRECT && notificationsReceived) {
-        if ([OSOutcomesUtils isIndirectSessionEnabled])
-             return [[OSSessionResult alloc] initWithNotificationIds:notificationsReceived session:INDIRECT];
-    } else if ([OSOutcomesUtils isUnattributedSessionEnabled]) {
-         return [[OSSessionResult alloc] initWithSession:UNATTRIBUTED];
-    }
-    
-    return [[OSSessionResult alloc] initWithSession:DISABLED];
-}
 @end

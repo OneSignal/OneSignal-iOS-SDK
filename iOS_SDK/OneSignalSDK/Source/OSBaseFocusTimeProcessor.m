@@ -25,21 +25,50 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalCommonDefines.h"
 #import "OSSessionResult.h"
+#import "OSBaseFocusTimeProcessor.h"
+#import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
 
-@protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult;
-@end
+const int DEFAULT_MIN_SESSION_TIME = 60;
 
-@interface OneSignalSessionManager : NSObject
+@implementation OSBaseFocusTimeProcessor
+NSNumber* unsentActiveTime;
 
-+ (SessionState)session;
-+ (OSSessionResult *_Nonnull)sessionResult;
-+ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
-+ (void)initLastSession;
-+ (void)restartSession;
-+ (void)clearSessionData;
-+ (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _onFocusCallEnabled = YES;
+    }
+    return self;
+}
+
+- (int)getMinSessionTime {
+    return DEFAULT_MIN_SESSION_TIME;
+}
+- (BOOL)isTimeCorrect:(NSTimeInterval)activeTime {
+    NSLog(@"isTimeCorrect getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime);
+    return activeTime > [self getMinSessionTime];
+}
+
+- (void)resetUnsentActiveTime {
+    unsentActiveTime = nil;
+}
+
+- (void)setOnFocusCallEnabled:(BOOL)enabled {
+    _onFocusCallEnabled = enabled;
+}
+
+- (void)saveUnsentActiveTime:(NSTimeInterval)time {
+    [OneSignalUserDefaults saveObject:@(time) withKey:UNSENT_ACTIVE_TIME];
+}
+
+- (NSTimeInterval)getUnsentActiveTime {
+    if (!unsentActiveTime)
+        unsentActiveTime = [OneSignalUserDefaults getSavedObject:UNSENT_ACTIVE_TIME defaultValue:@0];
+    
+    return [unsentActiveTime doubleValue];
+}
 
 @end

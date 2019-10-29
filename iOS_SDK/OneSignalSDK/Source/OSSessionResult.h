@@ -36,4 +36,8 @@
 - (id _Nonnull )initWithNotificationIds:(NSArray * _Nullable)notificationIds session:(SessionState)session;
 - (id _Nonnull )initWithSession:(SessionState)session;
 
+- (BOOL)isSessionUnAttributed;
+- (BOOL)isSessionAttributed;
+- (BOOL)isSessionDirect;
+
 @end

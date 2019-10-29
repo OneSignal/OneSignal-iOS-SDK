@@ -25,21 +25,23 @@
  * THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
 #import "OneSignalCommonDefines.h"
-#import "OSSessionResult.h"
+#import "OSFocusCallParams.h"
 
-@protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult;
-@end
+@interface OSBaseFocusTimeProcessor : NSObject
 
-@interface OneSignalSessionManager : NSObject
+@property (nonatomic, readonly) BOOL onFocusCallEnabled;
 
-+ (SessionState)session;
-+ (OSSessionResult *_Nonnull)sessionResult;
-+ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
-+ (void)initLastSession;
-+ (void)restartSession;
-+ (void)clearSessionData;
-+ (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
+- (int)getMinSessionTime;
+- (BOOL)isTimeCorrect:(NSTimeInterval)activeTime;
+
+- (void)resetUnsentActiveTime;
+- (void)setOnFocusCallEnabled:(BOOL)enabled;
+- (void)sendOnFocusCall:(OSFocusCallParams *)params;
+- (void)sendUnsentActiveTime:(OSFocusCallParams *)params;
+
+- (NSTimeInterval)getUnsentActiveTime;
+- (void)saveUnsentActiveTime:(NSTimeInterval)time;
 
 @end

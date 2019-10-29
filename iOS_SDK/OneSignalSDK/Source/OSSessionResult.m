@@ -41,6 +41,18 @@
     return self;
 }
 
+- (BOOL)isSessionUnAttributed {
+    return _session == UNATTRIBUTED;
+}
+
+- (BOOL)isSessionAttributed {
+    return [self isSessionDirect] || _session == INDIRECT;
+}
+
+- (BOOL)isSessionDirect {
+    return _session == DIRECT;
+}
+
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"OSSessionResult notificationIds: %@ session: %@", _notificationIds, sessionStateString(_session)];

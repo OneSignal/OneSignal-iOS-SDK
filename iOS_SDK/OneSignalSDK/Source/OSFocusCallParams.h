@@ -25,21 +25,17 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalCommonDefines.h"
-#import "OSSessionResult.h"
+@interface OSFocusCallParams : NSObject
 
-@protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult;
-@end
+@property (nonatomic, readonly) NSString *appId;
+@property (nonatomic, readonly) NSString *userId;
+@property (nonatomic, readonly) NSString *emailUserId;
+@property (nonatomic, readonly) NSString *emailAuthToken;
+@property (nonatomic, readonly) NSNumber *netType;
+@property (nonatomic, readonly) NSArray *notificationIds;
+@property (nonatomic, readonly) NSTimeInterval timeElapsed;
+@property (nonatomic, readonly) BOOL direct;
 
-@interface OneSignalSessionManager : NSObject
-
-+ (SessionState)session;
-+ (OSSessionResult *_Nonnull)sessionResult;
-+ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
-+ (void)initLastSession;
-+ (void)restartSession;
-+ (void)clearSessionData;
-+ (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
+- (id)initWithParamsAppId:(NSString *)appId userId:(NSString *)userId emailUserId:(NSString *)emailUserId emailAuthToken:(NSString *)emailAuthToken netType:(NSNumber *)netType timeElapsed:(NSTimeInterval)timeElapsed notificationIds:(NSArray *)notificationIds direct:(BOOL)direct;
 
 @end

@@ -25,21 +25,10 @@
  * THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
 #import "OneSignalCommonDefines.h"
-#import "OSSessionResult.h"
+#import "OSBaseFocusTimeProcessor.h"
 
-@protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult;
-@end
-
-@interface OneSignalSessionManager : NSObject
-
-+ (SessionState)session;
-+ (OSSessionResult *_Nonnull)sessionResult;
-+ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
-+ (void)initLastSession;
-+ (void)restartSession;
-+ (void)clearSessionData;
-+ (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
+@interface OSAttributedFocusTimeProcessor : OSBaseFocusTimeProcessor
 
 @end

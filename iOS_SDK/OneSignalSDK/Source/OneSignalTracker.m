@@ -34,6 +34,11 @@
 #import "Requests.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalSessionManager.h"
+#import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
+#import "OSFocusTimeProcessorFactory.h"
+#import "OSBaseFocusTimeProcessor.h"
+#import "OSFocusCallParams.h"
 
 @interface OneSignal ()
 
@@ -48,33 +53,17 @@
 
 @implementation OneSignalTracker
 
-static NSNumber* unSentActiveTime;
-static UIBackgroundTaskIdentifier focusBackgroundTask;
 static NSTimeInterval lastOpenedTime;
 static BOOL lastOnFocusWasToBackground = YES;
 
-
 + (void)resetLocals {
-    unSentActiveTime = nil;
-    focusBackgroundTask = 0;
+    [OSFocusTimeProcessorFactory resetUnsentActiveTime];
     lastOpenedTime = 0;
     lastOnFocusWasToBackground = YES;
 }
 
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened {
     lastOpenedTime = lastOpened;
-}
-
-
-+ (void)beginBackgroundFocusTask {
-    focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        [OneSignalTracker endBackgroundFocusTask];
-    }];
-}
-
-+ (void)endBackgroundFocusTask {
-    [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
-    focusBackgroundTask = UIBackgroundTaskInvalid;
 }
 
 + (void)onFocus:(BOOL)toBackground {
@@ -87,46 +76,34 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (lastOnFocusWasToBackground == toBackground)
         return;
     lastOnFocusWasToBackground = toBackground;
-
-    bool wasBadgeSet = false;
-    
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval timeToPingWith = 0.0;
-    
     
     if (toBackground) {
-        [[NSUserDefaults standardUserDefaults] setDouble:now forKey:@"GT_LAST_CLOSED_TIME"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        NSTimeInterval timeElapsed = now - lastOpenedTime + 0.5;
-        if (timeElapsed < 0 || timeElapsed > 86400)
-            return;
-        
-        NSTimeInterval unsentActive = [OneSignalTracker getUnsentActiveTime];
-        NSTimeInterval totalTimeActive = unsentActive + timeElapsed;
-        
-        if (totalTimeActive < 30) {
-            [OneSignalTracker saveUnsentActiveTime:totalTimeActive];
-            return;
-        }
-        
-        timeToPingWith = totalTimeActive;
+        [self applicationBackgrounded];
+    } else {
+        [self applicationForegrounded];
     }
-    else {
-        lastOpenedTime = now;
-        BOOL firedUpdate = [OneSignal sendNotificationTypesUpdate];
-        
-        // on_session tracking when resumming app.
-        if (!firedUpdate && [OneSignal mUserId])
-            [OneSignal registerUser];
-        wasBadgeSet = [OneSignal clearBadgeCount:false];
-    }
+}
 
++ (void)applicationForegrounded {
+    NSLog(@"applicationForegrounded start");
+    [OSFocusTimeProcessorFactory cancelFocusCall];
+   
+    lastOpenedTime = [[NSDate date] timeIntervalSince1970];
+    BOOL firedUpdate = [OneSignal sendNotificationTypesUpdate];
+    
+    // on_session tracking when resumming app.
+    if (!firedUpdate && [OneSignal mUserId])
+        [OneSignal registerUser];
+    else
+        [OneSignalSessionManager initLastSession];
+    
+    bool wasBadgeSet = [OneSignal clearBadgeCount:false];
+    
     if (![OneSignal mUserId])
         return;
     
-    // If resuming and badge was set, clear it on the server as well.
-    if (wasBadgeSet && !toBackground) {
+    // If badge was set, clear it on the server as well.
+    if (wasBadgeSet) {
         NSMutableDictionary *requests = [NSMutableDictionary new];
         
         requests[@"push"] = [OSRequestBadgeCount withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:nil];
@@ -135,66 +112,66 @@ static BOOL lastOnFocusWasToBackground = YES;
             requests[@"email"] = [OSRequestBadgeCount withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken]];
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
-        
+    }
+    NSLog(@"applicationForegrounded end");
+}
+
++ (void)applicationBackgrounded {
+    NSLog(@"applicationBackgrounded start");
+    NSTimeInterval timeElapsed = [self getTimeFocusedElapsed];
+    if (timeElapsed < -1)
+        return;
+    
+    OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
+    OSFocusCallParams *focusCallParams = [self createFocusCallParams:sessionResult];
+    
+    OSBaseFocusTimeProcessor *timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:sessionResult focusEventType:BACKGROUND];
+    
+    if (timeProcessor)
+        [timeProcessor sendOnFocusCall:focusCallParams];
+    
+    NSLog(@"applicationBackgrounded end");
+}
+
++ (void)onSessionEnded:(OSSessionResult *)lastSessionResult {
+    NSLog(@"onSessionEnded started");
+    NSTimeInterval timeElapsed = [self getTimeFocusedElapsed];
+    OSFocusCallParams *focusCallParams = [self createFocusCallParams:lastSessionResult];
+    OSBaseFocusTimeProcessor *timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:lastSessionResult focusEventType:END_SESSION];
+    
+    if (!timeProcessor) {
+        NSLog(@"No timeProcessor");
         return;
     }
-
-    // Update the playtime on the server when the app put into the background or the device goes to sleep mode.
-    if (toBackground)
-        [self sendBackgroundFocusPing:timeToPingWith];
+    
+    if (timeElapsed < -1)
+        // If there is no in focus time to be added we just need to send the time from the last session that just ended.
+        [timeProcessor sendUnsentActiveTime:focusCallParams];
     else
-        [OneSignalSessionManager initLastSession];
+        [timeProcessor sendOnFocusCall:focusCallParams];
 }
 
-+ (void)sendBackgroundFocusPing:(NSTimeInterval)timeToPingWith {
-    [OneSignalTracker saveUnsentActiveTime:0];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [OneSignalTracker beginBackgroundFocusTask];
-        
-        NSNumber *deviceType = [NSNumber numberWithInt:DEVICE_TYPE];
-        NSMutableDictionary *requests = [NSMutableDictionary new];
-        
-        OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
-        SessionState session = sessionResult.session;
-        BOOL influencedSession = session == DIRECT || session == INDIRECT;
-        
-        if (!influencedSession) {
-            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil deviceType:deviceType];
-            
-            if ([OneSignal mEmailUserId])
-                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken] deviceType:deviceType];
-        } else {
-            BOOL direct = session == DIRECT;
-            requests[@"push"] = [OSRequestOnFocus withUserId:[OneSignal mUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:nil deviceType:deviceType directSession:direct notificationIds:sessionResult.notificationIds];
-            
-            if ([OneSignal mEmailUserId])
-                requests[@"email"] = [OSRequestOnFocus withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] state:@"ping" type:@1 activeTime:@(timeToPingWith) netType:[OneSignalHelper getNetType] emailAuthToken:[OneSignal mEmailAuthToken] deviceType:deviceType directSession:direct notificationIds:sessionResult.notificationIds];
-        }
-
-        [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
-        
-        [OneSignalTracker endBackgroundFocusTask];
-    });
-}
-
-+ (NSTimeInterval)getUnsentActiveTime {
-    if (unSentActiveTime == NULL) {
-        unSentActiveTime = [NSNumber numberWithInteger:-1];
-    }
++ (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult {
+    NSTimeInterval timeElapsed = [self getTimeFocusedElapsed];
     
-    if ([unSentActiveTime intValue] == -1) {
-        unSentActiveTime = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_UNSENT_ACTIVE_TIME"];
-        if (unSentActiveTime == nil)
-            unSentActiveTime = 0;
-    }
-    
-    return [unSentActiveTime doubleValue];
+    OSFocusCallParams *focusCallParams = [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id] userId:[OneSignal mUserId] emailUserId:[OneSignal mEmailUserId] emailAuthToken:[OneSignal mEmailAuthToken] netType:[OneSignalHelper getNetType] timeElapsed:timeElapsed notificationIds:sessionResult.notificationIds direct:sessionResult.isSessionDirect];
+    return focusCallParams;
 }
 
-+ (void)saveUnsentActiveTime:(NSTimeInterval)time {
-    unSentActiveTime = @(time);
-    [[NSUserDefaults standardUserDefaults] setObject:unSentActiveTime forKey:@"GT_UNSENT_ACTIVE_TIME"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
++ (NSTimeInterval)getTimeFocusedElapsed {
+    if (!lastOpenedTime)
+        return -1;
+    
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    [OneSignalUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
+   
+    NSTimeInterval timeElapsed = now - lastOpenedTime + 0.5;
+   
+    // Time is invalid if below 1 or over a day
+    if (timeElapsed < 0 || timeElapsed > 86400)
+        return -1;
+
+    return timeElapsed;
 }
 
 @end

@@ -31,9 +31,15 @@
 
 + (BOOL)keyExists:(NSString *)key;
 
++ (void)saveObject:(id)object withKey:(NSString *)key;
++ (id)getSavedObject:(NSString *)key defaultValue:(id)object;
+
 // NSUserDefaults for storing and getting booleans
 + (void)saveBool:(BOOL)boolean withKey:(NSString *)key;
 + (BOOL)getSavedBool:(NSString *)key default:(BOOL)boolean;
+
++ (void)saveDouble:(double)value withKey:(NSString *)key;
++ (double)getSavedDouble:(NSString *)key default:(double)value;
 
 // NSUserDefaults for storing and getting sets
 + (void)saveSet:(NSSet *)set withKey:(NSString *)key;

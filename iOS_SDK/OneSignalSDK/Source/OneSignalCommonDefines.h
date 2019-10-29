@@ -38,7 +38,9 @@
 #define EMAIL_USERID @"GT_EMAIL_PLAYER_ID"
 #define USERID @"GT_PLAYER_ID"
 #define USERID_LAST @"GT_PLAYER_ID_LAST"
+#define USER_LAST_CLOSED_TIME @"GT_LAST_CLOSED_TIME"
 #define DEVICE_TOKEN @"GT_DEVICE_TOKEN"
+#define UNSENT_ACTIVE_TIME @"GT_UNSENT_ACTIVE_TIME"
 #define SUBSCRIPTION @"ONESIGNAL_SUBSCRIPTION"
 #define PUSH_TOKEN @"GT_DEVICE_TOKEN_LAST"
 #define ACCEPTED_PERMISSION @"ONESIGNAL_PERMISSION_ACCEPTED_LAST"
@@ -62,7 +64,7 @@
 #define OPENED_BY_NOTIFICATION @"OPENED_BY_NOTIFICATION"
 #define LAST_SESSION @"LAST_SESSION"
 #define LAST_SESSION_NOTIFICATION_IDS @"LAST_SESSION_NOTIFICATION_IDS"
-
+#define UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT @"UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
 // it indirectly with these macros
@@ -103,6 +105,12 @@
 // OneSignal Session Types
 typedef enum {DIRECT, INDIRECT, UNATTRIBUTED, DISABLED, NONE} SessionState;
 #define sessionStateString(enum) [@[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED", @"NONE"] objectAtIndex:enum]
+
+// OneSignal Session Types
+typedef enum {ATTRIBUTED, NOATTRIBUTED} FocusAttributionState;
+#define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOATTRIBUTED"] objectAtIndex:enum]
+
+typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;

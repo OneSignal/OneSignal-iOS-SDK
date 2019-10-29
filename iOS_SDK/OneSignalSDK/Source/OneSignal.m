@@ -45,6 +45,7 @@
 #import "OneSignalOutcomeController.h"
 #import "OneSignalSessionManager.h"
 #import "OSOutcomesUtils.h"
+#import "OneSignalCommonDefines.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -1400,11 +1401,9 @@ static BOOL waitingForOneSReg = false;
     nextRegistrationIsHighPriority = highPriority;
 }
 
-
 + (void)updateLastSessionDateTime {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    [[NSUserDefaults standardUserDefaults] setDouble:now forKey:@"GT_LAST_CLOSED_TIME"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [OneSignalUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
 }
 
 +(BOOL)shouldRegisterNow {
@@ -1418,7 +1417,8 @@ static BOOL waitingForOneSReg = false;
     
     // Figure out if should pass or not
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastTimeClosed = [[NSUserDefaults standardUserDefaults] doubleForKey:@"GT_LAST_CLOSED_TIME"];
+    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults getSavedDouble:USER_LAST_CLOSED_TIME default:0];
+
     if (!lastTimeClosed) {
         [self updateLastSessionDateTime];
         return true;
@@ -2549,9 +2549,11 @@ static NSString *_lastnonActiveMessageId;
 
 @implementation OneSignal (SessionStatusDelegate)
 
-+ (void)onSessionRestart {
++ (void)onSessionEnding:(OSSessionResult *)lastSessionResult {
     if (outcomeController)
         [outcomeController clearOutcomes];
+    if (lastSessionResult)
+        [OneSignalTracker onSessionEnded:lastSessionResult];
 }
 
 @end
