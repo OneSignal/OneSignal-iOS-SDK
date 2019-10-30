@@ -46,7 +46,11 @@
 }
 
 - (BOOL)isSessionAttributed {
-    return [self isSessionDirect] || _session == INDIRECT;
+    return [self isSessionDirect] || [self isSessionIndirect];
+}
+
+- (BOOL)isSessionIndirect {
+    return _session == INDIRECT;
 }
 
 - (BOOL)isSessionDirect {

@@ -85,19 +85,19 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)applicationForegrounded {
-    NSLog(@"applicationForegrounded start");
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
    
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];
-    BOOL firedUpdate = [OneSignal sendNotificationTypesUpdate];
+    let firedUpdate = [OneSignal sendNotificationTypesUpdate];
     
     // on_session tracking when resumming app.
     if (!firedUpdate && [OneSignal mUserId])
         [OneSignal registerUser];
     else
-        [OneSignalSessionManager initLastSession];
+        [OneSignalSessionManager attemptSessionUpgrade];
     
-    bool wasBadgeSet = [OneSignal clearBadgeCount:false];
+    let wasBadgeSet = [OneSignal clearBadgeCount:false];
     
     if (![OneSignal mUserId])
         return;
@@ -113,19 +113,17 @@ static BOOL lastOnFocusWasToBackground = YES;
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
     }
-    NSLog(@"applicationForegrounded end");
 }
 
 + (void)applicationBackgrounded {
-    NSLog(@"applicationBackgrounded start");
-    NSTimeInterval timeElapsed = [self getTimeFocusedElapsed];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Backgrounded started"];
+    let timeElapsed = [self getTimeFocusedElapsed];
     if (timeElapsed < -1)
         return;
     
-    OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
-    OSFocusCallParams *focusCallParams = [self createFocusCallParams:sessionResult];
-    
-    OSBaseFocusTimeProcessor *timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:sessionResult focusEventType:BACKGROUND];
+    let sessionResult = [OneSignalSessionManager sessionResult];
+    let focusCallParams = [self createFocusCallParams:sessionResult];
+    let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:sessionResult focusEventType:BACKGROUND];
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
@@ -134,13 +132,13 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)onSessionEnded:(OSSessionResult *)lastSessionResult {
-    NSLog(@"onSessionEnded started");
-    NSTimeInterval timeElapsed = [self getTimeFocusedElapsed];
-    OSFocusCallParams *focusCallParams = [self createFocusCallParams:lastSessionResult];
-    OSBaseFocusTimeProcessor *timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:lastSessionResult focusEventType:END_SESSION];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded started"];
+    let timeElapsed = [self getTimeFocusedElapsed];
+    let focusCallParams = [self createFocusCallParams:lastSessionResult];
+    let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:lastSessionResult focusEventType:END_SESSION];
     
     if (!timeProcessor) {
-        NSLog(@"No timeProcessor");
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded no time processor to end"];
         return;
     }
     
@@ -152,20 +150,18 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult {
-    NSTimeInterval timeElapsed = [self getTimeFocusedElapsed];
-    
-    OSFocusCallParams *focusCallParams = [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id] userId:[OneSignal mUserId] emailUserId:[OneSignal mEmailUserId] emailAuthToken:[OneSignal mEmailAuthToken] netType:[OneSignalHelper getNetType] timeElapsed:timeElapsed notificationIds:sessionResult.notificationIds direct:sessionResult.isSessionDirect];
-    return focusCallParams;
+    let timeElapsed = [self getTimeFocusedElapsed];
+    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id] userId:[OneSignal mUserId] emailUserId:[OneSignal mEmailUserId] emailAuthToken:[OneSignal mEmailAuthToken] netType:[OneSignalHelper getNetType] timeElapsed:timeElapsed notificationIds:sessionResult.notificationIds direct:sessionResult.isSessionDirect];
 }
 
 + (NSTimeInterval)getTimeFocusedElapsed {
     if (!lastOpenedTime)
         return -1;
     
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    let now = [[NSDate date] timeIntervalSince1970];
     [OneSignalUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
    
-    NSTimeInterval timeElapsed = now - lastOpenedTime + 0.5;
+    let timeElapsed = now - lastOpenedTime + 0.5;
    
     // Time is invalid if below 1 or over a day
     if (timeElapsed < 0 || timeElapsed > 86400)

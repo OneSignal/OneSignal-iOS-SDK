@@ -39,6 +39,7 @@
 + (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
 + (void)initLastSession;
 + (void)restartSession;
++ (void)attemptSessionUpgrade;
 + (void)clearSessionData;
 + (void)onSessionFromNotification:(NSString * _Nonnull)notificationId;
 

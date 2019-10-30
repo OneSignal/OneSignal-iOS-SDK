@@ -103,8 +103,8 @@
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
 // OneSignal Session Types
-typedef enum {DIRECT, INDIRECT, UNATTRIBUTED, DISABLED, NONE} SessionState;
-#define sessionStateString(enum) [@[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED", @"NONE"] objectAtIndex:enum]
+typedef enum {DIRECT, INDIRECT, UNATTRIBUTED, DISABLED} SessionState;
+#define sessionStateString(enum) [@[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"] objectAtIndex:enum]
 
 // OneSignal Session Types
 typedef enum {ATTRIBUTED, NOATTRIBUTED} FocusAttributionState;

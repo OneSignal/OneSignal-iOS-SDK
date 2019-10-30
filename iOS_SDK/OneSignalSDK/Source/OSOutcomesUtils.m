@@ -153,8 +153,8 @@ static int DEFAULT_NOTIFICATION_LIMIT = 10;
 }
 
 + (SessionState)getLastSession:(NSArray **)notificationIds {
-    NSString *sessionString = [OneSignalSharedUserDefaults getSavedString:LAST_SESSION defaultValue:sessionStateString(NONE)];
-    NSArray *sessionStateStrings = @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED", @"NONE"];
+    NSString *sessionString = [OneSignalSharedUserDefaults getSavedString:LAST_SESSION defaultValue:sessionStateString(UNATTRIBUTED)];
+    NSArray *sessionStateStrings = @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"];
     NSArray *lastNotificationIds = [OneSignalSharedUserDefaults getSavedObject:LAST_SESSION_NOTIFICATION_IDS defaultValue:nil];
  
     *notificationIds = lastNotificationIds;

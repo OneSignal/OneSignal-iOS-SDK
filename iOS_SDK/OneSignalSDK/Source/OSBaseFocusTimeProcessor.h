@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalCommonDefines.h"
 #import "OSFocusCallParams.h"
+#import "OneSignal.h"
 
 @interface OSBaseFocusTimeProcessor : NSObject
 

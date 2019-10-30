@@ -30,7 +30,7 @@
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 
-const int DEFAULT_MIN_SESSION_TIME = 60;
+const int MIN_ON_FOCUS_TIME_SEC = 60;
 
 @implementation OSBaseFocusTimeProcessor
 NSNumber* unsentActiveTime;
@@ -45,10 +45,10 @@ NSNumber* unsentActiveTime;
 }
 
 - (int)getMinSessionTime {
-    return DEFAULT_MIN_SESSION_TIME;
+    return MIN_ON_FOCUS_TIME_SEC;
 }
 - (BOOL)isTimeCorrect:(NSTimeInterval)activeTime {
-    NSLog(@"isTimeCorrect getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime);
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor isTimeCorrect getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
     return activeTime > [self getMinSessionTime];
 }
 

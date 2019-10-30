@@ -29,14 +29,13 @@
 #import "OneSignalClient.h"
 #import "OSUnattributedFocusTimeProcessor.h"
 
-const int UNATTRIBUTED_MIN_SESSION_TIME = 60;
+const int UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
 @implementation OSUnattributedFocusTimeProcessor
 
 static UIBackgroundTaskIdentifier focusBackgroundTask;
 
 - (void)beginBackgroundFocusTask {
-    NSLog(@"beginBackgroundFocusTask start");
     focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
         [self endBackgroundFocusTask];
     }];
@@ -45,20 +44,21 @@ static UIBackgroundTaskIdentifier focusBackgroundTask;
 - (void)endBackgroundFocusTask {
     [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
-     NSLog(@"endBackgroundFocusTask end");
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"endBackgroundFocusTask called"];
 }
 
 - (int)getMinSessionTime {
-    return UNATTRIBUTED_MIN_SESSION_TIME;
+    return UNATTRIBUTED_MIN_SESSION_TIME_SEC;
 }
 
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {
-    NSLog(@"sendOnFocusCall unattributed");
-    NSTimeInterval unsentActive = [super getUnsentActiveTime];
-    NSTimeInterval totalTimeActive = unsentActive + [params timeElapsed];
+    let unsentActive = [super getUnsentActiveTime];
+    let totalTimeActive = unsentActive + [params timeElapsed];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendOnFocusCall unattributed with totalTimeActive %f", totalTimeActive]];
     
     if (![super isTimeCorrect:totalTimeActive]) {
-        NSLog(@"sendOnFocusCall session less than 60");
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"unattributed session saveUnsentActiveTime %f", totalTimeActive]];
         [super saveUnsentActiveTime:totalTimeActive];
         return;
     }
@@ -67,23 +67,22 @@ static UIBackgroundTaskIdentifier focusBackgroundTask;
 }
 
 - (void)sendUnsentActiveTime:(OSFocusCallParams *)params {
-    NSTimeInterval unsentActive = [super getUnsentActiveTime];
-    NSLog(@"sendUnsentActiveTime %f", unsentActive);
+    let unsentActive = [super getUnsentActiveTime];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendUnsentActiveTime unattributed with unsentActive %f", unsentActive]];
+    
     [self sendOnFocusCallWithParams:params totalTimeActive:unsentActive];
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    if (![params userId]) {
-        NSLog(@"mUserId null");
+    if (![params userId])
         return;
-    }
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self beginBackgroundFocusTask];
-            NSLog(@"sendBackgroundUnattributedFocusPing start");
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginBackgroundFocusTask start"];
            
-            NSNumber *deviceType = [NSNumber numberWithInt:DEVICE_TYPE];
-            NSMutableDictionary *requests = [NSMutableDictionary new];
+            let deviceType = [NSNumber numberWithInt:DEVICE_TYPE];
+            let requests = [NSMutableDictionary new];
         
             requests[@"push"] = [OSRequestOnFocus withUserId:[params userId] appId:[params appId] state:@"ping" type:@1 activeTime:@(totalTimeActive) netType:[params netType] emailAuthToken:nil deviceType:deviceType];
             
@@ -92,10 +91,9 @@ static UIBackgroundTaskIdentifier focusBackgroundTask;
 
             [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
                 [super saveUnsentActiveTime:0];
-                NSLog(@"sendBackgroundUnattributedFocusPing succed");
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginBackgroundFocusTask unattributed succeed, saveUnsentActiveTime with 0"];
             } onFailure:nil];
         
-            NSLog(@"sendBackgroundUnattributedFocusPing end");
             [self endBackgroundFocusTask];
     });
 }

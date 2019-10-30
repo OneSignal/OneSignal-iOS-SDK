@@ -74,7 +74,12 @@ OneSignalSessionManager *outcomesSessionManager;
                   successBlock:(OSResultSuccessBlock _Nullable)success
                   failureBlock:(OSFailureBlock _Nullable)failure {
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
-    if ([sessionResult isSessionUnAttributed]) {
+    
+     // Special handling for unique outcomes in the attributed and unattributed scenarios
+    if ([sessionResult isSessionAttributed]) {
+        // Make sure unique notificationIds exist before trying to make measure request
+       
+    } else if ([sessionResult isSessionUnAttributed]) {
         // Make sure unique outcome has not been sent for current unattributed session
         if ([unattributedUniqueOutcomeEventsSentSet containsObject:name]) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Measure endpoint will not send because unique outcome already sent for: Session %@ Outcome name %@", sessionStateString(sessionResult.session), name]];
@@ -123,7 +128,6 @@ OneSignalSessionManager *outcomesSessionManager;
             [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer indirectWithOutcomeId:name appId:appId notificationIds:[sessionResult notificationIds] deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;
         case UNATTRIBUTED:
-        case NONE:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending unattributed outcome"];
             [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer unattributedWithOutcomeId:name appId:appId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;

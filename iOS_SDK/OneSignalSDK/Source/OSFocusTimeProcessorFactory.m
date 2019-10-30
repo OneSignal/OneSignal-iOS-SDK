@@ -29,6 +29,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OSAttributedFocusTimeProcessor.h"
 #import "OSUnattributedFocusTimeProcessor.h"
+#import "OneSignalHelper.h"
 
 @implementation OSFocusTimeProcessorFactory
 
@@ -43,6 +44,7 @@ static NSDictionary<NSString *, OSBaseFocusTimeProcessor *> *focusTimeProcessors
         if (timeProcesor)
             [timeProcesor setOnFocusCallEnabled:NO];
     }
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"cancelFocusCall of %@", focusTimeProcessors]];
 }
 
 + (void)resetUnsentActiveTime {
@@ -54,14 +56,16 @@ static NSDictionary<NSString *, OSBaseFocusTimeProcessor *> *focusTimeProcessors
         if (timeProcesor)
             [timeProcesor resetUnsentActiveTime];
     }
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", focusTimeProcessors]];
 }
 
 + (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType {
     if (!focusTimeProcessors)
         focusTimeProcessors = [[NSMutableDictionary alloc] init];
     
-    BOOL isAttributed = [result isSessionAttributed];
-    FocusAttributionState attributionState = isAttributed ? ATTRIBUTED : NOATTRIBUTED;
+    let isAttributed = [result isSessionAttributed];
+    let attributionState = isAttributed ? ATTRIBUTED : NOATTRIBUTED;
     NSString *key = focusAttributionStateString(attributionState);
     
     OSBaseFocusTimeProcessor *timeProcesor = [focusTimeProcessors objectForKey:key];
@@ -81,6 +85,8 @@ static NSDictionary<NSString *, OSBaseFocusTimeProcessor *> *focusTimeProcessors
         
         [focusTimeProcessors setValue:timeProcesor forKey:key];
     }
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %@", timeProcesor, isAttributed ? @"YES" : @"NO"]];
     
     return timeProcesor;
 }
