@@ -1,3 +1,4 @@
+#!/bin/bash
 # Generates a universal/fat framework that can be used in multiple architectures (x86_64 and arm64) to support both simulator and actual devices.
 # Note: When complete, this build script takes the fat framework and moves it to the {project root}/iOS_SDK/OneSignalSDK/Framework folder
 # 
@@ -14,8 +15,17 @@
 set -e
 set -o pipefail
 
+# for checking 'macosx' (Catalyst)
+sdk_prefix=$(echo $SDK_NAME | cut -c1-6)
+
+if [ "$sdk_prefix" == "macosx" ]; then
+# Build x86_64 based framework to support Catalyst 
+xcodebuild -configuration "${CONFIGURATION}" -project "${PROJECT_NAME}.xcodeproj" -target ${ONESIGNAL_TARGET_NAME} -sdk "macosx${SDK_VERSION}" "${ACTION}" ONLY_ACTIVE_ARCH=NO BITCODE_GENERATION_MODE=bitcode RUN_CLANG_STATIC_ANALYZER=NO CLANG_ENABLE_MODULE_DEBUGGING=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" SYMROOT="${SYMROOT}" MACH_O_TYPE=${ONESIGNAL_MACH_O_TYPE} -UseModernBuildSystem=NO
+fi
+
 # Build x86 based framework to support iOS simulator 
 xcodebuild -configuration "${CONFIGURATION}" -project "${PROJECT_NAME}.xcodeproj" -target ${ONESIGNAL_TARGET_NAME} -sdk "iphonesimulator${SDK_VERSION}" "${ACTION}" ONLY_ACTIVE_ARCH=NO BITCODE_GENERATION_MODE=bitcode RUN_CLANG_STATIC_ANALYZER=NO CLANG_ENABLE_MODULE_DEBUGGING=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" SYMROOT="${SYMROOT}" MACH_O_TYPE=${ONESIGNAL_MACH_O_TYPE} -UseModernBuildSystem=NO
+
 
 # Build arm based framework to support actual iOS devices
 xcodebuild -configuration "${CONFIGURATION}" -project "${PROJECT_NAME}.xcodeproj" -target ${ONESIGNAL_TARGET_NAME} -sdk "iphoneos${SDK_VERSION}" "${ACTION}" ONLY_ACTIVE_ARCH=NO BITCODE_GENERATION_MODE=bitcode RUN_CLANG_STATIC_ANALYZER=NO CLANG_ENABLE_MODULE_DEBUGGING=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" SYMROOT="${SYMROOT}" MACH_O_TYPE=${ONESIGNAL_MACH_O_TYPE} -UseModernBuildSystem=NO
