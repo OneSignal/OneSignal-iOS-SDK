@@ -1247,7 +1247,10 @@
 		CA2951B72167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
@@ -1261,6 +1264,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = NO;
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Release;
 		};
@@ -1399,7 +1403,10 @@
 		CA2951C32167FB950064227A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				CLANG_ANALYZER_GCD_PERFORMANCE = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
@@ -1413,6 +1420,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OneSignal;
 				SKIP_INSTALL = NO;
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Debug;
 		};

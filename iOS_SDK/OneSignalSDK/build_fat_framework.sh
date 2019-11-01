@@ -1,54 +1,56 @@
-# Generates a universal/fat framework that can be used in multiple architectures (x86_64 and arm64) to support both simulator and actual devices.
-# Note: When complete, this build script takes the fat framework and moves it to the {project root}/iOS_SDK/OneSignalSDK/Framework folder
-# 
-# INPUT ENVIRONMENTAL VARIABLES (set in Xcode project settings for our Aggregate targets)
-#     $ONESIGNAL_DESTINATION_PATH: The path where the final fat framework should be copied to
-#            eg: ${SRCROOT}/Framework
-#
-#     $ONESIGNAL_OUTPUT_NAME: The name of the framework produced (ie. {OneSignal}.framework)
-#
-#     $ONESIGNAL_TARGET_NAME: The name of the actual Xcode target that produces the framework
-#
-#     #ONESIGNAL_MACH_O_TYPE: Determines if the project is build as a static or dynamic library
-
 set -e
-set -o pipefail
 
-# Build x86 based framework to support iOS simulator 
-xcodebuild -configuration "${CONFIGURATION}" -project "${PROJECT_NAME}.xcodeproj" -target ${ONESIGNAL_TARGET_NAME} -sdk "iphonesimulator${SDK_VERSION}" "${ACTION}" ONLY_ACTIVE_ARCH=NO BITCODE_GENERATION_MODE=bitcode RUN_CLANG_STATIC_ANALYZER=NO CLANG_ENABLE_MODULE_DEBUGGING=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" SYMROOT="${SYMROOT}" MACH_O_TYPE=${ONESIGNAL_MACH_O_TYPE} -UseModernBuildSystem=NO
+WORKING_DIR=$(pwd)
 
-# Build arm based framework to support actual iOS devices
-xcodebuild -configuration "${CONFIGURATION}" -project "${PROJECT_NAME}.xcodeproj" -target ${ONESIGNAL_TARGET_NAME} -sdk "iphoneos${SDK_VERSION}" "${ACTION}" ONLY_ACTIVE_ARCH=NO BITCODE_GENERATION_MODE=bitcode RUN_CLANG_STATIC_ANALYZER=NO CLANG_ENABLE_MODULE_DEBUGGING=NO BUILD_DIR="${BUILD_DIR}" BUILD_ROOT="${BUILD_ROOT}" SYMROOT="${SYMROOT}" MACH_O_TYPE=${ONESIGNAL_MACH_O_TYPE} -UseModernBuildSystem=NO
+# TODO: For backwards compatible bitcode we need to build iphonesimulator + iphoneos with 3 versions behind the latest.
+#       However variant=Mac Catalyst needs to be be Xcode 11.0
+# /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-iphonesimulator/libOneSignal.a
+xcodebuild -sdk "iphonesimulator" ARCHS="x86_64"  -project "OneSignal.xcodeproj" -scheme "OneSignal"
 
-CURRENTCONFIG_DEVICE_DIR=${SYMROOT}/${CONFIGURATION}-iphoneos/${ONESIGNAL_OUTPUT_NAME}.framework
-CURRENTCONFIG_SIMULATOR_DIR=${SYMROOT}/${CONFIGURATION}-iphonesimulator/${ONESIGNAL_OUTPUT_NAME}.framework
-CREATING_UNIVERSAL_DIR=${SYMROOT}/${CONFIGURATION}-universal
-FINAL_FRAMEWORK_LOCATION=${CREATING_UNIVERSAL_DIR}/${ONESIGNAL_OUTPUT_NAME}.framework
-EXECUTABLE_DESTINATION=${FINAL_FRAMEWORK_LOCATION}/${ONESIGNAL_OUTPUT_NAME}
+# /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-iphoneos/libOneSignal.a
+xcodebuild -sdk "iphoneos" ARCHS="armv7 armv7s arm64" -project "OneSignal.xcodeproj" -scheme "OneSignal"
 
-rm -rf "${CREATING_UNIVERSAL_DIR}"
-mkdir "${CREATING_UNIVERSAL_DIR}"
+# /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-maccatalyst/libOneSignal.a
+xcodebuild ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' -project "OneSignal.xcodeproj" -scheme "OneSignal"
 
-# copy the device framework to the location
-# when we use lipo to merge device/sim frameworks, it only 
-# merges the actual binary. Thus, we need to copy all of the
-# Framework files (such as headers and modulemap)
-cp -a "${CURRENTCONFIG_DEVICE_DIR}" "${FINAL_FRAMEWORK_LOCATION}"
+USER=$(id -un)
+# TODO: This can return more than one folder, need to find if there is a better way to do this
+DERIVED_DATA_ONESIGNAL_DIR=$(find /Users/${USER}/Library/Developer/Xcode/DerivedData -name "OneSignal-*" -type d ! -path "*/Build/*")
 
-# This file gets replaced by lipo when building the fat/universal binary
-rm "${FINAL_FRAMEWORK_LOCATION}/${ONESIGNAL_OUTPUT_NAME}"
+echo $DERIVED_DATA_ONESIGNAL_DIR
 
-# Combine results
-# use lipo to combine device & simulator binaries into one
-lipo -create -output "${EXECUTABLE_DESTINATION}" "${CURRENTCONFIG_DEVICE_DIR}/${ONESIGNAL_OUTPUT_NAME}" "${CURRENTCONFIG_SIMULATOR_DIR}/${ONESIGNAL_OUTPUT_NAME}"
+# Use Debug configuration to expose symbols
+# TODO: Maybe detect 
+CATALYST_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-maccatalyst"
+SIMULATOR_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-iphonesimulator"
+IPHONE_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-iphoneos"
 
-# Move framework files to the location Versions/A/* and create
-# symlinks at the root of the framework, and Versions/Current
-cd $FINAL_FRAMEWORK_LOCATION
+CATALYST_OUTPUT_DIR=${CATALYST_DIR}/OneSignal.framework
+SIMULATOR_OUTPUT_DIR=${SIMULATOR_DIR}/OneSignal.framework
+IPHONE_OUTPUT_DIR=${IPHONE_DIR}/OneSignal.framework
 
-declare -a files=("Headers" "Modules" "${ONESIGNAL_OUTPUT_NAME}")
+UNIVERSAL_DIR=${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-universal
+FINAL_FRAMEWORK=${UNIVERSAL_DIR}/OneSignal.framework
+EXECUTABLE_DESTINATION=${FINAL_FRAMEWORK}/OneSignal
 
-# Create the Versions folders
+rm -rf "${UNIVERSAL_DIR}"
+mkdir "${UNIVERSAL_DIR}"
+
+# TODO: Frmamework sturctor does not seem to be created when running from command line.
+#       Need to find a way to build this up or what command needs to be run to do this for us
+# cp -a "${IPHONE_DIR}/OneSignal.framework" "${FINAL_FRAMEWORK}"
+mkdir "${FINAL_FRAMEWORK}"
+
+#"${IPHONE_DIR}/libOneSignal.a" 
+
+echo "Making Final OneSignal with all Architecture. iOS, iOS Simulator(x86_64), Mac Catalyst(x86_64h)"
+echo "File location $EXECUTABLE_DESTINATION"
+lipo -create -output "$EXECUTABLE_DESTINATION" "${IPHONE_DIR}/libOneSignal.a"  "${SIMULATOR_DIR}/libOneSignal.a" "${CATALYST_DIR}/libOneSignal.a"
+
+cd $FINAL_FRAMEWORK
+
+declare -a files=("Headers" "Modules" "OneSignal")
+
 mkdir Versions
 mkdir Versions/A
 mkdir Versions/A/Resources
@@ -72,5 +74,5 @@ cd Versions
 ln -s A Current
 
 # Copy the built product to the final destination in {repo}/iOS_SDK/OneSignalSDK/Framework
-rm -rf "${ONESIGNAL_DESTINATION_PATH}/${ONESIGNAL_OUTPUT_NAME}.framework"
-cp -a "${FINAL_FRAMEWORK_LOCATION}" "${ONESIGNAL_DESTINATION_PATH}/${ONESIGNAL_OUTPUT_NAME}.framework"
+rm -rf "${WORKING_DIR}/Framework/OneSignal.framework"
+cp -a "${FINAL_FRAMEWORK}" "${WORKING_DIR}/Framework/OneSignal.framework"
