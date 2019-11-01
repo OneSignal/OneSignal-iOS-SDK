@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 WORKING_DIR=$(pwd)
@@ -35,39 +36,38 @@ EXECUTABLE_DESTINATION=${FINAL_FRAMEWORK}/OneSignal
 
 rm -rf "${UNIVERSAL_DIR}"
 mkdir "${UNIVERSAL_DIR}"
-
-# TODO: Frmamework sturctor does not seem to be created when running from command line.
-#       Need to find a way to build this up or what command needs to be run to do this for us
-# cp -a "${IPHONE_DIR}/OneSignal.framework" "${FINAL_FRAMEWORK}"
 mkdir "${FINAL_FRAMEWORK}"
 
-#"${IPHONE_DIR}/libOneSignal.a" 
-
 echo "Making Final OneSignal with all Architecture. iOS, iOS Simulator(x86_64), Mac Catalyst(x86_64h)"
-echo "File location $EXECUTABLE_DESTINATION"
+open "$UNIVERSAL_DIR" 
+
 lipo -create -output "$EXECUTABLE_DESTINATION" "${IPHONE_DIR}/libOneSignal.a"  "${SIMULATOR_DIR}/libOneSignal.a" "${CATALYST_DIR}/libOneSignal.a"
+
+# move header, plist, and modulemap to final Framework
+cp Source/OneSignal.h ${FINAL_FRAMEWORK}/OneSignal.h
+cp Framework/OneSignal.framework/Modules/module.modulemap ${FINAL_FRAMEWORK}/module.modulemap
+cp Framework/OneSignal.framework/Resources/Info.plist ${FINAL_FRAMEWORK}/Info.plist
 
 cd $FINAL_FRAMEWORK
 
-declare -a files=("Headers" "Modules" "OneSignal")
+declare -a files=("Headers" "Modules" "Resources" "OneSignal")
 
 mkdir Versions
 mkdir Versions/A
 mkdir Versions/A/Resources
+mkdir Versions/A/Headers
+mkdir Versions/A/Modules
 
 # Move the framework files/folders
-for name in "${files[@]}"; do
-   mv ${name} Versions/A/${name}
-done
+mv OneSignal Versions/A/OneSignal
+mv OneSignal.h Versions/A/Headers/OneSignal.h
+mv module.modulemap Versions/A/Modules/module.modulemap
+mv Info.plist Versions/A/Resources/Info.plist
 
 # Create symlinks at the root of the framework
 for name in "${files[@]}"; do
    ln -s Versions/A/${name} ${name}
 done
-
-# move info.plist into Resources and create appropriate symlinks
-mv Info.plist Versions/A/Resources/Info.plist
-ln -s Versions/A/Resources Resources
 
 # Create a symlink directory for 'Versions/A' called 'Current'
 cd Versions
@@ -76,3 +76,7 @@ ln -s A Current
 # Copy the built product to the final destination in {repo}/iOS_SDK/OneSignalSDK/Framework
 rm -rf "${WORKING_DIR}/Framework/OneSignal.framework"
 cp -a "${FINAL_FRAMEWORK}" "${WORKING_DIR}/Framework/OneSignal.framework"
+
+open ${WORKING_DIR}/Framework
+
+echo "Done"
