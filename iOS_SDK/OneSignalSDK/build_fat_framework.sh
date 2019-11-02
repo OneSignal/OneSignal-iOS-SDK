@@ -6,13 +6,13 @@ WORKING_DIR=$(pwd)
 # TODO: For backwards compatible bitcode we need to build iphonesimulator + iphoneos with 3 versions behind the latest.
 #       However variant=Mac Catalyst needs to be be Xcode 11.0
 # /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-iphonesimulator/libOneSignal.a
-xcodebuild -sdk "iphonesimulator" ARCHS="x86_64"  -project "OneSignal.xcodeproj" -scheme "OneSignal"
+xcodebuild -configuration "Debug" -sdk "iphonesimulator" ARCHS="x86_64"  -project "OneSignal.xcodeproj" -scheme "OneSignalFramework"
 
 # /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-iphoneos/libOneSignal.a
-xcodebuild -sdk "iphoneos" ARCHS="armv7 armv7s arm64" -project "OneSignal.xcodeproj" -scheme "OneSignal"
+xcodebuild -configuration "Debug" -sdk "iphoneos" ARCHS="armv7 armv7s arm64" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework"
 
 # /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-maccatalyst/libOneSignal.a
-xcodebuild ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' -project "OneSignal.xcodeproj" -scheme "OneSignal"
+xcodebuild -configuration "Debug" ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' -project "OneSignal.xcodeproj" -scheme "OneSignalFramework"
 
 USER=$(id -un)
 # TODO: This can return more than one folder, need to find if there is a better way to do this
@@ -36,38 +36,35 @@ EXECUTABLE_DESTINATION=${FINAL_FRAMEWORK}/OneSignal
 
 rm -rf "${UNIVERSAL_DIR}"
 mkdir "${UNIVERSAL_DIR}"
-mkdir "${FINAL_FRAMEWORK}"
 
-echo "Making Final OneSignal with all Architecture. iOS, iOS Simulator(x86_64), Mac Catalyst(x86_64h)"
-open "$UNIVERSAL_DIR" 
+echo "> Making Final OneSignal with all Architecture. iOS, iOS Simulator(x86_64), Mac Catalyst(x86_64h)"
+lipo -create -output "$UNIVERSAL_DIR"/OneSignal "${IPHONE_OUTPUT_DIR}"/OneSignal "${SIMULATOR_OUTPUT_DIR}"/OneSignal "${CATALYST_OUTPUT_DIR}"/OneSignal
 
-lipo -create -output "$EXECUTABLE_DESTINATION" "${IPHONE_DIR}/libOneSignal.a"  "${SIMULATOR_DIR}/libOneSignal.a" "${CATALYST_DIR}/libOneSignal.a"
-
-# move header, plist, and modulemap to final Framework
-cp Source/OneSignal.h ${FINAL_FRAMEWORK}/OneSignal.h
-cp Framework/OneSignal.framework/Modules/module.modulemap ${FINAL_FRAMEWORK}/module.modulemap
-cp Framework/OneSignal.framework/Resources/Info.plist ${FINAL_FRAMEWORK}/Info.plist
+echo "> Copying Framework Structure to Universal Output Directory"
+cp -a ${IPHONE_OUTPUT_DIR} ${UNIVERSAL_DIR}
 
 cd $FINAL_FRAMEWORK
 
-declare -a files=("Headers" "Modules" "Resources" "OneSignal")
+declare -a files=("Headers" "Modules" "OneSignal")
 
+# Create the Versions folders
 mkdir Versions
 mkdir Versions/A
 mkdir Versions/A/Resources
-mkdir Versions/A/Headers
-mkdir Versions/A/Modules
 
 # Move the framework files/folders
-mv OneSignal Versions/A/OneSignal
-mv OneSignal.h Versions/A/Headers/OneSignal.h
-mv module.modulemap Versions/A/Modules/module.modulemap
-mv Info.plist Versions/A/Resources/Info.plist
+for name in "${files[@]}"; do
+   mv ${name} Versions/A/${name}
+done
 
 # Create symlinks at the root of the framework
 for name in "${files[@]}"; do
    ln -s Versions/A/${name} ${name}
 done
+
+# move info.plist into Resources and create appropriate symlinks
+mv Info.plist Versions/A/Resources/Info.plist
+ln -s Versions/A/Resources Resources
 
 # Create a symlink directory for 'Versions/A' called 'Current'
 cd Versions
