@@ -1205,6 +1205,7 @@
 				ARCHS = (
 					"$(ARCHS_STANDARD)",
 					armv7s,
+					x86_64h,
 				);
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1241,6 +1242,7 @@
 				);
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Release;
 		};
@@ -1271,7 +1273,10 @@
 		CA2951B82167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -1361,6 +1366,7 @@
 				ARCHS = (
 					"$(ARCHS_STANDARD)",
 					armv7s,
+					x86_64h,
 				);
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1397,6 +1403,7 @@
 				);
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Debug;
 		};
@@ -1427,7 +1434,10 @@
 		CA2951C42167FB950064227A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;

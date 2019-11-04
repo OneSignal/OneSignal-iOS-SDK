@@ -5,34 +5,24 @@ WORKING_DIR=$(pwd)
 
 # TODO: For backwards compatible bitcode we need to build iphonesimulator + iphoneos with 3 versions behind the latest.
 #       However variant=Mac Catalyst needs to be be Xcode 11.0
-# /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-iphonesimulator/libOneSignal.a
-xcodebuild -configuration "Debug" -sdk "iphonesimulator" ARCHS="x86_64"  -project "OneSignal.xcodeproj" -scheme "OneSignalFramework"
-
-# /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-iphoneos/libOneSignal.a
-xcodebuild -configuration "Debug" -sdk "iphoneos" ARCHS="armv7 armv7s arm64" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework"
-
-# /Users/YOUR_USER/Library/Developer/Xcode/DerivedData/OneSignal-cqsmyasivbcrdncesubsrmqmewqw/Build/Products/Debug-maccatalyst/libOneSignal.a
-xcodebuild -configuration "Debug" ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' -project "OneSignal.xcodeproj" -scheme "OneSignalFramework"
+xcodebuild -configuration "Debug" -sdk "iphonesimulator" ARCHS="x86_64"  -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
+xcodebuild -configuration "Debug" -sdk "iphoneos" ARCHS="armv7 armv7s arm64" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
+xcodebuild -configuration "Debug" ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
 
 USER=$(id -un)
-# TODO: This can return more than one folder, need to find if there is a better way to do this
-DERIVED_DATA_ONESIGNAL_DIR=$(find /Users/${USER}/Library/Developer/Xcode/DerivedData -name "OneSignal-*" -type d ! -path "*/Build/*")
-
-echo $DERIVED_DATA_ONESIGNAL_DIR
+DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/temp"
 
 # Use Debug configuration to expose symbols
-# TODO: Maybe detect 
-CATALYST_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-maccatalyst"
-SIMULATOR_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-iphonesimulator"
-IPHONE_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-iphoneos"
+CATALYST_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-maccatalyst"
+SIMULATOR_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-iphonesimulator"
+IPHONE_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-iphoneos"
 
 CATALYST_OUTPUT_DIR=${CATALYST_DIR}/OneSignal.framework
 SIMULATOR_OUTPUT_DIR=${SIMULATOR_DIR}/OneSignal.framework
 IPHONE_OUTPUT_DIR=${IPHONE_DIR}/OneSignal.framework
 
-UNIVERSAL_DIR=${DERIVED_DATA_ONESIGNAL_DIR}/Build/Products/Debug-universal
+UNIVERSAL_DIR=${DERIVED_DATA_ONESIGNAL_DIR}/Debug-universal
 FINAL_FRAMEWORK=${UNIVERSAL_DIR}/OneSignal.framework
-EXECUTABLE_DESTINATION=${FINAL_FRAMEWORK}/OneSignal
 
 rm -rf "${UNIVERSAL_DIR}"
 mkdir "${UNIVERSAL_DIR}"
@@ -42,6 +32,10 @@ lipo -create -output "$UNIVERSAL_DIR"/OneSignal "${IPHONE_OUTPUT_DIR}"/OneSignal
 
 echo "> Copying Framework Structure to Universal Output Directory"
 cp -a ${IPHONE_OUTPUT_DIR} ${UNIVERSAL_DIR}
+
+cd $UNIVERSAL_DIR
+echo "> Moving OneSignal fat binary to Final Framework"
+mv OneSignal OneSignal.framework
 
 cd $FINAL_FRAMEWORK
 
