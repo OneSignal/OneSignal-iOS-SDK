@@ -32,6 +32,8 @@
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"
 
+#import "OneSignalHelper.h"
+
 @interface OutcomeTests : XCTestCase
 
 @end
@@ -124,10 +126,11 @@
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     
     [OneSignalSessionManager initLastSession];
-    OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
+    [OneSignalSessionManager restartSessionIfNeeded];
+    let sessionResult = [OneSignalSessionManager sessionResult];
     
-    XCTAssertTrue(sessionResult.session == INDIRECT);
-    XCTAssertTrue([sessionResult.notificationIds count] == 3);
+    XCTAssertEqual(sessionResult.session, INDIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 3);
 }
 
 - (void)testOutcomeLastSessionIndirectToIndirect {
@@ -135,16 +138,18 @@
     
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     [OneSignalSessionManager initLastSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     
     [OneSignalSessionManager initLastSession];
+    
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
     
-    XCTAssertTrue(sessionResult.session == INDIRECT);
-    XCTAssertTrue([sessionResult.notificationIds count] == 1);
+    XCTAssertEqual(sessionResult.session, INDIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 1);
 }
 
 - (void)testOutcomeLastSessionIndirect {
@@ -155,10 +160,12 @@
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     
     [OneSignalSessionManager initLastSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
-    XCTAssertTrue(sessionResult.session == INDIRECT);
-    XCTAssertTrue([sessionResult.notificationIds count] == 3);
+    
+    XCTAssertEqual(sessionResult.session, INDIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 3);
 }
 
 - (void)testOutcomeLastSessionUnattributedToDirect {
@@ -264,7 +271,7 @@
 - (void)testOutcomeNewSessionUnattributed {
     [self setOutcomesParamsEnabled];
     
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
     XCTAssertTrue(sessionResult.session == UNATTRIBUTED);
     XCTAssertTrue(sessionResult.notificationIds == nil);
@@ -278,7 +285,7 @@
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
     
     XCTAssertTrue(sessionResult.session == INDIRECT);
@@ -294,7 +301,7 @@
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     
     [OneSignalSessionManager onSessionFromNotification:testNotificationId];
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
     XCTAssertTrue(sessionResult.session == DIRECT);
@@ -313,7 +320,7 @@
     XCTAssertTrue([[sessionResult.notificationIds objectAtIndex:0] isEqualToString:@"test"]);
     
     [OneSignalSessionManager onSessionFromNotification:testNotificationId];
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     
     OSSessionResult *sessionResult2 = [OneSignalSessionManager sessionResult];
     XCTAssertTrue(sessionResult2.session == DIRECT);
@@ -328,7 +335,7 @@
         [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
     }
     
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     
     OSSessionResult *sessionResult2 = [OneSignalSessionManager sessionResult];
     XCTAssertTrue(sessionResult2.session == INDIRECT);

@@ -1419,7 +1419,7 @@ static BOOL waitingForOneSReg = false;
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [OneSignalUserDefaults getSavedDouble:USER_LAST_CLOSED_TIME default:0];
 
-    if (!lastTimeClosed) {
+    if (lastTimeClosed == 0) {
         [self updateLastSessionDateTime];
         return true;
     }
@@ -1475,7 +1475,7 @@ static dispatch_queue_t serialQueue;
     if (![self shouldRegisterNow])
         return;
     
-    [OneSignalSessionManager restartSession];
+    [OneSignalSessionManager restartSessionIfNeeded];
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
