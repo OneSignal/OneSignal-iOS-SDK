@@ -394,10 +394,18 @@ OSHandleNotificationActionBlock handleNotificationAction;
 }
 
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
-    if (!handleNotificationReceived || ![self isOneSignalPayload:lastMessageReceived])
+    if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
+    if ([self handleIAMPreview:payload])
+        return;
+    
+    if (!handleNotificationReceived)
+        return;
+    
+    // The payload is a valid OneSignal notification payload and is not a preview
+    // Proceed and treat as a normal OneSignal notification
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
     
     // Prevent duplicate calls to same receive event
@@ -406,8 +414,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
         return;
     lastMessageID = payload.notificationID;
 
-    if (![self handleIAMPreview:payload] && handleNotificationReceived)
-        handleNotificationReceived(notification);
+    handleNotificationReceived(notification);
 }
 
 static NSString *_lastMessageIdFromAction;
@@ -442,8 +449,6 @@ static NSString *_lastMessageIdFromAction;
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
         return YES;
     }
-    
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Not Detected, Handle Normal Notification"];
     return NO;
 }
 
