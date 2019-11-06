@@ -85,7 +85,7 @@
 
 + (double)getSavedDouble:(NSString *)key default:(double)value {
     if ([OneSignalUserDefaults keyExists:key])
-        return (BOOL) [NSUserDefaults.standardUserDefaults doubleForKey:key];
+        return [NSUserDefaults.standardUserDefaults doubleForKey:key];
     
     // Return default boolean passed in if no boolean for key exists
     return value;
