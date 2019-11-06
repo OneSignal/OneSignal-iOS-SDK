@@ -68,14 +68,10 @@ static SessionState _session = UNATTRIBUTED;
 }
 
 + (void)restartSessionIfNeeded {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session restarted"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session restartSessionIfNeeded"];
     
-    let directNotification = [self getDirectNotificationIfExists];
     let indirectNotifications = [self getLastNotificationsReceivedIds];
-    
-    if (directNotification)
-        [self setSession:DIRECT newDirectNotificationId:directNotification newIndirectNotificationIds:nil];
-    else if (indirectNotifications && [indirectNotifications count] > 0)
+    if (indirectNotifications && indirectNotifications.count > 0)
         [self setSession:INDIRECT newDirectNotificationId:nil newIndirectNotificationIds:indirectNotifications];
     else
         [self setSession:UNATTRIBUTED newDirectNotificationId:nil newIndirectNotificationIds:nil];
@@ -91,8 +87,8 @@ static SessionState _session = UNATTRIBUTED;
     [OSOutcomesUtils saveLastSession:UNATTRIBUTED notificationIds:nil];
 }
 
-+ (void)onSessionFromNotification:(NSString *)notificationId {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onSessionFromNotification session with notification: %@", directNotificationId]];
++ (void)onDirectSessionFromNotificationOpen:(NSString *)notificationId {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onDirectSessionFromNotificationOpen with notificationId: %@", notificationId]];
     [self setSession:DIRECT newDirectNotificationId:notificationId newIndirectNotificationIds:nil];
 }
 

@@ -1909,7 +1909,7 @@ static NSString *_lastnonActiveMessageId;
     //Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground)
-        [OneSignalSessionManager onSessionFromNotification:messageId];
+        [OneSignalSessionManager onDirectSessionFromNotificationOpen:messageId];
 
     //ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
     if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
