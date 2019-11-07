@@ -162,11 +162,14 @@
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
+    NSString *model = [[UIDevice currentDevice] model];
+    NSString *deviceModel = [@"Simulator " stringByAppendingString:model];
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
     NSLog(@"RAN A FEW CONDITIONALS: %@", OneSignalClientOverrider.lastHTTPRequest);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
@@ -293,10 +296,13 @@
     
     [self initOneSignalAndThreadWait];
     
+    NSString *model = [[UIDevice currentDevice] model];
+    NSString *deviceModel = [@"Simulator " stringByAppendingString:model];
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
@@ -330,10 +336,13 @@
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    NSString *model = [[UIDevice currentDevice] model];
+    NSString *deviceModel = [@"Simulator " stringByAppendingString:model];
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-15);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
