@@ -31,9 +31,8 @@
 #import "OneSignalSharedUserDefaults.h"
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"
-
 #import "OneSignalHelper.h"
-
+  
 @interface OutcomeTests : XCTestCase
 
 @end
@@ -165,7 +164,7 @@
     OSSessionResult *sessionResult = [OneSignalSessionManager sessionResult];
     
     XCTAssertEqual(sessionResult.session, INDIRECT);
-    XCTAssertEqual(sessionResult.notificationIds.count, 3);
+    XCTAssertEqual(sessionResult.notificationIds.count, 3);\
 }
 
 - (void)testOutcomeLastSessionUnattributedToDirect {
@@ -173,7 +172,7 @@
     [OneSignalSessionManager initLastSession];
     
     [OSOutcomesUtils saveLastNotificationWithBackground:testNotificationId wasOnBackground:YES];
-    
+
     [OneSignalSessionManager onDirectSessionFromNotificationOpen:testNotificationId];
     [OneSignalSessionManager initLastSession];
     

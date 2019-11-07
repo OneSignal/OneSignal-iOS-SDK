@@ -65,6 +65,7 @@
 #define LAST_SESSION @"LAST_SESSION"
 #define LAST_SESSION_NOTIFICATION_IDS @"LAST_SESSION_NOTIFICATION_IDS"
 #define UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT @"UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"
+
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
 // it indirectly with these macros

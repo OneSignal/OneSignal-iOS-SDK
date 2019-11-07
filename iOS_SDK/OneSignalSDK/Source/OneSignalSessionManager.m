@@ -39,7 +39,7 @@ const int MAX_DIRECT_SESSION_TIME_SET = 10;
 
 NSArray *indirectNotificationIds = nil;
 NSString *directNotificationId = nil;
-
+m
 static id<SessionStatusDelegate> _delegate;
 + (void)setDelegate:(id<SessionStatusDelegate>)delegate {
     _delegate = delegate;
@@ -216,7 +216,7 @@ static SessionState _session = UNATTRIBUTED;
     NSMutableArray *notificationsIds = [NSMutableArray new];
     NSInteger attributionWindowInSeconds = [OSOutcomesUtils getIndirectAttributionWindow] * 60;
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
-   
+
     for (OSLastNotification *notification in lastNotifications) {
         long difference = currentTime - notification.arrivalTime;
         if (difference <= attributionWindowInSeconds) {

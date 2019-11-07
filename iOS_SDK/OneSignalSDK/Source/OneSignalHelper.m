@@ -398,10 +398,15 @@ OSHandleNotificationActionBlock handleNotificationAction;
 }
 
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background {
-    if (!handleNotificationReceived || ![self isOneSignalPayload:lastMessageReceived])
+    if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
+    if ([self handleIAMPreview:payload])
+        return;
+    
+    // The payload is a valid OneSignal notification payload and is not a preview
+    // Proceed and treat as a normal OneSignal notification
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
     
     // Prevent duplicate calls to same receive event
@@ -420,7 +425,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
             break;
     }
     
-    if (![self handleIAMPreview:payload] && handleNotificationReceived)
+    if (handleNotificationReceived)
         handleNotificationReceived(notification);
 }
 
@@ -450,6 +455,8 @@ static NSString *_lastMessageIdFromAction;
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
     NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
+        
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
         OSInAppMessage *message = [OSInAppMessage instancePreviewFromPayload:payload];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
         return YES;

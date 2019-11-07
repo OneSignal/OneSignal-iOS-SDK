@@ -132,7 +132,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021100";
+NSString* const ONESIGNAL_VERSION = @"021102";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -1313,6 +1313,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignalLocation getLocation:true];
 }
 
++ (BOOL)isLocationShared {
+    return mShareLocation;
+}
+
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
     waitingForApnsResponse = false;
@@ -1476,6 +1480,7 @@ static dispatch_queue_t serialQueue;
         return;
     
     [OneSignalSessionManager restartSessionIfNeeded];
+
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
@@ -1882,9 +1887,8 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
-    if ([OneSignalHelper handleIAMPreview:payload]) {
+    if ([OneSignalHelper handleIAMPreview:payload])
         return;
-    }
 
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     // Notify backend that user opened the notification

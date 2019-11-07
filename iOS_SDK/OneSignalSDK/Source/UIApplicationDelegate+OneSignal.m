@@ -48,8 +48,6 @@
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
 
-
-
 // This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
 //   - UNUserNotificationCenter is used for iOS 10
 //   - Orignal implementations are called so other plugins and the developers AppDelegate is still called.

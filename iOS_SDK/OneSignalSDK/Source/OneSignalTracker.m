@@ -66,6 +66,17 @@ static BOOL lastOnFocusWasToBackground = YES;
     lastOpenedTime = lastOpened;
 }
 
++ (void)beginBackgroundFocusTask {
+    focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        [OneSignalTracker endBackgroundFocusTask];
+    }];
+}
+
++ (void)endBackgroundFocusTask {
+    [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
+    focusBackgroundTask = UIBackgroundTaskInvalid;
+}
+
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
     if ([OneSignal requiresUserPrivacyConsent])
