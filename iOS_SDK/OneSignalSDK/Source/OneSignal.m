@@ -1481,8 +1481,19 @@ static dispatch_queue_t serialQueue;
     
     struct utsname systemInfo;
     uname(&systemInfo);
-    let deviceModel = [NSString stringWithCString:systemInfo.machine
+    NSString *deviceModel = [NSString stringWithCString:systemInfo.machine
                                          encoding:NSUTF8StringEncoding];
+    
+    NSString *systemName = [[UIDevice currentDevice] systemName];
+    
+    if ([deviceModel isEqualToString:@"x86_64"]) {
+        if ([systemName isEqualToString:@"iOS"]) {
+            NSString *model = [[UIDevice currentDevice] model];
+            deviceModel = [@"Simulator " stringByAppendingString:model];
+        } else {
+            deviceModel = @"Mac";
+        }
+    }
     
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    app_id, @"app_id",
