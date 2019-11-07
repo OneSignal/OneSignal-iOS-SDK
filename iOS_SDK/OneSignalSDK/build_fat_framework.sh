@@ -5,9 +5,9 @@ WORKING_DIR=$(pwd)
 
 # For backwards compatible bitcode we need to build iphonesimulator + iphoneos with 3 versions behind the latest.
 #       However variant=Mac Catalyst needs to be be Xcode 11.0
-/Applications/Xcode1001.app/Contents/Developer/usr/bin/xcodebuild -configuration "Debug" -sdk "iphonesimulator" ARCHS="x86_64"  -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
-/Applications/Xcode1001.app/Contents/Developer/usr/bin/xcodebuild -configuration "Debug" -sdk "iphoneos" ARCHS="armv7 armv7s arm64" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
-xcodebuild -configuration "Debug" ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
+/Applications/Xcode10.1.app/Contents/Developer/usr/bin/xcodebuild -configuration "Debug" MACH_O_TYPE="staticlib" -sdk "iphonesimulator" ARCHS="x86_64" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
+/Applications/Xcode10.1.app/Contents/Developer/usr/bin/xcodebuild -configuration "Debug" MACH_O_TYPE="staticlib" -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e i386"  -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
+xcodebuild -configuration "Debug" ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE="staticlib" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
 
 USER=$(id -un)
 DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/temp"
