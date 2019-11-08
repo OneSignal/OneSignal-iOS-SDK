@@ -116,8 +116,8 @@ static int DEFAULT_NOTIFICATION_LIMIT = 10;
                 id minutesLimit = [notificationAttribution valueForKey:@"minutes_since_displayed"];
                 id notificationLimit = [notificationAttribution valueForKey:@"limit"];
                 
-                NSInteger minutesLimitValue = minutesLimit ? [minutesLimit integerValue] : DEFAULT_INDIRECT_ATTRIBUTION_WINDOW;
-                NSInteger notificationLimitValue = notificationLimit ? [notificationLimit integerValue] : DEFAULT_NOTIFICATION_LIMIT;
+                NSInteger minutesLimitValue = minutesLimit && minutesLimit != (id)[NSNull null] ? [minutesLimit integerValue] : DEFAULT_INDIRECT_ATTRIBUTION_WINDOW;
+                NSInteger notificationLimitValue = notificationLimit && notificationLimit != (id)[NSNull null] ? [notificationLimit integerValue] : DEFAULT_NOTIFICATION_LIMIT;
                 
                 [OneSignalSharedUserDefaults saveInteger:minutesLimitValue withKey:NOTIFICATION_ATTRIBUTION_WINDOW];
                 [OneSignalSharedUserDefaults saveInteger:notificationLimitValue withKey:NOTIFICATION_LIMIT];
