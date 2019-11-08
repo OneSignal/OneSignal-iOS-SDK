@@ -347,6 +347,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
                 deviceType:(NSNumber * _Nonnull)deviceType
              directSession:(BOOL)directSession
             notificationIds:(NSArray *)notificationIds {
+
     let request = [OSRequestOnFocus new];
     
     let params = [NSMutableDictionary new];
@@ -356,7 +357,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
-    
     params[IS_DIRECT] = @(directSession);
     params[NOTIFICATION_IDS] = notificationIds;
     
