@@ -45,7 +45,7 @@ static id<SessionStatusDelegate> _delegate;
     _delegate = delegate;
 }
 
-static SessionState _session = NONE;
+static SessionState _session = UNATTRIBUTED;
 + (SessionState)session { return _session; }
 
 + (void)initLastSession {
@@ -84,10 +84,10 @@ static SessionState _session = NONE;
 }
 
 + (void)clearSessionData {
-    _session = NONE;
+    _session = UNATTRIBUTED;
     lastNotificationId = nil;
     notificationsReceived = nil;
-    [OSOutcomesUtils saveLastSession:NONE notificationIds:nil];
+    [OSOutcomesUtils saveLastSession:UNATTRIBUTED notificationIds:nil];
 }
 
 + (void)onSessionStarted {

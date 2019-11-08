@@ -110,7 +110,6 @@ OneSignalSessionManager *outcomesSessionManager;
             [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer indirectWithOutcomeId:name appId:appId notificationIds:[sessionResult notificationIds] deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;
         case UNATTRIBUTED:
-        case NONE:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending unattributed outcome"];
             [self sendOutcomeEventRequest:[OSRequestSendOutcomesToServer unattributedWithOutcomeId:name appId:appId deviceType:deviceType requestParams:requestParams] successBlock:success failureBlock:failure];
             break;

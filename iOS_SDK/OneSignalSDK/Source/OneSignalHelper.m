@@ -393,10 +393,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
 }
 
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
-    [self handleNotificationReceived:displayType fromBackground:NO];
-}
-
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background {
     if (![self isOneSignalPayload:lastMessageReceived])
         return;

@@ -101,8 +101,8 @@
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
 // OneSignal Session Types
-typedef enum {DIRECT, INDIRECT, UNATTRIBUTED, DISABLED, NONE} SessionState;
-#define sessionStateString(enum) [@[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED", @"NONE"] objectAtIndex:enum]
+typedef enum {DIRECT, INDIRECT, UNATTRIBUTED, DISABLED} SessionState;
+#define sessionStateString(enum) [@[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"] objectAtIndex:enum]
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
