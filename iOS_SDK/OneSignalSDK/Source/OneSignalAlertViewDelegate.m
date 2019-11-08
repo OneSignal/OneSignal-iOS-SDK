@@ -68,7 +68,7 @@
     
     // Message received that was displayed (Foreground + InAppAlert is true)
     // Call received callback
-    [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert];
+    [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert fromBackground:NO];
 }
 
 @end
