@@ -979,7 +979,7 @@
 					};
 					911E2CB91E398AB3003112A4 = {
 						CreatedOnToolsVersion = 8.1;
-						DevelopmentTeam = 99SW8E36CT;
+						DevelopmentTeam = UKWHJ5PHKD;
 						ProvisioningStyle = Automatic;
 					};
 					CA2951BD2167F9860064227A = {

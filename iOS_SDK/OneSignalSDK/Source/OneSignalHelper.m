@@ -411,7 +411,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     // The payload is a valid OneSignal notification payload and is not a preview
     // Proceed and treat as a normal OneSignal notification
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    
+
     // Prevent duplicate calls to same receive event
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])

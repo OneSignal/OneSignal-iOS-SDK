@@ -99,7 +99,7 @@ OneSignalSessionManager *outcomesSessionManager;
     if (weight != nil) {
         requestParams = @{ WEIGHT : weight };
     }
-    
+
     switch ([sessionResult session]) {
         case DIRECT:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending direct outcome"];
