@@ -65,7 +65,7 @@
         return;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session is restarting, checking if the session should be INDIRECT or DIRECT"];
-    
+
     NSArray *indirectNotificationIds = [self getIndirectNotificationIds];
     if (indirectNotificationIds && [indirectNotificationIds count] > 0)
         [self setSession:INDIRECT directNotificationId:nil indirectNotificationIds:indirectNotificationIds];
@@ -81,7 +81,7 @@
                                                        OS_SESSION_TO_STRING(DIRECT),
                                                        directNotificationId,
                                                        nil]];
-    
+
     [self setSession:DIRECT directNotificationId:directNotificationId indirectNotificationIds:nil];
 }
 
@@ -183,7 +183,7 @@
         if ([OSOutcomesUtils isIndirectSessionEnabled]) {
             return [[OSSessionResult alloc] init:INDIRECT withNotificationIds:self.indirectNotificationIds];
         }
-        
+
     } else if ([OSOutcomesUtils isUnattributedSessionEnabled]) {
         return [[OSSessionResult alloc] init:UNATTRIBUTED];
     }
@@ -203,7 +203,7 @@
     NSMutableArray *notificationsIds = [NSMutableArray new];
     NSInteger attributionWindowInSeconds = [OSOutcomesUtils getIndirectAttributionWindow] * 60;
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
-
+   
     for (OSIndirectNotification *notification in receivedNotifications) {
         long difference = currentTime - notification.arrivalTime;
         if (difference <= attributionWindowInSeconds) {

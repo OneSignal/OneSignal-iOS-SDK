@@ -32,7 +32,7 @@
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalHelper.h"
-  
+
 @interface OutcomeTests : XCTestCase
 
 @end
@@ -40,7 +40,7 @@
 @implementation OutcomeTests (SessionStatusDelegate)
 
 + (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult {
-    
+
 }
 
 @end
@@ -71,10 +71,10 @@
     testNotificationId = @"test_notification_id";
     testOutcomeId = @"test_outcome_id";
     testDeviceType = @0;
-    
+
     sessionManager = [[OneSignalSessionManager alloc] init:(id<SessionStatusDelegate>)self];
     outcomesController = [[OneSignalOutcomeEventsController alloc] init:sessionManager];
-    
+
     [OneSignalSharedUserDefaults saveString:nil withKey:CACHED_SESSION];
     [OneSignalSharedUserDefaults saveObject:nil withKey:CACHED_DIRECT_NOTIFICATION_ID];
     [OneSignalSharedUserDefaults saveObject:nil withKey:CACHED_INDIRECT_NOTIFICATION_IDS];
@@ -187,7 +187,7 @@
     [sessionManager initSessionFromCache];
 
     [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
+
     [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
     [sessionManager initSessionFromCache];
     

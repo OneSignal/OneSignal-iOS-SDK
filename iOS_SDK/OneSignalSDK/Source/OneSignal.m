@@ -348,7 +348,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 + (OneSignalOutcomeEventsController*)getOutcomeEventsController {
     return _outcomeEventsController;
 }
-    
+
 + (NSString*)app_id {
     return app_id;
 }
@@ -454,7 +454,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
     initializationTime = [NSDate date];
-    
+
     // Outcome initializers
     _sessionManager = [[OneSignalSessionManager alloc] init:(id<SessionStatusDelegate>)self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
@@ -1496,7 +1496,7 @@ static dispatch_queue_t serialQueue;
         return;
     
     [self.sessionManager restartSessionIfNeeded];
-    
+
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
@@ -2521,15 +2521,15 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
         return;
-    
+
     if (!self.outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
-    
+
     if (![self isValidOutcomeEntry:name])
         return;
-    
+
     [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
 }
 
@@ -2541,12 +2541,12 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
         return;
-    
+
     if (!self.outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
-    
+
     if (![self isValidOutcomeEntry:name])
         return;
 
@@ -2561,15 +2561,15 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
         return;
-    
+
     if (!self.outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
         return;
     }
-    
+
     if (![self isValidOutcomeEntry:name])
         return;
-    
+
     if (![self isValidOutcomeValue:value])
         return;
 
@@ -2581,7 +2581,7 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
         return false;
     }
-    
+
     return true;
 }
 
@@ -2590,7 +2590,7 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
         return false;
     }
-    
+
     return true;
 }
 /*
