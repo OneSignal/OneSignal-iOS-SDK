@@ -26,34 +26,34 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSLastNotification.h"
+#import "OSIndirectNotification.h"
 
-@implementation OSLastNotification
+@implementation OSIndirectNotification
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground {
+- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) wasOnBackground {
     _notificationId = notificationId;
     _arrivalTime = arrivalTime;
-    _wasOnBackground = wasOnBackground;
+    _fromBackground = wasOnBackground;
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:_notificationId forKey:@"notificationId"];
     [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
-    [encoder encodeBool:_wasOnBackground forKey:@"wasOnBackground"];
+    [encoder encodeBool:_fromBackground forKey:@"wasOnBackground"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
         _notificationId = [decoder decodeObjectForKey:@"notificationId"];
         _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
-        _wasOnBackground = [decoder decodeBoolForKey:@"wasOnBackground"];
+        _fromBackground = [decoder decodeBoolForKey:@"wasOnBackground"];
     }
     return self;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f wasOnBackground: %@", _notificationId, _arrivalTime, _wasOnBackground ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f wasOnBackground: %@", _notificationId, _arrivalTime, _fromBackground ? @"YES" : @"NO"];
 }
 
 @end

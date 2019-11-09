@@ -30,14 +30,10 @@
 
 @interface OSSessionResult : NSObject
 
+@property (nonatomic, readonly) Session session;
 @property (nonatomic, readonly) NSArray * _Nullable notificationIds;
-@property (nonatomic, readonly) SessionState session;
 
-- (id _Nonnull )initWithNotificationIds:(NSArray * _Nullable)notificationIds session:(SessionState)session;
-- (id _Nonnull )initWithSession:(SessionState)session;
-
-- (BOOL)isSessionUnAttributed;
-- (BOOL)isSessionAttributed;
-- (BOOL)isSessionDirect;
+- (id _Nonnull)init:(Session)session;
+- (id _Nonnull)init:(Session)session withNotificationIds:(NSArray * _Nullable)notificationIds;
 
 @end

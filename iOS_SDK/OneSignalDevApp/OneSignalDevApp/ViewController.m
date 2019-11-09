@@ -171,7 +171,7 @@
 }
 
 - (IBAction)sendTestOutcomeEvent:(UIButton *)sender {
-    [OneSignal outcome:[_outcomeName text] onSuccess:^(NSDictionary *result) {
+    [OneSignal sendOutcome:[_outcomeName text] onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             _result.text = [NSString stringWithFormat:@"sendTestOutcomeEvent success %@", result];
             [self.view endEditing:YES];
@@ -189,7 +189,7 @@
         formatter.numberStyle = NSNumberFormatterDecimalStyle;
         NSNumber *value = [formatter numberFromString:[_outcomeValue text]];
         
-        [OneSignal outcome:[_outcomeValueName text] value:value onSuccess:^(NSDictionary *result) {
+        [OneSignal sendOutcomeWithValue:[_outcomeValueName text] value:value onSuccess:^(NSDictionary *result) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _result.text = [NSString stringWithFormat:@"sendValueOutcomeEvent success %@", result];
                 [self.view endEditing:YES];
@@ -204,7 +204,7 @@
 }
 
 - (IBAction)sendUniqueOutcomeEvent:(id)sender {
-    [OneSignal uniqueOutcome:[_outcomeUniqueName text] onSuccess:^(NSDictionary *result) {
+    [OneSignal sendUniqueOutcome:[_outcomeUniqueName text] onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             _result.text = [NSString stringWithFormat:@"sendUniqueOutcomeEvent success %@", result];
             [self.view endEditing:YES];

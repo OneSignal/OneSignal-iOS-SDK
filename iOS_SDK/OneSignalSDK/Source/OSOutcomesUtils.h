@@ -25,23 +25,31 @@
  * THE SOFTWARE.
  */
 
-#import "OSLastNotification.h"
+#import "OSIndirectNotification.h"
 #import "OneSignalCommonDefines.h"
 
 @interface OSOutcomesUtils : NSObject
 
-+ (void)saveLastNotificationWithBackground:(NSString * _Nullable)notificationId wasOnBackground:(BOOL)wasOnBackground;
-+ (void)saveOutcomesParams:(NSDictionary * _Nonnull)params;
-+ (void)saveOpenedByNotification:(NSString * _Nullable)notificationId;
-+ (void)saveLastSession:(SessionState)session notificationIds:(NSArray * _Nullable)notificationIds;
++ (BOOL)isAttributedSession:(Session)session;
 
-+ (NSArray * _Nullable)getNotifications;
-+ (NSInteger)getNotificationLimit;
+// Methods for outcome params
++ (NSInteger)getIndirectNotificationLimit;
 + (NSInteger)getIndirectAttributionWindow;
 + (BOOL)isDirectSessionEnabled;
 + (BOOL)isIndirectSessionEnabled;
 + (BOOL)isUnattributedSessionEnabled;
-+ (NSString *_Nullable)wasOpenedByNotification;
-+ (SessionState)getLastSession:(NSArray * __autoreleasing *)notificationIds;
++ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
+
+// Methods for caching session related data
++ (Session)getCachedSession;
++ (void)saveSession:(Session)session;
++ (NSString *)getCachedDirectNotificationId;
++ (void)saveDirectNotificationId:(NSString *)notificationId;
++ (NSArray *)getCachedIndirectNotificationIds;
++ (void)saveIndirectNotifications:(NSArray *)notificationIds;
+
+// Methods for received notification ids within the notification limit and attribution window
++ (NSArray *)getCachedReceivedNotifications;
++ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
 
 @end

@@ -25,13 +25,12 @@
  * THE SOFTWARE.
  */
 
-@interface OSLastNotification : NSObject
+@interface OSIndirectNotification : NSObject
 
 @property (nonatomic, readonly) NSString *notificationId;
-//In Seconds
-@property (nonatomic, readonly) double arrivalTime;
-@property (nonatomic, readonly) BOOL wasOnBackground;
+@property (nonatomic, readonly) double arrivalTime; // seconds
+@property (nonatomic, readonly) BOOL fromBackground;
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
+- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) wasOnBackground;
 
 @end

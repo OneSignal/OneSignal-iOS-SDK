@@ -25,9 +25,10 @@
  * THE SOFTWARE.
  */
 
+#import "OneSignal.h"
 #import "OSSessionResult.h"
 #import "OSBaseFocusTimeProcessor.h"
-#import "OneSignalUserDefaults.h"
+#import "OneSignalSharedUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 
 const int MIN_ON_FOCUS_TIME_SEC = 60;
@@ -61,12 +62,12 @@ NSNumber* unsentActiveTime;
 }
 
 - (void)saveUnsentActiveTime:(NSTimeInterval)time {
-    [OneSignalUserDefaults saveObject:@(time) withKey:UNSENT_ACTIVE_TIME];
+    [OneSignalSharedUserDefaults saveObject:@(time) withKey:UNSENT_ACTIVE_TIME];
 }
 
 - (NSTimeInterval)getUnsentActiveTime {
     if (!unsentActiveTime)
-        unsentActiveTime = [OneSignalUserDefaults getSavedObject:UNSENT_ACTIVE_TIME defaultValue:@0];
+        unsentActiveTime = [OneSignalSharedUserDefaults getSavedObject:UNSENT_ACTIVE_TIME defaultValue:@0];
     
     return [unsentActiveTime doubleValue];
 }

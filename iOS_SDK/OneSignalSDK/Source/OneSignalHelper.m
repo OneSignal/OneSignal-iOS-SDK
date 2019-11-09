@@ -415,7 +415,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
                                                        lastMessageID, (unsigned long)displayType]];
     switch (displayType) {
         case OSNotificationDisplayTypeNotification:
-            [OSOutcomesUtils saveLastNotificationWithBackground:lastMessageID wasOnBackground:background];
+            [OSOutcomesUtils saveReceivedNotificationWithBackground:lastMessageID fromBackground:background];
             break;
         default:
             break;

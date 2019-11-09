@@ -42,10 +42,9 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotificationPayload+Internal.h"
-#import "OneSignalOutcomeController.h"
-#import "OneSignalSessionManager.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalSharedUserDefaults.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -194,8 +193,6 @@ NSMutableDictionary* tagsToSend;
 OSResultSuccessBlock tokenUpdateSuccessBlock;
 OSFailureBlock tokenUpdateFailureBlock;
 
-OneSignalOutcomesController *outcomeController = nil;
-
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
 
@@ -332,6 +329,25 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 + (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
+
+static AppEntryAction* _appEntryState;
++ (AppEntryAction*)appEntryState {
+    return _appEntryState;
+}
+
++ (void)setAppEntryState:(AppEntryAction*)appEntryState {
+    _appEntryState = appEntryState;
+}
+
+static OneSignalSessionManager* _sessionManager;
++ (OneSignalSessionManager*)sessionManager {
+    return _sessionManager;
+}
+
+static OneSignalOutcomeEventsController* _outcomeEventsController;
++ (OneSignalOutcomeEventsController*)getOutcomeEventsController {
+    return _outcomeEventsController;
+}
     
 + (NSString*)app_id {
     return app_id;
@@ -438,10 +454,10 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
     initializationTime = [NSDate date];
-    //Outcomes initializers
-    [OneSignalSessionManager setDelegate:(id<SessionStatusDelegate>)self];
-    [OneSignalSessionManager initLastSession];
-    outcomeController = [[OneSignalOutcomesController alloc] init];
+    
+    // Outcome initializers
+    _sessionManager = [[OneSignalSessionManager alloc] init:(id<SessionStatusDelegate>)self];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
     
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
     //the app ID is required to download parameters, so do not download params until the appID is provided
@@ -721,7 +737,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
             [self checkProvisionalAuthorizationStatus];
         }
         
-        [OSOutcomesUtils saveOutcomesParams:result];
+        [OSOutcomesUtils saveOutcomeParamsForApp:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         downloadedParameters = true;
@@ -1407,10 +1423,10 @@ static BOOL waitingForOneSReg = false;
 
 + (void)updateLastSessionDateTime {
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    [OneSignalUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
+    [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
 }
 
-+(BOOL)shouldRegisterNow {
++ (BOOL)shouldRegisterNow {
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1421,7 +1437,7 @@ static BOOL waitingForOneSReg = false;
     
     // Figure out if should pass or not
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults getSavedDouble:USER_LAST_CLOSED_TIME default:0];
+    NSTimeInterval lastTimeClosed = [OneSignalSharedUserDefaults getSavedDouble:USER_LAST_CLOSED_TIME defaultValue:0];
 
     if (lastTimeClosed == 0) {
         [self updateLastSessionDateTime];
@@ -1479,8 +1495,8 @@ static dispatch_queue_t serialQueue;
     if (![self shouldRegisterNow])
         return;
     
-    [OneSignalSessionManager restartSessionIfNeeded];
-
+    [self.sessionManager restartSessionIfNeeded];
+    
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
@@ -1714,7 +1730,7 @@ static dispatch_queue_t serialQueue;
     [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];
 }
 
-+(NSString*)getUsableDeviceToken {
++ (NSString*)getUsableDeviceToken {
     if (mSubscriptionStatus < -1)
         return NULL;
     
@@ -1898,7 +1914,7 @@ static NSString *_lastnonActiveMessageId;
     onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! foreground: %@ notificationId: %@ displayType: %lu",
                                      foreground ? @"YES" : @"NO", messageId, (unsigned long)displayType]);
     
-    //Try to fetch the open url to launch
+    // Try to fetch the open url to launch
     [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
     
     [self clearBadgeCount:true];
@@ -1910,12 +1926,14 @@ static NSString *_lastnonActiveMessageId;
             actionID = messageDict[@"actionSelected"];
     }
     
-    //Call Action Block
+    // Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
-    if (!foreground)
-        [OneSignalSessionManager onDirectSessionFromNotificationOpen:messageId];
+    if (!foreground) {
+        OneSignal.appEntryState = (AppEntryAction*) NOTIFICATION_CLICK;
+        [OneSignal.sessionManager onDirectSessionFromNotificationOpen:messageId];
+    }
 
-    //ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
+    // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
     if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
         [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
     }
@@ -2495,56 +2513,85 @@ static NSString *_lastnonActiveMessageId;
 /*
  Start of outcome module
  */
-+ (void)uniqueOutcome:(NSString * _Nonnull)name {
-    [self uniqueOutcome:name onSuccess:nil onFailure:nil];
++ (void)sendOutcome:(NSString * _Nonnull)name {
+    [self sendOutcome:name onSuccess:nil onFailure:nil];
 }
 
-+ (void)uniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
-    if (![self outcomeEntryValidation:name])
-        return;
-
-    [outcomeController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
-}
-
-+ (void)outcome:(NSString * _Nonnull)name {
-    [self outcome:name onSuccess:nil onFailure:nil];
-}
-
-+ (void)outcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
-    if (![self outcomeEntryValidation:name])
++ (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
         return;
     
-    [outcomeController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
-}
-
-+ (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
-    [self outcome:name value:value onSuccess:nil onFailure:nil];
-}
-
-+ (void)outcome:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
-    if (![self outcomeEntryValidation:name])
-        return;
-    if (value == nil) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Value must not be null"];
-        return;
-    }
-
-    [outcomeController sendOutcomeEvent:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
-}
-
-+ (BOOL)outcomeEntryValidation:(NSString * _Nonnull)name {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"outcome:onSuccess:onFailure:"])
-        return NO;
-    if (outcomeController == nil) {
+    if (!self.outcomeEventsController) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
-        return NO;
+        return;
     }
-    if (name == nil || [name length] == 0) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome Name must not be null or empty"];
-        return NO;
+    
+    if (![self isValidOutcomeEntry:name])
+        return;
+    
+    [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+
++ (void)sendUniqueOutcome:(NSString * _Nonnull)name {
+    [self sendUniqueOutcome:name onSuccess:nil onFailure:nil];
+}
+
++ (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
+        return;
+    
+    if (!self.outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+        return;
     }
-    return YES;
+    
+    if (![self isValidOutcomeEntry:name])
+        return;
+
+    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+
++ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
+    [self sendOutcomeWithValue:name value:value onSuccess:nil onFailure:nil];
+}
+
++ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
+        return;
+    
+    if (!self.outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+        return;
+    }
+    
+    if (![self isValidOutcomeEntry:name])
+        return;
+    
+    if (![self isValidOutcomeValue:value])
+        return;
+
+    [_outcomeEventsController sendOutcomeEvent:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+}
+
++ (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
+    if (!name || [name length] == 0) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
+        return false;
+    }
+    
+    return true;
+}
+
++ (BOOL)isValidOutcomeValue:(NSNumber *)value {
+    if (!value || value <= 0) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
+        return false;
+    }
+    
+    return true;
 }
 /*
  End of outcome module
@@ -2554,8 +2601,8 @@ static NSString *_lastnonActiveMessageId;
 @implementation OneSignal (SessionStatusDelegate)
 
 + (void)onSessionEnding:(OSSessionResult *)lastSessionResult {
-    if (outcomeController)
-        [outcomeController clearOutcomes];
+    if (_outcomeEventsController)
+        [_outcomeEventsController clearOutcomes];
     if (lastSessionResult)
         [OneSignalTracker onSessionEnded:lastSessionResult];
 }

@@ -29,18 +29,26 @@
 #import "OSSessionResult.h"
 
 @protocol SessionStatusDelegate <NSObject>
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult;
+
++ (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult;
+
 @end
 
 @interface OneSignalSessionManager : NSObject
 
-+ (SessionState)session;
-+ (OSSessionResult *_Nonnull)sessionResult;
-+ (void)setDelegate:(id <SessionStatusDelegate>_Nonnull)delegate;
-+ (void)initLastSession;
-+ (void)restartSessionIfNeeded;
-+ (void)attemptSessionUpgrade;
-+ (void)clearSessionData;
-+ (void)onDirectSessionFromNotificationOpen:(NSString * _Nonnull)notificationId;
+@property (nonatomic) id<SessionStatusDelegate> _Nonnull delegate;
+
+@property (nonatomic) Session session;
+@property (strong, nonatomic, nullable) NSString *directNotificationId;
+@property (strong, nonatomic, nullable) NSArray *indirectNotificationIds;
+
+- (instancetype _Nonnull)init:(id<SessionStatusDelegate> _Nonnull)delegate;
+
+- (Session)getSession;
+- (OSSessionResult * _Nonnull)getSessionResult;
+- (void)initSessionFromCache;
+- (void)restartSessionIfNeeded;
+- (void)onDirectSessionFromNotificationOpen:(NSString * _Nonnull)directNotificationId;
+- (void)attemptSessionUpgrade;
 
 @end

@@ -30,36 +30,21 @@
 
 @implementation OSSessionResult
 
-- (id)initWithNotificationIds:(NSArray * _Nullable)notificationIds session:(SessionState)session {
+- (id)init:(Session)session {
+    _session = session;
+    _notificationIds = nil;
+    return self;
+}
+
+- (id)init:(Session)session withNotificationIds:(NSArray *)notificationIds {
+    _session = session;
     _notificationIds = notificationIds;
-    _session = session;
     return self;
 }
 
-- (id)initWithSession:(SessionState)session {
-    _session = session;
-    return self;
-}
-
-- (BOOL)isSessionUnAttributed {
-    return _session == UNATTRIBUTED;
-}
-
-- (BOOL)isSessionAttributed {
-    return [self isSessionDirect] || [self isSessionIndirect];
-}
-
-- (BOOL)isSessionIndirect {
-    return _session == INDIRECT;
-}
-
-- (BOOL)isSessionDirect {
-    return _session == DIRECT;
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"OSSessionResult notificationIds: %@ session: %@", _notificationIds, sessionStateString(_session)];
+- (NSString *)description {
+    NSString *message = @"OSSessionResult:  \nsession: %@  \nnotificationIds: %@";
+    return [NSString stringWithFormat:message, self.notificationIds, OS_SESSION_TO_STRING(self.session)];
 }
 
 @end

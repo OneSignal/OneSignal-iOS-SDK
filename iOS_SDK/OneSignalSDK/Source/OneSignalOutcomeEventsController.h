@@ -27,15 +27,32 @@
 
 #import "OneSignal.h"
 #import "OneSignalSessionManager.h"
-#import "OneSignalUserDefaults.h"
 
-@interface OneSignalOutcomesController : NSObject
+@interface OneSignalOutcomeEventsController : NSObject
 
-- (id _Nonnull)init;
+@property (strong, nonatomic, nonnull) OneSignalSessionManager *osSessionManager;
+
+- (instancetype _Nonnull)init:(OneSignalSessionManager* _Nonnull)sessionManager;
 
 - (void)clearOutcomes;
-- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name value:(NSNumber * _Nullable)weight appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
+
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSResultSuccessBlock _Nullable)success
+            failureBlock:(OSFailureBlock _Nullable)failure;
+
+- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+                         appId:(NSString * _Nonnull)appId
+                    deviceType:(NSNumber * _Nonnull)deviceType
+                  successBlock:(OSResultSuccessBlock _Nullable)success
+                  failureBlock:(OSFailureBlock _Nullable)failure;
+
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name
+                   value:(NSNumber * _Nullable)weight
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSResultSuccessBlock _Nullable)success
+            failureBlock:(OSFailureBlock _Nullable)failure;
 
 @end
