@@ -1844,7 +1844,7 @@ static NSString *_lastnonActiveMessageId;
         
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
-        [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType];
+        [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType fromBackground:NO];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -2098,7 +2098,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignalHelper lastMessageReceived:userInfo];
         
         if (application.applicationState == UIApplicationStateActive)
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification];
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:NO];
 
         if (![OneSignalHelper isRemoteSilentNotification:userInfo])
             [OneSignal notificationReceived:userInfo foreground:application.applicationState == UIApplicationStateActive isActive:NO wasOpened:YES];
@@ -2109,7 +2109,7 @@ static NSString *_lastnonActiveMessageId;
     else {
         [OneSignalHelper lastMessageReceived:userInfo];
         if ([OneSignalHelper isRemoteSilentNotification:userInfo])
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone];
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone fromBackground:NO];
         else
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:YES];
     }

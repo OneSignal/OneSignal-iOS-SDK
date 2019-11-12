@@ -393,10 +393,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
 }
 
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
-    [self handleNotificationReceived:displayType fromBackground:NO];
-}
-
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background {
     if (![self isOneSignalPayload:lastMessageReceived])
         return;
@@ -408,7 +404,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     // The payload is a valid OneSignal notification payload and is not a preview
     // Proceed and treat as a normal OneSignal notification
     OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    
+
     // Prevent duplicate calls to same receive event
     static NSString* lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
