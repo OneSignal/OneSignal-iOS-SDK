@@ -25,30 +25,35 @@
  THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
 #import "OSIndirectNotification.h"
 
-@interface OSOutcomesUtils : NSObject
+@implementation OSIndirectNotification
 
-+ (BOOL)isAttributedSession:(Session)session;
+- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) fromBackground {
+    _notificationId = notificationId;
+    _arrivalTime = arrivalTime;
+    _fromBackground = fromBackground;
+    return self;
+}
 
-// Methods for outcome params
-+ (NSInteger)getIndirectNotificationLimit;
-+ (NSInteger)getIndirectAttributionWindow;
-+ (BOOL)isDirectSessionEnabled;
-+ (BOOL)isIndirectSessionEnabled;
-+ (BOOL)isUnattributedSessionEnabled;
-+ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:_notificationId forKey:@"notificationId"];
+    [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
+    [encoder encodeBool:_fromBackground forKey:@"fromBackground"];
+}
 
-// Methods for caching session related data
-+ (Session)getCachedSession;
-+ (void)saveSession:(Session)session;
-+ (NSString *)getCachedDirectNotificationId;
-+ (void)saveDirectNotificationId:(NSString *)notificationId;
-+ (NSArray *)getCachedIndirectNotificationIds;
-+ (void)saveIndirectNotificationIds:(NSArray *)notificationIds;
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
+        _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
+        _fromBackground = [decoder decodeBoolForKey:@"fromBackground"];
+    }
+    return self;
+}
 
-// Methods for received notification ids within the notification limit and attribution window
-+ (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
+- (NSString *)description {
+    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f fromBackground: %@", _notificationId, _arrivalTime, _fromBackground ? @"YES" : @"NO"];
+}
 
 @end

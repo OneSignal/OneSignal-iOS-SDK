@@ -25,30 +25,21 @@
  THE SOFTWARE.
  */
 
-#import "OSIndirectNotification.h"
+#ifndef OSOutcomeEventsDefines_h
+#define OSOutcomeEventsDefines_h
 
-@interface OSOutcomesUtils : NSObject
+// Outcome param keys
+static NSString * const OUTCOMES_PARAM = @"outcomes";
+static NSString * const DIRECT_PARAM = @"direct";
+static NSString * const INDIRECT_PARAM = @"indirect";
+static NSString * const UNATTRIBUTED_PARAM = @"unattributed";
+static NSString * const ENABLED_PARAM = @"enabled";
+static NSString * const NOTIFICATION_ATTRIBUTION_PARAM = @"notification_attribution";
+static NSString * const MINUTES_SINCE_DISPLAYED_PARAM = @"minutes_since_displayed";
+static NSString * const LIMIT_PARAM = @"limit";
 
-+ (BOOL)isAttributedSession:(Session)session;
+// Outcome default param values
+static int DEFAULT_INDIRECT_NOTIFICATION_LIMIT = 10;
+static int DEFAULT_INDIRECT_ATTRIBUTION_WINDOW = 24 * 60;
 
-// Methods for outcome params
-+ (NSInteger)getIndirectNotificationLimit;
-+ (NSInteger)getIndirectAttributionWindow;
-+ (BOOL)isDirectSessionEnabled;
-+ (BOOL)isIndirectSessionEnabled;
-+ (BOOL)isUnattributedSessionEnabled;
-+ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
-
-// Methods for caching session related data
-+ (Session)getCachedSession;
-+ (void)saveSession:(Session)session;
-+ (NSString *)getCachedDirectNotificationId;
-+ (void)saveDirectNotificationId:(NSString *)notificationId;
-+ (NSArray *)getCachedIndirectNotificationIds;
-+ (void)saveIndirectNotificationIds:(NSArray *)notificationIds;
-
-// Methods for received notification ids within the notification limit and attribution window
-+ (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
-
-@end
+#endif /* OSOutcomeEventsDefines_h */

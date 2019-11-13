@@ -31,82 +31,125 @@
 
 @implementation OneSignalSharedUserDefaults : NSObject
 
-+ (NSUserDefaults*)getSharedUserDefault {
++ (NSString * _Nonnull)appGroupKey {
+    return [OneSignalExtensionBadgeHandler appGroupName];
+}
+
++ (NSUserDefaults* _Nonnull)getSharedUserDefault {
     return [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
 }
 
-+ (BOOL)keyExists:(NSString *)key {
-    return [[OneSignalSharedUserDefaults getSharedUserDefault] objectForKey:key] != nil;
++ (BOOL)keyExists:(NSUserDefaults * _Nonnull)userDefaults withKey:(NSString * _Nonnull)key {
+    return [userDefaults objectForKey:key] != nil;
 }
 
-+ (void)saveString:(NSString *)value withKey:(NSString *)key {
++ (BOOL)getSavedBool:(NSString * _Nonnull)key defaultValue:(BOOL)value {
     NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    if ([self keyExists:userDefaults withKey:key])
+        return (BOOL) [userDefaults boolForKey:key];
+    
+    return value;
+}
+
++ (void)saveBool:(BOOL)value withKey:(NSString * _Nonnull)key {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    [userDefaults setBool:value forKey:key];
+    [userDefaults synchronize];
+}
+
++ (NSString * _Nullable)getSavedString:(NSString * _Nonnull)key defaultValue:(NSString * _Nullable)value {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    if ([self keyExists:userDefaults withKey:key])
+        return [userDefaults objectForKey:key];
+    
+    return value;
+}
+
++ (void)saveString:(NSString * _Nullable)value withKey:(NSString * _Nonnull)key {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
     [userDefaults setObject:value forKey:key];
     [userDefaults synchronize];
 }
 
-+ (NSString *)getSavedString:(NSString *)key defaultValue:(NSString *)value {
-    if ([OneSignalSharedUserDefaults keyExists:key])
-        return [[OneSignalSharedUserDefaults getSharedUserDefault] objectForKey:key];
++ (NSInteger)getSavedInteger:(NSString * _Nonnull)key defaultValue:(NSInteger)value {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    if ([self keyExists:userDefaults withKey:key])
+        return [userDefaults integerForKey:key];
+        
+    return value;
+}
+
++ (void)saveInteger:(NSInteger)value withKey:(NSString * _Nonnull)key {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    [userDefaults setInteger:value forKey:key];
+    [userDefaults synchronize];
+}
+
++ (double)getSavedDouble:(NSString * _Nonnull)key defaultValue:(double)value {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    if ([self keyExists:userDefaults withKey:key])
+        return [userDefaults doubleForKey:key];
     
     return value;
 }
 
-+ (void)saveBool:(BOOL)boolean withKey:(NSString *)key {
++ (void)saveDouble:(double)value withKey:(NSString * _Nonnull)key {
     NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
-    [userDefaults setBool:boolean forKey:key];
+    
+    [userDefaults setDouble:value forKey:key];
     [userDefaults synchronize];
 }
 
-+ (BOOL)getSavedBool:(NSString *)key defaultValue:(BOOL)value {
-    if ([OneSignalSharedUserDefaults keyExists:key])
-        return (BOOL) [[OneSignalSharedUserDefaults getSharedUserDefault] boolForKey:key];
++ (NSSet * _Nullable)getSavedSet:(NSString * _Nonnull)key defaultValue:(NSSet * _Nullable)value {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    if ([self keyExists:userDefaults withKey:key])
+        return [NSSet setWithArray:[userDefaults arrayForKey:key]];
     
     return value;
 }
 
-+ (void)saveInteger:(NSInteger)integer withKey:(NSString *)key {
++ (void)saveSet:(NSSet * _Nullable)value withKey:(NSString * _Nonnull)key {
     NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
-    [userDefaults setObject:[NSString stringWithFormat:@"%li", (long)integer] forKey:key];
+    
+    [userDefaults setObject:[value allObjects] forKey:key];
     [userDefaults synchronize];
 }
 
-+ (NSInteger)getSavedInteger:(NSString *)key defaultValue:(NSInteger)value {
-    if ([OneSignalSharedUserDefaults keyExists:key]) {
-        NSString *result = [self getSavedObject:key defaultValue:[NSString stringWithFormat:@"%li", (long)value]];
-        return [result intValue];
-    }
++ (id _Nullable)getSavedObject:(NSString *)key defaultValue:(id _Nullable)value {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    if ([self keyExists:userDefaults withKey:key])
+        return [userDefaults objectForKey:key];
+    
     return value;
 }
 
-+ (void)saveCodeableData:(id)data withKey:(NSString *)key {
-    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
-    
-    [userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:data] forKey:key];
-    [userDefaults synchronize];
-}
-
-+ (id)getSavedCodeableData:(NSString *)key {
-    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
-    return [NSKeyedUnarchiver unarchiveObjectWithData:[userDefaults objectForKey:key]];
-}
-
-+ (void)saveObject:(id)object withKey:(NSString *)key {
++ (void)saveObject:(id _Nullable)object withKey:(NSString * _Nonnull)key {
     NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
     
     [userDefaults setObject:object forKey:key];
     [userDefaults synchronize];
 }
 
-+ (id)getSavedObject:(NSString *)key defaultValue:(id)value {
-    if ([OneSignalSharedUserDefaults keyExists:key])
-        return [[OneSignalSharedUserDefaults getSharedUserDefault] objectForKey:key];
++ (id _Nullable)getSavedCodeableData:(NSString * _Nonnull)key defaultValue:(id _Nullable)value {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    if ([self keyExists:userDefaults withKey:key])
+        return [NSKeyedUnarchiver unarchiveObjectWithData:[userDefaults objectForKey:key]];
     
     return value;
 }
 
-+ (NSString *)appGroupKey {
-    return [OneSignalExtensionBadgeHandler appGroupName];
++ (void)saveCodeableData:(id _Nullable)value withKey:(NSString * _Nonnull)key {
+    NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
+    
+    [userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
+    [userDefaults synchronize];
 }
 
 @end

@@ -39,9 +39,9 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
 };
 // IAM display position strings
 #define OS_IN_APP_DISPLAY_POSITION_STRING @[@"bottom_banner",@"top_banner",@"center_modal",@"full_screen"]
-// Convert string to OSInAppMessageDisplayPosition enum and vice veras
-#define OS_IN_APP_DISPLAY_POSITION_TO_STRING(position) [OS_OPERATOR_STRINGS objectAtIndex:position]
-#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(position) [OS_IN_APP_DISPLAY_POSITION_STRING indexOfObject:position]
+// Convert string to OSInAppMessageDisplayPosition enum and vice versa
+#define OS_IN_APP_DISPLAY_POSITION_TO_STRING(enum) [OS_IN_APP_DISPLAY_POSITION_STRING objectAtIndex:enum]
+#define OS_IN_APP_DISPLAY_POSITION_FROM_STRING(string) [OS_IN_APP_DISPLAY_POSITION_STRING indexOfObject:string]
 
 // Trigger operator enums
 typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {

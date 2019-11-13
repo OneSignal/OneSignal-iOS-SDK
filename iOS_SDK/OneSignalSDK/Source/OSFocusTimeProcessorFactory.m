@@ -30,6 +30,7 @@
 #import "OSAttributedFocusTimeProcessor.h"
 #import "OSUnattributedFocusTimeProcessor.h"
 #import "OneSignalHelper.h"
+#import "OSOutcomesUtils.h"
 
 @implementation OSFocusTimeProcessorFactory
 
@@ -64,7 +65,7 @@ static NSDictionary<NSString *, OSBaseFocusTimeProcessor *> *focusTimeProcessors
     if (!focusTimeProcessors)
         focusTimeProcessors = [[NSMutableDictionary alloc] init];
     
-    let isAttributed = [result isSessionAttributed];
+    let isAttributed = [OSOutcomesUtils isAttributedSession:result.session];
     let attributionState = isAttributed ? ATTRIBUTED : NOATTRIBUTED;
     NSString *key = focusAttributionStateString(attributionState);
     

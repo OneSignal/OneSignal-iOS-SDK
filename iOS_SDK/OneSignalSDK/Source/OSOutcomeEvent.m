@@ -25,30 +25,35 @@
  THE SOFTWARE.
  */
 
-#import "OSIndirectNotification.h"
+#import "OSOutcomeEvent.h"
+#import "OneSignalCommonDefines.h"
 
-@interface OSOutcomesUtils : NSObject
+@implementation OSOutcomeEvent
 
-+ (BOOL)isAttributedSession:(Session)session;
+- (id _Nonnull)initWithSession:(Session)session
+               notificationIds:(NSArray * _Nullable)notificationIds
+                          name:(NSString * _Nonnull)name
+                     timestamp:(NSNumber * _Nonnull)timestamp
+                        weight:(NSNumber * _Nonnull)value {
+    
+    if (self = [super init]) {
+        _session = session;
+        _notificationIds = notificationIds;
+        _name = name;
+        _timestamp = timestamp;
+        _weight = value;
+    }
+    return self;
+}
 
-// Methods for outcome params
-+ (NSInteger)getIndirectNotificationLimit;
-+ (NSInteger)getIndirectAttributionWindow;
-+ (BOOL)isDirectSessionEnabled;
-+ (BOOL)isIndirectSessionEnabled;
-+ (BOOL)isUnattributedSessionEnabled;
-+ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
-
-// Methods for caching session related data
-+ (Session)getCachedSession;
-+ (void)saveSession:(Session)session;
-+ (NSString *)getCachedDirectNotificationId;
-+ (void)saveDirectNotificationId:(NSString *)notificationId;
-+ (NSArray *)getCachedIndirectNotificationIds;
-+ (void)saveIndirectNotificationIds:(NSArray *)notificationIds;
-
-// Methods for received notification ids within the notification limit and attribution window
-+ (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
+- (NSDictionary * _Nonnull)jsonRepresentation {
+    return @{
+        @"session" : OS_SESSION_TO_STRING(self.session),
+        @"notification_ids" : self.notificationIds,
+        @"id" : self.name,
+        @"timestamp" : self.timestamp,
+        @"weight" : self.weight
+    };
+}
 
 @end

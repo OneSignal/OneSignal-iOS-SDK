@@ -25,30 +25,12 @@
  THE SOFTWARE.
  */
 
-#import "OSIndirectNotification.h"
+@interface OSIndirectNotification : NSObject
 
-@interface OSOutcomesUtils : NSObject
+@property (nonatomic, readonly) NSString *notificationId;
+@property (nonatomic, readonly) double arrivalTime; // seconds
+@property (nonatomic, readonly) BOOL fromBackground;
 
-+ (BOOL)isAttributedSession:(Session)session;
-
-// Methods for outcome params
-+ (NSInteger)getIndirectNotificationLimit;
-+ (NSInteger)getIndirectAttributionWindow;
-+ (BOOL)isDirectSessionEnabled;
-+ (BOOL)isIndirectSessionEnabled;
-+ (BOOL)isUnattributedSessionEnabled;
-+ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
-
-// Methods for caching session related data
-+ (Session)getCachedSession;
-+ (void)saveSession:(Session)session;
-+ (NSString *)getCachedDirectNotificationId;
-+ (void)saveDirectNotificationId:(NSString *)notificationId;
-+ (NSArray *)getCachedIndirectNotificationIds;
-+ (void)saveIndirectNotificationIds:(NSArray *)notificationIds;
-
-// Methods for received notification ids within the notification limit and attribution window
-+ (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
+- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) wasOnBackground;
 
 @end

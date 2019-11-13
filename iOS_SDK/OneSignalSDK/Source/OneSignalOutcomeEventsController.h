@@ -25,30 +25,31 @@
  THE SOFTWARE.
  */
 
-#import "OSIndirectNotification.h"
+#import "OneSignal.h"
+#import "OneSignalSessionManager.h"
 
-@interface OSOutcomesUtils : NSObject
+@interface OneSignalOutcomeEventsController : NSObject
 
-+ (BOOL)isAttributedSession:(Session)session;
+@property (strong, nonatomic, nonnull) OneSignalSessionManager *osSessionManager;
 
-// Methods for outcome params
-+ (NSInteger)getIndirectNotificationLimit;
-+ (NSInteger)getIndirectAttributionWindow;
-+ (BOOL)isDirectSessionEnabled;
-+ (BOOL)isIndirectSessionEnabled;
-+ (BOOL)isUnattributedSessionEnabled;
-+ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
+- (instancetype _Nonnull)init:(OneSignalSessionManager* _Nonnull)sessionManager;
 
-// Methods for caching session related data
-+ (Session)getCachedSession;
-+ (void)saveSession:(Session)session;
-+ (NSString *)getCachedDirectNotificationId;
-+ (void)saveDirectNotificationId:(NSString *)notificationId;
-+ (NSArray *)getCachedIndirectNotificationIds;
-+ (void)saveIndirectNotificationIds:(NSArray *)notificationIds;
+- (void)clearOutcomes;
 
-// Methods for received notification ids within the notification limit and attribution window
-+ (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
+- (void)sendOutcomeEvent:(NSString * _Nonnull)name
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSSendOutcomeSuccess _Nullable)success;
+
+- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+                         appId:(NSString * _Nonnull)appId
+                    deviceType:(NSNumber * _Nonnull)deviceType
+                  successBlock:(OSSendOutcomeSuccess _Nullable)success;
+
+- (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
+                            value:(NSNumber * _Nullable)weight
+                            appId:(NSString * _Nonnull)appId
+                       deviceType:(NSNumber * _Nonnull)deviceType
+                     successBlock:(OSSendOutcomeSuccess _Nullable)success;
 
 @end

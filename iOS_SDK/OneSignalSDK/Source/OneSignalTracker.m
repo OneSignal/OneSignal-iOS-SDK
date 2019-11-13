@@ -27,14 +27,14 @@
 
 #import <UIKit/UIKit.h>
 
+#import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
 #import "OneSignalHelper.h"
 #import "OneSignalWebView.h"
 #import "OneSignalClient.h"
 #import "Requests.h"
 #import "OSOutcomesUtils.h"
-#import "OneSignalSessionManager.h"
-#import "OneSignalUserDefaults.h"
+#import "OneSignalSharedUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 #import "OSFocusTimeProcessorFactory.h"
 #import "OSBaseFocusTimeProcessor.h"
@@ -100,6 +100,9 @@ static BOOL lastOnFocusWasToBackground = YES;
 + (void)applicationForegrounded {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
+    
+    if (OneSignal.appEntryState != NOTIFICATION_CLICK)
+        OneSignal.appEntryState = (AppEntryAction*) APP_OPEN;
    
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];
     let firedUpdate = [OneSignal sendNotificationTypesUpdate];
@@ -108,7 +111,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (!firedUpdate && [OneSignal mUserId])
         [OneSignal registerUser];
     else
-        [OneSignalSessionManager attemptSessionUpgrade];
+        [OneSignal.sessionManager attemptSessionUpgrade];
     
     let wasBadgeSet = [OneSignal clearBadgeCount:false];
     
@@ -134,7 +137,9 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (timeElapsed < -1)
         return;
     
-    let sessionResult = [OneSignalSessionManager sessionResult];
+    OneSignal.appEntryState = (AppEntryAction*) APP_CLOSE;
+    
+    let sessionResult = [OneSignal.sessionManager getSessionResult];
     let focusCallParams = [self createFocusCallParams:sessionResult];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:sessionResult focusEventType:BACKGROUND];
     
@@ -164,7 +169,14 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult {
     let timeElapsed = [self getTimeFocusedElapsed];
-    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id] userId:[OneSignal mUserId] emailUserId:[OneSignal mEmailUserId] emailAuthToken:[OneSignal mEmailAuthToken] netType:[OneSignalHelper getNetType] timeElapsed:timeElapsed notificationIds:sessionResult.notificationIds direct:sessionResult.isSessionDirect];
+    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id]
+                                                   userId:[OneSignal mUserId]
+                                              emailUserId:[OneSignal mEmailUserId]
+                                           emailAuthToken:[OneSignal mEmailAuthToken]
+                                                  netType:[OneSignalHelper getNetType]
+                                              timeElapsed:timeElapsed
+                                          notificationIds:sessionResult.notificationIds
+                                                   direct:sessionResult.session == DIRECT];
 }
 
 + (NSTimeInterval)getTimeFocusedElapsed {
@@ -172,7 +184,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         return -1;
     
     let now = [[NSDate date] timeIntervalSince1970];
-    [OneSignalUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
+    [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
    
     let timeElapsed = now - lastOpenedTime + 0.5;
    

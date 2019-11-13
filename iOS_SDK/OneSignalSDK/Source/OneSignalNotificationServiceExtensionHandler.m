@@ -47,7 +47,7 @@
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
-    [OSOutcomesUtils saveLastNotificationWithBackground:payload.notificationID wasOnBackground:[[UIApplication sharedApplication] applicationState] != UIApplicationStateActive];
+    [OSOutcomesUtils saveReceivedNotificationWithBackground:payload.notificationID fromBackground:[[UIApplication sharedApplication] applicationState] != UIApplicationStateActive];
 
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request

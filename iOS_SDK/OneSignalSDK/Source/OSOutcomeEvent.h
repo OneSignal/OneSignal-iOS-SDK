@@ -25,30 +25,16 @@
  THE SOFTWARE.
  */
 
-#import "OSIndirectNotification.h"
+#import <Foundation/Foundation.h>
+#import "OneSignal.h"
+#import "OSJSONHandling.h"
 
-@interface OSOutcomesUtils : NSObject
+@interface OSOutcomeEvent () <OSJSONDecodable>
 
-+ (BOOL)isAttributedSession:(Session)session;
-
-// Methods for outcome params
-+ (NSInteger)getIndirectNotificationLimit;
-+ (NSInteger)getIndirectAttributionWindow;
-+ (BOOL)isDirectSessionEnabled;
-+ (BOOL)isIndirectSessionEnabled;
-+ (BOOL)isUnattributedSessionEnabled;
-+ (void)saveOutcomeParamsForApp:(NSDictionary *)params;
-
-// Methods for caching session related data
-+ (Session)getCachedSession;
-+ (void)saveSession:(Session)session;
-+ (NSString *)getCachedDirectNotificationId;
-+ (void)saveDirectNotificationId:(NSString *)notificationId;
-+ (NSArray *)getCachedIndirectNotificationIds;
-+ (void)saveIndirectNotificationIds:(NSArray *)notificationIds;
-
-// Methods for received notification ids within the notification limit and attribution window
-+ (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationWithBackground:(NSString *)notificationId fromBackground:(BOOL)wasOnBackground;
+- (id _Nonnull)initWithSession:(Session)session
+               notificationIds:(NSArray * _Nullable)notificationIds
+                          name:(NSString * _Nonnull)name
+                     timestamp:(NSNumber * _Nonnull)timestamp
+                        weight:(NSNumber * _Nonnull)value;
 
 @end
