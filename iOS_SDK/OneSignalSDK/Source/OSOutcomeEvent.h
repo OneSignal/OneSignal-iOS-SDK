@@ -26,34 +26,15 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSIndirectNotification.h"
+#import "OneSignal.h"
+#import "OSJSONHandling.h"
 
-@implementation OSIndirectNotification
+@interface OSOutcomeEvent () <OSJSONDecodable>
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) fromBackground {
-    _notificationId = notificationId;
-    _arrivalTime = arrivalTime;
-    _fromBackground = fromBackground;
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
-    [encoder encodeBool:_fromBackground forKey:@"fromBackground"];
-}
-
-- (id)initWithCoder:(NSCoder *)decoder {
-    if (self = [super init]) {
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
-        _fromBackground = [decoder decodeBoolForKey:@"fromBackground"];
-    }
-    return self;
-}
-
-- (NSString *)description {
-    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f fromBackground: %@", _notificationId, _arrivalTime, _fromBackground ? @"YES" : @"NO"];
-}
+- (id _Nonnull)initWithSession:(Session)session
+               notificationIds:(NSArray * _Nullable)notificationIds
+                          name:(NSString * _Nonnull)name
+                     timestamp:(NSNumber * _Nonnull)timestamp
+                        weight:(NSNumber * _Nonnull)value;
 
 @end

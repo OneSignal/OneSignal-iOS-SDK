@@ -45,6 +45,7 @@
 #import "OSOutcomesUtils.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalSharedUserDefaults.h"
+#import "OneSignalCacheCleaner.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -454,8 +455,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
     initializationTime = [NSDate date];
-
-    // Outcome initializers
+    
+    // Outcomes init
+    [OneSignalCacheCleaner cleanCachedUserData];
     _sessionManager = [[OneSignalSessionManager alloc] init:(id<SessionStatusDelegate>)self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
     
@@ -2514,56 +2516,56 @@ static NSString *_lastnonActiveMessageId;
  Start of outcome module
  */
 + (void)sendOutcome:(NSString * _Nonnull)name {
-    [self sendOutcome:name onSuccess:nil onFailure:nil];
+    [self sendOutcome:name onSuccess:nil];
 }
 
-+ (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
++ (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success {
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcome:onSuccess:"])
         return;
-
-    if (!self.outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+    
+    if (!_outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
     if (![self isValidOutcomeEntry:name])
         return;
-
-    [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+    
+    [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success];
 }
 
 + (void)sendUniqueOutcome:(NSString * _Nonnull)name {
-    [self sendUniqueOutcome:name onSuccess:nil onFailure:nil];
+    [self sendUniqueOutcome:name onSuccess:nil];
 }
 
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
++ (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success {
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendUniqueOutcome:onSuccess:"])
         return;
-
-    if (!self.outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+    
+    if (!_outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
     if (![self isValidOutcomeEntry:name])
         return;
 
-    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success];
 }
 
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
-    [self sendOutcomeWithValue:name value:value onSuccess:nil onFailure:nil];
+    [self sendOutcomeWithValue:name value:value onSuccess:nil];
 }
 
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)success onFailure:(OSFailureBlock _Nullable)failure {
++ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSSendOutcomeSuccess _Nullable)success {
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:onFailure:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendOutcomeWithValue:value:onSuccess:"])
         return;
-
-    if (!self.outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Must call init first"];
+    
+    if (!_outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -2573,7 +2575,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeValue:value])
         return;
 
-    [_outcomeEventsController sendOutcomeEvent:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success failureBlock:failure];
+    [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success];
 }
 
 + (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
@@ -2600,11 +2602,11 @@ static NSString *_lastnonActiveMessageId;
 
 @implementation OneSignal (SessionStatusDelegate)
 
-+ (void)onSessionEnding:(OSSessionResult *)lastSessionResult {
++ (void)onSessionEnding:(OSSessionResult *)sessionResult {
     if (_outcomeEventsController)
         [_outcomeEventsController clearOutcomes];
-    if (lastSessionResult)
-        [OneSignalTracker onSessionEnded:lastSessionResult];
+    if (sessionResult)
+        [OneSignalTracker onSessionEnded:sessionResult];
 }
 
 @end

@@ -25,35 +25,35 @@
  THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "OSIndirectNotification.h"
+#import "OSOutcomeEvent.h"
+#import "OneSignalCommonDefines.h"
 
-@implementation OSIndirectNotification
+@implementation OSOutcomeEvent
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) fromBackground {
-    _notificationId = notificationId;
-    _arrivalTime = arrivalTime;
-    _fromBackground = fromBackground;
-    return self;
-}
-
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
-    [encoder encodeBool:_fromBackground forKey:@"fromBackground"];
-}
-
-- (id)initWithCoder:(NSCoder *)decoder {
+- (id _Nonnull)initWithSession:(Session)session
+               notificationIds:(NSArray * _Nullable)notificationIds
+                          name:(NSString * _Nonnull)name
+                     timestamp:(NSNumber * _Nonnull)timestamp
+                        weight:(NSNumber * _Nonnull)value {
+    
     if (self = [super init]) {
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
-        _fromBackground = [decoder decodeBoolForKey:@"fromBackground"];
+        _session = session;
+        _notificationIds = notificationIds;
+        _name = name;
+        _timestamp = timestamp;
+        _weight = value;
     }
     return self;
 }
 
-- (NSString *)description {
-    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f fromBackground: %@", _notificationId, _arrivalTime, _fromBackground ? @"YES" : @"NO"];
+- (NSDictionary * _Nonnull)jsonRepresentation {
+    return @{
+        @"session" : OS_SESSION_TO_STRING(self.session),
+        @"notification_ids" : self.notificationIds,
+        @"id" : self.name,
+        @"timestamp" : self.timestamp,
+        @"weight" : self.weight
+    };
 }
 
 @end

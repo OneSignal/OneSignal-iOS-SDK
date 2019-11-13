@@ -39,10 +39,6 @@
 
 @implementation OutcomeTests (SessionStatusDelegate)
 
-+ (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult {
-
-}
-
 @end
 
 @implementation OutcomeTests {
@@ -258,7 +254,7 @@
     [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
     
     [OSOutcomesUtils saveSession:INDIRECT];
-    [OSOutcomesUtils saveIndirectNotifications:[NSArray arrayWithObject:testNotificationId]];
+    [OSOutcomesUtils saveIndirectNotificationIds:[NSArray arrayWithObject:testNotificationId]];
     [sessionManager initSessionFromCache];
     
     OSSessionResult *sessionResult = [sessionManager getSessionResult];

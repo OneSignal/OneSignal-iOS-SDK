@@ -27,8 +27,9 @@
 
 #import <XCTest/XCTest.h>
 #import "Requests.h"
+#import "OSOutcomeEvent.h"
 #import "OneSignalHelper.h"
-#import "Requests.h"
+#import "OSOutcomeEventsDefines.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import "OSInAppMessagingHelpers.h"
@@ -48,6 +49,7 @@
     NSString *testInAppMessageAppId;
     NSString *testInAppMessageVariantId;
     NSString *testNotificationId;
+    OSOutcomeEvent *testOutcome;
     NSNumber *testDeviceType;
     
     OSInAppMessageBridgeEvent *testBridgeEvent;
@@ -67,6 +69,13 @@
     testInAppMessageAppId = @"test_in_app_message_app_id";
     testInAppMessageVariantId = @"test_in_app_message_variant_id";
     testNotificationId = @"test_notification_id";
+    
+    testOutcome = [[OSOutcomeEvent new] initWithSession:UNATTRIBUTED
+                                        notificationIds:@[]
+                                                   name:@"test_outcome_id"
+                                              timestamp:@0
+                                                 weight:@0];
+    
     testDeviceType = @0;
     
     testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
@@ -173,10 +182,12 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendDirectOutcome {
-    let request = [OSRequestSendOutcomesToServer directWithOutcomeId:@"test" appId:testAppId notificationIds:[NSArray arrayWithObject:testNotificationId] deviceType:testDeviceType requestParams:nil];
+    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
+    testOutcome = [[OSOutcomeEvent new] initWithSession:DIRECT notificationIds:testNotificationIds name:@"test" timestamp:@0 weight:@0];
+    
+    let request = [OSRequestSendOutcomesToServer directWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
-    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
 
@@ -184,10 +195,12 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendIndirectOutcome {
-    let request = [OSRequestSendOutcomesToServer indirectWithOutcomeId:@"test" appId:testAppId notificationIds:[NSArray arrayWithObject:testNotificationId] deviceType:testDeviceType requestParams: @{ @"weight" : @1 }];
+    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
+    testOutcome = [[OSOutcomeEvent new] initWithSession:INDIRECT notificationIds:testNotificationIds name:@"test" timestamp:@0 weight:@1];
+    
+    let request = [OSRequestSendOutcomesToServer indirectWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
-    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
@@ -195,7 +208,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendUnattributedOutcome {
-    let request = [OSRequestSendOutcomesToServer unattributedWithOutcomeId:@"test" appId:testAppId deviceType:testDeviceType requestParams:nil];
+    testOutcome = [[OSOutcomeEvent new] initWithSession:UNATTRIBUTED notificationIds:nil name:@"test" timestamp:@0 weight:@0];
+    
+    let request = [OSRequestSendOutcomesToServer unattributedWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     

@@ -68,6 +68,7 @@
 #define CACHED_INDIRECT_NOTIFICATION_IDS @"CACHED_INDIRECT_NOTIFICATION_IDS"
 #define CACHED_RECEIVED_NOTIFICATION_IDS @"CACHED_RECEIVED_NOTIFICATION_IDS"
 #define CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT @"CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"
+#define CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT @"CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT"
 
 // To avoid undefined symbol compiler errors on older versions of Xcode,
 // instead of using UNAuthorizationOptionProvisional directly, we will use
@@ -106,13 +107,6 @@
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
-// OneSignal Session Types
-typedef NS_ENUM(NSUInteger, Session) {
-    DIRECT,
-    INDIRECT,
-    UNATTRIBUTED,
-    DISABLED
-};
 // OneSignal Session Strings
 #define OS_SESSION_STRINGS @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"]
 // Convert String to Session enum and vice versa
@@ -148,6 +142,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define ERROR_PUSH_OTHER_3000_ERROR        -17
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
+
+// 1 week in seconds
+#define WEEK_IN_SECONDS 604800.0
 
 // Registration delay
 #define REGISTRATION_DELAY_SECONDS 30.0

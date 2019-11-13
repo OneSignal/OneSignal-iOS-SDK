@@ -39,6 +39,7 @@
 #import "OSSubscription.h"
 #import "OSEmailSubscription.h"
 
+#import "OneSignalCommonDefines.h"
 #import "OneSignalSessionManager.h"
 #import "OneSignalOutcomeEventsController.h"
 

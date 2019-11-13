@@ -1,28 +1,28 @@
 /**
- * Modified MIT License
- *
- * Copyright 2019 OneSignal
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * 1. The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * 2. All copies of substantial portions of the Software may only be used in connection
- * with services provided by OneSignal.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ Modified MIT License
+
+ Copyright 2019 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 #import <Foundation/Foundation.h>
@@ -43,9 +43,6 @@
     return self;
 }
 
-/*
- TODO: comment
- */
 - (void)initSessionFromCache {
     self.session = [OSOutcomesUtils getCachedSession];
     self.directNotificationId = [OSOutcomesUtils getCachedDirectNotificationId];
@@ -57,15 +54,13 @@
                                                        self.indirectNotificationIds]];
 }
 
-/*
- TODO: comment
- */
 - (void)restartSessionIfNeeded {
+    // Avoid session restart if the appEntryState is a NOTIFICATION_CLICK
     if (OneSignal.appEntryState && OneSignal.appEntryState == NOTIFICATION_CLICK)
         return;
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session is restarting, checking if the session should be INDIRECT or DIRECT"];
-
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session is restarting"];
+    
     NSArray *indirectNotificationIds = [self getIndirectNotificationIds];
     if (indirectNotificationIds && [indirectNotificationIds count] > 0)
         [self setSession:INDIRECT directNotificationId:nil indirectNotificationIds:indirectNotificationIds];
@@ -73,9 +68,6 @@
         [self setSession:UNATTRIBUTED directNotificationId:nil indirectNotificationIds:nil];
 }
 
-/*
- TODO: comment
- */
 - (void)onDirectSessionFromNotificationOpen:(NSString *)directNotificationId {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Session from notification open with:  \nsession: %@  \ndirectNotificationsId: %@  \nindirectNotificationsIds: %@",
                                                        OS_SESSION_TO_STRING(DIRECT),
@@ -86,7 +78,10 @@
 }
 
 /*
- TODO: comment
+ Validates whether or not the session will change under certain circumstances:
+    1. Is new session different from incoming session?
+    2. Is DIRECT session data different from incoming DIRECT session data?
+    3. Is INDIRECT session data different from incoming INDIRECT session data?
  */
 - (BOOL)willChangeSession:(Session)session directNotificationId:(NSString *)directNotificationId indirectNotificationIds:(NSArray *)indirectNotificationIds {
     if (self.session != session)
@@ -114,8 +109,18 @@
     return self.session;
 }
 
+- (NSArray *)getNotificationIds {
+    if (self.session == DIRECT)
+        return [NSArray arrayWithObject:self.directNotificationId];
+
+    if (self.session == INDIRECT)
+        return self.indirectNotificationIds;
+
+    return [NSArray new];
+}
+
 /*
- TODO: comment
+ Called when the session for the app changes, caches the state, and broadcasts the session that just ended
  */
 - (void)setSession:(Session)session directNotificationId:(NSString *)directNotificationId indirectNotificationIds:(NSArray *)indirectNotificationIds {
     if (![self willChangeSession:session directNotificationId:directNotificationId indirectNotificationIds:indirectNotificationIds])
@@ -133,7 +138,7 @@
     // Cache all new session data
     [OSOutcomesUtils saveSession:session];
     [OSOutcomesUtils saveDirectNotificationId:directNotificationId];
-    [OSOutcomesUtils saveIndirectNotifications:indirectNotificationIds];
+    [OSOutcomesUtils saveIndirectNotificationIds:indirectNotificationIds];
     
     // Call delegate for ending the session
     OSSessionResult *sessionResult = [self getSessionResult];
@@ -170,16 +175,16 @@
 }
 
 /*
- TODO: comment
+ Get the current session based off current state and whether or not outcomes features are enabled
  */
 - (OSSessionResult *)getSessionResult {
-    if (self.session == DIRECT && self.directNotificationId) {
+    if (self.session == DIRECT) {
         if ([OSOutcomesUtils isDirectSessionEnabled]) {
             NSArray *notificationIds = [NSArray arrayWithObject:self.directNotificationId];
             return [[OSSessionResult alloc] init:DIRECT withNotificationIds:notificationIds];
         }
         
-    } else if (self.session == INDIRECT && self.indirectNotificationIds) {
+    } else if (self.session == INDIRECT) {
         if ([OSOutcomesUtils isIndirectSessionEnabled]) {
             return [[OSSessionResult alloc] init:INDIRECT withNotificationIds:self.indirectNotificationIds];
         }
@@ -192,7 +197,7 @@
 }
 
 /*
- TODO: comment
+ Get the current notifications ids that influenced the session
  */
 - (NSArray *)getIndirectNotificationIds {
     NSArray *receivedNotifications = [OSOutcomesUtils getCachedReceivedNotifications];
