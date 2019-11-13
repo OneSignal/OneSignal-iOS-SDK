@@ -47,12 +47,19 @@
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalLocation.h"
+#import "UncaughtExceptionHandler.h"
+#import "NSUserDefaultsOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
 }
 
 @implementation UnitTestCommonMethods
+
+static XCTestCase* _currentXCTestCase;
++ (XCTestCase*)currentXCTestCase {
+    return _currentXCTestCase;
+}
 
 // Runs any blocks passed to dispatch_async()
 + (void)runBackgroundThreads {
@@ -111,7 +118,7 @@ NSString * serverUrlWithPath(NSString *path) {
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
     NSLog(@"=======  APP RESTART ======\n\n");
     
-    NSDateOverrider.timeOffset = 0;
+    [NSDateOverrider reset];
     
     [OneSignalClientOverrider reset:testCase];
     [UNUserNotificationCenterOverrider reset:testCase];
@@ -143,7 +150,13 @@ NSString * serverUrlWithPath(NSString *path) {
     [OSMessagingController.sharedInstance reset];
 }
 
++ (void)beforeAllTest:(XCTestCase *)testCase {
+    _currentXCTestCase = testCase;
+    [self beforeAllTest];
+}
+
 + (void)beforeAllTest {
+    // Esure we only run this once
     static var setupUIApplicationDelegate = false;
     if (setupUIApplicationDelegate)
         return;
@@ -160,6 +173,15 @@ NSString * serverUrlWithPath(NSString *path) {
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
     OneSignalHelperOverrider.mockIOSVersion = 10;
+    
+    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+}
+
++ (void) beforeEachTest:(XCTestCase *)testCase {
+    [self beforeAllTest];
+    [self clearStateForAppRestart:testCase];
+    [NSUserDefaultsOverrider clearInternalDictionary];
 }
 
 + (void)setCurrentNotificationPermissionAsUnanswered {
@@ -174,6 +196,11 @@ NSString * serverUrlWithPath(NSString *path) {
     
     // iOS fires the resume event when app is cold started.
     [UnitTestCommonMethods resumeApp];
+}
+
++(void)initOneSignalAndThreadWait {
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
 }
 
 + (void)resumeApp {

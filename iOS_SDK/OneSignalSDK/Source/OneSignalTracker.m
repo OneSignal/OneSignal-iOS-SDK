@@ -186,7 +186,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     let now = [[NSDate date] timeIntervalSince1970];
     [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
    
-    let timeElapsed = now - lastOpenedTime + 0.5;
+    let timeElapsed = now - (int)(lastOpenedTime + 0.5);
    
     // Time is invalid if below 1 or over a day
     if (timeElapsed < 0 || timeElapsed > 86400)

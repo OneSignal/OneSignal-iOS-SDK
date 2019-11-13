@@ -32,43 +32,27 @@
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalHelper.h"
-
-@interface OutcomeTests : XCTestCase
-
-@end
-
-@implementation OutcomeTests (SessionStatusDelegate)
-
+#import "UnitTestCommonMethods.h"
+  
+@interface OutcomeTests<SessionStatusDelegate> : XCTestCase
 @end
 
 @implementation OutcomeTests {
-    NSString *testAppId;
-    NSString *testUserId;
-    NSString *testEmailUserId;
-    NSString *testEmailAddress;
-    NSString *testMessageId;
     NSString *testNotificationId;
-    NSString *testOutcomeId;
-    NSNumber *testDeviceType;
     OneSignalSessionManager *sessionManager;
     OneSignalOutcomeEventsController *outcomesController;
-
 }
+
++ (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult {}
 
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+     [UnitTestCommonMethods clearStateForAppRestart:self];
+     [UnitTestCommonMethods beforeAllTest];
     
-    testAppId = @"test_app_id";
-    testUserId = @"test_user_id";
-    testEmailUserId = @"test_email_user_id";
-    testEmailAddress = @"test@test.com";
-    testMessageId = @"test_message_id";
     testNotificationId = @"test_notification_id";
-    testOutcomeId = @"test_outcome_id";
-    testDeviceType = @0;
-
-    sessionManager = [[OneSignalSessionManager alloc] init:(id<SessionStatusDelegate>)self];
+    sessionManager = [[OneSignalSessionManager alloc] init:OutcomeTests.self];
     outcomesController = [[OneSignalOutcomeEventsController alloc] init:sessionManager];
 
     [OneSignalSharedUserDefaults saveString:nil withKey:CACHED_SESSION];

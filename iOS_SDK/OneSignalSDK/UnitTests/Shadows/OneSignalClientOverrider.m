@@ -53,6 +53,7 @@ static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Dire
 static BOOL disableOverride = false;
 static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
+static NSDictionary* iOSParamsOutcomes;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -71,6 +72,33 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     mockResponses = [NSMutableDictionary new];
 }
 
++ (NSDictionary*) iosParamsResponse {
+    return @{
+        @"fba": @true,
+        IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
+        IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
+        IOS_OUTCOMES : iOSParamsOutcomes
+    };
+}
+
++ (void) enableOutcomes {
+    iOSParamsOutcomes = @{
+        @"direct": @{
+                @"enabled": @YES
+        },
+        @"indirect": @{
+            @"notification_attribution": @{
+                @"minutes_since_displayed": @1440,
+                @"limit": @10
+            },
+            @"enabled": @YES
+        },
+        @"unattributed" : @{
+            @"enabled": @YES
+        }
+    };
+}
+
 // Calling this function twice results in reversing the swizzle
 + (void)disableExecuteRequestOverride:(BOOL)disable {
     disableOverride = disable;
@@ -86,8 +114,6 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
     
     for (NSString *key in requests.allKeys) {
-        [executedRequests addObject:requests[key]];
-        
         [OneSignalClient.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
             results[key] = result;
             dispatch_semaphore_signal(semaphore);
@@ -164,7 +190,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]])
-                successBlock(@{@"fba": @true, IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth), IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization)});
+                successBlock(self.iosParamsResponse);
             else if (mockResponses[NSStringFromClass([request class])])
                 successBlock(mockResponses[NSStringFromClass([request class])]);
             else
@@ -215,6 +241,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     lastHTTPRequest = nil;
     [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
+    iOSParamsOutcomes = @{};
 }
 
 +(void)setLastHTTPRequest:(NSDictionary*)value {

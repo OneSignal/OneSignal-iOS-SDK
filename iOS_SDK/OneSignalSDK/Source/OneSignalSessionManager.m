@@ -35,7 +35,7 @@
 
 @implementation OneSignalSessionManager
 
-- (instancetype _Nonnull)init:(id<SessionStatusDelegate>)delegate {
+- (instancetype _Nonnull)init:(Class<SessionStatusDelegate>)delegate {
     if (self = [super init]) {
         [self initSessionFromCache];
         self.delegate = delegate;
