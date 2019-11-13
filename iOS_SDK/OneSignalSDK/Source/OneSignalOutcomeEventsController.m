@@ -224,8 +224,9 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
                                                         deviceType:deviceType];
             break;
         case DISABLED:
+        default:
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Outcomes for current session are disabled"];
-            break;
+            return;
     }
 
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
@@ -258,8 +259,7 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
         OSUniqueOutcomeNotification *uniqueNotifNotSent = [[OSUniqueOutcomeNotification new] initWithParamsNotificationId:name notificationId:notifId timestamp:timestamp];
 
         BOOL breakOut = false;
-        for (int j = 0; j < [attributedUniqueOutcomeEventNotificationIdsSentArray count]; j++) {
-            OSUniqueOutcomeNotification *uniqueNotifSent = attributedUniqueOutcomeEventNotificationIdsSentArray[j];
+        for (OSUniqueOutcomeNotification *uniqueNotifSent in attributedUniqueOutcomeEventNotificationIdsSentArray) {
             // If the notif has been sent with this unique outcome, then it should not be included in the returned NSArray
             if ([uniqueNotifNotSent isEqual:uniqueNotifSent]) {
                 NSString* message = @"Measure endpoint will not send because unique outcome already sent for: name: %@, notificationId: %@";
