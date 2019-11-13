@@ -163,7 +163,9 @@
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
     NSString *model = [[UIDevice currentDevice] model];
-    NSString *deviceModel = [@"Simulator " stringByAppendingString:model];
+    
+    // final value should be "Simulator iPhone" or "Simulator iPad"
+    let deviceModel = [@"Simulator " stringByAppendingString:model];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);

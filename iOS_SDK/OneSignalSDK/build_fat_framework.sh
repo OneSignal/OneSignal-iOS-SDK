@@ -2,15 +2,24 @@
 set -e
 
 WORKING_DIR=$(pwd)
+DERIVED_DATA_RELATIVE_DIR=temp
+BUILD_CONFIG="Debug"
+BUILD_TYPE="staticlib"
+BUILD_SCHEME="OneSignalFramework"
+BUILD_PROJECT="OneSignal.xcodeproj"
+
+# NOTE: Once Apple drops support for Xcode 10, we can edit this to use same xcodebuild version for all three build commands
+XCODEBUILD_OLDEST_SUPPORTED=/Applications/Xcode10.1.app/Contents/Developer/usr/bin/xcodebuild
+XCODEBUILD_11_0=xcodebuild
 
 # For backwards compatible bitcode we need to build iphonesimulator + iphoneos with 3 versions behind the latest.
 #       However variant=Mac Catalyst needs to be be Xcode 11.0
-/Applications/Xcode10.1.app/Contents/Developer/usr/bin/xcodebuild -configuration "Debug" MACH_O_TYPE="staticlib" -sdk "iphonesimulator" ARCHS="x86_64" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
-/Applications/Xcode10.1.app/Contents/Developer/usr/bin/xcodebuild -configuration "Debug" MACH_O_TYPE="staticlib" -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e i386"  -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
-xcodebuild -configuration "Debug" ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE="staticlib" -project "OneSignal.xcodeproj" -scheme "OneSignalFramework" SYMROOT="temp/"
+$XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphonesimulator" ARCHS="x86_64" -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
+$XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e i386"  -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
+$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE=${BUILD_TYPE} -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
 
 USER=$(id -un)
-DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/temp"
+DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/${DERIVED_DATA_RELATIVE_DIR}"
 
 # Use Debug configuration to expose symbols
 CATALYST_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-maccatalyst"
@@ -68,6 +77,7 @@ ln -s A Current
 rm -rf "${WORKING_DIR}/Framework/OneSignal.framework"
 cp -a "${FINAL_FRAMEWORK}" "${WORKING_DIR}/Framework/OneSignal.framework"
 
+echo "Opening final release framework in Finder:${WORKING_DIR}/Framework/OneSignal.framework"
 open ${WORKING_DIR}/Framework
 
 echo "Done"
