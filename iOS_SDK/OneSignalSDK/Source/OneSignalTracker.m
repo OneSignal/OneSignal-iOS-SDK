@@ -105,13 +105,15 @@ static BOOL lastOnFocusWasToBackground = YES;
         OneSignal.appEntryState = (AppEntryAction*) APP_OPEN;
    
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];
-    let firedUpdate = [OneSignal sendNotificationTypesUpdate];
     
     // on_session tracking when resumming app.
-    if (!firedUpdate && [OneSignal mUserId])
+    if ([OneSignal shouldRegisterNow])
         [OneSignal registerUser];
-    else
+    else {
+        // This checks if notifiation permissions changed when app was backgrounded
+        [OneSignal sendNotificationTypesUpdate];
         [OneSignal.sessionManager attemptSessionUpgrade];
+    }
     
     let wasBadgeSet = [OneSignal clearBadgeCount:false];
     
@@ -133,6 +135,9 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)applicationBackgrounded {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Backgrounded started"];
+    [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
+    [self updateLastClosedTime];
+    
     let timeElapsed = [self getTimeFocusedElapsed];
     if (timeElapsed < -1)
         return;
@@ -183,9 +188,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (!lastOpenedTime)
         return -1;
     
-    let now = [[NSDate date] timeIntervalSince1970];
-    [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
-   
+    let now = [NSDate date].timeIntervalSince1970;
     let timeElapsed = now - (int)(lastOpenedTime + 0.5);
    
     // Time is invalid if below 1 or over a day
@@ -193,6 +196,11 @@ static BOOL lastOnFocusWasToBackground = YES;
         return -1;
 
     return timeElapsed;
+}
+
++ (void)updateLastClosedTime {
+    let now = [NSDate date].timeIntervalSince1970;
+    [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
 }
 
 @end

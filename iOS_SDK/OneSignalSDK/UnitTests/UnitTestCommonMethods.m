@@ -117,9 +117,6 @@ static XCTestCase* _currentXCTestCase;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
     NSLog(@"=======  APP RESTART ======\n\n");
     
-    [NSDateOverrider reset];
-    
-    [OneSignalClientOverrider reset:testCase];
     [UNUserNotificationCenterOverrider reset:testCase];
     [UIApplicationOverrider reset];
     [OneSignalTrackFirebaseAnalyticsOverrider reset];
@@ -172,15 +169,18 @@ static XCTestCase* _currentXCTestCase;
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
     OneSignalHelperOverrider.mockIOSVersion = 10;
-    
-    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
 }
 
 + (void) beforeEachTest:(XCTestCase *)testCase {
     [self beforeAllTest];
     [self clearStateForAppRestart:testCase];
+    
+    [NSDateOverrider reset];
+    [OneSignalClientOverrider reset:testCase];
     [NSUserDefaultsOverrider clearInternalDictionary];
+    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+    freezeOSRestClient = false;
 }
 
 + (void)setCurrentNotificationPermissionAsUnanswered {
