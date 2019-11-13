@@ -191,8 +191,6 @@ static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
 NSMutableDictionary* tagsToSend;
-OSResultSuccessBlock tokenUpdateSuccessBlock;
-OSFailureBlock tokenUpdateFailureBlock;
 
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
@@ -404,6 +402,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     app_id = nil;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
+    waitingForOneSReg = false;
+    isOnSessionSuccessfulForCurrentState = false;
     mLastNotificationTypes = -1;
     
     _lastPermissionState = nil;
@@ -1363,8 +1363,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [self.osNotificationSettings onAPNsResponse:false];
 }
 
-+ (void)updateDeviceToken:(NSString*)deviceToken onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
++ (void)updateDeviceToken:(NSString*)deviceToken {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"updateDeviceToken:onSuccess:onFailure:"])
         return;
@@ -1374,85 +1373,86 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // iOS 7
     [self.osNotificationSettings onAPNsResponse:true];
     
-    // Do not block next registration as there's a new token in hand
-    nextRegistrationIsHighPriority = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken] || [self getNotificationTypes] != mLastNotificationTypes;
-    
-    if (!self.currentSubscriptionState.userId) {
-        self.currentSubscriptionState.pushToken = deviceToken;
-        tokenUpdateSuccessBlock = successBlock;
-        tokenUpdateFailureBlock = failureBlock;
-        
-        // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
-        // The goal is to only have 1 server call.
-        [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
-            if (status.answeredPrompt || status.provisional) {
-                [OneSignal registerUser];
-            } else {
-                [self registerUserAfterDelay];
-            }
-        }];
-        return;
-    }
-    
-    if ([deviceToken isEqualToString:self.currentSubscriptionState.pushToken]) {
-        if (successBlock)
-            successBlock(nil);
-        return;
-    }
-    
+    let isPushTokenDifferent = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken];
     self.currentSubscriptionState.pushToken = deviceToken;
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT updated pushToken!"];
-    
-    [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:deviceToken notificationTypes:@([self getNotificationTypes]) withParentId:nil emailAuthToken:nil email: nil] onSuccess:successBlock onFailure:failureBlock];
-    
-    [self fireIdsAvailableCallback];
+    // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
+    // The goal is to only have 1 server call.
+    [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
+        if (status.answeredPrompt || status.provisional) {
+            if ([self shouldRegisterNow])
+                [self registerUser];
+            else if (isPushTokenDifferent)
+                [self playerPutForPushTokenAndNotificationTypes];
+        } else {
+            [self registerUserAfterDelay];
+        }
+    }];
+}
+
++ (void)playerPutForPushTokenAndNotificationTypes {
+      onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal PUT to updated pushToken and/or notificationTypes!");
+      
+      let request = [OSRequestUpdateDeviceToken
+          withUserId:self.currentSubscriptionState.userId
+          appId:self.app_id
+          deviceToken:self.currentSubscriptionState.pushToken
+          notificationTypes:@([self getNotificationTypes])
+          withParentId:nil
+          emailAuthToken:nil
+          email:nil
+      ];
+      [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:nil];
+      [self fireIdsAvailableCallback];
 }
 
 // Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
-bool nextRegistrationIsHighPriority = NO;
-
-+ (BOOL)isHighPriorityCall {
-    return !self.currentSubscriptionState.userId || nextRegistrationIsHighPriority;
+bool immediateOnSessionRetry = NO;
++ (void)setImmediateOnSessionRetry:(BOOL)retry {
+    immediateOnSessionRetry = retry;
 }
 
++ (BOOL)isImmediatePlayerCreateOrOnSession {
+    return !self.currentSubscriptionState.userId || immediateOnSessionRetry;
+}
+
+// True if we asked Apple for an APNS token the AppDelegate callback has not fired yet
 static BOOL waitingForOneSReg = false;
-
-//needed so that tests can make sure registerUserInternal executes
-+ (void)setNextRegistrationHighPriority:(BOOL)highPriority {
-    nextRegistrationIsHighPriority = highPriority;
-}
-
-+ (void)updateLastSessionDateTime {
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
+// Esnure we call on_session only once while the app is infocus.
+static BOOL isOnSessionSuccessfulForCurrentState = false;
++ (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value {
+    isOnSessionSuccessfulForCurrentState = value;
 }
 
 + (BOOL)shouldRegisterNow {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return false;
     
+    // Don't make a 2nd on_session if have in inflight one
     if (waitingForOneSReg)
         return false;
     
-    // Figure out if should pass or not
+    if ([self isImmediatePlayerCreateOrOnSession])
+        return true;
+    
+    if (isOnSessionSuccessfulForCurrentState)
+        return false;
+    
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [OneSignalSharedUserDefaults getSavedDouble:USER_LAST_CLOSED_TIME defaultValue:0];
-
+    
     if (lastTimeClosed == 0) {
-        [self updateLastSessionDateTime];
+        onesignal_Log(ONE_S_LL_DEBUG, @"shouldRegisterNow: lastTimeClosed: default.");
         return true;
     }
     
-    if ([self isHighPriorityCall])
-        return true;
+    onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"shouldRegisterNow: lastTimeClosed: %f", lastTimeClosed]);
     
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
-    return delta > minTimeThreshold;
+    return delta >= minTimeThreshold;
 }
 
 + (void)registerUserAfterDelay {
@@ -1613,14 +1613,11 @@ static dispatch_queue_t serialQueue;
     }
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
+        immediateOnSessionRetry = NO;
         waitingForOneSReg = false;
+        isOnSessionSuccessfulForCurrentState = true;
 
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
-
-        // Success, no more high priority
-        nextRegistrationIsHighPriority = NO;
-        
-        [self updateLastSessionDateTime];
         
         //update email player ID
         if (results[@"email"] && results[@"email"][@"id"]) {
@@ -1656,11 +1653,6 @@ static dispatch_queue_t serialQueue;
                         callbackSet.successBlock(dataDic[@"tags"]);
                 }
             }
-            
-            if (self.currentSubscriptionState.pushToken)
-                [self updateDeviceToken:self.currentSubscriptionState.pushToken
-                              onSuccess:tokenUpdateSuccessBlock
-                              onFailure:tokenUpdateFailureBlock];
             
             if (tagsToSend)
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
@@ -1706,7 +1698,7 @@ static dispatch_queue_t serialQueue;
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Encountered error during %@ registration with OneSignal: %@", key, errors[key]]];
         
         //If the failed registration is priority, force the next one to be a high priority
-        nextRegistrationIsHighPriority = YES;
+        immediateOnSessionRetry = YES;
         
         let error = (NSError *)(errors[@"push"] ?: errors[@"email"]);
         
@@ -2057,7 +2049,7 @@ static NSString *_lastnonActiveMessageId;
     if (mSubscriptionStatus == -2)
         return;
     
-    if (!self.currentSubscriptionState.userId && !startedRegister)
+    if (!startedRegister && [self shouldRegisterNow])
         [OneSignal registerUser];
     else if (self.currentSubscriptionState.pushToken)
         [self sendNotificationTypesUpdate];
@@ -2085,11 +2077,7 @@ static NSString *_lastnonActiveMessageId;
     if (!app_id)
         return;
     
-    [OneSignal updateDeviceToken:parsedDeviceToken onSuccess:^(NSDictionary* results) {
-        [OneSignal onesignal_Log:ONE_S_LL_INFO message:[NSString stringWithFormat: @"Device Registered with OneSignal: %@", self.currentSubscriptionState.userId]];
-    } onFailure:^(NSError* error) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Error in OneSignal Registration: %@", error]];
-    }];
+    [OneSignal updateDeviceToken:parsedDeviceToken];
 }
     
 + (BOOL)remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {

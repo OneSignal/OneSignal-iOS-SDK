@@ -53,7 +53,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (void)registerUserInternal;
-+ (void)setNextRegistrationHighPriority:(BOOL)highPriority;
++ (void)setImmediateOnSessionRetry:(BOOL)retry;
 @end
 
 @interface EmailTests : XCTestCase
@@ -70,18 +70,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
-    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
-    
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
-    [NSUserDefaultsOverrider clearInternalDictionary];
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [UnitTestCommonMethods beforeAllTest];
-    
-    [OneSignalClientOverrider runBackgroundThreads];
+    [UnitTestCommonMethods beforeEachTest:self];
 }
 
 - (void)tearDown {
@@ -501,7 +492,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignalClientOverrider reset:self];
     
     //set this flag to true so that registerUserInternal() actually executes
-    [OneSignal setNextRegistrationHighPriority:true];
+    // TODO: Clean up hack to make player create fire right away
+    [OneSignal setImmediateOnSessionRetry:true];
     
     [OneSignal registerUserInternal];
     [UnitTestCommonMethods runBackgroundThreads];

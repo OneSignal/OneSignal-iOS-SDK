@@ -101,14 +101,7 @@
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
-    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
-    
-    [NSUserDefaultsOverrider clearInternalDictionary];
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-
-    [UnitTestCommonMethods beforeAllTest];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
@@ -316,10 +309,8 @@
 }
 
 - (void)testInitOnSimulator {
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
+    // Mock error code the simulator returns
     UIApplicationOverrider.didFailRegistarationErrorCode = 3010;
     
     [self initOneSignalAndThreadWait];
@@ -374,6 +365,8 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
+    [self backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [OneSignal sendTag:@"key" value:@"value"];
@@ -383,7 +376,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
 - (void)testPermissionChangeObserverIOS10 {
@@ -769,8 +762,8 @@
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];
+    // Mock error code return when Push Notification Capabilites are missing
     UIApplicationOverrider.didFailRegistarationErrorCode = 3000;
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [UnitTestCommonMethods initOneSignal];
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
@@ -1641,6 +1634,29 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(observer->last.to.accepted, true);
 }
 
+- (void)testPermissionChangedOutsideOfAppOverWithNewSession {
+    [self backgroundModesDisabledInXcode];
+    
+    [self initOneSignalAndThreadWait];
+    [self backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods setCurrentNotificationPermission:true];
+    
+    [NSDateOverrider advanceSystemTimeBy:30];
+    UNUserNotificationCenterOverrider.notifTypesOverride = 0;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
+    
+    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // We should be making an on_session since we left the app for 30+ secounds
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    // The on_session call should have a notification_types of 0 to indicate no notification permissions.
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+}
+
 - (void) testOnSessionWhenResuming {
     [self initOneSignalAndThreadWait];
     
@@ -1660,6 +1676,28 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
+
+
+- (void) testOnSessionOnColdStart {
+    // 1. Open app and background after it creates the player
+    [self initOneSignalAndThreadWait];
+    [self backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 2. Kill the app and wait 30 seconds.
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [NSDateOverrider advanceSystemTimeBy:30];
+    
+    // 3. Open app
+    [self initOneSignalAndThreadWait];
+    
+    // 4. Ensure the last network call is an on_session.
+    // Total calls - 2 ios_params + player create + on_session = 4.
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+}
+
+// TODO: Add test accepting notification permission while player create is in flight.
 
 // Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
 - (void)testContentAvailableDoesNotTriggerOpen  {
