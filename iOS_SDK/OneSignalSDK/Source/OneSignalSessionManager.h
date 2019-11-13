@@ -41,7 +41,7 @@
 @property (strong, nonatomic, nullable) NSString *directNotificationId;
 @property (strong, nonatomic, nullable) NSArray *indirectNotificationIds;
 
-- (instancetype _Nonnull)init:(id<SessionStatusDelegate> _Nonnull)delegate;
+- (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nonnull)delegate;
 
 - (Session)getSession;
 - (NSArray * _Nullable)getNotificationIds;

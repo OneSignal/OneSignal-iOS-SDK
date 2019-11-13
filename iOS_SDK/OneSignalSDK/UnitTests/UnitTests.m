@@ -2117,7 +2117,7 @@ didReceiveRemoteNotification:userInfo
     // and 30 seconds between registration attempts.
     // This would be too long for a test, so we artificially set the
     // delay times to be very very short.
-    [OneSignal setDelayIntervals:0.001f withRegistrationDelay:0.002f];
+    [OneSignal setDelayIntervals:-1 withRegistrationDelay:-1];
     
     // add the subscription observer
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];

@@ -50,6 +50,7 @@
 #import "OneSignalClientOverrider.h"
 #import "NSLocaleOverrider.h"
 #import "OSInAppMessageController.h"
+#import "NSDateOverrider.h"
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -143,7 +144,7 @@
 }
 
 - (void)testMessageDisplayedAfterTimer {
-    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
@@ -155,7 +156,7 @@
     expectation.expectedFulfillmentCount = 1;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.06 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+        XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
         
         [expectation fulfill];
     });

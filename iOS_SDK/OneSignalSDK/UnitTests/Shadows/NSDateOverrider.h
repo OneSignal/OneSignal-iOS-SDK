@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,5 +28,11 @@
 #import <Foundation/Foundation.h>
 
 @interface NSDateOverrider : NSObject
-+(void) setTimeOffset:(NSTimeInterval)offset;
++(void) reset;
+
++ (NSTimeInterval)globalTimeOffset;
+
+// Use advanceSystemTimeBy over setTimeOffset
++(void) setTimeOffset:(NSTimeInterval)offset __deprecated;
++(void) advanceSystemTimeBy:(NSTimeInterval)sec;
 @end

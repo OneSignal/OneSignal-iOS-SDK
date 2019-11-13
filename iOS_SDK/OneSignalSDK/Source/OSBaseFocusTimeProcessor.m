@@ -50,7 +50,7 @@ NSNumber* unsentActiveTime;
 }
 - (BOOL)isTimeCorrect:(NSTimeInterval)activeTime {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor isTimeCorrect getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
-    return activeTime > [self getMinSessionTime];
+    return activeTime >= [self getMinSessionTime];
 }
 
 - (void)resetUnsentActiveTime {

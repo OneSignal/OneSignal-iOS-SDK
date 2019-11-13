@@ -39,13 +39,16 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)setCurrentNotificationPermissionAsUnanswered;
 + (void)resumeApp;
 + (void)initOneSignal;
++ (void)initOneSignalAndThreadWait;
 + (void)runBackgroundThreads;
 + (void)beforeAllTest;
++ (void)beforeAllTest:(XCTestCase *)testCase;
++ (void)beforeEachTest:(XCTestCase *)testCase;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
 + (void)answerNotificationPrompt:(BOOL)accept;
 + (void)setCurrentNotificationPermission:(BOOL)accepted;
-
++ (XCTestCase*)currentXCTestCase;
 @end
 
 // Expose OneSignal test methods
