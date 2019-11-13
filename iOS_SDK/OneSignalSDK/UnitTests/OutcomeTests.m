@@ -47,18 +47,11 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-     [UnitTestCommonMethods clearStateForAppRestart:self];
-     [UnitTestCommonMethods beforeAllTest];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     testNotificationId = @"test_notification_id";
     sessionManager = [[OneSignalSessionManager alloc] init:OutcomeTests.self];
     outcomesController = [[OneSignalOutcomeEventsController alloc] init:sessionManager];
-
-    [OneSignalSharedUserDefaults saveString:nil withKey:CACHED_SESSION];
-    [OneSignalSharedUserDefaults saveObject:nil withKey:CACHED_DIRECT_NOTIFICATION_ID];
-    [OneSignalSharedUserDefaults saveObject:nil withKey:CACHED_INDIRECT_NOTIFICATION_IDS];
-    [OneSignalSharedUserDefaults saveObject:nil withKey:CACHED_RECEIVED_NOTIFICATION_IDS];
 }
 
 - (void)setOutcomesParamsEnabled {

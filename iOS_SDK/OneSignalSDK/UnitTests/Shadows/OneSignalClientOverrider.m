@@ -35,6 +35,7 @@
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OSOutcomeEventsDefines.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -77,24 +78,24 @@ static NSDictionary* iOSParamsOutcomes;
         @"fba": @true,
         IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
         IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
-        IOS_OUTCOMES : iOSParamsOutcomes
+        OUTCOMES_PARAM : iOSParamsOutcomes
     };
 }
 
 + (void) enableOutcomes {
     iOSParamsOutcomes = @{
-        @"direct": @{
-                @"enabled": @YES
+        DIRECT_PARAM: @{
+            ENABLED_PARAM: @YES
         },
-        @"indirect": @{
-            @"notification_attribution": @{
-                @"minutes_since_displayed": @1440,
-                @"limit": @10
+        INDIRECT_PARAM: @{
+            NOTIFICATION_ATTRIBUTION_PARAM: @{
+                MINUTES_SINCE_DISPLAYED_PARAM: @1440,
+                LIMIT_PARAM: @10
             },
-            @"enabled": @YES
+            ENABLED_PARAM: @YES
         },
-        @"unattributed" : @{
-            @"enabled": @YES
+        UNATTRIBUTED_PARAM: @{
+            ENABLED_PARAM: @YES
         }
     };
 }

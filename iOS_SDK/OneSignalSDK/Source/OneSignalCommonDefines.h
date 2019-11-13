@@ -83,7 +83,6 @@
 // iOS Parameter Names
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
-#define IOS_OUTCOMES @"outcomes"
 
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"

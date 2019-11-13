@@ -47,7 +47,6 @@
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalLocation.h"
-#import "UncaughtExceptionHandler.h"
 #import "NSUserDefaultsOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {

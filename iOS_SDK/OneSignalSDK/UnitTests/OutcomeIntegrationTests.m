@@ -98,16 +98,4 @@
     // [RestClientAsserts assertOnFocusAtIndex:0 withTime:30];
 }
 
-
-
-- (void)backgroundApp {
-    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationWillResignActive:sharedApp];
-}
-
-
-
-
-
 @end

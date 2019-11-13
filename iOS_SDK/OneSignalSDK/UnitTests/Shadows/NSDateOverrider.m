@@ -32,7 +32,7 @@
 
 /*
  NSDate category + swizzling allows freezing of time for all tests.
- This is done by interecting any newing up of any NSDate and injecting a globalTimeOffset.
+ This is done by intercepting any creations of NSData and setting it to globalTimeOffset.
  TODO: Does NOT support all ways of newing up a NSDate.
           - Add them as needed.
 */
@@ -75,8 +75,8 @@ static NSTimeInterval _globalTimeOffset;
     _globalTimeOffset += sec;
 }
 
-// Ensure "now" is mock now by crating a new NSDate
 - (NSTimeInterval) overrideTimeIntervalSinceNow {
+    // Ensure "now" is mocked by creating a new NSDate
     return [(NSDate*)self timeIntervalSinceDate:[NSDate date]];
 }
 
