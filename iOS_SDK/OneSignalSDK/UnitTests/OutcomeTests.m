@@ -29,10 +29,12 @@
 #import "OneSignalOutcomeEventsController.h"
 #import "OneSignalSessionManager.h"
 #import "OneSignalSharedUserDefaults.h"
+#import "OneSignalOverrider.h"
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalHelper.h"
 #import "UnitTestCommonMethods.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
   
 @interface OutcomeTests<SessionStatusDelegate> : XCTestCase
 @end
@@ -108,9 +110,9 @@
     [self setOutcomesParamsEnabled];
     [sessionManager initSessionFromCache];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [sessionManager initSessionFromCache];
     [sessionManager restartSessionIfNeeded];
@@ -123,13 +125,13 @@
 - (void)testOutcomeLastSessionIndirectToIndirect {
     [self setOutcomesParamsEnabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     [sessionManager initSessionFromCache];
     [sessionManager restartSessionIfNeeded];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [sessionManager initSessionFromCache];
 
@@ -141,9 +143,9 @@
 - (void)testOutcomeLastSessionIndirect {
     [self setOutcomesParamsEnabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [sessionManager initSessionFromCache];
     [sessionManager restartSessionIfNeeded];
@@ -159,7 +161,7 @@
 
     [sessionManager initSessionFromCache];
 
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
 
     [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
     [sessionManager initSessionFromCache];
@@ -173,7 +175,7 @@
 - (void)testOutcomeLastSessionIndirectToDirect {
     [self setOutcomesParamsEnabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     [sessionManager initSessionFromCache];
     [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
     [sessionManager initSessionFromCache];
@@ -200,9 +202,9 @@
 - (void)testOutcomeLastSessionDirect {
     [self setOutcomesParamsEnabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     [self setOutcomesParamsEnabled];
     
     [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
@@ -226,9 +228,9 @@
 - (void)testOutcomeLastSessionIndirectDisable {
     [self setOutcomesParamsDisabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [OSOutcomesUtils saveSession:INDIRECT];
     [OSOutcomesUtils saveIndirectNotificationIds:[NSArray arrayWithObject:testNotificationId]];
@@ -242,9 +244,9 @@
 - (void)testOutcomeLastSessionDirectDisable {
     [self setOutcomesParamsDisabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [OSOutcomesUtils saveSession:DIRECT];
     [OSOutcomesUtils saveDirectNotificationId:testNotificationId];
@@ -268,9 +270,9 @@
     [self setOutcomesParamsEnabled];
     [sessionManager initSessionFromCache];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [sessionManager restartSessionIfNeeded];
     OSSessionResult *sessionResult = [sessionManager getSessionResult];
@@ -283,7 +285,7 @@
     [self setOutcomesParamsEnabled];
     [sessionManager initSessionFromCache];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
     [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
     [sessionManager attemptSessionUpgrade];
@@ -319,7 +321,7 @@
     [self setOutcomesParamsEnabled];
     
     for (int i = 0; i <= 15; i++) {
-        [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+        [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     }
     
     [sessionManager restartSessionIfNeeded];

@@ -56,7 +56,7 @@
 
 - (void)restartSessionIfNeeded {
     // Avoid session restart if the appEntryState is a NOTIFICATION_CLICK
-    if (OneSignal.appEntryState && OneSignal.appEntryState == NOTIFICATION_CLICK)
+    if (OneSignal.appEntryState == (AppEntryAction *) NOTIFICATION_CLICK)
         return;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session is restarting"];
@@ -210,7 +210,7 @@
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
    
     for (OSIndirectNotification *notification in receivedNotifications) {
-        long difference = currentTime - notification.arrivalTime;
+        long difference = currentTime - notification.timestamp;
         if (difference <= attributionWindowInSeconds) {
             [notificationsIds addObject:notification.notificationId];
         }

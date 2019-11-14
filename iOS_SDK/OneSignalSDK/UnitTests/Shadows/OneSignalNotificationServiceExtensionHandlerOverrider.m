@@ -25,32 +25,27 @@
  THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "OSIndirectNotification.h"
 
-@implementation OSIndirectNotification
+#import "TestHelperFunctions.h"
+#import "OneSignalSelectorHelpers.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
+#import "OneSignalNotificationServiceExtensionHandlerOverrider.h"
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp {
-    _notificationId = notificationId;
-    _timestamp = timestamp;
-    return self;
-}
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_timestamp forKey:@"timestamp"];
-}
+@implementation OneSignalNotificationServiceExtensionHandler (Testing)
 
-- (id)initWithCoder:(NSCoder *)decoder {
-    if (self = [super init]) {
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _timestamp = [decoder decodeDoubleForKey:@"timestamp"];
-    }
-    return self;
-}
 
-- (NSString *)description {
-    return [NSString stringWithFormat:@"Notification Id: %@ Timestamp: %f", _notificationId, _timestamp];
+
+@end
+
+@implementation OneSignalNotificationServiceExtensionHandlerOverrider
+
++ (UNMutableNotificationContent*)overrideDidReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:nil withMutableNotificationContent:nil];
 }
 
 @end
+
+#pragma clang diagnostic pop

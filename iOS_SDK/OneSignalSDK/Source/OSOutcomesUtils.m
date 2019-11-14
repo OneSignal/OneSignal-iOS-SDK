@@ -154,18 +154,16 @@
 /*
  Saves a received indirect notification into the NSUSerDefaults at a limit equivalent to the indirect notification limit param
  */
-+ (void)saveReceivedNotificationWithBackground:(NSString * _Nullable)notificationId fromBackground:(BOOL)fromBackground {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"saveReceivedNotificationWithBackground notificationId: %@ fromBackground: %@",
-                                                       notificationId,
-                                                       fromBackground ? @"YES" : @"NO"]];
++ (void)saveReceivedNotificationFromBackground:(NSString * _Nullable)notificationId {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"saveReceivedNotificationFromBackground notificationId: %@",
+                                                       notificationId]];
     
     NSInteger notificationLimit = [self getIndirectNotificationLimit];
     NSArray *notifications = [self getCachedReceivedNotifications];
 
-    NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
     OSIndirectNotification *notification = [[OSIndirectNotification alloc] initWithParamsNotificationId:notificationId
-                                                                                            arrivalTime:timeInSeconds
-                                                                                         fromBackground:fromBackground];
+                                                                                            timestamp:timestamp];
     
     // Create finalNotifications to be saved at a limited size, removing any old notifications
     NSArray *finalNotifications;
