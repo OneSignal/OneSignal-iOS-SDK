@@ -55,7 +55,7 @@
 @end
 
 @implementation OutcomeIntergrationTests {
-
+    
 }
 
 + (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult {}
@@ -373,9 +373,6 @@
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
 }
 
-/*
- TODO: Test that on new session, cached unattributed unique outcomes are cleaned out
- */
 - (void)testUnattributedSession_cachedUniqueOutcomeCleanedOnNewSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
@@ -386,29 +383,34 @@
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 3. Make sure only 1 measure request is made
-    // TODO: add [RestClientAsserts assertMeasureAtIndex:X];
-    // TODO: add [RestClientAsserts assertNumberOfMeasureRequests:1];
+    [RestClientAsserts assertMeasureAtIndex:2 payload:@{
+        @"id" : @"unique"
+    }];
+    [RestClientAsserts assertNumberOfMeasureRequests:1];
 
     // 4. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:31];
+    
+    // 5. Open app
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Make sure a on_session request is made
-    // TODO: add [RestClientAsserts assertOnSessionAtIndex:X];
+    // 6. Make sure a on_session request is made
+    [RestClientAsserts assertOnSessionAtIndex:3];
 
-    // 6. Validate new session is UNATTRIBUTED and send the same 2 unique outcomes
+    // 7. Validate new session is UNATTRIBUTED and send the same 2 unique outcomes
     XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
-    // 7. Make sure 2 measure requests have been made in total
-    // TODO: add [RestClientAsserts assertMeasureAtIndex:X];
-    // TODO: add [RestClientAsserts assertNumberOfMeasureRequests:2];
+    // 8. Make sure 2 measure requests have been made in total
+    [RestClientAsserts assertMeasureAtIndex:4 payload:@{
+        @"id" : @"unique"
+    }];
+    [RestClientAsserts assertNumberOfMeasureRequests:2];
 }
 
-/*
- TODO: Test that after 7 days, the cached attributed unique outcome notifications are cleaned out
- */
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
@@ -463,12 +465,9 @@
         @"notification_ids" : @[@"test_notification_1", @"test_notification_2", @"test_notification_3"],
         @"id" : @"unique"
     }];
-    // TODO: add [RestClientAsserts assertNumberOfMeasureRequests:1];
+    [RestClientAsserts assertNumberOfMeasureRequests:2];
 }
 
-/*
- TODO: Test that after 7 days, the cached attributed unique outcome notifications are cleaned out
- */
 - (void)testAttributedDirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
@@ -477,8 +476,10 @@
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:31];
 
-    // 3. Receive and open 1 notification
-    [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
+    // 3. Receive a few notifications and open 1
+    [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
+    [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
+    [UnitTestCommonMethods receiveNotification:@"test_notification_3" wasOpened:NO];
 
     // 4. Open app
     [UnitTestCommonMethods foregroundApp];
@@ -490,14 +491,18 @@
     [OneSignal sendUniqueOutcome:@"unique"];
     
     // 6. Make sure only 1 measure request has been made
-    // TODO: add [RestClientAsserts assertMeasureAtIndex:X];
-    // TODO: add [RestClientAsserts assertNumberOfMeasureRequests:1];
+    [RestClientAsserts assertMeasureAtIndex:4 payload:@{
+        @"direct" : @(true),
+        @"notification_ids" : @[@"test_notification_2"],
+        @"id" : @"unique"
+    }];
+    [RestClientAsserts assertNumberOfMeasureRequests:1];
     
     // 7. Close the app again, but for a week to clean out all outdated unique outcome notifications
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:7 * 1441 * 60];
     
-    // 8. Receive 3 more notifications
+    // 8. Receive 1 more notification and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
 
     // 9. Open app again
@@ -510,8 +515,12 @@
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 11. Make sure 2 measure requests have been made in total
-    // TODO: add [RestClientAsserts assertMeasureAtIndex:X];
-    // TODO: add [RestClientAsserts assertNumberOfMeasureRequests:1];
+    [RestClientAsserts assertMeasureAtIndex:6 payload:@{
+        @"direct" : @(true),
+        @"notification_ids" : @[@"test_notification_2"],
+        @"id" : @"unique"
+    }];
+    [RestClientAsserts assertNumberOfMeasureRequests:2];
 }
 
 @end

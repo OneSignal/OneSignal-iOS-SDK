@@ -57,10 +57,22 @@
 
 @implementation RestClientAsserts
 
-/*]
- Assert that a 'on_focus' request was made at a specific index and with specific parameters
+/*
+ Assert that a 'on_session' request was made at a specific index in executedRequests
  */
-+ (void) assertOnFocusAtIndex:(int)index withTime:(int)time {
++ (void)assertOnSessionAtIndex:(int)index {
+    let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
+    _XCTPrimitiveAssertTrue(
+        UnitTestCommonMethods.currentXCTestCase,
+        [request isKindOfClass:OSRequestRegisterUser.self],
+        @"isKindOfClass:OSRequestRegisterUser"
+    );
+}
+
+/*
+ Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
+ */
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time {
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
     _XCTPrimitiveAssertTrue(
         UnitTestCommonMethods.currentXCTestCase,
@@ -70,11 +82,11 @@
     
     _XCTPrimitiveAssertEqual(
         UnitTestCommonMethods.currentXCTestCase,
-        ((NSNumber*)request.parameters[@"active_time"]).doubleValue,
+        ((NSNumber*) request.parameters[@"active_time"]).doubleValue,
         @"active_time",
         time,
         @"time",
-        @""
+        @"((NSNumber*) request.parameters[@\"active_time\"]).doubleValue == time"
     );
 }
 
@@ -83,7 +95,7 @@
  */
 + (void)assertNumberOfMeasureRequests:(int)expectedCount {
     int actualCount = 0;
-    for (let request in OneSignalClientOverrider.executedRequests) {
+    for (id request in OneSignalClientOverrider.executedRequests) {
         if ([request isKindOfClass:OSRequestSendOutcomesToServer.self])
             actualCount++;
     }
@@ -94,12 +106,12 @@
         @"actualCount",
         expectedCount,
         @"expectedCount",
-        @""
+        @"actualCount == expectedCount"
     );
 }
 
 /*
- Assert that a 'measure' request was made at a specific index and with specific parameters
+ Assert that a 'measure' request was made at a specific index in executedRequests and with specific parameters
  */
 + (void)assertMeasureAtIndex:(int)index payload:(NSDictionary*)payload {
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
@@ -121,7 +133,7 @@
         _XCTPrimitiveAssertTrue(
             UnitTestCommonMethods.currentXCTestCase,
             [actual objectForKey:key] != nil,
-            @""
+            @"objectForKey:"
         );
         
         id expectedValue = [expected objectForKey:key];
@@ -132,7 +144,7 @@
             @"actualValue",
             expectedValue,
             @"expectedValue",
-            @""
+            @"actualValue == expectedValue"
         );
     }
 }

@@ -101,7 +101,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
-    if (OneSignal.appEntryState != NOTIFICATION_CLICK)
+    if (OneSignal.appEntryState != (AppEntryAction*) NOTIFICATION_CLICK)
         OneSignal.appEntryState = (AppEntryAction*) APP_OPEN;
    
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];

@@ -32,6 +32,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RestClientAsserts : NSObject
++ (void)assertOnSessionAtIndex:(int)index;
 + (void)assertOnFocusAtIndex:(int)index withTime:(int)time;
 + (void)assertNumberOfMeasureRequests:(int)expectedCount;
 + (void)assertMeasureAtIndex:(int)index payload:(NSDictionary*)payload;

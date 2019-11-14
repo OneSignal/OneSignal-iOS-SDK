@@ -101,6 +101,10 @@
         ![self.indirectNotificationIds isEqualToArray:indirectNotificationIds]) {
         return true;
     }
+    
+    // Allow updating unattributed sessions
+    if (session == UNATTRIBUTED)
+        return true;
 
     return false;
 }
