@@ -40,6 +40,7 @@
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
+#import <sys/utsname.h>
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -465,6 +466,29 @@ static NSString *_lastMessageIdFromAction;
 
 + (BOOL)isIOSVersionLessThan:(NSString *)version {
     return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
+}
+
+// This will get real device model if it is a real iOS device (Example iPhone8,2)
+// If an iOS Simulator it will return "Simulator iPhone" or "Simulator iPad"
+// If a macOS Catalyst app, return "Mac"
++ (NSString*)getDeviceVariant {
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    let deviceModel = [NSString stringWithCString:systemInfo.machine
+                                         encoding:NSUTF8StringEncoding];
+    
+    let systemName = UIDevice.currentDevice.systemName;
+    // x86_64 could mean an iOS Simulator or Catalyst app on macOS
+    if ([deviceModel isEqualToString:@"x86_64"]) {
+        if ([systemName isEqualToString:@"iOS"]) {
+            let model = UIDevice.currentDevice.model;
+            return [@"Simulator " stringByAppendingString:model];
+        } else {
+            return @"Mac";
+        }
+    }
+    
+    return systemName;
 }
 
 // Can call currentUserNotificationSettings
