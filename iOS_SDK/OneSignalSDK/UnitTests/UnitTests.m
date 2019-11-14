@@ -111,6 +111,10 @@
 
     [UnitTestCommonMethods beforeAllTest];
     
+    [OneSignalHelperOverrider reset];
+    
+    [UIDeviceOverrider reset];
+    
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
     float random = ((float)arc4random() / 0x100000000 * (maxRange - minRange)) + minRange;
@@ -299,9 +303,7 @@
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
     [self initOneSignalAndThreadWait];
-    
-    [UIDeviceOverrider reset];
-    
+        
     // final value should be "Simulator iPhone" or "Simulator iPad"
     let deviceModel = [OneSignalHelper getDeviceVariant];
     
@@ -341,9 +343,7 @@
     
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
-    
-    [UIDeviceOverrider reset];
-    
+        
     // final value should be "Simulator iPhone" or "Simulator iPad"
     let deviceModel = [OneSignalHelper getDeviceVariant];
     
@@ -2384,19 +2384,16 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testGetDeviceVariant {
     // Simulator iPhone
-    [UIDeviceOverrider reset];
     var deviceModel = [OneSignalHelper getDeviceVariant];
     XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
     
     // Catalyst ("Mac")
-    [UIDeviceOverrider reset];
     [UIDeviceOverrider setSystemName:@"Mac OS X"];
     deviceModel = [OneSignalHelper getDeviceVariant];
     XCTAssertEqualObjects(@"Mac", deviceModel);
     
     // Real iPhone
     [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
-    [UIDeviceOverrider reset];
     deviceModel = [OneSignalHelper getDeviceVariant];
     XCTAssertEqualObjects(@"iPhone9,3", deviceModel);
 }

@@ -30,7 +30,7 @@
 #import <XCTest/XCTest.h>
 
 @interface OneSignalHelperOverrider : NSObject
-
++ (void)reset;
 + (void)setMockIOSVersion:(float)value;
 + (float)mockIOSVersion;
 + (void)runBackgroundThreads;

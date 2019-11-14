@@ -47,9 +47,6 @@ static float mockIOSVersion;
 static bool overrideIsTablet = false;
 
 + (NSString*)overrideGetSystemInfoMachine {
-    if (_systemInfoMachine == nil) {
-        return @"x86_64";  // default to Simulator/MacOS
-    }
     return _systemInfoMachine;
 }
 
@@ -67,6 +64,10 @@ static bool overrideIsTablet = false;
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsTablet), [OneSignalHelper class], @selector(isTablet));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetSystemInfoMachine), [OneSignalHelper class], @selector(getSystemInfoMachine));
+}
+
++ (void)reset {
+    _systemInfoMachine = @"x86_64";
 }
 
 + (void)setMockIOSVersion:(float)value {
