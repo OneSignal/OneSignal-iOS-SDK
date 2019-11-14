@@ -65,6 +65,7 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalLocation.h"
 #import "OneSignalLocationOverrider.h"
+#import "UIDeviceOverrider.h"
 
 // Dummies
 #import "DummyNotificationCenterDelegate.h"
@@ -162,9 +163,12 @@
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
+    [UIDeviceOverrider setModel:@"iPhone"];
+    [UIDeviceOverrider setSystemName:@"iOS"];
     let model = [[UIDevice currentDevice] model];
+    
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [@"Simulator " stringByAppendingString:model];
+    let deviceModel = [OneSignalHelper getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
@@ -297,9 +301,12 @@
     
     [self initOneSignalAndThreadWait];
     
+    [UIDeviceOverrider setModel:@"iPhone"];
+    [UIDeviceOverrider setSystemName:@"iOS"];
     let model = [[UIDevice currentDevice] model];
+    
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [@"Simulator " stringByAppendingString:model];
+    let deviceModel = [OneSignalHelper getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
@@ -338,9 +345,12 @@
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    [UIDeviceOverrider setModel:@"iPhone"];
+    [UIDeviceOverrider setSystemName:@"iOS"];
     let model = [[UIDevice currentDevice] model];
+    
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [@"Simulator " stringByAppendingString:model];
+    let deviceModel = [OneSignalHelper getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);

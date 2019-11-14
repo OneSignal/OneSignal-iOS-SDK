@@ -43,7 +43,6 @@
 #import "OneSignalOverrider.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageBridgeEvent.h"
-#import "NSStringOverrider.h"
 #import "UIDeviceOverrider.h"
 /**
  Test to make sure that OSInAppMessage correctly
@@ -107,29 +106,37 @@
     XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 }
 
+-(void)testSimulatorIpad {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+    [OSMessagingController removeInstance];
+    [OneSignalHelperOverrider setSystemInfoMachine:@"iPad9,3"];
+    let sharedInstance = OSMessagingController.sharedInstance;
+    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
+}
+
 -(void)testOldUnsupportedIosDevice {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [OSMessagingController removeInstance];
     let sharedInstance = OSMessagingController.sharedInstance;
-    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class);
+    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 }
 
 -(void)testUnsupportedCatalyst {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [OSMessagingController removeInstance];
     [OneSignalHelperOverrider setSystemInfoMachine:@"x86_64"];
-    [UIDeviceOverrider setModel:@"iOS"]; // e.g. @"iPhone", @"iPod touch"
+    [UIDeviceOverrider setModel:@"iPhone"]; // e.g. @"iPhone", @"iPod touch"
     [UIDeviceOverrider setSystemName:@"Mac OS X"]; // e.g. @"Mac OS X" @"iOS"
     let sharedInstance = OSMessagingController.sharedInstance;
-    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class);
+    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 }
 
--(void)testSimulatorIpad {
-    OneSignalHelperOverrider.mockIOSVersion = 10;
+-(void)testOldUnsupportedSimulatorIpad {
+    OneSignalHelperOverrider.mockIOSVersion = 8;
     [OSMessagingController removeInstance];
-    [NSStringOverrider setDeviceModel:@"iPad"];
+    [OneSignalHelperOverrider setSystemInfoMachine:@"iPad9,3"];
     let sharedInstance = OSMessagingController.sharedInstance;
-    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
+    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 }
 
 #pragma mark Message JSON Parsing Tests

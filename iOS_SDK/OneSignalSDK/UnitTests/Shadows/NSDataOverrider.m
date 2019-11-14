@@ -26,7 +26,6 @@
  */
 
 #import "NSDataOverrider.h"
-
 #import "TestHelperFunctions.h"
 
 @implementation NSDataOverrider

@@ -5,8 +5,8 @@
 
 @implementation UIDeviceOverrider
 
-static NSString *_systemName;
-static NSString *_model;
+static NSString *_systemName; // e.g. @"Mac OS X" @"iOS"
+static NSString *_model; // e.g. @"iPhone", @"iPod touch"
 
 - (NSString *)overrideSystemName {
     return _systemName;
