@@ -468,18 +468,22 @@ static NSString *_lastMessageIdFromAction;
     return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
++ (NSString*) getSystemInfoMachine {
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    return [NSString stringWithCString:systemInfo.machine
+                                         encoding:NSUTF8StringEncoding];
+}
+
 // This will get real device model if it is a real iOS device (Example iPhone8,2)
 // If an iOS Simulator it will return "Simulator iPhone" or "Simulator iPad"
 // If a macOS Catalyst app, return "Mac"
 + (NSString*)getDeviceVariant {
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    let deviceModel = [NSString stringWithCString:systemInfo.machine
-                                         encoding:NSUTF8StringEncoding];
+    let systemInfoMachine = [self getSystemInfoMachine];
     
     let systemName = UIDevice.currentDevice.systemName;
     // x86_64 could mean an iOS Simulator or Catalyst app on macOS
-    if ([deviceModel isEqualToString:@"x86_64"]) {
+    if ([systemInfoMachine isEqualToString:@"x86_64"]) {
         if ([systemName isEqualToString:@"iOS"]) {
             let model = UIDevice.currentDevice.model;
             return [@"Simulator " stringByAppendingString:model];

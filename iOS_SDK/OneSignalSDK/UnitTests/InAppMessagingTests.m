@@ -43,6 +43,8 @@
 #import "OneSignalOverrider.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageBridgeEvent.h"
+#import "NSStringOverrider.h"
+#import "UIDeviceOverrider.h"
 /**
  Test to make sure that OSInAppMessage correctly
  implements the OSJSONDecodable protocol
@@ -96,6 +98,38 @@
 
 -(void)tearDown {
     NSTimerOverrider.shouldScheduleTimers = true;
+}
+
+-(void)testSimulatorIphone {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+    [OSMessagingController removeInstance];
+    let sharedInstance = OSMessagingController.sharedInstance;
+    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
+}
+
+-(void)testOldUnsupportedIosDevice {
+    OneSignalHelperOverrider.mockIOSVersion = 9;
+    [OSMessagingController removeInstance];
+    let sharedInstance = OSMessagingController.sharedInstance;
+    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class);
+}
+
+-(void)testUnsupportedCatalyst {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+    [OSMessagingController removeInstance];
+    [OneSignalHelperOverrider setSystemInfoMachine:@"x86_64"];
+    [UIDeviceOverrider setModel:@"iOS"]; // e.g. @"iPhone", @"iPod touch"
+    [UIDeviceOverrider setSystemName:@"Mac OS X"]; // e.g. @"Mac OS X" @"iOS"
+    let sharedInstance = OSMessagingController.sharedInstance;
+    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class);
+}
+
+-(void)testSimulatorIpad {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+    [OSMessagingController removeInstance];
+    [NSStringOverrider setDeviceModel:@"iPad"];
+    let sharedInstance = OSMessagingController.sharedInstance;
+    XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 }
 
 #pragma mark Message JSON Parsing Tests

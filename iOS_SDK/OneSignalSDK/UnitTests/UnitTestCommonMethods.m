@@ -47,6 +47,7 @@
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalLocation.h"
+#import "NSStringOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
@@ -129,6 +130,8 @@ NSString * serverUrlWithPath(NSString *path) {
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
     
     [NSObjectOverrider reset];
+    
+    [NSStringOverrider reset];
     
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     

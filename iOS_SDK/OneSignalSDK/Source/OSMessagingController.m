@@ -60,9 +60,10 @@
 @implementation OSMessagingController
 @synthesize isInAppMessagingPaused = _isInAppMessagingPaused;
 
+static OSMessagingController *sharedInstance = nil;
+static dispatch_once_t once;
+
 + (OSMessagingController *)sharedInstance {
-    static OSMessagingController *sharedInstance = nil;
-    static dispatch_once_t once;
     dispatch_once(&once, ^{
         // Make sure only devices with iOS 10 or newer can use IAMs
         if ([self doesDeviceSupportIAM])
@@ -71,6 +72,11 @@
             sharedInstance = [DummyOSMessagingController new];
     });
     return sharedInstance;
+}
+
++ (void)removeInstance {
+    sharedInstance = nil;
+    once = NULL;
 }
 
 + (BOOL)doesDeviceSupportIAM {
