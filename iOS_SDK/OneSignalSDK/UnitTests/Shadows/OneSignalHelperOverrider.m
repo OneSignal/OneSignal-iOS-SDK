@@ -47,6 +47,9 @@ static float mockIOSVersion;
 static bool overrideIsTablet = false;
 
 + (NSString*)overrideGetSystemInfoMachine {
+    if (_systemInfoMachine == nil) {
+        return @"x86_64";  // default to Simulator/MacOS
+    }
     return _systemInfoMachine;
 }
 

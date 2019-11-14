@@ -125,7 +125,6 @@
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [OSMessagingController removeInstance];
     [OneSignalHelperOverrider setSystemInfoMachine:@"x86_64"];
-    [UIDeviceOverrider setModel:@"iPhone"]; // e.g. @"iPhone", @"iPod touch"
     [UIDeviceOverrider setSystemName:@"Mac OS X"]; // e.g. @"Mac OS X" @"iOS"
     let sharedInstance = OSMessagingController.sharedInstance;
     XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller

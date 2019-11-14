@@ -154,6 +154,9 @@
 }
 
 - (void)testBasicInitTest {
+    // Simulator iPhone
+    [UIDeviceOverrider reset];
+    
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
@@ -162,10 +165,6 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
-    
-    [UIDeviceOverrider setModel:@"iPhone"];
-    [UIDeviceOverrider setSystemName:@"iOS"];
-    let model = [[UIDevice currentDevice] model];
     
     // final value should be "Simulator iPhone" or "Simulator iPad"
     let deviceModel = [OneSignalHelper getDeviceVariant];
@@ -301,9 +300,7 @@
     
     [self initOneSignalAndThreadWait];
     
-    [UIDeviceOverrider setModel:@"iPhone"];
-    [UIDeviceOverrider setSystemName:@"iOS"];
-    let model = [[UIDevice currentDevice] model];
+    [UIDeviceOverrider reset];
     
     // final value should be "Simulator iPhone" or "Simulator iPad"
     let deviceModel = [OneSignalHelper getDeviceVariant];
@@ -345,9 +342,7 @@
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    [UIDeviceOverrider setModel:@"iPhone"];
-    [UIDeviceOverrider setSystemName:@"iOS"];
-    let model = [[UIDevice currentDevice] model];
+    [UIDeviceOverrider reset];
     
     // final value should be "Simulator iPhone" or "Simulator iPad"
     let deviceModel = [OneSignalHelper getDeviceVariant];
@@ -2386,4 +2381,23 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil([NSString hexStringFromData:[NSData new]]);
 }
 
+
+- (void)testGetDeviceVariant {
+    // Simulator iPhone
+    [UIDeviceOverrider reset];
+    var deviceModel = [OneSignalHelper getDeviceVariant];
+    XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
+    
+    // Catalyst ("Mac")
+    [UIDeviceOverrider reset];
+    [UIDeviceOverrider setSystemName:@"Mac OS X"];
+    deviceModel = [OneSignalHelper getDeviceVariant];
+    XCTAssertEqualObjects(@"Mac", deviceModel);
+    
+    // Real iPhone
+    [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
+    [UIDeviceOverrider reset];
+    deviceModel = [OneSignalHelper getDeviceVariant];
+    XCTAssertEqualObjects(@"iPhone9,3", deviceModel);
+}
 @end
