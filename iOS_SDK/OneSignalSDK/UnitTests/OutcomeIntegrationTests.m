@@ -236,10 +236,11 @@
     // 5. Make sure the session is INDIRECT and has 1 notification
     XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_1"]);
     
-    // 6. Close the app for 31 seconds
+    // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
-    [NSDateOverrider advanceSystemTimeBy:31];
+    [NSDateOverrider advanceSystemTimeBy:15];
     
     // 7. Receive 1 notification and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
@@ -251,6 +252,7 @@
     // 9. Make sure the session is DIRECT and has 1 notification
     XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_2"]);
 }
 
 - (void)testDirectSession_overridesIndirectSession {
@@ -272,9 +274,9 @@
     XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
     
-    // 6. Close the app for 31 seconds
+    // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
-    [NSDateOverrider advanceSystemTimeBy:31];
+    [NSDateOverrider advanceSystemTimeBy:15];
     
     // 7. Receive 1 notification and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
@@ -296,9 +298,9 @@
     XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
     
-    // 3. Close the app for 31 seconds
+    // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
-    [NSDateOverrider advanceSystemTimeBy:31];
+    [NSDateOverrider advanceSystemTimeBy:15];
     
     // 4. Receive 1 notification and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
@@ -320,9 +322,9 @@
     XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
     
-    // 3. Close the app for 31 seconds
+    // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
-    [NSDateOverrider advanceSystemTimeBy:31];
+    [NSDateOverrider advanceSystemTimeBy:15];
     
     // 4. Receive 1 notification and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];

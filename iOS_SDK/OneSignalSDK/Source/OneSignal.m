@@ -329,7 +329,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
-static AppEntryAction _appEntryState;
+static AppEntryAction _appEntryState = APP_CLOSE;
 + (AppEntryAction)appEntryState {
     return _appEntryState;
 }
