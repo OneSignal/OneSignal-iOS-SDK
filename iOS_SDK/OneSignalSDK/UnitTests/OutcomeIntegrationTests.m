@@ -273,6 +273,7 @@
     // 5. Make sure the session is INDIRECT and has 1 notification
     XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_1"]);
     
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -288,6 +289,7 @@
     // 9. Make sure the session is DIRECT and has 1 notification
     XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
     XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_2"]);
 }
 
 - (void)testIndirectSession_overridesUnattributedSession {
