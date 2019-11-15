@@ -329,12 +329,12 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
-static AppEntryAction* _appEntryState;
-+ (AppEntryAction*)appEntryState {
+static AppEntryAction _appEntryState;
++ (AppEntryAction)appEntryState {
     return _appEntryState;
 }
 
-+ (void)setAppEntryState:(AppEntryAction*)appEntryState {
++ (void)setAppEntryState:(AppEntryAction)appEntryState {
     _appEntryState = appEntryState;
 }
 
@@ -1922,7 +1922,7 @@ static NSString *_lastnonActiveMessageId;
     // Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground) {
-        OneSignal.appEntryState = (AppEntryAction*) NOTIFICATION_CLICK;
+        OneSignal.appEntryState = NOTIFICATION_CLICK;
         [OneSignal.sessionManager onDirectSessionFromNotificationOpen:messageId];
     }
 

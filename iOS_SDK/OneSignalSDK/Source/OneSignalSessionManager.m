@@ -56,7 +56,7 @@
 
 - (void)restartSessionIfNeeded {
     // Avoid session restart if the appEntryState is a NOTIFICATION_CLICK
-    if (OneSignal.appEntryState == (AppEntryAction *) NOTIFICATION_CLICK)
+    if (OneSignal.appEntryState == NOTIFICATION_CLICK)
         return;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session is restarting"];
@@ -102,7 +102,7 @@
         return true;
     }
     
-    // Allow updating unattributed sessions
+    // Allow updating an unattributed session to a new unattributed session when a new session is started
     if (session == UNATTRIBUTED)
         return true;
 

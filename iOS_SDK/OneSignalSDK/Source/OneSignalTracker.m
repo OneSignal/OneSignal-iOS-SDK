@@ -101,8 +101,8 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
-    if (OneSignal.appEntryState != (AppEntryAction*) NOTIFICATION_CLICK)
-        OneSignal.appEntryState = (AppEntryAction*) APP_OPEN;
+    if (OneSignal.appEntryState != NOTIFICATION_CLICK)
+        OneSignal.appEntryState = APP_OPEN;
    
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];
     
@@ -142,7 +142,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (timeElapsed < -1)
         return;
     
-    OneSignal.appEntryState = (AppEntryAction*) APP_CLOSE;
+    OneSignal.appEntryState = APP_CLOSE;
     
     let sessionResult = [OneSignal.sessionManager getSessionResult];
     let focusCallParams = [self createFocusCallParams:sessionResult];

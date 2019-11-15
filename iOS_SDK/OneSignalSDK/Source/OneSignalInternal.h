@@ -68,7 +68,7 @@
 @property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
 @property (class) OSPermissionState* currentPermissionState;
 
-@property (class) AppEntryAction* appEntryState;
+@property (class) AppEntryAction appEntryState;
 @property (class) OneSignalSessionManager* sessionManager;
 @property (class) OneSignalOutcomeEventsController* outcomeEventsController;
 
