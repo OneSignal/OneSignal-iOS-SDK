@@ -93,20 +93,24 @@
     testAction = testBridgeEvent.userAction;
     
     self.triggerController = [OSTriggerController new];
+    
+    [OneSignalHelperOverrider reset];
+    
+    [UIDeviceOverrider reset];
 }
 
 -(void)tearDown {
     NSTimerOverrider.shouldScheduleTimers = true;
 }
 
--(void)testSimulatorIphone {
+-(void)testIphoneSimulator {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [OSMessagingController removeInstance];
     let sharedInstance = OSMessagingController.sharedInstance;
     XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 }
 
--(void)testSimulatorIpad {
+-(void)testIpadSimulator {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [OSMessagingController removeInstance];
     [UIDeviceOverrider setModel:@"iPad"];
@@ -141,32 +145,32 @@
 -(void)testRealIphone {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [OSMessagingController removeInstance];
-    let sharedInstance = OSMessagingController.sharedInstance;
     [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
+    let sharedInstance = OSMessagingController.sharedInstance;
     XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 }
 
 -(void)testRealUnsupportedIphone {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [OSMessagingController removeInstance];
-    let sharedInstance = OSMessagingController.sharedInstance;
     [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
+    let sharedInstance = OSMessagingController.sharedInstance;
     XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 }
 
 -(void)testRealIpad {
     OneSignalHelperOverrider.mockIOSVersion = 13;
     [OSMessagingController removeInstance];
-    let sharedInstance = OSMessagingController.sharedInstance;
     [OneSignalHelperOverrider setSystemInfoMachine:@"iPad6,7"];
+    let sharedInstance = OSMessagingController.sharedInstance;
     XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class);
 }
 
 -(void)testRealUnsupportedIpad {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [OSMessagingController removeInstance];
-    let sharedInstance = OSMessagingController.sharedInstance;
     [OneSignalHelperOverrider setSystemInfoMachine:@"iPad6,7"];
+    let sharedInstance = OSMessagingController.sharedInstance;
     XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 }
 
