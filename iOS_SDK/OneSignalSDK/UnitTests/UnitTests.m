@@ -65,6 +65,7 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalLocation.h"
 #import "OneSignalLocationOverrider.h"
+#import "UIDeviceOverrider.h"
 
 // Dummies
 #import "DummyNotificationCenterDelegate.h"
@@ -110,6 +111,10 @@
 
     [UnitTestCommonMethods beforeAllTest];
     
+    [OneSignalHelperOverrider reset];
+    
+    [UIDeviceOverrider reset];
+    
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
     float random = ((float)arc4random() / 0x100000000 * (maxRange - minRange)) + minRange;
@@ -153,6 +158,9 @@
 }
 
 - (void)testBasicInitTest {
+    // Simulator iPhone
+    [UIDeviceOverrider reset];
+    
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
@@ -162,11 +170,14 @@
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
+    // final value should be "Simulator iPhone" or "Simulator iPad"
+    let deviceModel = [OneSignalHelper getDeviceVariant];
+    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
     NSLog(@"RAN A FEW CONDITIONALS: %@", OneSignalClientOverrider.lastHTTPRequest);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
@@ -292,11 +303,14 @@
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
     [self initOneSignalAndThreadWait];
+        
+    // final value should be "Simulator iPhone" or "Simulator iPad"
+    let deviceModel = [OneSignalHelper getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
@@ -329,11 +343,14 @@
     
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
+        
+    // final value should be "Simulator iPhone" or "Simulator iPad"
+    let deviceModel = [OneSignalHelper getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-15);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], @"x86_64");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
     
@@ -2364,4 +2381,20 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil([NSString hexStringFromData:[NSData new]]);
 }
 
+
+- (void)testGetDeviceVariant {
+    // Simulator iPhone
+    var deviceModel = [OneSignalHelper getDeviceVariant];
+    XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
+    
+    // Catalyst ("Mac")
+    [UIDeviceOverrider setSystemName:@"Mac OS X"];
+    deviceModel = [OneSignalHelper getDeviceVariant];
+    XCTAssertEqualObjects(@"Mac", deviceModel);
+    
+    // Real iPhone
+    [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
+    deviceModel = [OneSignalHelper getDeviceVariant];
+    XCTAssertEqualObjects(@"iPhone9,3", deviceModel);
+}
 @end
