@@ -481,10 +481,10 @@ static NSString *_lastMessageIdFromAction;
 // If a macOS Catalyst app, return "Mac"
 + (NSString*)getDeviceVariant {
     let systemInfoMachine = [self getSystemInfoMachine];
-    let systemName = UIDevice.currentDevice.systemName;
     
     // x86_64 could mean an iOS Simulator or Catalyst app on macOS
     if ([systemInfoMachine isEqualToString:@"x86_64"]) {
+        let systemName = UIDevice.currentDevice.systemName;
         if ([systemName isEqualToString:@"iOS"]) {
             let model = UIDevice.currentDevice.model;
             return [@"Simulator " stringByAppendingString:model];
