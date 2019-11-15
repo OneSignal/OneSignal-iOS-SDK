@@ -56,7 +56,7 @@
 
 - (void)restartSessionIfNeeded {
     // Avoid session restart if the appEntryState is a NOTIFICATION_CLICK
-    if (OneSignal.appEntryState && OneSignal.appEntryState == NOTIFICATION_CLICK)
+    if (OneSignal.appEntryState == NOTIFICATION_CLICK)
         return;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Session is restarting"];
@@ -101,6 +101,10 @@
         ![self.indirectNotificationIds isEqualToArray:indirectNotificationIds]) {
         return true;
     }
+    
+    // Allow updating an unattributed session to a new unattributed session when a new session is started
+    if (session == UNATTRIBUTED)
+        return true;
 
     return false;
 }
@@ -210,7 +214,7 @@
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
    
     for (OSIndirectNotification *notification in receivedNotifications) {
-        long difference = currentTime - notification.arrivalTime;
+        long difference = currentTime - notification.timestamp;
         if (difference <= attributionWindowInSeconds) {
             [notificationsIds addObject:notification.notificationId];
         }

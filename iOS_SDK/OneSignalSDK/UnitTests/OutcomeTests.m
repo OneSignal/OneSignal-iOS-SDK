@@ -29,10 +29,12 @@
 #import "OneSignalOutcomeEventsController.h"
 #import "OneSignalSessionManager.h"
 #import "OneSignalSharedUserDefaults.h"
+#import "OneSignalOverrider.h"
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalHelper.h"
 #import "UnitTestCommonMethods.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
   
 @interface OutcomeTests<SessionStatusDelegate> : XCTestCase
 @end
@@ -94,239 +96,257 @@
     }];
 }
 
-- (void)testOutcomeLastSessionUnattributed {
+- (void)testUnattributedSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
-    
-    [sessionManager initSessionFromCache];
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    
-    XCTAssertTrue(sessionResult.session == UNATTRIBUTED);
-    XCTAssertTrue(sessionResult.notificationIds == nil);
+
+    // 2. Make sure session is UNATTRIBUTED and has no notificationIds
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, UNATTRIBUTED);
+    XCTAssertEqual(sessionResult.notificationIds, nil);
 }
 
-- (void)testOutcomeLastSessionUnattributedToIndirect {
+- (void)testIndirectSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
-    [sessionManager initSessionFromCache];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
+    // 2. Receive 3 notifications
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     
+    // 3. Init sessionManager and attempt to restart the session
     [sessionManager initSessionFromCache];
     [sessionManager restartSessionIfNeeded];
-    let sessionResult = [sessionManager getSessionResult];
     
+    // 4. Make sure session is INDIRECT and has 3 notifications
+    let sessionResult = [sessionManager getSessionResult];
     XCTAssertEqual(sessionResult.session, INDIRECT);
     XCTAssertEqual(sessionResult.notificationIds.count, 3);
 }
 
-- (void)testOutcomeLastSessionIndirectToIndirect {
+- (void)testDirectSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
-    [sessionManager initSessionFromCache];
-
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertEqual(sessionResult.session, INDIRECT);
-    XCTAssertEqual(sessionResult.notificationIds.count, 1);
-}
-
-- (void)testOutcomeLastSessionIndirect {
-    [self setOutcomesParamsEnabled];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-
-    XCTAssertEqual(sessionResult.session, INDIRECT);
-    XCTAssertEqual(sessionResult.notificationIds.count, 3);
-}
-
-- (void)testOutcomeLastSessionUnattributedToDirect {
-    [self setOutcomesParamsEnabled];
-
-    [sessionManager initSessionFromCache];
-
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-
+    // 2. Receive 1 notification and click it
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
     [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
+    
+    // 3. Init sessionManager and attempt to restart the session
     [sessionManager initSessionFromCache];
     
-    let sessionResult = [sessionManager getSessionResult];
-    XCTAssertEqual(sessionResult.session, DIRECT);
-    XCTAssertEqual(sessionResult.notificationIds.count, 1);
-    XCTAssertEqual([sessionResult.notificationIds objectAtIndex:0], testNotificationId);
-}
-
-- (void)testOutcomeLastSessionIndirectToDirect {
-    [self setOutcomesParamsEnabled];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [sessionManager initSessionFromCache];
-    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
-    [sessionManager initSessionFromCache];
-    
+    // 4. Make sure session is DIRECT and has 1 notification
     let sessionResult = [sessionManager getSessionResult];
     XCTAssertEqual(sessionResult.session, DIRECT);
     XCTAssertEqual(sessionResult.notificationIds.count, 1);
 }
 
-- (void)testOutcomeLastSessionDirectToDirect {
+- (void)testUnattributedSessionToIndirectSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
     
-    [sessionManager onDirectSessionFromNotificationOpen:@"test"];
+    // 2. Init sessionManager and attempt to start a new session
     [sessionManager initSessionFromCache];
-    
-    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
-    [sessionManager initSessionFromCache];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult.session == DIRECT);
-    XCTAssertTrue([[sessionResult.notificationIds objectAtIndex:0] isEqualToString:testNotificationId]);
-}
-
-- (void)testOutcomeLastSessionDirect {
-    [self setOutcomesParamsEnabled];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [self setOutcomesParamsEnabled];
-    
-    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
-    [sessionManager initSessionFromCache];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult.session == DIRECT);
-    XCTAssertTrue([sessionResult.notificationIds count] == 1);
-}
-
-- (void)testOutcomeLastSessionUnattributedDisable {
-    [self setOutcomesParamsDisabled];
-    
-    [sessionManager initSessionFromCache];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult.session == DISABLED);
-    XCTAssertTrue(sessionResult.notificationIds == nil);
-}
-
-- (void)testOutcomeLastSessionIndirectDisable {
-    [self setOutcomesParamsDisabled];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
-    [OSOutcomesUtils saveSession:INDIRECT];
-    [OSOutcomesUtils saveIndirectNotificationIds:[NSArray arrayWithObject:testNotificationId]];
-    [sessionManager initSessionFromCache];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult.session == DISABLED);
-    XCTAssertTrue(sessionResult.notificationIds == nil);
-}
-
-- (void)testOutcomeLastSessionDirectDisable {
-    [self setOutcomesParamsDisabled];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
-    [OSOutcomesUtils saveSession:DIRECT];
-    [OSOutcomesUtils saveDirectNotificationId:testNotificationId];
-    [sessionManager initSessionFromCache];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult.session == DISABLED);
-    XCTAssertTrue(sessionResult.notificationIds == nil);
-}
-
-- (void)testOutcomeNewSessionUnattributed {
-    [self setOutcomesParamsEnabled];
-    
     [sessionManager restartSessionIfNeeded];
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult.session == UNATTRIBUTED);
-    XCTAssertTrue(sessionResult.notificationIds == nil);
-}
-
-- (void)testOutcomeNewSessionUnattributedToIndirect {
-    [self setOutcomesParamsEnabled];
+    
+    // 3. Make sure the session is UNATTRIBUTED and has no notifications
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, UNATTRIBUTED);
+    XCTAssertEqual(sessionResult.notificationIds.count, 0);
+    
+    // 4. Rceive 3 notifications
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    
+    // 5. Init sessionManager and attempt to start a new session
     [sessionManager initSessionFromCache];
-    
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
     [sessionManager restartSessionIfNeeded];
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
     
-    XCTAssertTrue(sessionResult.session == INDIRECT);
-    XCTAssertTrue([sessionResult.notificationIds count] == 3);
+    // 6. Make sure the session is INDIRECT and has 3 notifications
+    let sessionResult2 = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult2.session, INDIRECT);
+    XCTAssertEqual(sessionResult2.notificationIds.count, 3);
 }
 
-- (void)testOutcomeNewSessionUnattributedToDirect {
+- (void)testIndirectSession_wontOverrideIndirectSession_withoutNewSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
+    
+    // 2. Receive a notification
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    
+    // 3. Init sessionManager and attempt to start a new session
     [sessionManager initSessionFromCache];
+    [sessionManager restartSessionIfNeeded];
     
-    [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    
-    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
-    [sessionManager attemptSessionUpgrade];
-    
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-
-    XCTAssertEqual(sessionResult.session, DIRECT);
+    // 6. Make sure session is INDIRECT and has 1 notification
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, INDIRECT);
     XCTAssertEqual(sessionResult.notificationIds.count, 1);
-    XCTAssertEqual([sessionResult.notificationIds objectAtIndex:0], testNotificationId);
+    
+    // 4. Receive 3 more notifications
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    
+    // 5. Init sessionManager without new session
+    [sessionManager initSessionFromCache];
+
+    // 6. Make sure session is INDIRECT and has 1 notification
+    let sessionResult2 = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult2.session, INDIRECT);
+    XCTAssertEqual(sessionResult2.notificationIds.count, 1);
 }
 
-- (void)testOutcomeNewSessionDirect {
+- (void)testUnattributedSessionToDirectSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
-    [sessionManager onDirectSessionFromNotificationOpen:@"test"];
+    
+    // 2. Receive 2 notifications
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+
+    // 3. Init sessionManager and attempt to start a new session
+    [sessionManager initSessionFromCache];
+    [sessionManager restartSessionIfNeeded];
+    
+    // 4. Make sure session is INDIRECT and has 2 notification
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, INDIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 2);
+
+    // 5. Receive a notification and open it
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
+    
+    // 6. Init sessionManager without new session
     [sessionManager initSessionFromCache];
     
-    OSSessionResult *sessionResult = [sessionManager getSessionResult];
-    XCTAssertEqual(sessionResult.session, DIRECT);
-    XCTAssertEqual(sessionResult.notificationIds.count, 1);
-    XCTAssertEqual([sessionResult.notificationIds objectAtIndex:0], @"test");
-    
-    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
-    [sessionManager attemptSessionUpgrade];
-    
-    OSSessionResult *sessionResult2 = [sessionManager getSessionResult];
-
+    // 7. Make sure session is DIRECT and has 1 notification
+    let sessionResult2 = [sessionManager getSessionResult];
     XCTAssertEqual(sessionResult2.session, DIRECT);
     XCTAssertEqual(sessionResult2.notificationIds.count, 1);
-    XCTAssertEqual([sessionResult2.notificationIds objectAtIndex:0], testNotificationId);
 }
 
-- (void)testOutcomeSessionIndirectQuantity {
+- (void)testIndirectSessionToDirectSession {
+    // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
     
-    for (int i = 0; i <= 15; i++) {
-        [OSOutcomesUtils saveReceivedNotificationWithBackground:testNotificationId fromBackground:YES];
-    }
+    // 2. Receive a notification and open it
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
     
+    // 3. Init sessionManager without new session
+    [sessionManager initSessionFromCache];
+    
+    // 4. Make sure session
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, DIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 1);
+    XCTAssertEqualObjects(sessionResult.notificationIds, @[testNotificationId]);
+}
+
+- (void)testDirectSessionToDirectSession {
+    // 1. Set outcome params enabled
+    [self setOutcomesParamsEnabled];
+    
+    // 2. Receieve a notification and open it
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
+    
+    // 3. Init sessionManager without new session
+    [sessionManager initSessionFromCache];
+    
+    // 4. Receieve a notification and open it
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
+    
+    // 5. Init sessionManager without new session
+    [sessionManager initSessionFromCache];
+    
+    // 6. Make sure session is DIRECT and has 1 notifciation
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, DIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 1);
+    XCTAssertEqualObjects(sessionResult.notificationIds, @[testNotificationId]);
+}
+
+- (void)testUnattributedSession_whenOutcomesIsDisabled {
+    // 1. Set outcome params disabled
+    [self setOutcomesParamsDisabled];
+    
+    // 2. Init sessionManager and attempt to start a new session
+    [sessionManager initSessionFromCache];
     [sessionManager restartSessionIfNeeded];
     
-    OSSessionResult *sessionResult2 = [sessionManager getSessionResult];
-    XCTAssertTrue(sessionResult2.session == INDIRECT);
-    XCTAssertTrue([sessionResult2.notificationIds count] == 10);
+    // 3. Make sure session is DISABLED and no notificationIds exist
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, DISABLED);
+    XCTAssertEqual(sessionResult.notificationIds, nil);
+}
+
+- (void)testIndirectSession_whenOutcomesIsDisabled {
+    // 1. Set outcome params disabled
+    [self setOutcomesParamsDisabled];
+    
+    // 2. Receive 2 notifications
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    
+    // 3. Init sessionManager and attempt to start a new session
+    [sessionManager initSessionFromCache];
+    [sessionManager restartSessionIfNeeded];
+    
+    // 4. Make sure session is DISABLED and no notifications exist
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, DISABLED);
+    XCTAssertEqual(sessionResult.notificationIds, nil);
+}
+
+- (void)testDirectSession_whenOutcomesIsDisabled {
+    // 1. Set outcome params disabled
+    [self setOutcomesParamsDisabled];
+    
+    // 2. Receieve a notification and open it
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:testNotificationId];
+    [sessionManager onDirectSessionFromNotificationOpen:testNotificationId];
+    
+    // 3. Init sessionManager without new session
+    [sessionManager initSessionFromCache];
+    
+    // 4. Make sure session is DISABLED and no notifications exist
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, DISABLED);
+    XCTAssertEqual(sessionResult.notificationIds, nil);
+}
+
+- (void)testIndirectSession_attributionNotificationLimit {
+    // 1. Set outcome params enabled
+    [self setOutcomesParamsEnabled];
+    
+    // 2. Receive 15 notifications
+    NSMutableArray *recentNotifIds = [NSMutableArray new];
+    for (int i = 0; i <= 15; i++) {
+        NSString *notifId = [NSString stringWithFormat:@"test_notification_%i", i + 1];
+        [OSOutcomesUtils saveReceivedNotificationFromBackground:notifId];
+        
+        // Add the most recent 10 notifications by removing 0 index after count passes 10
+        [recentNotifIds addObject:notifId];
+        if (recentNotifIds.count > 10)
+            [recentNotifIds removeObjectAtIndex:0];
+    }
+    
+    // 3. Init sessionManager and attempt to start a new session
+    [sessionManager initSessionFromCache];
+    [sessionManager restartSessionIfNeeded];
+    
+    // 4. Make sure session is INDIRECT and only has the most recent 10 notifications
+    let sessionResult = [sessionManager getSessionResult];
+    XCTAssertEqual(sessionResult.session, INDIRECT);
+    XCTAssertEqual(sessionResult.notificationIds.count, 10);
+    XCTAssertEqualObjects(sessionResult.notificationIds, recentNotifIds);
 }
 
 @end

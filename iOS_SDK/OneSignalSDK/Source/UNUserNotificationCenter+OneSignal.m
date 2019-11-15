@@ -172,7 +172,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
     
-    NSDictionary * userInfo =notification.request.content.userInfo;
+    NSDictionary * userInfo = notification.request.content.userInfo;
     OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:userInfo];
     NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
 
@@ -268,7 +268,6 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     let isAppForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 
     [OneSignal notificationReceived:userInfo foreground:isAppForeground isActive:isActive wasOpened:YES];
-    
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.
@@ -291,14 +290,12 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     
     /*
-        The iOS SDK used to call some local notification selectors (such as didReceiveLocalNotification)
-        as a convenience but has stopped due to concerns about private API usage
-        the SDK will now print warnings when a developer's app implements these selectors
-    */
+     The iOS SDK used to call some local notification selectors (such as didReceiveLocalNotification)
+     as a convenience but has stopped due to concerns about private API usage
+     the SDK will now print warnings when a developer's app implements these selectors
+     */
     BOOL isCustomAction = actionIdentifier && ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:actionIdentifier];
     BOOL isRemote = [notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
-    
-    
     
     if (isRemote) {
         NSDictionary* remoteUserInfo = notification.request.content.userInfo;

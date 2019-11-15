@@ -37,7 +37,8 @@ NSString * serverUrlWithPath(NSString *path);
 @interface UnitTestCommonMethods : NSObject
 
 + (void)setCurrentNotificationPermissionAsUnanswered;
-+ (void)resumeApp;
++ (void)foregroundApp;
++ (void)backgroundApp;
 + (void)initOneSignal;
 + (void)initOneSignalAndThreadWait;
 + (void)runBackgroundThreads;
@@ -48,6 +49,8 @@ NSString * serverUrlWithPath(NSString *path);
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
 + (void)answerNotificationPrompt:(BOOL)accept;
 + (void)setCurrentNotificationPermission:(BOOL)accepted;
++ (void)receiveNotification:(NSString*)notificationId wasOpened:(BOOL)opened;
++ (void)handleNotificationReceived:(NSString*)notificationId messageDict:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 + (XCTestCase*)currentXCTestCase;
 @end
 

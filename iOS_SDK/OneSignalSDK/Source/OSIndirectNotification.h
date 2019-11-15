@@ -28,9 +28,8 @@
 @interface OSIndirectNotification : NSObject
 
 @property (nonatomic, readonly) NSString *notificationId;
-@property (nonatomic, readonly) double arrivalTime; // seconds
-@property (nonatomic, readonly) BOOL fromBackground;
+@property (nonatomic, readonly) double timestamp; // seconds
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) wasOnBackground;
+- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp;
 
 @end

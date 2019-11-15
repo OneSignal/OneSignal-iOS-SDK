@@ -30,9 +30,9 @@
 #import <XCTest/XCTest.h>
 
 #import "Requests.h"
-#import "OneSignalClientOverrider.h"
 #import "OneSignalHelper.h"
 #import "UnitTestCommonMethods.h"
+#import "OneSignalClientOverrider.h"
 
 /*
  _XCTPrimitive* functions are used here as we need to pass the current XCTestCase being run.
@@ -56,7 +56,23 @@
  */
 
 @implementation RestClientAsserts
-+(void) assertOnFocusAtIndex:(int)index withTime:(int)time {
+
+/*
+ Assert that a 'on_session' request was made at a specific index in executedRequests
+ */
++ (void)assertOnSessionAtIndex:(int)index {
+    let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
+    _XCTPrimitiveAssertTrue(
+        UnitTestCommonMethods.currentXCTestCase,
+        [request isKindOfClass:OSRequestRegisterUser.self],
+        @"isKindOfClass:OSRequestRegisterUser"
+    );
+}
+
+/*
+ Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
+ */
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time {
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
     _XCTPrimitiveAssertTrue(
         UnitTestCommonMethods.currentXCTestCase,
@@ -66,11 +82,71 @@
     
     _XCTPrimitiveAssertEqual(
         UnitTestCommonMethods.currentXCTestCase,
-        ((NSNumber*)request.parameters[@"active_time"]).doubleValue,
+        ((NSNumber*) request.parameters[@"active_time"]).doubleValue,
         @"active_time",
         time,
         @"time",
-        @""
+        @"((NSNumber*) request.parameters[@\"active_time\"]).doubleValue == time"
     );
 }
+
+/*
+ Assert number of 'measure' requests made in executedRequests
+ */
++ (void)assertNumberOfMeasureRequests:(int)expectedCount {
+    int actualCount = 0;
+    for (id request in OneSignalClientOverrider.executedRequests) {
+        if ([request isKindOfClass:OSRequestSendOutcomesToServer.self])
+            actualCount++;
+    }
+    
+    _XCTPrimitiveAssertEqual(
+        UnitTestCommonMethods.currentXCTestCase,
+        actualCount,
+        @"actualCount",
+        expectedCount,
+        @"expectedCount",
+        @"actualCount == expectedCount"
+    );
+}
+
+/*
+ Assert that a 'measure' request was made at a specific index in executedRequests and with specific parameters
+ */
++ (void)assertMeasureAtIndex:(int)index payload:(NSDictionary*)payload {
+    let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
+    _XCTPrimitiveAssertTrue(
+        UnitTestCommonMethods.currentXCTestCase,
+        [request isKindOfClass:OSRequestSendOutcomesToServer.self],
+        @"isKindOfClass:OSRequestSendOutcomesToServer"
+    );
+    
+    [self assertDictionarySubset:payload actual:request.parameters];
+}
+
+/*
+ Assert in a single direction if the expected payload is a subset of the actual payload
+ All keys and values of expected exist and equal each other in actual
+ */
++ (void)assertDictionarySubset:(NSDictionary*)expected actual:(NSDictionary*)actual {
+    for (NSString* key in expected.allKeys) {
+        _XCTPrimitiveAssertTrue(
+            UnitTestCommonMethods.currentXCTestCase,
+            [actual objectForKey:key] != nil,
+            @"objectForKey:"
+        );
+        
+        id expectedValue = [expected objectForKey:key];
+        id actualValue = [actual objectForKey:key];
+        _XCTPrimitiveAssertEqualObjects(
+            UnitTestCommonMethods.currentXCTestCase,
+            actualValue,
+            @"actualValue",
+            expectedValue,
+            @"expectedValue",
+            @"actualValue == expectedValue"
+        );
+    }
+}
+
 @end

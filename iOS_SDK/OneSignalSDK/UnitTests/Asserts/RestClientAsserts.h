@@ -27,11 +27,15 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
+#import "OSSessionResult.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RestClientAsserts : NSObject
-+(void) assertOnFocusAtIndex:(int)index withTime:(int)time;
++ (void)assertOnSessionAtIndex:(int)index;
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time;
++ (void)assertNumberOfMeasureRequests:(int)expectedCount;
++ (void)assertMeasureAtIndex:(int)index payload:(NSDictionary*)payload;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -61,7 +61,7 @@
 + (NSString * _Nullable)getSavedString:(NSString * _Nonnull)key defaultValue:(NSString * _Nullable)value {
     NSUserDefaults *userDefaults = [OneSignalSharedUserDefaults getSharedUserDefault];
     if ([self keyExists:userDefaults withKey:key])
-        return [userDefaults objectForKey:key];
+        return [userDefaults stringForKey:key];
     
     return value;
 }

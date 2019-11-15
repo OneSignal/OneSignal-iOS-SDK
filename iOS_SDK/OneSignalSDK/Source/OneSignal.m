@@ -329,12 +329,12 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
-static AppEntryAction* _appEntryState;
-+ (AppEntryAction*)appEntryState {
+static AppEntryAction _appEntryState = APP_CLOSE;
++ (AppEntryAction)appEntryState {
     return _appEntryState;
 }
 
-+ (void)setAppEntryState:(AppEntryAction*)appEntryState {
++ (void)setAppEntryState:(AppEntryAction)appEntryState {
     _appEntryState = appEntryState;
 }
 
@@ -458,7 +458,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     
     // Outcomes init
     [OneSignalCacheCleaner cleanCachedUserData];
-    _sessionManager = [[OneSignalSessionManager alloc] init:(id<SessionStatusDelegate>)self];
+    _sessionManager = [[OneSignalSessionManager alloc] init:self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
     
     //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
@@ -1782,7 +1782,6 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)sendPurchases:(NSArray*)purchases {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
@@ -1923,7 +1922,7 @@ static NSString *_lastnonActiveMessageId;
     // Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground) {
-        OneSignal.appEntryState = (AppEntryAction*) NOTIFICATION_CLICK;
+        OneSignal.appEntryState = NOTIFICATION_CLICK;
         [OneSignal.sessionManager onDirectSessionFromNotificationOpen:messageId];
     }
 
@@ -2492,7 +2491,6 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)removeExternalUserId {
-
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
         return;
@@ -2583,9 +2581,6 @@ static NSString *_lastnonActiveMessageId;
 
     return true;
 }
-/*
- End of outcome module
- */
 @end
 
 @implementation OneSignal (SessionStatusDelegate)
@@ -2598,6 +2593,9 @@ static NSString *_lastnonActiveMessageId;
 }
 
 @end
+/*
+ End of outcome module
+ */
 
 // Swizzles UIApplication class to swizzling the following:
 //   - UIApplication

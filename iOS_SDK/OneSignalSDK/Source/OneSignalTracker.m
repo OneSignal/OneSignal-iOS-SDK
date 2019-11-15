@@ -102,7 +102,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
-        OneSignal.appEntryState = (AppEntryAction*) APP_OPEN;
+        OneSignal.appEntryState = APP_OPEN;
    
     lastOpenedTime = [[NSDate date] timeIntervalSince1970];
     
@@ -142,7 +142,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (timeElapsed < -1)
         return;
     
-    OneSignal.appEntryState = (AppEntryAction*) APP_CLOSE;
+    OneSignal.appEntryState = APP_CLOSE;
     
     let sessionResult = [OneSignal.sessionManager getSessionResult];
     let focusCallParams = [self createFocusCallParams:sessionResult];

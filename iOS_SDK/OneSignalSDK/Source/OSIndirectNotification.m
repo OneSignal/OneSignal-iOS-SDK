@@ -30,30 +30,27 @@
 
 @implementation OSIndirectNotification
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime fromBackground:(BOOL) fromBackground {
+- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp {
     _notificationId = notificationId;
-    _arrivalTime = arrivalTime;
-    _fromBackground = fromBackground;
+    _timestamp = timestamp;
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
-    [encoder encodeBool:_fromBackground forKey:@"fromBackground"];
+    [encoder encodeDouble:_timestamp forKey:@"timestamp"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
         _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
-        _fromBackground = [decoder decodeBoolForKey:@"fromBackground"];
+        _timestamp = [decoder decodeDoubleForKey:@"timestamp"];
     }
     return self;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f fromBackground: %@", _notificationId, _arrivalTime, _fromBackground ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"Notification Id: %@ Timestamp: %f", _notificationId, _timestamp];
 }
 
 @end
