@@ -42,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL isInAppMessageShowing;
 
 + (OSMessagingController *)sharedInstance;
-+ (void)removeInstance;
 - (void)presentInAppMessage:(OSInAppMessage *)message;
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message;
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages;

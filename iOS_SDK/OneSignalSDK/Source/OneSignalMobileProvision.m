@@ -14,7 +14,7 @@
 
 @implementation OneSignalMobileProvision
 
-/**
+/** 
  embedded.mobileprovision plist format:
  AppIDName, // string - TextDetective
  ApplicationIdentifierPrefix[],  // [ string - 66PK3K3KEV ]
@@ -37,85 +37,80 @@
  
  */
 
-+ (NSDictionary*) getProvision {
-    static NSDictionary* provision = nil;
-    if (!provision) {
-        // iphoneos & iphonesimulator provisioning file is embedded.mobileprovision
-        NSString *provisioningPath = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"];
++ (NSDictionary*) getMobileProvision {
+	static NSDictionary* mobileProvision = nil;
+	if (!mobileProvision) {
+		NSString *provisioningPath = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"];
+		if (!provisioningPath)
+			return @{};
         
-        // If embedded.mobileprovision not found, try Mac Catalyst bundle struct and unique filename
-        if (!provisioningPath) {
-            NSString *bundleURL = [[NSBundle mainBundle] bundleURL].absoluteString;
-            provisioningPath = [[[bundleURL componentsSeparatedByString:@"file://"] objectAtIndex:1] stringByAppendingString:@"Contents/embedded.provisionprofile"];
-        }
-        
-        // NSISOLatin1 keeps the binary wrapper from being parsed as unicode and dropped as invalid
-        NSString *binaryString = [NSString stringWithContentsOfFile:provisioningPath encoding:NSISOLatin1StringEncoding error:NULL];
-        if (!binaryString)
-            return nil;
-        
-        NSScanner *scanner = [NSScanner scannerWithString:binaryString];
-        BOOL ok = [scanner scanUpToString:@"<plist" intoString:nil];
-        if (!ok) {
-            [self logInvalidProvisionError:@"unable to find beginning of plist"];
+		// NSISOLatin1 keeps the binary wrapper from being parsed as unicode and dropped as invalid
+		NSString *binaryString = [NSString stringWithContentsOfFile:provisioningPath encoding:NSISOLatin1StringEncoding error:NULL];
+		if (!binaryString)
+			return nil;
+		
+		NSScanner *scanner = [NSScanner scannerWithString:binaryString];
+		BOOL ok = [scanner scanUpToString:@"<plist" intoString:nil];
+		if (!ok) {
+            [self logInvalidMobileProvisionError:@"unable to find beginning of plist"];
             return UIApplicationReleaseUnknown;
         }
-        NSString *plistString;
-        ok = [scanner scanUpToString:@"</plist>" intoString:&plistString];
-        if (!ok) {
-            [self logInvalidProvisionError:@"unable to find end of plist"];
+		NSString *plistString;
+		ok = [scanner scanUpToString:@"</plist>" intoString:&plistString];
+		if (!ok) {
+            [self logInvalidMobileProvisionError:@"unable to find end of plist"];
             return UIApplicationReleaseUnknown;
         }
-        plistString = [NSString stringWithFormat:@"%@</plist>",plistString];
-        // juggle latin1 back to utf-8!
-        NSData *plistdata_latin1 = [plistString dataUsingEncoding:NSISOLatin1StringEncoding];
-        //        plistString = [NSString stringWithUTF8String:[plistdata_latin1 bytes]];
-        //        NSData *plistdata2_latin1 = [plistString dataUsingEncoding:NSISOLatin1StringEncoding];
-        NSError *error = nil;
-        provision = [NSPropertyListSerialization propertyListWithData:plistdata_latin1 options:NSPropertyListImmutable format:NULL error:&error];
-        if (error) {
-            [self logInvalidProvisionError:[NSString stringWithFormat:@"error parsing extracted plist - %@",error]];
-            return nil;
-        }
-    }
-    return provision;
+		plistString = [NSString stringWithFormat:@"%@</plist>",plistString];
+		// juggle latin1 back to utf-8!
+		NSData *plistdata_latin1 = [plistString dataUsingEncoding:NSISOLatin1StringEncoding];
+        //		plistString = [NSString stringWithUTF8String:[plistdata_latin1 bytes]];
+        //		NSData *plistdata2_latin1 = [plistString dataUsingEncoding:NSISOLatin1StringEncoding];
+		NSError *error = nil;
+		mobileProvision = [NSPropertyListSerialization propertyListWithData:plistdata_latin1 options:NSPropertyListImmutable format:NULL error:&error];
+		if (error) {
+            [self logInvalidMobileProvisionError:[NSString stringWithFormat:@"error parsing extracted plist - %@",error]];
+			return nil;
+		}
+	}
+	return mobileProvision;
 }
 
-+ (void)logInvalidProvisionError:(NSString *)message {
++ (void)logInvalidMobileProvisionError:(NSString *)message {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
 }
 
 + (UIApplicationReleaseMode) releaseMode {
     NSDictionary *entitlements = nil;
-    NSDictionary *provision = [self getProvision];
-    if (provision) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"provision: %@", provision]];
-        entitlements = [provision objectForKey:@"Entitlements"];
+	NSDictionary *mobileProvision = [self getMobileProvision];
+    if (mobileProvision) {
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"mobileProvision: %@", mobileProvision]];
+        entitlements = [mobileProvision objectForKey:@"Entitlements"];
     }
     else
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"provision not found"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"mobileProvision not found"];
               
-    if (!provision) {
-        // failure to read other than it simply not existing
-        return UIApplicationReleaseUnknown;
-    }
-    else if (![provision count]) {
+	if (!mobileProvision) {
+		// failure to read other than it simply not existing
+		return UIApplicationReleaseUnknown;
+	}
+    else if (![mobileProvision count]) {
 #if TARGET_IPHONE_SIMULATOR
-        return UIApplicationReleaseSim;
+		return UIApplicationReleaseSim;
 #else
-        return UIApplicationReleaseAppStore;
+		return UIApplicationReleaseAppStore;
 #endif
-    }
-    else if ([[provision objectForKey:@"ProvisionsAllDevices"] boolValue]) {
-        // enterprise distribution contains ProvisionsAllDevices - true
-        return UIApplicationReleaseEnterprise;
-    }
+	}
+    else if ([[mobileProvision objectForKey:@"ProvisionsAllDevices"] boolValue]) {
+		// enterprise distribution contains ProvisionsAllDevices - true
+		return UIApplicationReleaseEnterprise;
+	}
     else if ([@"development" isEqualToString: entitlements[@"aps-environment"]])
         return UIApplicationReleaseDev;
     else {
-        // app store contains no UDIDs (if the file exists at all?)
-        return UIApplicationReleaseAppStore;
-    }
+		// app store contains no UDIDs (if the file exists at all?)
+		return UIApplicationReleaseAppStore;
+	}
 }
 
 @end

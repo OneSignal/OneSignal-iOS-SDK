@@ -38,21 +38,12 @@
 @implementation OneSignalHelperOverrider
 
 static dispatch_queue_t serialMockMainLooper;
-static NSString* _systemInfoMachine;
 
 static XCTestCase* currentTestInstance;
 
 static float mockIOSVersion;
 
 static bool overrideIsTablet = false;
-
-+ (NSString*)overrideGetSystemInfoMachine {
-    return _systemInfoMachine;
-}
-
-+ (void)setSystemInfoMachine:(NSString*)name {
-    _systemInfoMachine = name;
-}
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -63,11 +54,6 @@ static bool overrideIsTablet = false;
     
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideDispatch_async_on_main_queue:), [OneSignalHelper class], @selector(dispatch_async_on_main_queue:));
     injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideIsTablet), [OneSignalHelper class], @selector(isTablet));
-    injectStaticSelector([OneSignalHelperOverrider class], @selector(overrideGetSystemInfoMachine), [OneSignalHelper class], @selector(getSystemInfoMachine));
-}
-
-+ (void)reset {
-    _systemInfoMachine = @"x86_64";
 }
 
 + (void)setMockIOSVersion:(float)value {

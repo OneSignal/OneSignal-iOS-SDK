@@ -60,33 +60,17 @@
 @implementation OSMessagingController
 @synthesize isInAppMessagingPaused = _isInAppMessagingPaused;
 
-static OSMessagingController *sharedInstance = nil;
-static dispatch_once_t once;
-
 + (OSMessagingController *)sharedInstance {
+    static OSMessagingController *sharedInstance = nil;
+    static dispatch_once_t once;
     dispatch_once(&once, ^{
         // Make sure only devices with iOS 10 or newer can use IAMs
-        if ([self doesDeviceSupportIAM])
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
             sharedInstance = [OSMessagingController new];
         else
             sharedInstance = [DummyOSMessagingController new];
     });
     return sharedInstance;
-}
-
-+ (void)removeInstance {
-    sharedInstance = nil;
-    once = NULL;
-}
-
-+ (BOOL)doesDeviceSupportIAM {
-    // We do not support Mac Catalyst as it does not display correctly.
-    // We could support in the future after we reslove the display issues.
-    if ([@"Mac" isEqualToString:[OneSignalHelper getDeviceVariant]])
-        return false;
-    
-    // Only support iOS 10 and newer due to Safari 9 WebView issues
-    return [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"];
 }
 
 - (instancetype)init {

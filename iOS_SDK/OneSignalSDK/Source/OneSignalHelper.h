@@ -69,7 +69,6 @@
 + (NSString *)getCurrentDeviceVersion;
 + (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version;
 + (BOOL)isIOSVersionLessThan:(NSString *)version;
-+ (NSString*)getDeviceVariant;
 
 // Threading
 + (void)runOnMainThread:(void(^)())block;

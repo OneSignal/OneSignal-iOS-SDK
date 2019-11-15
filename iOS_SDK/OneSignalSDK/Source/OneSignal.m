@@ -1479,6 +1479,11 @@ static dispatch_queue_t serialQueue;
     let infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString* build = infoDictionary[(NSString*)kCFBundleVersionKey];
     
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    let deviceModel = [NSString stringWithCString:systemInfo.machine
+                                         encoding:NSUTF8StringEncoding];
+    
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    app_id, @"app_id",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
@@ -1496,7 +1501,6 @@ static dispatch_queue_t serialQueue;
 
     pendingExternalUserId = nil;
 
-    let deviceModel = [OneSignalHelper getDeviceVariant];
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
     

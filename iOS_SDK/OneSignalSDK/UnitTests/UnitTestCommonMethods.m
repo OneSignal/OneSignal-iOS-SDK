@@ -129,7 +129,7 @@ NSString * serverUrlWithPath(NSString *path) {
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
     
     [NSObjectOverrider reset];
-        
+    
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
     [UIAlertViewOverrider reset];
