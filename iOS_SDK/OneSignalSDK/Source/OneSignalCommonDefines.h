@@ -43,6 +43,7 @@
 #define USER_LAST_CLOSED_TIME @"GT_LAST_CLOSED_TIME"
 #define DEVICE_TOKEN @"GT_DEVICE_TOKEN"
 #define UNSENT_ACTIVE_TIME @"GT_UNSENT_ACTIVE_TIME"
+#define UNSENT_ACTIVE_TIME_ATTRIBUTED @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"
 #define SUBSCRIPTION @"ONESIGNAL_SUBSCRIPTION"
 #define PUSH_TOKEN @"GT_DEVICE_TOKEN_LAST"
 #define ACCEPTED_PERMISSION @"ONESIGNAL_PERMISSION_ACCEPTED_LAST"
@@ -120,8 +121,8 @@ typedef enum {NOTIFICATION_CLICK, APP_OPEN, APP_CLOSE} AppEntryAction;
 typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 
 // OneSignal Focus Types
-typedef enum {ATTRIBUTED, NOATTRIBUTED} FocusAttributionState;
-#define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOATTRIBUTED"] objectAtIndex:enum]
+typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
+#define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOT_ATTRIBUTED"] objectAtIndex:enum]
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
@@ -157,8 +158,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // to have their own unique buttons/etc.
 #define SHARED_CATEGORY_LIST @"com.onesignal.shared_registered_categories"
 
-// Device type
-#define DEVICE_TYPE 0
+// Device types
+#define DEVICE_TYPE_PUSH 0
 #define DEVICE_TYPE_EMAIL 11
 
 #ifndef OS_TEST

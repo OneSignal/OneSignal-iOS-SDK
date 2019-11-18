@@ -45,6 +45,10 @@
 @end
 
 @implementation ProvisionalAuthorizationTests
+- (void)setUp {
+    [super setUp];
+    [UnitTestCommonMethods beforeEachTest:self];
+}
 
 - (OSPermissionStateTestObserver *)setupProvisionalTest {
     [UnitTestCommonMethods clearStateForAppRestart:self];

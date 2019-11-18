@@ -70,11 +70,7 @@
     
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
-    [NSUserDefaultsOverrider clearInternalDictionary];
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [UnitTestCommonMethods beforeAllTest];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     NSTimerOverrider.shouldScheduleTimers = false;
 }

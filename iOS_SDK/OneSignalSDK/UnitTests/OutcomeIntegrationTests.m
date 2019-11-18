@@ -45,6 +45,7 @@
 #import "OneSignalClientOverrider.h"
 #import "UIApplicationOverrider.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
+#import "NSTimerOverrider.h"
 
 @interface OneSignal ()
 + (OneSignalSessionManager*)sessionManager;
@@ -92,8 +93,9 @@
 }
 
 - (void)testIndirectSession_onFocusAttributed {
-    // 1. Open App
+    // 1. Open App and wait for 5 secounds
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [NSDateOverrider advanceSystemTimeBy:5];
     
     // 2. Background app and receive notification
     [OneSignalTracker onFocus:true];
@@ -111,9 +113,27 @@
     [OneSignalTracker onFocus:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // TODO: 6. Ensure onfocus is sent after waiting 30 secounds in the background.
-    // [RestClientAsserts assertOnFocusAtIndex:0 withTime:30];
+    // 6. Force kick off our pending 30 secound on_focus job
+    [NSTimerOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 7. Ensure onfocus is sent in the background.
+    [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
 }
+
+// TODO: 1. Bug - After a direct on_focus is sent resuming the app goes from DIRECT to UNATTRIBUTED
+//          More details - app started from Xcode. App backgrounded, notication sent and opened. Lastly backgrounded again
+                /*
+                from:
+                session: DIRECT
+                , directNotificationId: 452b135d-4ea2-43b0-93cb-2bf6e318e8a7
+                , indirectNotificationIds: (null)
+                to:
+                session: UNATTRIBUTED
+                , directNotificationId: (null)
+                , indirectNotificationIds: (null)
+                 */
+
 
 - (void)testDirectSession_onFocusAttributed {
     // 1. Open App
@@ -484,6 +504,7 @@
     [RestClientAsserts assertNumberOfMeasureRequests:2];
 }
 
+// TODO: This test is flaky, it fails even on it's own sometimes, on step 5
 - (void)testSendingOutcomeWithValue_inIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];

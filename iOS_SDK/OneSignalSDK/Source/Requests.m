@@ -312,8 +312,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype)withUserId:(NSString *)userId
                      appId:(NSString *)appId
-                     state:(NSString *)state
-                      type:(NSNumber *)type
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
@@ -322,8 +320,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    params[@"state"] = state;
-    params[@"type"] = type;
+    params[@"state"] = @"ping";
+    params[@"type"] = @1;
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
@@ -340,8 +338,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype)withUserId:(NSString *)userId
                      appId:(NSString *)appId
-                     state:(NSString *)state
-                      type:(NSNumber *)type
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
@@ -353,8 +349,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    params[@"state"] = state;
-    params[@"type"] = type;
+    params[@"state"] = @"ping";
+    params[@"type"] = @1;
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;

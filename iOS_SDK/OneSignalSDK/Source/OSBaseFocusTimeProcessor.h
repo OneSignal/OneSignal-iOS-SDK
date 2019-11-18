@@ -29,17 +29,19 @@
 #import "OneSignalCommonDefines.h"
 #import "OSFocusCallParams.h"
 
+// This is an abstract class
 @interface OSBaseFocusTimeProcessor : NSObject
 
 @property (nonatomic, readonly) BOOL onFocusCallEnabled;
 
 - (int)getMinSessionTime;
+- (NSString*)unsentActiveTimeUserDefaultsKey;
 - (BOOL)isTimeCorrect:(NSTimeInterval)activeTime;
 
 - (void)resetUnsentActiveTime;
-- (void)setOnFocusCallEnabled:(BOOL)enabled;
 - (void)sendOnFocusCall:(OSFocusCallParams *)params;
 - (void)sendUnsentActiveTime:(OSFocusCallParams *)params;
+- (void)cancelDelayedJob;
 
 - (NSTimeInterval)getUnsentActiveTime;
 - (void)saveUnsentActiveTime:(NSTimeInterval)time;

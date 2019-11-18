@@ -1517,7 +1517,7 @@ static dispatch_queue_t serialQueue;
                    app_id, @"app_id",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
                    [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
-                   [NSNumber numberWithInt:DEVICE_TYPE], @"device_type",
+                   [NSNumber numberWithInt:DEVICE_TYPE_PUSH], @"device_type",
                    [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
                    ONESIGNAL_VERSION, @"sdk",
                    nil];
@@ -1960,7 +1960,7 @@ static NSString *_lastnonActiveMessageId;
     NSString* lastMessageId = [[NSUserDefaults standardUserDefaults] objectForKey:@"GT_LAST_MESSAGE_OPENED_"];
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:self.currentSubscriptionState.userId appId:self.app_id wasOpened:YES messageId:messageId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE]] onSuccess:nil onFailure:nil];
+        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:self.currentSubscriptionState.userId appId:self.app_id wasOpened:YES messageId:messageId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]] onSuccess:nil onFailure:nil];
         [[NSUserDefaults standardUserDefaults] setObject:messageId forKey:@"GT_LAST_MESSAGE_OPENED_"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
@@ -2518,7 +2518,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeEntry:name])
         return;
     
-    [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success];
+    [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
 + (void)sendUniqueOutcome:(NSString * _Nonnull)name {
@@ -2538,7 +2538,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeEntry:name])
         return;
 
-    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success];
+    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
@@ -2561,7 +2561,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeValue:value])
         return;
 
-    [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE] successBlock:success];
+    [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
 + (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {

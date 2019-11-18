@@ -29,8 +29,9 @@
 
 #import "OneSignalSelectorHelpers.h"
 #import "TestHelperFunctions.h"
+#import "DelayedSelectors.h"
 
-#import "NSTimerOverrider.h"
+#define NSTIMER_INTERVAL_MAX 9999999999
 
 // Due to issues swizzling Class methods in Objective-C,
 // we'll use a Category to implement this method
@@ -42,30 +43,48 @@
     
     if (NSTimerOverrider.shouldScheduleTimers) {
         return [NSTimer overrideTimerWithTimeInterval:ti target:aTarget selector:aSelector userInfo:userInfo repeats:yesOrNo];
-    } else {
-        return [NSTimer new];
     }
+    return [NSTimer new];
+}
+
++ (NSTimer *)overrideScheduledTimerWithTimeInterval:(NSTimeInterval)ti target:(id)aTarget selector:(SEL)aSelector userInfo:(nullable id)userInfo repeats:(BOOL)yesOrNo {
+    NSTimerOverrider.mostRecentTimerInterval = ti;
+    
+    NSTimerOverrider.hasScheduledTimer = true;
+    
+    if (NSTimerOverrider.shouldScheduleTimers) {
+        // Call original as we need to assign userInfo to the timer
+        NSTimer* timer = [NSTimer overrideScheduledTimerWithTimeInterval:NSTIMER_INTERVAL_MAX target:nil selector:nil userInfo:userInfo repeats:false];
+        [NSTimerOverrider.delayedSelectors addSelector:aSelector onObject:aTarget withObject:timer];
+        return timer;
+    }
+    return [NSTimer new];
 }
 @end
 
 @implementation NSTimerOverrider
 
-static BOOL _shouldScheduleTimers = false;
-static BOOL _hasScheduledTimer = false;
+static BOOL _shouldScheduleTimers;
+static BOOL _hasScheduledTimer;
 
 // The most recently scheduled delay/interval for NSTimer
-static NSTimeInterval _mostRecentTimerInterval = 0.0f;
+static NSTimeInterval _mostRecentTimerInterval;
+static NSTimeInterval _previousMostRecentTimeInterval;
 
-static NSTimeInterval _previousMostRecentTimeInterval = 0.0f;
+static DelayedSelectors* _delayedSelectors;
 
 +(void)load {
-    swizzleClassMethodWithCategoryImplementation([NSTimer class], @selector(timerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideTimerWithTimeInterval:target:selector:userInfo:repeats:));
+    swizzleClassMethodWithCategoryImplementation(NSTimer.class, @selector(timerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideTimerWithTimeInterval:target:selector:userInfo:repeats:));
+    swizzleClassMethodWithCategoryImplementation(NSTimer.class, @selector(scheduledTimerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideScheduledTimerWithTimeInterval:target:selector:userInfo:repeats:));
+    
 }
 
 + (void)reset {
-    NSTimerOverrider.shouldScheduleTimers = true;
-    NSTimerOverrider.hasScheduledTimer = false;
-    NSTimerOverrider.mostRecentTimerInterval = 0.0f;
+    _shouldScheduleTimers = true;
+    _hasScheduledTimer = false;
+    _mostRecentTimerInterval = 0.0f;
+    _previousMostRecentTimeInterval = 0.0f;
+    _delayedSelectors = [DelayedSelectors new];
 }
 
 +(NSTimeInterval)mostRecentTimerInterval {
@@ -91,6 +110,14 @@ static NSTimeInterval _previousMostRecentTimeInterval = 0.0f;
 
 +(void)setHasScheduledTimer:(BOOL)hasScheduledTimer {
     _hasScheduledTimer = hasScheduledTimer;
+}
+         
++ (DelayedSelectors*)delayedSelectors {
+    return _delayedSelectors;
+}
+
++ (void)runPendingSelectors {
+    [_delayedSelectors runPendingSelectors];
 }
 
 @end
