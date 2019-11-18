@@ -29,11 +29,12 @@
 #import "OneSignalClient.h"
 #import "OSUnattributedFocusTimeProcessor.h"
 
-@implementation OSUnattributedFocusTimeProcessor
+@implementation OSUnattributedFocusTimeProcessor {
+    UIBackgroundTaskIdentifier focusBackgroundTask;
+}
 
 static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
-UIBackgroundTaskIdentifier focusBackgroundTask;
 - (instancetype) init {
     self = [super init];
     focusBackgroundTask = UIBackgroundTaskInvalid;
@@ -56,6 +57,10 @@ UIBackgroundTaskIdentifier focusBackgroundTask;
 
 - (int)getMinSessionTime {
     return UNATTRIBUTED_MIN_SESSION_TIME_SEC;
+}
+
+- (NSString*)unsentActiveTimeUserDefaultsKey {
+    return UNSENT_ACTIVE_TIME;
 }
 
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {

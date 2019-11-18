@@ -32,8 +32,9 @@
 #import "OneSignalCommonDefines.h"
 
 // This is an abstract class
-@implementation OSBaseFocusTimeProcessor
-NSNumber* unsentActiveTime;
+@implementation OSBaseFocusTimeProcessor {
+    NSNumber* unsentActiveTime;
+}
 
 // Must override
 - (int)getMinSessionTime {
@@ -50,9 +51,14 @@ NSNumber* unsentActiveTime;
     unsentActiveTime = nil;
 }
 
+- (NSString*)unsentActiveTimeUserDefaultsKey {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
+}
+
 - (void)saveUnsentActiveTime:(NSTimeInterval)time {
     unsentActiveTime = @(time);
-    [OneSignalSharedUserDefaults saveObject:unsentActiveTime withKey:UNSENT_ACTIVE_TIME];
+    [OneSignalSharedUserDefaults saveObject:unsentActiveTime withKey:self.unsentActiveTimeUserDefaultsKey];
 }
 
 // Must override
@@ -75,7 +81,7 @@ NSNumber* unsentActiveTime;
 
 - (NSTimeInterval)getUnsentActiveTime {
     if (!unsentActiveTime)
-        unsentActiveTime = [OneSignalSharedUserDefaults getSavedObject:UNSENT_ACTIVE_TIME defaultValue:@0];
+        unsentActiveTime = [OneSignalSharedUserDefaults getSavedObject:self.unsentActiveTimeUserDefaultsKey defaultValue:@0];
     
     return [unsentActiveTime doubleValue];
 }

@@ -93,8 +93,9 @@
 }
 
 - (void)testIndirectSession_onFocusAttributed {
-    // 1. Open App
+    // 1. Open App and wait for 5 secounds
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [NSDateOverrider advanceSystemTimeBy:5];
     
     // 2. Background app and receive notification
     [OneSignalTracker onFocus:true];
@@ -120,8 +121,7 @@
     [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
 }
 
-// TODO: 1. Bug - Usent unattribued time does not accumate
-// TODO: 2. Bug - After a direct on_focus is sent resuming the app goes from DIRECT to UNATTRIBUTED
+// TODO: 1. Bug - After a direct on_focus is sent resuming the app goes from DIRECT to UNATTRIBUTED
 //          More details - app started from Xcode. App backgrounded, notication sent and opened. Lastly backgrounded again
                 /*
                 from:
@@ -133,7 +133,6 @@
                 , directNotificationId: (null)
                 , indirectNotificationIds: (null)
                  */
-// TOOD: 3. Bug - Time seems to be tracked for unattributed while attributed is being tracked
 
 
 - (void)testDirectSession_onFocusAttributed {

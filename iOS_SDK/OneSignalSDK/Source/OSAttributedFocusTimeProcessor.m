@@ -29,13 +29,13 @@
 #import "OneSignalClient.h"
 #import "OSAttributedFocusTimeProcessor.h"
 
-@implementation OSAttributedFocusTimeProcessor
+@implementation OSAttributedFocusTimeProcessor {
+    UIBackgroundTaskIdentifier delayBackgroundTask;
+    NSTimer* restCallTimer;
+}
 
 static let ATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
 static let DELAY_TIME = 30;
-
-UIBackgroundTaskIdentifier delayBackgroundTask;
-NSTimer* restCallTimer = nil;
 
 - (instancetype) init {
     self = [super init];
@@ -58,6 +58,10 @@ NSTimer* restCallTimer = nil;
 
 - (int)getMinSessionTime {
     return ATTRIBUTED_MIN_SESSION_TIME_SEC;
+}
+
+- (NSString*)unsentActiveTimeUserDefaultsKey {
+    return UNSENT_ACTIVE_TIME_ATTRIBUTED;
 }
 
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {

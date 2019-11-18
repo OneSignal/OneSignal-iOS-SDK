@@ -104,7 +104,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
         OneSignal.appEntryState = APP_OPEN;
    
-    lastOpenedTime = [[NSDate date] timeIntervalSince1970];
+    lastOpenedTime = [NSDate date].timeIntervalSince1970;
     
     // on_session tracking when resumming app.
     if ([OneSignal shouldRegisterNow])
