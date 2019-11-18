@@ -60,7 +60,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
 
 + (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType {
     let isAttributed = [OSOutcomesUtils isAttributedSession:result.session];
-    let attributionState = isAttributed ? ATTRIBUTED : NOATTRIBUTED;
+    let attributionState = isAttributed ? ATTRIBUTED : NOT_ATTRIBUTED;
     NSString *key = focusAttributionStateString(attributionState);
     
     var timeProcesor = [self.focusTimeProcessors objectForKey:key];
@@ -69,7 +69,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
             case ATTRIBUTED:
                 timeProcesor = [OSAttributedFocusTimeProcessor new];
                 break;
-             case NOATTRIBUTED:
+             case NOT_ATTRIBUTED:
                 // TODO: This looks like a bug in the following case;
                 // 1. Background the app
                 // 2. Wait 30 secounds

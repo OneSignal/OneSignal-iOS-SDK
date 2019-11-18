@@ -14,7 +14,7 @@
 @implementation DelayedSelectors {
     NSMutableArray<SelectorToRun*>* selectorsToRun;
 }
-- (instancetype) init {
+- (instancetype)init {
     self = [super init];
     selectorsToRun = [NSMutableArray new];
     return self;

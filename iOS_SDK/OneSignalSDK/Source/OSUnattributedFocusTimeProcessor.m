@@ -35,22 +35,22 @@
 
 static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
-- (instancetype) init {
+- (instancetype)init {
     self = [super init];
     focusBackgroundTask = UIBackgroundTaskInvalid;
     return self;
 }
 
 - (void)beginBackgroundFocusTask {
-    focusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+    focusBackgroundTask = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
         [self endBackgroundFocusTask];
     }];
 }
 
 - (void)endBackgroundFocusTask {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-                     message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:endDelayBackgroungTask:%d", focusBackgroundTask]];
-    [[UIApplication sharedApplication] endBackgroundTask: focusBackgroundTask];
+                     message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:endDelayBackgroundTask:%d", focusBackgroundTask]];
+    [UIApplication.sharedApplication endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"endBackgroundFocusTask called"];
 }

@@ -37,21 +37,21 @@
 static let ATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
 static let DELAY_TIME = 30;
 
-- (instancetype) init {
+- (instancetype)init {
     self = [super init];
     delayBackgroundTask = UIBackgroundTaskInvalid;
     return self;
 }
 
-- (void)beginDelayBackgroungTask {
+- (void)beginDelayBackgroundTask {
     delayBackgroundTask = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
-        [self endDelayBackgroungTask];
+        [self endDelayBackgroundTask];
     }];
 }
 
-- (void)endDelayBackgroungTask {
+- (void)endDelayBackgroundTask {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroungTask:%d", delayBackgroundTask]];
+                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroundTask:%d", delayBackgroundTask]];
     [UIApplication.sharedApplication endBackgroundTask:delayBackgroundTask];
     delayBackgroundTask = UIBackgroundTaskInvalid;
 }
@@ -86,7 +86,7 @@ static let DELAY_TIME = 30;
     if (!params.userId)
         return;
     
-    [self beginDelayBackgroungTask];
+    [self beginDelayBackgroundTask];
     restCallTimer = [NSTimer
         scheduledTimerWithTimeInterval:DELAY_TIME
                                target:self
@@ -118,7 +118,7 @@ static let DELAY_TIME = 30;
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendBackgroundAttributedFocusPing attributed succeed, saveUnsentActiveTime with 0"];
         } onFailure:nil];
         
-        [self endDelayBackgroungTask];
+        [self endDelayBackgroundTask];
     });
 }
 
@@ -128,7 +128,7 @@ static let DELAY_TIME = 30;
     
     [restCallTimer invalidate];
     restCallTimer = nil;
-    [self endDelayBackgroungTask];
+    [self endDelayBackgroundTask];
 }
 
 @end

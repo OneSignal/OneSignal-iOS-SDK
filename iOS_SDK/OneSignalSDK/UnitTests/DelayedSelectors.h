@@ -1,11 +1,3 @@
-//
-//  DelayedSelectors.h
-//  UnitTests
-//
-//  Created by Josh Kasten on 11/17/19.
-//  Copyright © 2019 Hiptic. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
