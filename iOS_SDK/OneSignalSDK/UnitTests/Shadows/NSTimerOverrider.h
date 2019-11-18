@@ -27,19 +27,20 @@
 
 #import <Foundation/Foundation.h>
 
+#import "DelayedSelectors.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NSTimerOverrider : NSObject
 
 @property (class, nonatomic) NSTimeInterval mostRecentTimerInterval;
-
 @property (class, nonatomic) NSTimeInterval previousMostRecentTimeInterval;
-
 @property (class, nonatomic) BOOL shouldScheduleTimers;
-
 @property (class, nonatomic) BOOL hasScheduledTimer;
+@property (class, nonatomic) DelayedSelectors* delayedSelectors;
 
 + (void)reset;
++ (void)runPendingSelectors;
 
 @end
 

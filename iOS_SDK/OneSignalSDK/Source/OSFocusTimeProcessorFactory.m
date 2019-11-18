@@ -34,60 +34,60 @@
 
 @implementation OSFocusTimeProcessorFactory
 
-static NSDictionary<NSString *, OSBaseFocusTimeProcessor *> *focusTimeProcessors;
+static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
++ (NSDictionary<NSString*, OSBaseFocusTimeProcessor*>*)focusTimeProcessors {
+    if (!_focusTimeProcessors)
+        _focusTimeProcessors = [NSMutableDictionary new];
+    return _focusTimeProcessors;
+}
 
 + (void)cancelFocusCall {
-    if (!focusTimeProcessors)
-        return;
-    
-    for (NSString *key in focusTimeProcessors) {
-        OSBaseFocusTimeProcessor *timeProcesor = [focusTimeProcessors objectForKey:key];
-        if (timeProcesor)
-            [timeProcesor setOnFocusCallEnabled:NO];
+    for (NSString* key in self.focusTimeProcessors) {
+        let timeProcesor = [self.focusTimeProcessors objectForKey:key];
+        [timeProcesor cancelDelayedJob];
     }
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"cancelFocusCall of %@", focusTimeProcessors]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"cancelFocusCall of %@", self.focusTimeProcessors]];
 }
 
 + (void)resetUnsentActiveTime {
-    if (!focusTimeProcessors)
-        return;
-    
-    for (NSString *key in focusTimeProcessors) {
-        OSBaseFocusTimeProcessor *timeProcesor = [focusTimeProcessors objectForKey:key];
-        if (timeProcesor)
-            [timeProcesor resetUnsentActiveTime];
+    for (NSString *key in self.focusTimeProcessors) {
+        let timeProcesor = [self.focusTimeProcessors objectForKey:key];
+        [timeProcesor resetUnsentActiveTime];
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", focusTimeProcessors]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", self.focusTimeProcessors]];
 }
 
 + (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType {
-    if (!focusTimeProcessors)
-        focusTimeProcessors = [[NSMutableDictionary alloc] init];
-    
     let isAttributed = [OSOutcomesUtils isAttributedSession:result.session];
     let attributionState = isAttributed ? ATTRIBUTED : NOATTRIBUTED;
     NSString *key = focusAttributionStateString(attributionState);
     
-    OSBaseFocusTimeProcessor *timeProcesor = [focusTimeProcessors objectForKey:key];
-    
+    var timeProcesor = [self.focusTimeProcessors objectForKey:key];
     if (!timeProcesor) {
         switch (attributionState) {
             case ATTRIBUTED:
-                timeProcesor = [[OSAttributedFocusTimeProcessor alloc] init];
+                timeProcesor = [OSAttributedFocusTimeProcessor new];
                 break;
              case NOATTRIBUTED:
+                // TODO: This looks like a bug in the following case;
+                // 1. Background the app
+                // 2. Wait 30 secounds
+                // 3. Resume app
+                // 4. END_SESSION will be triggered and we would send time for this sonner than we should
+                //    However maybe not an issue but this creates a flow that changes besed state that isn't related.
                 if (focusEventType == END_SESSION)
                     // We only need to send unattributed focus time when the app goes out of focus.
                     break;
-                timeProcesor = [[OSUnattributedFocusTimeProcessor alloc] init];
+                timeProcesor = [OSUnattributedFocusTimeProcessor new];
                 break;
         }
         
-        [focusTimeProcessors setValue:timeProcesor forKey:key];
+        [self.focusTimeProcessors setValue:timeProcesor forKey:key];
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %@", timeProcesor, isAttributed ? @"YES" : @"NO"]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+                     message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %d",timeProcesor, isAttributed]];
     
     return timeProcesor;
 }

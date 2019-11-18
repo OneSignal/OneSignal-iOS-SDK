@@ -205,9 +205,8 @@ static NSDictionary* iOSParamsOutcomes;
 
     networkRequestCount++;
 
-    id url = [request.urlRequest URL];
-    NSLog(@"url: %@", url);
-    NSLog(@"parameters: %@", parameters);
+    let url = [request.urlRequest URL];
+    NSLog(@"url(%d): %@\n params: %@", networkRequestCount, url, parameters);
 
     lastUrl = [url absoluteString];
     lastHTTPRequest = parameters;

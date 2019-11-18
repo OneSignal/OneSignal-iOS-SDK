@@ -31,23 +31,16 @@
 #import "OneSignalSharedUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 
-const int MIN_ON_FOCUS_TIME_SEC = 60;
-
+// This is an abstract class
 @implementation OSBaseFocusTimeProcessor
 NSNumber* unsentActiveTime;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        _onFocusCallEnabled = YES;
-    }
-    return self;
+// Must override
+- (int)getMinSessionTime {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
 }
 
-- (int)getMinSessionTime {
-    return MIN_ON_FOCUS_TIME_SEC;
-}
 - (BOOL)isTimeCorrect:(NSTimeInterval)activeTime {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor isTimeCorrect getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
     return activeTime >= [self getMinSessionTime];
@@ -57,12 +50,27 @@ NSNumber* unsentActiveTime;
     unsentActiveTime = nil;
 }
 
-- (void)setOnFocusCallEnabled:(BOOL)enabled {
-    _onFocusCallEnabled = enabled;
+- (void)saveUnsentActiveTime:(NSTimeInterval)time {
+    unsentActiveTime = @(time);
+    [OneSignalSharedUserDefaults saveObject:unsentActiveTime withKey:UNSENT_ACTIVE_TIME];
 }
 
-- (void)saveUnsentActiveTime:(NSTimeInterval)time {
-    [OneSignalSharedUserDefaults saveObject:@(time) withKey:UNSENT_ACTIVE_TIME];
+// Must override
+- (void)sendOnFocusCall:(OSFocusCallParams *)params {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
+}
+
+// Must override
+- (void)sendUnsentActiveTime:(OSFocusCallParams *)params {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
+}
+
+// Must override
+- (void)cancelDelayedJob {
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+      reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
 }
 
 - (NSTimeInterval)getUnsentActiveTime {

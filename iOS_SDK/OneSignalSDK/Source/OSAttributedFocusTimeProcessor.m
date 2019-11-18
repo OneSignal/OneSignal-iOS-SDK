@@ -29,36 +29,31 @@
 #import "OneSignalClient.h"
 #import "OSAttributedFocusTimeProcessor.h"
 
-const int ATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
-const int DELAY_TIME = 30;
-
 @implementation OSAttributedFocusTimeProcessor
 
-static UIBackgroundTaskIdentifier delayBackgroundTask;
-static UIBackgroundTaskIdentifier attributedFocusBackgroundTask;
+static let ATTRIBUTED_MIN_SESSION_TIME_SEC = 1;
+static let DELAY_TIME = 30;
+
+UIBackgroundTaskIdentifier delayBackgroundTask;
+NSTimer* restCallTimer = nil;
+
+- (instancetype) init {
+    self = [super init];
+    delayBackgroundTask = UIBackgroundTaskInvalid;
+    return self;
+}
 
 - (void)beginDelayBackgroungTask {
-    delayBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-           [self endDelayBackgroungTask];
+    delayBackgroundTask = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
+        [self endDelayBackgroungTask];
     }];
 }
 
 - (void)endDelayBackgroungTask {
-    [[UIApplication sharedApplication] endBackgroundTask: delayBackgroundTask];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroungTask:%d", delayBackgroundTask]];
+    [UIApplication.sharedApplication endBackgroundTask:delayBackgroundTask];
     delayBackgroundTask = UIBackgroundTaskInvalid;
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"endDelayBackgroungTask called"];
-}
-
-- (void)beginBackgroundAttributedFocusTask {
-    attributedFocusBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
-        [self endBackgroundAttributedFocusTask];
-    }];
-}
-
-- (void)endBackgroundAttributedFocusTask {
-    [[UIApplication sharedApplication] endBackgroundTask: attributedFocusBackgroundTask];
-    attributedFocusBackgroundTask = UIBackgroundTaskInvalid;
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"endBackgroundAttributedFocusTask called"];
 }
 
 - (int)getMinSessionTime {
@@ -67,8 +62,9 @@ static UIBackgroundTaskIdentifier attributedFocusBackgroundTask;
 
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {
     let unsentActive = [super getUnsentActiveTime];
-    let totalTimeActive = unsentActive + [params timeElapsed];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendOnFocusCall attributed with totalTimeActive %f", totalTimeActive]];
+    let totalTimeActive = unsentActive + params.timeElapsed;
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+                     message:[NSString stringWithFormat:@"sendOnFocusCall attributed with totalTimeActive %f", totalTimeActive]];
     
     [super saveUnsentActiveTime:totalTimeActive];
     [self sendOnFocusCallWithParams:params totalTimeActive:totalTimeActive];
@@ -76,52 +72,59 @@ static UIBackgroundTaskIdentifier attributedFocusBackgroundTask;
 
 - (void)sendUnsentActiveTime:(OSFocusCallParams *)params {
     let unsentActive = [super getUnsentActiveTime];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendUnsentActiveTime attributed with unsentActive %f", unsentActive]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+                     message:[NSString stringWithFormat:@"sendUnsentActiveTime attributed with unsentActive %f", unsentActive]];
     
     [self sendOnFocusCallWithParams:params totalTimeActive:unsentActive];
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    if (![params userId])
+    if (!params.userId)
         return;
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self beginDelayBackgroungTask];
-        [super setOnFocusCallEnabled:YES];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginDelayBackgroungTask called start delay"];
-
-        [NSThread sleepForTimeInterval: DELAY_TIME];
-    
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"beginDelayBackgroungTask after delay with focus call enabled %@", [super onFocusCallEnabled] ? @"YES" : @"NO"]];
-
-        if ([super onFocusCallEnabled]) {
-            [self sendBackgroundAttributedFocusPing:params totalTimeActive:totalTimeActive];
-        }
-
-        [self endDelayBackgroungTask];
-    });
+    [self beginDelayBackgroungTask];
+    restCallTimer = [NSTimer
+        scheduledTimerWithTimeInterval:DELAY_TIME
+                               target:self
+                             selector:@selector(sendBackgroundAttributedFocusPing:)
+                             userInfo:@{@"params": params, @"time": @(totalTimeActive)}
+                              repeats:false
+    ];
 }
 
-- (void)sendBackgroundAttributedFocusPing:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
+- (void)sendBackgroundAttributedFocusPing:(NSTimer*)timer {
+    let userInfo = (NSDictionary<NSString*, id>*)timer.userInfo;
+    let params = (OSFocusCallParams*)userInfo[@"params"];
+    let totalTimeActive = (NSNumber*)userInfo[@"time"];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self beginBackgroundAttributedFocusTask];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginBackgroundAttributedFocusTask start"];
         
-        let deviceType = [NSNumber numberWithInt:DEVICE_TYPE];
         let requests = [NSMutableDictionary new];
     
-        requests[@"push"] = [OSRequestOnFocus withUserId:[params userId] appId:[params appId] state:@"ping" type:@1 activeTime:@(totalTimeActive) netType:[params netType] emailAuthToken:nil deviceType:deviceType directSession:[params direct] notificationIds:[params notificationIds]];
+        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:nil deviceType:@(DEVICE_TYPE_PUSH) directSession:params.direct notificationIds:params.notificationIds];
         
-        if ([params emailUserId])
-            requests[@"email"] = [OSRequestOnFocus withUserId:[params emailUserId] appId:[params appId] state:@"ping" type:@1 activeTime:@(totalTimeActive) netType:[params netType] emailAuthToken:[params emailAuthToken] deviceType:deviceType directSession:[params direct] notificationIds:[params notificationIds]];
+        // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
+        //   outcome fields which would double report the session time
+        if (params.emailUserId)
+            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:params.emailAuthToken deviceType:@(DEVICE_TYPE_EMAIL)];
 
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendBackgroundAttributedFocusPing attributed succeed, saveUnsentActiveTime with 0"];
         } onFailure:nil];
         
-        [self endBackgroundAttributedFocusTask];
+        [self endDelayBackgroungTask];
     });
+}
+
+- (void)cancelDelayedJob {
+    if (!restCallTimer)
+        return;
+    
+    [restCallTimer invalidate];
+    restCallTimer = nil;
+    [self endDelayBackgroungTask];
 }
 
 @end

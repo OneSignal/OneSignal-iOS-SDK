@@ -62,10 +62,9 @@
 // called before each test
 -(void)setUp {
     [super setUp];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     NSTimerOverrider.shouldScheduleTimers = false;
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:@[
         @[

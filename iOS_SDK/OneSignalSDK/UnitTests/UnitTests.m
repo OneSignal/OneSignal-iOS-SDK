@@ -1016,6 +1016,7 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // TODO: Test carry over causes this influence_open not to fire
     // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
     XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
@@ -1320,6 +1321,7 @@
     XCTAssertFalse([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestSubmitNotificationOpened class]]);
 }
 
+// TODO: FIx flaky test carry over, only fails when running all tests in this file
 - (void)testReceivedCallbackWithButtonsWithNewFormat {
     let newFormat = @{@"aps": @{@"content_available": @1},
                       @"os_data": @{

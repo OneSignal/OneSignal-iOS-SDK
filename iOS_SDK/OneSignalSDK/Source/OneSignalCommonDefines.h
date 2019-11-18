@@ -157,8 +157,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // to have their own unique buttons/etc.
 #define SHARED_CATEGORY_LIST @"com.onesignal.shared_registered_categories"
 
-// Device type
-#define DEVICE_TYPE 0
+// Device types
+#define DEVICE_TYPE_PUSH 0
 #define DEVICE_TYPE_EMAIL 11
 
 #ifndef OS_TEST

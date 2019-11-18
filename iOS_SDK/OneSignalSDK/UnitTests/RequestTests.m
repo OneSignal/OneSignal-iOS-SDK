@@ -34,6 +34,7 @@
 #import "OSInAppMessageBridgeEvent.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalClientOverrider.h"
+#import "UnitTestCommonMethods.h"
 
 @interface RequestTests : XCTestCase
 
@@ -58,7 +59,7 @@
 
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    [UnitTestCommonMethods beforeEachTest:self];
     
     testAppId = @"test_app_id";
     testUserId = @"test_user_id";
@@ -334,7 +335,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
     
-    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId state:@"test_state" type:@1 activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType directSession:NO notificationIds:[NSArray arrayWithObject:testNotificationId]];
+    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType directSession:NO notificationIds:[NSArray arrayWithObject:testNotificationId]];
 
     let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
     
@@ -342,7 +343,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     XCTAssertTrue(checkHttpBody(firstRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0}));
     
-    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"test_state", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_ids": testNotificationIds}));
+    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"ping", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_ids": testNotificationIds}));
 }
 
 - (void)testInAppMessageViewed {

@@ -32,6 +32,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		03217239238278EB004F0E85 /* DelayedSelectors.m in Sources */ = {isa = PBXBuildFile; fileRef = 03217238238278EB004F0E85 /* DelayedSelectors.m */; };
 		0338566B1FBBD2270002F7C1 /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
 		0338566C1FBBDB150002F7C1 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		0338566D1FBBDB190002F7C1 /* OneSignalTrackFirebaseAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DF0B1FA932AC00CEAB1D /* OneSignalTrackFirebaseAnalytics.m */; };
@@ -335,6 +336,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03217237238278EB004F0E85 /* DelayedSelectors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelayedSelectors.h; sourceTree = "<group>"; };
+		03217238238278EB004F0E85 /* DelayedSelectors.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelayedSelectors.m; sourceTree = "<group>"; };
 		03389F671FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalTrackFirebaseAnalyticsOverrider.h; sourceTree = "<group>"; };
 		03389F681FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalTrackFirebaseAnalyticsOverrider.m; sourceTree = "<group>"; };
 		03866CBC2378A33B0009C1D8 /* OutcomeIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeIntegrationTests.m; sourceTree = "<group>"; };
@@ -733,6 +736,8 @@
 				CAB411AD208931EE005A70D1 /* DummyNotificationCenterDelegate.m */,
 				7A123294235DFE3B002B6CE3 /* OutcomeTests.m */,
 				03866CBC2378A33B0009C1D8 /* OutcomeIntegrationTests.m */,
+				03217237238278EB004F0E85 /* DelayedSelectors.h */,
+				03217238238278EB004F0E85 /* DelayedSelectors.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -1324,6 +1329,7 @@
 				9D34853A233D2E3600EB81C9 /* OneSignalLocationOverrider.m in Sources */,
 				CAE2E5A8215D80010036FD32 /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
+				03217239238278EB004F0E85 /* DelayedSelectors.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,

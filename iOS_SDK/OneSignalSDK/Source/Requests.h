@@ -100,8 +100,6 @@ NS_ASSUME_NONNULL_END
 @interface OSRequestOnFocus : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
-                              state:(NSString * _Nonnull)state
-                               type:(NSNumber * _Nonnull)type
                          activeTime:(NSNumber * _Nonnull)activeTime
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
@@ -109,8 +107,6 @@ NS_ASSUME_NONNULL_END
 
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
-                              state:(NSString * _Nonnull)state
-                               type:(NSNumber * _Nonnull)type
                          activeTime:(NSNumber * _Nonnull)activeTime
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
