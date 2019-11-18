@@ -124,7 +124,6 @@
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         NSLog(@"IdsAvailable Fired");
     }];
-    
 }
 
 - (IBAction)setEmailButtonPressed:(UIButton *)sender {

@@ -87,9 +87,10 @@
 
 @implementation OSInAppMessageViewController
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage {
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage delegate:(Class<OSInAppMessageViewControllerDelegate>)delegate {
     if (self = [super init]) {
         self.message = inAppMessage;
+        self.delegate = delegate;
     }
     
     return self;
@@ -173,13 +174,6 @@
     [self addConstraintsForMessage];
     
     [self setupGestureRecognizers];
-}
-
-- (void)displayMessage {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Displaying In-App Message"];
-    
-    // Sets up the message view in a hidden position while we wait
-    [self setupInitialMessageUI];
     
     // Only the center modal and full screen (both centered) IAM should have a dark background
     // So get the alpha based on the IAM being a banner or not
@@ -193,6 +187,13 @@
         
         [self animateAppearance];
     }];
+}
+
+- (void)displayMessage {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Displaying In-App Message"];
+    
+    // Sets up the message view in a hidden position while we wait
+    [self setupInitialMessageUI];
 
     // If the message has a max display time, set up the timer now
     if (self.maxDisplayTime > 0.0f)
@@ -394,10 +395,14 @@
  If velocity == 0.0, the default dismiss velocity will be used
  */
 - (void)dismissCurrentInAppMessage:(BOOL)up withVelocity:(double)velocity {
+    // Since the user dimsissed the IAM, cancel the dismissal timer
+    if (self.dismissalTimer)
+        [self.dismissalTimer invalidate];
     
     // If the rendering event never occurs any constraints being adjusted for dismissal will be nil
     // and we should bypass dismissal adjustments and animations and skip straight to the OSMessagingController callback for dismissing
     if (!self.didPageRenderingComplete) {
+        [self dismissViewControllerAnimated:false completion:nil];
         [self.delegate messageViewControllerWasDismissed];
         return;
     }

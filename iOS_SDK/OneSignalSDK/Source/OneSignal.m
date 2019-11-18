@@ -450,7 +450,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 // NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
-//         Ensure a 2nd call can be made later with the appId from the developer's code.
+//        Ensure a 2nd call can be made later with the appId from the developer's code.
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings {
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
@@ -461,8 +461,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     _sessionManager = [[OneSignalSessionManager alloc] init:self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
     
-    //Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
-    //the app ID is required to download parameters, so do not download params until the appID is provided
+    // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
         [self downloadIOSParamsWithAppId:appId];
     
@@ -525,11 +525,10 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             [self registerForAPNsToken];
         }
         
-        
         /* Check if in-app setting passed assigned
-            LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
-            Priority for kOSSettingsKeyInFocusDisplayOption.
-        */
+         *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
+         *  Priority for kOSSettingsKeyInFocusDisplayOption.
+         */
         NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
         let inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
         
@@ -563,7 +562,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
      *  - application:didReceiveRemoteNotification:fetchCompletionHandler
      *  - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (iOS10)
      */
-    
+
     // Cold start from tap on a remote notification
     //  NOTE: launchOptions may be nil if tapping on a notification's action button.
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
@@ -579,11 +578,10 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
        [OneSignalHelper clearCachedMedia];
     
     /*
-     downloads params file to see:
-         (A) if firebase analytics should be tracked
-         (B) if this app requires email authentication
-    */
-    
+     * Downloads params file to see:
+     *  (A) if firebase analytics should be tracked
+     *  (B) if this app requires email authentication
+     */
     if ([OneSignalTrackFirebaseAnalytics needsRemoteParams]) {
         [OneSignalTrackFirebaseAnalytics init];
     }
@@ -673,7 +671,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // if the plist key does not exist default to true
     // the plist value specifies whether GDPR privacy consent is required for this app
     // if required and consent has not been previously granted, return false
-    
     let requiresConsent = [[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_REQUIRE_PRIVACY_CONSENT] boolValue] ?: false;
     
     if (requiresConsent || shouldRequireUserConsent) {

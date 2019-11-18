@@ -144,8 +144,7 @@
     
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
@@ -760,9 +759,9 @@
     UIApplicationOverrider.didFailRegistarationErrorCode = 3000;
     
     [UnitTestCommonMethods initOneSignal];
+    // Don't make a network call right away
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -775,7 +774,7 @@
 - (void)testPromptForPushNotificationsWithUserResponse {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -791,7 +790,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 8;
     
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -807,7 +806,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -824,8 +823,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
-    // Don't make a network call right away.
+    // Don't make a network call right away
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     // Triggers the 30 fallback to register device right away.
@@ -873,8 +871,7 @@
     [self backgroundModesDisabledInXcode];
     
     [UnitTestCommonMethods initOneSignal];
-    
-    // Don't make a network call right away.
+    // Don't make a network call right away
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     [UnitTestCommonMethods answerNotificationPrompt:false];
@@ -1521,7 +1518,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testGetTagsWithNestedDelete {
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL fireDeleteTags = false;
     
@@ -2383,8 +2380,7 @@ didReceiveRemoteNotification:userInfo
     [UIApplicationOverrider setAPNSTokenLength:64];
 
     [UnitTestCommonMethods clearStateForAppRestart:self];
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
 }

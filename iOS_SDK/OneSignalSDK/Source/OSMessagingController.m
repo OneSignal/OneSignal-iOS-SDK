@@ -100,6 +100,10 @@
 
 - (void)setInAppMessagingPaused:(BOOL)pause {
     _isInAppMessagingPaused = pause;
+    
+    // If IAM are not paused, try to evaluate and show IAMs
+    if (!pause)
+        [self evaluateMessages];
 }
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
@@ -113,12 +117,11 @@
 }
 
 - (void)presentInAppMessage:(OSInAppMessage *)message {
-    
     // Check if the app disabled IAMs for this device
     if (_isInAppMessagingPaused)
         return;
     
-    if (message.variantId == nil) {
+    if (!message.variantId) {
         let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
         return;
@@ -172,8 +175,7 @@
 - (void)displayMessage:(OSInAppMessage *)message {
     self.isInAppMessageShowing = true;
     
-    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
-    self.viewController.delegate = self;
+    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewController view] setNeedsLayout];
@@ -189,8 +191,7 @@
     
     // Make sure no tracking is performed for previewed IAMs
     // If the messageId exists in cached impressionedInAppMessages return early so the impression is not tracked again
-    if (message.isPreview ||
-        [self.impressionedInAppMessages containsObject:message.messageId])
+    if (message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId])
         return;
     
     // Add messageId to impressionedInAppMessages
@@ -237,7 +238,7 @@
  */
 - (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
-    [self.triggerController messageMatchesTriggers:message];
+           [self.triggerController messageMatchesTriggers:message];
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
@@ -274,20 +275,22 @@
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
-        self.isInAppMessageShowing = false;
-      
-        // Reset time since last IAM
-        [self.triggerController timeSinceLastMessage:[NSDate new]];
-
-        // Null the current IAM viewController to prepare for next IAM if one exists
-        self.viewController = nil;
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
         
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
-        [self.seenInAppMessages addObject:self.messageDisplayQueue.firstObject.messageId];
-        [OneSignalSharedUserDefaults saveSet:self.seenInAppMessages withKey:OS_IAM_SEEN_SET_KEY];
+        if (self.isInAppMessageShowing) {
+            [self.seenInAppMessages addObject:self.messageDisplayQueue.firstObject.messageId];
+            [OneSignalSharedUserDefaults saveSet:self.seenInAppMessages withKey:OS_IAM_SEEN_SET_KEY];
+            // Remove dismissed IAM from messageDisplayQueue
+            [self.messageDisplayQueue removeObjectAtIndex:0];
+        }
         
-        // Remove dismissed IAM from messageDisplayQueue
-        [self.messageDisplayQueue removeObjectAtIndex:0];
+        // Reset the IAM viewController to prepare for next IAM if one exists
+        self.viewController = nil;
+        // No IAMs are showing currently
+        self.isInAppMessageShowing = false;
+        // Reset time since last IAM
+        [self.triggerController timeSinceLastMessage:[NSDate new]];
         
         if (self.messageDisplayQueue.count > 0) {
             // Show next IAM in queue
@@ -317,8 +320,7 @@
     // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // Handles body, button, or image clicks
-    if (message.isPreview ||
-        [self.clickedClickIds containsObject:action.clickId])
+    if (message.isPreview || [self.clickedClickIds containsObject:action.clickId])
         return;
     
     // Add clickId to clickedClickIds
