@@ -153,32 +153,29 @@
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"saveReceivedNotificationFromBackground notificationId: %@",
                                                        notificationId]];
     
-    NSInteger notificationLimit = [self getIndirectNotificationLimit];
-    NSArray *notifications = [self getCachedReceivedNotifications];
+    let notificationLimit = [self getIndirectNotificationLimit];
+    let notifications = [self getCachedReceivedNotifications];
 
-    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-    OSIndirectNotification *notification = [[OSIndirectNotification alloc] initWithParamsNotificationId:notificationId
-                                                                                            timestamp:timestamp];
+    let timestamp = [NSDate date].timeIntervalSince1970;
+    let notification = [[OSIndirectNotification alloc] initWithParamsNotificationId:notificationId
+                                                                          timestamp:timestamp];
     
     // Create finalNotifications to be saved at a limited size, removing any old notifications
     NSArray *finalNotifications;
-    if (!notifications || [notifications count] == 0) {
-        finalNotifications = [NSArray arrayWithObject: notification];
-        
-    } else if ([notifications count] < notificationLimit) {
-        
+    if (!notifications || notifications.count == 0) {
+        finalNotifications = [NSArray arrayWithObject:notification];
+    }
+    else if (notifications.count < notificationLimit) {
         NSMutableArray *notificationIdsMutable = [notifications mutableCopy];
         [notificationIdsMutable addObject:notification];
-        
         finalNotifications = notificationIdsMutable;
-        
-    } else {
-        
+    }
+    else {
         NSMutableArray *notificationIdsMutable = [notifications mutableCopy];
         [notificationIdsMutable addObject:notification];
         
         // Remove old notifications to keep finalNotifications at a limited size
-        long lengthDifference = [notificationIdsMutable count] - notificationLimit;
+        let lengthDifference = notificationIdsMutable.count - notificationLimit;
         for (int i = 0; i < lengthDifference; i++)
             [notificationIdsMutable removeObjectAtIndex:0];
         
