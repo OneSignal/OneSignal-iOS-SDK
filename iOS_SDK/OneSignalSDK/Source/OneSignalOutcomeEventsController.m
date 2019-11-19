@@ -33,7 +33,7 @@
 #import "OneSignalClient.h"
 #import "OneSignalSessionManager.h"
 #import "OSOutcomesUtils.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 #import "OSOutcomeEventsDefines.h"
 
@@ -70,22 +70,22 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
 
 // Save the current set of UNATTRIBUTED unique outcome names to NSUserDefaults
 - (NSSet *)getUnattributedUniqueOutcomeEventNames {
-    return [OneSignalSharedUserDefaults getSavedSet:CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT defaultValue:nil];
+    return [OneSignalUserDefaults.initShared getSavedSet:CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT defaultValue:nil];
 }
 
 // Save the current set of UNATTRIBUTED unique outcome names to NSUserDefaults
 - (void)saveUnattributedUniqueOutcomeEventNames {
-    [OneSignalSharedUserDefaults saveSet:unattributedUniqueOutcomeEventsSentSet withKey:CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT];
+    [OneSignalUserDefaults.initShared saveSetForKey:CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT withValue:unattributedUniqueOutcomeEventsSentSet];
 }
 
 // Save the current set of ATTRIBUTED unique outcome names and notificationIds to NSUserDefaults
 - (NSArray *)getAttributedUniqueOutcomeEventNotificationIds {
-    return [OneSignalSharedUserDefaults getSavedCodeableData:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
+    return [OneSignalUserDefaults.initShared getSavedCodeableData:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
 }
 
 // Save the current set of ATTRIBUTED unique outcome names and notificationIds to NSUserDefaults
 - (void)saveAttributedUniqueOutcomeEventNotificationIds {
-    [OneSignalSharedUserDefaults saveCodeableData:attributedUniqueOutcomeEventNotificationIdsSentArray withKey:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT];
+    [OneSignalUserDefaults.initShared saveCodeableDataForKey:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:attributedUniqueOutcomeEventNotificationIdsSentArray];
 }
 
 /*

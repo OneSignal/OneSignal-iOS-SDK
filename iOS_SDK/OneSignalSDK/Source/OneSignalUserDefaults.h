@@ -25,39 +25,39 @@
  * THE SOFTWARE.
  */
 
-@interface OneSignalSharedUserDefaults : NSObject
+@interface OneSignalUserDefaults : NSObject
 
-+ (NSString * _Nonnull)appGroupKey;
-+ (NSUserDefaults * _Nonnull)getSharedUserDefault;
+@property (strong, nonatomic, nullable) NSUserDefaults *userDefaults;
 
-+ (BOOL)keyExists:(NSUserDefaults * _Nonnull)userDefaults withKey:(NSString * _Nonnull)key;
++ (OneSignalUserDefaults * _Nonnull)initStandard;
++ (OneSignalUserDefaults * _Nonnull)initShared;
 
 // NSUserDefaults for storing and getting booleans
-+ (BOOL)getSavedBool:(NSString * _Nonnull)key defaultValue:(BOOL)value;
-+ (void)saveBool:(BOOL)value withKey:(NSString * _Nonnull)key;
+- (BOOL)getSavedBool:(NSString * _Nonnull)key defaultValue:(BOOL)value;
+- (void)saveBoolForKey:(NSString * _Nonnull)key withValue:(BOOL)value;
 
 // NSUserDefaults for storing and getting strings
-+ (NSString * _Nullable)getSavedString:(NSString * _Nonnull)key defaultValue:(NSString * _Nullable)value;
-+ (void)saveString:(NSString * _Nullable)value withKey:(NSString * _Nonnull)key;
+- (NSString * _Nullable)getSavedString:(NSString * _Nonnull)key defaultValue:(NSString * _Nullable)value;
+- (void)saveStringForKey:(NSString * _Nonnull)key withValue:(NSString * _Nullable)value;
 
 // NSUserDefaults for storing and getting integers
-+ (NSInteger)getSavedInteger:(NSString * _Nonnull)key defaultValue:(NSInteger)value;
-+ (void)saveInteger:(NSInteger)value withKey:(NSString * _Nonnull)key;
+- (NSInteger)getSavedInteger:(NSString * _Nonnull)key defaultValue:(NSInteger)value;
+- (void)saveIntegerForKey:(NSString * _Nonnull)key withValue:(NSInteger)value;
 
 // NSUserDefaults for storing and getting doubles
-+ (double)getSavedDouble:(NSString * _Nonnull)key defaultValue:(double)value;
-+ (void)saveDouble:(double)value withKey:(NSString * _Nonnull)key;
+- (double)getSavedDouble:(NSString * _Nonnull)key defaultValue:(double)value;
+- (void)saveDoubleForKey:(NSString * _Nonnull)key withValue:(double)value;
 
 // NSUserDefaults for storing and getting sets
-+ (NSSet * _Nullable)getSavedSet:(NSString * _Nonnull)key defaultValue:(NSSet * _Nullable)value;
-+ (void)saveSet:(NSSet * _Nullable)value withKey:(NSString * _Nonnull)key;
+- (NSSet * _Nullable)getSavedSet:(NSString * _Nonnull)key defaultValue:(NSSet * _Nullable)value;
+- (void)saveSetForKey:(NSString * _Nonnull)key withValue:(NSSet * _Nullable)value;
 
 // NSUserDefaults for storing and getting objects
-+ (id _Nullable)getSavedObject:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
-+ (void)saveObject:(id _Nullable)value withKey:(NSString * _Nonnull)key;
+- (id _Nullable)getSavedObject:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
+- (void)saveObjectForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;
 
-// NSUserDefaults for storing and getting saved codeable data
-+ (id _Nullable)getSavedCodeableData:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
-+ (void)saveCodeableData:(id _Nullable)value withKey:(NSString * _Nonnull)key;
+// NSUserDefaults for storing and getting saved codeable data (custom objects)
+- (id _Nullable)getSavedCodeableData:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
+- (void)saveCodeableDataForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;
 
 @end

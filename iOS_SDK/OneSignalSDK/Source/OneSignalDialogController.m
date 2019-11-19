@@ -43,8 +43,7 @@
 
 @implementation OneSignalDialogController
 
-+ (instancetype _Nonnull)sharedInstance
-{
++ (instancetype _Nonnull)sharedInstance {
     static OneSignalDialogController *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -121,7 +120,7 @@
     });
 }
 
--(void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     [self delayResult:buttonIndex > 0];
 }
 

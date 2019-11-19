@@ -44,7 +44,7 @@
 #import "OSNotificationPayload+Internal.h"
 #import "OSOutcomesUtils.h"
 #import "OneSignalCommonDefines.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCacheCleaner.h"
 
 #import "OneSignalNotificationSettings.h"
@@ -1437,7 +1437,7 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
         return false;
     
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastTimeClosed = [OneSignalSharedUserDefaults getSavedDouble:USER_LAST_CLOSED_TIME defaultValue:0];
+    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDouble:USER_LAST_CLOSED_TIME defaultValue:0];
     
     if (lastTimeClosed == 0) {
         onesignal_Log(ONE_S_LL_DEBUG, @"shouldRegisterNow: lastTimeClosed: default.");

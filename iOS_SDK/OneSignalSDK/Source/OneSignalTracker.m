@@ -34,7 +34,7 @@
 #import "OneSignalClient.h"
 #import "Requests.h"
 #import "OSOutcomesUtils.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 #import "OSFocusTimeProcessorFactory.h"
 #import "OSBaseFocusTimeProcessor.h"
@@ -200,7 +200,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)updateLastClosedTime {
     let now = [NSDate date].timeIntervalSince1970;
-    [OneSignalSharedUserDefaults saveDouble:now withKey:USER_LAST_CLOSED_TIME];
+    [OneSignalUserDefaults.initStandard saveDoubleForKey:USER_LAST_CLOSED_TIME withValue:now];
 }
 
 @end

@@ -26,7 +26,7 @@
  */
 
 #import "OSMessagingController.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 #import "Requests.h"
 #import "OneSignalClient.h"
@@ -83,9 +83,9 @@
         self.messageDisplayQueue = [NSMutableArray new];
         
         // Get all cached IAM data from NSUserDefaults for shown, impressions, and clicks
-        self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalSharedUserDefaults getSavedSet:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
-        self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[OneSignalSharedUserDefaults getSavedSet:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
-        self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalSharedUserDefaults getSavedSet:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
+        self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
+        self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
+        self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
         
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
@@ -209,7 +209,7 @@
                                            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
                                            
                                            // If the post was successful, save the updated impressionedInAppMessages set
-                                           [OneSignalSharedUserDefaults saveSet:self.impressionedInAppMessages withKey:OS_IAM_IMPRESSIONED_SET_KEY];
+                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_IMPRESSIONED_SET_KEY withValue:self.impressionedInAppMessages];
                                        }
                                        onFailure:^(NSError *error) {
                                            NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error];
@@ -280,7 +280,7 @@
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
             [self.seenInAppMessages addObject:self.messageDisplayQueue.firstObject.messageId];
-            [OneSignalSharedUserDefaults saveSet:self.seenInAppMessages withKey:OS_IAM_SEEN_SET_KEY];
+            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
             // Remove dismissed IAM from messageDisplayQueue
             [self.messageDisplayQueue removeObjectAtIndex:0];
         }
@@ -338,7 +338,7 @@
                                            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
                                            
                                            // Save the updated clickedClickIds since click was tracked successfully
-                                           [OneSignalSharedUserDefaults saveSet:self.clickedClickIds withKey:OS_IAM_CLICKED_SET_KEY];
+                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
                                        }
                                        onFailure:^(NSError *error) {
                                            NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];

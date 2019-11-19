@@ -31,7 +31,7 @@
 #import "OSIndirectNotification.h"
 #import "OneSignalCommonDefines.h"
 #import "OSOutcomeEventsDefines.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 
 @implementation OSOutcomesUtils
 
@@ -41,32 +41,27 @@
 
 // Number of notifications allowed in an INDIRECT session
 + (NSInteger)getIndirectNotificationLimit {
-    return [OneSignalSharedUserDefaults getSavedInteger:NOTIFICATION_LIMIT
-                                           defaultValue:DEFAULT_INDIRECT_NOTIFICATION_LIMIT];
+    return [OneSignalUserDefaults.initShared getSavedInteger:NOTIFICATION_LIMIT defaultValue:DEFAULT_INDIRECT_NOTIFICATION_LIMIT];
 }
 
 // Time in minutes to keep track of notifications in an INDIRECT session
 + (NSInteger)getIndirectAttributionWindow {
-    return [OneSignalSharedUserDefaults getSavedInteger:NOTIFICATION_ATTRIBUTION_WINDOW
-                                           defaultValue:DEFAULT_INDIRECT_ATTRIBUTION_WINDOW];
+    return [OneSignalUserDefaults.initShared getSavedInteger:NOTIFICATION_ATTRIBUTION_WINDOW defaultValue:DEFAULT_INDIRECT_ATTRIBUTION_WINDOW];
 }
 
 // Flag for DIRECT session enabled
 + (BOOL)isDirectSessionEnabled {
-    return [OneSignalSharedUserDefaults getSavedBool:DIRECT_SESSION_ENABLED
-                                        defaultValue:NO];
+    return [OneSignalUserDefaults.initShared getSavedBool:DIRECT_SESSION_ENABLED defaultValue:NO];
 }
 
 // Flag for INDIRECT session enabled
 + (BOOL)isIndirectSessionEnabled {
-    return [OneSignalSharedUserDefaults getSavedBool:INDIRECT_SESSION_ENABLED
-                                        defaultValue:NO];
+    return [OneSignalUserDefaults.initShared getSavedBool:INDIRECT_SESSION_ENABLED defaultValue:NO];
 }
 
 // Flag for UNATTRIBUTED session enabled
 + (BOOL)isUnattributedSessionEnabled {
-    return [OneSignalSharedUserDefaults getSavedBool:UNATTRIBUTED_SESSION_ENABLED
-                                        defaultValue:NO];
+    return [OneSignalUserDefaults.initShared getSavedBool:UNATTRIBUTED_SESSION_ENABLED defaultValue:NO];
 }
 
 /*
@@ -96,8 +91,8 @@
                 int minutesLimitValue = minutesLimit ? [minutesLimit intValue] : DEFAULT_INDIRECT_ATTRIBUTION_WINDOW;
                 int notificationLimitValue = notificationLimit ? [notificationLimit intValue] : DEFAULT_INDIRECT_NOTIFICATION_LIMIT;
                 
-                [OneSignalSharedUserDefaults saveInteger:notificationLimitValue withKey:NOTIFICATION_LIMIT];
-                [OneSignalSharedUserDefaults saveInteger:minutesLimitValue withKey:NOTIFICATION_ATTRIBUTION_WINDOW];
+                [OneSignalUserDefaults.initShared saveIntegerForKey:NOTIFICATION_LIMIT withValue:notificationLimitValue];
+                [OneSignalUserDefaults.initShared saveIntegerForKey:NOTIFICATION_ATTRIBUTION_WINDOW withValue:minutesLimitValue];
             }
         }
     }
@@ -113,42 +108,42 @@
     id enabledExists = [dictionary valueForKey:ENABLED_PARAM];
     BOOL enabled = enabledExists ? [enabledExists boolValue] : NO;
     
-    [OneSignalSharedUserDefaults saveBool:enabled withKey:key];
+    [OneSignalUserDefaults.initShared saveBoolForKey:key withValue:enabled];
 }
 
 + (Session)getCachedSession {
-    NSString *sessionString = [OneSignalSharedUserDefaults getSavedString:CACHED_SESSION defaultValue:OS_SESSION_TO_STRING(UNATTRIBUTED)];
+    NSString *sessionString = [OneSignalUserDefaults.initShared getSavedString:CACHED_SESSION defaultValue:OS_SESSION_TO_STRING(UNATTRIBUTED)];
     return OS_SESSION_FROM_STRING(sessionString);
 }
 
 + (void)saveSession:(Session)session {
-    [OneSignalSharedUserDefaults saveString:OS_SESSION_TO_STRING(session) withKey:CACHED_SESSION];
+    [OneSignalUserDefaults.initShared saveStringForKey:CACHED_SESSION withValue:OS_SESSION_TO_STRING(session)];
 }
 
 + (NSString *)getCachedDirectNotificationId {
-    return [OneSignalSharedUserDefaults getSavedString:CACHED_DIRECT_NOTIFICATION_ID defaultValue:nil];
+    return [OneSignalUserDefaults.initShared getSavedString:CACHED_DIRECT_NOTIFICATION_ID defaultValue:nil];
 }
 
 + (void)saveDirectNotificationId:(NSString *)notificationId {
-    [OneSignalSharedUserDefaults saveString:notificationId withKey:CACHED_DIRECT_NOTIFICATION_ID];
+    [OneSignalUserDefaults.initShared saveStringForKey:CACHED_DIRECT_NOTIFICATION_ID withValue:notificationId];
 }
 
 + (NSArray *)getCachedIndirectNotificationIds {
-    NSArray *indirectNotifications = [OneSignalSharedUserDefaults getSavedObject:CACHED_INDIRECT_NOTIFICATION_IDS defaultValue:nil];
+    NSArray *indirectNotifications = [OneSignalUserDefaults.initShared getSavedObject:CACHED_INDIRECT_NOTIFICATION_IDS defaultValue:nil];
     return indirectNotifications;
 }
 
 + (void)saveIndirectNotificationIds:(NSArray *)indirectNotifications {
-    [OneSignalSharedUserDefaults saveObject:indirectNotifications withKey:CACHED_INDIRECT_NOTIFICATION_IDS];
+    [OneSignalUserDefaults.initShared saveObjectForKey:CACHED_INDIRECT_NOTIFICATION_IDS withValue:indirectNotifications];
 }
 
 + (NSArray *)getCachedReceivedNotifications {
-    NSArray *notifications = [OneSignalSharedUserDefaults getSavedCodeableData:CACHED_RECEIVED_NOTIFICATION_IDS defaultValue:nil];
+    NSArray *notifications = [OneSignalUserDefaults.initShared getSavedCodeableData:CACHED_RECEIVED_NOTIFICATION_IDS defaultValue:nil];
     return notifications;
 }
 
 + (void)saveReceivedNotifications:(NSArray *)notifications {
-    [OneSignalSharedUserDefaults saveCodeableData:notifications withKey:CACHED_RECEIVED_NOTIFICATION_IDS];
+    [OneSignalUserDefaults.initShared saveCodeableDataForKey:CACHED_RECEIVED_NOTIFICATION_IDS withValue:notifications];
 }
 
 /*

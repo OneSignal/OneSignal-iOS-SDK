@@ -28,7 +28,7 @@
 #import <XCTest/XCTest.h>
 #import "OneSignalOutcomeEventsController.h"
 #import "OneSignalSessionManager.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalOverrider.h"
 #import "OSSessionResult.h"
 #import "OSOutcomesUtils.h"

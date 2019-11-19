@@ -28,7 +28,7 @@
 #import "OneSignal.h"
 #import "OSSessionResult.h"
 #import "OSBaseFocusTimeProcessor.h"
-#import "OneSignalSharedUserDefaults.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 
 // This is an abstract class
@@ -58,7 +58,7 @@
 
 - (void)saveUnsentActiveTime:(NSTimeInterval)time {
     unsentActiveTime = @(time);
-    [OneSignalSharedUserDefaults saveObject:unsentActiveTime withKey:self.unsentActiveTimeUserDefaultsKey];
+    [OneSignalUserDefaults.initShared saveObjectForKey:self.unsentActiveTimeUserDefaultsKey withValue:unsentActiveTime];
 }
 
 // Must override
@@ -81,7 +81,7 @@
 
 - (NSTimeInterval)getUnsentActiveTime {
     if (!unsentActiveTime)
-        unsentActiveTime = [OneSignalSharedUserDefaults getSavedObject:self.unsentActiveTimeUserDefaultsKey defaultValue:@0];
+        unsentActiveTime = [OneSignalUserDefaults.initShared getSavedObject:self.unsentActiveTimeUserDefaultsKey defaultValue:@0];
     
     return [unsentActiveTime doubleValue];
 }
