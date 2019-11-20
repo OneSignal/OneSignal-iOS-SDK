@@ -69,7 +69,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendOnFocusCall unattributed with totalTimeActive %f", totalTimeActive]];
     
-    if (![super isTimeCorrect:totalTimeActive]) {
+    if (![super hasMinSyncTime:totalTimeActive]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"unattributed session saveUnsentActiveTime %f", totalTimeActive]];
         [super saveUnsentActiveTime:totalTimeActive];
         return;

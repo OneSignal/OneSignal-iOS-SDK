@@ -36,7 +36,7 @@
 
 - (int)getMinSessionTime;
 - (NSString*)unsentActiveTimeUserDefaultsKey;
-- (BOOL)isTimeCorrect:(NSTimeInterval)activeTime;
+- (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime;
 
 - (void)resetUnsentActiveTime;
 - (void)sendOnFocusCall:(OSFocusCallParams *)params;
