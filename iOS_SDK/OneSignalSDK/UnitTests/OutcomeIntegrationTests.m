@@ -62,6 +62,7 @@
 + (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult {}
 
 - (void)setUp {
+    
     [super setUp];
     [UnitTestCommonMethods beforeEachTest:self];
     
@@ -121,23 +122,10 @@
     [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
 }
 
-// TODO: 1. Bug - After a direct on_focus is sent resuming the app goes from DIRECT to UNATTRIBUTED
-//          More details - app started from Xcode. App backgrounded, notication sent and opened. Lastly backgrounded again
-                /*
-                from:
-                session: DIRECT
-                , directNotificationId: 452b135d-4ea2-43b0-93cb-2bf6e318e8a7
-                , indirectNotificationIds: (null)
-                to:
-                session: UNATTRIBUTED
-                , directNotificationId: (null)
-                , indirectNotificationIds: (null)
-                 */
-
-
 - (void)testDirectSession_onFocusAttributed {
-    // 1. Open App
+    // 1. Open App and wait for 5 secounds
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [NSDateOverrider advanceSystemTimeBy:5];
     
     // 2. Background app, receive notification, and open notification
     [OneSignalTracker onFocus:true];
@@ -155,8 +143,59 @@
     [OneSignalTracker onFocus:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // TODO: 6. Ensure onfocus is sent after waiting 30 secounds in the background.
-    // [RestClientAsserts assertOnFocusAtIndex:0 withTime:30];
+    // 6. Force kick off our pending 30 secound on_focus job
+    [NSTimerOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 7. Ensure onfocus is sent in the background.
+    [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
+}
+
+- (void)testDirectSession_overridesIndirectSession_andSendsOnFocus {
+    // 1. Open App and wait for 5 secounds
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [NSDateOverrider advanceSystemTimeBy:5];
+    
+    // 2. Close the app for 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    
+    // 3. Receive 1 notification and open it
+    [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
+    
+    // 4. Open app
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 5. Make sure the session is INDIRECT and has 1 notification
+    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_1"]);
+    
+    // 6. Close the app for less than 30 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:15];
+    
+    // 7. Receive 1 notification and open it
+    [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
+    
+    // 8. Open app
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 7. Ensure onFocus is made to end the indirect session in this upgrade
+    [NSTimerOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [RestClientAsserts asserOnFocusAtIndex:4 payload:@{
+        @"active_time": @(15),
+        @"notification_ids": @[@"test_notification_1"],
+        @"direct": @(false)
+    }];
+    
+    // 9. Make sure the session is DIRECT and has 1 notification
+    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
+    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_2"]);
 }
 
 - (void)testIndirectSession_afterReceiveingNotifications {
@@ -778,7 +817,7 @@
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 11. Make sure 2 measure requests have been made in total and does not include already sent notification ids for the unique outcome
-    [RestClientAsserts assertMeasureAtIndex:5 payload:@{
+    [RestClientAsserts assertMeasureAtIndex:6 payload:@{
         @"direct" : @(false),
         @"notification_ids" : @[@"test_notification_3"],
         @"id" : @"unique"

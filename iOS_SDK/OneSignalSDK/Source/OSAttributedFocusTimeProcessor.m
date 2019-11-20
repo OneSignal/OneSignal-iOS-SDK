@@ -87,20 +87,27 @@ static let DELAY_TIME = 30;
         return;
     
     [self beginDelayBackgroundTask];
+    if (params.onSessionEnded) {
+        [self sendBackgroundAttributedFocusPingWithParams:params withTotalTimeActive:@(totalTimeActive)];
+        return;
+    }
+    
     restCallTimer = [NSTimer
         scheduledTimerWithTimeInterval:DELAY_TIME
                                target:self
-                             selector:@selector(sendBackgroundAttributedFocusPing:)
+                             selector:@selector(sendBackgroundAttributedFocusPingWithNSTimer:)
                              userInfo:@{@"params": params, @"time": @(totalTimeActive)}
-                              repeats:false
-    ];
+                              repeats:false];
 }
 
-- (void)sendBackgroundAttributedFocusPing:(NSTimer*)timer {
+- (void)sendBackgroundAttributedFocusPingWithNSTimer:(NSTimer*)timer {
     let userInfo = (NSDictionary<NSString*, id>*)timer.userInfo;
     let params = (OSFocusCallParams*)userInfo[@"params"];
     let totalTimeActive = (NSNumber*)userInfo[@"time"];
-    
+    [self sendBackgroundAttributedFocusPingWithParams:params withTotalTimeActive:totalTimeActive];
+}
+
+- (void)sendBackgroundAttributedFocusPingWithParams:(OSFocusCallParams*)params withTotalTimeActive:(NSNumber*)totalTimeActive {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginBackgroundAttributedFocusTask start"];
         

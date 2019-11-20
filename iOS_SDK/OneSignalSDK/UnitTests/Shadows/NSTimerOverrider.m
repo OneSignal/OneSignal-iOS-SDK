@@ -54,8 +54,8 @@
     
     if (NSTimerOverrider.shouldScheduleTimers) {
         // Call original as we need to assign userInfo to the timer
-        NSTimer* timer = [NSTimer overrideScheduledTimerWithTimeInterval:NSTIMER_INTERVAL_MAX target:nil selector:nil userInfo:userInfo repeats:false];
-        [NSTimerOverrider.delayedSelectors addSelector:aSelector onObject:aTarget withObject:timer];
+        NSTimer* timer = [NSTimer overrideScheduledTimerWithTimeInterval:NSTIMER_INTERVAL_MAX target:aTarget selector:aSelector userInfo:userInfo repeats:false];
+        [NSTimerOverrider.pendingNSTimers addObject:timer];
         return timer;
     }
     return [NSTimer new];
@@ -69,22 +69,21 @@ static BOOL _hasScheduledTimer;
 
 // The most recently scheduled delay/interval for NSTimer
 static NSTimeInterval _mostRecentTimerInterval;
-static NSTimeInterval _previousMostRecentTimeInterval;
 
-static DelayedSelectors* _delayedSelectors;
+static NSMutableArray<NSTimer*>* _pendingNSTimers;
 
 +(void)load {
     swizzleClassMethodWithCategoryImplementation(NSTimer.class, @selector(timerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideTimerWithTimeInterval:target:selector:userInfo:repeats:));
     swizzleClassMethodWithCategoryImplementation(NSTimer.class, @selector(scheduledTimerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideScheduledTimerWithTimeInterval:target:selector:userInfo:repeats:));
-    
+    // __NSCFTimer is special here as the implementation of invalidate lives in this private class
+    injectToProperClass(@selector(overrideInvalidate), @selector(invalidate), @[NSClassFromString(@"__NSCFTimer")], NSTimerOverrider.class, NSTimer.class);
 }
 
 + (void)reset {
     _shouldScheduleTimers = true;
     _hasScheduledTimer = false;
     _mostRecentTimerInterval = 0.0f;
-    _previousMostRecentTimeInterval = 0.0f;
-    _delayedSelectors = [DelayedSelectors new];
+    _pendingNSTimers = [NSMutableArray new];
 }
 
 +(NSTimeInterval)mostRecentTimerInterval {
@@ -92,7 +91,6 @@ static DelayedSelectors* _delayedSelectors;
 }
 
 +(void)setMostRecentTimerInterval:(NSTimeInterval)mostRecentTimerInterval {
-    _previousMostRecentTimeInterval = _mostRecentTimerInterval;
     _mostRecentTimerInterval = mostRecentTimerInterval;
 }
 
@@ -112,12 +110,19 @@ static DelayedSelectors* _delayedSelectors;
     _hasScheduledTimer = hasScheduledTimer;
 }
          
-+ (DelayedSelectors*)delayedSelectors {
-    return _delayedSelectors;
++ (NSMutableArray<NSTimer*>*)pendingNSTimers {
+    return _pendingNSTimers;
 }
 
 + (void)runPendingSelectors {
-    [_delayedSelectors runPendingSelectors];
+    for(NSTimer *timer in _pendingNSTimers)
+        [timer fire];
+    [_pendingNSTimers removeAllObjects];
+}
+
+- (void)overrideInvalidate {
+    [_pendingNSTimers removeObject:(NSTimer*)self];
+    [self overrideInvalidate];
 }
 
 @end

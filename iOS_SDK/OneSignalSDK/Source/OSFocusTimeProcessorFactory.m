@@ -70,14 +70,8 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
                 timeProcesor = [OSAttributedFocusTimeProcessor new];
                 break;
              case NOT_ATTRIBUTED:
-                // TODO: This looks like a bug in the following case;
-                // 1. Background the app
-                // 2. Wait 30 secounds
-                // 3. Resume app
-                // 4. END_SESSION will be triggered and we would send time for this sonner than we should
-                //    However maybe not an issue but this creates a flow that changes besed state that isn't related.
+                // TODO: Clean up, this check should be for getting and not create
                 if (focusEventType == END_SESSION)
-                    // We only need to send unattributed focus time when the app goes out of focus.
                     break;
                 timeProcesor = [OSUnattributedFocusTimeProcessor new];
                 break;
