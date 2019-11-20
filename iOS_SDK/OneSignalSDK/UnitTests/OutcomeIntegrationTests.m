@@ -160,7 +160,7 @@
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:31];
     
-    // 3. Receive 1 notification and open it
+    // 3. Receive 1 notification
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 4. Open app
@@ -186,7 +186,7 @@
     // 7. Ensure onFocus is made to end the indirect session in this upgrade
     [NSTimerOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
-    [RestClientAsserts asserOnFocusAtIndex:4 payload:@{
+    [RestClientAsserts assertOnFocusAtIndex:4 payload:@{
         @"active_time": @(15),
         @"notification_ids": @[@"test_notification_1"],
         @"direct": @(false)
@@ -322,7 +322,7 @@
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:31];
     
-    // 3. Receive 1 notification and open it
+    // 3. Receive 1 notification
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 4. Open app
@@ -363,7 +363,7 @@
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:15];
     
-    // 4. Receive 1 notification and open it
+    // 4. Receive 1 notification
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 5. Open app

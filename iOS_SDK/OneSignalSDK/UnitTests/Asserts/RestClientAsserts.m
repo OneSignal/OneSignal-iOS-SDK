@@ -101,7 +101,7 @@
 /*
  Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
  */
-+ (void)asserOnFocusAtIndex:(int)index payload:(NSDictionary*)payload {
++ (void)assertOnFocusAtIndex:(int)index payload:(NSDictionary*)payload {
     [self assertOnFocusAtIndex:index];
     
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
