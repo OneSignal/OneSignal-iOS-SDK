@@ -62,10 +62,9 @@
 // called before each test
 -(void)setUp {
     [super setUp];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     NSTimerOverrider.shouldScheduleTimers = false;
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:@[
         @[
@@ -351,10 +350,14 @@
 }
 
 - (void)testDynamicTriggerWithExactTimeTrigger {
-    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeEqualTo withValue:@([[NSDate date] timeIntervalSince1970])];
+    let trigger = [OSTrigger
+        dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE
+                  withOperator:OSTriggerOperatorTypeEqualTo
+                     withValue:@([[NSDate date] timeIntervalSince1970])
+    ];
     
     OSDynamicTriggerController *controller = [OSDynamicTriggerController new];
-    controller.timeSinceLastMessage = [NSDate dateWithTimeIntervalSince1970:0];
+    controller.timeSinceLastMessage = [NSDate dateWithTimeIntervalSince1970:1];
     let triggered = [controller dynamicTriggerShouldFire:trigger withMessageId:@"test_id"];
 
     XCTAssertTrue(triggered);

@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,10 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalSessionManager.h"
-#import "OneSignal.h"
+#import <Foundation/Foundation.h>
+#import "OneSignalCommonDefines.h"
+#import "OSBaseFocusTimeProcessor.h"
 
-@interface OneSignalOutcomesController : NSObject
-
-- (id _Nonnull)init;
-
-- (void)clearOutcomes;
-- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name value:(NSNumber * _Nullable)weight appId:(NSString * _Nonnull)appId deviceType:(NSNumber * _Nonnull)deviceType successBlock:(OSResultSuccessBlock _Nullable)success failureBlock:(OSFailureBlock _Nullable)failure;
+@interface OSUnattributedFocusTimeProcessor : OSBaseFocusTimeProcessor
 
 @end

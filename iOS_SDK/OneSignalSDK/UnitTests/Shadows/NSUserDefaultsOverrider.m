@@ -37,12 +37,14 @@ static NSMutableDictionary* defaultsDictionary;
     // Sets
     injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetString:forKey:), @selector(setString:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+    injectToProperClass(@selector(overrideSetInteger:forKey:), @selector(setInteger:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetDouble:forKey:), @selector(setDouble:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideSetBool:forKey:), @selector(setBool:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     
     // Gets
     injectToProperClass(@selector(overrideObjectForKey:), @selector(objectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideStringForKey:), @selector(stringForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+    injectToProperClass(@selector(overrideIntegerForKey:), @selector(integerForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideDoubleForKey:), @selector(doubleForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     injectToProperClass(@selector(overrideBoolForKey:), @selector(boolForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
 }
@@ -84,7 +86,14 @@ static NSMutableDictionary* defaultsDictionary;
     return defaultsDictionary[key];
 }
 
--(double)overrideDoubleForKey:(NSString*)key {
+- (NSInteger)overrideIntegerForKey:(NSString*)key {
+    if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
+        return 60.0;
+    
+    return [defaultsDictionary[key] integerValue];
+}
+
+- (double)overrideDoubleForKey:(NSString*)key {
     if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
         return 60.0;
     
@@ -94,5 +103,6 @@ static NSMutableDictionary* defaultsDictionary;
 - (BOOL)overrideBoolForKey:(NSString*)key {
     return [defaultsDictionary[key] boolValue];
 }
+
 @end
 

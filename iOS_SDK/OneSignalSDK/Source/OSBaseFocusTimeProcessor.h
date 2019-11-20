@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,25 @@
  * THE SOFTWARE.
  */
 
-@interface OSLastNotification : NSObject
+#import <Foundation/Foundation.h>
+#import "OneSignalCommonDefines.h"
+#import "OSFocusCallParams.h"
 
-@property (nonatomic, readonly) NSString *notificationId;
-@property (nonatomic, readonly) double arrivalTime;
-@property (nonatomic, readonly) BOOL wasOnBackground;
+// This is an abstract class
+@interface OSBaseFocusTimeProcessor : NSObject
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
+@property (nonatomic, readonly) BOOL onFocusCallEnabled;
+
+- (int)getMinSessionTime;
+- (NSString*)unsentActiveTimeUserDefaultsKey;
+- (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime;
+
+- (void)resetUnsentActiveTime;
+- (void)sendOnFocusCall:(OSFocusCallParams *)params;
+- (void)sendUnsentActiveTime:(OSFocusCallParams *)params;
+- (void)cancelDelayedJob;
+
+- (NSTimeInterval)getUnsentActiveTime;
+- (void)saveUnsentActiveTime:(NSTimeInterval)time;
 
 @end

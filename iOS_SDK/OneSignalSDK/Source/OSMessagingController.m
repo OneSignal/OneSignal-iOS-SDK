@@ -83,9 +83,9 @@
         self.messageDisplayQueue = [NSMutableArray new];
         
         // Get all cached IAM data from NSUserDefaults for shown, impressions, and clicks
-        self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults getSavedSet:OS_IAM_SEEN_SET_KEY]];
-        self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults getSavedSet:OS_IAM_CLICKED_SET_KEY]];
-        self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults getSavedSet:OS_IAM_IMPRESSIONED_SET_KEY]];
+        self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
+        self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
+        self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
         
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
@@ -100,6 +100,10 @@
 
 - (void)setInAppMessagingPaused:(BOOL)pause {
     _isInAppMessagingPaused = pause;
+    
+    // If IAM are not paused, try to evaluate and show IAMs
+    if (!pause)
+        [self evaluateMessages];
 }
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
@@ -113,12 +117,11 @@
 }
 
 - (void)presentInAppMessage:(OSInAppMessage *)message {
-    
     // Check if the app disabled IAMs for this device
     if (_isInAppMessagingPaused)
         return;
     
-    if (message.variantId == nil) {
+    if (!message.variantId) {
         let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
         return;
@@ -172,8 +175,7 @@
 - (void)displayMessage:(OSInAppMessage *)message {
     self.isInAppMessageShowing = true;
     
-    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message];
-    self.viewController.delegate = self;
+    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewController view] setNeedsLayout];
@@ -189,8 +191,7 @@
     
     // Make sure no tracking is performed for previewed IAMs
     // If the messageId exists in cached impressionedInAppMessages return early so the impression is not tracked again
-    if (message.isPreview ||
-        [self.impressionedInAppMessages containsObject:message.messageId])
+    if (message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId])
         return;
     
     // Add messageId to impressionedInAppMessages
@@ -208,7 +209,7 @@
                                            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
                                            
                                            // If the post was successful, save the updated impressionedInAppMessages set
-                                           [OneSignalUserDefaults saveSet:self.impressionedInAppMessages withKey:OS_IAM_IMPRESSIONED_SET_KEY];
+                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_IMPRESSIONED_SET_KEY withValue:self.impressionedInAppMessages];
                                        }
                                        onFailure:^(NSError *error) {
                                            NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error];
@@ -237,7 +238,7 @@
  */
 - (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
-    [self.triggerController messageMatchesTriggers:message];
+           [self.triggerController messageMatchesTriggers:message];
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
@@ -274,20 +275,22 @@
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
-        self.isInAppMessageShowing = false;
-      
-        // Reset time since last IAM
-        [self.triggerController timeSinceLastMessage:[NSDate new]];
-
-        // Null the current IAM viewController to prepare for next IAM if one exists
-        self.viewController = nil;
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
         
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
-        [self.seenInAppMessages addObject:self.messageDisplayQueue.firstObject.messageId];
-        [OneSignalUserDefaults saveSet:self.seenInAppMessages withKey:OS_IAM_SEEN_SET_KEY];
+        if (self.isInAppMessageShowing) {
+            [self.seenInAppMessages addObject:self.messageDisplayQueue.firstObject.messageId];
+            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
+            // Remove dismissed IAM from messageDisplayQueue
+            [self.messageDisplayQueue removeObjectAtIndex:0];
+        }
         
-        // Remove dismissed IAM from messageDisplayQueue
-        [self.messageDisplayQueue removeObjectAtIndex:0];
+        // Reset the IAM viewController to prepare for next IAM if one exists
+        self.viewController = nil;
+        // No IAMs are showing currently
+        self.isInAppMessageShowing = false;
+        // Reset time since last IAM
+        [self.triggerController timeSinceLastMessage:[NSDate new]];
         
         if (self.messageDisplayQueue.count > 0) {
             // Show next IAM in queue
@@ -317,8 +320,7 @@
     // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // Handles body, button, or image clicks
-    if (message.isPreview ||
-        [self.clickedClickIds containsObject:action.clickId])
+    if (message.isPreview || [self.clickedClickIds containsObject:action.clickId])
         return;
     
     // Add clickId to clickedClickIds
@@ -336,7 +338,7 @@
                                            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
                                            
                                            // Save the updated clickedClickIds since click was tracked successfully
-                                           [OneSignalUserDefaults saveSet:self.clickedClickIds withKey:OS_IAM_CLICKED_SET_KEY];
+                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
                                        }
                                        onFailure:^(NSError *error) {
                                            NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];

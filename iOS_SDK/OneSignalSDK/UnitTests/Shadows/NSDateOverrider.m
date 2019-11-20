@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,22 +28,56 @@
 #import "NSDateOverrider.h"
 
 #import "OneSignalSelectorHelpers.h"
+#import "TestHelperFunctions.h"
+
+/*
+ NSDate category + swizzling allows freezing of time for all tests.
+ This is done by intercepting any creations of NSData and setting it to globalTimeOffset.
+ TODO: Does NOT support all ways of newing up a NSDate.
+          - Add them as needed.
+*/
+
+@implementation NSDate (Testing)
+
++ (NSDate*) overrideDate {
+    return [NSDate overrideDateWithTimeIntervalSince1970:NSDateOverrider.globalTimeOffset];
+}
+
++ (NSDate*) overrideDateWithTimeIntervalSince1970:(NSTimeInterval)secs {
+    return [NSDate overrideDateWithTimeIntervalSince1970:NSDateOverrider.globalTimeOffset + secs];
+}
+@end
+
 
 @implementation NSDateOverrider
 
-static NSTimeInterval timeOffset;
+static NSTimeInterval _globalTimeOffset;
++ (NSTimeInterval)globalTimeOffset {
+    return _globalTimeOffset;
+}
 
 + (void)load {
-    injectToProperClass(@selector(overrideTimeIntervalSince1970), @selector(timeIntervalSince1970), @[], [NSDateOverrider class], [NSDate class]);
+    swizzleClassMethodWithCategoryImplementation([NSDate class], @selector(date), @selector(overrideDate));
+    swizzleClassMethodWithCategoryImplementation([NSDate class], @selector(dateWithTimeIntervalSince1970:), @selector(overrideDateWithTimeIntervalSince1970:));
+
+    injectToProperClass(@selector(overrideTimeIntervalSinceNow), @selector(timeIntervalSinceNow), @[], [NSDateOverrider class], [NSDate class]);
+}
+
++(void) reset {
+    _globalTimeOffset = 1;
 }
 
 +(void) setTimeOffset:(NSTimeInterval)offset {
-    timeOffset = offset;
+    _globalTimeOffset = offset;
 }
 
-- (NSTimeInterval) overrideTimeIntervalSince1970 {
-    NSTimeInterval current = [self overrideTimeIntervalSince1970];
-    return current + timeOffset;
++(void) advanceSystemTimeBy:(NSTimeInterval)sec {
+    _globalTimeOffset += sec;
+}
+
+- (NSTimeInterval) overrideTimeIntervalSinceNow {
+    // Ensure "now" is mocked by creating a new NSDate
+    return [(NSDate*)self timeIntervalSinceDate:[NSDate date]];
 }
 
 @end

@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2019 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,14 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "OSLastNotification.h"
+#import "OSBaseFocusTimeProcessor.h"
+#import "OSSessionResult.h"
+#import "OneSignalCommonDefines.h"
 
-@implementation OSLastNotification
+@interface OSFocusTimeProcessorFactory : NSObject
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground {
-    _notificationId = notificationId;
-    _arrivalTime = arrivalTime;
-    _wasOnBackground = wasOnBackground;
-    return self;
-}
++ (void)cancelFocusCall;
++ (void)resetUnsentActiveTime;
++ (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType;
 
 @end

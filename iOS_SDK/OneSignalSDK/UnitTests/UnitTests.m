@@ -101,14 +101,7 @@
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
-    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
-    
-    [NSUserDefaultsOverrider clearInternalDictionary];
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-
-    [UnitTestCommonMethods beforeAllTest];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     // Uncomment to simulate slow travis-CI runs.
     /*float minRange = 0, maxRange = 15;
@@ -146,19 +139,12 @@
   return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
 }
 
-
--(void)initOneSignalAndThreadWait {
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
-}
-
 - (void)testBasicInitTest {
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     NSLog(@"iOS VERSION: %@", [[UIDevice currentDevice] systemVersion]);
     
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
@@ -193,8 +179,6 @@
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
-    
-    
 }
 
 - (void)testVersionStringLength {
@@ -223,7 +207,6 @@
 	[versionsThatFail enumerateKeysAndObjectsUsingBlock:^(NSString* raw, NSString* semantic, BOOL* stop) {
 		XCTAssertNotEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are equal %@ %@", semantic, [raw one_getSemanticVersion] );
 	}];
-
 }
 
 - (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_AlwaysUsage {
@@ -233,7 +216,7 @@
                                              @"NSLocationAlwaysUsageDescription" : @YES
                                              };
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [self assertLocationShared_withGrantLocationServices];
 }
@@ -245,7 +228,7 @@
                                              @"NSLocationAlwaysAndWhenInUseUsageDescription" : @YES
                                              };
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [self assertLocationShared_withGrantLocationServices];
 }
@@ -257,7 +240,7 @@
                                              @"NSLocationWhenInUseUsageDescription" : @YES
                                              };
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [self assertLocationShared_withGrantLocationServices];
 }
@@ -265,7 +248,7 @@
 - (void)testLocationPromptAcceptedWithSetLocationShared_iOS7AndUnder {
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [self assertLocationShared_withGrantLocationServices];
 }
@@ -291,7 +274,7 @@
     
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
@@ -315,17 +298,15 @@
 //   [NSLocale preferredLanguages] resturns an empty array
 - (void)testInitWithEmptyPreferredLanguages {
     NSLocaleOverrider.preferredLanguagesArray = @[];
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 }
 
 - (void)testInitOnSimulator {
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
+    // Mock error code the simulator returns
     UIApplicationOverrider.didFailRegistarationErrorCode = 3010;
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -339,7 +320,7 @@
     
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
@@ -371,12 +352,14 @@
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
+    [self backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [OneSignal sendTag:@"key" value:@"value"];
@@ -385,8 +368,8 @@
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    [self initOneSignalAndThreadWait];
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
 - (void)testPermissionChangeObserverIOS10 {
@@ -437,7 +420,7 @@
 }
 
 - (void)testPermissionChangeObserverWhenAlreadyAccepted {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -452,14 +435,14 @@
 
 - (void)testPermissionChangeObserverFireAfterAppRestart {
     // Setup app as accepted.
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
     
     // User kills app, turns off notifications, then opnes it agian.
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [UnitTestCommonMethods setCurrentNotificationPermission:false];
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // Added Observer should be notified of the change right away.
     observer = [OSPermissionStateTestObserver new];
@@ -535,7 +518,7 @@
 }
 
 - (void)testSubscriptionChangeObserverWhenAlreadyAccepted {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -548,7 +531,7 @@
 
 - (void)testSubscriptionChangeObserverFireAfterAppRestart {
     // Setup app as accepted.
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
     
@@ -556,7 +539,7 @@
     // User kills app, turns off notifications, then opnes it agian.
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [UnitTestCommonMethods setCurrentNotificationPermission:false];
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // Added Observer should be notified of the change right away.
     observer = [OSSubscriptionStateTestObserver new];
@@ -772,13 +755,13 @@
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
     [self backgroundModesDisabledInXcode];
+    // Mock error code return when Push Notification Capabilites are missing
     UIApplicationOverrider.didFailRegistarationErrorCode = 3000;
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
     [UnitTestCommonMethods initOneSignal];
+    // Don't make a network call right away
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -791,7 +774,7 @@
 - (void)testPromptForPushNotificationsWithUserResponse {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -807,7 +790,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 8;
     
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -823,7 +806,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 7;
     
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -839,9 +822,8 @@
 - (void)testPromptedButNeveranswerNotificationPrompt {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignalAndThreadWait];
-    
-    // Don't make a network call right away.
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    // Don't make a network call right away
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     // Triggers the 30 fallback to register device right away.
@@ -889,8 +871,7 @@
     [self backgroundModesDisabledInXcode];
     
     [UnitTestCommonMethods initOneSignal];
-    
-    // Don't make a network call right away.
+    // Don't make a network call right away
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     [UnitTestCommonMethods answerNotificationPrompt:false];
@@ -984,7 +965,7 @@
 
 - (void)testFirebaseAnalyticsNotificationOpen {
     OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
     [notifCenter.delegate userNotificationCenter:notifCenter
@@ -1006,7 +987,7 @@
 - (void)testFirebaseAnalyticsInfluenceNotificationOpen {
     // Start App once to download params
     OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // Notification is recieved.
     // The Notification Service Extension runs where the notification received id tracked.
@@ -1029,9 +1010,10 @@
     // Trigger a new app session
     [self backgroundApp];
     NSDateOverrider.timeOffset = 41;
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // TODO: Test carry over causes this influence_open not to fire
     // Since we opened the app under 2 mintues after receiving a notification
     //   an influence_open should be sent to firebase.
     XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
@@ -1062,7 +1044,7 @@
 // Wrapper SDKs may not have the app_id available on cold starts.
 // Open event should still fire however so the event is not missed.
 - (void)testNotificationOpenOn2ndColdStartWithoutAppId {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
@@ -1192,7 +1174,7 @@
     
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
     
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -1336,6 +1318,7 @@
     XCTAssertFalse([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestSubmitNotificationOpened class]]);
 }
 
+// TODO: FIx flaky test carry over, only fails when running all tests in this file
 - (void)testReceivedCallbackWithButtonsWithNewFormat {
     let newFormat = @{@"aps": @{@"content_available": @1},
                       @"os_data": @{
@@ -1391,7 +1374,7 @@ didReceiveRemoteNotification:userInfo
 // Testing iOS 8 - with os_data aps payload format
 - (void)testGeneratingLocalNotificationWithButtonsiOS8_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 8;
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [self backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
@@ -1410,7 +1393,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testGeneratingLocalNotificationWithButtonsiOS8 {
     OneSignalHelperOverrider.mockIOSVersion = 8;
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [self backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
@@ -1426,7 +1409,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testSendTags {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
@@ -1473,7 +1456,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testDeleteTags {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     NSLog(@"Calling sendTag and deleteTag");
@@ -1497,7 +1480,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testGetTags {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     __block BOOL fireGetTags = false;
@@ -1515,7 +1498,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testGetTagsBeforePlayerId {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
@@ -1535,7 +1518,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testGetTagsWithNestedDelete {
-    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     __block BOOL fireDeleteTags = false;
     
@@ -1565,7 +1548,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testSendTagsBeforeRegisterComplete {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     NSObjectOverrider.selectorNamesForInstantOnlyForFirstRun = [@[@"sendTagsToServer"] mutableCopy];
     
@@ -1586,7 +1569,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testPostNotification {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     
@@ -1609,7 +1592,7 @@ didReceiveRemoteNotification:userInfo
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
@@ -1622,7 +1605,7 @@ didReceiveRemoteNotification:userInfo
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
     
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     
@@ -1633,7 +1616,7 @@ didReceiveRemoteNotification:userInfo
     
     [self backgroundApp];
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
@@ -1644,25 +1627,70 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(observer->last.to.accepted, true);
 }
 
+- (void)testPermissionChangedOutsideOfAppOverWithNewSession {
+    [self backgroundModesDisabledInXcode];
+    
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [self backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods setCurrentNotificationPermission:true];
+    
+    [NSDateOverrider advanceSystemTimeBy:30];
+    UNUserNotificationCenterOverrider.notifTypesOverride = 0;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
+    
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // We should be making an on_session since we left the app for 30+ secounds
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    // The on_session call should have a notification_types of 0 to indicate no notification permissions.
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+}
+
 - (void) testOnSessionWhenResuming {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
     NSDateOverrider.timeOffset = 10;
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Anything over 30 secounds should count as a session.
     [self backgroundApp];
     NSDateOverrider.timeOffset = 41;
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
+
+
+- (void) testOnSessionOnColdStart {
+    // 1. Open app and background after it creates the player
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [self backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 2. Kill the app and wait 30 seconds.
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [NSDateOverrider advanceSystemTimeBy:30];
+    
+    // 3. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 4. Ensure the last network call is an on_session.
+    // Total calls - 2 ios_params + player create + on_session = 4.
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+}
+
+// TODO: Add test accepting notification permission while player create is in flight.
 
 // Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
 - (void)testContentAvailableDoesNotTriggerOpen  {
@@ -1826,7 +1854,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 -(void)testInvalidJSONTags {
-    [self initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     //this test will also print invalid JSON warnings to console
     
@@ -2120,7 +2148,7 @@ didReceiveRemoteNotification:userInfo
     // and 30 seconds between registration attempts.
     // This would be too long for a test, so we artificially set the
     // delay times to be very very short.
-    [OneSignal setDelayIntervals:0.001f withRegistrationDelay:0.002f];
+    [OneSignal setDelayIntervals:-1 withRegistrationDelay:-1];
     
     // add the subscription observer
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
@@ -2352,8 +2380,7 @@ didReceiveRemoteNotification:userInfo
     [UIApplicationOverrider setAPNSTokenLength:64];
 
     [UnitTestCommonMethods clearStateForAppRestart:self];
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
 }

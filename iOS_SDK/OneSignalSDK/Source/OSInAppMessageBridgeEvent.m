@@ -31,7 +31,7 @@
 
 @implementation OSInAppMessageBridgeEvent
 
-+(instancetype)instanceWithData:(NSData *)data {
++ (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
     
@@ -43,7 +43,7 @@
     return [OSInAppMessageBridgeEvent instanceWithJson:json];
 }
 
-+(instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEvent new];
     
     if ([json[@"type"] isKindOfClass:[NSString class]] && OS_IS_VALID_BRIDGE_EVENT_TYPE(json[@"type"]))
@@ -78,11 +78,11 @@
 
 
 @implementation OSInAppMessageBridgeEventRenderingComplete
-+(instancetype)instanceWithData:(NSData *)data {
++ (instancetype)instanceWithData:(NSData *)data {
     return nil;
 }
 
-+(instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventRenderingComplete new];
     
     if (json[@"displayLocation"])
@@ -98,11 +98,11 @@
 @end
 
 @implementation OSInAppMessageBridgeEventResize
-+(instancetype)instanceWithData:(NSData *)data {
++ (instancetype)instanceWithData:(NSData *)data {
     return nil;
 }
 
-+(instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventResize new];
     
     if (json[@"pageMetaData"][@"rect"][@"height"])

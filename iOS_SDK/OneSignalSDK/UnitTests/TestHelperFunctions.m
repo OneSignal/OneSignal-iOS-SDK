@@ -51,6 +51,7 @@ void DumpObjcMethods(Class clz) {
     free(methods);
 }
 
+// Use swizzleClassMethodWithCategoryImplementation over injectStaticSelector
 BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getClassMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
@@ -75,6 +76,8 @@ BOOL injectStaticSelector(Class newClass, SEL newSel, Class addToClass, SEL make
     return existing;
 }
 
+// Make a category of the target class you are shadowing and call this
+// Allow calling orignal implementation if done this way which injectStaticSelector does not support
 void swizzleClassMethodWithCategoryImplementation(Class class, SEL original, SEL new) {
     Method originalMethod = class_getClassMethod(class, original);
     Method newMethod = class_getClassMethod(class, new);
