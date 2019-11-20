@@ -42,8 +42,8 @@
       reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil];
 }
 
-- (BOOL)isTimeCorrect:(NSTimeInterval)activeTime {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor isTimeCorrect getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
+- (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor hasMinSyncTime getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
     return activeTime >= [self getMinSessionTime];
 }
 

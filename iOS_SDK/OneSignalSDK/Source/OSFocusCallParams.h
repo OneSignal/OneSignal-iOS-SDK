@@ -35,7 +35,8 @@
 @property (nonatomic, readonly) NSArray *notificationIds;
 @property (nonatomic, readonly) NSTimeInterval timeElapsed;
 @property (nonatomic, readonly) BOOL direct;
+@property (nonatomic, readonly) BOOL onSessionEnded;
 
-- (id)initWithParamsAppId:(NSString *)appId userId:(NSString *)userId emailUserId:(NSString *)emailUserId emailAuthToken:(NSString *)emailAuthToken netType:(NSNumber *)netType timeElapsed:(NSTimeInterval)timeElapsed notificationIds:(NSArray *)notificationIds direct:(BOOL)direct;
+- (id)initWithParamsAppId:(NSString *)appId userId:(NSString *)userId emailUserId:(NSString *)emailUserId emailAuthToken:(NSString *)emailAuthToken netType:(NSNumber *)netType timeElapsed:(NSTimeInterval)timeElapsed notificationIds:(NSArray *)notificationIds direct:(BOOL)direct onSessionEnded:(BOOL)onSessionEnded;
 
 @end

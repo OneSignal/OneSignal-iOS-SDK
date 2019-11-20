@@ -145,19 +145,17 @@ static BOOL lastOnFocusWasToBackground = YES;
     OneSignal.appEntryState = APP_CLOSE;
     
     let sessionResult = [OneSignal.sessionManager getSessionResult];
-    let focusCallParams = [self createFocusCallParams:sessionResult];
+    let focusCallParams = [self createFocusCallParams:sessionResult onSessionEnded:false];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:sessionResult focusEventType:BACKGROUND];
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
-    
-    NSLog(@"applicationBackgrounded end");
 }
 
 + (void)onSessionEnded:(OSSessionResult *)lastSessionResult {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];
-    let focusCallParams = [self createFocusCallParams:lastSessionResult];
+    let focusCallParams = [self createFocusCallParams:lastSessionResult onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:lastSessionResult focusEventType:END_SESSION];
     
     if (!timeProcessor) {
@@ -172,7 +170,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         [timeProcessor sendOnFocusCall:focusCallParams];
 }
 
-+ (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult {
++ (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult onSessionEnded:(BOOL)onSessionEnded  {
     let timeElapsed = [self getTimeFocusedElapsed];
     return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id]
                                                    userId:[OneSignal mUserId]
@@ -181,7 +179,8 @@ static BOOL lastOnFocusWasToBackground = YES;
                                                   netType:[OneSignalHelper getNetType]
                                               timeElapsed:timeElapsed
                                           notificationIds:sessionResult.notificationIds
-                                                   direct:sessionResult.session == DIRECT];
+                                                   direct:sessionResult.session == DIRECT
+                                           onSessionEnded:onSessionEnded];
 }
 
 + (NSTimeInterval)getTimeFocusedElapsed {

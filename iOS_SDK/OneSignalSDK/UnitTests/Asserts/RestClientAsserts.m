@@ -72,7 +72,14 @@
 /*
  Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
  */
-+ (void)assertOnFocusAtIndex:(int)index withTime:(int)time {
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time {    
+    [self assertOnFocusAtIndex:index payload:@{@"active_time": @(time)}];
+}
+
+/*
+ Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
+ */
++ (void)assertOnFocusAtIndex:(int)index payload:(NSDictionary*)payload {
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
     _XCTPrimitiveAssertTrue(
         UnitTestCommonMethods.currentXCTestCase,
@@ -80,14 +87,7 @@
         @"isKindOfClass:OSRequestOnFocus"
     );
     
-    _XCTPrimitiveAssertEqual(
-        UnitTestCommonMethods.currentXCTestCase,
-        ((NSNumber*) request.parameters[@"active_time"]).doubleValue,
-        @"active_time",
-        time,
-        @"time",
-        @"((NSNumber*) request.parameters[@\"active_time\"]).doubleValue == time"
-    );
+    [self assertDictionarySubset:payload actual:request.parameters];
 }
 
 /*
