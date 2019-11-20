@@ -103,10 +103,12 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginBackgroundFocusTask unattributed succeed, saveUnsentActiveTime with 0"];
-        } onFailure:nil];
-    
-        [self endBackgroundFocusTask];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
+            [self endBackgroundFocusTask];
+        } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
+            [self endBackgroundFocusTask];
+        }];
     });
 }
 

@@ -115,10 +115,12 @@ static let DELAY_TIME = 30;
 
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendBackgroundAttributedFocusPing attributed succeed, saveUnsentActiveTime with 0"];
-        } onFailure:nil];
-        
-        [self endDelayBackgroundTask];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
+            [self endDelayBackgroundTask];
+        } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendOnFocusCallWithParams attributed failed, will retry on next open"];
+            [self endDelayBackgroundTask];
+        }];
     });
 }
 
