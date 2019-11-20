@@ -523,9 +523,9 @@
     
     // 5. Validate session is INDIRECT and send 2 outcomes with values
     XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    let val1 = [NSNumber numberWithFloat:3.4];
+    let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
-    let val2 = [NSNumber numberWithFloat:9.95];
+    let val2 = [NSNumber numberWithDouble:9.95];
     [OneSignal sendOutcomeWithValue:@"value_2" value:val2];
 
     // 6. Make sure 2 measure requests were made with correct params
@@ -561,9 +561,9 @@
 
     // 5. Validate session is DIRECT and send 2 outcomes with values
     XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    let val1 = [NSNumber numberWithFloat:3.4];
+    let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
-    let val2 = [NSNumber numberWithFloat:9.95];
+    let val2 = [NSNumber numberWithDouble:9.95];
     [OneSignal sendOutcomeWithValue:@"value_2" value:val2];
     
     // 6. Make sure 2 measure requests were made with correct params

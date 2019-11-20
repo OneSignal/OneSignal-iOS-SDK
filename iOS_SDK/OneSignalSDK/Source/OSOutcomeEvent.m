@@ -41,7 +41,7 @@
         _notificationIds = notificationIds;
         _name = name;
         _timestamp = timestamp;
-        _weight = value;
+        _weight = [NSDecimalNumber decimalNumberWithDecimal: value.decimalValue];
     }
     return self;
 }

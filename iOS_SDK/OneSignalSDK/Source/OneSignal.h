@@ -233,7 +233,7 @@ typedef NS_ENUM(NSUInteger, Session) {
 @property (strong, nonatomic, nonnull) NSNumber *timestamp;
 
 // A weight to attach to the outcome name
-@property (strong, nonatomic, nonnull) NSNumber *weight;
+@property (strong, nonatomic, nonnull) NSDecimalNumber *weight;
 
 @end
 
