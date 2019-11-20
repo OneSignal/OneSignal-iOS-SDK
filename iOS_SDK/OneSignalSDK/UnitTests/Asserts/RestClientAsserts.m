@@ -70,41 +70,23 @@
 }
 
 /*
- Assert that a 'on_focus' request was made at a specific index in executedRequests
- */
-+ (void)assertOnFocusAtIndex:(int)index {
-    let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
-    _XCTPrimitiveAssertTrue(
-        UnitTestCommonMethods.currentXCTestCase,
-        [request isKindOfClass:OSRequestOnFocus.self],
-        @"isKindOfClass:OSRequestOnFocus"
-    );
-}
-
-/*
  Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
  */
-+ (void)assertOnFocusAtIndex:(int)index withTime:(int)time {
-    [self assertOnFocusAtIndex:index];
-    
-    let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
-    _XCTPrimitiveAssertEqual(
-        UnitTestCommonMethods.currentXCTestCase,
-        ((NSNumber*) request.parameters[@"active_time"]).doubleValue,
-        @"active_time",
-        time,
-        @"time",
-        @"((NSNumber*) request.parameters[@\"active_time\"]).doubleValue == time"
-    );
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time {    
+    [self assertOnFocusAtIndex:index payload:@{@"active_time": @(time)}];
 }
 
 /*
  Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
  */
 + (void)assertOnFocusAtIndex:(int)index payload:(NSDictionary*)payload {
-    [self assertOnFocusAtIndex:index];
-    
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
+    _XCTPrimitiveAssertTrue(
+        UnitTestCommonMethods.currentXCTestCase,
+        [request isKindOfClass:OSRequestOnFocus.self],
+        @"isKindOfClass:OSRequestOnFocus"
+    );
+    
     [self assertDictionarySubset:payload actual:request.parameters];
 }
 
