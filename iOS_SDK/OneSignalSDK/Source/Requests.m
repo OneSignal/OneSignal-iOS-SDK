@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "Requests.h"
+#import "OSOutcomeEvent.h"
 #import "OneSignalRequest.h"
 #import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
@@ -311,8 +312,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype)withUserId:(NSString *)userId
                      appId:(NSString *)appId
-                     state:(NSString *)state
-                      type:(NSNumber *)type
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
@@ -321,8 +320,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    params[@"state"] = state;
-    params[@"type"] = type;
+    params[@"state"] = @"ping";
+    params[@"type"] = @1;
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
@@ -339,8 +338,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype)withUserId:(NSString *)userId
                      appId:(NSString *)appId
-                     state:(NSString *)state
-                      type:(NSNumber *)type
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
@@ -352,8 +349,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    params[@"state"] = state;
-    params[@"type"] = type;
+    params[@"state"] = @"ping";
+    params[@"type"] = @1;
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
@@ -466,27 +463,24 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 NSString * const APP_ID = @"app_id";
 NSString * const DEVICE = @"device_type";
 NSString * const OUTCOME_ID = @"id";
+NSString * const WEIGHT = @"weight";
 
-+ (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId
-                                       appId:(NSString * _Nonnull)appId
-                              notificationIds:(NSArray * _Nonnull)notificationIds
-                                  deviceType:(NSNumber * _Nonnull)deviceType
-                            requestParams:(NSDictionary * _Nullable)requestParams {
++ (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
+                                     appId:(NSString * _Nonnull)appId
+                                deviceType:(NSNumber * _Nonnull)deviceType {
     let request = [OSRequestSendOutcomesToServer new];
     
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
     params[DEVICE] = deviceType;
     params[IS_DIRECT] = @YES;
-    params[OUTCOME_ID] = outcomeId;
-    params[NOTIFICATION_IDS] = notificationIds;
+    params[OUTCOME_ID] = outcome.name;
     
-    if (requestParams != nil) {
-        for (NSString *key in requestParams) {
-            id value = requestParams[key];
-            params[key] = value;
-        }
-    }
+    if (outcome.notificationIds && [outcome.notificationIds count] > 0)
+        params[NOTIFICATION_IDS] = outcome.notificationIds;
+    
+    if (outcome.weight && [outcome.weight doubleValue] > 0)
+        params[WEIGHT] = outcome.weight;
     
     request.parameters = params;
     request.method = POST;
@@ -495,26 +489,22 @@ NSString * const OUTCOME_ID = @"id";
     return request;
 }
 
-+ (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId
-                                         appId:(NSString * _Nonnull)appId
-                                notificationIds:(NSArray * _Nonnull)notificationIds
-                                    deviceType:(NSNumber * _Nonnull)deviceType
-                                 requestParams:(NSDictionary * _Nullable)requestParams {
++ (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
+                                       appId:(NSString * _Nonnull)appId
+                                  deviceType:(NSNumber * _Nonnull)deviceType {
     let request = [OSRequestSendOutcomesToServer new];
     
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
     params[DEVICE] = deviceType;
     params[IS_DIRECT] = @NO;
-    params[OUTCOME_ID] = outcomeId;
-    params[NOTIFICATION_IDS] = notificationIds;
+    params[OUTCOME_ID] = outcome.name;
     
-    if (requestParams != nil) {
-        for (NSString *key in requestParams) {
-            id value = requestParams[key];
-            params[key] = value;
-        }
-    }
+    if (outcome.notificationIds && [outcome.notificationIds count] > 0)
+        params[NOTIFICATION_IDS] = outcome.notificationIds;
+    
+    if (outcome.weight && [outcome.weight doubleValue] > 0)
+        params[WEIGHT] = outcome.weight;
     
     request.parameters = params;
     request.method = POST;
@@ -523,23 +513,16 @@ NSString * const OUTCOME_ID = @"id";
     return request;
 }
 
-+ (instancetype _Nonnull)unattributedWithOutcomeId:(NSString * _Nonnull)outcomeId
-                                             appId:(NSString * _Nonnull)appId
-                                        deviceType:(NSNumber * _Nonnull)deviceType
-                                     requestParams:(NSDictionary * _Nullable)requestParams {
++ (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
+                                           appId:(NSString * _Nonnull)appId
+                                      deviceType:(NSNumber * _Nonnull)deviceType {
     let request = [OSRequestSendOutcomesToServer new];
     
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
     params[DEVICE] = deviceType;
-    params[OUTCOME_ID] = outcomeId;
     
-    if (requestParams != nil) {
-        for (NSString *key in requestParams) {
-            id value = requestParams[key];
-            params[key] = value;
-        }
-    }
+    params[OUTCOME_ID] = outcome.name;
     
     request.parameters = params;
     request.method = POST;

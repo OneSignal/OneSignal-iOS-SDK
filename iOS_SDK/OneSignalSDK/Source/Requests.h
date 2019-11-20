@@ -100,8 +100,6 @@ NS_ASSUME_NONNULL_END
 @interface OSRequestOnFocus : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
-                              state:(NSString * _Nonnull)state
-                               type:(NSNumber * _Nonnull)type
                          activeTime:(NSNumber * _Nonnull)activeTime
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
@@ -109,8 +107,6 @@ NS_ASSUME_NONNULL_END
 
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
-                              state:(NSString * _Nonnull)state
-                               type:(NSNumber * _Nonnull)type
                          activeTime:(NSNumber * _Nonnull)activeTime
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
@@ -144,22 +140,17 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestSendOutcomesToServer : OneSignalRequest
-+ (instancetype _Nonnull)directWithOutcomeId:(NSString * _Nonnull)outcomeId
++ (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
+                                     appId:(NSString * _Nonnull)appId
+                                deviceType:(NSNumber * _Nonnull)deviceType;
+
++ (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                        appId:(NSString * _Nonnull)appId
-                              notificationIds:(NSArray * _Nonnull)notificationIds
-                                  deviceType:(NSNumber * _Nonnull)deviceType
-                               requestParams:(NSDictionary * _Nullable)requestParams;
+                                  deviceType:(NSNumber * _Nonnull)deviceType;
 
-+ (instancetype _Nonnull)indirectWithOutcomeId:(NSString * _Nonnull)outcomeId
-                                         appId:(NSString * _Nonnull)appId
-                                notificationIds:(NSArray * _Nonnull)notificationIds
-                                    deviceType:(NSNumber * _Nonnull)deviceType
-                                 requestParams:(NSDictionary * _Nullable)requestParams;
-
-+ (instancetype _Nonnull)unattributedWithOutcomeId:(NSString * _Nonnull)outcomeId
-                                             appId:(NSString * _Nonnull)appId
-                                        deviceType:(NSNumber * _Nonnull)deviceType
-                                     requestParams:(NSDictionary * _Nullable)requestParams;
++ (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
+                                           appId:(NSString * _Nonnull)appId
+                                      deviceType:(NSNumber * _Nonnull)deviceType;
 @end
 
 #endif /* Requests_h */

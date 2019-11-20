@@ -27,19 +27,11 @@
 #import "NSObjectOverrider.h"
 
 #import "OneSignalSelectorHelpers.h"
-
-@interface SelectorToRun : NSObject
-@property NSObject* runOn;
-@property SEL selector;
-@property NSObject* withObject;
-@end
-
-@implementation SelectorToRun
-@end
+#import "DelayedSelectors.h"
 
 @implementation NSObjectOverrider
 
-static NSMutableArray* selectorsToRun;
+static DelayedSelectors* delayedSelectors;
 static BOOL instantRunPerformSelectorAfterDelay;
 static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 
@@ -50,7 +42,7 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 + (void)reset {
     instantRunPerformSelectorAfterDelay = false;
     selectorNamesForInstantOnlyForFirstRun = [@[] mutableCopy];
-    selectorsToRun = [[NSMutableArray alloc] init];
+    delayedSelectors = [DelayedSelectors new];
 }
 
 + (void)setInstantRunPerformSelectorAfterDelay:(BOOL)value {
@@ -71,24 +63,12 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
         [selectorNamesForInstantOnlyForFirstRun removeObject:NSStringFromSelector(aSelector)];
         [self performSelector:aSelector withObject:anArgument];
     }
-    else {
-        SelectorToRun* selectorToRun = [SelectorToRun alloc];
-        selectorToRun.runOn = self;
-        selectorToRun.selector = aSelector;
-        selectorToRun.withObject = anArgument;
-        @synchronized(selectorsToRun) {
-            [selectorsToRun addObject:selectorToRun];
-        }
-    }
+    else
+        [delayedSelectors addSelector:aSelector onObject:self withObject:anArgument];
 }
 
 + (void)runPendingSelectors {
-    @synchronized(selectorsToRun) {
-        for(SelectorToRun* selectorToRun in selectorsToRun)
-            [selectorToRun.runOn performSelector:selectorToRun.selector withObject:selectorToRun.withObject];
-        
-        [selectorsToRun removeAllObjects];
-    }
+    [delayedSelectors runPendingSelectors];
 }
 
 @end

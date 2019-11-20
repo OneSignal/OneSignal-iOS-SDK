@@ -32,6 +32,7 @@
 
 @interface OneSignalClientOverrider : NSObject
 +(void)reset:(XCTestCase*)testInstance;
++(void)enableOutcomes;
 +(void)setLastHTTPRequest:(NSDictionary*)value;
 +(NSDictionary*)lastHTTPRequest;
 +(int)networkRequestCount;

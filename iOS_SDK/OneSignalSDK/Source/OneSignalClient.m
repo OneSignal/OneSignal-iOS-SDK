@@ -99,9 +99,11 @@
             dispatch_group_enter(group);
             [self executeRequest:request onSuccess:^(NSDictionary *result) {
                 results[identifier] = result;
+                NSLog(@"Request %@ success result %@", request, result);
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
+                NSLog(@"Request %@ fail result error %@", request, error);
                 dispatch_group_leave(group);
             }];
         }

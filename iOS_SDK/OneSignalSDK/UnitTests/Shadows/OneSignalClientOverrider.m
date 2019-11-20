@@ -35,6 +35,7 @@
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OSOutcomeEventsDefines.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -53,6 +54,7 @@ static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Dire
 static BOOL disableOverride = false;
 static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
+static NSDictionary* iOSParamsOutcomes;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -71,6 +73,33 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     mockResponses = [NSMutableDictionary new];
 }
 
++ (NSDictionary*) iosParamsResponse {
+    return @{
+        @"fba": @true,
+        IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
+        IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
+        OUTCOMES_PARAM : iOSParamsOutcomes
+    };
+}
+
++ (void) enableOutcomes {
+    iOSParamsOutcomes = @{
+        DIRECT_PARAM: @{
+            ENABLED_PARAM: @YES
+        },
+        INDIRECT_PARAM: @{
+            NOTIFICATION_ATTRIBUTION_PARAM: @{
+                MINUTES_SINCE_DISPLAYED_PARAM: @1440,
+                LIMIT_PARAM: @10
+            },
+            ENABLED_PARAM: @YES
+        },
+        UNATTRIBUTED_PARAM: @{
+            ENABLED_PARAM: @YES
+        }
+    };
+}
+
 // Calling this function twice results in reversing the swizzle
 + (void)disableExecuteRequestOverride:(BOOL)disable {
     disableOverride = disable;
@@ -86,8 +115,6 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
     
     for (NSString *key in requests.allKeys) {
-        [executedRequests addObject:requests[key]];
-        
         [OneSignalClient.sharedClient executeRequest:requests[key] onSuccess:^(NSDictionary *result) {
             results[key] = result;
             dispatch_semaphore_signal(semaphore);
@@ -164,7 +191,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]])
-                successBlock(@{@"fba": @true, IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth), IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization)});
+                successBlock(self.iosParamsResponse);
             else if (mockResponses[NSStringFromClass([request class])])
                 successBlock(mockResponses[NSStringFromClass([request class])]);
             else
@@ -178,9 +205,8 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 
     networkRequestCount++;
 
-    id url = [request.urlRequest URL];
-    NSLog(@"url: %@", url);
-    NSLog(@"parameters: %@", parameters);
+    let url = [request.urlRequest URL];
+    NSLog(@"url(%d): %@\n params: %@", networkRequestCount, url, parameters);
 
     lastUrl = [url absoluteString];
     lastHTTPRequest = parameters;
@@ -215,6 +241,7 @@ static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
     lastHTTPRequest = nil;
     [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
+    iOSParamsOutcomes = @{};
 }
 
 +(void)setLastHTTPRequest:(NSDictionary*)value {

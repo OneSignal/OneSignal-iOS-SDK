@@ -25,13 +25,14 @@
  * THE SOFTWARE.
  */
 
-@interface OSLastNotification : NSObject
+#import "OSBaseFocusTimeProcessor.h"
+#import "OSSessionResult.h"
+#import "OneSignalCommonDefines.h"
 
-@property (nonatomic, readonly) NSString *notificationId;
-//In Seconds
-@property (nonatomic, readonly) double arrivalTime;
-@property (nonatomic, readonly) BOOL wasOnBackground;
+@interface OSFocusTimeProcessorFactory : NSObject
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground;
++ (void)cancelFocusCall;
++ (void)resetUnsentActiveTime;
++ (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType;
 
 @end

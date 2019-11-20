@@ -26,34 +26,24 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSLastNotification.h"
+#import "OneSignalCommonDefines.h"
+#import "OSFocusCallParams.h"
 
-@implementation OSLastNotification
+// This is an abstract class
+@interface OSBaseFocusTimeProcessor : NSObject
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId arrivalTime:(double)arrivalTime wasOnBackground:(BOOL) wasOnBackground {
-    _notificationId = notificationId;
-    _arrivalTime = arrivalTime;
-    _wasOnBackground = wasOnBackground;
-    return self;
-}
+@property (nonatomic, readonly) BOOL onFocusCallEnabled;
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_arrivalTime forKey:@"arrivalTime"];
-    [encoder encodeBool:_wasOnBackground forKey:@"wasOnBackground"];
-}
+- (int)getMinSessionTime;
+- (NSString*)unsentActiveTimeUserDefaultsKey;
+- (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime;
 
-- (id)initWithCoder:(NSCoder *)decoder {
-    if (self = [super init]) {
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _arrivalTime = [decoder decodeDoubleForKey:@"arrivalTime"];
-        _wasOnBackground = [decoder decodeBoolForKey:@"wasOnBackground"];
-    }
-    return self;
-}
+- (void)resetUnsentActiveTime;
+- (void)sendOnFocusCall:(OSFocusCallParams *)params;
+- (void)sendUnsentActiveTime:(OSFocusCallParams *)params;
+- (void)cancelDelayedJob;
 
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"Notification id: %@ arrivalTime: %f wasOnBackground: %@", _notificationId, _arrivalTime, _wasOnBackground ? @"YES" : @"NO"];
-}
+- (NSTimeInterval)getUnsentActiveTime;
+- (void)saveUnsentActiveTime:(NSTimeInterval)time;
+
 @end

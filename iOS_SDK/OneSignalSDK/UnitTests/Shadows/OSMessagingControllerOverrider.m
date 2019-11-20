@@ -46,8 +46,8 @@
 @implementation OSMessagingController (Tests)
 
 - (void)resetState {
-    self.triggerController = [OSTriggerController new];
     self.messages = @[];
+    self.triggerController = [OSTriggerController new];
     self.triggerController.delegate = self;
     self.messageDisplayQueue = [NSMutableArray new];
 }
@@ -58,7 +58,7 @@
 
 static NSMutableArray<OSInAppMessage *> *_displayedMessages;
 
-+(void)load {
++ (void)load {
     injectToProperClass(@selector(overrideDisplayMessage:), @selector(displayMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
     
     _displayedMessages = [NSMutableArray new];

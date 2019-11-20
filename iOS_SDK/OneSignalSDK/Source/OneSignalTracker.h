@@ -25,9 +25,11 @@
  * THE SOFTWARE.
  */
 #import <Foundation/Foundation.h>
+#import "OSSessionResult.h"
 
 @interface OneSignalTracker : NSObject
 
 + (void)onFocus:(BOOL)toBackground;
++ (void)onSessionEnded:(OSSessionResult * _Nonnull)lastSessionResult;
 
 @end
