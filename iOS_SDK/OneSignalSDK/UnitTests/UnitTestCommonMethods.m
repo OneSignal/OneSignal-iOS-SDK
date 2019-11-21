@@ -137,7 +137,7 @@ static XCTestCase* _currentXCTestCase;
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
     
     [NSObjectOverrider reset];
-    
+        
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
     [UIAlertViewOverrider reset];

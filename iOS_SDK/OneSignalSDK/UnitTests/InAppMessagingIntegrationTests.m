@@ -72,6 +72,8 @@
     
     [UnitTestCommonMethods beforeEachTest:self];
     
+    [OneSignalHelperOverrider reset];
+    
     NSTimerOverrider.shouldScheduleTimers = false;
 }
 
