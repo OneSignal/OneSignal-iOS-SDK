@@ -720,6 +720,8 @@
 				9D1BD95B2376622700A064F7 /* Model */,
 			);
 			name = OutcomeEvents;
+			sourceTree = "<group>";
+		};
 		7A9173A023197198007848FA /* ReceiveReceipt */ = {
 			isa = PBXGroup;
 			children = (
