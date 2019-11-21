@@ -604,15 +604,15 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     }
 
     if (!app_id) {
-        app_id  = [userDefaults stringForKey:APP_ID];
+        app_id  = [userDefaults stringForKey:NSUD_APP_ID];
         if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
             onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
         else
             return true;
-    } else if (![app_id isEqualToString:[userDefaults stringForKey:APP_ID]]) {
+    } else if (![app_id isEqualToString:[userDefaults stringForKey:NSUD_APP_ID]]) {
         // Handle changes to the app id. This might happen on a developer's device when testing
         // Will also run the first time OneSignal is initialized
-        [userDefaults setObject:app_id forKey:APP_ID];
+        [userDefaults setObject:app_id forKey:NSUD_APP_ID];
         [userDefaults setObject:nil forKey:USERID];
         [userDefaults synchronize];
     }

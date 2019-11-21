@@ -45,7 +45,7 @@
     NSUserDefaults *userDefaultsShared = [OneSignalSharedUserDefaults getSharedUserDefault];
     let currentSubscriptionState = [[OSSubscriptionState alloc] initAsFrom];
     let playerId = [currentSubscriptionState userId];
-    let appId = [userDefaultsShared stringForKey:APP_ID];
+    let appId = [userDefaultsShared stringForKey:NSUD_APP_ID];
 
     [self sendReceiveReceiptWithPlayerId:playerId notificationId:notificationId appId:appId];
 }
