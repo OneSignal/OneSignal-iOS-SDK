@@ -99,9 +99,11 @@
             dispatch_group_enter(group);
             [self executeRequest:request onSuccess:^(NSDictionary *result) {
                 results[identifier] = result;
+                NSLog(@"Request %@ success result %@", request, result);
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
+                NSLog(@"Request %@ fail result error %@", request, error);
                 dispatch_group_leave(group);
             }];
         }
@@ -328,7 +330,7 @@
     if ([self willReattemptRequest:(int)statusCode withRequest:request success:successBlock failure:failureBlock asyncRequest:async])
         return;
     
-    if (error == nil && statusCode == 200) {
+    if (error == nil && (statusCode == 200 || statusCode == 202)) {
         if (successBlock != nil) {
             if (innerJson != nil)
                 successBlock(innerJson);

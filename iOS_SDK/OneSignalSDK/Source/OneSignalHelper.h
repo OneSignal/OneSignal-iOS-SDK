@@ -42,6 +42,7 @@
 + (void)lastMessageReceived:(NSDictionary*)message;
 + (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType;
++ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background;
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload;
 

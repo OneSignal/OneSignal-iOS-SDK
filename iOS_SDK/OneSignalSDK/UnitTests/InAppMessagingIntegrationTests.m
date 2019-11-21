@@ -50,6 +50,7 @@
 #import "OneSignalClientOverrider.h"
 #import "NSLocaleOverrider.h"
 #import "OSInAppMessageController.h"
+#import "NSDateOverrider.h"
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -69,11 +70,7 @@
     
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
-    [NSUserDefaultsOverrider clearInternalDictionary];
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [UnitTestCommonMethods beforeAllTest];
+    [UnitTestCommonMethods beforeEachTest:self];
     
     [OneSignalHelperOverrider reset];
     
@@ -101,7 +98,7 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     // Because the SDK can take a while to initialize, especially on slower machines, we only
     // check to make sure the timer was scheduled within ~3/4ths of a second to the correct time
@@ -119,10 +116,10 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 }
 
 // if we have two messages that are both valid to displayed add them to the queue (triggers are all true),
@@ -137,19 +134,18 @@
     
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
     
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 2);
 }
 
 - (void)testMessageDisplayedAfterTimer {
-    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0.05];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0];
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
     
@@ -157,7 +153,7 @@
     expectation.expectedFulfillmentCount = 1;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.06 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+        XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
         
         [expectation fulfill];
     });
@@ -174,7 +170,7 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     // the timer shouldn't be scheduled yet
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -187,8 +183,7 @@
 
 // Tests adding & removing trigger values using the public OneSignal trigger methods
 - (void)testRemoveTriggers {
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [OneSignal addTrigger:@"test1" withValue:@"value1"];
     XCTAssertTrue([OneSignal getTriggers].count == 1);
@@ -221,7 +216,7 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     // Check to make sure the timer was not scheduled since the IAM should just show instantly
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -236,7 +231,7 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     // Check to make sure the timer was not scheduled since the IAM should just show instantly
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -258,22 +253,11 @@
     
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
     
-    [self initializeOnesignalWithMessage:message];
+    [self initOneSignalWithInAppMessage:message];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
-}
-
-// helper method that adds an OSInAppMessage to the registration
-// mock response JSON and initializes the OneSignal SDK
-- (void)initializeOnesignalWithMessage:(OSInAppMessage *)message {
-    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
-    
-    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
-    
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
 }
 
 // when an in-app message is displayed to the user, the SDK should launch an API request
@@ -286,8 +270,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
     
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // the message should now be displayed
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
@@ -302,8 +285,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
     
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -330,8 +312,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // no message should have been shown
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
@@ -354,8 +335,7 @@
     
     [NSLocaleOverrider setPreferredLanguagesArray:@[@"es", @"en"]];
     
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     let expectation = [self expectationWithDescription:@"wait_for_message_html"];
     expectation.expectedFulfillmentCount = 1;
@@ -418,6 +398,16 @@
     
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_VARIANT_ID]);
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
+}
+
+// Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
+// Mock response JSON and initializes the OneSignal SDK
+- (void)initOneSignalWithInAppMessage:(OSInAppMessage *)message {
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 }
 
 @end

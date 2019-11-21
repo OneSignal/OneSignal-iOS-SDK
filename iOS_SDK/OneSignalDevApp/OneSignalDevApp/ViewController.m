@@ -43,6 +43,12 @@
 @property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
 @property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
+@property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeName;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
+@property (weak, nonatomic) IBOutlet UITextView *result;
 
 @end
 
@@ -118,7 +124,6 @@
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         NSLog(@"IdsAvailable Fired");
     }];
-    
 }
 
 - (IBAction)setEmailButtonPressed:(UIButton *)sender {
@@ -162,6 +167,38 @@
 -(BOOL)textFieldShouldReturn:(UITextField *)textField {
     [textField resignFirstResponder];
     return false;
+}
+
+- (IBAction)sendTestOutcomeEvent:(UIButton *)sender {
+    [OneSignal sendOutcome:[_outcomeName text] onSuccess:^(OSOutcomeEvent *outcome) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _result.text = [NSString stringWithFormat:@"sendTestOutcomeEvent success %@", outcome];
+            [self.view endEditing:YES];
+        });
+    }];
+}
+- (IBAction)sendValueOutcomeEvent:(id)sender {
+    if ([_outcomeValue text]) {
+        NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+        formatter.numberStyle = NSNumberFormatterDecimalStyle;
+        NSNumber *value = [formatter numberFromString:[_outcomeValue text]];
+        
+        [OneSignal sendOutcomeWithValue:[_outcomeValueName text] value:value onSuccess:^(OSOutcomeEvent *outcome) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                _result.text = [NSString stringWithFormat:@"sendValueOutcomeEvent success %@", outcome];
+                [self.view endEditing:YES];
+            });
+        }];
+    }
+}
+
+- (IBAction)sendUniqueOutcomeEvent:(id)sender {
+    [OneSignal sendUniqueOutcome:[_outcomeUniqueName text] onSuccess:^(OSOutcomeEvent *outcome) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _result.text = [NSString stringWithFormat:@"sendUniqueOutcomeEvent success %@", outcome];
+            [self.view endEditing:YES];
+        });
+    }];
 }
 
 @end

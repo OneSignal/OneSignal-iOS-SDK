@@ -40,6 +40,7 @@
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
+#import "OSOutcomesUtils.h"
 #import <sys/utsname.h>
 
 #define NOTIFICATION_TYPE_ALL 7
@@ -51,7 +52,6 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
 
 @interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;
@@ -394,28 +394,29 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
 }
 
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
++ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background {
     if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
-    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
+    let payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
     if ([self handleIAMPreview:payload])
-        return;
-    
-    if (!handleNotificationReceived)
         return;
     
     // The payload is a valid OneSignal notification payload and is not a preview
     // Proceed and treat as a normal OneSignal notification
-    OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
-    
+    let notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
+
     // Prevent duplicate calls to same receive event
-    static NSString* lastMessageID = @"";
+    static var lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
-
-    handleNotificationReceived(notification);
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+                     message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
+    
+    if (handleNotificationReceived)
+        handleNotificationReceived(notification);
 }
 
 static NSString *_lastMessageIdFromAction;

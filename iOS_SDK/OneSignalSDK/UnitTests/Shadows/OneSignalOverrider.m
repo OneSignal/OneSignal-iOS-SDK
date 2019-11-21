@@ -54,16 +54,16 @@
 
 static BOOL _overrideLaunchTime = false;
 
-+(void)load {
++ (void)load {
     swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(sessionLaunchTime), @selector(overrideSessionLaunchTime));
     _overrideLaunchTime = false;
 }
 
-+(BOOL)shouldOverrideSessionLaunchTime {
++ (BOOL)shouldOverrideSessionLaunchTime {
     return _overrideLaunchTime;
 }
 
-+(void)setShouldOverrideSessionLaunchTime:(BOOL)shouldOverrideSessionLaunchTime {
++ (void)setShouldOverrideSessionLaunchTime:(BOOL)shouldOverrideSessionLaunchTime {
     _overrideLaunchTime = shouldOverrideSessionLaunchTime;
 }
 

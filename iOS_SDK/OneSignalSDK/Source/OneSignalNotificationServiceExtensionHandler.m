@@ -28,13 +28,14 @@
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
+#import "OSOutcomesUtils.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
-+(UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
-                                        withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
+                                         withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
@@ -46,6 +47,8 @@
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
+    [OSOutcomesUtils saveReceivedNotificationFromBackground:payload.notificationID];
+
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request
                                  withPayload:payload
@@ -57,8 +60,8 @@
     return replacementContent;
 }
 
-+(UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request
-                                       withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request
+                                        withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
@@ -71,7 +74,7 @@
     return replacementContent;
 }
 
-+(void)addActionButtonsToExtentionRequest:(UNNotificationRequest*)request
++ (void)addActionButtonsToExtentionRequest:(UNNotificationRequest*)request
                                withPayload:(OSNotificationPayload*)payload
             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     // If the developer already set a category don't replace it with our generated one.

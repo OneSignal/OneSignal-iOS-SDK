@@ -47,12 +47,23 @@
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OneSignalLocation.h"
+#import "NSUserDefaultsOverrider.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
 }
 
+@interface OneSignal ()
++ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
+@end
+
 @implementation UnitTestCommonMethods
+
+static XCTestCase* _currentXCTestCase;
++ (XCTestCase*)currentXCTestCase {
+    return _currentXCTestCase;
+}
 
 // Runs any blocks passed to dispatch_async()
 + (void)runBackgroundThreads {
@@ -111,9 +122,6 @@ NSString * serverUrlWithPath(NSString *path) {
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
     NSLog(@"=======  APP RESTART ======\n\n");
     
-    NSDateOverrider.timeOffset = 0;
-    
-    [OneSignalClientOverrider reset:testCase];
     [UNUserNotificationCenterOverrider reset:testCase];
     [UIApplicationOverrider reset];
     [OneSignalTrackFirebaseAnalyticsOverrider reset];
@@ -143,7 +151,13 @@ NSString * serverUrlWithPath(NSString *path) {
     [OSMessagingController.sharedInstance reset];
 }
 
++ (void)beforeAllTest:(XCTestCase *)testCase {
+    _currentXCTestCase = testCase;
+    [self beforeAllTest];
+}
+
 + (void)beforeAllTest {
+    // Esure we only run this once
     static var setupUIApplicationDelegate = false;
     if (setupUIApplicationDelegate)
         return;
@@ -162,6 +176,17 @@ NSString * serverUrlWithPath(NSString *path) {
     OneSignalHelperOverrider.mockIOSVersion = 10;
 }
 
++ (void) beforeEachTest:(XCTestCase *)testCase {
+    [self beforeAllTest];
+    [self clearStateForAppRestart:testCase];
+    
+    [NSDateOverrider reset];
+    [OneSignalClientOverrider reset:testCase];
+    [NSUserDefaultsOverrider clearInternalDictionary];
+    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
+}
+
 + (void)setCurrentNotificationPermissionAsUnanswered {
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
@@ -173,13 +198,24 @@ NSString * serverUrlWithPath(NSString *path) {
     [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     
     // iOS fires the resume event when app is cold started.
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
 }
 
-+ (void)resumeApp {
++ (void)initOneSignalAndThreadWait {
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+}
+
++ (void)foregroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationDidBecomeActive:sharedApp];
+}
+
++ (void)backgroundApp {
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
+    UIApplication *sharedApp = [UIApplication sharedApplication];
+    [sharedApp.delegate applicationWillResignActive:sharedApp];
 }
 
 + (void)setCurrentNotificationPermission:(BOOL)accepted {
@@ -206,7 +242,7 @@ NSString * serverUrlWithPath(NSString *path) {
     if (triggerDidRegisterForRemoteNotfications)
         [self setCurrentNotificationPermission:false];
     
-    [UnitTestCommonMethods resumeApp];
+    [UnitTestCommonMethods foregroundApp];
     [self setCurrentNotificationPermission:accept];
     
     if (triggerDidRegisterForRemoteNotfications && NSBundleOverrider.nsbundleDictionary[@"UIBackgroundModes"])
@@ -223,8 +259,41 @@ NSString * serverUrlWithPath(NSString *path) {
     }
 }
 
-@end
++ (void)receiveNotification:(NSString *)notificationId wasOpened:(BOOL)opened {
+    // Create notification content
+    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    content.userInfo = [self createNotificationUserInfo:notificationId];
+    
+    // Create notification request
+    UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:notificationId content:content trigger:nil];
+    
+    // Entry point for the NSE
+    [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:request withMutableNotificationContent:content];
+    
+    [self handleNotificationReceived:notificationId messageDict:content.userInfo wasOpened:opened];
+}
 
++ (void)handleNotificationReceived:(NSString*)notificationId messageDict:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
+    BOOL foreground = UIApplication.sharedApplication.applicationState != UIApplicationStateBackground;
+    BOOL isActive = UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
+    
+    [OneSignal notificationReceived:messageDict foreground:foreground isActive:isActive wasOpened:opened];
+}
+
++ (NSDictionary*)createNotificationUserInfo:(NSString *)notificationId {
+    return @{
+        @"aps": @{
+                @"content_available": @1,
+                @"mutable-content": @1,
+                @"alert": @"Message Body",
+        },
+        @"os_data": @{
+                @"i": notificationId,
+        }
+    };
+}
+
+@end
 
 @implementation OSPermissionStateTestObserver
 
