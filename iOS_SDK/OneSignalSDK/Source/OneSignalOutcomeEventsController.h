@@ -28,6 +28,8 @@
 #import "OneSignal.h"
 #import "OneSignalSessionManager.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OneSignalOutcomeEventsController : NSObject
 
 @property (strong, nonatomic, nonnull) OneSignalSessionManager *osSessionManager;
@@ -36,20 +38,22 @@
 
 - (void)clearOutcomes;
 
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
+- (void)sendOutcomeEvent:(NSString *)name
+                   appId:(NSString *)appId
+              deviceType:(NSNumber *)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success;
 
-- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
-                         appId:(NSString * _Nonnull)appId
-                    deviceType:(NSNumber * _Nonnull)deviceType
+- (void)sendUniqueOutcomeEvent:(NSString *)name
+                         appId:(NSString *)appId
+                    deviceType:(NSNumber *)deviceType
                   successBlock:(OSSendOutcomeSuccess _Nullable)success;
 
-- (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
+- (void)sendOutcomeEventWithValue:(NSString *)name
                             value:(NSNumber * _Nullable)weight
-                            appId:(NSString * _Nonnull)appId
-                       deviceType:(NSNumber * _Nonnull)deviceType
+                            appId:(NSString *)appId
+                       deviceType:(NSNumber *)deviceType
                      successBlock:(OSSendOutcomeSuccess _Nullable)success;
 
 @end
+
+NS_ASSUME_NONNULL_END

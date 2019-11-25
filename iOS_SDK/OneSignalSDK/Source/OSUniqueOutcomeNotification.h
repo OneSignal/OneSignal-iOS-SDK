@@ -25,6 +25,8 @@
  THE SOFTWARE.
  */
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OSUniqueOutcomeNotification : NSObject <NSCoding>
 
 @property (nonatomic, readonly) NSString *name;
@@ -34,3 +36,5 @@
 - (instancetype)initWithParamsNotificationId:(NSString *)name notificationId:(NSString *)notificationId timestamp:(NSNumber *)timestamp;
 
 @end
+
+NS_ASSUME_NONNULL_END

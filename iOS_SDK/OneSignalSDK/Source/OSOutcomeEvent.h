@@ -29,12 +29,16 @@
 #import "OneSignal.h"
 #import "OSJSONHandling.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface OSOutcomeEvent () <OSJSONEncodable>
 
 - (instancetype)initWithSession:(Session)session
-                notificationIds:(NSArray * _Nullable)notificationIds
-                           name:(NSString * _Nonnull)name
-                      timestamp:(NSNumber * _Nonnull)timestamp
-                         weight:(NSNumber * _Nonnull)value;
+                notificationIds:(NSArray *_Nullable)notificationIds
+                           name:(NSString *)name
+                      timestamp:(NSNumber *)timestamp
+                         weight:(NSNumber *)value;
 
 @end
+
+NS_ASSUME_NONNULL_END

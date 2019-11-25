@@ -33,6 +33,8 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalSessionManager.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation OneSignalSessionManager
 
 - (instancetype _Nonnull)init:(Class<SessionStatusDelegate>)delegate {
@@ -224,3 +226,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
