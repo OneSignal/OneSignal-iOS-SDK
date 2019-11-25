@@ -30,24 +30,24 @@
 
 @implementation OSUniqueOutcomeNotification
 
-- (id)initWithParamsNotificationId:(NSString *)name notificationId:(NSString *)notificationId timestamp:(NSNumber *)timestamp {
+- (instancetype)initWithParamsNotificationId:(NSString *)name notificationId:(NSString *)notificationId timestamp:(NSNumber *)timestamp {
     _name = name;
     _notificationId = notificationId;
     _timestamp = timestamp;
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_name forKey:@"name"];
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeInteger:[_timestamp integerValue] forKey:@"timestamp"];
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:_name forKey:@"name"];
+    [coder encodeObject:_notificationId forKey:@"notificationId"];
+    [coder encodeInteger:[_timestamp integerValue] forKey:@"timestamp"];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder {
+- (nullable instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super init]) {
-        _name = [decoder decodeObjectForKey:@"name"];
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _timestamp = [NSNumber numberWithLong:[decoder decodeIntegerForKey:@"timestamp"]];
+        _name = [coder decodeObjectForKey:@"name"];
+        _notificationId = [coder decodeObjectForKey:@"notificationId"];
+        _timestamp = [NSNumber numberWithLong:[coder decodeIntegerForKey:@"timestamp"]];
     }
     return self;
 }

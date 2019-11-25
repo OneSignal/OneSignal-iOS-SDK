@@ -25,12 +25,12 @@
  THE SOFTWARE.
  */
 
-@interface OSUniqueOutcomeNotification : NSObject
+@interface OSUniqueOutcomeNotification : NSObject <NSCoding>
 
 @property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSString *notificationId;
 @property (nonatomic, readonly) NSNumber *timestamp; // seconds
 
-- (id)initWithParamsNotificationId:(NSString *)name notificationId:(NSString *)notificationId timestamp:(NSNumber *)timestamp;
+- (instancetype)initWithParamsNotificationId:(NSString *)name notificationId:(NSString *)notificationId timestamp:(NSNumber *)timestamp;
 
 @end

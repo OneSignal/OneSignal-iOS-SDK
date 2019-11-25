@@ -30,12 +30,12 @@
 
 @implementation OSOutcomeEvent
 
-- (id _Nonnull)initWithSession:(Session)session
-               notificationIds:(NSArray * _Nullable)notificationIds
-                          name:(NSString * _Nonnull)name
-                     timestamp:(NSNumber * _Nonnull)timestamp
-                        weight:(NSNumber * _Nonnull)value {
-    
+- (instancetype)initWithSession:(Session)session
+                notificationIds:(NSArray * _Nullable)notificationIds
+                           name:(NSString * _Nonnull)name
+                      timestamp:(NSNumber * _Nonnull)timestamp
+                         weight:(NSNumber * _Nonnull)value {
+
     if (self = [super init]) {
         _session = session;
         _notificationIds = notificationIds;

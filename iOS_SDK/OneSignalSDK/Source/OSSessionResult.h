@@ -33,7 +33,7 @@
 @property (nonatomic, readonly) Session session;
 @property (nonatomic, readonly) NSArray * _Nullable notificationIds;
 
-- (id _Nonnull)init:(Session)session;
-- (id _Nonnull)init:(Session)session withNotificationIds:(NSArray * _Nullable)notificationIds;
+- (instancetype)init:(Session)session;
+- (instancetype)init:(Session)session withNotificationIds:(NSArray * _Nullable)notificationIds;
 
 @end

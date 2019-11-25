@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-@interface OSIndirectNotification : NSObject
+@interface OSIndirectNotification : NSObject <NSCoding>
 
 @property (nonatomic, readonly) NSString *notificationId;
 @property (nonatomic, readonly) double timestamp; // seconds

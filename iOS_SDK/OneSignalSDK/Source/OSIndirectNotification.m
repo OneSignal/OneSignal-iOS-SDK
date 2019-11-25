@@ -30,21 +30,21 @@
 
 @implementation OSIndirectNotification
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp {
+- (instancetype)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp {
     _notificationId = notificationId;
     _timestamp = timestamp;
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_timestamp forKey:@"timestamp"];
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:_notificationId forKey:@"notificationId"];
+    [coder encodeDouble:_timestamp forKey:@"timestamp"];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder {
+- (nullable instancetype)initWithCoder:(NSCoder *)coder {
     if (self = [super init]) {
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _timestamp = [decoder decodeDoubleForKey:@"timestamp"];
+        _notificationId = [coder decodeObjectForKey:@"notificationId"];
+        _timestamp = [coder decodeDoubleForKey:@"timestamp"];
     }
     return self;
 }

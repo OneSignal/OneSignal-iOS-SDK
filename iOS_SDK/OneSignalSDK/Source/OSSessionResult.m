@@ -31,15 +31,19 @@
 
 @implementation OSSessionResult
 
-- (id)init:(Session)session {
-    _session = session;
-    _notificationIds = nil;
+- (instancetype)init:(Session)session {
+    if (self = [super init]) {
+        _session = session;
+        _notificationIds = nil;
+    }
     return self;
 }
 
-- (id)init:(Session)session withNotificationIds:(NSArray *)notificationIds {
-    _session = session;
-    _notificationIds = notificationIds;
+- (instancetype)init:(Session)session withNotificationIds:(NSArray *)notificationIds {
+    if (self = [super init]) {
+        _session = session;
+        _notificationIds = notificationIds;
+    }
     return self;
 }
 
