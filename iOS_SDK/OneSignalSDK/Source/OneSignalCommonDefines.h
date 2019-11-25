@@ -34,6 +34,8 @@
 #define API_VERSION @"api/v1/"
 #define SERVER_URL @"https://onesignal.com/"
 
+#define OS_NULL_IF_NIL(object) object ?: NSNull.null
+
 // NSUserDefaults parameter names
 #define EMAIL_AUTH_CODE @"GT_EMAIL_AUTH_CODE"
 #define SUBSCRIPTION_SETTING @"ONESIGNAL_SUBSCRIPTION_LAST"

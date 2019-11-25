@@ -49,7 +49,7 @@
 - (NSDictionary * _Nonnull)jsonRepresentation {
     return @{
         @"session" : OS_SESSION_TO_STRING(self.session),
-        @"notification_ids" : self.notificationIds,
+        @"notification_ids" : OS_NULL_IF_NIL(self.notificationIds),
         @"id" : self.name,
         @"timestamp" : self.timestamp,
         @"weight" : self.weight

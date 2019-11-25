@@ -149,9 +149,9 @@
     request.parameters = @{
        @"app_id" : appId,
        @"device_type" : deviceType,
-       @"identifier" : email ?: [NSNull null],
-       @"email_auth_hash" : emailAuthHash ?: [NSNull null],
-       @"device_player_id" : playerId ?: [NSNull null]
+       @"identifier" : OS_NULL_IF_NIL(email),
+       @"email_auth_hash" : OS_NULL_IF_NIL(emailAuthHash),
+       @"device_player_id" : OS_NULL_IF_NIL(playerId)
     };
     
     request.method = POST;
@@ -167,8 +167,8 @@
     let request = [OSRequestLogoutEmail new];
     
     request.parameters = @{
-       @"parent_player_id" : emailPlayerId ?: [NSNull null],
-       @"email_auth_hash" : emailAuthHash ?: [NSNull null],
+       @"parent_player_id" : OS_NULL_IF_NIL(emailPlayerId),
+       @"email_auth_hash" : OS_NULL_IF_NIL(emailAuthHash),
        @"app_id" : appId
     };
     
@@ -206,7 +206,7 @@
 + (instancetype)withUserId:(NSString *)userId emailAuthToken:(NSString *)emailAuthToken appId:(NSString *)appId withPurchases:(NSArray *)purchases {
     let request = [OSRequestSendPurchases new];
     
-    request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : emailAuthToken ?: [NSNull null]};
+    request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : OS_NULL_IF_NIL(emailAuthToken)};
     request.method = POST;
     request.path = [NSString stringWithFormat:@"players/%@/on_purchase", userId];
     
@@ -218,7 +218,7 @@
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId wasOpened:(BOOL)opened messageId:(NSString *)messageId withDeviceType:(nonnull NSNumber *)deviceType{
     let request = [OSRequestSubmitNotificationOpened new];
     
-    request.parameters = @{@"player_id" : userId ?: [NSNull null], @"app_id" : appId ?: [NSNull null], @"opened" : @(opened), @"device_type": deviceType};
+    request.parameters = @{@"player_id" : OS_NULL_IF_NIL(userId), @"app_id" : OS_NULL_IF_NIL(appId), @"opened" : @(opened), @"device_type": deviceType};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@", messageId];
     
