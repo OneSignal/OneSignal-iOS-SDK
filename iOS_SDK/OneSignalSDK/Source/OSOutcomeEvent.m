@@ -28,13 +28,15 @@
 #import "OSOutcomeEvent.h"
 #import "OneSignalCommonDefines.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation OSOutcomeEvent
 
 - (instancetype)initWithSession:(Session)session
-                notificationIds:(NSArray * _Nullable)notificationIds
-                           name:(NSString * _Nonnull)name
-                      timestamp:(NSNumber * _Nonnull)timestamp
-                         weight:(NSNumber * _Nonnull)value {
+                notificationIds:(NSArray *_Nullable)notificationIds
+                           name:(NSString *)name
+                      timestamp:(NSNumber *)timestamp
+                         weight:(NSNumber *)value {
 
     if (self = [super init]) {
         _session = session;
@@ -57,3 +59,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

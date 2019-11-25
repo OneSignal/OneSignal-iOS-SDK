@@ -37,6 +37,8 @@
 #import "OneSignalCommonDefines.h"
 #import "OSOutcomeEventsDefines.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation OneSignalOutcomeEventsController
 
 // Keeps track of unique outcome events sent for UNATTRIBUTED sessions on a per session level
@@ -45,7 +47,7 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
 // Keeps track of unique outcome events sent for ATTRIBUTED sessions on a per notification level
 NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotificationIdsSentArray;
 
-- (instancetype _Nonnull)init:(OneSignalSessionManager * _Nonnull)sessionManager {
+- (instancetype _Nonnull)init:(OneSignalSessionManager *)sessionManager {
     if (self = [super init]) {
         self.osSessionManager = sessionManager;
         [self initUniqueOutcomeEventsFromCache];
@@ -91,9 +93,9 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
 /*
  Create an OSOutcomeEvent and send an outcome request using measure 'endpoint'
  */
-- (void)sendOutcomeEvent:(NSString * _Nonnull)name
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
+- (void)sendOutcomeEvent:(NSString *)name
+                   appId:(NSString *)appId
+              deviceType:(NSNumber *)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success {
 
     NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
@@ -118,9 +120,9 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
     2. UNATTRIBUTED: Unique outcome events are stored per session level
                      Cache is cleaned on every new session in onSessionEnding callback
  */
-- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
+- (void)sendUniqueOutcomeEvent:(NSString *)name
+                   appId:(NSString *)appId
+              deviceType:(NSNumber *)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success {
 
     NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
@@ -176,10 +178,10 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
 /*
  Create an OSOutcomeEvent with a value and send an outcome request using measure 'endpoint'
  */
-- (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
+- (void)sendOutcomeEventWithValue:(NSString *)name
                    value:(NSNumber * _Nullable)weight
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
+                   appId:(NSString *)appId
+              deviceType:(NSNumber *)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success {
     
     OSSessionResult *sessionResult = [self.osSessionManager getSessionResult];
@@ -199,8 +201,8 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
  Handle the success and failure of the request
  */
 - (void)sendOutcomeEventRequest:(NSString *)appId
-                     deviceType:(NSNumber * _Nonnull)deviceType
-                        outcome:(OSOutcomeEvent * _Nonnull)outcome
+                     deviceType:(NSNumber *)deviceType
+                        outcome:(OSOutcomeEvent *)outcome
                    successBlock:(OSSendOutcomeSuccess _Nullable)success {
 
     OneSignalRequest *request;
@@ -279,3 +281,5 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
