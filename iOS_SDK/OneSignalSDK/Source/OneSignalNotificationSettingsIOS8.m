@@ -26,10 +26,9 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "OneSignalNotificationSettingsIOS8.h"
-
 #import "OneSignalInternal.h"
+#import "OneSignalUserDefaults.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 
@@ -38,12 +37,11 @@
 }
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
     OSPermissionState* status = OneSignal.currentPermissionState;
     
-    status.notificationTypes = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
+    status.notificationTypes = UIApplication.sharedApplication.currentUserNotificationSettings.types;
     status.accepted = status.notificationTypes > 0;
-    status.answeredPrompt = [userDefaults boolForKey:@"OS_NOTIFICATION_PROMPT_ANSWERED"];
+    status.answeredPrompt = [OneSignalUserDefaults.initStandard getSavedBoolForKey:NOTIFICATION_PROMPT_ANSWERED defaultValue:false];
     status.provisional = false;
     
     completionHandler(status);
@@ -60,17 +58,17 @@
 }
 
 - (int) getNotificationTypes {
-    return [[UIApplication sharedApplication] currentUserNotificationSettings].types;
+    return UIApplication.sharedApplication.currentUserNotificationSettings.types;
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 - (void)promptForNotifications:(void(^)(BOOL accepted))completionHandler {
-    UIApplication* shardApp = [UIApplication sharedApplication];
+    UIApplication* sharedApp = [UIApplication sharedApplication];
     
-    NSSet* categories = [[shardApp currentUserNotificationSettings] categories];
-    [shardApp registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:NOTIFICATION_TYPE_ALL categories:categories]];
+    NSSet* categories = sharedApp.currentUserNotificationSettings.categories;
+    [sharedApp registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:NOTIFICATION_TYPE_ALL categories:categories]];
     
     notificationPromptReponseCallback = completionHandler;
     

@@ -25,10 +25,11 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalNotificationCategoryController.h"
-#import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalExtensionBadgeHandler.h"
+#import "OneSignalNotificationCategoryController.h"
 
 #define CATEGORY_FORMAT_STRING(notificationId) [NSString stringWithFormat:@"__onesignal__dynamic__%@", notificationId]
 
@@ -43,20 +44,20 @@
     return sharedInstance;
 }
 
-// appends the new category ID to the current saved array of category ID's
-// The array is then inherently sorted in ascending order (the ID at index 0 is the oldest)
-// we want to run this on the main thread so that the extension service doesn't stop before it finishes
-// To prevent the SDK from registering too many categories as time goes by, we will prune the categories
-// when more than MAX_CATEGORIES_SIZE have been registered
+/*
+ Appends the new category ID to the current saved array of category ID's
+ The array is then inherently sorted in ascending order (the ID at index 0 is the oldest)
+    we want to run this on the main thread so that the extension service doesn't stop before it finishes
+ To prevent the SDK from registering too many categories as time goes by, we will prune the categories
+    when more than MAX_CATEGORIES_SIZE have been registered
+ */
 - (void)saveCategoryId:(NSString *)categoryId {
-    let defaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
-    
     NSMutableArray<NSString *> *mutableExisting = [self.existingRegisteredCategoryIds mutableCopy];
     
     [mutableExisting addObject:categoryId];
     
     // prune array if > max size
-    if (mutableExisting.count > MAX_CATEGORIES_SIZE) {
+    if (mutableExisting && mutableExisting.count > MAX_CATEGORIES_SIZE) {
         
         // removes these categories from UNUserNotificationCenter
         [self pruneCategories:mutableExisting];
@@ -64,18 +65,11 @@
         [mutableExisting removeObjectsInRange:NSMakeRange(0, mutableExisting.count - MAX_CATEGORIES_SIZE)];
     }
     
-    
-    [defaults setObject:mutableExisting forKey:SHARED_CATEGORY_LIST];
-    
-    [defaults synchronize];
+    [OneSignalUserDefaults.initShared saveObjectForKey:SHARED_CATEGORY_LIST withValue:mutableExisting];
 }
 
 - (NSArray<NSString *> *)existingRegisteredCategoryIds {
-    let defaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
-    
-    NSArray<NSString *> *existing = [defaults arrayForKey:SHARED_CATEGORY_LIST] ?: [NSArray new];
-    
-    return existing;
+    return [OneSignalUserDefaults.initShared getSavedObjectForKey:SHARED_CATEGORY_LIST defaultValue:[NSArray new]];
 }
 
 - (void)pruneCategories:(NSMutableArray <NSString *> *)currentCategories {

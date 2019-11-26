@@ -186,4 +186,8 @@
     _category = aps[@"category"];
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat: @"notificationID=%@ templateID=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationID, _templateID, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
+}
+
 @end

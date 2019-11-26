@@ -25,10 +25,11 @@
  * THE SOFTWARE.
  */
 
+#import <pthread.h>
+#import <mach/mach.h>
+#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
 #import <CoreLocation/CoreLocation.h>
-#import "UnitTestCommonMethods.h"
-#import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import <UserNotifications/UserNotifications.h>
@@ -36,16 +37,16 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
-#import "OneSignalSelectorHelpers.h"
 #import "NSString+OneSignal.h"
+#import "UnitTestCommonMethods.h"
+#import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OSPermission.h"
 #import "OSNotificationPayload+Internal.h"
-#include <pthread.h>
-#include <mach/mach.h>
-#include "TestHelperFunctions.h"
+
+#import "TestHelperFunctions.h"
 #import "UnitTestAppDelegate.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalDialogControllerOverrider.h"
@@ -360,7 +361,7 @@
     XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
 }
 
-- (void)testCallingMethodsBeforeInit {
+- (void)testCallingMethodsWorks_beforeInit {
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     
     [OneSignal sendTag:@"key" value:@"value"];
@@ -386,6 +387,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
@@ -1689,20 +1691,20 @@ didReceiveRemoteNotification:userInfo
 
 
 - (void) testOnSessionOnColdStart {
-    // 1. Open app and background after it creates the player
+    // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Kill the app and wait 31 seconds
     [self backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
-    
-    // 2. Kill the app and wait 30 seconds.
     [UnitTestCommonMethods clearStateForAppRestart:self];
-    [NSDateOverrider advanceSystemTimeBy:30];
+    [NSDateOverrider advanceSystemTimeBy:31];
     
     // 3. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 4. Ensure the last network call is an on_session.
-    // Total calls - 2 ios_params + player create + on_session = 4.
+    // 4. Ensure the last network call is an on_session
+    // Total calls - 2 ios_params + player create + on_session = 4
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
 }
@@ -1712,13 +1714,16 @@ didReceiveRemoteNotification:userInfo
 // Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
 - (void)testContentAvailableDoesNotTriggerOpen  {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
+    
     __block BOOL receivedWasFire = false;
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+    [OneSignal initWithLaunchOptions:nil
+                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
           handleNotificationReceived:^(OSNotification *result) {
-            receivedWasFire = true;
-          }
-                 handleNotificationAction:nil
+        receivedWasFire = true;
+    }
+            handleNotificationAction:nil
                             settings:nil];
+    
     [UnitTestCommonMethods runBackgroundThreads];
     
     id userInfo = @{@"aps": @{@"content_available": @1},
@@ -1734,7 +1739,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
--(UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
+- (UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
     return [UNNotificationCategory
             categoryWithIdentifier:identifier
             actions:@[]

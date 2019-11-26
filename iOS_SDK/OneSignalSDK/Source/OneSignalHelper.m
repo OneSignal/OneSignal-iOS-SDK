@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import <sys/utsname.h>
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
@@ -41,7 +42,8 @@
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
 #import "OSOutcomesUtils.h"
-#import <sys/utsname.h>
+#import "OneSignalUserDefaults.h"
+#import "OneSignalReceiveReceiptsController.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -52,6 +54,10 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+@interface OneSignal ()
++ (NSString*)mUserId;
+@end
 
 @interface DirectDownloadDelegate : NSObject <NSURLSessionDataDelegate> {
     NSError* error;
@@ -411,12 +417,12 @@ OSHandleNotificationActionBlock handleNotificationAction;
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
                      message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
-    
+
     if (handleNotificationReceived)
-        handleNotificationReceived(notification);
+       handleNotificationReceived(notification);
 }
 
 static NSString *_lastMessageIdFromAction;
@@ -445,7 +451,7 @@ static NSString *_lastMessageIdFromAction;
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
     NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
-        
+
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
         OSInAppMessage *message = [OSInAppMessage instancePreviewFromPayload:payload];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
@@ -487,7 +493,7 @@ static NSString *_lastMessageIdFromAction;
 // If a macOS Catalyst app, return "Mac"
 + (NSString*)getDeviceVariant {
     let systemInfoMachine = [self getSystemInfoMachine];
-    
+
     // x86_64 could mean an iOS Simulator or Catalyst app on macOS
     if ([systemInfoMachine isEqualToString:@"x86_64"]) {
         let systemName = UIDevice.currentDevice.systemName;
@@ -498,7 +504,7 @@ static NSString *_lastMessageIdFromAction;
             return @"Mac";
         }
     }
-    
+
     return systemInfoMachine;
 }
 
@@ -823,7 +829,9 @@ static OneSignal* singleInstance = nil;
             return nil;
         }
         
-        NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
+        let standardUserDefaults = OneSignalUserDefaults.initStandard;
+        
+        NSArray* cachedFiles = [standardUserDefaults getSavedObjectForKey:CACHED_MEDIA defaultValue:nil];
         NSMutableArray* appendedCache;
         if (cachedFiles) {
             appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
@@ -832,8 +840,7 @@ static OneSignal* singleInstance = nil;
         else
             appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
         
-        [[NSUserDefaults standardUserDefaults] setObject:appendedCache forKey:@"CACHED_MEDIA"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [standardUserDefaults saveObjectForKey:CACHED_MEDIA withValue:appendedCache];
         return name;
     } @catch (NSException *exception) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal encountered an exception while downloading file (%@), exception: %@", url, exception.description]];
@@ -874,15 +881,8 @@ static OneSignal* singleInstance = nil;
 }
 
 + (void) displayWebView:(NSURL*)url {
-    
     // Check if in-app or safari
-    __block BOOL inAppLaunch = YES;
-    if( ![[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"]) {
-        [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"ONESIGNAL_INAPP_LAUNCH_URL"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
-    
-    inAppLaunch = [[[NSUserDefaults standardUserDefaults] objectForKey:@"ONESIGNAL_INAPP_LAUNCH_URL"] boolValue];
+    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:INAPP_LAUNCH_URL defaultValue:true];
     
     // If the URL contains itunes.apple.com, it's an app store link
     // that should be opened using sharedApplication openURL

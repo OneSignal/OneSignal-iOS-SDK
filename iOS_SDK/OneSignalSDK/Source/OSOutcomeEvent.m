@@ -26,6 +26,7 @@
  */
 
 #import "OSOutcomeEvent.h"
+#import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
 
 @implementation OSOutcomeEvent
@@ -47,13 +48,20 @@
 }
 
 - (NSDictionary * _Nonnull)jsonRepresentation {
-    return @{
-        @"session" : OS_SESSION_TO_STRING(self.session),
-        @"notification_ids" : self.notificationIds,
-        @"id" : self.name,
-        @"timestamp" : self.timestamp,
-        @"weight" : self.weight
-    };
+    let json = [NSMutableDictionary new];
+    
+    json[@"session"] = OS_SESSION_TO_STRING(self.session);
+    
+    NSError *error;
+    NSData *jsonNotificationIds = [NSJSONSerialization dataWithJSONObject:self.notificationIds options:NSJSONWritingPrettyPrinted error:&error];
+    NSString *stringNotificationIds = [[NSString alloc] initWithData:jsonNotificationIds encoding:NSUTF8StringEncoding];
+    json[@"notification_ids"] = stringNotificationIds;
+    
+    json[@"id"] = self.name;
+    json[@"timestamp"] = @(self.timestamp.intValue);
+    json[@"weight"] = self.weight.stringValue;
+    
+    return json;
 }
 
 @end

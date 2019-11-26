@@ -25,8 +25,9 @@
  * THE SOFTWARE.
  */
 
-#import "OSEmailSubscription.h"
 #import "OneSignalHelper.h"
+#import "OSEmailSubscription.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 
 @implementation OSEmailSubscriptionState
@@ -38,12 +39,11 @@
 }
 
 - (instancetype)init {
-    let userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    _emailAddress = [userDefaults objectForKey:EMAIL_ADDRESS];
-    _requiresEmailAuth = [[userDefaults objectForKey:REQUIRE_EMAIL_AUTH] boolValue];
-    _emailAuthCode = [userDefaults stringForKey:EMAIL_AUTH_CODE];
-    _emailUserId = [userDefaults stringForKey:EMAIL_USERID];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    _emailAddress = [standardUserDefaults getSavedStringForKey:EMAIL_ADDRESS defaultValue:nil];
+    _requiresEmailAuth = [standardUserDefaults getSavedBoolForKey:REQUIRE_EMAIL_AUTH defaultValue:false];
+    _emailAuthCode = [standardUserDefaults getSavedStringForKey:EMAIL_AUTH_CODE defaultValue:nil];
+    _emailUserId = [standardUserDefaults getSavedStringForKey:EMAIL_USERID defaultValue:nil];
     
     return self;
 }
@@ -53,14 +53,11 @@
 }
 
 - (void)persist {
-    let userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    [userDefaults setObject:_emailAddress forKey:EMAIL_ADDRESS];
-    [userDefaults setObject:[NSNumber numberWithBool:_requiresEmailAuth] forKey:REQUIRE_EMAIL_AUTH];
-    [userDefaults setObject:_emailAuthCode forKey:EMAIL_AUTH_CODE];
-    [userDefaults setObject:_emailUserId forKey:EMAIL_USERID];
-    
-    [userDefaults synchronize];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    [standardUserDefaults saveStringForKey:EMAIL_ADDRESS withValue:_emailAddress];
+    [standardUserDefaults saveBoolForKey:REQUIRE_EMAIL_AUTH withValue:_requiresEmailAuth];
+    [standardUserDefaults saveStringForKey:EMAIL_AUTH_CODE withValue:_emailAuthCode];
+    [standardUserDefaults saveStringForKey:EMAIL_USERID withValue:_emailUserId];
 }
 
 - (NSString *)description {
