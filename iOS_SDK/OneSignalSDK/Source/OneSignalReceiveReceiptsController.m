@@ -40,8 +40,15 @@
 }
 
 - (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {
-    let playerId = [OneSignalUserDefaults.initShared getSavedStringForKey:USERID defaultValue:nil];
-    let appId = [OneSignalUserDefaults.initShared getSavedStringForKey:NSUD_APP_ID defaultValue:nil];
+    let sharedUserDefaults = OneSignalUserDefaults.initShared;
+    let playerId = [sharedUserDefaults getSavedStringForKey:USERID defaultValue:nil];
+    let appId = [sharedUserDefaults getSavedStringForKey:NSUD_APP_ID defaultValue:nil];
+    
+    if (!playerId) {
+        let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithNotificationId notificationId: %@ failed with null playerId", notificationId];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
+        return;
+    }
 
     [self sendReceiveReceiptWithPlayerId:playerId
                           notificationId:notificationId

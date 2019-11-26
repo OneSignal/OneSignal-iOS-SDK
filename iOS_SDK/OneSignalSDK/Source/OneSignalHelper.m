@@ -421,10 +421,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
                      message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
 
-    [OneSignal.receiveReceiptsController sendReceiveReceiptWithPlayerId:OneSignal.mUserId
-                                                         notificationId:lastMessageID
-                                                                  appId:OneSignal.app_id];
-
     if (handleNotificationReceived)
        handleNotificationReceived(notification);
 }
