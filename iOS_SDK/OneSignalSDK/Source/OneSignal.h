@@ -235,6 +235,9 @@ typedef NS_ENUM(NSUInteger, Session) {
 // A weight to attach to the outcome name
 @property (strong, nonatomic, nonnull) NSDecimalNumber *weight;
 
+// Convert the object into a NSDictionary
+- (NSDictionary * _Nonnull)jsonRepresentation;
+
 @end
 
 

@@ -25,11 +25,13 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalExtensionBadgeHandler.h"
-#import "OneSignalCommonDefines.h"
+
 #import "OneSignalHelper.h"
-#import "OneSignalTrackFirebaseAnalytics.h"
+#import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OneSignalExtensionBadgeHandler.h"
+#import "OneSignalTrackFirebaseAnalytics.h"
 
 @implementation OneSignalExtensionBadgeHandler
 
@@ -58,9 +60,7 @@
 }
 
 + (NSInteger)currentCachedBadgeValue {
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
-    
-    return [(NSNumber *)[userDefaults objectForKey:ONESIGNAL_BADGE_KEY] integerValue];
+    return [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_BADGE_KEY defaultValue:0];
 }
 
 //gets the NSBundle of the primary application - NOT the app extension
@@ -75,13 +75,9 @@
 }
 
 + (void)updateCachedBadgeValue:(NSInteger)value {
-    //since badge logic can be executed in an extension, we need to use app groups to get
-    //a shared NSUserDefaults from the app group suite name
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:OneSignalExtensionBadgeHandler.appGroupName];
-    
-    [userDefaults setObject:@(value) forKey:ONESIGNAL_BADGE_KEY];
-    
-    [userDefaults synchronize];
+    // Since badge logic can be executed in an extension, we need to use app groups to get
+    //  a shared NSUserDefaults from the app group suite name
+    [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:value];
 }
 
 + (NSString *)appGroupName {

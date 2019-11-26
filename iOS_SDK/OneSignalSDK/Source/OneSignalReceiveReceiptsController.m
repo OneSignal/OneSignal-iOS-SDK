@@ -26,32 +26,34 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSReceiveReceiptController.h"
+#import "OneSignalReceiveReceiptsController.h"
 #import "Requests.h"
 #import "OneSignalClient.h"
 #import "OSSubscription.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalUserDefaults.h"
 
-@implementation OSReceiveReceiptController
+@implementation OneSignalReceiveReceiptsController
 
-- (instancetype)init
-{
-    self = [super init];
-    return self;
+- (BOOL)isReceiveReceiptsEnabled {
+    return [OneSignalUserDefaults.initShared getSavedBoolForKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS defaultValue:NO];
 }
 
-- (void)sendReceiveReceiptCachedWithNotification:(NSString *)notificationId {
-    NSUserDefaults *userDefaultsShared = [OneSignalSharedUserDefaults getSharedUserDefault];
-    let currentSubscriptionState = [[OSSubscriptionState alloc] initAsFrom];
-    let playerId = [currentSubscriptionState userId];
-    let appId = [userDefaultsShared stringForKey:NSUD_APP_ID];
+- (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {
+    let playerId = [OneSignalUserDefaults.initShared getSavedStringForKey:USERID defaultValue:nil];
+    let appId = [OneSignalUserDefaults.initShared getSavedStringForKey:NSUD_APP_ID defaultValue:nil];
 
-    [self sendReceiveReceiptWithPlayerId:playerId notificationId:notificationId appId:appId];
+    [self sendReceiveReceiptWithPlayerId:playerId
+                          notificationId:notificationId
+                                   appId:appId];
 }
 
 - (void)sendReceiveReceiptWithPlayerId:(NSString *)playerId notificationId:(NSString *)notificationId appId:(NSString *)appId {
-    [self sendReceiveReceiptWithPlayerId:playerId notificationId:notificationId appId:appId successBlock:nil failureBlock:nil];
+    [self sendReceiveReceiptWithPlayerId:playerId
+                          notificationId:notificationId
+                                   appId:appId
+                            successBlock:nil
+                            failureBlock:nil];
 }
 
 - (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
@@ -59,28 +61,25 @@
                                  appId:(nonnull NSString *)appId
                           successBlock:(nullable OSResultSuccessBlock)success
                           failureBlock:(nullable OSFailureBlock)failure {
+    
     let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId playerId:%@ notificationId: %@, appId: %@", playerId, notificationId, appId];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
 
-    if (![self checkReceiveReceiptsStatus]) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendReceiveReceiptWithPlayerId disabled"];
+    if (![self isReceiveReceiptsEnabled]) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Receieve receipts disabled"];
         return;
     }
-    OSRequestReceiveReceipts *request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
     
+    OSRequestReceiveReceipts *request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-        if (success) {
+        if (success)
             success(result);
-        }
+        
     } onFailure:^(NSError *error) {
-        if (failure) {
+        if (failure)
             failure(error);
-        }
+        
     }];
-}
-
-- (BOOL)checkReceiveReceiptsStatus {    
-    return [OneSignalSharedUserDefaults getSavedBool:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS defaultValue:NO];
 }
 
 @end

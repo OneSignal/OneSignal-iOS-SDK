@@ -29,6 +29,11 @@
 #import <UserNotifications/UserNotifications.h>
 
 @interface OneSignalNotificationServiceExtensionHandler : NSObject
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
+                                         withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request
+                                        withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+
 @end

@@ -26,8 +26,9 @@
  */
 
 #import "OSSubscription.h"
-#import "OneSignalCommonDefines.h"
+#import "OneSignalHelper.h"
 #import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -43,10 +44,10 @@
 - (instancetype)initAsToWithPermision:(BOOL)permission {
     _accpeted = permission;
     
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    _pushToken = [userDefaults stringForKey:DEVICE_TOKEN];
-    _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION] == nil;
-    _userId = [OneSignalSharedUserDefaults getSavedString:USERID_LAST defaultValue:nil];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    _userId = [standardUserDefaults getSavedStringForKey:USERID defaultValue:nil];
+    _pushToken = [standardUserDefaults getSavedStringForKey:DEVICE_TOKEN defaultValue:nil];
+    _userSubscriptionSetting = [standardUserDefaults getSavedObjectForKey:SUBSCRIPTION defaultValue:nil] == nil;
     
     return self;
 }
@@ -59,30 +60,25 @@
 }
 
 - (instancetype)initAsFrom {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    _pushToken = [userDefaults stringForKey:PUSH_TOKEN];
-    _userSubscriptionSetting = [userDefaults objectForKey:SUBSCRIPTION_SETTING] == nil;
-    _accpeted = [userDefaults boolForKey:ACCEPTED_PERMISSION];
-    _userId = [OneSignalSharedUserDefaults getSavedString:USERID_LAST defaultValue:nil];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    _accpeted = [standardUserDefaults getSavedBoolForKey:ACCEPTED_PERMISSION defaultValue:false];
+    _userId = [standardUserDefaults getSavedStringForKey:USERID_LAST defaultValue:nil];
+    _pushToken = [standardUserDefaults getSavedStringForKey:PUSH_TOKEN defaultValue:nil];
+    _userSubscriptionSetting = [standardUserDefaults getSavedObjectForKey:SUBSCRIPTION_SETTING defaultValue:nil] == nil;
     
     return self;
 }
 
 - (void)persistAsFrom {
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    
     NSString* strUserSubscriptionSetting = nil;
     if (!_userSubscriptionSetting)
         strUserSubscriptionSetting = @"no";
     
-    [userDefaults setObject:strUserSubscriptionSetting forKey:SUBSCRIPTION_SETTING];
-    [userDefaults setObject:_pushToken forKey:PUSH_TOKEN];
-    [userDefaults setBool:_accpeted forKey:ACCEPTED_PERMISSION];
-    
-    [OneSignalSharedUserDefaults saveString:_userId withKey:USERID_LAST];
-    
-    [userDefaults synchronize];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    [standardUserDefaults saveBoolForKey:ACCEPTED_PERMISSION withValue:_accpeted];
+    [standardUserDefaults saveStringForKey:USERID_LAST withValue:_userId];
+    [standardUserDefaults saveObjectForKey:PUSH_TOKEN withValue:_pushToken];
+    [standardUserDefaults saveObjectForKey:SUBSCRIPTION_SETTING withValue:strUserSubscriptionSetting];
 }
 
 - (instancetype)copyWithZone:(NSZone*)zone {
@@ -113,8 +109,7 @@
     BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
     _pushToken = pushToken;
     if (changed) {
-        [[NSUserDefaults standardUserDefaults] setObject:_pushToken forKey:DEVICE_TOKEN];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [OneSignalUserDefaults.initStandard saveStringForKey:DEVICE_TOKEN withValue:_pushToken];
         
         if (self.observable)
             [self.observable notifyChange:self];

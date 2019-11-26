@@ -27,9 +27,9 @@
 
 #import "OneSignal.h"
 
-@interface OSReceiveReceiptController : NSObject
+@interface OneSignalReceiveReceiptsController : NSObject
 
-- (void)sendReceiveReceiptCachedWithNotification:(NSString *)notificationId;
+- (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId;
 
 - (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
                         notificationId:(nonnull NSString *)notificationId
