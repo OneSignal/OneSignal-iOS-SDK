@@ -92,16 +92,16 @@ static dispatch_once_t once;
 - (instancetype)init {
     if (self = [super init]) {
         self.messages = [NSArray<OSInAppMessage *> new];
-        
         self.triggerController = [OSTriggerController new];
         self.triggerController.delegate = self;
-        
         self.messageDisplayQueue = [NSMutableArray new];
         
+        let standardUserDefaults = OneSignalUserDefaults.initStandard;
+        
         // Get all cached IAM data from NSUserDefaults for shown, impressions, and clicks
-        self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
-        self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
-        self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[OneSignalUserDefaults.initStandard getSavedSet:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
+        self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
+        self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
+        self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
         
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];

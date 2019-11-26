@@ -292,11 +292,6 @@
 							};
 						};
 					};
-					CA29515B2167F2500064227A = {
-						CreatedOnToolsVersion = 10.0;
-						DevelopmentTeam = 4ZR3G6ZK9T;
-						ProvisioningStyle = Automatic;
-					};
 				};
 			};
 			buildConfigurationList = 9112E87D1E724C320022A1CB /* Build configuration list for PBXProject "OneSignalDevApp" */;
@@ -485,6 +480,10 @@
 		9112E89A1E724C320022A1CB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
@@ -498,12 +497,17 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Debug;
 		};
 		9112E89B1E724C320022A1CB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
@@ -517,12 +521,17 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Release;
 		};
 		9150E77B1E73BEDD00C5D46A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -535,12 +544,17 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Debug;
 		};
 		9150E77C1E73BEDD00C5D46A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					x86_64h,
+				);
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -554,24 +568,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		CA29515C2167F2500064227A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		CA29515D2167F2500064227A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
 			};
 			name = Release;
 		};

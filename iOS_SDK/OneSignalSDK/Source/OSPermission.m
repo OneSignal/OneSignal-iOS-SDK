@@ -26,7 +26,9 @@
  */
 
 #import "OSPermission.h"
+#import "OneSignalHelper.h"
 #import "OneSignalInternal.h"
+#import "OneSignalUserDefaults.h"
 
 @implementation OSPermissionState
 
@@ -43,27 +45,23 @@
 }
 
 - (instancetype)initAsFrom {
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    _hasPrompted = [userDefaults boolForKey:PERMISSION_HAS_PROMPTED];
-    _answeredPrompt = [userDefaults boolForKey:PERMISSION_ANSWERED_PROMPT];
-    _accepted  = [userDefaults boolForKey:PERMISSION_ACCEPTED];
-    _provisional = [userDefaults boolForKey:PERMISSION_PROVISIONAL_STATUS];
-    _providesAppNotificationSettings = [userDefaults boolForKey:PERMISSION_PROVIDES_NOTIFICATION_SETTINGS];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    _hasPrompted = [standardUserDefaults getSavedBoolForKey:PERMISSION_HAS_PROMPTED defaultValue:false];
+    _answeredPrompt = [standardUserDefaults getSavedBoolForKey:PERMISSION_ANSWERED_PROMPT defaultValue:false];
+    _accepted  = [standardUserDefaults getSavedBoolForKey:PERMISSION_ACCEPTED defaultValue:false];
+    _provisional = [standardUserDefaults getSavedBoolForKey:PERMISSION_PROVISIONAL_STATUS defaultValue:false];
+    _providesAppNotificationSettings = [standardUserDefaults getSavedBoolForKey:PERMISSION_PROVIDES_NOTIFICATION_SETTINGS defaultValue:false];
     
     return self;
 }
 
 - (void)persistAsFrom {
-    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-    
-    [userDefaults setBool:_hasPrompted forKey:PERMISSION_HAS_PROMPTED];
-    [userDefaults setBool:_answeredPrompt forKey:PERMISSION_ANSWERED_PROMPT];
-    [userDefaults setBool:_accepted forKey:PERMISSION_ACCEPTED];
-    [userDefaults setBool:_provisional forKey:PERMISSION_PROVISIONAL_STATUS];
-    [userDefaults setBool:_providesAppNotificationSettings forKey:PERMISSION_PROVIDES_NOTIFICATION_SETTINGS];
-    
-    [userDefaults synchronize];
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    [standardUserDefaults saveBoolForKey:PERMISSION_HAS_PROMPTED withValue:_hasPrompted];
+    [standardUserDefaults saveBoolForKey:PERMISSION_ANSWERED_PROMPT withValue:_answeredPrompt];
+    [standardUserDefaults saveBoolForKey:PERMISSION_ACCEPTED withValue:_accepted];
+    [standardUserDefaults saveBoolForKey:PERMISSION_PROVISIONAL_STATUS withValue:_provisional];
+    [standardUserDefaults saveBoolForKey:PERMISSION_PROVIDES_NOTIFICATION_SETTINGS withValue:_providesAppNotificationSettings];
 }
 
 
@@ -82,11 +80,8 @@
 }
 
 - (void)setHasPrompted:(BOOL)inHasPrompted {
-    if (_hasPrompted != inHasPrompted) {
-        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        [userDefaults setBool:true forKey:@"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"];
-        [userDefaults synchronize];
-    }
+    if (_hasPrompted != inHasPrompted)
+        [OneSignalUserDefaults.initStandard saveBoolForKey:HAS_PROMPTED_FOR_NOTIFICATIONS withValue:true];
     
     BOOL last = self.hasPrompted;
     _hasPrompted = inHasPrompted;
@@ -106,18 +101,14 @@
 }
 
 - (void)setProvisional:(BOOL)provisional {
-    if (_provisional != provisional) {
-        NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
-        [userDefaults setBool:provisional forKey:@"ONESIGNAL_PROVISIONAL_AUTHORIZATION"];
-        [userDefaults synchronize];
-    }
+    if (_provisional != provisional)
+        [OneSignalUserDefaults.initStandard saveBoolForKey:PROVISIONAL_AUTHORIZATION withValue:provisional];
     
     BOOL previous = _provisional;
     _provisional = provisional;
     
-    if (previous != _provisional) {
+    if (previous != _provisional)
         [self.observable notifyChange:self];
-    }
 }
 
 - (BOOL)isProvisional {

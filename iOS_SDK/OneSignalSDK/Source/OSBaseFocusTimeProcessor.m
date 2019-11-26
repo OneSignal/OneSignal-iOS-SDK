@@ -81,7 +81,7 @@
 
 - (NSTimeInterval)getUnsentActiveTime {
     if (!unsentActiveTime)
-        unsentActiveTime = [OneSignalUserDefaults.initShared getSavedObject:self.unsentActiveTimeUserDefaultsKey defaultValue:@0];
+        unsentActiveTime = [OneSignalUserDefaults.initShared getSavedObjectForKey:self.unsentActiveTimeUserDefaultsKey defaultValue:@0];
     
     return [unsentActiveTime doubleValue];
 }

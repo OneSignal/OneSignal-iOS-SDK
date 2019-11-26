@@ -43,10 +43,6 @@
     return instance;
 }
 
-- (NSString * _Nonnull)appGroupKey {
-    return [OneSignalExtensionBadgeHandler appGroupName];
-}
-
 - (NSUserDefaults* _Nonnull)getStandardUserDefault {
     return NSUserDefaults.standardUserDefaults;
 }
@@ -55,12 +51,21 @@
     return [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
 }
 
-- (BOOL)keyExists:(NSString * _Nonnull)key withUserDefaults:(NSUserDefaults * _Nonnull)userDefaults {
-    return [userDefaults objectForKey:key] != nil;
+- (NSString * _Nonnull)appGroupKey {
+    return [OneSignalExtensionBadgeHandler appGroupName];
 }
 
-- (BOOL)getSavedBool:(NSString * _Nonnull)key defaultValue:(BOOL)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+- (BOOL)keyExists:(NSString * _Nonnull)key {
+    return [self.userDefaults objectForKey:key] != nil;
+}
+
+- (void)removeValueForKey:(NSString * _Nonnull)key {
+    [self.userDefaults removeObjectForKey:key];
+    [self.userDefaults synchronize];
+}
+
+- (BOOL)getSavedBoolForKey:(NSString * _Nonnull)key defaultValue:(BOOL)value {
+    if ([self keyExists:key])
         return (BOOL) [self.userDefaults boolForKey:key];
     
     return value;
@@ -71,8 +76,8 @@
     [self.userDefaults synchronize];
 }
 
-- (NSString * _Nullable)getSavedString:(NSString * _Nonnull)key defaultValue:(NSString * _Nullable)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+- (NSString * _Nullable)getSavedStringForKey:(NSString * _Nonnull)key defaultValue:(NSString * _Nullable)value {
+    if ([self keyExists:key])
         return [self.userDefaults stringForKey:key];
     
     return value;
@@ -83,8 +88,9 @@
     [self.userDefaults synchronize];
 }
 
-- (NSInteger)getSavedInteger:(NSString * _Nonnull)key defaultValue:(NSInteger)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+// NOTE: NSInteger because NSUserDefaults returns NSInteger when using integerForKey method
+- (NSInteger)getSavedIntegerForKey:(NSString * _Nonnull)key defaultValue:(NSInteger)value {
+    if ([self keyExists:key])
         return [self.userDefaults integerForKey:key];
         
     return value;
@@ -95,8 +101,8 @@
     [self.userDefaults synchronize];
 }
 
-- (double)getSavedDouble:(NSString * _Nonnull)key defaultValue:(double)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+- (double)getSavedDoubleForKey:(NSString * _Nonnull)key defaultValue:(double)value {
+    if ([self keyExists:key])
         return [self.userDefaults doubleForKey:key];
     
     return value;
@@ -107,8 +113,8 @@
     [self.userDefaults synchronize];
 }
 
-- (NSSet * _Nullable)getSavedSet:(NSString * _Nonnull)key defaultValue:(NSSet * _Nullable)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+- (NSSet * _Nullable)getSavedSetForKey:(NSString * _Nonnull)key defaultValue:(NSSet * _Nullable)value {
+    if ([self keyExists:key])
         return [NSSet setWithArray:[self.userDefaults arrayForKey:key]];
     
     return value;
@@ -119,8 +125,8 @@
     [self.userDefaults synchronize];
 }
 
-- (id _Nullable)getSavedObject:(NSString *)key defaultValue:(id _Nullable)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+- (id _Nullable)getSavedObjectForKey:(NSString *)key defaultValue:(id _Nullable)value {
+    if ([self keyExists:key])
         return [self.userDefaults objectForKey:key];
     
     return value;
@@ -131,8 +137,8 @@
     [self.userDefaults synchronize];
 }
 
-- (id _Nullable)getSavedCodeableData:(NSString * _Nonnull)key defaultValue:(id _Nullable)value {
-    if ([self keyExists:key withUserDefaults:self.userDefaults])
+- (id _Nullable)getSavedCodeableDataForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value {
+    if ([self keyExists:key])
         return [NSKeyedUnarchiver unarchiveObjectWithData:[self.userDefaults objectForKey:key]];
     
     return value;

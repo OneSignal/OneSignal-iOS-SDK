@@ -25,10 +25,11 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalHelper.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalExtensionBadgeHandler.h"
+#import "OneSignalTrackFirebaseAnalytics.h"
 
 @implementation OneSignalTrackFirebaseAnalytics
 
@@ -36,33 +37,32 @@ static NSTimeInterval lastOpenedTime = 0;
 static var trackingEnabled = false;
 
 // Only need to download remote params if app includes Firebase analytics
-+(BOOL)needsRemoteParams {
++ (BOOL)needsRemoteParams {
     return NSClassFromString(@"FIRAnalytics") != nil;
 }
 
 // Called from both main target and extension
 // Note: Not checking for FIRAnalytics class existence here since the library isn't needed on the
 //         extension target to track inflenced opens.
-+(void)init {
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    trackingEnabled = [userDefaults boolForKey:ONESIGNAL_FB_ENABLE_FIREBASE];
++ (void)init {
+    trackingEnabled = [OneSignalUserDefaults.initShared getSavedBoolForKey:ONESIGNAL_FB_ENABLE_FIREBASE defaultValue:false];
 }
 
 
-+(void)updateFromDownloadParams:(NSDictionary*)params {
++ (void)updateFromDownloadParams:(NSDictionary*)params {
     trackingEnabled = (BOOL)params[@"fba"];
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
+    let sharedUserDefaults = OneSignalUserDefaults.initShared;
     if (trackingEnabled)
-        [userDefaults setBool:true forKey:ONESIGNAL_FB_ENABLE_FIREBASE];
+        [sharedUserDefaults saveBoolForKey:ONESIGNAL_FB_ENABLE_FIREBASE withValue:true];
     else
-        [userDefaults removeObjectForKey:ONESIGNAL_FB_ENABLE_FIREBASE];
+        [sharedUserDefaults removeValueForKey:ONESIGNAL_FB_ENABLE_FIREBASE];
 }
 
-+(NSString*)appGroupKey {
++ (NSString*)appGroupKey {
     return [OneSignalExtensionBadgeHandler appGroupName];
 }
 
-+(void)logEventWithName:(NSString*)name parameters:(NSDictionary*)params {
++ (void)logEventWithName:(NSString*)name parameters:(NSDictionary*)params {
     id firAnalyticsClass = NSClassFromString(@"FIRAnalytics");
     if (!firAnalyticsClass)
         return;
@@ -72,7 +72,7 @@ static var trackingEnabled = false;
                             withObject:params];
 }
 
-+(NSString*)getCampaignNameFromPayload:(OSNotificationPayload*)payload {
++ (NSString*)getCampaignNameFromPayload:(OSNotificationPayload*)payload {
     if (payload.templateName && payload.templateID)
         return [NSString stringWithFormat:@"%@ - %@", payload.templateName, payload.templateID];
     if (!payload.title)
@@ -85,7 +85,7 @@ static var trackingEnabled = false;
     return [payload.title substringToIndex:titleLength];
 }
 
-+(void)trackOpenEvent:(OSNotificationOpenedResult*)results {
++ (void)trackOpenEvent:(OSNotificationOpenedResult*)results {
     if (!trackingEnabled)
         return;
     
@@ -93,39 +93,38 @@ static var trackingEnabled = false;
     
     [self logEventWithName:@"os_notification_opened"
                 parameters:@{
-                             @"source": @"OneSignal",
-                             @"medium": @"notification",
-                             @"notification_id": results.notification.payload.notificationID,
-                             @"campaign": [self getCampaignNameFromPayload:results.notification.payload]
-                             }];
+                    @"source": @"OneSignal",
+                    @"medium": @"notification",
+                    @"notification_id": results.notification.payload.notificationID,
+                    @"campaign": [self getCampaignNameFromPayload:results.notification.payload]
+                }];
 }
 
-+(void)trackReceivedEvent:(OSNotificationPayload*)payload {
++ (void)trackReceivedEvent:(OSNotificationPayload*)payload {
     if (!trackingEnabled)
         return;
     
     let campaign = [self getCampaignNameFromPayload:payload];
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    [userDefaults setObject:payload.notificationID forKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED];
-    [userDefaults setObject:campaign forKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED];
-    [userDefaults setDouble:[[NSDate date] timeIntervalSince1970] forKey:ONESIGNAL_FB_LAST_TIME_RECEIVED];
-    [userDefaults synchronize];
+    let sharedUserDefaults = OneSignalUserDefaults.initShared;
+    [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED withValue:payload.notificationID];
+    [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED withValue:campaign];
+    [sharedUserDefaults saveDoubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED withValue:[[NSDate date] timeIntervalSince1970]];
     
     [self logEventWithName:@"os_notification_received"
                 parameters:@{
-                             @"source": @"OneSignal",
-                             @"medium": @"notification",
-                             @"notification_id": payload.notificationID,
-                             @"campaign": campaign
-                             }];
+                    @"source": @"OneSignal",
+                    @"medium": @"notification",
+                    @"notification_id": payload.notificationID,
+                    @"campaign": campaign
+                }];
 }
 
-+(void)trackInfluenceOpenEvent {
++ (void)trackInfluenceOpenEvent {
     if (!trackingEnabled)
         return;
     
-    let userDefaults = [[NSUserDefaults alloc] initWithSuiteName:[self appGroupKey]];
-    NSTimeInterval lastTimeReceived = [userDefaults doubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED];
+    let sharedUserDefaults = OneSignalUserDefaults.initShared;
+    NSTimeInterval lastTimeReceived = [sharedUserDefaults getSavedDoubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED defaultValue:0];
     
     if (lastTimeReceived == 0)
         return;
@@ -141,16 +140,16 @@ static var trackingEnabled = false;
     if (now - lastOpenedTime < 30)
         return;
     
-    NSString *notificationId = [userDefaults objectForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED];
-    NSString *campaign = [userDefaults objectForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED];
+    NSString *notificationId = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED defaultValue:nil];
+    NSString *campaign = [sharedUserDefaults getSavedStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED defaultValue:nil];
     
     [self logEventWithName:@"os_notification_influence_open"
                 parameters:@{
-                             @"source": @"OneSignal",
-                             @"medium": @"notification",
-                             @"notification_id": notificationId,
-                             @"campaign": campaign
-                             }];
+                    @"source": @"OneSignal",
+                    @"medium": @"notification",
+                    @"notification_id": notificationId,
+                    @"campaign": campaign
+                }];
 }
 
 @end

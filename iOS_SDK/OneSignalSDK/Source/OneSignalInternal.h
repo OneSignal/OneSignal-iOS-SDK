@@ -42,6 +42,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalSessionManager.h"
 #import "OneSignalOutcomeEventsController.h"
+#import "OneSignalReceiveReceiptsController.h"
 
 
 // Permission + Subscription - Redefine OSPermissionSubscriptionState
@@ -67,6 +68,8 @@
 
 @property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
 @property (class) OSPermissionState* currentPermissionState;
+
+@property (class) OneSignalReceiveReceiptsController* receiveReceiptsController;
 
 @property (class) AppEntryAction appEntryState;
 @property (class) OneSignalSessionManager* sessionManager;

@@ -25,15 +25,20 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import <UserNotifications/UserNotifications.h>
+#import "OneSignal.h"
 
-@interface OneSignalNotificationServiceExtensionHandler : NSObject
+@interface OneSignalReceiveReceiptsController : NSObject
 
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
-                                         withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+- (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId;
 
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request
-                                        withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
+- (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
+                        notificationId:(nonnull NSString *)notificationId
+                                 appId:(nonnull NSString *)appId;
+
+- (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
+                        notificationId:(nonnull NSString *)notificationId
+                                 appId:(nonnull NSString *)appId
+                          successBlock:(nullable OSResultSuccessBlock)success
+                          failureBlock:(nullable OSFailureBlock)failure;
 
 @end

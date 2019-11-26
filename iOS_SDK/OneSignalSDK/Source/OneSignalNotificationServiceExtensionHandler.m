@@ -31,6 +31,9 @@
 #import "OSOutcomesUtils.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OSSubscription.h"
+#import "OneSignalInternal.h"
+#import "OneSignalReceiveReceiptsController.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
@@ -40,13 +43,17 @@
         replacementContent = [request.content mutableCopy];
     
     let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
-    
-    //handle badge count
+
+    // Handle badge count
     [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotificationPayload:payload withMutableNotificationContent:replacementContent];
     
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
+    // Track Receive Receipt
+    [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:payload.notificationID];
+
+    // Save receieved notification id
     [OSOutcomesUtils saveReceivedNotificationFromBackground:payload.notificationID];
 
     // Action Buttons
@@ -77,6 +84,7 @@
 + (void)addActionButtonsToExtentionRequest:(UNNotificationRequest*)request
                                withPayload:(OSNotificationPayload*)payload
             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    
     // If the developer already set a category don't replace it with our generated one.
     if (request.content.categoryIdentifier && ![request.content.categoryIdentifier isEqualToString:@""])
         return;
