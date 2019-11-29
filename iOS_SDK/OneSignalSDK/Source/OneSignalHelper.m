@@ -283,9 +283,13 @@
 
 @implementation OneSignalHelper
 
+static var lastMessageID = @"";
+static NSString *_lastMessageIdFromAction;
+
 + (void)resetLocals {
     [OneSignalHelper lastMessageReceived:nil];
     _lastMessageIdFromAction = nil;
+    lastMessageID = @"";
 }
 
 UIBackgroundTaskIdentifier mediaBackgroundTask;
@@ -416,7 +420,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     let notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
 
     // Prevent duplicate calls to same receive event
-    static var lastMessageID = @"";
     if ([payload.notificationID isEqualToString:lastMessageID])
         return;
     lastMessageID = payload.notificationID;
@@ -427,8 +430,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     if (handleNotificationReceived)
        handleNotificationReceived(notification);
 }
-
-static NSString *_lastMessageIdFromAction;
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
     if (![self isOneSignalPayload:lastMessageReceived])
