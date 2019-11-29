@@ -30,7 +30,7 @@
 #import "OneSignal.h"
 
 @interface OneSignalTrackFirebaseAnalytics : NSObject
-+(BOOL)needsRemoteParams;
++(BOOL)libraryExists;
 +(void)init;
 +(void)updateFromDownloadParams:(NSDictionary*)params;
 

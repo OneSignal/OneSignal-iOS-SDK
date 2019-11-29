@@ -53,7 +53,7 @@ static BOOL hasFIRAnalytics = false;
     [self reset];
     
     injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideLogEventWithName:parameters:), [OneSignalTrackFirebaseAnalytics class], @selector(logEventWithName:parameters:));
-    injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideNeedsRemoteParams), [OneSignalTrackFirebaseAnalytics class], @selector(needsRemoteParams));
+    injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideNeedsRemoteParams), [OneSignalTrackFirebaseAnalytics class], @selector(libraryExists));
 }
 
 +(void)overrideLogEventWithName:(NSString*)name parameters:(NSDictionary*)params {

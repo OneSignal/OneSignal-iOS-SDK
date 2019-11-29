@@ -36,8 +36,7 @@
 static NSTimeInterval lastOpenedTime = 0;
 static var trackingEnabled = false;
 
-// Only need to download remote params if app includes Firebase analytics
-+ (BOOL)needsRemoteParams {
++ (BOOL)libraryExists {
     return NSClassFromString(@"FIRAnalytics") != nil;
 }
 
