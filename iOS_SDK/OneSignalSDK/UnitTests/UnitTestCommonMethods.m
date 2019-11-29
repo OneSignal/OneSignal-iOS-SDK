@@ -49,6 +49,7 @@
 #import "OneSignalLocation.h"
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
+#import "OneSignalTrackFirebaseAnalytics.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
@@ -135,6 +136,7 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
     
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
+    [OneSignalTrackFirebaseAnalytics performSelector:NSSelectorFromString(@"resetLocals")];
     
     [NSObjectOverrider reset];
         
@@ -162,6 +164,9 @@ static XCTestCase* _currentXCTestCase;
     if (setupUIApplicationDelegate)
         return;
     
+    // Force swizzle in all methods for tests.
+    OneSignalHelperOverrider.mockIOSVersion = 8;
+    
     // Normally this just loops internally, overwrote _run to work around this.
     UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
     
@@ -169,10 +174,6 @@ static XCTestCase* _currentXCTestCase;
     
     // InstallUncaughtExceptionHandler();
     
-    // Force swizzle in all methods for tests.
-    OneSignalHelperOverrider.mockIOSVersion = 8;
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
     OneSignalHelperOverrider.mockIOSVersion = 10;
 }
 

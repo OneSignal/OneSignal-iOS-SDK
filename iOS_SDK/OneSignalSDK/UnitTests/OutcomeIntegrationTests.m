@@ -543,7 +543,6 @@
     [RestClientAsserts assertNumberOfMeasureRequests:2];
 }
 
-// TODO: This test is flaky, it fails even on it's own sometimes, on step 5
 - (void)testSendingOutcomeWithValue_inIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];

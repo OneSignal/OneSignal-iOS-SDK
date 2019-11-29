@@ -1011,7 +1011,7 @@
     // Notification is recieved.
     // The Notification Service Extension runs where the notification received id tracked.
     //   Note: This is normally a separate process but can't emulate that here.
-    UNNotificationResponse *response = [self createNotificationResponseForAnalyticsTests];
+    let response = [self createNotificationResponseForAnalyticsTests];
     [OneSignal didReceiveNotificationExtensionRequest:response.notification.request
                        withMutableNotificationContent:nil];
     
@@ -1027,8 +1027,9 @@
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
     
     // Trigger a new app session
-    [self backgroundApp];
-    NSDateOverrider.timeOffset = 41;
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSDateOverrider advanceSystemTimeBy:41];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -1254,17 +1255,18 @@
     
     [UnitTestCommonMethods runBackgroundThreads];
     
-    id userInfo = @{@"custom": @{
+    let userInfo = @{@"custom": @{
                       @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                       @"a": @{ @"foo": @"bar" }
                   }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
-    id notifCenterDelegate = notifCenter.delegate;
+    let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    let notifCenter = UNUserNotificationCenter.currentNotificationCenter;
+    let notifCenterDelegate = notifCenter.delegate;
     
     // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(openedWasFire, true);
     
     // Part 2 - New paylaod test
@@ -1300,7 +1302,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    let notifCenter = UNUserNotificationCenter.currentNotificationCenter;
     let notifCenterDelegate = notifCenter.delegate;
     
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
@@ -1337,7 +1339,6 @@
     XCTAssertFalse([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestSubmitNotificationOpened class]]);
 }
 
-// TODO: FIx flaky test carry over, only fails when running all tests in this file
 - (void)testReceivedCallbackWithButtonsWithNewFormat {
     let newFormat = @{@"aps": @{@"content_available": @1},
                       @"os_data": @{
