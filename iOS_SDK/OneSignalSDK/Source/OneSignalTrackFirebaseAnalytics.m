@@ -36,6 +36,11 @@
 static NSTimeInterval lastOpenedTime = 0;
 static var trackingEnabled = false;
 
++ (void)resetLocals {
+    lastOpenedTime = 0;
+    trackingEnabled = false;
+}
+
 + (BOOL)libraryExists {
     return NSClassFromString(@"FIRAnalytics") != nil;
 }
