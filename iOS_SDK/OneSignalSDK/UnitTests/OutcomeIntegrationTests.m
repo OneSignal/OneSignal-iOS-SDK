@@ -676,7 +676,7 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Validate new session is ATTRIBUTED (DIRECT or INDIRECT) and send 2 of the same unique outcomes
+    // 5. Validate new session is INDIRECT and send 2 of the same unique outcomes
     XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
@@ -692,6 +692,8 @@
     // 7. Close the app again, but for a week to clean out all outdated unique outcome notifications
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:7 * 1441 * 60];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     
     // 8. Receive 3 more notifications
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
@@ -699,16 +701,16 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_3" wasOpened:NO];
 
     // 9. Open app again
-    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
-    // 10. Validate new session is ATTRIBUTED (DIRECT or INDIRECT) and send the same 2 unique outcomes
+    // 10. Validate new session is INDIRECT and send the same 2 unique outcomes
     XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 11. Make sure 2 measure requests have been made in total
-    [RestClientAsserts assertMeasureAtIndex:5 payload:@{
+    [RestClientAsserts assertMeasureAtIndex:6 payload:@{
         @"direct" : @(false),
         @"notification_ids" : @[@"test_notification_1", @"test_notification_2", @"test_notification_3"],
         @"id" : @"unique"
@@ -749,21 +751,24 @@
     // 7. Close the app again, but for a week to clean out all outdated unique outcome notifications
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:7 * 1441 * 60];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     
-    // 8. Receive 1 more notification and open it
-    [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
-
-    // 9. Open app again
-    [UnitTestCommonMethods foregroundApp];
+    // 8. Open app again
     [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods backgroundApp];
+    
+    // 9. Receive 1 more notification and open it
+    [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
+    [UnitTestCommonMethods foregroundApp];
 
-    // 10. Validate new session is ATTRIBUTED (DIRECT or INDIRECT) and send the same 2 unique outcomes
+    // 10. Validate new session is DIRECT and send the same 2 unique outcomes
     XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 11. Make sure 2 measure requests have been made in total
-    [RestClientAsserts assertMeasureAtIndex:6 payload:@{
+    [RestClientAsserts assertMeasureAtIndex:8 payload:@{
         @"direct" : @(true),
         @"notification_ids" : @[@"test_notification_2"],
         @"id" : @"unique"

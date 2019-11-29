@@ -174,6 +174,9 @@ static BOOL delayedInitializationForPrivacyConsent = false;
 // method can be called the moment the user provides privacy consent.
 DelayedInitializationParameters *delayedInitParameters;
 
+// Ensure we only initlize the SDK once even if the public method is called more.
+static BOOL initDone;
+
 //used to ensure registration occurs even if APNS does not respond
 static NSDate *initializationTime;
 static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
@@ -404,6 +407,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 + (void)clearStatics {
+    initDone = false;
     usesAutoPrompt = false;
     requestedProvisionalAuthorization = false;
     
@@ -496,18 +500,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
     
-    initializationTime = [NSDate date];
-    
-    [OneSignalCacheCleaner cleanCachedUserData];
-    
-    // Outcomes init
-    _sessionManager = [[OneSignalSessionManager alloc] init:self];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
-
-    // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
-    //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
+    [OneSignalHelper setNotificationActionBlock:actionCallback];
+    [OneSignalHelper setNotificationReceivedBlock:receivedCallback];
     
     if ([self requiresUserPrivacyConsent]) {
         delayedInitializationForPrivacyConsent = true;
@@ -520,83 +514,96 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         return self;
     }
     
+    [OneSignalCacheCleaner cleanCachedUserData];
+    
     let success = [self initAppId:appId withSettings:settings];
     if (!success)
         return self;
+    
+    if (initDone)
+        return self;
+    initDone = true;
+    
+    initializationTime = [NSDate date];
+    
+    // Outcomes init
+    _sessionManager = [[OneSignalSessionManager alloc] init:self];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
+
+    // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
+    if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:appId];
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
 
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    if (self) {
-        [OneSignal checkIfApplicationImplementsDeprecatedMethods];
-        
-        [OneSignalHelper notificationBlocks: receivedCallback : actionCallback];
-        
-        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
-            registeredWithApple = self.currentPermissionState.accepted;
-        else
-            registeredWithApple = self.currentSubscriptionState.pushToken || [standardUserDefaults getSavedBoolForKey:REGISTERED_WITH_APPLE defaultValue:false];
-        
-        // Check if disabled in-app launch url if passed a NO
-        if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
-            [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
-        else if (![standardUserDefaults keyExists:INAPP_LAUNCH_URL]) {
-            // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
-            [self enableInAppLaunchURL:true];
-        }
-        
-        if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
-            promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
-            [standardUserDefaults saveBoolForKey:PROMPT_BEFORE_OPENING_PUSH_URL withValue:promptBeforeOpeningPushURLs];
-        }
-        else
-            promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:PROMPT_BEFORE_OPENING_PUSH_URL defaultValue:false];
-        
-        usesAutoPrompt = YES;
-        if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
-            usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
-        
-        if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
-            providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
-        
-        // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-        if (usesAutoPrompt || registeredWithApple)
-            [self registerForPushNotifications];
-        else {
-            [self checkProvisionalAuthorizationStatus];
-            [self registerForAPNsToken];
-        }
+    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
+    
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
+        registeredWithApple = self.currentPermissionState.accepted;
+    else
+        registeredWithApple = self.currentSubscriptionState.pushToken || [standardUserDefaults getSavedBoolForKey:REGISTERED_WITH_APPLE defaultValue:false];
+    
+    // Check if disabled in-app launch url if passed a NO
+    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
+        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
+    else if (![standardUserDefaults keyExists:INAPP_LAUNCH_URL]) {
+        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
+        [self enableInAppLaunchURL:true];
+    }
+    
+    if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
+        promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
+        [standardUserDefaults saveBoolForKey:PROMPT_BEFORE_OPENING_PUSH_URL withValue:promptBeforeOpeningPushURLs];
+    }
+    else
+        promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:PROMPT_BEFORE_OPENING_PUSH_URL defaultValue:false];
+    
+    usesAutoPrompt = YES;
+    if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
+        usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
+    
+    if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
+        providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
+    
+    // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
+    if (usesAutoPrompt || registeredWithApple)
+        [self registerForPushNotifications];
+    else {
+        [self checkProvisionalAuthorizationStatus];
+        [self registerForAPNsToken];
+    }
 
-        /* Check if in-app setting passed assigned
-         *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
-         *  Priority for kOSSettingsKeyInFocusDisplayOption.
-         */
-        NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
-        let inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
-        
-        NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
-        let inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
-        
-        if (inAppAlertsPassed || inFocusDisplayPassed) {
-            if (!inFocusDisplayPassed)
-                self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
-            else
-                self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
-        }
-        
-        if (self.currentSubscriptionState.userId)
-            [self registerUser];
-        else {
-            [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-                
-                if (state.answeredPrompt) {
-                    [self registerUser];
-                } else {
-                    [self registerUserAfterDelay];
-                }
-            }];
-        }
+    /* Check if in-app setting passed assigned
+     *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
+     *  Priority for kOSSettingsKeyInFocusDisplayOption.
+     */
+    NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
+    let inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
+    
+    NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
+    let inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
+    
+    if (inAppAlertsPassed || inFocusDisplayPassed) {
+        if (!inFocusDisplayPassed)
+            self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
+        else
+            self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
+    }
+    
+    if (self.currentSubscriptionState.userId)
+        [self registerUser];
+    else {
+        [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
+            
+            if (state.answeredPrompt) {
+                [self registerUser];
+            } else {
+                [self registerUserAfterDelay];
+            }
+        }];
     }
  
     /*
@@ -614,17 +621,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     [self clearBadgeCount:false];
     
     if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
-        trackIAPPurchase = [[OneSignalTrackIAP alloc] init];
+        trackIAPPurchase = [OneSignalTrackIAP new];
     
-    if (NSClassFromString(@"UNUserNotificationCenter"))
-       [OneSignalHelper clearCachedMedia];
-    
-    /*
-     * Downloads params file to see:
-     *  (A) if firebase analytics should be tracked
-     *  (B) if this app requires email authentication
-     */
-    if ([OneSignalTrackFirebaseAnalytics needsRemoteParams])
+    if ([OneSignalTrackFirebaseAnalytics libraryExists])
         [OneSignalTrackFirebaseAnalytics init];
     
     return self;
@@ -664,6 +663,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // Handle changes to the app id, this might happen on a developer's device when testing
     // Will also run the first time OneSignal is initialized
     if (app_id && ![app_id isEqualToString:prevAppId]) {
+        initDone = false;
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
         
         // Save app_id to both standard and shared NSUserDefaults

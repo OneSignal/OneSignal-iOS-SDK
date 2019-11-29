@@ -40,7 +40,10 @@
 // - Notification Opened
 + (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier;
 + (void)lastMessageReceived:(NSDictionary*)message;
-+ (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;
+
++(void)setNotificationActionBlock:(OSHandleNotificationActionBlock)block;
++(void)setNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)block;
+
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType;
 + (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background;
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;

@@ -30,13 +30,13 @@
 #import "OneSignalCommonDefines.h"
 #import "OSUniqueOutcomeNotification.h"
 #import "OneSignalUserDefaults.h"
+#import "OneSignalHelper.h"
 
 @implementation OneSignalCacheCleaner
 
 + (void)cleanCachedUserData {
-    // TODO: Add any other intentional clean up for cached data that might become bulky over time
-    
     [self cleanUniqueOutcomeNotifications];
+    [OneSignalHelper clearCachedMedia];
 }
 
 /*

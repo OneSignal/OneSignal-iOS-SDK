@@ -322,9 +322,12 @@ OSHandleNotificationActionBlock handleNotificationAction;
     lastMessageReceived = message;
 }
 
-+ (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock {
-    handleNotificationReceived = receivedBlock;
-    handleNotificationAction = actionBlock;
++(void)setNotificationActionBlock:(OSHandleNotificationActionBlock)block {
+    handleNotificationAction = block;
+}
+
++(void)setNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)block {
+    handleNotificationReceived = block;
 }
 
 + (NSString*)getAppName {
@@ -850,8 +853,12 @@ static OneSignal* singleInstance = nil;
 
 }
 
+// TODO: Add back after testing
 +(void)clearCachedMedia {
     /*
+    if (!NSClassFromString(@"UNUserNotificationCenter"))
+      return;
+     
     NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
     if (cachedFiles) {
         NSArray * paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
