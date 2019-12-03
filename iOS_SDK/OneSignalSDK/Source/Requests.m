@@ -463,7 +463,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype _Nonnull)withPlayerId:(NSString *)playerId notificationId:(NSString *)notificationId appId:(NSString *)appId {
     let request = [OSRequestReceiveReceipts new];
-    request.parameters = @{@"app_id" : appId, @"player_id" : playerId};
+    
+    request.parameters = @{@"app_id": appId, @"player_id": playerId ?: [NSNull null]};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"notifications/%@/report_received", notificationId];
 

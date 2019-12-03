@@ -66,12 +66,17 @@
     let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId playerId:%@ notificationId: %@, appId: %@", playerId, notificationId, appId];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
 
+    if (!appId) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"appId not available from shared UserDefaults!"];
+        return;
+    }
+    
     if (![self isReceiveReceiptsEnabled]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Receieve receipts disabled"];
         return;
     }
     
-    OSRequestReceiveReceipts *request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
+    let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
         if (success)
             success(result);
