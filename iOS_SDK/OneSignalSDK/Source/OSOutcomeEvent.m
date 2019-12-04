@@ -52,6 +52,9 @@
     
     json[@"session"] = OS_SESSION_TO_STRING(self.session);
     
+    if (!self.notificationIds)
+        self.notificationIds = [NSArray new];
+    
     NSError *error;
     NSData *jsonNotificationIds = [NSJSONSerialization dataWithJSONObject:self.notificationIds options:NSJSONWritingPrettyPrinted error:&error];
     NSString *stringNotificationIds = [[NSString alloc] initWithData:jsonNotificationIds encoding:NSUTF8StringEncoding];
