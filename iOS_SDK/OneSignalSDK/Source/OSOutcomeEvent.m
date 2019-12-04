@@ -51,18 +51,19 @@
     let json = [NSMutableDictionary new];
     
     json[@"session"] = OS_SESSION_TO_STRING(self.session);
+    json[@"id"] = self.name;
+    json[@"timestamp"] = @(self.timestamp.intValue);
+    json[@"weight"] = self.weight.stringValue;
     
-    if (!self.notificationIds)
-        self.notificationIds = [NSArray new];
+    if (!self.notificationIds) {
+        json[@"notification_ids"] = [NSArray new];
+        return json;
+    }
     
     NSError *error;
     NSData *jsonNotificationIds = [NSJSONSerialization dataWithJSONObject:self.notificationIds options:NSJSONWritingPrettyPrinted error:&error];
     NSString *stringNotificationIds = [[NSString alloc] initWithData:jsonNotificationIds encoding:NSUTF8StringEncoding];
     json[@"notification_ids"] = stringNotificationIds;
-    
-    json[@"id"] = self.name;
-    json[@"timestamp"] = @(self.timestamp.intValue);
-    json[@"weight"] = self.weight.stringValue;
     
     return json;
 }
