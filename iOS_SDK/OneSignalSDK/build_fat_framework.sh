@@ -16,7 +16,7 @@ XCODEBUILD_11_0=/Applications/Xcode11.0.app/Contents/Developer/usr/bin/xcodebuil
 #       However variant=Mac Catalyst needs to be be Xcode 11.0
 $XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphonesimulator" ARCHS="x86_64" -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
 $XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e i386"  -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
-$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE=${BUILD_TYPE} -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
+$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} ARCHS="x86_64h" VALID_ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE=${BUILD_TYPE} -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
 
 USER=$(id -un)
 DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/${DERIVED_DATA_RELATIVE_DIR}"
@@ -73,11 +73,16 @@ ln -s Versions/A/Resources Resources
 cd Versions
 ln -s A Current
 
+RELEASE_OUTPUT_FRAMEWORK_DIR="${WORKING_DIR}/Framework/OneSignal.framework"
+
 # Copy the built product to the final destination in {repo}/iOS_SDK/OneSignalSDK/Framework
 rm -rf "${WORKING_DIR}/Framework/OneSignal.framework"
 cp -a "${FINAL_FRAMEWORK}" "${WORKING_DIR}/Framework/OneSignal.framework"
 
+echo "Listing frameworks of final framework"
+file "${RELEASE_OUTPUT_FRAMEWORK_DIR}/Versions/A/OneSignal"
+
 echo "Opening final release framework in Finder:${WORKING_DIR}/Framework/OneSignal.framework"
-open ${WORKING_DIR}/Framework
+open "${WORKING_DIR}/Framework"
 
 echo "Done"
