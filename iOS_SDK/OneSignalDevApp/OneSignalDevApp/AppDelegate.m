@@ -30,9 +30,6 @@
 
 #import "AppDelegate.h"
 
-#import <FirebaseAnalytics/FIRApp.h>
-#import <FirebaseAnalytics/FIRAnalytics.h>
-
 @implementation AppDelegate
 
 
