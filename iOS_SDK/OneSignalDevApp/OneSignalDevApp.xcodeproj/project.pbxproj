@@ -9,19 +9,7 @@
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
-		4529DEFA1FA91FBF00CEAB1D /* FirebaseAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEF91FA91FBF00CEAB1D /* FirebaseAnalytics.framework */; };
-		4529DEFC1FA9201200CEAB1D /* FirebaseCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEFB1FA9201000CEAB1D /* FirebaseCore.framework */; };
 		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
-		4529DF001FA928CF00CEAB1D /* FirebaseInstanceID.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEFF1FA928CE00CEAB1D /* FirebaseInstanceID.framework */; };
-		4529DF021FA9292900CEAB1D /* nanopb.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DF011FA9292800CEAB1D /* nanopb.framework */; };
-		4529DF041FA929F800CEAB1D /* FirebaseNanoPB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DF031FA929F700CEAB1D /* FirebaseNanoPB.framework */; };
-		4529DF061FA92C8000CEAB1D /* GoogleToolboxForMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DF051FA92C7F00CEAB1D /* GoogleToolboxForMac.framework */; };
-		454EB3231FABEF2F0093AD9B /* GoogleToolboxForMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DF051FA92C7F00CEAB1D /* GoogleToolboxForMac.framework */; };
-		454EB3241FABEF320093AD9B /* FirebaseNanoPB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DF031FA929F700CEAB1D /* FirebaseNanoPB.framework */; };
-		454EB3251FABEF350093AD9B /* nanopb.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DF011FA9292800CEAB1D /* nanopb.framework */; };
-		454EB3261FABEF380093AD9B /* FirebaseInstanceID.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEFF1FA928CE00CEAB1D /* FirebaseInstanceID.framework */; };
-		454EB3271FABEF3A0093AD9B /* FirebaseCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEFB1FA9201000CEAB1D /* FirebaseCore.framework */; };
-		454EB3281FABEF3E0093AD9B /* FirebaseAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4529DEF91FA91FBF00CEAB1D /* FirebaseAnalytics.framework */; };
 		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		9112E8871E724C320022A1CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8861E724C320022A1CB /* main.m */; };
 		9112E88A1E724C320022A1CB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8891E724C320022A1CB /* AppDelegate.m */; };
@@ -69,13 +57,7 @@
 
 /* Begin PBXFileReference section */
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		4529DEF91FA91FBF00CEAB1D /* FirebaseAnalytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseAnalytics.framework; sourceTree = "<group>"; };
-		4529DEFB1FA9201000CEAB1D /* FirebaseCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseCore.framework; sourceTree = "<group>"; };
 		4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		4529DEFF1FA928CE00CEAB1D /* FirebaseInstanceID.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseInstanceID.framework; sourceTree = "<group>"; };
-		4529DF011FA9292800CEAB1D /* nanopb.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = nanopb.framework; sourceTree = "<group>"; };
-		4529DF031FA929F700CEAB1D /* FirebaseNanoPB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseNanoPB.framework; sourceTree = "<group>"; };
-		4529DF051FA92C7F00CEAB1D /* GoogleToolboxForMac.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleToolboxForMac.framework; sourceTree = "<group>"; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		9112E8821E724C320022A1CB /* OneSignalDevApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalDevApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9112E8861E724C320022A1CB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -107,16 +89,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
-				4529DF041FA929F800CEAB1D /* FirebaseNanoPB.framework in Frameworks */,
 				9112E8A51E724ECC0022A1CB /* libOneSignal.a in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
-				4529DF021FA9292900CEAB1D /* nanopb.framework in Frameworks */,
-				4529DEFC1FA9201200CEAB1D /* FirebaseCore.framework in Frameworks */,
 				9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */,
-				4529DF001FA928CF00CEAB1D /* FirebaseInstanceID.framework in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
-				4529DEFA1FA91FBF00CEAB1D /* FirebaseAnalytics.framework in Frameworks */,
-				4529DF061FA92C8000CEAB1D /* GoogleToolboxForMac.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,12 +101,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */,
-				454EB3281FABEF3E0093AD9B /* FirebaseAnalytics.framework in Frameworks */,
-				454EB3271FABEF3A0093AD9B /* FirebaseCore.framework in Frameworks */,
-				454EB3261FABEF380093AD9B /* FirebaseInstanceID.framework in Frameworks */,
-				454EB3251FABEF350093AD9B /* nanopb.framework in Frameworks */,
-				454EB3241FABEF320093AD9B /* FirebaseNanoPB.framework in Frameworks */,
-				454EB3231FABEF2F0093AD9B /* GoogleToolboxForMac.framework in Frameworks */,
 				91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */,
 				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,
 				91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */,
@@ -191,12 +161,6 @@
 			isa = PBXGroup;
 			children = (
 				CACBAAB5218A7136000ACAA5 /* WebKit.framework */,
-				4529DF051FA92C7F00CEAB1D /* GoogleToolboxForMac.framework */,
-				4529DF031FA929F700CEAB1D /* FirebaseNanoPB.framework */,
-				4529DF011FA9292800CEAB1D /* nanopb.framework */,
-				4529DEFF1FA928CE00CEAB1D /* FirebaseInstanceID.framework */,
-				4529DEFB1FA9201000CEAB1D /* FirebaseCore.framework */,
-				4529DEF91FA91FBF00CEAB1D /* FirebaseAnalytics.framework */,
 				03432CDB1EBD426A0071FC48 /* CoreLocation.framework */,
 				91B6EA051E83215000B5CF01 /* UserNotifications.framework */,
 				9150E7821E73BFB600C5D46A /* UIKit.framework */,
@@ -480,12 +444,9 @@
 		9112E89A1E724C320022A1CB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -497,19 +458,16 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
+				SUPPORTS_MACCATALYST = YES;
 			};
 			name = Debug;
 		};
 		9112E89B1E724C320022A1CB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -521,18 +479,15 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
+				SUPPORTS_MACCATALYST = YES;
 			};
 			name = Release;
 		};
 		9150E77B1E73BEDD00C5D46A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-				);
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -544,18 +499,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
+				SUPPORTS_MACCATALYST = YES;
 			};
 			name = Debug;
 		};
 		9150E77C1E73BEDD00C5D46A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-				);
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -568,7 +520,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64h";
+				SUPPORTS_MACCATALYST = YES;
 			};
 			name = Release;
 		};
