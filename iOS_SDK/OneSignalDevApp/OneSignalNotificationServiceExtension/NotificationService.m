@@ -4,9 +4,6 @@
 
 #import "NotificationService.h"
 
-#import <FirebaseAnalytics/FIRApp.h>
-#import <FirebaseAnalytics/FIRAnalytics.h>
-
 @interface NotificationService ()
 
 @property (nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
@@ -25,37 +22,7 @@
    */
     
     NSLog(@"######## Start NotificationService!");
-    
-    @try {
-    [FIRApp configure];
-    [FIRAnalytics logEventWithName:@"os_notification_received"
-                parameters:@{
-                             @"source": @"OneSignal",
-                             @"medium": @"notification",
-                             @"notification_id": @"3_1",
-                             @"campaign": @"test compaign"
-                             }];
-    }
-    @catch (NSException *exception) {
-        NSLog(@"NotificationService ERROR!!!!!!!: %@", exception);
-        [FIRAnalytics logEventWithName:@"os_notification_received"
-                            parameters:@{
-                                         @"source": @"OneSignal",
-                                         @"medium": @"notification",
-                                         @"notification_id": @"3_2",
-                                         @"campaign": @"test compaign"
-                                         }];
-    }
 
-    //    [FIRAnalytics logEventWithName:@"os_notification_opened"
-    //                        parameters:@{
-    //                                     kFIRParameterSource: @"OneSignal",
-    //                                     kFIRParameterMedium: @"notification",
-    //                                     @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-    //                                     kFIRParameterCampaign: @"some title"
-    //                                     }];
-    
-    
     self.receivedRequest = request;
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
