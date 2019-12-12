@@ -45,6 +45,7 @@
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OSPermission.h"
 #import "OSNotificationPayload+Internal.h"
+#import "OneSignalUserDefaults.h"
 
 #import "TestHelperFunctions.h"
 #import "UnitTestAppDelegate.h"
@@ -1817,6 +1818,25 @@ didReceiveRemoteNotification:userInfo
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
     XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
+}
+
+
+- (void)testAddingSharedKeysIfMissing {
+    // 1. Init SDK as normal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Remove shared keys to simulate the state of coming from a pre-2.12.1 version
+    [OneSignalUserDefaults.initShared removeValueForKey:NSUD_APP_ID];
+    [OneSignalUserDefaults.initShared removeValueForKey:USERID];
+
+    // 3. Restart app
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 4. Ensure values are present again
+    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:NSUD_APP_ID defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:USERID defaultValue:nil]);
 }
 
 // iOS 10 - Notification Service Extension test - local file
