@@ -30,9 +30,19 @@
 
 static NSMutableDictionary* defaultsDictionary;
 
-@implementation NSUserDefaultsOverrider
+@implementation NSUserDefaultsOverrider {
+   NSString *suiteName;
+}
+
 + (void)load {
-    defaultsDictionary = [[NSMutableDictionary alloc] init];
+    defaultsDictionary = [NSMutableDictionary new];
+    
+    // Adding helpers to NSUserDefaults to be used internally
+    injectToProperClass(@selector(getObjectForKey:), @selector(getObjectForKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+    injectToProperClass(@selector(setObjectForKey:withValue:), @selector(setObjectForKey:withValue:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
+    
+    // initWithSuiteName overrider
+    injectToProperClass(@selector(overrideInitWithSuiteName:), @selector(initWithSuiteName:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
     
     // Sets
     injectToProperClass(@selector(overrideSetObject:forKey:), @selector(setObject:forKey:), @[], [NSUserDefaultsOverrider class], [NSUserDefaults class]);
@@ -50,28 +60,53 @@ static NSMutableDictionary* defaultsDictionary;
 }
 
 + (void)clearInternalDictionary {
-    defaultsDictionary = [[NSMutableDictionary alloc] init];
+    defaultsDictionary = [NSMutableDictionary new];
+}
+
+- (nullable instancetype)overrideInitWithSuiteName:(nullable NSString *)suitename {
+    suiteName = suitename;
+    return [self overrideInitWithSuiteName:suitename];
+}
+
+- (void)setObjectForKey:(NSString*)key withValue:(id)value {
+    if (!suiteName)
+        suiteName = @"default";
+    
+    if (!defaultsDictionary[suiteName])
+        defaultsDictionary[suiteName] = [NSMutableDictionary new];
+    
+    defaultsDictionary[suiteName][key] = value;
 }
 
 // Sets
 -(void)overrideSetObject:(id)value forKey:(NSString*)key {
-    defaultsDictionary[key] = value;
+    [self setObjectForKey:key withValue:value];
 }
 
 -(void)overrideSetString:(NSString*)value forKey:(NSString*)key {
-    defaultsDictionary[key] = value;
+   [self setObjectForKey:key withValue:value];
 }
 
 - (void)overrideSetDouble:(double)value forKey:(NSString*)key {
-    defaultsDictionary[key] = [NSNumber numberWithDouble:value];
+    [self setObjectForKey:key withValue:[NSNumber numberWithDouble:value]];
 }
 
 - (void)overrideSetBool:(BOOL)value forKey:(NSString*)key {
-    defaultsDictionary[key] = [NSNumber numberWithBool:value];
+    [self setObjectForKey:key withValue:[NSNumber numberWithBool:value]];
 }
 
 - (void)overrideSetInteger:(NSInteger)value forKey:(NSString*)key {
-    defaultsDictionary[key] = [NSNumber numberWithInteger:value];
+    [self setObjectForKey:key withValue:[NSNumber numberWithInteger:value]];
+}
+
+- (id)getObjectForKey:(NSString*)key {
+    if (!suiteName)
+        suiteName = @"default";
+    
+    if (!defaultsDictionary[suiteName])
+        defaultsDictionary[suiteName] = [NSMutableDictionary new];
+    
+    return defaultsDictionary[suiteName][key];
 }
 
 // Gets
@@ -79,30 +114,29 @@ static NSMutableDictionary* defaultsDictionary;
     if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
         return [NSNumber numberWithInt:60];
     
-    return defaultsDictionary[key];
+    return [self getObjectForKey:key];
 }
 
 - (NSString*)overrideStringForKey:(NSString*)key {
-    return defaultsDictionary[key];
+    return [self getObjectForKey:key];
 }
 
 - (NSInteger)overrideIntegerForKey:(NSString*)key {
     if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
         return 60.0;
     
-    return [defaultsDictionary[key] integerValue];
+    return [[self getObjectForKey:key] integerValue];
 }
 
 - (double)overrideDoubleForKey:(NSString*)key {
     if ([key isEqualToString:@"XCTIDEConnectionTimeout"])
         return 60.0;
     
-    return [defaultsDictionary[key] doubleValue];
+    return [[self getObjectForKey:key] doubleValue];
 }
 
 - (BOOL)overrideBoolForKey:(NSString*)key {
-    return [defaultsDictionary[key] boolValue];
+    return [[self getObjectForKey:key] boolValue];
 }
 
 @end
-
