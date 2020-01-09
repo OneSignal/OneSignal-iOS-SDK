@@ -263,6 +263,10 @@ static XCTestCase* _currentXCTestCase;
 + (void)receiveNotification:(NSString *)notificationId wasOpened:(BOOL)opened {
     // Create notification content
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    
+    if (!notificationId)
+        notificationId = @"";
+    
     content.userInfo = [self createNotificationUserInfo:notificationId];
     
     // Create notification request
@@ -271,10 +275,10 @@ static XCTestCase* _currentXCTestCase;
     // Entry point for the NSE
     [OneSignalNotificationServiceExtensionHandler didReceiveNotificationExtensionRequest:request withMutableNotificationContent:content];
     
-    [self handleNotificationReceived:notificationId messageDict:content.userInfo wasOpened:opened];
+    [self handleNotificationReceived:content.userInfo wasOpened:opened];
 }
 
-+ (void)handleNotificationReceived:(NSString*)notificationId messageDict:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
++ (void)handleNotificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
     BOOL foreground = UIApplication.sharedApplication.applicationState != UIApplicationStateBackground;
     BOOL isActive = UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
     

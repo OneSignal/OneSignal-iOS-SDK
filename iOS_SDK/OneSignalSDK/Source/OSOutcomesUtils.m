@@ -149,7 +149,7 @@
 /*
  Saves a received indirect notification into the NSUSerDefaults at a limit equivalent to the indirect notification limit param
  */
-+ (void)saveReceivedNotificationFromBackground:(NSString * _Nullable)notificationId {
++ (void)saveReceivedNotificationFromBackground:(NSString * _Nonnull)notificationId {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"saveReceivedNotificationFromBackground notificationId: %@",
                                                        notificationId]];
     
