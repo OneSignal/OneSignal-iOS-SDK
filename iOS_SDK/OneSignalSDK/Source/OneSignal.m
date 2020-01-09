@@ -878,9 +878,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     backgroundModesEnabled = (backgroundModes && [backgroundModes containsObject:@"remote-notification"]);
     
     // Only try to register for a pushToken if:
-    //  - The user accepted notifications
+    //  - The user accepted notifications or iOS 12+ provisional notifications are enabled
     //  - "Background Modes" > "Remote Notifications" are enabled in Xcode
-    if (![self.osNotificationSettings getNotificationPermissionState].accepted && !backgroundModesEnabled)
+    let notifPermissionState = [self.osNotificationSettings getNotificationPermissionState];
+    let notificationsEnabled = notifPermissionState.accepted || notifPermissionState.provisional;
+    if (!notificationsEnabled && !backgroundModesEnabled)
         return false;
     
     // Don't attempt to register again if there was a non-recoverable error.
@@ -890,7 +892,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Firing registerForRemoteNotifications"];
     
     waitingForApnsResponse = true;
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    [UIApplication.sharedApplication registerForRemoteNotifications];
     
     return true;
 }

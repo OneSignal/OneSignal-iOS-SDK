@@ -72,7 +72,7 @@ static dispatch_queue_t serialQueue;
             UNAuthorizationStatus provisionalStatus = (UNAuthorizationStatus)3;
             
             status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined && settings.authorizationStatus != provisionalStatus;
-            status.provisional = (settings.authorizationStatus == 3);
+            status.provisional = (settings.authorizationStatus == 3); // UNAuthorizationStatusProvisional
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized && !status.provisional;
             
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
