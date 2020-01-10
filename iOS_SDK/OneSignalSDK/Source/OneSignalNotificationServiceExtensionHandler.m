@@ -50,11 +50,13 @@
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
     
-    // Track Receive Receipt
-    [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:payload.notificationID];
-
-    // Save receieved notification id
-    [OSOutcomesUtils saveReceivedNotificationFromBackground:payload.notificationID];
+    let receivedNotificationId = payload.notificationID;
+    if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
+        // Track confirmed delivery
+        [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:receivedNotificationId];
+        // Save received notification id
+        [OSOutcomesUtils saveReceivedNotificationFromBackground:receivedNotificationId];
+    }
 
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request

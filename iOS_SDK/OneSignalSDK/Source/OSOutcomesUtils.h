@@ -49,6 +49,7 @@
 
 // Methods for received notification ids within the notification limit and attribution window
 + (NSArray *)getCachedReceivedNotifications;
-+ (void)saveReceivedNotificationFromBackground:(NSString *)notificationId;
++ (void)saveReceivedNotifications:(NSArray *)notifications;
++ (void)saveReceivedNotificationFromBackground:(NSString * _Nonnull)notificationId;
 
 @end

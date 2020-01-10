@@ -204,22 +204,27 @@
  Get the current notifications ids that influenced the session
  */
 - (NSArray *)getIndirectNotificationIds {
-    NSArray *receivedNotifications = [OSOutcomesUtils getCachedReceivedNotifications];
-    if (!receivedNotifications || [receivedNotifications count] == 0)
-        // Unattributed session
-        return nil;
+    NSMutableArray *receivedNotifications = [[NSMutableArray alloc] initWithArray:[OSOutcomesUtils getCachedReceivedNotifications]];
+    if (!receivedNotifications || receivedNotifications.count == 0)
+        return nil; // Unattributed session
     
     NSMutableArray *notificationsIds = [NSMutableArray new];
     NSInteger attributionWindowInSeconds = [OSOutcomesUtils getIndirectAttributionWindow] * 60;
     NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
    
-    for (OSIndirectNotification *notification in receivedNotifications) {
-        long difference = currentTime - notification.timestamp;
-        if (difference <= attributionWindowInSeconds) {
-            [notificationsIds addObject:notification.notificationId];
+    // Add only valid notifications within the attribution window
+    for (var i = 0; i < receivedNotifications.count; i++) {
+        OSIndirectNotification* notification = [receivedNotifications objectAtIndex:i];
+        if (notification.notificationId && ![notification.notificationId isEqualToString:@""]) {
+            long difference = currentTime - notification.timestamp;
+            if (difference <= attributionWindowInSeconds)
+                [notificationsIds addObject:notification.notificationId];
         }
+        else
+            [receivedNotifications removeObjectAtIndex:i--];
     }
-    
+    // Cache updated notifications as received, this removes notifications with invalid notification ids
+    [OSOutcomesUtils saveReceivedNotifications:receivedNotifications.copy];
     return notificationsIds;
 }
 
