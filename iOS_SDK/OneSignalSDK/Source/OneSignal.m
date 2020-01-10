@@ -132,7 +132,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021203";
+NSString* const ONESIGNAL_VERSION = @"021204";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -221,7 +221,7 @@ static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayType
     return _inFocusDisplayType;
 }
 
-// iOS version implemation
+// iOS version implementation
 static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
     if (!_osNotificationSettings) {
