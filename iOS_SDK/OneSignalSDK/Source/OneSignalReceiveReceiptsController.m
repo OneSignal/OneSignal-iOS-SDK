@@ -75,7 +75,7 @@
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Receieve receipts disabled"];
         return;
     }
-    
+
     let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
         if (success)

@@ -520,6 +520,11 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if (!success)
         return self;
     
+    // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
+    if (!didCallDownloadParameters && appId && appId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:appId];
+    
     if (initDone)
         return self;
     initDone = true;
@@ -529,11 +534,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // Outcomes init
     _sessionManager = [[OneSignalSessionManager alloc] init:self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
-
-    // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
-    //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
@@ -597,7 +597,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         [self registerUser];
     else {
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-            
             if (state.answeredPrompt) {
                 [self registerUser];
             } else {
@@ -664,6 +663,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // Will also run the first time OneSignal is initialized
     if (app_id && ![app_id isEqualToString:prevAppId]) {
         initDone = false;
+        downloadedParameters = false;
+        didCallDownloadParameters = false;
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
         
         [standardUserDefaults saveStringForKey:NSUD_APP_ID withValue:app_id];
@@ -777,24 +778,22 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             }
         }
 
-        if (!usesAutoPrompt &&
-            result[IOS_USES_PROVISIONAL_AUTHORIZATION] &&
-            result[IOS_USES_PROVISIONAL_AUTHORIZATION] != [NSNull null] &&
-            [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
-            
-            [OneSignalUserDefaults.initStandard saveBoolForKey:USES_PROVISIONAL_AUTHORIZATION withValue:true];
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+            [OneSignalUserDefaults.initStandard saveBoolForKey:USES_PROVISIONAL_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
             
             [self checkProvisionalAuthorizationStatus];
         }
 
-        if (result[IOS_RECEIVE_RECEIPTS_ENABLE])
-            [OneSignalUserDefaults.initShared saveBoolForKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS withValue:true];
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
+            [OneSignalUserDefaults.initShared saveBoolForKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
 
         [OSOutcomesUtils saveOutcomeParamsForApp:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         downloadedParameters = true;
-    } onFailure:nil];
+    } onFailure:^(NSError *error) {
+        didCallDownloadParameters = false;
+    }];
 }
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
