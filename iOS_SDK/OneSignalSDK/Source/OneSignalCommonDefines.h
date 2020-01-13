@@ -31,8 +31,8 @@
 #import <Foundation/Foundation.h>
 
 // networking
-#define API_VERSION @"api/v1/"
-#define SERVER_URL @"https://onesignal.com/"
+#define API_VERSION @"v1/"
+#define SERVER_URL @"https://api.onesignal.com/"
 
 // NSUserDefaults parameter names
 #define HAS_PROMPTED_FOR_NOTIFICATIONS @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"
