@@ -37,6 +37,7 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
+#import "OneSignalInternal.h"
 #import "NSString+OneSignal.h"
 #import "UnitTestCommonMethods.h"
 #import "OneSignalSelectorHelpers.h"
@@ -1820,6 +1821,31 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
 }
 
+/*
+ Wrapper SDKs call OneSignal init method twice:
+    1. App id is null
+    2. App id should be valid
+ NOTE: The init method uses flags initDone, didCallDownloadParameters, downloadedParameters and these prevent code from executing more than once in specific cases
+       initDone BOOL is used to return early in the event of init being called more than once
+       didCallDownloadParameters BOOL is used to determine whether iOS params have started being pulled down
+       downloadedParameters BOOL is used to determine whether iOS params have successfully been pulled down
+ */
+- (void)testiOSParams_withNullAppIdInit_andValidAppIdInit {
+    // 1. Open app and init with null app id
+    [OneSignal initWithLaunchOptions:nil appId:nil];
+    [UnitTestCommonMethods foregroundApp];
+    
+    // 2. Make sure iOS params did not download, since app id was invalid
+    XCTAssertFalse(OneSignal.didCallDownloadParameters);
+    XCTAssertFalse(OneSignal.downloadedParameters);
+
+    // 3. Init with valid app id
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    // 4. Make sure iOS params have been downloaded, since app_id is valid
+    XCTAssertTrue(OneSignal.didCallDownloadParameters);
+    XCTAssertTrue(OneSignal.downloadedParameters);
+}
 
 - (void)testAddingSharedKeysIfMissing {
     // 1. Init SDK as normal
