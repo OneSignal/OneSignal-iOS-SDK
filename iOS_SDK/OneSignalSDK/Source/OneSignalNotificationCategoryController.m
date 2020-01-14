@@ -98,6 +98,7 @@
     return categoryId;
 }
 
+// Get all existing Notifications Categories in a blocking way
 - (NSMutableSet<UNNotificationCategory*>*)existingCategories {
     __block NSMutableSet* allCategories;
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);

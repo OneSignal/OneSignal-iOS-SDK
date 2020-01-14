@@ -666,26 +666,31 @@ static OneSignal* singleInstance = nil;
     var allCategories = OneSignalNotificationCategoryController.sharedInstance.existingCategories;
     
     let newCategoryIdentifier = [OneSignalNotificationCategoryController.sharedInstance registerNotificationCategoryForNotificationId:payload.notificationID];
-
     let category = [UNNotificationCategory categoryWithIdentifier:newCategoryIdentifier
                                                           actions:finalActionArray
                                                 intentIdentifiers:@[]
                                                           options:UNNotificationCategoryOptionCustomDismissAction];
-    
+
     if (allCategories) {
         let newCategorySet = [NSMutableSet new];
         for(UNNotificationCategory *existingCategory in allCategories) {
             if (![existingCategory.identifier isEqualToString:newCategoryIdentifier])
                 [newCategorySet addObject:existingCategory];
         }
-        
+
         [newCategorySet addObject:category];
         allCategories = newCategorySet;
     }
     else
         allCategories = [[NSMutableSet alloc] initWithArray:@[category]];
+
+    [UNUserNotificationCenter.currentNotificationCenter setNotificationCategories:allCategories];
     
-    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:allCategories];
+    // List Categories again so iOS refreshes it's internal list.
+    // Required otherwise buttons will not display or won't update.
+    // This is a blackbox assumption, the delay on the main thread this call creates might be giving
+    //   some iOS background thread time to flush to disk.
+    allCategories = OneSignalNotificationCategoryController.sharedInstance.existingCategories;
     
     content.categoryIdentifier = newCategoryIdentifier;
 }
