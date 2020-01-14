@@ -160,10 +160,6 @@ static BOOL waitingForApnsResponse = false;
 // Under Capabilities is "Background Modes" > "Remote notifications" enabled.
 static BOOL backgroundModesEnabled = false;
 
-// indicates if the GetiOSParams request has completed
-static BOOL downloadedParameters = false;
-static BOOL didCallDownloadParameters = false;
-
 static BOOL promptBeforeOpeningPushURLs = false;
 
 
@@ -332,6 +328,24 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
+/*
+ Indicates if the iOS params request has started
+ Set to true when the method is called and set false if the request's failure callback is triggered
+ */
+static BOOL _didCallDownloadParameters = false;
++ (BOOL)didCallDownloadParameters {
+    return _didCallDownloadParameters;
+}
+
+/*
+ Indicates if the iOS params request is complete
+ Set to true when the request's success callback is triggered
+ */
+static BOOL _downloadedParameters = false;
++ (BOOL)downloadedParameters {
+    return _downloadedParameters;
+}
+
 static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (OneSignalReceiveReceiptsController*)receiveReceiptsController {
     if (!_receiveReceiptsController)
@@ -428,7 +442,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     
     _permissionStateChangesObserver = nil;
     
-    didCallDownloadParameters = false;
+    _downloadedParameters = false;
+    _didCallDownloadParameters = false;
     
     maxApnsWait = APNS_TIMEOUT;
     reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
@@ -520,6 +535,11 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if (!success)
         return self;
     
+    // Wrapper SDK's call init twice and pass null as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
+    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:appId];
+    
     if (initDone)
         return self;
     initDone = true;
@@ -529,11 +549,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // Outcomes init
     _sessionManager = [[OneSignalSessionManager alloc] init:self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
-
-    // Some wrapper SDK's call init multiple times and pass nil/NSNull as the appId on the first call
-    //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!didCallDownloadParameters && appId != nil && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
@@ -597,7 +612,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         [self registerUser];
     else {
         [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-            
             if (state.answeredPrompt) {
                 [self registerUser];
             } else {
@@ -664,6 +678,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // Will also run the first time OneSignal is initialized
     if (app_id && ![app_id isEqualToString:prevAppId]) {
         initDone = false;
+        _downloadedParameters = false;
+        _didCallDownloadParameters = false;
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
         
         [standardUserDefaults saveStringForKey:NSUD_APP_ID withValue:app_id];
@@ -762,9 +778,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     });
 }
 
-+(void)downloadIOSParamsWithAppId:(NSString *)appId {
++ (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
-    didCallDownloadParameters = true;
+    _didCallDownloadParameters = true;
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
@@ -777,24 +793,22 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             }
         }
 
-        if (!usesAutoPrompt &&
-            result[IOS_USES_PROVISIONAL_AUTHORIZATION] &&
-            result[IOS_USES_PROVISIONAL_AUTHORIZATION] != [NSNull null] &&
-            [result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]) {
-            
-            [OneSignalUserDefaults.initStandard saveBoolForKey:USES_PROVISIONAL_AUTHORIZATION withValue:true];
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+            [OneSignalUserDefaults.initStandard saveBoolForKey:USES_PROVISIONAL_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
             
             [self checkProvisionalAuthorizationStatus];
         }
 
-        if (result[IOS_RECEIVE_RECEIPTS_ENABLE])
-            [OneSignalUserDefaults.initShared saveBoolForKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS withValue:true];
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
+            [OneSignalUserDefaults.initShared saveBoolForKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
 
         [OSOutcomesUtils saveOutcomeParamsForApp:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
-        downloadedParameters = true;
-    } onFailure:nil];
+        _downloadedParameters = true;
+    } onFailure:^(NSError *error) {
+        _didCallDownloadParameters = false;
+    }];
 }
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
@@ -2290,7 +2304,7 @@ static NSString *_lastnonActiveMessageId;
        and we do not need to delay the request
     */
     
-    if (!self.currentSubscriptionState.userId || (downloadedParameters == false && emailAuthToken != nil)) {
+    if (!self.currentSubscriptionState.userId || (_downloadedParameters == false && emailAuthToken != nil)) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setEmail: until the parameters have been downloaded."];
         delayedEmailParameters = [OneSignalSetEmailParameters withEmail:email withAuthToken:emailAuthToken withSuccess:successBlock withFailure:failureBlock];
         return;

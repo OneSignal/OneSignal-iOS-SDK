@@ -66,6 +66,13 @@
 
 + (NSDate *)sessionLaunchTime;
 
+// Indicates if the app provides its own custom Notification customization settings UI
+// To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
++ (BOOL)providesAppNotificationSettings;
+
+@property (class, readonly) BOOL didCallDownloadParameters;
+@property (class, readonly) BOOL downloadedParameters;
+
 @property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
 @property (class) OSPermissionState* currentPermissionState;
 
@@ -74,10 +81,6 @@
 @property (class) AppEntryAction appEntryState;
 @property (class) OneSignalSessionManager* sessionManager;
 @property (class) OneSignalOutcomeEventsController* outcomeEventsController;
-
-// Indicates if the app provides its own custom Notification customization settings UI
-// To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
-+ (BOOL)providesAppNotificationSettings;
 
 @end
 
