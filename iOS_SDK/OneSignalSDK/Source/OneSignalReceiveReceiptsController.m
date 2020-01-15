@@ -36,13 +36,13 @@
 @implementation OneSignalReceiveReceiptsController
 
 - (BOOL)isReceiveReceiptsEnabled {
-    return [OneSignalUserDefaults.initShared getSavedBoolForKey:ONESIGNAL_ENABLE_RECEIVE_RECEIPTS defaultValue:NO];
+    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_ENABLE_RECEIVE_RECEIPTS defaultValue:NO];
 }
 
 - (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {
     let sharedUserDefaults = OneSignalUserDefaults.initShared;
-    let playerId = [sharedUserDefaults getSavedStringForKey:USERID defaultValue:nil];
-    let appId = [sharedUserDefaults getSavedStringForKey:NSUD_APP_ID defaultValue:nil];
+    let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PLAYER_ID defaultValue:nil];
+    let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
 
     [self sendReceiveReceiptWithPlayerId:playerId
                           notificationId:notificationId

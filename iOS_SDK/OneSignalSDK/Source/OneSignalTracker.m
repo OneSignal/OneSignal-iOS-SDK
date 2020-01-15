@@ -199,7 +199,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (void)updateLastClosedTime {
     let now = [NSDate date].timeIntervalSince1970;
-    [OneSignalUserDefaults.initStandard saveDoubleForKey:USER_LAST_CLOSED_TIME withValue:now];
+    [OneSignalUserDefaults.initStandard saveDoubleForKey:OSUD_USER_LAST_CLOSED_TIME withValue:now];
 }
 
 @end

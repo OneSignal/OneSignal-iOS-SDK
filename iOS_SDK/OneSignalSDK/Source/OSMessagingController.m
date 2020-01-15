@@ -58,11 +58,9 @@
 @end
 
 @implementation OSMessagingController
-@synthesize isInAppMessagingPaused = _isInAppMessagingPaused;
 
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
-
 + (OSMessagingController *)sharedInstance {
     dispatch_once(&once, ^{
         // Make sure only devices with iOS 10 or newer can use IAMs
@@ -77,6 +75,18 @@ static dispatch_once_t once;
 + (void)removeInstance {
     sharedInstance = nil;
     once = NULL;
+}
+
+static BOOL _isInAppMessagingPaused = false;
+- (BOOL)isInAppMessagingPaused {
+    return _isInAppMessagingPaused;
+}
+- (void)setInAppMessagingPaused:(BOOL)pause {
+    _isInAppMessagingPaused = pause;
+    
+    // If IAM are not paused, try to evaluate and show IAMs
+    if (!pause)
+        [self evaluateMessages];
 }
 
 + (BOOL)doesDeviceSupportIAM {
@@ -110,18 +120,6 @@ static dispatch_once_t once;
     return self;
 }
 
-- (BOOL)isInAppMessagingPaused {
-    return _isInAppMessagingPaused;
-}
-
-- (void)setInAppMessagingPaused:(BOOL)pause {
-    _isInAppMessagingPaused = pause;
-    
-    // If IAM are not paused, try to evaluate and show IAMs
-    if (!pause)
-        [self evaluateMessages];
-}
-
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
     self.messages = newMessages;
     
@@ -133,10 +131,6 @@ static dispatch_once_t once;
 }
 
 - (void)presentInAppMessage:(OSInAppMessage *)message {
-    // Check if the app disabled IAMs for this device
-    if (_isInAppMessagingPaused)
-        return;
-    
     if (!message.variantId) {
         let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
@@ -144,11 +138,9 @@ static dispatch_once_t once;
     }
     
     @synchronized (self.messageDisplayQueue) {
-        // Check if the message already exists in the display queue
-        if ([self isMessageInDisplayQueue:message.messageId])
-            return;
-        
-        [self.messageDisplayQueue addObject:message];
+        // Add the message to the messageDisplayQueue, if it hasn't been added yet
+        if (![self isMessageInDisplayQueue:message.messageId])
+            [self.messageDisplayQueue addObject:message];
         
         // Return early if an IAM is already showing
         if (self.isInAppMessageShowing)
@@ -167,28 +159,31 @@ static dispatch_once_t once;
     return false;
 }
 
+/*
+ If an IAM is currently showing add the preview right behind it in the messageDisplayQueue and then dismiss the current IAM
+ Otherwise, Add it to the front of the messageDisplayQueue and call displayMessage
+ */
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
     @synchronized (self.messageDisplayQueue) {
-        
-        // If an IAM is currently showing add the preview right behind it in the messageDisplayQueue and then dismiss the current IAM
-        // Otherwise, Add it to the front of the messageDisplayQueue and call displayMessage
         if (self.isInAppMessageShowing) {
-            
-            // Add preview behind current displaying IAM in messageDisplayQueue
+            // Add preview second in messageDisplayQueue
             [self.messageDisplayQueue insertObject:message atIndex:1];
-            // Get current OSInAppMessageViewController and dismiss current IAM showing using dismissMessageWithDirection method
             [self.viewController dismissCurrentInAppMessage];
         } else {
-            
             // Add preview to front of messageDisplayQueue
             [self.messageDisplayQueue insertObject:message atIndex:0];
-            // Show new IAM preview
             [self displayMessage:message];
         }
     };
 }
 
 - (void)displayMessage:(OSInAppMessage *)message {
+    // Check if the app disabled IAMs for this device before showing an IAM
+    if (_isInAppMessagingPaused) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while pasued"];
+        return;
+    }
+    
     self.isInAppMessageShowing = true;
     
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
@@ -240,6 +235,7 @@ static dispatch_once_t once;
  Checks to see if any messages should be shown now
  */
 - (void)evaluateMessages {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating in app messages"];
     for (OSInAppMessage *message in self.messages) {
         // Should we show the in app message
         if ([self shouldShowInAppMessage:message]) {

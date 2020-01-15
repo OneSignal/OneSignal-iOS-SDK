@@ -1852,8 +1852,8 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 2. Remove shared keys to simulate the state of coming from a pre-2.12.1 version
-    [OneSignalUserDefaults.initShared removeValueForKey:NSUD_APP_ID];
-    [OneSignalUserDefaults.initShared removeValueForKey:USERID];
+    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_APP_ID];
+    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_PLAYER_ID];
 
     // 3. Restart app
     [UnitTestCommonMethods backgroundApp];
@@ -1861,8 +1861,8 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 4. Ensure values are present again
-    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:NSUD_APP_ID defaultValue:nil]);
-    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:USERID defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_APP_ID defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_PLAYER_ID defaultValue:nil]);
 }
 
 // iOS 10 - Notification Service Extension test - local file
@@ -2377,7 +2377,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testDoesntSendExistingExternalUserIdBeforeRegistration {
     //mimics a previous session where the external user ID was set
-    [NSUserDefaults.standardUserDefaults setObject:TEST_EXTERNAL_USER_ID forKey:EXTERNAL_USER_ID];
+    [NSUserDefaults.standardUserDefaults setObject:TEST_EXTERNAL_USER_ID forKey:OSUD_EXTERNAL_USER_ID];
     [NSUserDefaults.standardUserDefaults synchronize];
 
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];

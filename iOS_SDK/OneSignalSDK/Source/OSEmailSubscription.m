@@ -40,10 +40,10 @@
 
 - (instancetype)init {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    _emailAddress = [standardUserDefaults getSavedStringForKey:EMAIL_ADDRESS defaultValue:nil];
-    _requiresEmailAuth = [standardUserDefaults getSavedBoolForKey:REQUIRE_EMAIL_AUTH defaultValue:false];
-    _emailAuthCode = [standardUserDefaults getSavedStringForKey:EMAIL_AUTH_CODE defaultValue:nil];
-    _emailUserId = [standardUserDefaults getSavedStringForKey:EMAIL_USERID defaultValue:nil];
+    _emailAddress = [standardUserDefaults getSavedStringForKey:OSUD_EMAIL_ADDRESS defaultValue:nil];
+    _requiresEmailAuth = [standardUserDefaults getSavedBoolForKey:OSUD_REQUIRE_EMAIL_AUTH defaultValue:false];
+    _emailAuthCode = [standardUserDefaults getSavedStringForKey:OSUD_EMAIL_AUTH_CODE defaultValue:nil];
+    _emailUserId = [standardUserDefaults getSavedStringForKey:OSUD_EMAIL_PLAYER_ID defaultValue:nil];
     
     return self;
 }
@@ -54,10 +54,10 @@
 
 - (void)persist {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    [standardUserDefaults saveStringForKey:EMAIL_ADDRESS withValue:_emailAddress];
-    [standardUserDefaults saveBoolForKey:REQUIRE_EMAIL_AUTH withValue:_requiresEmailAuth];
-    [standardUserDefaults saveStringForKey:EMAIL_AUTH_CODE withValue:_emailAuthCode];
-    [standardUserDefaults saveStringForKey:EMAIL_USERID withValue:_emailUserId];
+    [standardUserDefaults saveStringForKey:OSUD_EMAIL_ADDRESS withValue:_emailAddress];
+    [standardUserDefaults saveBoolForKey:OSUD_REQUIRE_EMAIL_AUTH withValue:_requiresEmailAuth];
+    [standardUserDefaults saveStringForKey:OSUD_EMAIL_AUTH_CODE withValue:_emailAuthCode];
+    [standardUserDefaults saveStringForKey:OSUD_EMAIL_PLAYER_ID withValue:_emailUserId];
 }
 
 - (NSString *)description {

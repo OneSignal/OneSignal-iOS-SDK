@@ -70,22 +70,22 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
 
 // Save the current set of UNATTRIBUTED unique outcome names to NSUserDefaults
 - (NSSet *)getUnattributedUniqueOutcomeEventNames {
-    return [OneSignalUserDefaults.initShared getSavedSetForKey:CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT defaultValue:nil];
+    return [OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT defaultValue:nil];
 }
 
 // Save the current set of UNATTRIBUTED unique outcome names to NSUserDefaults
 - (void)saveUnattributedUniqueOutcomeEventNames {
-    [OneSignalUserDefaults.initShared saveSetForKey:CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT withValue:unattributedUniqueOutcomeEventsSentSet];
+    [OneSignalUserDefaults.initShared saveSetForKey:OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT withValue:unattributedUniqueOutcomeEventsSentSet];
 }
 
 // Save the current set of ATTRIBUTED unique outcome names and notificationIds to NSUserDefaults
 - (NSArray *)getAttributedUniqueOutcomeEventNotificationIds {
-    return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
+    return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
 }
 
 // Save the current set of ATTRIBUTED unique outcome names and notificationIds to NSUserDefaults
 - (void)saveAttributedUniqueOutcomeEventNotificationIds {
-    [OneSignalUserDefaults.initShared saveCodeableDataForKey:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:attributedUniqueOutcomeEventNotificationIdsSentArray];
+    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:attributedUniqueOutcomeEventNotificationIdsSentArray];
 }
 
 /*

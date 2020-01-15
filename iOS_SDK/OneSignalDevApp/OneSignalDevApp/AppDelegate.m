@@ -29,9 +29,9 @@
 // This project exisits to make testing OneSignal SDK changes.
 
 #import "AppDelegate.h"
+#import "ViewController.h"
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
@@ -63,8 +63,6 @@
                              action.closesMessage];
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
     };
-
-    [OneSignal setSubscription:true];
 
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
@@ -105,19 +103,18 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
-    NSLog(@"HERE");
-}
-
 - (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
     NSLog(@"onOSPermissionChanged: %@", stateChanges);
-    NSLog(@"HERE");
 }
 
--(void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
+- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
+    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
+    ViewController* mainController = (ViewController*) self.window.rootViewController;
+    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.subscribed;
+}
+
+- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
     NSLog(@"onOSEmailSubscriptionChanged: %@", stateChanges);
-    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

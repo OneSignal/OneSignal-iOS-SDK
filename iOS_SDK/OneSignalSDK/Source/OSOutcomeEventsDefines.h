@@ -29,14 +29,14 @@
 #define OSOutcomeEventsDefines_h
 
 // Outcome param keys
-static NSString * const OUTCOMES_PARAM = @"outcomes";
-static NSString * const DIRECT_PARAM = @"direct";
-static NSString * const INDIRECT_PARAM = @"indirect";
-static NSString * const UNATTRIBUTED_PARAM = @"unattributed";
-static NSString * const ENABLED_PARAM = @"enabled";
-static NSString * const NOTIFICATION_ATTRIBUTION_PARAM = @"notification_attribution";
-static NSString * const MINUTES_SINCE_DISPLAYED_PARAM = @"minutes_since_displayed";
-static NSString * const LIMIT_PARAM = @"limit";
+static NSString* const OUTCOMES_PARAM = @"outcomes";
+static NSString* const DIRECT_PARAM = @"direct";
+static NSString* const INDIRECT_PARAM = @"indirect";
+static NSString* const UNATTRIBUTED_PARAM = @"unattributed";
+static NSString* const ENABLED_PARAM = @"enabled";
+static NSString* const NOTIFICATION_ATTRIBUTION_PARAM = @"notification_attribution";
+static NSString* const MINUTES_SINCE_DISPLAYED_PARAM = @"minutes_since_displayed";
+static NSString* const LIMIT_PARAM = @"limit";
 
 // Outcome default param values
 static int DEFAULT_INDIRECT_NOTIFICATION_LIMIT = 10;

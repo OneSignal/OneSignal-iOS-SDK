@@ -44,9 +44,9 @@
     OSPermissionState* status = OneSignal.currentPermissionState;
     
     // Don't call getNotificationTypes as this will cause currentSubscriptionState to initialize before currentPermissionState
-    status.notificationTypes = [standardUserDefaults getSavedStringForKey:DEVICE_TOKEN defaultValue:nil] == nil ? 0 : 7;
+    status.notificationTypes = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN defaultValue:nil] == nil ? 0 : 7;
     status.accepted = status.notificationTypes > 0;
-    status.answeredPrompt = [standardUserDefaults getSavedBoolForKey:NOTIFICATION_PROMPT_ANSWERED defaultValue:false];
+    status.answeredPrompt = [standardUserDefaults getSavedBoolForKey:OSUD_NOTIFICATION_PROMPT_ANSWERED defaultValue:false];
     status.provisional = false;
     
     completionHandler(status);
@@ -74,7 +74,7 @@
     notificationPromptReponseCallback = completionHandler;
     [[UIApplication sharedApplication] registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert];
     [OneSignal setWaitingForApnsResponse:true];
-    [OneSignalUserDefaults.initStandard saveBoolForKey:REGISTERED_WITH_APPLE withValue:true];
+    [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_REGISTERED_WITH_APPLE withValue:true];
 }
 
 #pragma GCC diagnostic pop
