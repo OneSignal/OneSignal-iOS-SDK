@@ -180,7 +180,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)displayMessage:(OSInAppMessage *)message {
     // Check if the app disabled IAMs for this device before showing an IAM
     if (_isInAppMessagingPaused) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while pasued"];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while paused"];
         return;
     }
     
@@ -199,7 +199,6 @@ static BOOL _isInAppMessagingPaused = false;
  Request should only be made for IAMs that are not previews and have not been impressioned yet
  */
 - (void)messageViewImpressionRequest:(OSInAppMessage *)message {
-    
     // Make sure no tracking is performed for previewed IAMs
     // If the messageId exists in cached impressionedInAppMessages return early so the impression is not tracked again
     if (message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId])

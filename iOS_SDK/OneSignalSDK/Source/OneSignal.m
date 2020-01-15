@@ -711,7 +711,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    BOOL usesProvisional = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_USES_PROVISIONAL_AUTHORIZATION defaultValue:false];
+    BOOL usesProvisional = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION defaultValue:false];
     
     // if iOS parameters for this app have never downloaded, this method
     // should return
@@ -794,13 +794,13 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         }
 
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
-            [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
+            [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
             
             [self checkProvisionalAuthorizationStatus];
         }
 
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
-            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_ENABLE_RECEIVE_RECEIPTS withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
 
         [OSOutcomesUtils saveOutcomeParamsForApp:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
@@ -1502,7 +1502,7 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
         return false;
     
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_USER_LAST_CLOSED_TIME defaultValue:0];
+    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
 
     if (lastTimeClosed == 0) {
         onesignal_Log(ONE_S_LL_DEBUG, @"shouldRegisterNow: lastTimeClosed: default.");
@@ -2095,7 +2095,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
     
     if ([OneSignalHelper isIOSVersionLessThan:@"10.0"])
-        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_PROMPT_ANSWERED withValue:true];
+        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED withValue:true];
     
     BOOL startedRegister = [self registerForAPNsToken];
     

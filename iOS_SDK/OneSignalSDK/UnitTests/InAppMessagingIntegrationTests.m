@@ -300,9 +300,8 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageClicked class]));
 }
 
-- (void)testDisablingMessagesPreventsDisplay {
+- (void)testDisablingMessages_stillCreatesMessageQueue_butPreventsMessageDisplay {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
-    
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
     // this should prevent message from being shown
@@ -314,8 +313,9 @@
 
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // no message should have been shown
-    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
+    // Make sure no IAM is showing, but the queue has any IAMs
+    XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 }
 
 /**

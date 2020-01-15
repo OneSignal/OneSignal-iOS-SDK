@@ -61,7 +61,7 @@
 
 - (instancetype)initAsFrom {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    _accpeted = [standardUserDefaults getSavedBoolForKey:OSUD_ACCEPTED_PERMISSION defaultValue:false];
+    _accpeted = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_LAST defaultValue:false];
     _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_LAST defaultValue:nil];
     _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_LAST defaultValue:nil];
     _userSubscriptionSetting = ![standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_LAST];
@@ -75,7 +75,7 @@
         strUserSubscriptionSetting = @"no";
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    [standardUserDefaults saveBoolForKey:OSUD_ACCEPTED_PERMISSION withValue:_accpeted];
+    [standardUserDefaults saveBoolForKey:OSUD_PERMISSION_ACCEPTED_LAST withValue:_accpeted];
     [standardUserDefaults saveStringForKey:OSUD_PLAYER_ID_LAST withValue:_userId];
     [standardUserDefaults saveObjectForKey:OSUD_PUSH_TOKEN_LAST withValue:_pushToken];
     [standardUserDefaults saveObjectForKey:OSUD_USER_SUBSCRIPTION_LAST withValue:strUserSubscriptionSetting];

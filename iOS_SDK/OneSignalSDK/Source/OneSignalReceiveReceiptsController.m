@@ -36,7 +36,7 @@
 @implementation OneSignalReceiveReceiptsController
 
 - (BOOL)isReceiveReceiptsEnabled {
-    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_ENABLE_RECEIVE_RECEIPTS defaultValue:NO];
+    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED defaultValue:NO];
 }
 
 - (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {

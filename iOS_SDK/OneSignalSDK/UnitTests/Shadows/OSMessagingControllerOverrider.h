@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic) NSArray<OSInAppMessage *> *messageDisplayQueue;
 
 + (void)reset;
++ (BOOL)isInAppMessageShowing;
 
 @end
 
