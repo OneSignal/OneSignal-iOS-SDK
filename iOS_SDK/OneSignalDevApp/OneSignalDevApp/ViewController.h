@@ -33,23 +33,26 @@
 
 @interface ViewController : UIViewController <OSInAppMessageDelegate>
 
-    @property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
-    @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
-    @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
-    @property (weak, nonatomic) IBOutlet UISegmentedControl *subscriptionSegmentedControl;
-    @property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
-    @property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
-    @property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
-    @property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
-    @property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
-    @property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
-    @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
-    @property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
-    @property (weak, nonatomic) IBOutlet UITextField *outcomeName;
-    @property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
-    @property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
-    @property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
-    @property (weak, nonatomic) IBOutlet UITextView *result;
+@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *subscriptionSegmentedControl;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *locationSharedSegementedControl;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
+@property (weak, nonatomic) IBOutlet UIButton *promptPushButton;
+@property (weak, nonatomic) IBOutlet UIButton *promptLocationButton;
+@property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
+@property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
+@property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
+@property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
+@property (weak, nonatomic) IBOutlet UILabel *infoLabel;
+@property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeName;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
+@property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
+@property (weak, nonatomic) IBOutlet UITextView *result;
 
 @end
 

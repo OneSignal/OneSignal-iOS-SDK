@@ -1381,11 +1381,16 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 
 + (void)setLocationShared:(BOOL)enable {
-   mShareLocation = enable;
+    mShareLocation = enable;
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLocationShared called with status: %d", (int) enable]];
+    
+    if (!enable) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLocationShared set false, clearing last location!"];
+        [OneSignalLocation clearLastLocation];
+    }
 }
 
 + (void) promptLocation {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
         return;
@@ -1396,7 +1401,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (BOOL)isLocationShared {
     return mShareLocation;
 }
-
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
     waitingForApnsResponse = false;
@@ -1649,12 +1653,16 @@ static dispatch_queue_t serialQueue;
     
     
     if (mShareLocation && [OneSignalLocation lastLocation]) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
         dataDic[@"lat"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
         dataDic[@"long"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
         dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
         dataDic[@"loc_acc"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
-        [OneSignalLocation clearLastLocation];
-    }
+    } else
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Not sending location with 'on_session' request payload, setLocationShared is false or lastLocation is null"];
+        
+    // Clear last location after attaching data to payload or not
+    [OneSignalLocation clearLastLocation];
 
     let pushDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
     pushDataDic[@"identifier"] = self.currentSubscriptionState.pushToken;

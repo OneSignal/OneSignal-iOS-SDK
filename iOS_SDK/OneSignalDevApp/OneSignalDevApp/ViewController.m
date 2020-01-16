@@ -43,6 +43,8 @@
 
     self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getPermissionSubscriptionState.subscriptionStatus.subscribed;
     
+    self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) OneSignal.isLocationShared;
+    
     self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal isInAppMessagingPaused];
 
     self.appIdTextField.text = [AppDelegate getOneSignalAppId];
@@ -83,13 +85,6 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-//    [self promptForNotificationsWithNativeiOS10Code];
-//    [OneSignal registerForPushNotifications];
-    
-    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
-        NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationsWithUserResponse: %d", accepted);
-    }];
-
     [OneSignal sendTag:@"key1"
                  value:@"value1"
              onSuccess:^(NSDictionary *result) {
@@ -104,6 +99,18 @@
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         NSLog(@"IdsAvailable Fired");
     }];
+}
+
+- (IBAction)promptPushAction:(UIButton *)sender {
+    //    [self promptForNotificationsWithNativeiOS10Code];
+    //    [OneSignal registerForPushNotifications];
+    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
+        NSLog(@"OneSignal Demo App promptForPushNotificationsWithUserResponse: %d", accepted);
+    }];
+}
+
+- (IBAction)promptLocationAction:(UIButton *)sender {
+    [OneSignal promptLocation];
 }
 
 - (IBAction)setEmailButtonPressed:(UIButton *)sender {
@@ -133,6 +140,11 @@
 - (IBAction)subscriptionSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller subscription status: %i", (int) sender.selectedSegmentIndex);
     [OneSignal setSubscription:(bool) sender.selectedSegmentIndex];
+}
+
+- (IBAction)locationSharedSegmentedControlValueChanged:(UISegmentedControl *)sender {
+    NSLog(@"View controller location sharing status: %i", (int) sender.selectedSegmentIndex);
+    [OneSignal setLocationShared:(bool) sender.selectedSegmentIndex];
 }
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
