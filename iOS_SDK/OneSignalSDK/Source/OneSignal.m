@@ -564,17 +564,17 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     // Check if disabled in-app launch url if passed a NO
     if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
         [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
-    else if (![standardUserDefaults keyExists:OSUD_INAPP_LAUNCH_URL]) {
+    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
         // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
         [self enableInAppLaunchURL:true];
     }
     
     if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
         promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
-        [standardUserDefaults saveBoolForKey:OSUD_PROMPT_BEFORE_OPENING_PUSH_URL withValue:promptBeforeOpeningPushURLs];
+        [standardUserDefaults saveBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS withValue:promptBeforeOpeningPushURLs];
     }
     else
-        promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:OSUD_PROMPT_BEFORE_OPENING_PUSH_URL defaultValue:false];
+        promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS defaultValue:false];
     
     usesAutoPrompt = YES;
     if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
@@ -685,15 +685,15 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:app_id];
         
         // Remove player_id from both standard and shared NSUserDefaults
-        [standardUserDefaults removeValueForKey:OSUD_PLAYER_ID];
-        [sharedUserDefaults removeValueForKey:OSUD_PLAYER_ID];
+        [standardUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
+        [sharedUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
     }
     
     // Always save app_id and player_id as it will not be present on shared if:
     //   - Updating from an older SDK
     //   - Updating to an app that didn't have App Groups setup before
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:app_id];
-    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID withValue:self.currentSubscriptionState.userId];
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
     
     // Invalid app ids reaching here will cause failure
     if (!app_id || ![[NSUUID alloc] initWithUUIDString:app_id]) {
@@ -1357,7 +1357,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)enableInAppLaunchURL:(BOOL)enable {
-    [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_INAPP_LAUNCH_URL withValue:enable];
+    [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
 
 + (void)setSubscription:(BOOL)enable {
@@ -1369,7 +1369,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (!enable)
         value = @"no";
     
-    [OneSignalUserDefaults.initStandard saveObjectForKey:OSUD_USER_SUBSCRIPTION withValue:value];
+    [OneSignalUserDefaults.initStandard saveObjectForKey:OSUD_USER_SUBSCRIPTION_TO withValue:value];
     
     shouldDelaySubscriptionUpdate = true;
     
@@ -1703,8 +1703,8 @@ static dispatch_queue_t serialQueue;
             }
             
             // Save player_id to both standard and shared NSUserDefaults
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PLAYER_ID withValue:self.currentSubscriptionState.userId];
-            [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID withValue:self.currentSubscriptionState.userId];
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
+            [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
             
             if (nowProcessingCallbacks) {
                 for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
@@ -2095,7 +2095,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
     
     if ([OneSignalHelper isIOSVersionLessThan:@"10.0"])
-        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED withValue:true];
+        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO withValue:true];
     
     BOOL startedRegister = [self registerForAPNsToken];
     

@@ -37,35 +37,42 @@
 // OneSignalUserDefault keys
 // String values start with "OSUD_" to maintain a level of uniqueness from other libs and app code
 // Key names should be identical to the string values to prevent confusion
+// Add the suffix "_TO" or "_FROM" to any keys with "to" and "from" logic
 // TODO: Refactored variable names, but not strings since UserDefaults might need a migration
 // Comments next to the NSUserDefault keys are the planned string value and key names
 // "?" in comment line ending comment means uncertainty in naming the string value of the associated key and keeping as is for now
-// "$" in comment line ending comment means the key name has not been changed
 // "*" in comment line ending comment means the string value has not been changed
 // App
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
-#define OSUD_PERMISSION_ACCEPTED                                            @"ONESIGNAL_ACCEPTED_NOTIFICATION_LAST"                             // * OSUD_PERMISSION_ACCEPTED
-#define OSUD_PERMISSION_ACCEPTED_LAST                                       @"ONESIGNAL_PERMISSION_ACCEPTED_LAST"                               // * OSUD_PERMISSION_ACCEPTED_LAST
-#define OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS                                 @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS"                                // * OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS
-#define OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_LAST                            @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"                           // * OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_LAST
-#define OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED                               @"OS_NOTIFICATION_PROMPT_ANSWERED"                                  // * OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED
-#define OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_LAST                          @"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"                             // * OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_LAST
-#define OSUD_PROVISIONAL_PUSH_AUTHORIZATION                                 @"ONESIGNAL_PROVISIONAL_AUTHORIZATION"                              // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION
-#define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_LAST                            @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"                         // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION_LAST
+#define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
+#define OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS                             @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"                            // * OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS
+#define OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS                    @"PROMPT_BEFORE_OPENING_PUSH_URL"                                   // * OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS
+#define OSUD_PERMISSION_ACCEPTED_TO                                         @"OSUD_PERMISSION_ACCEPTED_TO"                                      // OSUD_PERMISSION_ACCEPTED_TO
+#define OSUD_PERMISSION_ACCEPTED_FROM                                       @"ONESIGNAL_PERMISSION_ACCEPTED_LAST"                               // * OSUD_PERMISSION_ACCEPTED_FROM
+#define OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_TO                              @"OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_TO"                           // OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_TO
+#define OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM                            @"OS_HAS_PROMPTED_FOR_NOTIFICATIONS_LAST"                           // * OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM
+#define OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO                            @"OS_NOTIFICATION_PROMPT_ANSWERED"                                  // * OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO
+#define OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM                          @"OS_NOTIFICATION_PROMPT_ANSWERED_LAST"                             // * OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM
+#define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO                              @"OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO"                           // OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO
+#define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM                            @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"                         // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM
 #define OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION                            @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"                    // * OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION
 // Player
 #define OSUD_EXTERNAL_USER_ID                                               @"OS_EXTERNAL_USER_ID"                                              // * OSUD_EXTERNAL_USER_ID
-#define OSUD_PLAYER_ID                                                      @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID
-#define OSUD_PLAYER_ID_LAST                                                 @"GT_PLAYER_ID_LAST"                                                // * OSUD_PLAYER_ID_LAST
-#define OSUD_PUSH_TOKEN                                                     @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN
-#define OSUD_PUSH_TOKEN_LAST                                                @"GT_DEVICE_TOKEN_LAST"                                             // * OSUD_PUSH_TOKEN_LAST
-#define OSUD_USER_SUBSCRIPTION                                              @"ONESIGNAL_SUBSCRIPTION"                                           // * OSUD_USER_SUBSCRIPTION
-#define OSUD_USER_SUBSCRIPTION_LAST                                         @"ONESIGNAL_SUBSCRIPTION_SETTING"                                   // * OSUD_USER_SUBSCRIPTION_LAST
+#define OSUD_PLAYER_ID_TO                                                   @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID_TO
+#define OSUD_PLAYER_ID_FROM                                                 @"GT_PLAYER_ID_LAST"                                                // * OSUD_PLAYER_ID_FROM
+#define OSUD_PUSH_TOKEN_TO                                                  @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN_TO
+#define OSUD_PUSH_TOKEN_FROM                                                @"GT_DEVICE_TOKEN_LAST"                                             // * OSUD_PUSH_TOKEN_FROM
+#define OSUD_USER_SUBSCRIPTION_TO                                           @"ONESIGNAL_SUBSCRIPTION"                                           // * OSUD_USER_SUBSCRIPTION_TO
+#define OSUD_USER_SUBSCRIPTION_FROM                                         @"ONESIGNAL_SUBSCRIPTION_SETTING"                                   // * OSUD_USER_SUBSCRIPTION_FROM
 // Email
 #define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
 #define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID
 #define OSUD_REQUIRE_EMAIL_AUTH                                             @"GT_REQUIRE_EMAIL_AUTH"                                            // * OSUD_REQUIRE_EMAIL_AUTH
 #define OSUD_EMAIL_AUTH_CODE                                                @"GT_EMAIL_AUTH_CODE"                                               // * OSUD_EMAIL_AUTH_CODE
+// Notification
+#define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
+#define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
+#define OSUD_TEMP_CACHED_NOTIFICATION_MEDIA                                 @"OSUD_TEMP_CACHED_NOTIFICATION_MEDIA"                              // OSUD_TEMP_CACHED_NOTIFICATION_MEDIA
 // Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
@@ -84,13 +91,6 @@
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
-// Misc (TODO: Organize these with other associated keys)
-#define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
-#define OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS                             @"OS_APP_PROVIDES_NOTIFICATION_SETTINGS"                            // * OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS
-#define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
-#define OSUD_PROMPT_BEFORE_OPENING_PUSH_URL                                 @"PROMPT_BEFORE_OPENING_PUSH_URL"                                   // * OSUD_PROMPT_BEFORE_OPENING_PUSH_URL
-#define OSUD_INAPP_LAUNCH_URL                                               @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * ? OSUD_INAPP_LAUNCH_URL
-#define OSUD_CACHED_MEDIA                                                   @"CACHED_MEDIA"                                                     // * ? OSUD_CACHED_MEDIA
 
 // Deprecated Selectors
 #define DEPRECATED_SELECTORS @[ @"application:didReceiveLocalNotification:", \

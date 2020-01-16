@@ -1853,7 +1853,7 @@ didReceiveRemoteNotification:userInfo
     
     // 2. Remove shared keys to simulate the state of coming from a pre-2.12.1 version
     [OneSignalUserDefaults.initShared removeValueForKey:OSUD_APP_ID];
-    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_PLAYER_ID];
+    [OneSignalUserDefaults.initShared removeValueForKey:OSUD_PLAYER_ID_TO];
 
     // 3. Restart app
     [UnitTestCommonMethods backgroundApp];
@@ -1862,7 +1862,7 @@ didReceiveRemoteNotification:userInfo
     
     // 4. Ensure values are present again
     XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_APP_ID defaultValue:nil]);
-    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_PLAYER_ID defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_PLAYER_ID_TO defaultValue:nil]);
 }
 
 // iOS 10 - Notification Service Extension test - local file

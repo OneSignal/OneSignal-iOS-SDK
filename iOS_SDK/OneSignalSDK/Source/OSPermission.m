@@ -46,10 +46,10 @@
 
 - (instancetype)initAsFrom {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    _hasPrompted = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_LAST defaultValue:false];
-    _answeredPrompt = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_LAST defaultValue:false];
-    _accepted  = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_LAST defaultValue:false];
-    _provisional = [standardUserDefaults getSavedBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION_LAST defaultValue:false];
+    _hasPrompted = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM defaultValue:false];
+    _answeredPrompt = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM defaultValue:false];
+    _accepted  = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM defaultValue:false];
+    _provisional = [standardUserDefaults getSavedBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM defaultValue:false];
     _providesAppNotificationSettings = [standardUserDefaults getSavedBoolForKey:OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS defaultValue:false];
     
     return self;
@@ -57,10 +57,10 @@
 
 - (void)persistAsFrom {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    [standardUserDefaults saveBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_LAST withValue:_hasPrompted];
-    [standardUserDefaults saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_LAST withValue:_answeredPrompt];
-    [standardUserDefaults saveBoolForKey:OSUD_PERMISSION_ACCEPTED_LAST withValue:_accepted];
-    [standardUserDefaults saveBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION_LAST withValue:_provisional];
+    [standardUserDefaults saveBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM withValue:_hasPrompted];
+    [standardUserDefaults saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM withValue:_answeredPrompt];
+    [standardUserDefaults saveBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM withValue:_accepted];
+    [standardUserDefaults saveBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM withValue:_provisional];
     [standardUserDefaults saveBoolForKey:OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS withValue:_providesAppNotificationSettings];
 }
 
@@ -80,9 +80,6 @@
 }
 
 - (void)setHasPrompted:(BOOL)inHasPrompted {
-    if (_hasPrompted != inHasPrompted)
-        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS withValue:true];
-    
     BOOL last = self.hasPrompted;
     _hasPrompted = inHasPrompted;
     if (last != self.hasPrompted)
@@ -101,9 +98,6 @@
 }
 
 - (void)setProvisional:(BOOL)provisional {
-    if (_provisional != provisional)
-        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION withValue:provisional];
-    
     BOOL previous = _provisional;
     _provisional = provisional;
     

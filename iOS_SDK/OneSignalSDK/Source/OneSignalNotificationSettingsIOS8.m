@@ -41,7 +41,7 @@
     
     status.notificationTypes = UIApplication.sharedApplication.currentUserNotificationSettings.types;
     status.accepted = status.notificationTypes > 0;
-    status.answeredPrompt = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED defaultValue:false];
+    status.answeredPrompt = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO defaultValue:false];
     status.provisional = false;
     
     completionHandler(status);

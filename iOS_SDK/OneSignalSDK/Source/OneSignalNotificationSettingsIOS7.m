@@ -44,9 +44,9 @@
     OSPermissionState* status = OneSignal.currentPermissionState;
     
     // Don't call getNotificationTypes as this will cause currentSubscriptionState to initialize before currentPermissionState
-    status.notificationTypes = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN defaultValue:nil] == nil ? 0 : 7;
+    status.notificationTypes = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_TO defaultValue:nil] == nil ? 0 : 7;
     status.accepted = status.notificationTypes > 0;
-    status.answeredPrompt = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED defaultValue:false];
+    status.answeredPrompt = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO defaultValue:false];
     status.provisional = false;
     
     completionHandler(status);
