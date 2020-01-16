@@ -43,7 +43,7 @@
  Iterate through all stored cached OSUniqueOutcomeNotification and clean any items over 7 days old
  */
 + (void)cleanUniqueOutcomeNotifications {
-    NSArray *uniqueOutcomeNotifications = [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
+    NSArray *uniqueOutcomeNotifications = [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
     
     NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
     NSMutableArray *finalNotifications = [NSMutableArray new];
@@ -55,7 +55,7 @@
             [finalNotifications addObject:notif];
     }
     
-    [OneSignalUserDefaults.initShared saveCodeableDataForKey:CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:finalNotifications];
+    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:finalNotifications];
 }
 
 @end

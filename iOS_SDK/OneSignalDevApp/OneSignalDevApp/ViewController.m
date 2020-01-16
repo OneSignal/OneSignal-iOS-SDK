@@ -31,27 +31,6 @@
 #import "ViewController.h"
 #import "AppDelegate.h"
 
-
-@interface ViewController ()
-@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
-@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
-@property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
-@property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
-@property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
-@property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
-@property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
-@property (weak, nonatomic) IBOutlet UILabel *infoLabel;
-@property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
-@property (weak, nonatomic) IBOutlet UITextField *outcomeName;
-@property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
-@property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
-@property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
-@property (weak, nonatomic) IBOutlet UITextView *result;
-
-@end
-
 @implementation ViewController
 
 - (void)viewDidLoad {
@@ -60,9 +39,11 @@
     
     self.activityIndicatorView.hidden = true;
     
-    self.consentSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal requiresUserPrivacyConsent];
+    self.consentSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal requiresUserPrivacyConsent];
 
-    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger)![OneSignal isInAppMessagingPaused];
+    self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getPermissionSubscriptionState.subscriptionStatus.subscribed;
+    
+    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal isInAppMessagingPaused];
 
     self.appIdTextField.text = [AppDelegate getOneSignalAppId];
 
@@ -102,9 +83,8 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-    //[self promptForNotificationsWithNativeiOS10Code];
-    
-    //[OneSignal registerForPushNotifications];
+//    [self promptForNotificationsWithNativeiOS10Code];
+//    [OneSignal registerForPushNotifications];
     
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         NSLog(@"NEW SDK 2.5.0 METHDO: promptForPushNotificationsWithUserResponse: %d", accepted);
@@ -146,13 +126,18 @@
 }
 
 - (IBAction)consentSegmentedControlValueChanged:(UISegmentedControl *)sender {
-    NSLog(@"View controller consent granted: %i", (int)sender.selectedSegmentIndex);
-    [OneSignal consentGranted:(bool)sender.selectedSegmentIndex];
+    NSLog(@"View controller consent granted: %i", (int) sender.selectedSegmentIndex);
+    [OneSignal consentGranted:(bool) sender.selectedSegmentIndex];
+}
+
+- (IBAction)subscriptionSegmentedControlValueChanged:(UISegmentedControl *)sender {
+    NSLog(@"View controller subscription status: %i", (int) sender.selectedSegmentIndex);
+    [OneSignal setSubscription:(bool) sender.selectedSegmentIndex];
 }
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
-    NSLog(@"View controller in app messaging paused: %i", (int)sender.selectedSegmentIndex);
-    [OneSignal pauseInAppMessages:(bool)sender.selectedSegmentIndex];
+    NSLog(@"View controller in app messaging paused: %i", (int) !sender.selectedSegmentIndex);
+    [OneSignal pauseInAppMessages:(bool) !sender.selectedSegmentIndex];
 }
 
 -(void)handleMessageAction:(NSString *)actionId {

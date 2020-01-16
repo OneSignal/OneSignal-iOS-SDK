@@ -840,7 +840,7 @@ static OneSignal* singleInstance = nil;
         
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
         
-        NSArray* cachedFiles = [standardUserDefaults getSavedObjectForKey:CACHED_MEDIA defaultValue:nil];
+        NSArray* cachedFiles = [standardUserDefaults getSavedObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA defaultValue:nil];
         NSMutableArray* appendedCache;
         if (cachedFiles) {
             appendedCache = [[NSMutableArray alloc] initWithArray:cachedFiles];
@@ -849,7 +849,7 @@ static OneSignal* singleInstance = nil;
         else
             appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
         
-        [standardUserDefaults saveObjectForKey:CACHED_MEDIA withValue:appendedCache];
+        [standardUserDefaults saveObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA withValue:appendedCache];
         return name;
     } @catch (NSException *exception) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal encountered an exception while downloading file (%@), exception: %@", url, exception.description]];
@@ -860,12 +860,12 @@ static OneSignal* singleInstance = nil;
 }
 
 // TODO: Add back after testing
-+(void)clearCachedMedia {
++ (void)clearCachedMedia {
     /*
     if (!NSClassFromString(@"UNUserNotificationCenter"))
       return;
      
-    NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:@"CACHED_MEDIA"];
+    NSArray* cachedFiles = [[NSUserDefaults standardUserDefaults] objectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA];
     if (cachedFiles) {
         NSArray * paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         for (NSString* file in cachedFiles) {
@@ -873,7 +873,7 @@ static OneSignal* singleInstance = nil;
             NSError* error;
             [[NSFileManager defaultManager] removeItemAtPath:filePath error:&error];
         }
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"CACHED_MEDIA"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA];
     }
      */
 }
@@ -895,7 +895,7 @@ static OneSignal* singleInstance = nil;
 
 + (void) displayWebView:(NSURL*)url {
     // Check if in-app or safari
-    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:INAPP_LAUNCH_URL defaultValue:true];
+    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:true];
     
     // If the URL contains itunes.apple.com, it's an app store link
     // that should be opened using sharedApplication openURL

@@ -60,7 +60,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 }
 
 - (NSString*)unsentActiveTimeUserDefaultsKey {
-    return UNSENT_ACTIVE_TIME;
+    return OSUD_UNSENT_ACTIVE_TIME;
 }
 
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {

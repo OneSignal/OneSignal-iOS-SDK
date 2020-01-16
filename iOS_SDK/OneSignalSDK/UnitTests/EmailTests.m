@@ -98,8 +98,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [UnitTestCommonMethods runBackgroundThreads];
     
     //check to make sure that the push token & auth were saved to NSUserDefaults
-    XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:EMAIL_USERID defaultValue:nil]);
-    XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:EMAIL_AUTH_CODE defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EMAIL_PLAYER_ID defaultValue:nil]);
+    XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EMAIL_AUTH_CODE defaultValue:nil]);
     
     //check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);

@@ -34,8 +34,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate>
-  
-@property (nonatomic) BOOL isInAppMessagingPaused;
+
+@property (class, readonly) BOOL isInAppMessagingPaused;
 
 // Tracks when an IAM is showing or not, useful for deciding to show or hide an IAM
 // Toggled in two places dismissing/displaying

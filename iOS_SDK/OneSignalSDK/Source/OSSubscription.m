@@ -45,9 +45,9 @@
     _accpeted = permission;
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    _userId = [standardUserDefaults getSavedStringForKey:USERID defaultValue:nil];
-    _pushToken = [standardUserDefaults getSavedStringForKey:DEVICE_TOKEN defaultValue:nil];
-    _userSubscriptionSetting = [standardUserDefaults getSavedObjectForKey:SUBSCRIPTION defaultValue:nil] == nil;
+    _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+    _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_TO defaultValue:nil];
+    _userSubscriptionSetting = ![standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_TO];
     
     return self;
 }
@@ -61,10 +61,10 @@
 
 - (instancetype)initAsFrom {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    _accpeted = [standardUserDefaults getSavedBoolForKey:ACCEPTED_PERMISSION defaultValue:false];
-    _userId = [standardUserDefaults getSavedStringForKey:USERID_LAST defaultValue:nil];
-    _pushToken = [standardUserDefaults getSavedStringForKey:PUSH_TOKEN defaultValue:nil];
-    _userSubscriptionSetting = [standardUserDefaults getSavedObjectForKey:SUBSCRIPTION_SETTING defaultValue:nil] == nil;
+    _accpeted = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM defaultValue:false];
+    _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_FROM defaultValue:nil];
+    _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_FROM defaultValue:nil];
+    _userSubscriptionSetting = ![standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_FROM];
     
     return self;
 }
@@ -75,10 +75,10 @@
         strUserSubscriptionSetting = @"no";
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    [standardUserDefaults saveBoolForKey:ACCEPTED_PERMISSION withValue:_accpeted];
-    [standardUserDefaults saveStringForKey:USERID_LAST withValue:_userId];
-    [standardUserDefaults saveObjectForKey:PUSH_TOKEN withValue:_pushToken];
-    [standardUserDefaults saveObjectForKey:SUBSCRIPTION_SETTING withValue:strUserSubscriptionSetting];
+    [standardUserDefaults saveBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM withValue:_accpeted];
+    [standardUserDefaults saveStringForKey:OSUD_PLAYER_ID_FROM withValue:_userId];
+    [standardUserDefaults saveObjectForKey:OSUD_PUSH_TOKEN_FROM withValue:_pushToken];
+    [standardUserDefaults saveObjectForKey:OSUD_USER_SUBSCRIPTION_FROM withValue:strUserSubscriptionSetting];
 }
 
 - (instancetype)copyWithZone:(NSZone*)zone {
@@ -109,7 +109,7 @@
     BOOL changed = ![[NSString stringWithString:pushToken] isEqualToString:_pushToken];
     _pushToken = pushToken;
     if (changed) {
-        [OneSignalUserDefaults.initStandard saveStringForKey:DEVICE_TOKEN withValue:_pushToken];
+        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PUSH_TOKEN_TO withValue:_pushToken];
         
         if (self.observable)
             [self.observable notifyChange:self];

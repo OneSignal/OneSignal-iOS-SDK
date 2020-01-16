@@ -61,7 +61,7 @@ static let DELAY_TIME = 30;
 }
 
 - (NSString*)unsentActiveTimeUserDefaultsKey {
-    return UNSENT_ACTIVE_TIME_ATTRIBUTED;
+    return OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED;
 }
 
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {
