@@ -97,7 +97,7 @@ static OneSignalLocation* singleInstance = nil;
     }
 }
 
-+ (void) getLocation:(bool)prompt {
++ (void)getLocation:(bool)prompt {
     if (hasDelayed)
         [OneSignalLocation internalGetLocation:prompt];
     else {
@@ -217,7 +217,6 @@ static OneSignalLocation* singleInstance = nil;
 #pragma mark CLLocationManagerDelegate
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
-    
     // return if the user has not granted privacy permissions or location shared is false
     if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared])
         return;
