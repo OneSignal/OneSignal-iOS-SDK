@@ -540,6 +540,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
         [self downloadIOSParamsWithAppId:appId];
     
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    [self initSettings:settings withStandardUserDefaults:standardUserDefaults];
+    
     if (initDone)
         return self;
     initDone = true;
@@ -553,61 +556,13 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
 
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
     [OneSignal checkIfApplicationImplementsDeprecatedMethods];
     
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
         registeredWithApple = self.currentPermissionState.accepted;
     else
         registeredWithApple = self.currentSubscriptionState.pushToken || [standardUserDefaults getSavedBoolForKey:OSUD_REGISTERED_WITH_APPLE defaultValue:false];
-    
-    // Check if disabled in-app launch url if passed a NO
-    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
-        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
-    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
-        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
-        [self enableInAppLaunchURL:true];
-    }
-    
-    if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
-        promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
-        [standardUserDefaults saveBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS withValue:promptBeforeOpeningPushURLs];
-    }
-    else
-        promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS defaultValue:false];
-    
-    usesAutoPrompt = YES;
-    if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
-        usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
-    
-    if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
-        providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
-    
-    // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-    if (usesAutoPrompt || registeredWithApple)
-        [self registerForPushNotifications];
-    else {
-        [self checkProvisionalAuthorizationStatus];
-        [self registerForAPNsToken];
-    }
-
-    /* Check if in-app setting passed assigned
-     *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
-     *  Priority for kOSSettingsKeyInFocusDisplayOption.
-     */
-    NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
-    let inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
-    
-    NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
-    let inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
-    
-    if (inAppAlertsPassed || inFocusDisplayPassed) {
-        if (!inFocusDisplayPassed)
-            self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
-        else
-            self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
-    }
-    
+ 
     if (self.currentSubscriptionState.userId)
         [self registerUser];
     else {
@@ -619,7 +574,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             }
         }];
     }
- 
+    
     /*
      * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
      *  - application:didReceiveRemoteNotification:fetchCompletionHandler
@@ -702,6 +657,55 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     }
     
     return true;
+}
+
++ (void)initSettings:(NSDictionary*)settings withStandardUserDefaults:(OneSignalUserDefaults*)standardUserDefaults {
+    // Check if disabled in-app launch url if passed a NO
+    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
+        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
+    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
+        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
+        [self enableInAppLaunchURL:true];
+    }
+    
+    if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
+        promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
+        [standardUserDefaults saveBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS withValue:promptBeforeOpeningPushURLs];
+    }
+    else
+        promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS defaultValue:false];
+    
+    usesAutoPrompt = YES;
+    if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
+        usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
+    
+    if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
+        providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
+    
+    // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
+    if (usesAutoPrompt || registeredWithApple)
+        [self registerForPushNotifications];
+    else {
+        [self checkProvisionalAuthorizationStatus];
+        [self registerForAPNsToken];
+    }
+
+    /* Check if in-app setting passed assigned
+     *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
+     *  Priority for kOSSettingsKeyInFocusDisplayOption.
+     */
+    NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
+    let inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
+    
+    NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
+    let inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
+    
+    if (inAppAlertsPassed || inFocusDisplayPassed) {
+        if (!inFocusDisplayPassed)
+            self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
+        else
+            self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
+    }
 }
 
 // Checks to see if we should register for APNS' new Provisional authorization
