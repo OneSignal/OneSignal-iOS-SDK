@@ -426,6 +426,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     requestedProvisionalAuthorization = false;
     
     app_id = nil;
+    registeredWithApple = false;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
     waitingForOneSReg = false;
@@ -530,6 +531,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     }
     
     [OneSignalCacheCleaner cleanCachedUserData];
+    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
     
     let success = [self initAppId:appId withSettings:settings];
     if (!success)
@@ -555,25 +557,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false];
-
-    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
-    
-    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
-        registeredWithApple = self.currentPermissionState.accepted;
-    else
-        registeredWithApple = self.currentSubscriptionState.pushToken || [standardUserDefaults getSavedBoolForKey:OSUD_REGISTERED_WITH_APPLE defaultValue:false];
- 
-    if (self.currentSubscriptionState.userId)
-        [self registerUser];
-    else {
-        [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
-            if (state.answeredPrompt) {
-                [self registerUser];
-            } else {
-                [self registerUserAfterDelay];
-            }
-        }];
-    }
     
     /*
      * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
@@ -660,6 +643,11 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 + (void)initSettings:(NSDictionary*)settings withStandardUserDefaults:(OneSignalUserDefaults*)standardUserDefaults {
+    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
+        registeredWithApple = self.currentPermissionState.accepted;
+    else
+        registeredWithApple = self.currentSubscriptionState.pushToken || [standardUserDefaults getSavedBoolForKey:OSUD_REGISTERED_WITH_APPLE defaultValue:false];
+    
     // Check if disabled in-app launch url if passed a NO
     if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
         [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
@@ -705,6 +693,17 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
             self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
         else
             self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
+    }
+ 
+    if (self.currentSubscriptionState.userId)
+        [self registerUser];
+    else {
+        [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
+            if (state.answeredPrompt)
+                [self registerUser];
+            else
+                [self registerUserAfterDelay];
+        }];
     }
 }
 
