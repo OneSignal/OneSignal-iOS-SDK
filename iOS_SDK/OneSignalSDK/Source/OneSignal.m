@@ -581,6 +581,14 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     return self;
 }
 
++ (void)setAppId:(NSString*)appId {
+    
+}
+
++ (void)setLaunchOptions:(NSDictionary*)launchOptions {
+    
+}
+
 + (NSString *)appGroupKey {
     return [OneSignalExtensionBadgeHandler appGroupName];
 }
