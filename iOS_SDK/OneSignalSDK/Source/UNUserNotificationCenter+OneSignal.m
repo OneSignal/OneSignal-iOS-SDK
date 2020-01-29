@@ -187,7 +187,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     }
     let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
     
-    if ([OneSignal app_id])
+    if ([OneSignal appId])
         [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:notShown];
     
     // Call orginal selector if one was set.
@@ -251,7 +251,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 }
 
 + (void) processiOS10Open:(UNNotificationResponse*)response {
-    if (![OneSignal app_id])
+    if (![OneSignal appId])
         return;
     
     if ([OneSignalUNUserNotificationCenter isDismissEvent:response])

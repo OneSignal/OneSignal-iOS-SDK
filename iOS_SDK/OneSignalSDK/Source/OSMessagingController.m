@@ -51,7 +51,7 @@
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *impressionedInAppMessages;
 
 // Click action block to allow overridden behavior when clicking an IAM
-@property (strong, nonatomic, nullable) OSHandleInAppMessageActionClickBlock actionClickBlock;
+@property (strong, nonatomic, nullable) OSInAppMessageClickBlock actionClickBlock;
 
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
@@ -126,7 +126,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self evaluateMessages];
 }
 
-- (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)actionClickBlock {
+- (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {
     self.actionClickBlock = actionClickBlock;
 }
 
@@ -208,7 +208,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self.impressionedInAppMessages addObject:message.messageId];
     
     // Create the request and attach a payload to it
-    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.app_id
+    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.appId
                                                    withPlayerId:OneSignal.currentSubscriptionState.userId
                                                   withMessageId:message.messageId
                                                    forVariantId:message.variantId];
@@ -337,7 +337,7 @@ static BOOL _isInAppMessagingPaused = false;
     // Add clickId to clickedClickIds
     [self.clickedClickIds addObject:action.clickId];
     
-    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.app_id
+    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
                                                     withPlayerId:OneSignal.currentSubscriptionState.userId
                                                    withMessageId:message.messageId
                                                     forVariantId:message.variantId
@@ -397,7 +397,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (BOOL)isInAppMessagingPaused { return false; }
 - (void)setInAppMessagingPaused:(BOOL)pause {}
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {}
-- (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)actionClickBlock {}
+- (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {}
 - (void)presentInAppMessage:(OSInAppMessage *)message {}
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message {}
 - (void)displayMessage:(OSInAppMessage *)message {}
