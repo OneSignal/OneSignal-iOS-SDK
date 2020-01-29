@@ -78,7 +78,7 @@
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     

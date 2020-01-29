@@ -290,33 +290,40 @@
 static var lastMessageID = @"";
 static NSString *_lastMessageIdFromAction;
 
+NSDictionary* lastMessageReceived;
+UIBackgroundTaskIdentifier mediaBackgroundTask;
+
 + (void)resetLocals {
     [OneSignalHelper lastMessageReceived:nil];
     _lastMessageIdFromAction = nil;
     lastMessageID = @"";
 }
 
-UIBackgroundTaskIdentifier mediaBackgroundTask;
+OSNotificationWillShowInForegroundBlock notificationWillShowInForegroundHandler;
++ (void)setNotificationWillShowInForegroundBlock:(OSNotificationWillShowInForegroundBlock)block {
+    notificationWillShowInForegroundHandler = block;
+}
 
-+ (void) beginBackgroundMediaTask {
+OSNotificationOpenedBlock notificationOpenedHandler;
++ (void)setNotificationOpenedBlock:(OSNotificationOpenedBlock)block {
+    notificationOpenedHandler = block;
+}
+
+//Passed to the OnFocus to make sure dismissed when coming back into app
+OneSignalWebView *webVC;
++ (OneSignalWebView*)webVC {
+    return webVC;
+}
+
++ (void)beginBackgroundMediaTask {
     mediaBackgroundTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
         [OneSignalHelper endBackgroundMediaTask];
     }];
 }
 
-+ (void) endBackgroundMediaTask {
++ (void)endBackgroundMediaTask {
     [[UIApplication sharedApplication] endBackgroundTask: mediaBackgroundTask];
     mediaBackgroundTask = UIBackgroundTaskInvalid;
-}
-
-OneSignalWebView *webVC;
-NSDictionary* lastMessageReceived;
-OSHandleNotificationReceivedBlock handleNotificationReceived;
-OSHandleNotificationActionBlock handleNotificationAction;
-
-//Passed to the OnFocus to make sure dismissed when coming back into app
-+(OneSignalWebView*)webVC {
-    return webVC;
 }
 
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg {
@@ -328,14 +335,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
 
 + (void)lastMessageReceived:(NSDictionary*)message {
     lastMessageReceived = message;
-}
-
-+(void)setNotificationActionBlock:(OSHandleNotificationActionBlock)block {
-    handleNotificationAction = block;
-}
-
-+(void)setNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)block {
-    handleNotificationReceived = block;
 }
 
 + (NSString*)getAppName {
@@ -431,8 +430,8 @@ OSHandleNotificationActionBlock handleNotificationAction;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
                      message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
 
-    if (handleNotificationReceived)
-       handleNotificationReceived(notification);
+    if (notificationWillShowInForegroundHandler)
+       notificationWillShowInForegroundHandler(notification);
 }
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
@@ -451,9 +450,9 @@ OSHandleNotificationActionBlock handleNotificationAction;
     
     [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
     
-    if (!handleNotificationAction)
+    if (!notificationOpenedHandler)
         return;
-    handleNotificationAction(result);
+    notificationOpenedHandler(result);
 }
 
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
@@ -468,7 +467,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return NO;
 }
 
-+(NSNumber*)getNetType {
++ (NSNumber*)getNetType {
     OneSignalReachability* reachability = [OneSignalReachability reachabilityForInternetConnection];
     NetworkStatus status = [reachability currentReachabilityStatus];
     if (status == ReachableViaWiFi)
@@ -476,7 +475,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return @1;
 }
 
-+ (NSString *)getCurrentDeviceVersion {
++ (NSString*)getCurrentDeviceVersion {
     return [[UIDevice currentDevice] systemVersion];
 }
 
@@ -488,7 +487,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
-+ (NSString*) getSystemInfoMachine {
++ (NSString*)getSystemInfoMachine {
     // e.g. @"x86_64" or @"iPhone9,3"
     struct utsname systemInfo;
     uname(&systemInfo);
@@ -579,12 +578,11 @@ OSHandleNotificationActionBlock handleNotificationAction;
 
 //Shared instance as OneSignal is delegate of UNUserNotificationCenterDelegate and CLLocationManagerDelegate
 static OneSignal* singleInstance = nil;
-+(OneSignal*)sharedInstance {
++ (OneSignal*)sharedInstance {
     @synchronized( singleInstance ) {
         if (!singleInstance )
             singleInstance = [OneSignal new];
     }
-    
     return singleInstance;
 }
 
@@ -613,7 +611,7 @@ static OneSignal* singleInstance = nil;
         curNotifCenter.delegate = (id)[self sharedInstance];
 }
 
-+(UNNotificationRequest*)prepareUNNotificationRequest:(OSNotificationPayload*)payload {
++ (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotificationPayload*)payload {
     let content = [UNMutableNotificationContent new];
     
     [self addActionButtons:payload toNotificationContent:content];
@@ -900,7 +898,7 @@ static OneSignal* singleInstance = nil;
     return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
 }
 
-+ (void) displayWebView:(NSURL*)url {
++ (void)displayWebView:(NSURL*)url {
     // Check if in-app or safari
     __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:true];
     
@@ -939,20 +937,21 @@ static OneSignal* singleInstance = nil;
         [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withActions:@[openAction] cancelTitle:cancelAction withActionCompletion:^(int tappedActionIndex) {
             openUrlBlock(tappedActionIndex > -1);
         }];
-    } else {
+    }
+    else {
         openUrlBlock(true);
     }
         
 }
 
-+ (void) runOnMainThread:(void(^)())block {
++ (void)runOnMainThread:(void(^)())block {
     if ([NSThread isMainThread])
         block();
     else
         dispatch_sync(dispatch_get_main_queue(), block);
 }
 
-+ (void) dispatch_async_on_main_queue:(void(^)())block {
++ (void)dispatch_async_on_main_queue:(void(^)())block {
     dispatch_async(dispatch_get_main_queue(), block);
 }
 
@@ -962,7 +961,7 @@ static OneSignal* singleInstance = nil;
     }];
 }
 
-+ (BOOL) isValidEmail:(NSString*)email {
++ (BOOL)isValidEmail:(NSString*)email {
     NSError *error = NULL;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$"
                                                                            options:NSRegularExpressionCaseInsensitive

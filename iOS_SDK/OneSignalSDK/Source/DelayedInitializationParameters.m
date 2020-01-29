@@ -29,7 +29,7 @@
 
 @implementation DelayedInitializationParameters
 
--(instancetype)initWithLaunchOptions:(NSDictionary *)launchOptions withAppId:(NSString *)appId withHandleNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)received withHandleNotificationActionBlock:(OSHandleNotificationActionBlock)action withSettings:(NSDictionary *)settings {
+-(instancetype)initWithLaunchOptions:(NSDictionary *)launchOptions withAppId:(NSString *)appId withHandleNotificationReceivedBlock:(OSNotificationWillShowInForegroundBlock)received withHandleNotificationActionBlock:(OSNotificationOpenedBlock)action withSettings:(NSDictionary *)settings {
     self.launchOptions = launchOptions;
     self.appId = appId;
     self.receivedBlock = received;

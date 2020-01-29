@@ -30,12 +30,12 @@
 
 @interface DelayedInitializationParameters : NSObject
 
--(instancetype _Nonnull)initWithLaunchOptions:(NSDictionary * _Nullable)launchOptions withAppId:(NSString * _Nullable)appId withHandleNotificationReceivedBlock:(OSHandleNotificationReceivedBlock _Nullable)received withHandleNotificationActionBlock:(OSHandleNotificationActionBlock _Nullable)action withSettings:(NSDictionary * _Nullable)settings;
+-(instancetype _Nonnull)initWithLaunchOptions:(NSDictionary * _Nullable)launchOptions withAppId:(NSString * _Nullable)appId withHandleNotificationReceivedBlock:(OSNotificationWillShowInForegroundBlock _Nullable)received withHandleNotificationActionBlock:(OSNotificationOpenedBlock _Nullable)action withSettings:(NSDictionary * _Nullable)settings;
 
 @property (strong, nonatomic, nullable) NSDictionary *launchOptions;
 @property (strong, nonatomic, nullable) NSString *appId;
 @property (strong, nonatomic, nullable) NSDictionary *settings;
-@property (nonatomic, nullable) OSHandleNotificationReceivedBlock receivedBlock;
-@property (nonatomic, nullable) OSHandleNotificationActionBlock actionBlock;
+@property (nonatomic, nullable) OSNotificationWillShowInForegroundBlock receivedBlock;
+@property (nonatomic, nullable) OSNotificationOpenedBlock actionBlock;
 
 @end

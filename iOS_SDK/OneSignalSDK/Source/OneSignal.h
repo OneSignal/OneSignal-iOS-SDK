@@ -418,13 +418,13 @@ typedef void (^OSFailureBlock)(NSError* error);
 typedef void (^OSIdsAvailableBlock)(NSString* userId, NSString* pushToken);
 
 /*Block for handling the reception of a remote notification */
-typedef void (^OSHandleNotificationReceivedBlock)(OSNotification* notification);
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification* notification);
 
 /*Block for handling a user reaction to a notification*/
-typedef void (^OSHandleNotificationActionBlock)(OSNotificationOpenedResult * result);
+typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
 
 /*Block for handling user click on an in app message*/
-typedef void (^OSHandleInAppMessageActionClickBlock)(OSInAppMessageAction* action);
+typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction* action);
 
 /*Block for handling outcome event being sent successfully*/
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
@@ -472,10 +472,10 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
  */
 
 // - Initialization
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback settings:(NSDictionary*)settings;
++ (void)setAppId:(NSString*)newAppId;
++ (void)setLaunchOptions:(NSDictionary*)launchOptions;
+
++ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSNotificationWillShowInForegroundBlock)receivedCallback handleNotificationAction:(OSNotificationOpenedBlock)actionCallback settings:(NSDictionary*)settings;
 
 // - Privacy
 + (void)consentGranted:(BOOL)granted;
@@ -484,7 +484,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 @property (class) OSNotificationDisplayType inFocusDisplayType;
 
-+ (NSString*)app_id;
++ (NSString*)appId;
 + (NSString*)sdk_version_raw;
 + (NSString*)sdk_semantic_version;
 
@@ -497,6 +497,11 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // page for your app specifically
 + (void)presentAppSettings;
 + (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
+
+// - Blocks
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)delegate;
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)delegate;
++ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)delegate;
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
@@ -552,8 +557,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
-
-+ (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)delegate;
 
 // iOS 10 only
 // Process from Notification Service Extension.
