@@ -126,10 +126,10 @@ static BOOL lastOnFocusWasToBackground = YES;
     if (wasBadgeSet) {
         NSMutableDictionary *requests = [NSMutableDictionary new];
         
-        requests[@"push"] = [OSRequestBadgeCount withUserId:[OneSignal mUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:nil];
+        requests[@"push"] = [OSRequestBadgeCount withUserId:[OneSignal mUserId] appId:[OneSignal appId] badgeCount:@0 emailAuthToken:nil];
         
         if ([OneSignal mEmailUserId])
-            requests[@"email"] = [OSRequestBadgeCount withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken]];
+            requests[@"email"] = [OSRequestBadgeCount withUserId:[OneSignal mEmailUserId] appId:[OneSignal appId] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken]];
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
     }
@@ -174,7 +174,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 
 + (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult onSessionEnded:(BOOL)onSessionEnded  {
     let timeElapsed = [self getTimeFocusedElapsed];
-    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id]
+    return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal appId]
                                                    userId:[OneSignal mUserId]
                                               emailUserId:[OneSignal mEmailUserId]
                                            emailAuthToken:[OneSignal mEmailAuthToken]

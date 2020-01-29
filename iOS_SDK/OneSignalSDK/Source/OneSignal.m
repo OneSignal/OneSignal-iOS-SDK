@@ -97,7 +97,7 @@ NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 /* Set InFocusDisplayOption value must be an OSNotificationDisplayType enum*/
 NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisplayOption";
 
-/* Omit no app_id error logging, for use with wrapper SDKs. */
+/* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
 /* Determine whether to automatically open push notification URL's or prompt user for permission */
@@ -170,8 +170,15 @@ static BOOL delayedInitializationForPrivacyConsent = false;
 // method can be called the moment the user provides privacy consent.
 DelayedInitializationParameters *delayedInitParameters;
 
-// Ensure we only initlize the SDK once even if the public method is called more.
-static BOOL initDone;
+static NSString* appId;
+static NSDictionary* launchOptions;
+// Make sure launchOptions have been set
+// We need this BOL because launchOptions can be null so simply null checking
+//  won't validate whether or not launchOptions have been set
+static BOOL hasSetLaunchOptions = false;
+// Ensure we only initlize the SDK once even if the public method is called more
+// Called after successfully calling setAppId and setLaunchOptions
+static BOOL initDone = false;
 
 //used to ensure registration occurs even if APNS does not respond
 static NSDate *initializationTime;
@@ -187,7 +194,6 @@ static NSDate *sessionLaunchTime;
 static BOOL shouldRequireUserConsent = false;
 
 static OneSignalTrackIAP* trackIAPPurchase;
-static NSString* app_id;
 NSString* emailToSet;
 NSMutableDictionary* tagsToSend;
 
@@ -373,8 +379,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     return _outcomeEventsController;
 }
 
-+ (NSString*)app_id {
-    return app_id;
++ (NSString*)appId {
+    return appId;
 }
 
 + (NSString*)sdk_version_raw {
@@ -421,11 +427,13 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 + (void)clearStatics {
+    appId = nil;
+    launchOptions = false;
+    hasSetLaunchOptions = false;
     initDone = false;
     usesAutoPrompt = false;
     requestedProvisionalAuthorization = false;
-    
-    app_id = nil;
+
     registeredWithApple = false;
     _osNotificationSettings = nil;
     waitingForApnsResponse = false;
@@ -464,79 +472,35 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 + (BOOL)shouldDelaySubscriptionSettingsUpdate {
     return shouldDelaySubscriptionUpdate;
 }
-    
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
-    return [self initWithLaunchOptions:launchOptions
-                                 appId:appId
-            handleNotificationReceived:NULL
-              handleNotificationAction:NULL
-                              settings:@{
-                                  kOSSettingsKeyAutoPrompt :@YES,
-                                  kOSSettingsKeyInAppAlerts : @YES,
-                                  kOSSettingsKeyInAppLaunchURL : @YES,
-                                  kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO
-                              }];
-}
-
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions
-                       appId:(NSString*)appId
-   handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
-    
-    return [self initWithLaunchOptions:launchOptions
-                                 appId:appId
-            handleNotificationReceived:NULL
-              handleNotificationAction:actionCallback
-                              settings:@{
-                                  kOSSettingsKeyAutoPrompt : @YES,
-                                  kOSSettingsKeyInAppAlerts : @YES,
-                                  kOSSettingsKeyInAppLaunchURL : @YES,
-                                  kOSSSettingsKeyPromptBeforeOpeningPushURL : @NO
-                              }];
-}
 
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions
                       appId:(NSString*)appId
-   handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback
+ handleNotificationReceived:(OSNotificationWillShowInForegroundBlock)receivedCallback
+   handleNotificationAction:(OSNotificationOpenedBlock)actionCallback
                    settings:(NSDictionary*)settings {
     
-    return [self initWithLaunchOptions:launchOptions
-                                 appId:appId
-            handleNotificationReceived:NULL
-              handleNotificationAction:actionCallback
-                              settings:settings];
-}
+//    [OneSignalHelper setNotificationOpenedBlock:actionCallback];
+//    [OneSignalHelper setNotificationWillShowInForegroundBlock:receivedCallback];
+//
+//    if ([self requiresUserPrivacyConsent]) {
+//        delayedInitializationForPrivacyConsent = true;
+//        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
+//                                                                                     withAppId:appId
+//                                                           withHandleNotificationReceivedBlock:receivedCallback
+//                                                             withHandleNotificationActionBlock:actionCallback
+//                                                                                  withSettings:settings];
+//        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+//        return self;
+//    }
+//
+//    [OneSignalCacheCleaner cleanCachedUserData];
+//    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
+    
+//    let success = [self initAppId:appId withSettings:settings];
+//    if (!success)
+//        return self;
 
-// NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
-//        Ensure a 2nd call can be made later with the appId from the developer's code.
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions
-                      appId:(NSString*)appId
- handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback
-   handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback
-                   settings:(NSDictionary*)settings {
-    
-    [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
-    
-    [OneSignalHelper setNotificationActionBlock:actionCallback];
-    [OneSignalHelper setNotificationReceivedBlock:receivedCallback];
-    
-    if ([self requiresUserPrivacyConsent]) {
-        delayedInitializationForPrivacyConsent = true;
-        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
-                                                                                     withAppId:appId
-                                                           withHandleNotificationReceivedBlock:receivedCallback
-                                                             withHandleNotificationActionBlock:actionCallback
-                                                                                  withSettings:settings];
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
-        return self;
-    }
-    
-    [OneSignalCacheCleaner cleanCachedUserData];
-    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
-    
-    let success = [self initAppId:appId withSettings:settings];
-    if (!success)
-        return self;
-    
+
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
@@ -581,19 +545,138 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     return self;
 }
 
-+ (void)setAppId:(NSString*)appId {
-    
+/*
+
+ */
++ (void)setAppId:(NSString*)newAppId {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
+
+    if (!newAppId || newAppId.length == 0) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
+        return;
+    }
+    else if (![newAppId isEqualToString:appId])  {
+        // Pre-check on app id to make sure init of SDK is performed properly
+        //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
+        initDone = false;
+    }
+
+    appId = newAppId;
+
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
+    if (!hasSetLaunchOptions) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
+        return;
+    }
+
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) successful and launchOptions are set, continuing OneSignal init..."];
+    [self init];
 }
 
-+ (void)setLaunchOptions:(NSDictionary*)launchOptions {
-    
+/*
+
+ */
++ (void)setLaunchOptions:(NSDictionary*)newLaunchOptions {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
+
+    hasSetLaunchOptions = true;
+    launchOptions = newLaunchOptions;
+
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
+    if (!appId  || appId.length == 0) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"launchOptions set, but please call setAppId(id) to complete OneSignal init!"];
+        return;
+    }
+
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, continuing OneSignal init..."];
+    [self init];
+}
+
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)delegate {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
+    [OneSignalHelper setNotificationWillShowInForegroundBlock:delegate];
+}
+
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)delegate {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Notification opened handler set successfully"];
+    [OneSignalHelper setNotificationOpenedBlock:delegate];
+}
+
++ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)delegate {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
+    [OSMessagingController.sharedInstance setInAppMessageClickHandler:delegate];
+}
+
+/*
+ TODO: Does this comment from previous initWithLaunchOptions make sense?
+ NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
+    Ensure a 2nd call can be made later with the appId from the developer's code.
+
+ */
++ (void)init {
+    if ([self requiresUserPrivacyConsent]) {
+        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+        delayedInitializationForPrivacyConsent = true;
+//        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
+//                                                                                     withAppId:appId
+//                                                           withHandleNotificationReceivedBlock:receivedCallback
+//                                                             withHandleNotificationActionBlock:actionCallback
+//                                                                                  withSettings:settings];
+        return;
+    }
+
+    [OneSignalCacheCleaner cleanCachedUserData];
+    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
+
+    let success = [self handleAppIdChange:appId];
+    if (!success)
+        return;
+
+    // Wrapper SDK's call init twice and pass null as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
+    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:appId];
+
+    if (initDone)
+        return;
+
+    initializationTime = [NSDate date];
+
+    // Outcomes init
+    _sessionManager = [[OneSignalSessionManager alloc] init:self];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
+
+    if (appId && mShareLocation)
+       [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
+
+    /*
+     * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
+     *  - application:didReceiveRemoteNotification:fetchCompletionHandler
+     *  - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (iOS10)
+     */
+
+    // Cold start from tap on a remote notification
+    //  NOTE: launchOptions may be nil if tapping on a notification's action button.
+    NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    if (userInfo)
+        coldStartFromTapOnNotification = YES;
+
+    [self clearBadgeCount:false];
+
+    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
+        trackIAPPurchase = [OneSignalTrackIAP new];
+
+    if ([OneSignalTrackFirebaseAnalytics libraryExists])
+        [OneSignalTrackFirebaseAnalytics init];
+
+    initDone = true;
 }
 
 + (NSString *)appGroupKey {
     return [OneSignalExtensionBadgeHandler appGroupName];
 }
 
-+ (bool)initAppId:(NSString*)appId withSettings:(NSDictionary*)settings {
++ (BOOL)handleAppIdChange:(NSString*)appId {
     // TODO: Maybe in the future we can make a file with add app ids and validate that way?
     if ([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:appId] ||
         [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId]) {
@@ -603,46 +686,48 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     let prevAppId = [standardUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
     if (appId) {
-        app_id = appId;
+        appId = appId;
     } else {
         // Read from .plist if not passed in with this method call.
-        app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
-        if (!app_id) {
+        appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
+        if (!appId) {
             
-            app_id = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
-            if (!app_id)
+            appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
+            if (!appId) {
                 
-                app_id = prevAppId;
-                if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
-                    onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
-                else
-                    return true;
+                appId = prevAppId;
+                return true;
+//                if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
+//                    onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
+//                else
+//                    return true;
+            }
         }
     }
     
     // Handle changes to the app id, this might happen on a developer's device when testing
     // Will also run the first time OneSignal is initialized
-    if (app_id && ![app_id isEqualToString:prevAppId]) {
+    if (appId && ![appId isEqualToString:prevAppId]) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
         
-        [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:app_id];
+        [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:appId];
         
         // Remove player_id from both standard and shared NSUserDefaults
         [standardUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
         [sharedUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
     }
     
-    // Always save app_id and player_id as it will not be present on shared if:
+    // Always save appId and player_id as it will not be present on shared if:
     //   - Updating from an older SDK
     //   - Updating to an app that didn't have App Groups setup before
-    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:app_id];
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
     
     // Invalid app ids reaching here will cause failure
-    if (!app_id || ![[NSUUID alloc] initWithUUIDString:app_id]) {
+    if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
        onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n");
        return false;
     }
@@ -1142,11 +1227,19 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     NSMutableDictionary *requests = [NSMutableDictionary new];
     
-    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
-    
+    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId
+                                                        appId:self.appId
+                                                         tags:nowSendingTags
+                                                  networkType:[OneSignalHelper getNetType]
+                                       withEmailAuthHashToken:nil];
+
     if ([self isEmailSetup])
-        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:self.currentEmailSubscriptionState.emailAuthCode];
-    
+        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentEmailSubscriptionState.emailUserId
+                                                             appId:self.appId
+                                                              tags:nowSendingTags
+                                                       networkType:[OneSignalHelper getNetType]
+                                            withEmailAuthHashToken:self.currentEmailSubscriptionState.emailAuthCode];
+
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         //the tags for email & push are identical so it doesn't matter what we return in the success block
         
@@ -1201,7 +1294,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         return;
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestGetTags withUserId:self.currentSubscriptionState.userId appId:self.app_id] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestGetTags withUserId:self.currentSubscriptionState.userId appId:self.appId] onSuccess:^(NSDictionary *result) {
         successBlock([result objectForKey:@"tags"]);
     } onFailure:failureBlock];
     
@@ -1297,7 +1390,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     [OneSignal convertDatesToISO8061Strings:json]; //convert any dates to NSString's
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.app_id withJson:json] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.appId withJson:json] onSuccess:^(NSDictionary *result) {
         dispatch_async(dispatch_get_main_queue(), ^{
             NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
             NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -1386,7 +1479,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     self.currentSubscriptionState.userSubscriptionSetting = enable;
     
-    if (app_id)
+    if (appId)
         [OneSignal sendNotificationTypesUpdate];
 }
 
@@ -1476,7 +1569,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
       let request = [OSRequestUpdateDeviceToken
           withUserId:self.currentSubscriptionState.userId
-          appId:self.app_id
+          appId:self.appId
           deviceToken:self.currentSubscriptionState.pushToken
           notificationTypes:@([self getNotificationTypes])
           withParentId:nil
@@ -1588,7 +1681,7 @@ static dispatch_queue_t serialQueue;
     
     let infoDictionary = [[NSBundle mainBundle] infoDictionary];
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                   app_id, @"app_id",
+                   appId, @"app_id",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
                    [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
                    [NSNumber numberWithInt:DEVICE_TYPE_PUSH], @"device_type",
@@ -1692,7 +1785,7 @@ static dispatch_queue_t serialQueue;
         // If push device has external id we want to add it to the email device also
         if (dataDic[@"external_user_id"])
             emailDataDic[@"external_user_id"] = dataDic[@"external_user_id"];
-        
+
         requests[@"email"] = [OSRequestRegisterUser withData:emailDataDic userId:self.currentEmailSubscriptionState.emailUserId];
     } else {
         // If no email is setup clear the email external user id
@@ -1719,7 +1812,7 @@ static dispatch_queue_t serialQueue;
             
             self.currentEmailSubscriptionState.emailUserId = results[@"email"][@"id"];
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_PLAYER_ID withValue:self.currentEmailSubscriptionState.emailUserId];
-            
+
             // Email successfully updated, so if there was an external user id we should cache it for email now
             if (dataDic[@"external_user_id"]) {
                 [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:dataDic[@"external_user_id"]];
@@ -1802,15 +1895,15 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     let messages = [NSMutableArray new];
-    
+
     if (messagesJson) {
         for (NSDictionary *messageJson in messagesJson) {
             let message = [OSInAppMessage instanceWithJson:messageJson];
-            
+
             if (message)
                 [messages addObject:message];
         }
-        
+
         [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
         return;
     }
@@ -1845,7 +1938,7 @@ static dispatch_queue_t serialQueue;
         //delays observer update until the OneSignal server is notified
         shouldDelaySubscriptionUpdate = true;
         
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.app_id notificationTypes:@([self getNotificationTypes])] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:self.currentSubscriptionState.userId appId:self.appId notificationTypes:@([self getNotificationTypes])] onSuccess:^(NSDictionary *result) {
             
             shouldDelaySubscriptionUpdate = false;
             
@@ -1864,10 +1957,6 @@ static dispatch_queue_t serialQueue;
 }
 
 // In-App Messaging Public Methods
-+ (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)clickActionBlock {
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:clickActionBlock];
-}
-
 + (void)pauseInAppMessages:(BOOL)pause {
     [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
 }
@@ -1886,10 +1975,10 @@ static dispatch_queue_t serialQueue;
     
     let requests = [NSMutableDictionary new];
     
-    requests[@"push"] = [OSRequestSendPurchases withUserId:self.currentSubscriptionState.userId appId:self.app_id withPurchases:purchases];
+    requests[@"push"] = [OSRequestSendPurchases withUserId:self.currentSubscriptionState.userId appId:self.appId withPurchases:purchases];
     
     if (self.currentEmailSubscriptionState.emailUserId)
-        requests[@"email"] = [OSRequestSendPurchases withUserId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:self.currentEmailSubscriptionState.emailAuthCode appId:self.app_id withPurchases:purchases];
+        requests[@"email"] = [OSRequestSendPurchases withUserId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:self.currentEmailSubscriptionState.emailAuthCode appId:self.appId withPurchases:purchases];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
@@ -1912,7 +2001,7 @@ static NSString *_lastnonActiveMessageId;
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (!app_id)
+    if (!appId)
         return;
     
     // This method should not continue to be executed for non-OS push notifications
@@ -2057,7 +2146,7 @@ static NSString *_lastnonActiveMessageId;
     //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
     if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
         [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:self.currentSubscriptionState.userId
-                                                                                             appId:self.app_id
+                                                                                             appId:self.appId
                                                                                          wasOpened:YES
                                                                                          messageId:messageId
                                                                                     withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
@@ -2171,7 +2260,7 @@ static NSString *_lastnonActiveMessageId;
 
     waitingForApnsResponse = false;
 
-    if (!app_id)
+    if (!appId)
         return;
     
     [OneSignal updateDeviceToken:parsedDeviceToken];
@@ -2271,7 +2360,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    [OneSignalClient.sharedClient executeRequest:[OSRequestSyncHashedEmail withUserId:self.currentSubscriptionState.userId appId:self.app_id email:trimmedEmail networkType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
+    [OneSignalClient.sharedClient executeRequest:[OSRequestSyncHashedEmail withUserId:self.currentSubscriptionState.userId appId:self.appId email:trimmedEmail networkType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
 }
 
 // Called from the app's Notification Service Extension
@@ -2309,29 +2398,29 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setEmail:(NSString * _Nonnull)email {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:"])
         return;
-    
+
     [self setEmail:email withSuccess:nil withFailure:nil];
 }
 
 + (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withSuccess:withFailure:"])
         return;
-    
+
     [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withEmailAuthHashToken:"])
         return;
-    
+
     [self setEmail:email withEmailAuthHashToken:hashToken withSuccess:nil withFailure:nil];
 }
 
@@ -2382,15 +2471,15 @@ static NSString *_lastnonActiveMessageId;
     //  otherwise, we should call Create Device
     // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
     if (self.currentEmailSubscriptionState.emailUserId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id deviceToken:email notificationTypes:nil withParentId:nil emailAuthToken:emailAuthToken email:nil] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.appId deviceToken:email notificationTypes:nil withParentId:nil emailAuthToken:emailAuthToken email:nil] onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock];
         } onFailure:^(NSError *error) {
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_EMAIL] withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.appId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_EMAIL] withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken] onSuccess:^(NSDictionary *result) {
             
-            let emailPlayerId = (NSString*) result[@"id"];
+            let emailPlayerId = (NSString*)result[@"id"];
             
             if (emailPlayerId) {
                 self.currentEmailSubscriptionState.emailAddress = email;
@@ -2400,7 +2489,7 @@ static NSString *_lastnonActiveMessageId;
                 //call persistAsFrom in order to save the emailAuthToken & playerId to NSUserDefaults
                 [self.currentEmailSubscriptionState persist];
                 
-                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.app_id deviceToken:nil notificationTypes:@([self getNotificationTypes]) withParentId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:hashToken email:email] onSuccess:^(NSDictionary *result) {
+                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil notificationTypes:@([self getNotificationTypes]) withParentId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:hashToken email:email] onSuccess:^(NSDictionary *result) {
                     [self callSuccessBlockOnMainThread:successBlock];
                 } onFailure:^(NSError *error) {
                     [self callFailureBlockOnMainThread:failureBlock withError:error];
@@ -2436,8 +2525,8 @@ static NSString *_lastnonActiveMessageId;
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"Attempted to log out of the user's email with OneSignal. The user does not currently have an email player ID and is not logged in, so it is not possible to log out of the email for this device"}]);
         return;
     }
-    
-    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.app_id emailPlayerId:self.currentEmailSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentEmailSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
+
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.appId emailPlayerId:self.currentEmailSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentEmailSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
         
         [OneSignalUserDefaults.initStandard removeValueForKey:OSUD_EMAIL_PLAYER_ID];
         
@@ -2464,7 +2553,7 @@ static NSString *_lastnonActiveMessageId;
     [self.currentEmailSubscriptionState persist];
     
     let request = [OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId
-                                                   appId:self.app_id
+                                                   appId:self.appId
                                                    deviceToken:nil
                                                    notificationTypes: @([self getNotificationTypes])
                                                    withParentId:emailPlayerId
@@ -2540,16 +2629,16 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
         return;
-    
+
     [self setExternalUserId:externalId withCompletion:nil];
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withCompletion:"])
         return;
@@ -2559,19 +2648,19 @@ static NSString *_lastnonActiveMessageId;
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
         return;
-    } else if (!self.currentSubscriptionState.userId || !self.app_id) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]];
+    } else if (!self.currentSubscriptionState.userId || !self.appId) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id while %@ is not set", self.appId == nil ? @"app_id" : @"user_id"]];
         return;
     }
-    
+
     // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
-    
+    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.appId];
+
     // Check if the email has been set, this will decide on updtaing the external id for the email channel
     if ([self isEmailSetup])
-        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
-    
+        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.appId];
+
     // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
     if (![self shouldUpdateExternalUserId:externalId withRequests:requests]) {
         // Use callback to return success for both cases here, since push and
@@ -2579,14 +2668,14 @@ static NSString *_lastnonActiveMessageId;
         let results = [self getDuplicateExternalUserIdResponse:externalId withRequests:requests];
         if (completionBlock)
             completionBlock(results);
-        
+
         return;
     }
-    
+
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
 
@@ -2627,19 +2716,19 @@ static NSString *_lastnonActiveMessageId;
     // If we are not making a request to email user, no need to validate that external user id
     bool updateExternalUserId = ![self.existingPushExternalUserId isEqualToString:externalId]
                                 && !requests[@"email"];
-    
+
     // If we are making a request to email user, we need validate both external user ids
     bool updateEmailExternalUserId = (![self.existingPushExternalUserId isEqualToString:externalId]
                                       && requests[@"email"]
                                       && ![self.existingEmailExternalUserId isEqualToString:externalId]);
-    
+
     return updateExternalUserId || updateEmailExternalUserId;
 }
 
 + (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests {
     NSMutableDictionary *results = [NSMutableDictionary new];
     [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is already set", externalId]];
-    
+
     results[@"push"] = @{
         @"success" : @(true)
     };
@@ -2650,7 +2739,7 @@ static NSString *_lastnonActiveMessageId;
             @"success" : @(true)
         };
     }
-    
+
     return results;
 }
 
@@ -2674,7 +2763,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeEntry:name])
         return;
 
-    [_outcomeEventsController sendOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
+    [_outcomeEventsController sendOutcomeEvent:name appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
 + (void)sendUniqueOutcome:(NSString * _Nonnull)name {
@@ -2694,7 +2783,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeEntry:name])
         return;
 
-    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
+    [_outcomeEventsController sendUniqueOutcomeEvent:name appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
 + (void)sendClickActionUniqueOutcome:(NSString * _Nonnull)name {
@@ -2706,8 +2795,8 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
-    
-    [_outcomeEventsController sendUniqueClickOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+
+    [_outcomeEventsController sendUniqueClickOutcomeEvent:name appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
@@ -2730,7 +2819,7 @@ static NSString *_lastnonActiveMessageId;
     if (![self isValidOutcomeValue:value])
         return;
 
-    [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
+    [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
 + (void)sendClickActionOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
@@ -2742,8 +2831,8 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
-    
-    [_outcomeEventsController sendClickOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+
+    [_outcomeEventsController sendClickOutcomeEventWithValue:name value:value appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 + (void)sendClickActionOutcome:(NSString * _Nonnull)name {
