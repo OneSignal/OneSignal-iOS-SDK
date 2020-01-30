@@ -1155,13 +1155,6 @@
 // Testing iOS 10 - old pre-2.4.0 button format - with original aps payload format
 - (void)testNotificationOpenFromButtonPress {
     __block BOOL openedWasFire = false;
-    
-//    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
-//        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
-//        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
-//        XCTAssertEqualObjects(result.action.actionID, @"id1");
-//        openedWasFire = true;
-//    }];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal setLaunchOptions:nil];
     [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
