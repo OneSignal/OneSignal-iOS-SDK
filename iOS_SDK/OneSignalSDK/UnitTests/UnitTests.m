@@ -1024,7 +1024,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
-    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    // Make sure if the device received a duplicate we don't fire the open network call again.
     OneSignalClientOverrider.lastUrl = nil;
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
@@ -1072,7 +1072,7 @@
     OneSignalTrackFirebaseAnalyticsOverrider.hasFIRAnalytics = true;
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // Notification is recieved.
+    // Notification is received.
     // The Notification Service Extension runs where the notification received id tracked.
     //   Note: This is normally a separate process but can't emulate that here.
     let response = [self createNotificationResponseForAnalyticsTests];
@@ -1251,7 +1251,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
-    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    // Make sure if the device received a duplicate we don't fire the open network call again.
     OneSignalClientOverrider.lastUrl = nil;
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
@@ -1392,11 +1392,11 @@
 
 // Testing iOS 10 - pre-2.4.0 button format - with os_data aps payload format
 - (void)receivedCallbackWithButtonsWithUserInfo:(NSDictionary *)userInfo {
-    __block BOOL recievedWasFire = false;
+    __block BOOL receivedWasFire = false;
 //    [OneSignal initWithLaunchOptions:nil
 //                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
 //          handleNotificationReceived:^(OSNotification *notification) {
-//              recievedWasFire = true;
+//              receivedWasFire = true;
 //              let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
 //              XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
 //          }
@@ -1405,7 +1405,7 @@
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal setLaunchOptions:nil];
     [OneSignal setNotificationWillShowInForegroundHandler:^(OSNotification *notification) {
-        recievedWasFire = true;
+        receivedWasFire = true;
         let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
         XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
     }];
@@ -1424,7 +1424,7 @@
     
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(recievedWasFire, true);
+    XCTAssertEqual(receivedWasFire, true);
 }
 
 /*
