@@ -107,7 +107,7 @@
     // Clear callback external ids for push and email before each test
     self.CALLBACK_EXTERNAL_USER_ID = nil;
     self.CALLBACK_EMAIL_EXTERNAL_USER_ID = nil;
-    
+
     OneSignalHelperOverrider.mockIOSVersion = 10;
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
@@ -197,7 +197,8 @@
     
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
@@ -309,7 +310,8 @@
     
     // 2nd init call should not fire another on_session call.
     OneSignalClientOverrider.lastHTTPRequest = nil;
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
@@ -355,18 +357,19 @@
 
 - (void)testFocusSettingsOnInit {
     // Test old kOSSettingsKeyInFocusDisplayOption
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyInFocusDisplayOption: @(OSNotificationDisplayTypeNone)}];
+    [OneSignal setAppSettings:@{kOSSettingsKeyInFocusDisplayOption: @(OSNotificationDisplayTypeNone)}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
     
     [UnitTestCommonMethods clearStateForAppRestart:self];
 
     // Test old very old kOSSettingsKeyInAppAlerts
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyInAppAlerts: @(false)}];
+    [OneSignal setAppSettings:@{kOSSettingsKeyInAppAlerts: @(false)}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+
     XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
 }
 
@@ -417,9 +420,9 @@
 - (void)sharedTestPermissionChangeObserver {
     
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -499,10 +502,10 @@
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     
@@ -511,10 +514,10 @@
     
     // Restart App
     [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -526,9 +529,10 @@
 
 - (void)testPermissionChangeObserverDontLoseFromChanges {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     [self registerForPushNotifications];
@@ -581,9 +585,10 @@
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -612,11 +617,11 @@
 //  Making sure our simulated methods using swizzling can reproduce an iOS 10.2.1 bug.
 - (void)testTestPermissionChangeObserverWithNativeiOS10PromptCall {
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
-    
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -639,9 +644,10 @@
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
     
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -664,9 +670,10 @@
 
 - (void)testPermissionChangeObserverWithDecline {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -693,9 +700,10 @@
 - (void)testPermissionAndSubscriptionChangeObserverRemove {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* permissionObserver = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:permissionObserver];
@@ -715,9 +723,10 @@
 
 - (void)testSubscriptionChangeObserverBasic {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -738,9 +747,10 @@
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -865,12 +875,10 @@
 - (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
-    
-    [OneSignal initWithLaunchOptions:nil
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
-    
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
@@ -879,11 +887,10 @@
 
 - (void)testNeverPromptedStatus {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    
-    [OneSignal initWithLaunchOptions:nil
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     [UnitTestCommonMethods runBackgroundThreads];
     // Triggers the 30 fallback to register device right away.
@@ -913,9 +920,10 @@
 
 - (void)testIdsAvailableNotAcceptingNotifications {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     __block BOOL idsAvailable1Called = false;
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
@@ -930,11 +938,10 @@
     
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(idsAvailable1Called);
-    
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     __block BOOL idsAvailable2Called = false;
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
@@ -948,8 +955,11 @@
 // Tests that a normal notification opened on iOS 10 triggers the handleNotificationAction.
 - (void)testNotificationOpen {
     __block BOOL openedWasFire = false;
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyInAppAlerts: @(true)}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertNil(result.notification.payload.additionalData);
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
         XCTAssertNil(result.action.actionID);
@@ -964,7 +974,7 @@
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
     // Make sure open tracking network call was made.
-    XCTAssertEqual(openedWasFire, true);
+    XCTAssertTrue(openedWasFire);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
@@ -1078,7 +1088,9 @@
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     __block BOOL openedWasFire = false;
-    [OneSignal initWithLaunchOptions:nil appId:nil handleNotificationAction:^(OSNotificationOpenedResult *result) {
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         openedWasFire = true;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -1092,11 +1104,13 @@
     XCTAssertTrue(openedWasFire);
 }
 
-// Testing iOS 10 - old pre-2.4.0 button fromat - with original aps payload format
+// Testing iOS 10 - old pre-2.4.0 button format - with original aps payload format
 - (void)testNotificationOpenFromButtonPress {
     __block BOOL openedWasFire = false;
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionID, @"id1");
@@ -1123,12 +1137,12 @@
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
     // Make sure open tracking network call was made.
-    XCTAssertEqual(openedWasFire, true);
+    XCTAssertTrue(openedWasFire);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
     
-    // Make sure if the device recieved a duplicate we don't fire the open network call again.
+    // Make sure if the device received a duplicate we don't fire the open network call again.
     OneSignalClientOverrider.lastUrl = nil;
     OneSignalClientOverrider.lastHTTPRequest = nil;
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
@@ -1139,11 +1153,13 @@
 }
 
 
-// Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
-- (void)testNotificationOpenFromButtonPressWithNewformat {
+// Testing iOS 10 - 2.4.0+ button format - with os_data aps payload format
+- (void)testNotificationOpenFromButtonPressWithNewFormat {
     __block BOOL openedWasFire = false;
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionID, @"id1");
@@ -1171,7 +1187,7 @@
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     
     // Make sure open tracking network call was made.
-    XCTAssertEqual(openedWasFire, true);
+    XCTAssertTrue(openedWasFire);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"notifications/b2f7f966-d8cc-11e4-bed1-df8f05be55ba"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"opened"], @1);
@@ -1186,10 +1202,14 @@
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
-// Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
+// Testing iOS 10 - 2.4.0+ button format - with os_data aps payload format
 - (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
     __block BOOL openedWasFire = false;
-    id receiveBlock = ^(OSNotificationOpenedResult *result) {
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyInAppAlerts: @(true)}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionID, @"id1");
         id actionButons = @[@{@"id": @"id1", @"text": @"text1"}];
@@ -1199,10 +1219,7 @@
         XCTAssertEqualObjects(result.notification.payload.threadId, @"test1");
         
         openedWasFire = true;
-    };
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:receiveBlock];
-    
+    }];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -1217,7 +1234,8 @@
     
     XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
     [UIAlertViewOverrider.lastUIAlertViewDelegate alertView:nil clickedButtonAtIndex:1];
-    XCTAssertEqual(openedWasFire, true);
+
+    XCTAssertTrue(openedWasFire);
 }
 
 - (void)testOldFormatNotificationAlertButtonsDisplay {
@@ -1254,14 +1272,15 @@
 // Testing iOS 10 - with original aps payload format
 - (void)testOpeningWithAdditionalData {
     __block BOOL openedWasFire = false;
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:^(OSNotificationOpenedResult *result) {
+
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"foo"], @"bar");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
         XCTAssertNil(result.action.actionID);
         openedWasFire = true;
     }];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     let userInfo = @{@"custom": @{
@@ -1273,10 +1292,11 @@
     let notifCenter = UNUserNotificationCenter.currentNotificationCenter;
     let notifCenterDelegate = notifCenter.delegate;
     
-    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opend.
+    // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertEqual(openedWasFire, true);
+
+    XCTAssertTrue(openedWasFire);
     
     // Part 2 - New paylaod test
     // Current mocking isn't able to setup this test correctly.
@@ -1291,23 +1311,21 @@
                  @"foo": @"bar"};
     notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
-    XCTAssertEqual(openedWasFire, true);
+    XCTAssertTrue(openedWasFire);
     */
 }
 
-// Testing iOS 10 - pre-2.4.0 button fromat - with os_data aps payload format
+// Testing iOS 10 - pre-2.4.0 button format - with os_data aps payload format
 - (void)receivedCallbackWithButtonsWithUserInfo:(NSDictionary *)userInfo {
     __block BOOL recievedWasFire = false;
-    
-    [OneSignal initWithLaunchOptions:nil
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-          handleNotificationReceived:^(OSNotification *notification) {
-              recievedWasFire = true;
-              let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
-              XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
-          }
-            handleNotificationAction:nil
-                            settings:nil];
+
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationWillShowInForegroundHandler:^(OSNotification *notification) {
+        recievedWasFire = true;
+        let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
+        XCTAssertEqualObjects(notification.payload.actionButtons, actionButons);
+    }];
     [UnitTestCommonMethods runBackgroundThreads];
     
     let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -1725,14 +1743,12 @@ didReceiveRemoteNotification:userInfo
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
     
     __block BOOL receivedWasFire = false;
-    [OneSignal initWithLaunchOptions:nil
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-          handleNotificationReceived:^(OSNotification *result) {
+
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationWillShowInForegroundHandler:^(OSNotification *result) {
         receivedWasFire = true;
-    }
-            handleNotificationAction:nil
-                            settings:nil];
-    
+    }];
     [UnitTestCommonMethods runBackgroundThreads];
     
     id userInfo = @{@"aps": @{@"content_available": @1},
@@ -1838,7 +1854,8 @@ didReceiveRemoteNotification:userInfo
  */
 - (void)testiOSParams_withNullAppIdInit_andValidAppIdInit {
     // 1. Open app and init with null app id
-    [OneSignal initWithLaunchOptions:nil appId:nil];
+    [OneSignal setAppId:nil];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods foregroundApp];
     
     // 2. Make sure iOS params did not download, since app id was invalid
@@ -1846,7 +1863,8 @@ didReceiveRemoteNotification:userInfo
     XCTAssertFalse(OneSignal.downloadedParameters);
 
     // 3. Init with valid app id
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     // 4. Make sure iOS params have been downloaded, since app_id is valid
     XCTAssertTrue(OneSignal.didCallDownloadParameters);
@@ -1961,9 +1979,10 @@ didReceiveRemoteNotification:userInfo
 
 -(void)testDelayedSubscriptionUpdate {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -2029,12 +2048,12 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)assertUserConsent {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     //indicates initialization was delayed
-    XCTAssertNil(OneSignal.app_id);
+    XCTAssertNil(OneSignal.appId);
     
     XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
     
@@ -2047,7 +2066,7 @@ didReceiveRemoteNotification:userInfo
     
     [OneSignal consentGranted:true];
     
-    XCTAssertTrue([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:OneSignal.app_id]);
+    XCTAssertTrue([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:OneSignal.appId]);
     
     XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
 }
@@ -2059,9 +2078,10 @@ didReceiveRemoteNotification:userInfo
     [NSBundleOverrider setPrivacyState:true];
     
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -2141,7 +2161,7 @@ didReceiveRemoteNotification:userInfo
     // tests to make sure the SDK correctly extracts the file extension from the `filename` URL query parameter
     // NSURLSessionOverrider returns nil for this URL
     id jpgFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/secondFile?filename=test.jpg"];
-    
+
     let downloadedJpgFilename = [self deliverNotificationWithJSON:jpgFormat].URL.lastPathComponent;
     XCTAssertTrue([downloadedJpgFilename.supportedFileExtension isEqualToString:@"jpg"]);
 }
@@ -2169,7 +2189,7 @@ didReceiveRemoteNotification:userInfo
     //test to make sure the fallback of parsing all parameters for a file type works correctly
     //NSURLSessionOverrider returns an unallowed extension (heic) for this URL to test the fallback
     id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/secondFile?file=test.png&media=image&type=.fakeextension"];
-    
+
     let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
     XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
 }
@@ -2186,9 +2206,10 @@ didReceiveRemoteNotification:userInfo
     //set up the test so that the user has declined the prompt.
     //we can then call prompt with Settings fallback.
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -2244,12 +2265,10 @@ didReceiveRemoteNotification:userInfo
     
     // do not answer the prompt (apns will not respond)
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    
-    [OneSignal initWithLaunchOptions:nil
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
-    
+
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // wait for the registration to be re-attempted.
@@ -2277,10 +2296,8 @@ didReceiveRemoteNotification:userInfo
  instead swizzle NSURLSession
  */
 - (void)testHTTPClientTimeout {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:nil];
-    
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Switches from overriding OneSignalClient to using a
@@ -2327,9 +2344,9 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testSetExternalUserIdWithRegistration {
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
-    
+
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
 }
@@ -2344,6 +2361,18 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+}
+
+- (void)testRemoveExternalUserId {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    [OneSignal removeExternalUserId];
+
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
 }
 
 // Tests to make sure that the SDK will not send an external ID if it already successfully sent the same ID
@@ -2366,7 +2395,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
 
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
-    
+
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
@@ -2379,17 +2408,17 @@ didReceiveRemoteNotification:userInfo
 - (void)testSetExternalUserId_forPush_withCompletion {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Make sure only push external id was attempted to be set since no email was set yet
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);
@@ -2398,21 +2427,21 @@ didReceiveRemoteNotification:userInfo
 - (void)testSetExternalUserId_forPushAndEmail_withCompletion {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Make sure push and email external id were updated in completion callback
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
@@ -2421,43 +2450,43 @@ didReceiveRemoteNotification:userInfo
 - (void)testSetExternalUserId_forPush_afterLogoutEmail_withCompletion {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Call setExternalUserId with completion callback
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Make sure push and email external id were updated in completion callback
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
-    
+
     // 5. Clear out external user id callback ids
     self.CALLBACK_EXTERNAL_USER_ID = nil;
     self.CALLBACK_EMAIL_EXTERNAL_USER_ID = nil;
-    
+
     // 6. Log out email
     [OneSignal logoutEmail];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 7. Call setExternalUserId with completion callback
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 8. Make sure push external id was updated in completion callback
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);
@@ -2467,24 +2496,24 @@ didReceiveRemoteNotification:userInfo
     // 1. Cache the same external user ids for push and email channel
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
-    
+
     // 2. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 5. Make sure only push external id was attempted to be set since no email was set yet
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
@@ -2494,24 +2523,24 @@ didReceiveRemoteNotification:userInfo
     // 1. Cache different same external user ids for push and email channel
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:@"12345"];
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:@"12345"];
-    
+
     // 2. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 5. Make sure only push external id was attempted to be set since no email was set yet
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
@@ -2521,24 +2550,24 @@ didReceiveRemoteNotification:userInfo
     // 1. Cache two different external user ids for push and email channel
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:@"12345"];
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
-    
+
     // 2. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 5. Make sure only push external id was attempted to be set since no email was set yet
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
@@ -2548,24 +2577,24 @@ didReceiveRemoteNotification:userInfo
     // 1. Cache two different external user ids for push and email channel
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:@"12345"];
-    
+
     // 2. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 5. Make sure only push external id was attempted to be set since no email was set yet
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
@@ -2574,19 +2603,19 @@ didReceiveRemoteNotification:userInfo
 - (void)testRemoveExternalUserId_forPush {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Make sure last request was external id and had the correct external id being used in the request payload
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-    
+
     // 4. Remove the external user id
     [OneSignal removeExternalUserId];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 5. Make sure last request was external id and the external id being used was an empty string
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
@@ -2595,23 +2624,23 @@ didReceiveRemoteNotification:userInfo
 - (void)testRemoveExternalUserId_forPushAndEmail {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Make sure last request was external id and had the correct external id being used in the request payload
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-    
+
     // 5. Remove the external user id
     [OneSignal removeExternalUserId];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 6. Make sure last request was external id and the external id being used was an empty string
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
@@ -2620,20 +2649,20 @@ didReceiveRemoteNotification:userInfo
 - (void)testRemoveExternalUserId_forPush_withCompletion {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Make sure last request was external id and had the correct external id being used in the request payload
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-    
+
     // 4. Remove the external user id with a callack implemented
     [OneSignal removeExternalUserId:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = @"";
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = @"";
     }];
@@ -2642,7 +2671,7 @@ didReceiveRemoteNotification:userInfo
     // 5. Make sure last request was external id and the external id being used was an empty string
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
-    
+
     // 6. Make sure completion handler was called, push external id is an empty string and email external id is nil since email as never set
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, @"");
     XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);
@@ -2651,24 +2680,24 @@ didReceiveRemoteNotification:userInfo
 - (void)testRemoveExternalUserId_forPushAndEmail_withCompletion {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Make sure last request was external id and had the correct external id being used in the request payload
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-    
+
     // 5. Remove the external user id
     [OneSignal removeExternalUserId:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = @"";
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = @"";
     }];
@@ -2677,7 +2706,7 @@ didReceiveRemoteNotification:userInfo
     // 6. Make sure last request was external id and the external id being used was an empty string
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
-    
+
     // 7. Make sure completion handler was called, push and email external ids are empty strings
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, @"");
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, @"");
@@ -2712,9 +2741,8 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testNotificationWithButtonsRegistersUniqueCategory {
-
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationAction:nil];
-
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
 
     let notification = (NSDictionary *)[self exampleNotificationJSONWithMediaURL:@"https://www.onesignal.com"];

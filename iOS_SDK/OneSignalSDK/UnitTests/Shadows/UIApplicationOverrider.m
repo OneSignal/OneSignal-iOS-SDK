@@ -65,7 +65,7 @@ static int apnsTokenLength = 32;
     injectToProperClass(@selector(overrideOpenURL:options:completionHandler:), @selector(openURL:options:completionHandler:), @[], [UIApplicationOverrider class], [UIApplication class]);
 }
 
-+(void)reset {
++ (void)reset {
     blockApnsResponse = false;
     lastUILocalNotification = nil;
     pendingRegisterBlock = false;
@@ -78,26 +78,26 @@ static int apnsTokenLength = 32;
     apnsTokenLength = 32;
 }
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value {
++ (void)setCurrentUIApplicationState:(UIApplicationState)value {
     currentUIApplicationState = value;
 }
 
-+(UILocalNotification*)lastUILocalNotification {
++ (UILocalNotification*)lastUILocalNotification {
     return lastUILocalNotification;
 }
 
-+(BOOL)calledRegisterForRemoteNotifications {
++ (BOOL)calledRegisterForRemoteNotifications {
     return calledRegisterForRemoteNotifications;
 }
-+(BOOL)calledCurrentUserNotificationSettings {
++ (BOOL)calledCurrentUserNotificationSettings {
     return calledCurrentUserNotificationSettings;
 }
 
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value {
++ (void) setDidFailRegistarationErrorCode:(NSInteger)value {
     didFailRegistarationErrorCode = value;
 }
 
-+(void)setBlockApnsResponse:(BOOL)block {
++ (void)setBlockApnsResponse:(BOOL)block {
     blockApnsResponse = true;
 }
 
@@ -105,7 +105,7 @@ static int apnsTokenLength = 32;
     apnsTokenLength = tokenLength;
 }
 
-+ (NSString *)mockAPNSToken {
++ (NSString*)mockAPNSToken {
     NSMutableString *token = [NSMutableString new];
 
     for (int i = 0; i < apnsTokenLength * 2; i++)
@@ -115,7 +115,7 @@ static int apnsTokenLength = 32;
 }
 
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
-- (void) override_run {
+- (void)override_run {
     NSLog(@"override_run!!!!!!");
 }
 
@@ -195,7 +195,7 @@ static int apnsTokenLength = 32;
     lastOpenedUrl = url;
 }
 
-+ (NSURL* )lastOpenedUrl {
++ (NSURL*)lastOpenedUrl {
     return lastOpenedUrl;
 }
 
