@@ -279,13 +279,15 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 - (void)setupEmailTest {
     // Restart App
     [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+//    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+//            handleNotificationAction:nil
+//                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // Triggers the 30 fallback to register device right away.
-    [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
 }

@@ -297,6 +297,9 @@ UIBackgroundTaskIdentifier mediaBackgroundTask;
     [OneSignalHelper lastMessageReceived:nil];
     _lastMessageIdFromAction = nil;
     lastMessageID = @"";
+    
+    notificationWillShowInForegroundHandler = nil;
+    notificationOpenedHandler = nil;
 }
 
 OSNotificationWillShowInForegroundBlock notificationWillShowInForegroundHandler;
