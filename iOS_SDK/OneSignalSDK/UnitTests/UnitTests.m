@@ -784,7 +784,7 @@
     XCTAssertFalse(observer->last.from.subscribed);
     XCTAssertFalse(observer->last.to.subscribed);
     
-    // Device should be reported a subscribed now as all condiditions are true.
+    // Device should be reported a subscribed now as all conditions are true.
     [OneSignal setSubscription:true];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertFalse(observer->last.from.subscribed);
