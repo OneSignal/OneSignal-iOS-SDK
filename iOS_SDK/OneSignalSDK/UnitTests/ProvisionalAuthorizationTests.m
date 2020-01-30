@@ -73,19 +73,19 @@
         
         OSSubscriptionStateTestObserver *subscriptionObserver = [OSSubscriptionStateTestObserver new];
         [OneSignal addSubscriptionObserver:subscriptionObserver];
-        
-        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-                handleNotificationAction:nil
-                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
+//        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+//                handleNotificationAction:nil
+//                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
+        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+        [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+        [OneSignal setLaunchOptions:nil];
+        [UnitTestCommonMethods runBackgroundThreads];
         
         let state = [OneSignal getPermissionSubscriptionState];
-        
         XCTAssertFalse(state.permissionStatus.reachable);
-        
         [UnitTestCommonMethods runBackgroundThreads];
         
         [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
-        
         [UnitTestCommonMethods runBackgroundThreads];
         
         let options = PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
@@ -112,15 +112,15 @@
     if (@available(iOS 12, *)) {
         OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
         [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
-        
-        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-                handleNotificationAction:nil
-                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
-        
+//        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+//                handleNotificationAction:nil
+//                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
+        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+        [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+        [OneSignal setLaunchOptions:nil];
         [UnitTestCommonMethods runBackgroundThreads];
         
         [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
-        
         [UnitTestCommonMethods runBackgroundThreads];
         
         XCTAssertTrue(observer->last.to.provisional);
@@ -133,7 +133,6 @@
         XCTAssertEqual(observer->last.to.status, OSNotificationPermissionProvisional);
         
         [OneSignal promptForPushNotificationsWithUserResponse:nil];
-        
         [UnitTestCommonMethods runBackgroundThreads];
         
         [UnitTestCommonMethods answerNotificationPrompt:true];
@@ -156,10 +155,12 @@
     if (@available(iOS 12, *)) {
         OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
         
-        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-                handleNotificationAction:nil
-                                settings:@{kOSSettingsKeyAutoPrompt: @true}];
-        
+//        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+//                handleNotificationAction:nil
+//                                settings:@{kOSSettingsKeyAutoPrompt: @true}];
+        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @true}];
+        [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+        [OneSignal setLaunchOptions:nil];
         [UnitTestCommonMethods runBackgroundThreads];
         
         //ensure the SDK did not request provisional authorization
@@ -182,10 +183,12 @@
         OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
         [OneSignal addPermissionObserver:observer];
         
-        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-                handleNotificationAction:nil
-                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
-        
+//        [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+//                handleNotificationAction:nil
+//                                settings:@{kOSSettingsKeyAutoPrompt: @false}];
+        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
+        [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+        [OneSignal setLaunchOptions:nil];
         [UnitTestCommonMethods runBackgroundThreads];
         
         //ensure the SDK did not request provisional authorization

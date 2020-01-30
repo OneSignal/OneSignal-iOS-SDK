@@ -81,46 +81,47 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     return previousRequestedAuthorizationOptions;
 }
 
-+(void)reset:(XCTestCase*)testInstance {
++ (void)reset:(XCTestCase*)testInstance {
     currentTestInstance = testInstance;
     lastSetCategories = nil;
     shouldSetProvisionalAuthStatus = false;
     previousRequestedAuthorizationOptions = UNAuthorizationOptionNone;
 }
 
-+(void) setNotifTypesOverride:(int)value {
++ (void)setNotifTypesOverride:(int)value {
     notifTypesOverride = value;
 }
-+(int) notifTypesOverride {
+
++ (int)notifTypesOverride {
     return notifTypesOverride;
 }
 
-+(void) setAuthorizationStatus:(NSNumber*)value {
++ (void)setAuthorizationStatus:(NSNumber*)value {
     authorizationStatus = value;
 }
-+(NSNumber*) authorizationStatus {
++ (NSNumber*)authorizationStatus {
     return authorizationStatus;
 }
 
-+(int) lastSetCategoriesCount {
++ (int)lastSetCategoriesCount {
     return (int)[lastSetCategories count];
 }
 
-+(void) fireLastRequestAuthorizationWithGranted:(BOOL)granted {
++ (void)fireLastRequestAuthorizationWithGranted:(BOOL)granted {
     if (lastRequestAuthorizationWithOptionsBlock)
         lastRequestAuthorizationWithOptionsBlock(granted, nil);
 }
 
-+(void) runBackgroundThreads {
++ (void)runBackgroundThreads {
    dispatch_sync(unNotifiserialQueue, ^{});
 }
 
 // Called internally by currentNotificationCenter
-- (id) overrideInitWithBundleProxy:(id)arg1 {
+- (id)overrideInitWithBundleProxy:(id)arg1 {
     return self;
 }
 
-- (id) overrideInitWithBundleIdentifier:(NSString*) bundle {
+- (id)overrideInitWithBundleIdentifier:(NSString*) bundle {
     return self;
 }
 
@@ -180,7 +181,7 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
         _XCTPrimitiveFail(currentTestInstance);
 }
 
-+(void)setShouldSetProvisionalAuthorizationStatus:(BOOL)provisional {
++ (void)setShouldSetProvisionalAuthorizationStatus:(BOOL)provisional {
     shouldSetProvisionalAuthStatus = provisional;
 }
 

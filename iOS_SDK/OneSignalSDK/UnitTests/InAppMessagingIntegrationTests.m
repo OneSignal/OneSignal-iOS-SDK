@@ -318,13 +318,16 @@
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 }
 
-/**
+/*
  This tests to make sure that:
     (A) The SDK picks the correct language variant to use for in-app messages.
     (B) The SDK loads HTML content with the correct URL
-*/
+ */
 - (void)testMessageHTMLLoadWithCorrectLanguage {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+//    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+//    [UnitTestCommonMethods runBackgroundThreads];
     
     let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
@@ -369,7 +372,10 @@
     SDK will use the 'default' variant.
 */
 - (void)testMessageHTMLLoadWithDefaultLanguage {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+//    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+//    [UnitTestCommonMethods runBackgroundThreads];
     
     let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];

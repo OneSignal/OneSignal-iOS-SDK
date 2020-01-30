@@ -41,13 +41,15 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation OneSignalClientOverrider
+
 static dispatch_queue_t serialMockMainLooper;
+static dispatch_queue_t executionQueue;
+
 static NSString* lastUrl;
 static int networkRequestCount;
 static NSDictionary* lastHTTPRequest;
 static XCTestCase* currentTestInstance;
 static BOOL executeInstantaneously = true;
-static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
@@ -55,6 +57,24 @@ static BOOL disableOverride = false;
 static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 static NSDictionary* iOSParamsOutcomes;
+
++ (void)reset:(XCTestCase*)testInstance {
+//    serialMockMainLooper = nil;
+//    executionQueue = nil;
+    
+    lastUrl = nil;
+    networkRequestCount = 0;
+    lastHTTPRequest = nil;
+    currentTestInstance = testInstance;
+    executeInstantaneously = true;
+    lastHTTPRequestType = nil;
+    requiresEmailAuth = false;
+    shouldUseProvisionalAuthorization = false;;
+    disableOverride = false;
+    [executedRequests removeAllObjects];
+    mockResponses = [NSMutableDictionary new];
+    iOSParamsOutcomes = @{};
+}
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -64,11 +84,8 @@ static NSDictionary* iOSParamsOutcomes;
     injectToProperClass(@selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:), @selector(executeSimultaneousRequests:withSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
     injectToProperClass(@selector(overrideExecuteDataRequest:onSuccess:onFailure:), @selector(executeDataRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
 
-
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
-    
     executedRequests = [NSMutableArray new];
-
     mockResponses = [NSMutableDictionary new];
 }
 
@@ -230,17 +247,6 @@ static NSDictionary* iOSParamsOutcomes;
 
 + (void)setShouldExecuteInstantaneously:(BOOL)instant {
     executeInstantaneously = instant;
-}
-
-+ (void)reset:(XCTestCase*)testInstance {
-    currentTestInstance = testInstance;
-    shouldUseProvisionalAuthorization = false;
-    networkRequestCount = 0;
-    lastUrl = nil;
-    lastHTTPRequest = nil;
-    [executedRequests removeAllObjects];
-    mockResponses = [NSMutableDictionary new];
-    iOSParamsOutcomes = @{};
 }
 
 + (void)setLastHTTPRequest:(NSDictionary*)value {

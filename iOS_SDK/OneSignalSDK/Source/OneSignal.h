@@ -398,8 +398,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // - Initialization
 + (void)setAppId:(NSString*)newAppId;
 + (void)setLaunchOptions:(NSDictionary*)launchOptions;
-
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotificationReceived:(OSNotificationWillShowInForegroundBlock)receivedCallback handleNotificationAction:(OSNotificationOpenedBlock)actionCallback settings:(NSDictionary*)settings;
++ (void)setAppSettings:(NSDictionary*)settings;
 
 // - Privacy
 + (void)consentGranted:(BOOL)granted;

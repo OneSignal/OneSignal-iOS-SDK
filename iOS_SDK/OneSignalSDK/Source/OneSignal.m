@@ -138,7 +138,6 @@ static BOOL coldStartFromTapOnNotification = NO;
 
 static BOOL shouldDelaySubscriptionUpdate = false;
 
-
 /*
     if setEmail: was called before the device was registered (push playerID = nil),
     then the call to setEmail: also gets delayed
@@ -172,6 +171,7 @@ DelayedInitializationParameters *delayedInitParameters;
 
 static NSString* appId;
 static NSDictionary* launchOptions;
+static NSDictionary* appSettings;
 // Make sure launchOptions have been set
 // We need this BOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
@@ -429,6 +429,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 + (void)clearStatics {
     appId = nil;
     launchOptions = false;
+    appSettings = nil;
     hasSetLaunchOptions = false;
     initDone = false;
     usesAutoPrompt = false;
@@ -473,89 +474,19 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     return shouldDelaySubscriptionUpdate;
 }
 
-+ (id)initWithLaunchOptions:(NSDictionary*)launchOptions
-                      appId:(NSString*)appId
- handleNotificationReceived:(OSNotificationWillShowInForegroundBlock)receivedCallback
-   handleNotificationAction:(OSNotificationOpenedBlock)actionCallback
-                   settings:(NSDictionary*)settings {
-    
-//    [OneSignalHelper setNotificationOpenedBlock:actionCallback];
-//    [OneSignalHelper setNotificationWillShowInForegroundBlock:receivedCallback];
-//
-//    if ([self requiresUserPrivacyConsent]) {
-//        delayedInitializationForPrivacyConsent = true;
-//        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
-//                                                                                     withAppId:appId
-//                                                           withHandleNotificationReceivedBlock:receivedCallback
-//                                                             withHandleNotificationActionBlock:actionCallback
-//                                                                                  withSettings:settings];
-//        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
-//        return self;
-//    }
-//
-//    [OneSignalCacheCleaner cleanCachedUserData];
-//    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
-    
-//    let success = [self initAppId:appId withSettings:settings];
-//    if (!success)
-//        return self;
-
-    
-    // Wrapper SDK's call init twice and pass null as the appId on the first call
-    //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
-    
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    [self initSettings:settings withStandardUserDefaults:standardUserDefaults];
-    
-    if (initDone)
-        return self;
-    initDone = true;
-    
-    initializationTime = [NSDate date];
-    
-    // Outcomes init
-    _sessionManager = [[OneSignalSessionManager alloc] init:self];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
-    
-    if (appId && mShareLocation)
-       [OneSignalLocation getLocation:false];
-    
-    /*
-     * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
-     *  - application:didReceiveRemoteNotification:fetchCompletionHandler
-     *  - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (iOS10)
-     */
-
-    // Cold start from tap on a remote notification
-    //  NOTE: launchOptions may be nil if tapping on a notification's action button.
-    NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    if (userInfo)
-        coldStartFromTapOnNotification = YES;
-
-    [self clearBadgeCount:false];
-    
-    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
-        trackIAPPurchase = [OneSignalTrackIAP new];
-    
-    if ([OneSignalTrackFirebaseAnalytics libraryExists])
-        [OneSignalTrackFirebaseAnalytics init];
-    
-    return self;
-}
-
 /*
- 
+ 1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
+ Sets the app id OneSignal should use in the application
+ This is should be set from all OneSignal entry points
  */
-+ (void)setAppId:(NSString*)newAppId {
++ (void)setAppId:(nonnull NSString*)newAppId {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
     
     if (!newAppId || newAppId.length == 0) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
         return;
     }
-    else if (![newAppId isEqualToString:appId])  {
+    else if (appId && ![newAppId isEqualToString:appId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
@@ -574,22 +505,44 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 /*
- 
+ 1/2 steps in OneSignal init, relying on setAppId (usage order does not matter)
+ Sets the iOS sepcific app settings
+ Method must be called to successfully init OneSignal
  */
-+ (void)setLaunchOptions:(NSDictionary*)newLaunchOptions {
++ (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
     
-    hasSetLaunchOptions = true;
     launchOptions = newLaunchOptions;
+    hasSetLaunchOptions = true;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
-    if (!appId  || appId.length == 0) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"launchOptions set, but please call setAppId(id) to complete OneSignal init!"];
-        return;
+    if (!appId || appId.length == 0) {
+        // Read from .plist if not passed in with this method call
+        appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
+        if (!appId) {
+            
+            appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
+            if (!appId) {
+                
+                let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+                if (!prevAppId) {
+                    [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"launchOptions set, but please call setAppId(appId) with a valid appId to complete OneSignal init!"];
+                }
+                else {
+                    [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appContext set and an old appId was found, attempting to call setAppId(oldAppId)"];
+                    [self setAppId:prevAppId];
+                }
+                return;
+            }
+        }
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, continuing OneSignal init..."];
     [self init];
+}
+
++ (void)setAppSettings:(NSDictionary *)newSettings {
+    appSettings = newSettings;
 }
 
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)delegate {
@@ -608,20 +561,15 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 /*
- TODO: Does this comment from previous initWithLaunchOptions make sense?
- NOTE: Wrapper SDKs such as Unity3D will call this method with appId set to nil so open events are not lost.
-    Ensure a 2nd call can be made later with the appId from the developer's code.
- 
+ Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
     if ([self requiresUserPrivacyConsent]) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
         delayedInitializationForPrivacyConsent = true;
-//        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
-//                                                                                     withAppId:appId
-//                                                           withHandleNotificationReceivedBlock:receivedCallback
-//                                                             withHandleNotificationActionBlock:actionCallback
-//                                                                                  withSettings:settings];
+        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
+        // Init was not successful, set appId back to nil
+        appId = nil;
         return;
     }
     
@@ -636,6 +584,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
         [self downloadIOSParamsWithAppId:appId];
+    
+    [self initSettings:appSettings];
     
     if (initDone)
         return;
@@ -685,25 +635,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     let prevAppId = [standardUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
-    if (appId) {
-        appId = appId;
-    } else {
-        // Read from .plist if not passed in with this method call.
-        appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
-        if (!appId) {
-            
-            appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
-            if (!appId) {
-                
-                appId = prevAppId;
-                return true;
-//                if (![settings[kOSSettingsKeyInOmitNoAppIdLogging] boolValue])
-//                    onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId never set!");
-//                else
-//                    return true;
-            }
-        }
-    }
     
     // Handle changes to the app id, this might happen on a developer's device when testing
     // Will also run the first time OneSignal is initialized
@@ -735,7 +666,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     return true;
 }
 
-+ (void)initSettings:(NSDictionary*)settings withStandardUserDefaults:(OneSignalUserDefaults*)standardUserDefaults {
++ (void)initSettings:(NSDictionary*)settings {
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
         registeredWithApple = self.currentPermissionState.accepted;
     else
@@ -859,7 +792,10 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if (!granted || !delayedInitializationForPrivacyConsent || delayedInitParameters == nil)
         return;
     
-    [self initWithLaunchOptions:delayedInitParameters.launchOptions appId:delayedInitParameters.appId handleNotificationReceived:delayedInitParameters.receivedBlock handleNotificationAction:delayedInitParameters.actionBlock settings:delayedInitParameters.settings];
+    // Try to init again using delayed params (order does not matter)
+    [self setAppId:delayedInitParameters.appId];
+    [self setLaunchOptions:delayedInitParameters.launchOptions];
+    
     delayedInitializationForPrivacyConsent = false;
     delayedInitParameters = nil;
 }
@@ -1084,7 +1020,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver removeObserver:observer];
 }
-
 
 // onOSSubscriptionChanged should only fire if something changed.
 + (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {

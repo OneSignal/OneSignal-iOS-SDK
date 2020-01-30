@@ -196,7 +196,9 @@ static XCTestCase* _currentXCTestCase;
 
 // Helper used to simpify tests below.
 + (void)initOneSignal {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+//    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
     
     // iOS fires the resume event when app is cold started.
     [UnitTestCommonMethods foregroundApp];
