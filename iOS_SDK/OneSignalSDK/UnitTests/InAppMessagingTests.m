@@ -1,28 +1,28 @@
-/**
- * Modified MIT License
- *
- * Copyright 2017 OneSignal
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * 1. The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * 2. All copies of substantial portions of the Software may only be used in connection
- * with services provided by OneSignal.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+/*
+ Modified MIT License
+
+ Copyright 2017 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 
@@ -44,12 +44,11 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import "UIDeviceOverrider.h"
-/**
- Test to make sure that OSInAppMessage correctly
- implements the OSJSONDecodable protocol
- and all properties are parsed correctly
- */
 
+/*
+ Test to make sure that OSInAppMessage correctly implements
+ The OSJSONDecodable protocol and all properties are parsed correctly
+ */
 @interface InAppMessagingTests : XCTestCase
 @property (strong, nonatomic) OSTriggerController *triggerController;
 @end
@@ -60,8 +59,11 @@
     OSInAppMessageBridgeEvent *testBridgeEvent;
 }
 
-// called before each test
--(void)setUp {
+/*
+ Put setup code here
+ This method is called before the invocation of each test method in the class
+ */
+- (void)setUp {
     [super setUp];
     [UnitTestCommonMethods beforeEachTest:self];
     
@@ -98,8 +100,12 @@
     [UIDeviceOverrider reset];
 }
 
--(void)tearDown {
-    NSTimerOverrider.shouldScheduleTimers = true;
+/*
+ Put teardown code here
+ This method is called after the invocation of each test method in the class
+ */
+- (void)tearDown {
+    [super tearDown];
 }
 
 -(void)testIphoneSimulator {
@@ -217,7 +223,6 @@
 }
 
 - (void)testHandlesInvalidBridgeEventType {
-    
     // the SDK should simply return nil if it receives invalid event JSON
     let invalidJson = @{
         @"type" : @"action_taken",
@@ -300,9 +305,10 @@
     return [self.triggerController messageMatchesTriggers:message];
 }
 
-// tests operators to make sure they correctly handle cases where the local value is not set
+/*
+ Tests operators to make sure they correctly handle cases where the local value is not set
+ */
 - (void)testNilLocalValuesForOperators {
-    
     let operatorStrings = @[
         OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeGreaterThan),
         OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeLessThan),
