@@ -66,7 +66,71 @@ static XCTestCase* _currentXCTestCase;
     return _currentXCTestCase;
 }
 
-// Runs any blocks passed to dispatch_async()
+/*
+ Init OneSignal with default appId (@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba") and launchOptions (nil)
+ */
++ (void)initOneSignal_andThreadWait {
+    [self initOneSignal];
+    [self runBackgroundThreads];
+}
+
+/*
+ Init OneSignal with default appId (@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba") and launchOptions (nil)
+ Params passed will be used to set notificationWillShowInForegroundHandler & notificationOpenedHandler
+ */
++ (void)initOneSignalWithHanders_andThreadWait:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+                      notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
+    [self initOneSignalWithHandlers:notificationWillShowInForegroundDelegate
+          notificationOpenedHandler:notificationOpenedDelegate];
+    [self runBackgroundThreads];
+}
+
+/*
+ Init OneSignal with params to set appId, launchOptions, notificationWillShowInForegroundHandler, & notificationOpenedHandler
+*/
++ (void)initOneSignalWithAppId_andThreadWait:(NSString*)appId
+                            withLaunchOptions:(NSDictionary*)launchOptions
+  withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+                withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
+    [self initOneSignalWithAppId:appId withLaunchOptions:launchOptions withNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate withNotificationOpenedHandler:notificationOpenedDelegate];
+    [self runBackgroundThreads];
+}
+
+/*
+ Universal init helper that sets appId & launchOptions to default values
+ */
++ (void)initOneSignal {
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+}
+
+/*
+ Universal init helper that sets appId & launchOptions to default values and
+    accepts params to set notificationWillShowInForegroundHandler & notificationOpenedHandler
+ */
++ (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+        notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    [OneSignal setLaunchOptions:nil];
+    [OneSignal setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate];
+    [OneSignal setNotificationOpenedHandler:notificationOpenedDelegate];
+}
+
+/*
+ Universal init helper that accepts params to set appId, launchOptions, notificationWillShowInForegroundHandler, & notificationOpenedHandler
+ */
++ (void)initOneSignalWithAppId:(NSString*)appId
+             withLaunchOptions:(NSDictionary*)launchOptions withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
+ withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
+    [OneSignal setAppId:appId];
+    [OneSignal setLaunchOptions:launchOptions];
+    [OneSignal setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate];
+    [OneSignal setNotificationOpenedHandler:notificationOpenedDelegate];
+}
+
+/*
+ Runs any blocks passed to dispatch_async()
+ */
 + (void)runBackgroundThreads {
     NSLog(@"START runBackgroundThreads");
     
@@ -98,28 +162,6 @@ static XCTestCase* _currentXCTestCase;
     NSLog(@"END runBackgroundThreads");
 }
 
-+ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
-    // Mocking an iOS 10 notification
-    // Setting response.notification.request.content.userInfo
-    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
-    
-    // Normal tap on notification
-    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
-    
-    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
-    UNNotification *unNotif = [UNNotification alloc];
-    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
-    // Set as remote push type
-    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
-    
-    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
-    [notifResponse setValue:unNotif forKeyPath:@"notification"];
-    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
-    [unNotifContent setValue:userInfo forKey:@"userInfo"];
-    
-    return notifResponse;
-}
-
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
     NSLog(@"=======  APP RESTART ======\n\n");
     
@@ -143,12 +185,14 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
     [UIAlertViewOverrider reset];
-    
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
-    
+
     [NSTimerOverrider reset];
     
+    [OSMessagingControllerOverrider reset];
+    
     [OSMessagingController.sharedInstance resetState];
+
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
 }
 
 + (void)beforeAllTest:(XCTestCase *)testCase {
@@ -173,11 +217,12 @@ static XCTestCase* _currentXCTestCase;
     // InstallUncaughtExceptionHandler();
     
     OneSignalHelperOverrider.mockIOSVersion = 10;
-    
+
     [OneSignal pauseInAppMessages:true];
 }
 
 + (void) beforeEachTest:(XCTestCase *)testCase {
+    _currentXCTestCase = testCase;
     [self beforeAllTest];
     [self clearStateForAppRestart:testCase];
     
@@ -186,27 +231,6 @@ static XCTestCase* _currentXCTestCase;
     [NSUserDefaultsOverrider clearInternalDictionary];
     UNUserNotificationCenterOverrider.notifTypesOverride = 7;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
-}
-
-+ (void)setCurrentNotificationPermissionAsUnanswered {
-    UNUserNotificationCenterOverrider.notifTypesOverride = 0;
-    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
-}
-
-
-// Helper used to simpify tests below.
-+ (void)initOneSignal {
-//    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
-    
-    // iOS fires the resume event when app is cold started.
-    [UnitTestCommonMethods foregroundApp];
-}
-
-+ (void)initOneSignalAndThreadWait {
-    [UnitTestCommonMethods initOneSignal];
-    [UnitTestCommonMethods runBackgroundThreads];
 }
 
 + (void)foregroundApp {
@@ -219,6 +243,33 @@ static XCTestCase* _currentXCTestCase;
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
     UIApplication *sharedApp = [UIApplication sharedApplication];
     [sharedApp.delegate applicationWillResignActive:sharedApp];
+}
+
++ (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo {
+    // Mocking an iOS 10 notification
+    // Setting response.notification.request.content.userInfo
+    UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
+
+    // Normal tap on notification
+    [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
+
+    UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
+    UNNotification *unNotif = [UNNotification alloc];
+    UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
+    // Set as remote push type
+    [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
+
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    [notifResponse setValue:unNotif forKeyPath:@"notification"];
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotifContent setValue:userInfo forKey:@"userInfo"];
+
+    return notifResponse;
+}
+
++ (void)setCurrentNotificationPermissionAsUnanswered {
+    UNUserNotificationCenterOverrider.notifTypesOverride = 0;
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
 }
 
 + (void)setCurrentNotificationPermission:(BOOL)accepted {

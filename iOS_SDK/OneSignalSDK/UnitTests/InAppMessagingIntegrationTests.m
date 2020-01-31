@@ -29,7 +29,6 @@
 #import "OneSignal.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
-#import "OneSignalUserDefaults.h"
 #import "OSInAppMessage.h"
 #import "OSTrigger.h"
 #import "OSTriggerController.h"
@@ -62,15 +61,19 @@
 
 @implementation InAppMessagingIntegrationTests
 
+/*
+ Put setup code here
+ This method is called before the invocation of each test method in the class
+ */
 - (void)setUp {
     [super setUp];
-    
-    OneSignalHelperOverrider.mockIOSVersion = 10;
+    [UnitTestCommonMethods beforeEachTest:self];
+
+    OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
     
     [OneSignalClientOverrider reset:self];
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
-    UNUserNotificationCenterOverrider.notifTypesOverride = 7;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
@@ -80,14 +83,19 @@
     [OneSignalHelperOverrider reset];
     
     NSTimerOverrider.shouldScheduleTimers = false;
+
+    [OSMessagingController.sharedInstance resetState];
+
+    // Set to false so that we don't interfere with other tests
+    [OneSignal pauseInAppMessages:false];
 }
 
+/*
+ Put teardown code here
+ This method is called after the invocation of each test method in the class
+ */
 - (void)tearDown {
-    OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
-    
-    [OSMessagingController.sharedInstance resetState];
-    
-    NSTimerOverrider.shouldScheduleTimers = true;
+    [super tearDown];
 }
 
 /**
@@ -186,9 +194,9 @@
 */
 - (void)testIAMIsScheduled {
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeEqualTo withValue:@30];
-    
+
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
+
     [self initOneSignalWithInAppMessage:message];
     
     // Because the SDK can take a while to initialize, especially on slower machines, we only
@@ -204,9 +212,9 @@
 */
 - (void)testIAMIsDisplayed {
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
-    
+
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
+
     [self initOneSignalWithInAppMessage:message];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -252,9 +260,11 @@
     [self waitForExpectations:@[expectation] timeout:0.2];
 }
 
-// If a message has multiple triggers, and one of the triggers is time/duration based, the SDK
-// will set up a timer. However, if a normal value-based trigger condition is not true, there is
-// no point in setting up a timer until that condition changes.
+/**
+    If a message has multiple triggers, and one of the triggers is time/duration based, the SDK
+    will set up a timer. However, if a normal value-based trigger condition is not true, there is
+    no point in setting up a timer until that condition changes.
+ */
 - (void)testDelaysSettingUpTimers {
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
     let secondTrigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
@@ -396,7 +406,9 @@
     XCTAssertEqual(action.clickId, [[message.getClickedClickIds allObjects] objectAtIndex:0]);
 }
 
-// Tests adding & removing trigger values using the public OneSignal trigger methods
+/*
+ Tests adding & removing trigger values using the public OneSignal trigger methods
+ */
 - (void)testRemoveTriggers {
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
@@ -611,7 +623,9 @@
     XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
 }
 
-// If a message is scheduled to be displayed in the past, it should not be shown at all.
+/*
+ If a message is scheduled to be displayed in the past, it should not be shown at all.
+ */
 - (void)testExpiredExactTimeTrigger {
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@-10];
     
@@ -626,10 +640,12 @@
     XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
 }
 
-// This test checks to make sure that if you are using the > operator for an exact time trigger,
-// the message is still displayed even after the time is passed. For example, if you set a message
-// to be displayed at OR after April 11th @ 10AM PST, but it is currently April 12th, the message
-// should still be shown since you used the > (greater than) operator.
+/*
+ This test checks to make sure that if you are using the > operator for an exact time trigger,
+    the message is still displayed even after the time is passed. For example, if you set a message
+    to be displayed at OR after April 11th @ 10AM PST, but it is currently April 12th, the message
+    should still be shown since you used the > (greater than) operator.
+ */
 - (void)testPastButValidExactTimeTrigger {
     NSTimerOverrider.shouldScheduleTimers = false;
     
@@ -646,7 +662,9 @@
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 }
 
-// when an in-app message is displayed to the user, the SDK should launch an API request
+/*
+ When an in-app message is displayed to the user, the SDK should launch an API request
+ */
 - (void)testIAMViewedLaunchesViewedAPIRequest {
     [OneSignal pauseInAppMessages:false];
 

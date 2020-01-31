@@ -93,7 +93,7 @@ static int apnsTokenLength = 32;
     return calledCurrentUserNotificationSettings;
 }
 
-+ (void) setDidFailRegistarationErrorCode:(NSInteger)value {
++ (void)setDidFailRegistarationErrorCode:(NSInteger)value {
     didFailRegistarationErrorCode = value;
 }
 
@@ -153,7 +153,7 @@ static int apnsTokenLength = 32;
 }
 
 // Called on iOS 8+
-- (void) overrideRegisterForRemoteNotifications {
+- (void)overrideRegisterForRemoteNotifications {
     calledRegisterForRemoteNotifications = true;
     [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
@@ -167,7 +167,7 @@ static int apnsTokenLength = 32;
 
 
 // iOS 8 & 9 Only
-- (UIUserNotificationSettings*) overrideCurrentUserNotificationSettings {
+- (UIUserNotificationSettings*)overrideCurrentUserNotificationSettings {
     calledCurrentUserNotificationSettings = true;
     
     // Check for this as it will create thread locks on a real device.
@@ -183,7 +183,7 @@ static int apnsTokenLength = 32;
     lastUIUserNotificationSettings = notificationSettings;
 }
 
-- (UIApplicationState) overrideApplicationState {
+- (UIApplicationState)overrideApplicationState {
     return currentUIApplicationState;
 }
 
