@@ -93,7 +93,7 @@ static int apnsTokenLength = 32;
     return calledCurrentUserNotificationSettings;
 }
 
-+ (void) setDidFailRegistarationErrorCode:(NSInteger)value {
++ (void)setDidFailRegistarationErrorCode:(NSInteger)value {
     didFailRegistarationErrorCode = value;
 }
 
@@ -174,7 +174,7 @@ static int apnsTokenLength = 32;
     lastUIUserNotificationSettings = notificationSettings;
 }
 
-- (UIApplicationState) overrideApplicationState {
+- (UIApplicationState)overrideApplicationState {
     return currentUIApplicationState;
 }
 

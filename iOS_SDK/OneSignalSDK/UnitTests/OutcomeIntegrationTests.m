@@ -1,28 +1,28 @@
-/**
- * Modified MIT License
- *
- * Copyright 2019 OneSignal
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * 1. The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * 2. All copies of substantial portions of the Software may only be used in connection
- * with services provided by OneSignal.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+/*
+ Modified MIT License
+
+ Copyright 2019 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 #import <XCTest/XCTest.h>
@@ -61,17 +61,28 @@
 
 + (void)onSessionEnding:(OSInfluence * _Nonnull)sessionResult {}
 
+/*
+ Put setup code here
+ This method is called before the invocation of each test method in the class
+ */
 - (void)setUp {
-    
     [super setUp];
     [UnitTestCommonMethods beforeEachTest:self];
     
     [OneSignalClientOverrider enableOutcomes];
 }
 
+/*
+ Put teardown code here
+ This method is called after the invocation of each test method in the class
+ */
+- (void)tearDown {
+    [super tearDown];
+}
+
 - (void)testUnattributedSession_onAppColdStart {
     // 1. Open App
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -83,7 +94,8 @@
 
 - (void)testUnattributedSession_onFocusUnattributed {
     // 1. Open App
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
     // 2. Wait 60 secounds
     [NSDateOverrider advanceSystemTimeBy:60];
@@ -98,7 +110,8 @@
 
 - (void)testIndirectSession_onFocusAttributed {
     // 1. Open App and wait for 5 secounds
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     [NSDateOverrider advanceSystemTimeBy:5];
     
     // 2. Background app and receive notification
@@ -108,7 +121,8 @@
     // 3. Swipe away app and reopen it 31 secounds later.
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 4. Wait 15 secounds
     [NSDateOverrider advanceSystemTimeBy:15];
@@ -127,7 +141,8 @@
 
 - (void)testDirectSession_onFocusAttributed {
     // 1. Open App and wait for 5 secounds
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     [NSDateOverrider advanceSystemTimeBy:5];
 
     // 2. Background app, receive notification, and open notification
@@ -138,7 +153,8 @@
     // 3. Swipe away app and reopen it 31 secounds later.
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 4. Wait 15 secounds
     [NSDateOverrider advanceSystemTimeBy:15];
@@ -157,7 +173,8 @@
 
 - (void)testDirectSession_overridesIndirectSession_andSendsOnFocus {
     // 1. Open App and wait for 5 secounds
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     [NSDateOverrider advanceSystemTimeBy:5];
     
     // 2. Close the app for 31 seconds
@@ -168,8 +185,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Make sure NOTIFICATION influence is INDIRECT and has 1 notification
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -194,8 +211,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
     
     // 8. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 7. Ensure onFocus is made to end the indirect session in this upgrade
     [NSTimerOverrider runPendingSelectors];
@@ -224,7 +241,7 @@
 
 - (void)testSavingNullReceivedNotificationId {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -236,7 +253,7 @@
     
     // 4. Open app
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 5. Make sure all influences are UNATTRIBUTED and has 0 notifications
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -254,7 +271,7 @@
     
     // 8. Open app
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 9. Make sure NOTIFICATION influence is INDIRECT and has 1 notifications
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -274,7 +291,7 @@
 
 - (void)testIndirectSession_afterReceiveingNotifications {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -286,8 +303,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_3" wasOpened:NO];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Make sure NOTIFICATION influence is INDIRECT and has 3 notifications
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -306,7 +323,7 @@
 
 - (void)testDirectSession_afterReceiveingNotifications {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -321,8 +338,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_4" wasOpened:YES];
     
     // 5. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 6. Make sure NOTIFICATION influence is DIRECT and has 1 notification
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -341,7 +358,7 @@
 
 - (void)testUnattributedSession_afterAllNotificationsPastAttributionWindow {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -351,8 +368,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Make sure NOTIFICATION influence is DIRECT and has 1 notification
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -373,8 +390,8 @@
     [NSDateOverrider advanceSystemTimeBy:1441 * 60];
     
     // 7. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 8. Make sure all influences are UNATTRIBUTED and has 0 notifications
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -386,7 +403,8 @@
 
 - (void)testDirectSession_overridesDirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    //    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -396,8 +414,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Make sure NOTIFICATION influence is INDIRECT and has 1 notification
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -422,8 +440,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
     
     // 8. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 9. Make sure NOTIFICATION influence is DIRECT and has 1 notification
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -443,7 +461,8 @@
 
 - (void)testDirectSession_overridesIndirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    //    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -453,8 +472,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Make sure NOTIFICTION influence is INDIRECT and has 1 notification
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -479,8 +498,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:YES];
     
     // 8. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 9. Make sure NOTIFICTION influence is DIRECT and has 1 notification
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -500,7 +519,8 @@
 
 - (void)testIndirectSession_overridesUnattributedSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    //    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -517,8 +537,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
     // 5. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 6. Make sure NOTIFICTION influence is INDIRECT and has 1 notification
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -538,7 +558,8 @@
 
 - (void)testDirectSession_overridesUnattributedSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    //    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -555,8 +576,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     
     // 5. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 6. Make sure NOTIFICTION influence is DIRECT and has 1 notification
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -576,7 +597,7 @@
 
 - (void)testIndirectSessionWontOverrideDirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -586,8 +607,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Make sure NOTIFICTION influence is DIRECT and has 1 notification
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -614,8 +635,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_4" wasOpened:NO];
     
     // 8. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 9. Make sure NOTIFICATION influence is still DIRECT and has 1 notification since session has not ended
     sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -635,7 +656,8 @@
 
 - (void)testSendingOutcome_inUnattributedSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    //    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -658,7 +680,8 @@
 
 - (void)testSendingOutcome_inIndirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
@@ -669,8 +692,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:NO];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     // 5. Validate NOTIFICATION influence is INDIRECT and send 2 outcomes
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -704,7 +727,8 @@
 
 - (void)testSendingOutcome_inDirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -714,8 +738,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Validate NOTIFICATION influence is DIRECT and send 2 outcomes
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -750,7 +774,7 @@
 
 - (void)testSendingOutcomeWithValue_inUnattributedSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes with values
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -773,7 +797,8 @@
 
 - (void)testSendingOutcomeWithValue_inIndirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
@@ -784,8 +809,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:NO];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 5. Validate NOTIFICATION influence INDIRECT and send 2 outcomes with values
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -823,7 +848,8 @@
 
 - (void)testSendingOutcomeWithValue_inDirectSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -833,8 +859,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     // 5. Validate NOTIFICATION influence is DIRECT and send 2 outcomes with values
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -873,7 +899,8 @@
 
 - (void)testUnattributedSession_cachedUniqueOutcomeCleanedOnNewSession {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
     // 2. Validate all influences are UNATTRIBUTED and send 2 of the same unique outcomes
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -895,8 +922,8 @@
     [NSDateOverrider advanceSystemTimeBy:31];
     
     // 5. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     // 6. Make sure a on_session request is made
     [RestClientAsserts assertOnSessionAtIndex:3];
@@ -919,7 +946,8 @@
 
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -931,8 +959,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_3" wasOpened:NO];
 
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     // 5. Validate new NOTIFICATION influence is INDIRECT and send 2 of the same unique outcomes
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -970,7 +998,7 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_3" wasOpened:NO];
 
     // 9. Open app again
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
 
     // 10. Validate new NOTIFICATION influence is INDIRECT and send the same 2 unique outcomes
@@ -1000,7 +1028,8 @@
 
 - (void)testAttributedDirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -1012,8 +1041,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_3" wasOpened:NO];
 
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     // 5. Validate new influences are ATTRIBUTED (DIRECT or INDIRECT) and send 2 of the same unique outcomes
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -1047,7 +1076,7 @@
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     // 8. Open app again
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods backgroundApp];
     
     // 9. Receive 1 more notification and open it
@@ -1082,7 +1111,8 @@
 
 - (void)testAttributedIndirectSession_sendsUniqueOutcomeForNewNotifications_andNotCachedNotifications {
     // 1. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -1093,8 +1123,8 @@
     [UnitTestCommonMethods receiveNotification:@"test_notification_2" wasOpened:NO];
 
     // 4. Open app
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     // 5. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send 1 unique outcome
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -1130,7 +1160,8 @@
 
     // 9. Open app again
     [UnitTestCommonMethods foregroundApp];
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
 
     // 10. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send the same unique outcome
     sessionInfluences = [OneSignal.sessionManager getInfluences];

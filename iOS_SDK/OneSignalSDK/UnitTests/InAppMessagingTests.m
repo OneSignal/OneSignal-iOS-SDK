@@ -44,12 +44,11 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import "UIDeviceOverrider.h"
-/**
- Test to make sure that OSInAppMessage correctly
- implements the OSJSONDecodable protocol
- and all properties are parsed correctly
- */
 
+/*
+ Test to make sure that OSInAppMessage correctly implements
+ The OSJSONDecodable protocol and all properties are parsed correctly
+ */
 @interface InAppMessagingTests : XCTestCase
 @property (strong, nonatomic) OSTriggerController *triggerController;
 @end
@@ -64,7 +63,10 @@
 NSInteger const LIMIT = 5;
 NSInteger const DELAY = 60;
 
-// called before each test
+/*
+ Put setup code here
+ This method is called before the invocation of each test method in the class
+ */
 -(void)setUp {
     [super setUp];
     [UnitTestCommonMethods beforeEachTest:self];
@@ -82,7 +84,7 @@ NSInteger const DELAY = 60;
             }
         ]
     ];
-    
+
     testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:trigger];
     testMessageRedisplay = [OSInAppMessageTestHelper testMessageWithTriggersJson:trigger redisplayLimit:LIMIT delay:[NSNumber numberWithInteger:DELAY]];
     
@@ -105,8 +107,12 @@ NSInteger const DELAY = 60;
     [UIDeviceOverrider reset];
 }
 
--(void)tearDown {
-    NSTimerOverrider.shouldScheduleTimers = true;
+/*
+ Put teardown code here
+ This method is called after the invocation of each test method in the class
+ */
+- (void)tearDown {
+    [super tearDown];
 }
 
 -(void)testIphoneSimulator {
@@ -205,7 +211,7 @@ NSInteger const DELAY = 60;
     XCTAssertEqual(testMessageRedisplay.displayStats.displayQuantity, 0);
     XCTAssertEqual(testMessageRedisplay.displayStats.lastDisplayTime, -1);
     XCTAssertTrue(testMessageRedisplay.displayStats.isRedisplayEnabled);
-    
+
     XCTAssertEqual(testMessage.displayStats.displayLimit, NSIntegerMax);
     XCTAssertEqual(testMessage.displayStats.displayDelay, 0);
     XCTAssertEqual(testMessage.displayStats.displayQuantity, 0);
@@ -218,7 +224,7 @@ NSInteger const DELAY = 60;
         XCTAssertTrue([testMessageRedisplay.displayStats shouldDisplayAgain]);
         [testMessageRedisplay.displayStats incrementDisplayQuantity];
     }
-    
+
     [testMessageRedisplay.displayStats incrementDisplayQuantity];
     XCTAssertFalse([testMessageRedisplay.displayStats shouldDisplayAgain]);
 }
@@ -234,12 +240,12 @@ NSInteger const DELAY = 60;
     NSCalendar* calendar = [NSCalendar currentCalendar];
     NSDate* date = [calendar dateFromComponents:comps];
     NSTimeInterval currentTime = [date timeIntervalSince1970];
-       
+
     XCTAssertTrue([testMessageRedisplay.displayStats isDelayTimeSatisfied:currentTime]);
-    
+
     testMessageRedisplay.displayStats.lastDisplayTime = currentTime - DELAY;
     XCTAssertTrue([testMessageRedisplay.displayStats isDelayTimeSatisfied:currentTime]);
-    
+
     testMessageRedisplay.displayStats.lastDisplayTime = currentTime - DELAY + 1;
     XCTAssertFalse([testMessageRedisplay.displayStats isDelayTimeSatisfied:currentTime]);
 }
@@ -247,16 +253,16 @@ NSInteger const DELAY = 60;
 - (void)testCorrectlyClickIds {
     let clickId = @"click_id";
     XCTAssertTrue([testMessageRedisplay isClickAvailable:clickId]);
-    
+
     [testMessageRedisplay addClickId:clickId];
     XCTAssertFalse([testMessageRedisplay isClickAvailable:clickId]);
 
     [testMessageRedisplay clearClickIds];
     XCTAssertTrue([testMessageRedisplay isClickAvailable:clickId]);
-   
+
     // Test on a IAM without redisplay
     XCTAssertTrue([testMessage isClickAvailable:clickId]);
-    
+
     [testMessage addClickId:clickId];
     XCTAssertFalse([testMessage isClickAvailable:clickId]);
 
@@ -290,7 +296,6 @@ NSInteger const DELAY = 60;
 }
 
 - (void)testHandlesInvalidBridgeEventType {
-    
     // the SDK should simply return nil if it receives invalid event JSON
     let invalidJson = @{
         @"type" : @"action_taken",
@@ -373,9 +378,10 @@ NSInteger const DELAY = 60;
     return [self.triggerController messageMatchesTriggers:message];
 }
 
-// tests operators to make sure they correctly handle cases where the local value is not set
+/*
+ Tests operators to make sure they correctly handle cases where the local value is not set
+ */
 - (void)testNilLocalValuesForOperators {
-    
     let operatorStrings = @[
         OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeGreaterThan),
         OS_OPERATOR_TO_STRING(OSTriggerOperatorTypeLessThan),
