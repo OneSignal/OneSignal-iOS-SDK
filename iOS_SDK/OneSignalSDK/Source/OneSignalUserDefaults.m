@@ -125,6 +125,18 @@
     [self.userDefaults synchronize];
 }
 
+- (NSDictionary * _Nullable)getSavedDictionaryForKey:(NSString * _Nonnull)key defaultValue:(NSDictionary * _Nullable)value {
+    if ([self keyExists:key])
+        return [self.userDefaults dictionaryForKey:key];
+
+    return value;
+}
+
+- (void)saveDictionaryForKey:(NSString * _Nonnull)key withValue:(NSSet * _Nullable)value {
+    [self.userDefaults setObject:value forKey:key];
+    [self.userDefaults synchronize];
+}
+
 - (id _Nullable)getSavedObjectForKey:(NSString *)key defaultValue:(id _Nullable)value {
     if ([self keyExists:key])
         return [self.userDefaults objectForKey:key];

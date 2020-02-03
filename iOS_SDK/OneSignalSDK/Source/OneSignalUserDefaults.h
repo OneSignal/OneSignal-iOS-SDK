@@ -56,6 +56,10 @@
 - (NSSet * _Nullable)getSavedSetForKey:(NSString * _Nonnull)key defaultValue:(NSSet * _Nullable)value;
 - (void)saveSetForKey:(NSString * _Nonnull)key withValue:(NSSet * _Nullable)value;
 
+// NSUserDefaults for storing and getting dictionaries
+- (NSDictionary * _Nullable)getSavedDictionaryForKey:(NSString * _Nonnull)key defaultValue:(NSDictionary * _Nullable)value;
+- (void)saveDictionaryForKey:(NSString * _Nonnull)key withValue:(NSDictionary * _Nullable)value;
+
 // NSUserDefaults for storing and getting objects
 - (id _Nullable)getSavedObjectForKey:(NSString * _Nonnull)key defaultValue:(id _Nullable)value;
 - (void)saveObjectForKey:(NSString * _Nonnull)key withValue:(id _Nullable)value;

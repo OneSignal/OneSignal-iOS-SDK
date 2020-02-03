@@ -41,37 +41,53 @@
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
+@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayInAppMessages;
+@property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
+@property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 @end
 
 @implementation OSMessagingController (Tests)
 
 - (void)resetState {
     self.messages = @[];
+    self.redisplayInAppMessages = [NSMutableDictionary new];
     self.triggerController = [OSTriggerController new];
     self.triggerController.delegate = self;
     self.messageDisplayQueue = [NSMutableArray new];
+    self.clickedClickIds = [NSMutableSet new];
+    self.isInAppMessageShowing = false;
+}
+
+- (void)setLastTimeGenerator:(NSTimeInterval(^)(void))dateGenerator {
+    self.dateGenerator = dateGenerator;
+}
+
+- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayInAppMessages {
+    return self.redisplayInAppMessages;
+}
+
+- (NSMutableArray<OSInAppMessage *> *)getDisplayedMessages {
+    return self.messageDisplayQueue;
 }
 
 @end
 
 @implementation OSMessagingControllerOverrider
 
-static NSMutableArray<OSInAppMessage *> *_displayedMessages;
-
 + (void)load {
-    injectToProperClass(@selector(overrideDisplayMessage:), @selector(displayMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
-    
-    _displayedMessages = [NSMutableArray new];
+    injectToProperClass(@selector(overrideShowAndImpressMessage:), @selector(showAndImpressMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
+    injectToProperClass(@selector(overrideHideWindow), @selector(hideWindow), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
 }
 
-- (void)overrideDisplayMessage:(OSInAppMessage *)message {
-    [_displayedMessages addObject:message];
-    
+- (void)overrideShowAndImpressMessage:(OSInAppMessage *)message {
     [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
 }
 
-+ (void)reset {
-    [_displayedMessages removeAllObjects];
+- (void)overrideHideWindow {
+}
+
++ (void)dismissCurrentMessage {
+    return [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
 }
 
 + (BOOL)isInAppMessageShowing {
@@ -79,11 +95,19 @@ static NSMutableArray<OSInAppMessage *> *_displayedMessages;
 }
 
 + (NSArray *)messageDisplayQueue {
-    return _displayedMessages;
+    return [OSMessagingController.sharedInstance getDisplayedMessages];
 }
 
-+ (void)setMessageDisplayQueue:(NSArray *)displayedMessages {
-    _displayedMessages = [displayedMessages mutableCopy];
++ (NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
+    return [OSMessagingController.sharedInstance getRedisplayInAppMessages];
+}
+
++ (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
+    [OSMessagingController.sharedInstance setRedisplayInAppMessages:messagesForRedisplay];
+}
+
++ (void)setMockDateGenerator:(NSTimeInterval (^)(void))testDateGenerator {
+    [OSMessagingController.sharedInstance setLastTimeGenerator:testDateGenerator];
 }
 
 @end

@@ -148,8 +148,6 @@ static XCTestCase* _currentXCTestCase;
     
     [NSTimerOverrider reset];
     
-    [OSMessagingControllerOverrider reset];
-    
     [OSMessagingController.sharedInstance reset];
 }
 

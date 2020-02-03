@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessagingDefines.h"
+#import "OSInAppMessageDisplayStats.h"
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
 #import "OSTrigger.h"
@@ -40,12 +41,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property (strong, nonatomic, nonnull) NSArray<NSArray <OSTrigger *> *> *triggers;
 
 @property (nonatomic) OSInAppMessageDisplayPosition position;
+@property (nonatomic) OSInAppMessageDisplayStats *displayStats;
 @property (nonatomic) BOOL actionTaken;
 @property (nonatomic) BOOL isPreview;
+@property (nonatomic) BOOL isTriggerChanged;
 @property (nonatomic) NSNumber *height;
 
 - (BOOL)isBanner;
 - (BOOL)takeActionAsUnique;
+
+- (NSSet<NSString *> *)getClickedClickIds;
+- (BOOL)isClickAvailable:(NSString *)clickId;
+
+- (void)clearClickIds;
+- (void)addClickId:(NSString *)clickId;
 
 @end
 
