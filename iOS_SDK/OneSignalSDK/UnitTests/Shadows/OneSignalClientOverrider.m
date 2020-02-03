@@ -238,6 +238,7 @@ static NSDictionary* iOSParamsOutcomes;
     networkRequestCount = 0;
     lastUrl = nil;
     lastHTTPRequest = nil;
+    lastHTTPRequestType = nil;
     [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
     iOSParamsOutcomes = @{};

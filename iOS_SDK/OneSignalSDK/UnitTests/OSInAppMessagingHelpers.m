@@ -29,6 +29,7 @@
 #import "OneSignalHelper.h"
 #import "OSTriggerController.h"
 #import "OSMessagingController.h"
+#import "OSInAppMessageDisplayStats.h"
 
 @implementation OSTrigger (Test)
 
@@ -82,10 +83,50 @@ int messageIdIncrementer = 0;
     };
 }
 
++ (NSDictionary *)testMessageJsonRedisplay {
+    return @{
+        @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
+        @"id" : [NSString stringWithFormat:@"%@_%i", OS_TEST_MESSAGE_ID, ++messageIdIncrementer],
+        @"variants" : @{
+                @"ios" : @{
+                        @"default" : OS_TEST_MESSAGE_VARIANT_ID,
+                        @"en" : OS_TEST_ENGLISH_VARIANT_ID
+                        
+                },
+                @"all" : @{
+                        @"default" : @"should_never_be_used_by_any_test"
+                        
+                }
+        },
+        @"triggers" : @[],
+        @"redisplay" : @{
+                @"limit" : @(5),
+                @"delay" : @(60)
+                
+        }
+    };
+}
+
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
     
     messageJson[@"triggers"] = triggers;
+    
+    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
+    
+    return [OSInAppMessage instanceWithData:data];
+}
+
++ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
+    let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
+    
+    
+    messageJson[@"triggers"] = triggers;
+    messageJson[@"redisplay"] =
+        @{
+            @"limit" : @(limit),
+            @"delay" : delay
+        };
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
     
@@ -107,6 +148,20 @@ int messageIdIncrementer = 0;
     
     let message = [OSInAppMessage instanceWithData:data];
     
+    message.triggers = triggers;
+    
+    return message;
+}
+
++ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers withRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
+    let messageJson = self.testMessageJsonRedisplay;
+    
+    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
+    
+    let message = [OSInAppMessage instanceWithData:data];
+    
+    message.displayStats.displayLimit = limit;
+    message.displayStats.displayDelay = [delay doubleValue];
     message.triggers = triggers;
     
     return message;
