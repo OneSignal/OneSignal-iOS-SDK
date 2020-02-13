@@ -40,8 +40,9 @@
 @interface OSMessagingController ()
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *seenInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
-@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayInAppMessages;
+@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 @end
@@ -50,7 +51,7 @@
 
 - (void)resetState {
     self.messages = @[];
-    self.redisplayInAppMessages = [NSMutableDictionary new];
+    self.redisplayedInAppMessages = [NSMutableDictionary new];
     self.triggerController = [OSTriggerController new];
     self.triggerController.delegate = self;
     self.messageDisplayQueue = [NSMutableArray new];
@@ -62,8 +63,8 @@
     self.dateGenerator = dateGenerator;
 }
 
-- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayInAppMessages {
-    return self.redisplayInAppMessages;
+- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayedInAppMessages {
+    return self.redisplayedInAppMessages;
 }
 
 - (NSMutableArray<OSInAppMessage *> *)getDisplayedMessages {
@@ -99,11 +100,15 @@
 }
 
 + (NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
-    return [OSMessagingController.sharedInstance getRedisplayInAppMessages];
+    return [OSMessagingController.sharedInstance getRedisplayedInAppMessages];
 }
 
 + (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
-    [OSMessagingController.sharedInstance setRedisplayInAppMessages:messagesForRedisplay];
+    [OSMessagingController.sharedInstance setRedisplayedInAppMessages:messagesForRedisplay];
+}
+
++ (void)setSeenMessages:(NSMutableSet <NSString *> *)seenMessages {
+    [OSMessagingController.sharedInstance setSeenInAppMessages:seenMessages];
 }
 
 + (void)setMockDateGenerator:(NSTimeInterval (^)(void))testDateGenerator {

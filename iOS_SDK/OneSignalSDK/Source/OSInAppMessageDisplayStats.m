@@ -90,7 +90,6 @@
 
 - (BOOL)isDelayTimeSatisfied:(NSTimeInterval)date {
     if (_lastDisplayTime < 0) {
-        _lastDisplayTime = date;
         return true;
     }
     //Calculate gap between display times

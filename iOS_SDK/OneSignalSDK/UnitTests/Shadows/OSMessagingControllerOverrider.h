@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)dismissCurrentMessage;
 + (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay;
++ (void)setSeenMessages:(NSMutableSet <NSString *> *)seenMessages;
 + (void)setMockDateGenerator:(NSTimeInterval(^)(void))testDateGenerator;
 + (BOOL)isInAppMessageShowing;
 + (NSArray <OSInAppMessage *> *)messageDisplayQueue;
@@ -46,10 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)resetState;
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action;
-- (void)persisIAMessageForReDisplay:(OSInAppMessage *)message;
+- (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message;
 - (void)messageViewControllerWasDismissed;
 - (void)setLastTimeGenerator:(NSTimeInterval(^)(void))dateGenerator;
-- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayInAppMessages;
+- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayedInAppMessages;
 - (NSMutableArray<OSInAppMessage *> *)getDisplayedMessages;
 
 @end

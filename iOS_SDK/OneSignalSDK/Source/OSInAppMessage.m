@@ -127,6 +127,9 @@
     else
         return nil;
     
+    if (json[@"displayed_in_session"]) {
+        message.isDisplayedInSession = json[@"displayed_in_session"];
+    }
     return message;
 }
 
@@ -159,6 +162,8 @@
     if ([_displayStats isRedisplayEnabled]) {
         json[@"redisplay"] = [_displayStats jsonRepresentation];
     }
+    
+    json[@"displayed_in_session"] = @(_isDisplayedInSession);
     
     return json;
 }
