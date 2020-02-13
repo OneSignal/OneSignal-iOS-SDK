@@ -141,6 +141,19 @@ int messageIdIncrementer = 0;
     return [OSInAppMessage instanceWithData:data];
 }
 
++ (OSInAppMessage *)testMessageWithRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
+     let messageJson = self.testMessageJsonRedisplay;
+    
+    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
+    
+    let message = [OSInAppMessage instanceWithData:data];
+    
+    message.displayStats.displayLimit = limit;
+    message.displayStats.displayDelay = [delay doubleValue];
+    
+    return message;
+}
+
 + (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers {
     let messageJson = self.testMessageJson;
     

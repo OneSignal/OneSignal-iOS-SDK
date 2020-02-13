@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) OSInAppMessageDisplayStats *displayStats;
 @property (nonatomic) BOOL actionTaken;
 @property (nonatomic) BOOL isPreview;
+@property (nonatomic) BOOL isDisplayedInSession;
 @property (nonatomic) BOOL isTriggerChanged;
 @property (nonatomic) NSNumber *height;
 

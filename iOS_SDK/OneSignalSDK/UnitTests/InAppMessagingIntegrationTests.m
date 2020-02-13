@@ -229,7 +229,7 @@
     
     XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
     
-    comps.minute = 1 + ceil(delay/60); // delay/60 -> minutes
+    comps.minute = 1 + delay/60; // delay/60 -> minutes
 
     NSDate* secondDate = [calendar dateFromComponents:comps];
     NSTimeInterval secondInterval = [secondDate timeIntervalSince1970];
@@ -335,6 +335,62 @@
     XCTAssertTrue([OneSignal getTriggers].count == 0);
 }
 
+//FINISH TEST MAKE DOC OF QUESTIONS
+- (void)testNoTriggersDisplayOnePerSession_MessageWithRedisplay {
+    let limit = 5;
+    let delay = 60;
+
+    let message = [OSInAppMessageTestHelper testMessageWithRedisplayLimit:limit delay:@(delay)];
+    message.isDisplayedInSession = true;
+    //Time interval mock
+    NSDateComponents* comps = [[NSDateComponents alloc]init];
+    comps.year = 2019;
+    comps.month = 6;
+    comps.day = 10;
+    comps.hour = 10;
+    comps.minute = 1;
+    
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDate* date = [calendar dateFromComponents:comps];
+    NSTimeInterval firstInterval = [date timeIntervalSince1970];
+    NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages = [NSMutableDictionary new];
+    [redisplayedInAppMessages setObject:message forKey:message.messageId];
+    NSMutableSet <NSString *> *seenMessages = [NSMutableSet new];
+    [seenMessages addObject:message.messageId];
+    
+    message.displayStats.lastDisplayTime = firstInterval - delay;
+    // Save IAM for redisplay
+    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
+    // Set data for redisplay
+    [OSMessagingControllerOverrider setMessagesForRedisplay:redisplayedInAppMessages];
+    // Save IAM for dismiss
+    [OSMessagingControllerOverrider setSeenMessages:seenMessages];
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return firstInterval;
+    }];
+    [self initOneSignalWithInAppMessage:message];
+    
+    XCTAssertTrue(OSMessagingControllerOverrider.messagesForRedisplay.count == 1);
+    // IAM should be shown instantly and be within the messageDisplayQueue
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
+    
+    // Time travel for delay
+    comps.minute = 1 + delay/60; // delay/60 -> minutes
+    NSDate* secondDate = [calendar dateFromComponents:comps];
+    NSTimeInterval secondInterval = [secondDate timeIntervalSince1970];
+     
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return secondInterval;
+    }];
+    
+    // Add trigger to call evaluateInAppMessage
+    [OneSignal addTrigger:@"prop1" withValue:@2];
+    // IAM shouldn't display again because It don't have triggers
+    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
+}
+
 - (void)testRemoveTriggersMakesRedisplay_MessageWithRedisplay {
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
     let limit = 5;
@@ -378,7 +434,7 @@
     XCTAssertEqual(1, dismissedMessage.displayStats.displayQuantity);
     XCTAssertEqual(firstInterval, lastDisplayTime);
       
-    comps.minute = 1 + ceil(delay/60); // delay/60 -> minutes
+    comps.minute = 1 + delay/60; // delay/60 -> minutes
 
     NSDate* secondDate = [calendar dateFromComponents:comps];
     NSTimeInterval secondInterval = [secondDate timeIntervalSince1970];
@@ -403,35 +459,48 @@
 }
 
 - (void)testRemoveMessagesFromCache_MessageWithRedisplay {
+    //Time interval mock
+    NSDateComponents* comps = [[NSDateComponents alloc]init];
+    comps.year = 2019;
+    comps.month = 6;
+    comps.day = 10;
+    comps.hour = 10;
+    comps.minute = 1;
+      
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDate* date = [calendar dateFromComponents:comps];
+    NSTimeInterval firstInterval = [date timeIntervalSince1970];
+       
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return firstInterval;
+    }];
+    
+    let sixMonthsInSeconds = 6 * 30 * 24 * 60 * 60;
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
     let limit = 5;
     let delay = 60;
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeNotExists withValue:@(2)];
 
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
     let message1 = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
+    message1.displayStats.lastDisplayTime = firstInterval - sixMonthsInSeconds + 1;
     let message2 = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
-    let message3 = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
+    message2.displayStats.lastDisplayTime = firstInterval - sixMonthsInSeconds - 1;
     
-    NSMutableDictionary <NSString *, OSInAppMessage *> * redisplayInAppMessages = [NSMutableDictionary new];
-    [redisplayInAppMessages setObject:message1 forKey:message1.messageId];
-    [redisplayInAppMessages setObject:message2 forKey:message2.messageId];
-    [redisplayInAppMessages setObject:message3 forKey:message3.messageId];
+    NSMutableDictionary <NSString *, OSInAppMessage *> * redisplayedInAppMessages = [NSMutableDictionary new];
+    [redisplayedInAppMessages setObject:message1 forKey:message1.messageId];
+    [redisplayedInAppMessages setObject:message2 forKey:message2.messageId];
     
-    [OSMessagingControllerOverrider setMessagesForRedisplay:redisplayInAppMessages];
+    [OSMessagingControllerOverrider setMessagesForRedisplay:redisplayedInAppMessages];
+    [standardUserDefaults saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
     
-    [self initOneSignalWithInAppMessageArray:@[message1.jsonRepresentation, message2.jsonRepresentation]];
+    [self initOneSignalWithInAppMessage:message];
     
-    let messagesForRedisplay = OSMessagingControllerOverrider.messagesForRedisplay;
-    XCTAssertTrue([messagesForRedisplay objectForKey:message1.messageId]);
-    XCTAssertTrue([messagesForRedisplay objectForKey:message2.messageId]);
-    XCTAssertFalse([messagesForRedisplay objectForKey:message3.messageId]);
-    
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    let redisplayMessagesCache = [standardUserDefaults getSavedDictionaryForKey:OS_IAM_SEEN_WITH_REDISPLAY_DICTIONARY_KEY defaultValue:nil];
-    
+    let redisplayMessagesCache = [standardUserDefaults getSavedDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
     XCTAssertTrue([redisplayMessagesCache objectForKey:message1.messageId]);
-    XCTAssertTrue([redisplayMessagesCache objectForKey:message2.messageId]);
-    XCTAssertFalse([redisplayMessagesCache objectForKey:message3.messageId]);
+    XCTAssertFalse([redisplayMessagesCache objectForKey:message2.messageId]);
 }
 
 - (void)testTimeSinceLastInAppMessageTrigger_withNoPreviousInAppMessages {

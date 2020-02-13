@@ -45,7 +45,7 @@
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *seenInAppMessages;
 
 // Tracking IAMs with redisplay, used to enable showing an IAM more than once after it has been dismissed
-@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayInAppMessages;
+@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages;
 
 // Tracking for click ids wihtin IAMs so that body, button, and image are only tracked on the dashboard once
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
@@ -64,6 +64,7 @@
 
 @implementation OSMessagingController
 
+static long SIX_MONTHS_TIME_SECONDS = 6 * 30 * 24 * 60 * 60;
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
@@ -118,7 +119,7 @@ static BOOL _isInAppMessagingPaused = false;
         
         // Get all cached IAM data from NSUserDefaults for shown, impressions, and clicks
         self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
-        self.redisplayInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedDictionaryForKey:OS_IAM_SEEN_WITH_REDISPLAY_DICTIONARY_KEY defaultValue:[NSMutableDictionary new]]];
+        self.redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
 
@@ -131,32 +132,39 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
     self.messages = newMessages;
-    
-    [self removeMessagesWithRedisplayFromCache:newMessages];
+
+    [self resetRedisplayMessagesBySession];
     [self evaluateMessages];
+    [self deleteOldRedisplayedInAppMessages];
+}
+
+- (void)resetRedisplayMessagesBySession {
+    for (NSString *messageId in _redisplayedInAppMessages) {
+        [_redisplayedInAppMessages objectForKey:messageId].isDisplayedInSession = false;
+    }
 }
 
 /*
  Part of redisplay logic
- Remove messages that aren't sent by the backend and keep IAM updated
+ Remove IAMs that the last display time was six month ago
  */
-- (void)removeMessagesWithRedisplayFromCache:(NSArray<OSInAppMessage *> *)newMessages {
+- (void)deleteOldRedisplayedInAppMessages {
     NSMutableSet <NSString *> * messagesIdToRemove = [NSMutableSet new];
-    NSMutableDictionary <NSString *, OSInAppMessage *> * newRedisplayDictionary = [_redisplayInAppMessages mutableCopy];
     
-    for (NSString *messageId in newRedisplayDictionary) {
-        if (![newMessages containsObject:[newRedisplayDictionary objectForKey:messageId]]) {
+    let sixMonthsAgo = self.dateGenerator() - SIX_MONTHS_TIME_SECONDS;
+    for (NSString *messageId in _redisplayedInAppMessages) {
+        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < sixMonthsAgo) {
             [messagesIdToRemove addObject:messageId];
         }
     }
     
     if ([messagesIdToRemove count] > 0) {
+        NSMutableDictionary <NSString *, OSInAppMessage *> * newRedisplayDictionary = [_redisplayedInAppMessages mutableCopy];
         for (NSString * messageId in messagesIdToRemove) {
             [newRedisplayDictionary removeObjectForKey:messageId];
         }
-        
-        _redisplayInAppMessages = newRedisplayDictionary;
-        [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_SEEN_WITH_REDISPLAY_DICTIONARY_KEY withValue:newRedisplayDictionary];
+
+        [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:newRedisplayDictionary];
     }
 }
 
@@ -285,13 +293,13 @@ static BOOL _isInAppMessagingPaused = false;
 /*
  Part of redisplay logic
  
- In order to an IAM to be re display, the following conditions need to be satisfied
-   - IAM has redisplay property
-   - Gap between displays is satisfied
-   - Quantity of displays is available
-   - Some IAM Trigger was fired
- 
- For re display, the message need to be removed from the arrays that track the display/impression
+ In order to redisplay an IAM, the following conditions must be satisfied:
+     1. IAM has redisplay property
+     2. Time delay between redisplay satisfied
+     3. Has more redisplays
+     4. An IAM trigger was satisfied
+
+ For redisplay, the message need to be removed from the arrays that track the display/impression
  For click counting, every message has it click id array
 */
 - (void)setDataForRedisplay:(OSInAppMessage *)message {
@@ -300,15 +308,17 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     BOOL messageDismissed = [_seenInAppMessages containsObject:message.messageId];
-    let redisplayMessageSavedData = [_redisplayInAppMessages objectForKey:message.messageId];
+    let redisplayMessageSavedData = [_redisplayedInAppMessages objectForKey:message.messageId];
     
     if (messageDismissed && redisplayMessageSavedData != nil) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@", message]];
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
         
+        // Message that don't have triggers should display only once per session
+        BOOL triggerHasChanged = message.isTriggerChanged || (!redisplayMessageSavedData.isDisplayedInSession && [message.triggers count] == 0);
         // Check if conditions are correct for redisplay
-        if ([message isTriggerChanged] &&
+        if (triggerHasChanged &&
             [message.displayStats isDelayTimeSatisfied:self.dateGenerator()] &&
             [message.displayStats shouldDisplayAgain]) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setDataForRedisplay clear arrays"];
@@ -348,33 +358,14 @@ static BOOL _isInAppMessagingPaused = false;
 /*
  * Part of redisplay logic
  *
- * If trigger key is part of message triggers, then return true, otherwise false
- */
-- (BOOL)checkOnMessage:(OSInAppMessage *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys {
-    for (NSString *triggerKey in newTriggersKeys) {
-        for (NSArray <OSTrigger *> *andConditions in message.triggers) {
-            for (OSTrigger *trigger in andConditions) {
-                if ([triggerKey isEqual:trigger.property]) {
-                    // At least one trigger has changed
-                    return YES;
-                }
-            }
-        }
-    }
-    return NO;
-}
-
-/*
- * Part of redisplay logic
- *
- * Make all messages with redisplay enable available for redisplay if:
+ * Make all messages with redisplay available if:
  *   - Already displayed
- *   - Trigger changed
+ *   - At least one Trigger has changed
  */
-- (void)checkTriggerChanges:(NSArray<NSString *> *)newTriggersKeys {
+- (void)makeRedisplayedMessagesAvailableWithTriggers:(NSArray<NSString *> *)newTriggersKeys {
     for (OSInAppMessage *message in _messages) {
-        if ([_redisplayInAppMessages objectForKey:message.messageId] &&
-            [self checkOnMessage:message newTriggersKeys:newTriggersKeys]) {
+        if ([_redisplayedInAppMessages objectForKey:message.messageId] &&
+            [self.triggerController isTriggerOnMessage:message newTriggersKeys:newTriggersKeys]) {
               message.isTriggerChanged = true;
         }
     }
@@ -382,12 +373,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
-    [self checkTriggerChanges:triggers.allKeys];
+    [self makeRedisplayedMessagesAvailableWithTriggers:triggers.allKeys];
     [self.triggerController addTriggers:triggers];
 }
 
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
-    [self checkTriggerChanges:keys];
+    [self makeRedisplayedMessagesAvailableWithTriggers:keys];
     [self.triggerController removeTriggersForKeys:keys];
 }
 
@@ -411,7 +402,7 @@ static BOOL _isInAppMessagingPaused = false;
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
             // Remove dismissed IAM from messageDisplayQueue
             [self.messageDisplayQueue removeObjectAtIndex:0];
-            [self persisIAMessageForReDisplay:showingIAM];
+            [self persistInAppMessageForRedisplay:showingIAM];
         }
         
         // Reset the IAM viewController to prepare for next IAM if one exists
@@ -441,8 +432,8 @@ static BOOL _isInAppMessagingPaused = false;
     [UIApplication.sharedApplication.delegate.window makeKeyWindow];
 }
 
-- (void)persisIAMessageForReDisplay:(OSInAppMessage *)message {
-    //If the IAM doesn't have the re display prop there is no need to save it
+- (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
+    // If the IAM doesn't have the re display prop there is no need to save it
     if (![message.displayStats isRedisplayEnabled])
       return;
 
@@ -450,15 +441,16 @@ static BOOL _isInAppMessagingPaused = false;
     message.displayStats.lastDisplayTime = displayTimeSeconds;
     [message.displayStats incrementDisplayQuantity];
     message.isTriggerChanged = false;
+    message.isDisplayedInSession = true;
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"redisplayInAppMessages: %@", [_redisplayInAppMessages description]]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"redisplayedInAppMessages: %@", [_redisplayedInAppMessages description]]];
     
-    //Update the data to enable future re displays
-    //Avoid calling the userdefault data again
-    [_redisplayInAppMessages setObject:message forKey:message.messageId];
+    // Update the data to enable future re displays
+    // Avoid calling the userdefault data again
+    [_redisplayedInAppMessages setObject:message forKey:message.messageId];
     
-    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_SEEN_WITH_REDISPLAY_DICTIONARY_KEY withValue:self.redisplayInAppMessages];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persisIAMessageForReDisplay: %@ \nredisplayInAppMessages: %@", [message description], [_redisplayInAppMessages description]]];
+    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:self.redisplayedInAppMessages];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
@@ -472,6 +464,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.actionClickBlock(action);
   
     let clickId = action.clickId;
+    // If IAM has redisplay the clickId may be available
     BOOL clickAvailableByRedisplay = [message.displayStats isRedisplayEnabled] && [message isClickAvailable:clickId];
     
     // Make sure no click tracking is performed for IAM previews
@@ -483,6 +476,7 @@ static BOOL _isInAppMessagingPaused = false;
     
     // Add clickId to clickedClickIds
     [self.clickedClickIds addObject:clickId];
+    // Track clickId per IAM
     [message addClickId:clickId];
     
     let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.app_id
