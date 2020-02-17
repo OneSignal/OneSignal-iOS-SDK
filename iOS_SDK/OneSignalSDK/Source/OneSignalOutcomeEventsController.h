@@ -46,10 +46,19 @@
                     deviceType:(NSNumber * _Nonnull)deviceType
                   successBlock:(OSSendOutcomeSuccess _Nullable)success;
 
+- (void)sendUniqueClickOutcomeEvent:(NSString * _Nonnull)name
+                              appId:(NSString * _Nonnull)appId
+                         deviceType:(NSNumber * _Nonnull)deviceType;
+
 - (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
                             value:(NSNumber * _Nullable)weight
                             appId:(NSString * _Nonnull)appId
                        deviceType:(NSNumber * _Nonnull)deviceType
                      successBlock:(OSSendOutcomeSuccess _Nullable)success;
+
+- (void)sendClickOutcomeEventWithValue:(NSString * _Nonnull)name
+                                 value:(NSNumber * _Nullable)weight
+                                 appId:(NSString * _Nonnull)appId
+                            deviceType:(NSNumber * _Nonnull)deviceType;
 
 @end

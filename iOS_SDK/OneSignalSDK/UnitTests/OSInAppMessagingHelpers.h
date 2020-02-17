@@ -52,6 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface OSInAppMessageTestHelper : NSObject
++ (NSDictionary *)testActionJson;
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
 + (OSInAppMessage *)testMessage;

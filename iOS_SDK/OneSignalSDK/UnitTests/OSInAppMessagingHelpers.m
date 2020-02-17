@@ -66,6 +66,16 @@
 
 int messageIdIncrementer = 0;
 
++ (NSDictionary *)testActionJson {
+    return @{
+        @"click_type" : @"button",
+        @"id" : @"test_action_id",
+        @"close" : @NO,
+        @"url" : @"",
+        @"url_target" : @"browser",
+    };
+}
+
 + (NSDictionary *)testMessageJson {
     return @{
         @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times

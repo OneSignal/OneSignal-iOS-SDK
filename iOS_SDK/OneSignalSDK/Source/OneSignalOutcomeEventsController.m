@@ -108,23 +108,38 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
     [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:success];
 }
 
-/*
- Create an OSOutcomeEvent and send an outcome request using measure 'endpoint'
- Unique outcome events are a little more complicated then a normal or valued outcome
- Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
-    1. ATTRIBUTED: Unique outcome events are stored per notification level
-                   DIRECT or INDIRECT should have a clean list of notificationIds not sent with the specific outcome name
-                   Cache containing events over 7 days old will be cleaned on OneSignal init
-    2. UNATTRIBUTED: Unique outcome events are stored per session level
-                     Cache is cleaned on every new session in onSessionEnding callback
- */
+- (void)sendUniqueClickOutcomeEvent:(NSString * _Nonnull)name
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType {
+    OSSessionResult *sessionResult = [self.osSessionManager getIAMSessionResult];
+    [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil sessionResult:sessionResult];
+}
+
 - (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
                    appId:(NSString * _Nonnull)appId
               deviceType:(NSNumber * _Nonnull)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success {
+    OSSessionResult *sessionResult = [self.osSessionManager getSessionResult];
+    [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType successBlock:success sessionResult:sessionResult];
+}
+
+/*
+Create an OSOutcomeEvent and send an outcome request using measure 'endpoint'
+Unique outcome events are a little more complicated then a normal or valued outcome
+Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
+   1. ATTRIBUTED: Unique outcome events are stored per notification level
+                  DIRECT or INDIRECT should have a clean list of notificationIds not sent with the specific outcome name
+                  Cache containing events over 7 days old will be cleaned on OneSignal init
+   2. UNATTRIBUTED: Unique outcome events are stored per session level
+                    Cache is cleaned on every new session in onSessionEnding callback
+*/
+- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSSendOutcomeSuccess _Nullable)success
+           sessionResult:(OSSessionResult *)sessionResult{
 
     NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-    OSSessionResult *sessionResult = [self.osSessionManager getSessionResult];
     
     // Handle unique outcome event for ATTRIBUTED and UNATTRIBUTED
     if ([OSOutcomesUtils isAttributedSession:sessionResult.session]) {
@@ -192,6 +207,23 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
                                                              weight:weight];
 
     [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:success];
+}
+
+- (void)sendClickOutcomeEventWithValue:(NSString * _Nonnull)name
+                   value:(NSNumber * _Nullable)weight
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType {
+    
+    OSSessionResult *sessionResult = [self.osSessionManager getIAMSessionResult];
+
+    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+    OSOutcomeEvent *outcome = [[OSOutcomeEvent new] initWithSession:sessionResult.session
+                                                    notificationIds:sessionResult.notificationIds
+                                                               name:name
+                                                          timestamp:[NSNumber numberWithDouble:timestamp]
+                                                             weight:weight];
+
+    [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:nil];
 }
 
 /*
