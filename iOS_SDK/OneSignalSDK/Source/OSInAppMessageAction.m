@@ -71,7 +71,7 @@
         action.closesMessage = true; // Default behavior
     
     NSMutableArray *outcomes = [NSMutableArray new];
-    
+    //TODO: when backend is ready check that key matches
     if ([json[@"outcomes"] isKindOfClass:[NSArray class]]) {
         NSArray *outcomesString = json[@"outcomes"];
         
@@ -81,7 +81,17 @@
     }
     action.outcomes = outcomes;
     
+    if (json[@"tags"]) {
+        action.tags= [OSInAppMessageTag instanceWithJson:json[@"tags"]];
+    } else {
+        action.tags = nil;
+    }
+    
     return action;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageAction outcome: %@ \ntag: %@", _outcomes, _tags];
 }
 
 @end
