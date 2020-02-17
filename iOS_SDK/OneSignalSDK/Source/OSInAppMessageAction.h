@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageOutcome.h"
+#import "OSInAppMessageTag.h"
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
 
@@ -50,6 +51,9 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 // The outcome to send for this action
 @property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
+
+// The tags to send for this action
+@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
 
 // Determines where the URL is loaded, ie. app opens a webview
 @property (nonatomic) OSInAppMessageActionUrlType urlActionType;

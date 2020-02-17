@@ -537,7 +537,7 @@ NSString * const WEIGHT = @"weight";
     params[DEVICE] = deviceType;
 
     params[OUTCOME_ID] = outcome.name;
-    
+
     if ([outcome.weight doubleValue] > 0)
         params[WEIGHT] = outcome.weight;
 

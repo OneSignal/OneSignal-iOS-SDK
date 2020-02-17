@@ -25,6 +25,9 @@
  * THE SOFTWARE.
  */
 
+#ifndef OSInAppMessageOutcome_h
+#define OSInAppMessageOutcome_h
+
 #import <Foundation/Foundation.h>
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
@@ -36,3 +39,5 @@
 @property (nonatomic) BOOL unique;
 
 @end
+
+#endif /* OSInAppMessageOutcome_h */
