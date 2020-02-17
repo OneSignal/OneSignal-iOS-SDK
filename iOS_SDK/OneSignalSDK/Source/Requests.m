@@ -493,7 +493,7 @@ NSString * const WEIGHT = @"weight";
     if (outcome.notificationIds && [outcome.notificationIds count] > 0)
         params[NOTIFICATION_IDS] = outcome.notificationIds;
 
-    if (outcome.weight && [outcome.weight doubleValue] > 0)
+    if ([outcome.weight doubleValue] > 0)
         params[WEIGHT] = outcome.weight;
 
     request.parameters = params;
@@ -517,7 +517,7 @@ NSString * const WEIGHT = @"weight";
     if (outcome.notificationIds && [outcome.notificationIds count] > 0)
         params[NOTIFICATION_IDS] = outcome.notificationIds;
 
-    if (outcome.weight && [outcome.weight doubleValue] > 0)
+    if ([outcome.weight doubleValue] > 0)
         params[WEIGHT] = outcome.weight;
 
     request.parameters = params;
@@ -537,6 +537,9 @@ NSString * const WEIGHT = @"weight";
     params[DEVICE] = deviceType;
 
     params[OUTCOME_ID] = outcome.name;
+    
+    if ([outcome.weight doubleValue] > 0)
+        params[WEIGHT] = outcome.weight;
 
     request.parameters = params;
     request.method = POST;
