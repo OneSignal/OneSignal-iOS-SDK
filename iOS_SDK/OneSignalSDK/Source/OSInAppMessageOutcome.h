@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2020 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,34 +26,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessageOutcome.h"
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface OSInAppMessageOutcome : NSObject <OSJSONDecodable>
 
-typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
-    OSInAppMessageActionUrlTypeSafari,
-    
-    OSInAppMessageActionUrlTypeWebview,
-    
-    OSInAppMessageActionUrlTypeReplaceContent
-};
-
-@interface OSInAppMessageAction () <OSJSONDecodable>
-
-// The type of element that was clicked, button or image
-@property (strong, nonatomic, nonnull) NSString *clickType;
-
-// The unique identifier for this click
-@property (strong, nonatomic, nonnull) NSString *clickId;
-
-// The outcome to send for this action
-@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
-
-// Determines where the URL is loaded, ie. app opens a webview
-@property (nonatomic) OSInAppMessageActionUrlType urlActionType;
+@property (strong, nonatomic, nonnull) NSString *name;
+@property (strong, nonatomic, nonnull) NSNumber *weight;
+@property (nonatomic) BOOL unique;
 
 @end
-
-NS_ASSUME_NONNULL_END

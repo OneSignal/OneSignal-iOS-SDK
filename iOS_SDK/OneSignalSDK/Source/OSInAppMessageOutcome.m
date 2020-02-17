@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2020 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,35 +25,44 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
 #import "OSInAppMessageOutcome.h"
-#import "OSJSONHandling.h"
-#import "OneSignal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation OSInAppMessageOutcome
 
-typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
-    OSInAppMessageActionUrlTypeSafari,
++ (instancetype)instanceWithData:(NSData *)data {
+    NSError *error;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     
-    OSInAppMessageActionUrlTypeWebview,
+    if (error || !json) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app message outcome JSON: %@", error.description ?: @"No Data"]];
+        return nil;
+    }
     
-    OSInAppMessageActionUrlTypeReplaceContent
-};
+    return [self instanceWithJson:json];
+}
 
-@interface OSInAppMessageAction () <OSJSONDecodable>
++ (instancetype)instanceWithJson:(NSDictionary *)json {
+    OSInAppMessageOutcome *outcome = [OSInAppMessageOutcome new];
 
-// The type of element that was clicked, button or image
-@property (strong, nonatomic, nonnull) NSString *clickType;
+    if ([json[@"name"] isKindOfClass:[NSString class]]) {
+        outcome.name = json[@"name"];
+    }
+    if ([json[@"weight"] isKindOfClass:[NSNumber class]]) {
+        outcome.weight = json[@"weight"];
+    } else {
+        outcome.weight = @0;
+    }
+    if ([json[@"unique"] isKindOfClass:[NSNumber class]]) {
+        outcome.unique = json[@"unique"];
+    } else {
+        outcome.unique = NO;
+    }
+    
+    return outcome;
+}
 
-// The unique identifier for this click
-@property (strong, nonatomic, nonnull) NSString *clickId;
-
-// The outcome to send for this action
-@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
-
-// Determines where the URL is loaded, ie. app opens a webview
-@property (nonatomic) OSInAppMessageActionUrlType urlActionType;
++ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
+    return nil;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

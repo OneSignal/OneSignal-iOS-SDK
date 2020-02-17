@@ -70,6 +70,17 @@
     else
         action.closesMessage = true; // Default behavior
     
+    NSMutableArray *outcomes = [NSMutableArray new];
+    
+    if ([json[@"outcomes"] isKindOfClass:[NSArray class]]) {
+        NSArray *outcomesString = json[@"outcomes"];
+        
+        for (NSDictionary *outcomeJson in outcomesString) {
+            [outcomes addObject:[OSInAppMessageOutcome instanceWithJson:outcomeJson]];
+        }
+    }
+    action.outcomes = outcomes;
+    
     return action;
 }
 
