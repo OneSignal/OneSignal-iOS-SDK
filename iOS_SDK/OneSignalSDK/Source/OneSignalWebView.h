@@ -28,7 +28,7 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 
-@interface OneSignalWebView : UIViewController <WKNavigationDelegate>
+@interface OneSignalWebView : UIViewController <WKNavigationDelegate, UIAdaptivePresentationControllerDelegate>
 
 @property(nonatomic, copy)NSURL *url;
 @property(nonatomic)WKWebView *webView;
