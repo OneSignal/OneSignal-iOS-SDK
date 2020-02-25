@@ -127,6 +127,7 @@
     else
         return nil;
     
+    //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
     if (json[@"displayed_in_session"]) {
         message.isDisplayedInSession = json[@"displayed_in_session"];
     }
@@ -162,7 +163,7 @@
     if ([_displayStats isRedisplayEnabled]) {
         json[@"redisplay"] = [_displayStats jsonRepresentation];
     }
-    
+    //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
     json[@"displayed_in_session"] = @(_isDisplayedInSession);
     
     return json;

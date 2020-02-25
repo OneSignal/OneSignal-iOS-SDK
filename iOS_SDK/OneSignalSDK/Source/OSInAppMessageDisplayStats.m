@@ -79,10 +79,10 @@
     if (json[@"delay"] && [json[@"delay"] isKindOfClass:[NSNumber class]])
         displayStats.displayDelay = [json[@"delay"] doubleValue];
     else
-        displayStats.displayDelay = [@0 doubleValue];
+        displayStats.displayDelay = 0;
     
     displayStats.displayQuantity = 0;
-    displayStats.lastDisplayTime = [@-1 doubleValue];
+    displayStats.lastDisplayTime = -1;
     displayStats.redisplayEnabled = YES;
 
     return displayStats;

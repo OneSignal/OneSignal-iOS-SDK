@@ -81,7 +81,7 @@
  *
  * If trigger key is part of message triggers, then return true, otherwise false
  */
-- (BOOL)isTriggerOnMessage:(OSInAppMessage *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys {
+- (BOOL)hasSharedTriggers:(OSInAppMessage *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys {
     for (NSString *triggerKey in newTriggersKeys) {
         for (NSArray <OSTrigger *> *andConditions in message.triggers) {
             for (OSTrigger *trigger in andConditions) {

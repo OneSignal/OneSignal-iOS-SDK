@@ -155,7 +155,7 @@
     expectation.expectedFulfillmentCount = 1;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.06 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssertEqual([[OSMessagingControllerOverrider messageDisplayQueue] count], 1);
+        XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
         
         [expectation fulfill];
     });
@@ -210,24 +210,24 @@
     [OneSignal addTrigger:@"prop1" withValue:@2];
     
     // IAM should be shown instantly and be within the messageDisplayQueue
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
     
     // The display should cause an "viewed" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
     
     let iamDisplayed = [[OSMessagingControllerOverrider messageDisplayQueue] objectAtIndex:0];
-    XCTAssertTrue(iamDisplayed.displayStats.lastDisplayTime == -1);
+    XCTAssertEqual(-1, iamDisplayed.displayStats.lastDisplayTime);
     
     [OSMessagingControllerOverrider dismissCurrentMessage];
     [OneSignalClientOverrider reset:self];
     
-    XCTAssertTrue([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId] != nil);
+    XCTAssertNotNil([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId]);
     OSInAppMessage *dismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let lastDisplayTime = dismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(1, dismissedMessage.displayStats.displayQuantity);
     XCTAssertEqual(firstInterval, lastDisplayTime);
     
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
     
     comps.minute = 1 + delay/60; // delay/60 -> minutes
 
@@ -240,13 +240,13 @@
     
     [OneSignal addTrigger:@"prop1" withValue:@2];
     
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
     // The display should cause an new "viewed" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
     
     [OSMessagingControllerOverrider dismissCurrentMessage];
     
-    XCTAssertTrue([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId] != nil);
+    XCTAssertNotNil([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId]);
     OSInAppMessage *secondDismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let secondLastDisplayTime = secondDismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(2, secondDismissedMessage.displayStats.displayQuantity);
@@ -279,16 +279,16 @@
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     let clickedClickIds = [standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:[NSMutableSet new]];
     
-    XCTAssertTrue(clickedClickIds.count == 1);
+    XCTAssertEqual(1, clickedClickIds.count);
     NSString *clickedId = [[clickedClickIds allObjects] objectAtIndex:0];
     
     XCTAssertEqual(action.clickId, clickedId);
-    XCTAssertEqual(1, [message getClickedClickIds].count);
+    XCTAssertEqual(1, message.getClickedClickIds.count);
     XCTAssertEqual(action.clickId, [[message.getClickedClickIds allObjects] objectAtIndex:0]);
     
     [message clearClickIds];
     [OneSignalClientOverrider reset:self];
-    XCTAssertEqual(0, [message getClickedClickIds].count);
+    XCTAssertEqual(0, message.getClickedClickIds.count);
     XCTAssertEqualObjects(nil, OneSignalClientOverrider.lastHTTPRequestType);
     
     [OSMessagingController.sharedInstance messageViewDidSelectAction:message withAction:action];
@@ -297,11 +297,11 @@
     
     let secondClickedClickIds = [standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil];
     
-    XCTAssertTrue(secondClickedClickIds.count == 1);
+    XCTAssertEqual(1, secondClickedClickIds.count);
     NSString *secondClickedId = [[secondClickedClickIds allObjects] objectAtIndex:0];
        
     XCTAssertEqual(action.clickId, secondClickedId);
-    XCTAssertEqual(1, [message getClickedClickIds].count);
+    XCTAssertEqual(1, message.getClickedClickIds.count);
     XCTAssertEqual(action.clickId, [[message.getClickedClickIds allObjects] objectAtIndex:0]);
 }
 
@@ -310,17 +310,17 @@
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     [OneSignal addTrigger:@"test1" withValue:@"value1"];
-    XCTAssertTrue([OneSignal getTriggers].count == 1);
+    XCTAssertEqual(1, [OneSignal getTriggers].count);
     
     [OneSignal addTriggers:@{@"test2" : @33}];
     XCTAssertEqualObjects(OneSignal.getTriggers[@"test2"], @33);
-    XCTAssertTrue([OneSignal getTriggers].count == 2);
+    XCTAssertEqual(2, [OneSignal getTriggers].count);
     
     [OneSignal addTriggers:@{@"test2" : @"44"}];
-    XCTAssertTrue([OneSignal getTriggers].count == 2);
+    XCTAssertEqual(2, [OneSignal getTriggers].count);
     
     [OneSignal addTriggers:@{@"test3" : @""}];
-    XCTAssertTrue([OneSignal getTriggers].count == 3);
+    XCTAssertEqual(3, [OneSignal getTriggers].count);
     
     [OneSignal removeTriggerForKey:@"test1"];
     XCTAssertNil(OneSignal.getTriggers[@"test1"]);
@@ -332,7 +332,7 @@
     [OneSignal removeTriggerForKey:@"test2"];
     [OneSignal removeTriggerForKey:@"test3"];
     
-    XCTAssertTrue([OneSignal getTriggers].count == 0);
+    XCTAssertEqual(0, [OneSignal getTriggers].count);
 }
 
 //FINISH TEST MAKE DOC OF QUESTIONS
@@ -370,11 +370,11 @@
     }];
     [self initOneSignalWithInAppMessage:message];
     
-    XCTAssertTrue(OSMessagingControllerOverrider.messagesForRedisplay.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messagesForRedisplay.count);
     // IAM should be shown instantly and be within the messageDisplayQueue
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
     [OSMessagingControllerOverrider dismissCurrentMessage];
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
     
     // Time travel for delay
     comps.minute = 1 + delay/60; // delay/60 -> minutes
@@ -388,7 +388,7 @@
     // Add trigger to call evaluateInAppMessage
     [OneSignal addTrigger:@"prop1" withValue:@2];
     // IAM shouldn't display again because It don't have triggers
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
 }
 
 - (void)testRemoveTriggersMakesRedisplay_MessageWithRedisplay {
@@ -416,18 +416,18 @@
         return firstInterval;
     }];
     
-    XCTAssertTrue(OSMessagingControllerOverrider.messagesForRedisplay.count == 0);
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messagesForRedisplay.count);
     [OneSignal removeTriggerForKey:@"prop1"];
       
     // IAM should be shown instantly and be within the messageDisplayQueue
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
       
     let iamDisplayed = [OSMessagingControllerOverrider.messageDisplayQueue objectAtIndex:0];
-    XCTAssertTrue(iamDisplayed.displayStats.lastDisplayTime == -1);
+    XCTAssertEqual(-1, iamDisplayed.displayStats.lastDisplayTime);
       
     [OSMessagingControllerOverrider dismissCurrentMessage];
     
-    XCTAssertTrue(OSMessagingControllerOverrider.messagesForRedisplay.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messagesForRedisplay.count);
     
     OSInAppMessage *dismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let lastDisplayTime = dismissedMessage.displayStats.lastDisplayTime;
@@ -444,13 +444,13 @@
     }];
     
     [OneSignal addTrigger:@"prop1" withValue:@2];
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 0);
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
     [OneSignal removeTriggerForKey:@"prop1"];
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
       
     [OSMessagingControllerOverrider dismissCurrentMessage];
       
-    XCTAssertTrue([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId] != nil);
+    XCTAssertNotNil([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId]);
     OSInAppMessage *secondDismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let secondLastDisplayTime = secondDismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(2, secondDismissedMessage.displayStats.displayQuantity);
@@ -475,7 +475,7 @@
         return firstInterval;
     }];
     
-    let sixMonthsInSeconds = 6 * 30 * 24 * 60 * 60;
+    let maxCacheTime = 6 * 30 * 24 * 60 * 60; // Six month in seconds
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
@@ -485,9 +485,9 @@
 
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
     let message1 = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
-    message1.displayStats.lastDisplayTime = firstInterval - sixMonthsInSeconds + 1;
+    message1.displayStats.lastDisplayTime = firstInterval - maxCacheTime + 1;
     let message2 = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
-    message2.displayStats.lastDisplayTime = firstInterval - sixMonthsInSeconds - 1;
+    message2.displayStats.lastDisplayTime = firstInterval - maxCacheTime - 1;
     
     NSMutableDictionary <NSString *, OSInAppMessage *> * redisplayedInAppMessages = [NSMutableDictionary new];
     [redisplayedInAppMessages setObject:message1 forKey:message1.messageId];
@@ -514,7 +514,7 @@
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
     // IAM should be shown instantly and be within the messageDisplayQueue
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
 }
 
 // If a message is scheduled to be displayed in the past, it should not be shown at all.
@@ -529,7 +529,7 @@
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     
     // IAM should be shown instantly and be within the messageDisplayQueue essentially ignoring the negative number in seconds
-    XCTAssertTrue(OSMessagingControllerOverrider.messageDisplayQueue.count == 1);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
 }
 
 // This test checks to make sure that if you are using the > operator for an exact time trigger,
