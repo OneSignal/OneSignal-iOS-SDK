@@ -1257,7 +1257,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
     
-    for(NSString* key in keys) {
+    for (NSString* key in keys) {
         if (tagsToSend && tagsToSend[key]) {
             if (![tagsToSend[key] isEqual:@""])
                 [tagsToSend removeObjectForKey:key];

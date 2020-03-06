@@ -510,6 +510,16 @@ static BOOL _isInAppMessagingPaused = false;
                                       }];
 }
 
+- (void)sendTagCallWithAction:(OSInAppMessageAction *)action {
+    if (action.tags) {
+        OSInAppMessageTag *tag = action.tags;
+        if (tag.tagsToAdd)
+            [OneSignal sendTags:tag.tagsToAdd];
+        if (tag.tagsToRemove)
+            [OneSignal deleteTags:tag.tagsToRemove];
+    }
+}
+
 - (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes {
     for (OSInAppMessageOutcome *outcome in outcomes) {
         if (outcome.unique) {
@@ -533,7 +543,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.actionClickBlock(action);
     
     [self sendClickRESTCall:message withAction:action];
-    
+    [self sendTagCallWithAction:action];
     [self sendOutcomes:action.outcomes];
 }
 
