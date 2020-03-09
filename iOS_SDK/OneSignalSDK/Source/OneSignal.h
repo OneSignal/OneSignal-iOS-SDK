@@ -387,6 +387,9 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
+@property (class) BOOL iamV2DataPulled;
++ (void)setIAMV2Params:(NSDictionary *)params;
+
 extern NSString* const ONESIGNAL_VERSION;
 
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {

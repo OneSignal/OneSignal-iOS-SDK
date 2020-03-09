@@ -73,16 +73,12 @@
             handleNotificationAction:openNotificationHandler
                             settings:@{kOSSettingsKeyAutoPrompt: @false,
                                        kOSSettingsKeyInAppLaunchURL: @true}];
-    
-//    [OneSignal setLocationShared:false];
-    
-    [OneSignal sendTag:@"someKey1122" value:@"03222017"];
 
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -93,8 +89,7 @@
 
 + (NSString*)getOneSignalAppId {
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
-    if (!onesignalAppId)
-        onesignalAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
+    onesignalAppId = @"77e32082-ea27-42e3-a898-c72e141824ef";
 
     return onesignalAppId;
 }

@@ -143,6 +143,64 @@ static BOOL coldStartFromTapOnNotification = NO;
 static BOOL shouldDelaySubscriptionUpdate = false;
 
 
+static int iamV2RedisplayCount = 1;
+static int iamV2RedisplayDelay = 0;
+static NSString* iamV2Tags = @"";
+static NSString* iamV2Outcomes = @"";
+static BOOL iamV2ShouldDismiss = false;
+static NSMutableArray* iamV2Prompting;
+
++ (void)setIAMV2Params:(NSDictionary *)params {
+    iamV2RedisplayCount = [params[@"limit"] intValue];
+    iamV2RedisplayDelay = [params[@"delay"] intValue];
+    iamV2Tags = params[@"tags"];
+    iamV2Outcomes = params[@"outcomes"];
+    iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
+    iamV2Prompting = params[@"prompts"];
+    
+    [self receiveInAppMessages];
+}
+
+static BOOL _iamV2DataPulled = false;
++ (void)setIamV2DataPulled:(BOOL)pulled {
+    _iamV2DataPulled = pulled;
+}
+
++ (BOOL)iamV2DataPulled {
+    return _iamV2DataPulled;
+}
+
++ (void)receiveInAppMessages {
+//    JSONArray jsonArray = new JSONArray(OneSignalPrefs.getString(OneSignalPrefs.PREFS_ONESIGNAL,
+//            OneSignalPrefs.PREFS_OS_CACHED_IAMS,
+//            null));
+//
+//    if (!iamDataCached || jsonArray == null || jsonArray.length() == 0)
+//       return;
+//
+//    OneSignal.pauseInAppMessages(false);
+//    OSInAppMessageController.getController().receivedInAppMessageJson(jsonArray);
+    
+    [OneSignal pauseInAppMessages:false];
+}
+
+//static Handler handler = new Handler();
++ (void)handlerForIamPull {
+//   handler.postDelayed(new Runnable() {
+//      @Override
+//      public void run() {
+//         if (iamDataCached) {
+//            textView.setTextColor(appContext.getResources().getColor(android.R.color.holo_green_dark));
+//            progressBar.setVisibility(View.INVISIBLE);
+//            linearLayout.setVisibility(View.VISIBLE);
+//            handler.removeCallbacks(null);
+//         }
+//         handler.postDelayed(this, 1000);
+//      }
+//   }, 1000);
+
+}
+
 /*
     if setEmail: was called before the device was registered (push playerID = nil),
     then the call to setEmail: also gets delayed
