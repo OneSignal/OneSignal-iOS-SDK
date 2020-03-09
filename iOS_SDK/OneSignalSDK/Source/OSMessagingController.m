@@ -177,7 +177,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
     self.messages = newMessages;
-    
+
     // Cache if messages passed in are not null, this method is called from on_session for
     //  new messages and cached when foregrounding app
     if (self.messages)
@@ -391,6 +391,7 @@ static BOOL _isInAppMessagingPaused = false;
             && [message.displayStats shouldDisplayAgain]) {
 
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setDataForRedisplay clear arrays"];
+
             [self.seenInAppMessages removeObject:message.messageId];
             [self.impressionedInAppMessages removeObject:message.messageId];
             [message clearClickIds];

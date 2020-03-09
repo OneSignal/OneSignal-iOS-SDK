@@ -207,14 +207,14 @@ static Complete complete;
 + (void)setIAMV2Params:(NSDictionary *)params {
     NSString *message = params.description;
     NSLog(message);
-    
+
     OneSignal.iamV2RedisplayCount = [params[@"limit"] intValue];
     OneSignal.iamV2RedisplayDelay = [params[@"delay"] intValue];
     OneSignal.iamV2Tags = params[@"tags"];
     OneSignal.iamV2Outcomes = params[@"outcomes"];
     OneSignal.iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
     OneSignal.iamV2Prompting = params[@"prompts"];
-    
+
     [OneSignal receivedInAppMessageJson:nil];
 }
 
@@ -1915,15 +1915,15 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     let messages = [NSMutableArray new];
-    
+
     if (messagesJson) {
         for (NSDictionary *messageJson in messagesJson) {
             let message = [OSInAppMessage instanceWithJson:messageJson];
-            
+
             if (message)
                 [messages addObject:message];
         }
-        
+
         [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
         return;
     }
