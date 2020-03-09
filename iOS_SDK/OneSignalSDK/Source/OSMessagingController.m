@@ -473,12 +473,12 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
 }
 
-- (void)handlePromptAction:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         if (![promptAction didAppear]) {
             _currentPromptAction = promptAction;
+            break;
         }
-        break;
     }
 
     if (_currentPromptAction) {
@@ -486,13 +486,11 @@ static BOOL _isInAppMessagingPaused = false;
         _currentPromptAction.didAppear = YES;
         [_currentPromptAction handlePrompt:^(BOOL accepted) {
             _currentPromptAction = nil;
-            // IAM dismissed by action
-            if (!_viewController) {
-                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
-                [self evaluateMessageDisplayQueue];
-            }
-            //TODO: continue handling more than one prompt
+            [self handlePromptActions:promptActions];
         }];
+    } else if (!_viewController) { // IAM dismissed by action
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
+        [self evaluateMessageDisplayQueue];
     }
 }
 
@@ -503,7 +501,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    [self handlePromptAction:action.promptActions];
+    [self handlePromptActions:action.promptActions];
 
     if (self.actionClickBlock)
         self.actionClickBlock(action);

@@ -867,7 +867,7 @@
     XCTAssertEqual(0 ,[OneSignalClientOverrider.lastHTTPRequest[@"tags"] count]);
 }
 
-- (void)testIAMClickedLaunchesPrompt {
+- (void)testIAMClickedLaunchesPushPrompt {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
 
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -886,6 +886,51 @@
     XCTAssertFalse(action.promptActions[0].didAppear);
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     XCTAssertTrue(action.promptActions[0].didAppear);
+}
+
+- (void)testIAMClickedLaunchesLocationPrompt {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    [actionJson setValue:@[@"location"] forKey:@"prompts"];
+    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    XCTAssertFalse(action.promptActions[0].didAppear);
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    XCTAssertTrue(action.promptActions[0].didAppear);
+}
+
+- (void)testIAMClickedLaunchesPushLocationPrompt {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    [actionJson setValue:@[@"push", @"location"] forKey:@"prompts"];
+    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    XCTAssertFalse(action.promptActions[0].didAppear);
+    XCTAssertFalse(action.promptActions[1].didAppear);
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    [UnitTestCommonMethods runBackgroundThreads];
+    XCTAssertTrue(action.promptActions[0].didAppear);
+    XCTAssertTrue(action.promptActions[1].didAppear);
 }
 
 - (void)testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay {

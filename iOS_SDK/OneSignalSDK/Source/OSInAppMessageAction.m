@@ -27,6 +27,7 @@
 
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessagePushPrompt.h"
+#import "OSInAppMessageLocationPrompt.h"
 
 @implementation OSInAppMessageAction
 
@@ -96,6 +97,8 @@
         for (NSString *prompt in promptActionsStrings) {
             if ([prompt isEqualToString:@"push"]) {
                 [promptActions addObject:[[OSInAppMessagePushPrompt alloc] init]];
+            } else if ([prompt isEqualToString:@"location"]) {
+                [promptActions addObject:[[OSInAppMessageLocationPrompt alloc] init]];
             }
         }
 
