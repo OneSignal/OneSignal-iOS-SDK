@@ -596,14 +596,15 @@
 
 - (void)testIAMClickedLaunchesOutcomeAPIRequest {
     [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
-    
+
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
-    
+
     // the trigger should immediately evaluate to true and should
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
-    
+
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // the message should now be displayed
@@ -864,6 +865,27 @@
     // The action should cause an "send tag" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendTagsToServer class]));
     XCTAssertEqual(0 ,[OneSignalClientOverrider.lastHTTPRequest[@"tags"] count]);
+}
+
+- (void)testIAMClickedLaunchesPrompt {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    [actionJson setValue:@[@"push"] forKey:@"prompts"];
+    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    XCTAssertFalse(action.promptActions[0].didAppear);
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    XCTAssertTrue(action.promptActions[0].didAppear);
 }
 
 - (void)testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay {

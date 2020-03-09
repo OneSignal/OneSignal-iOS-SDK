@@ -45,6 +45,7 @@
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
+@property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 @end
 
 @implementation OSMessagingController (Tests)
@@ -57,6 +58,7 @@
     self.messageDisplayQueue = [NSMutableArray new];
     self.clickedClickIds = [NSMutableSet new];
     self.isInAppMessageShowing = false;
+    self.currentPromptAction = nil;
 }
 
 - (void)setLastTimeGenerator:(NSTimeInterval(^)(void))dateGenerator {
@@ -89,6 +91,10 @@
 
 + (void)dismissCurrentMessage {
     return [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
+}
+
++ (BOOL)currentPromptAppear {
+    return OSMessagingController.sharedInstance.currentPromptAction.didAppear;
 }
 
 + (BOOL)isInAppMessageShowing {

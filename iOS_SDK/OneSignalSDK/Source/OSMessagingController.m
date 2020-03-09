@@ -33,6 +33,7 @@
 #import "OneSignalInternal.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
+#import "OSInAppMessagePrompt.h"
 
 @interface OneSignal ()
 
@@ -68,6 +69,8 @@
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
+
+@property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 
 @end
 
@@ -132,7 +135,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
-
+        self.currentPromptAction = nil;
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
     }
@@ -414,23 +417,30 @@ static BOOL _isInAppMessagingPaused = false;
             [self.messageDisplayQueue removeObjectAtIndex:0];
             [self persistInAppMessageForRedisplay:showingIAM];
         }
-        
         // Reset the IAM viewController to prepare for next IAM if one exists
         self.viewController = nil;
-        // No IAMs are showing currently
-        self.isInAppMessageShowing = false;
         // Reset time since last IAM
         [self.triggerController timeSinceLastMessage:[NSDate new]];
-        
-        if (self.messageDisplayQueue.count > 0) {
-            // Show next IAM in queue
-            [self displayMessage:self.messageDisplayQueue.firstObject];
-            return;
-        } else {
-            [self hideWindow];
-            // Evaulate any IAMs (could be new IAM or added trigger conditions)
-            [self evaluateMessages];
-        }
+
+        if (!_currentPromptAction) {
+            [self evaluateMessageDisplayQueue];
+        } // else do nothing prompt is handling the re-showing
+    }
+}
+
+- (void)evaluateMessageDisplayQueue {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating message display queue"];
+    // No IAMs are showing currently
+    self.isInAppMessageShowing = false;
+
+    if (self.messageDisplayQueue.count > 0) {
+        // Show next IAM in queue
+        [self displayMessage:self.messageDisplayQueue.firstObject];
+        return;
+    } else {
+        [self hideWindow];
+        // Evaulate any IAMs (could be new IAM or added trigger conditions)
+        [self evaluateMessages];
     }
 }
 
@@ -463,6 +473,46 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
 }
 
+- (void)handlePromptAction:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+    for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
+        if (![promptAction didAppear]) {
+            _currentPromptAction = promptAction;
+        }
+        break;
+    }
+
+    if (_currentPromptAction) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
+        _currentPromptAction.didAppear = YES;
+        [_currentPromptAction handlePrompt:^(BOOL accepted) {
+            _currentPromptAction = nil;
+            // IAM dismissed by action
+            if (!_viewController) {
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
+                [self evaluateMessageDisplayQueue];
+            }
+            //TODO: continue handling more than one prompt
+        }];
+    }
+}
+
+- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+    // Assign firstClick BOOL based on message being clicked previously or not
+    action.firstClick = [message takeActionAsUnique];
+    
+    if (action.clickUrl)
+        [self handleMessageActionWithURL:action];
+    
+    [self handlePromptAction:action.promptActions];
+
+    if (self.actionClickBlock)
+        self.actionClickBlock(action);
+    
+    [self sendClickRESTCall:message withAction:action];
+    [self sendTagCallWithAction:action];
+    [self sendOutcomes:action.outcomes];
+}
+
 /*
 * Checks if a click being available:
 * 1. Redisplay is enabled and click is available within message
@@ -475,7 +525,6 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)sendClickRESTCall:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
     let clickId = action.clickId;
-
     // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // unless that click is from an IAM with redisplay
@@ -530,21 +579,6 @@ static BOOL _isInAppMessagingPaused = false;
             [OneSignal sendClickActionOutcome:outcome.name];
         }
     }
-}
-
-- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
-    // Assign firstClick BOOL based on message being clicked previously or not
-    action.firstClick = [message takeActionAsUnique];
-    
-    if (action.clickUrl)
-        [self handleMessageActionWithURL:action];
-    
-    if (self.actionClickBlock)
-        self.actionClickBlock(action);
-    
-    [self sendClickRESTCall:message withAction:action];
-    [self sendTagCallWithAction:action];
-    [self sendOutcomes:action.outcomes];
 }
 
 /*

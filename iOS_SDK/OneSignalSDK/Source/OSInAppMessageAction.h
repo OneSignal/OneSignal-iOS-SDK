@@ -30,6 +30,7 @@
 #import "OSInAppMessageTag.h"
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
+#import "OSInAppMessagePrompt.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +55,9 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 // The tags to send for this action
 @property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
+
+// The prompt action available
+@property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt>*> *promptActions;
 
 // Determines where the URL is loaded, ie. app opens a webview
 @property (nonatomic) OSInAppMessageActionUrlType urlActionType;
