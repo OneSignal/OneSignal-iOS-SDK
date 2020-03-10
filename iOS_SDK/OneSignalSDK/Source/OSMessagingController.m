@@ -141,7 +141,15 @@ static BOOL _isInAppMessagingPaused = false;
     return self;
 }
 
-- (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
+- (void)updateInAppMessagesFromCache {
+    self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
+                                                                      defaultValue:[NSArray new]];
+    
+    [self evaluateMessages];
+    [self deleteOldRedisplayedInAppMessages];
+}
+
+- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
     self.messages = newMessages;
     
     // Cache if messages passed in are not null, this method is called from on_session for
@@ -589,7 +597,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (instancetype)init { self = [super init]; return self; }
 - (BOOL)isInAppMessagingPaused { return false; }
 - (void)setInAppMessagingPaused:(BOOL)pause {}
-- (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {}
+- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {}
 - (void)setInAppMessageClickHandler:(OSHandleInAppMessageActionClickBlock)actionClickBlock {}
 - (void)presentInAppMessage:(OSInAppMessage *)message {}
 - (void)presentInAppPreviewMessage:(OSInAppMessage *)message {}
