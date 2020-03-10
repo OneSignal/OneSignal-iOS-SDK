@@ -122,7 +122,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     
-    // 6. Make sure IAMs are available,but not in queue
+    // 6. Make sure IAMs are available, but not in queue
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
     
     // 7. Make sure 1 IAM is persisted
