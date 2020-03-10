@@ -99,27 +99,35 @@
  After first on_session IAMs are setup to be used by controller
 */
 - (void)testIAMsAvailable_afterOnSession {
-    // 1. Open app
+    // 1. Make sure 0 IAMs are persisted
+    NSArray *cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertNil(cachedMessages);
+    
+    // 2. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods runBackgroundThreads];
 
-    // 2. Kill the app and wait 31 seconds
+    // 3. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
     
-    // 3. Open app
+    // 4. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 4. Ensure the last network call is an on_session
+    // 5. Ensure the last network call is an on_session
     // Total calls - 2 ios params + player create + 2 on_sessions = 5 requests
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
     
-    // 5. Make sure IAMs are available,but not in queue
+    // 6. Make sure IAMs are available,but not in queue
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+    
+    // 7. Make sure 1 IAM is persisted
+    cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertEqual(1, cachedMessages.count);
 }
 
 /**
@@ -128,36 +136,45 @@
  After first on_session IAMs will be cached, now force quit app and return in less than 30 seconds to make sure cached IAMs are used instead
 */
 - (void)testIAMsCacheAvailable_afterOnSession_andAppRestart {
-    // 1. Open app
+    // 1. Make sure 0 IAMs are persisted
+    NSArray *cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertNil(cachedMessages);
+    
+    // 2. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 2. Kill the app and wait 31 seconds
+    // 3. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
     
-    // 3. Open app
+    // 4. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 4. Ensure the last network call is an on_session
+    // 5. Ensure the last network call is an on_session
     // Total calls - 2 ios params + player create + 2 on_sessions = 5 requests
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
     
-    // 5. Make sure IAMs are available
+    // 6. Make sure IAMs are available
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
     
-    // 6. Don't make an on_session call if only out of the app for 10 secounds
+    // 7. Don't make an on_session call if only out of the app for 10 secounds
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:10];
-    // Make sure when the contorller is reset and app is foregrounded we have messages still
+    
+    // 8. Make sure no more IAMs exist
+    // Make sure when the controller is reset and app is foregrounded we have messages still
     [OSMessagingController.sharedInstance reset];
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count == 0);
+    
+    // 9. Foreground the app
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 7. Make sure IAMs are available and no extra requests exist
+    // 10. Make sure IAMs are available and no extra requests exist
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
 }
