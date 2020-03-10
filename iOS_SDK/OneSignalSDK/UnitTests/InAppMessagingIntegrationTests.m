@@ -118,9 +118,9 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 5. Ensure the last network call is an on_session
-    // Total calls - 2 ios params + player create + 2 on_sessions = 5 requests
+    // Total calls - 2 ios params + player create + on_session = 4 requests
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     
     // 6. Make sure IAMs are available,but not in queue
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
@@ -154,9 +154,9 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 5. Ensure the last network call is an on_session
-    // Total calls - 2 ios params + player create + 2 on_sessions = 5 requests
+    // Total calls - 2 ios params + player create + on_session = 4 requests
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     
     // 6. Make sure IAMs are available
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
@@ -176,7 +176,7 @@
     
     // 10. Make sure IAMs are available and no extra requests exist
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
 }
 
 /**
