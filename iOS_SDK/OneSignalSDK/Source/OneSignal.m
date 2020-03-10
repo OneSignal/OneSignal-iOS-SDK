@@ -150,7 +150,7 @@ static NSString* iamV2Outcomes = @"";
 static BOOL iamV2ShouldDismiss = false;
 static NSMutableArray* iamV2Prompting;
 
-+ (void)setIAMV2Params:(NSDictionary *)params {
++ (void)setIAMV2Params:(NSDictionary *)params withCompletionHandler:(void(^)(void))delegate {
     iamV2RedisplayCount = [params[@"limit"] intValue];
     iamV2RedisplayDelay = [params[@"delay"] intValue];
     iamV2Tags = params[@"tags"];
@@ -171,17 +171,13 @@ static BOOL _iamV2DataPulled = false;
 }
 
 + (void)receiveInAppMessages {
-//    JSONArray jsonArray = new JSONArray(OneSignalPrefs.getString(OneSignalPrefs.PREFS_ONESIGNAL,
-//            OneSignalPrefs.PREFS_OS_CACHED_IAMS,
-//            null));
-//
-//    if (!iamDataCached || jsonArray == null || jsonArray.length() == 0)
-//       return;
-//
-//    OneSignal.pauseInAppMessages(false);
-//    OSInAppMessageController.getController().receivedInAppMessageJson(jsonArray);
+    NSArray *jsonArray  = [OneSignalUserDefaults.initStandard getSavedStringForKey:@"" defaultValue:nil];
+    if (!_iamV2DataPulled || jsonArray == nil || jsonArray.count == 0)
+       return;
     
     [OneSignal pauseInAppMessages:false];
+    
+    [OSMessagingController.sharedInstance didUpdateMessagesForSession:jsonArray];
 }
 
 //static Handler handler = new Handler();
@@ -198,7 +194,6 @@ static BOOL _iamV2DataPulled = false;
 //         handler.postDelayed(this, 1000);
 //      }
 //   }, 1000);
-
 }
 
 /*
