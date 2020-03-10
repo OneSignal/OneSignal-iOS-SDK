@@ -142,10 +142,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)updateInAppMessagesFromCache {
-    self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
-                                                                      defaultValue:[NSArray new]];
+    self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
     [self evaluateMessages];
-    [self deleteOldRedisplayedInAppMessages];
 }
 
 - (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
