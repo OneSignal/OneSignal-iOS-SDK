@@ -231,15 +231,18 @@ int messageIdIncrementer = 0;
 // which is normally private
 @interface OSMessagingController (Test)
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
 @end
 
 @implementation OSMessagingController (Test)
 
+@dynamic messages;
 @dynamic messageDisplayQueue;
 @dynamic triggerController;
 
 - (void)reset {
+    self.messages = @[];
     [self.messageDisplayQueue removeAllObjects];
 }
 

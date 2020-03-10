@@ -120,7 +120,8 @@ static BOOL _isInAppMessagingPaused = false;
         self.dateGenerator = ^ NSTimeInterval {
             return [[NSDate date] timeIntervalSince1970];
         };
-        self.messages = [NSArray<OSInAppMessage *> new];
+        self.messages = self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
+                                                                                          defaultValue:[NSArray<OSInAppMessage *> new]];
         self.triggerController = [OSTriggerController new];
         self.triggerController.delegate = self;
         self.messageDisplayQueue = [NSMutableArray new];
@@ -142,6 +143,11 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)didUpdateMessagesForSession:(NSArray<OSInAppMessage *> *)newMessages {
     self.messages = newMessages;
+    
+    // Cache if messages passed in are not null, this method is called from on_session for
+    //  new messages and cached when foregrounding app
+    if (self.messages)
+        [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
 
     [self resetRedisplayMessagesBySession];
     [self evaluateMessages];

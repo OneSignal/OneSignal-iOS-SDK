@@ -39,6 +39,7 @@
 #import "OSFocusTimeProcessorFactory.h"
 #import "OSBaseFocusTimeProcessor.h"
 #import "OSFocusCallParams.h"
+#import "OSMessagingController.h"
 
 @interface OneSignal ()
 
@@ -110,9 +111,10 @@ static BOOL lastOnFocusWasToBackground = YES;
     if ([OneSignal shouldRegisterNow])
         [OneSignal registerUser];
     else {
-        // This checks if notifiation permissions changed when app was backgrounded
+        // This checks if notification permissions changed when app was backgrounded
         [OneSignal sendNotificationTypesUpdate];
         [OneSignal.sessionManager attemptSessionUpgrade];
+        [self receiveCachedInAppMessages];
     }
     
     let wasBadgeSet = [OneSignal clearBadgeCount:false];
@@ -150,6 +152,11 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
+}
+
++ (void)receiveCachedInAppMessages {
+    NSArray *cachedInAppMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    [OSMessagingController.sharedInstance didUpdateMessagesForSession:cachedInAppMessages];
 }
 
 + (void)onSessionEnded:(OSSessionResult *)lastSessionResult {

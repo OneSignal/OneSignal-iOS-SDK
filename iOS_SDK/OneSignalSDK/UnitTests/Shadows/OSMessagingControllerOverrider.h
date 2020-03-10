@@ -50,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message;
 - (void)messageViewControllerWasDismissed;
 - (void)setLastTimeGenerator:(NSTimeInterval(^)(void))dateGenerator;
+- (NSArray<OSInAppMessage *> *)getInAppMessages;
 - (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayedInAppMessages;
 - (NSMutableArray<OSInAppMessage *> *)getDisplayedMessages;
 

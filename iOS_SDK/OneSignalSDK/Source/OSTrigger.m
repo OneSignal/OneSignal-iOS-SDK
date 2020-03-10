@@ -90,7 +90,31 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat: @"OSTrigger: triggerId=%@ property=%@ operatorType=%lu value=%@", _triggerId, _property, (unsigned long)_operatorType, _value];
+    return [NSString stringWithFormat:@"OSTrigger: triggerId=%@ kind=%@ property=%@ operatorType=%lu value=%@",
+            _triggerId,
+            _kind,
+            _property,
+            (unsigned long)_operatorType,
+            _value];
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:_triggerId forKey:@"triggerId"];
+    [encoder encodeObject:_kind forKey:@"kind"];
+    [encoder encodeObject:_property forKey:@"property"];
+    [encoder encodeInt:(int)_operatorType forKey:@"operatorType"];
+    [encoder encodeObject:_value forKey:@"value"];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        _triggerId = [decoder decodeObjectForKey:@"triggerId"];
+        _kind = [decoder decodeObjectForKey:@"kind"];
+        _property = [decoder decodeObjectForKey:@"property"];
+        _operatorType = (OSTriggerOperatorType)[decoder decodeIntForKey:@"operatorType"];
+        _value = [decoder decodeObjectForKey:@"value"];
+    }
+    return self;
 }
 
 @end

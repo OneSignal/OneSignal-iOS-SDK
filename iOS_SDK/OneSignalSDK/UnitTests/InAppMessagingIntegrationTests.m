@@ -94,6 +94,75 @@
 }
 
 /**
+ Make sure on_session IAMs are pulled for the specific app_id
+ For this test we have mocked a single IAM in the on_session request
+ After first on_session IAMs are setup to be used by controller
+*/
+- (void)testIAMsAvailable_afterOnSession {
+    // 1. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // 2. Kill the app and wait 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    
+    // 3. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Ensure the last network call is an on_session
+    // Total calls - 2 ios params + player create + 2 on_sessions = 5 requests
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    
+    // 5. Make sure IAMs are available,but not in queue
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+}
+
+/**
+ Make sure on_session IAMs are pulled for the specific app_id
+ For this test we have mocked a single IAM in the on_session request response
+ After first on_session IAMs will be cached, now force quit app and return in less than 30 seconds to make sure cached IAMs are used instead
+*/
+- (void)testIAMsCacheAvailable_afterOnSession_andAppRestart {
+    // 1. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Kill the app and wait 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    
+    // 3. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Ensure the last network call is an on_session
+    // Total calls - 2 ios params + player create + 2 on_sessions = 5 requests
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    
+    // 5. Make sure IAMs are available
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+    
+    // 6. Don't make an on_session call if only out of the app for 10 secounds
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:10];
+    // Make sure when the contorller is reset and app is foregrounded we have messages still
+    [OSMessagingController.sharedInstance reset];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 7. Make sure IAMs are available and no extra requests exist
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+}
+
+/**
     This test adds an in-app message with a dynamic trigger (session_duration = +30 seconds)
     When the SDK receives this message in the response to the registration request, that it
     correctly sets up a timer for the 30 seconds

@@ -63,6 +63,10 @@
     self.dateGenerator = dateGenerator;
 }
 
+- (NSArray<OSInAppMessage *> *)getInAppMessages {
+    return self.messages;
+}
+
 - (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayedInAppMessages {
     return self.redisplayedInAppMessages;
 }
