@@ -1778,13 +1778,19 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
-    let messages = [NSMutableArray new];
+    var messages = [NSMutableArray new];
+    
+    if (messagesJson) {
+        for (NSDictionary *messageJson in messagesJson) {
+            let message = [OSInAppMessage instanceWithJson:messageJson];
 
-    for (NSDictionary *messageJson in messagesJson) {
-        let message = [OSInAppMessage instanceWithJson:messageJson];
-
-        if (message)
-            [messages addObject:message];
+            if (message)
+                [messages addObject:message];
+        }
+    }
+    else {
+        messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
+                                                                     defaultValue:[NSArray<OSInAppMessage *> new]];
     }
 
     [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];

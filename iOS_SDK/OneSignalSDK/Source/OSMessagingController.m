@@ -120,7 +120,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.dateGenerator = ^ NSTimeInterval {
             return [[NSDate date] timeIntervalSince1970];
         };
-        self.messages = self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
+        self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
                                                                                           defaultValue:[NSArray<OSInAppMessage *> new]];
         self.triggerController = [OSTriggerController new];
         self.triggerController.delegate = self;

@@ -114,7 +114,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         // This checks if notification permissions changed when app was backgrounded
         [OneSignal sendNotificationTypesUpdate];
         [OneSignal.sessionManager attemptSessionUpgrade];
-        [self receiveCachedInAppMessages];
+        [OneSignal receivedInAppMessageJson:nil];
     }
     
     let wasBadgeSet = [OneSignal clearBadgeCount:false];
@@ -152,11 +152,6 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
-}
-
-+ (void)receiveCachedInAppMessages {
-    NSArray *cachedInAppMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
-    [OSMessagingController.sharedInstance didUpdateMessagesForSession:cachedInAppMessages];
 }
 
 + (void)onSessionEnded:(OSSessionResult *)lastSessionResult {
