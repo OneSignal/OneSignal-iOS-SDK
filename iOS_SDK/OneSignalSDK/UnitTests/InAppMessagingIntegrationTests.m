@@ -174,7 +174,11 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 10. Make sure IAMs are available and no extra requests exist
+    // 10. Make sure 1 IAM is persisted
+    cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertEqual(1, cachedMessages.count);
+    
+    // 11. Make sure IAMs are available and no extra requests exist
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
 }

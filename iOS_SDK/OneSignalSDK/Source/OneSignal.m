@@ -1787,11 +1787,13 @@ static dispatch_queue_t serialQueue;
             if (message)
                 [messages addObject:message];
         }
-    } else {
-        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+        
+        [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
+        return;
     }
 
-    [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
+    // Default is using cached IAMs in the messaging controller
+    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
 }
 
 + (NSString*)getUsableDeviceToken {
