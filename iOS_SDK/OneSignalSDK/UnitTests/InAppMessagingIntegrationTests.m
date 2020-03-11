@@ -82,15 +82,12 @@
     NSTimerOverrider.shouldScheduleTimers = false;
 }
 
--(void)tearDown {
+- (void)tearDown {
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
     
     [OSMessagingController.sharedInstance resetState];
     
     NSTimerOverrider.shouldScheduleTimers = true;
-    
-    // Set to false so that we don't interfere with other tests
-    [OneSignal pauseInAppMessages:false];
 }
 
 /**
@@ -109,9 +106,9 @@
 
     // 3. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
@@ -145,42 +142,41 @@
     
     // 3. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
-    [UnitTestCommonMethods runBackgroundThreads];
-    [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    [UnitTestCommonMethods runBackgroundThreads];
     
     // 5. Ensure the last network call is an on_session
-    // Total calls - 2 ios params + player create + on_session = 4 requests
+    // Total calls - ios params + 2 on_session = 3 requests
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
     
     // 6. Make sure IAMs are available
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
     
     // 7. Don't make an on_session call if only out of the app for 10 secounds
+    [UnitTestCommonMethods clearStateForAppRestart:self];
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:10];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // 8. Make sure no more IAMs exist
-    // Make sure when the controller is reset and app is foregrounded we have messages still
-    [OSMessagingController.sharedInstance reset];
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count == 0);
     
-    // 9. Foreground the app
-    [UnitTestCommonMethods foregroundApp];
+    // 9. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 10. Make sure 1 IAM is persisted
     cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
     XCTAssertEqual(1, cachedMessages.count);
     
-    // 11. Make sure IAMs are available and no extra requests exist
+    // 11. Make sure IAMs are available
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+    // Total calls - ios params + 2 on_session + 1 ios params + 1 on_session = 5 requests
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
 }
 
 /**
@@ -277,6 +273,8 @@
 }
 
 - (void)testIAMWithRedisplay {
+    [OneSignal pauseInAppMessages:false];
+    
     let limit = 5;
     let delay = 60;
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
@@ -429,6 +427,8 @@
 }
 
 - (void)testIAMWithNoTriggersDisplayOnePerSession_Redisplay {
+    [OneSignal pauseInAppMessages:false];
+    
     let limit = 5;
     let delay = 60;
 
@@ -484,6 +484,8 @@
 }
 
 - (void)testIAMShowAfterRemoveTrigger_Redisplay {
+    [OneSignal pauseInAppMessages:false];
+    
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
     let limit = 5;
     let delay = 60;
@@ -646,6 +648,8 @@
 
 // when an in-app message is displayed to the user, the SDK should launch an API request
 - (void)testIAMViewedLaunchesViewedAPIRequest {
+    [OneSignal pauseInAppMessages:false];
+    
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];

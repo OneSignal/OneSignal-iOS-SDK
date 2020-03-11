@@ -241,11 +241,6 @@ int messageIdIncrementer = 0;
 @dynamic messageDisplayQueue;
 @dynamic triggerController;
 
-- (void)reset {
-    self.messages = @[];
-    [self.messageDisplayQueue removeAllObjects];
-}
-
 - (void)setTriggerWithName:(NSString *)name withValue:(id)value {
     [self.triggerController addTriggers:@{name : value}];
 }

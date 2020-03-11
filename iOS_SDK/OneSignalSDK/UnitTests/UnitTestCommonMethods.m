@@ -148,7 +148,7 @@ static XCTestCase* _currentXCTestCase;
     
     [NSTimerOverrider reset];
     
-    [OSMessagingController.sharedInstance reset];
+    [OSMessagingController.sharedInstance resetState];
 }
 
 + (void)beforeAllTest:(XCTestCase *)testCase {
@@ -173,6 +173,8 @@ static XCTestCase* _currentXCTestCase;
     // InstallUncaughtExceptionHandler();
     
     OneSignalHelperOverrider.mockIOSVersion = 10;
+    
+    [OneSignal pauseInAppMessages:true];
 }
 
 + (void) beforeEachTest:(XCTestCase *)testCase {
