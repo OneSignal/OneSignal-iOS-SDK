@@ -338,6 +338,7 @@
                 successBlock(nil);
         }
     } else if (failureBlock != nil) {
+        // Make sure to send all the infomation available to the client
         if (innerJson != nil && error != nil)
             failureBlock([NSError errorWithDomain:@"OneSignalError" code:statusCode userInfo:@{@"returned" : innerJson, @"error": error}]);
         else if (innerJson != nil)
