@@ -343,9 +343,6 @@
                                                         </segments>
                                                         <color key="tintColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <color key="selectedSegmentTintColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        <connections>
-                                                            <action selector="inAppMessagingSegmentedControlValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="R4N-1v-kze"/>
-                                                        </connections>
                                                     </segmentedControl>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Push Prompt:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rgL-zf-fxk">
                                                         <rect key="frame" x="30" y="226" width="161" height="21"/>
@@ -361,9 +358,6 @@
                                                         </segments>
                                                         <color key="tintColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <color key="selectedSegmentTintColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        <connections>
-                                                            <action selector="inAppMessagingSegmentedControlValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="PUy-6f-ofZ"/>
-                                                        </connections>
                                                     </segmentedControl>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Location Prompt:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5br-aF-Nhl">
                                                         <rect key="frame" x="30" y="266" width="161" height="21"/>
@@ -379,16 +373,13 @@
                                                         </segments>
                                                         <color key="tintColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <color key="selectedSegmentTintColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                        <connections>
-                                                            <action selector="inAppMessagingSegmentedControlValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="YFd-MT-isI"/>
-                                                        </connections>
                                                     </segmentedControl>
                                                     <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iaW-a8-yUU">
                                                         <rect key="frame" x="104.66666666666669" y="306" width="134" height="30"/>
                                                         <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                         <state key="normal" title="Attach IAM V2 Data"/>
                                                         <connections>
-                                                            <action selector="attachIAMV2Params:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rPn-YU-xE2"/>
+                                                            <action selector="attachIAMV2Params:" destination="BYZ-38-t0r" eventType="touchUpInside" id="C8e-iE-uvd"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -551,12 +542,12 @@
                         <outlet property="appIdTextField" destination="TVC-yc-aRa" id="rpy-F9-eKJ"/>
                         <outlet property="consentSegmentedControl" destination="05S-ud-V2e" id="9HS-Rj-OmM"/>
                         <outlet property="getTriggerKey" destination="bmb-ib-r40" id="Sge-3X-okn"/>
-                        <outlet property="iamV2AttachButton" destination="iaW-a8-yUU" id="f2S-rm-rVl"/>
-                        <outlet property="iamV2DismissOnClick" destination="AyS-OQ-mzl" id="hcJ-cd-7o8"/>
-                        <outlet property="iamV2LocationPrompt" destination="P2l-Kv-kBN" id="BLd-4Y-22J"/>
+                        <outlet property="iamV2AttachButton" destination="iaW-a8-yUU" id="mM5-mo-P9p"/>
+                        <outlet property="iamV2DismissOnClick" destination="AyS-OQ-mzl" id="hbF-T1-t6N"/>
+                        <outlet property="iamV2LocationPrompt" destination="P2l-Kv-kBN" id="iw5-do-0zU"/>
                         <outlet property="iamV2Outcomes" destination="3zI-c7-2v4" id="i3X-ih-DW5"/>
                         <outlet property="iamV2ProgressSpinner" destination="jJr-k8-3O5" id="oau-xD-g5W"/>
-                        <outlet property="iamV2PushPrompt" destination="FIu-dB-c96" id="49L-lV-4Fi"/>
+                        <outlet property="iamV2PushPrompt" destination="FIu-dB-c96" id="lxd-mr-w8m"/>
                         <outlet property="iamV2RedisplayCount" destination="IEt-tD-fdK" id="fmH-Te-khK"/>
                         <outlet property="iamV2RedisplayDelay" destination="E69-ti-i2m" id="Ub8-xQ-v5v"/>
                         <outlet property="iamV2Tags" destination="Zpo-ot-hMK" id="cgk-Pt-SHN"/>

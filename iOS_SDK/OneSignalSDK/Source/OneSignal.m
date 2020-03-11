@@ -143,57 +143,89 @@ static BOOL coldStartFromTapOnNotification = NO;
 static BOOL shouldDelaySubscriptionUpdate = false;
 
 
-static int iamV2RedisplayCount = 1;
-static int iamV2RedisplayDelay = 0;
-static NSString* iamV2Tags = @"";
-static NSString* iamV2Outcomes = @"";
-static BOOL iamV2ShouldDismiss = false;
-static NSMutableArray* iamV2Prompting;
+static int _iamV2RedisplayCount = 1;
++ (void)setIamV2RedisplayCount:(int)delay {
+    _iamV2RedisplayCount = delay;
+}
 
-+ (void)setIAMV2Params:(NSDictionary *)params withCompletionHandler:(void(^)(void))delegate {
-    iamV2RedisplayCount = [params[@"limit"] intValue];
-    iamV2RedisplayDelay = [params[@"delay"] intValue];
-    iamV2Tags = params[@"tags"];
-    iamV2Outcomes = params[@"outcomes"];
-    iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
-    iamV2Prompting = params[@"prompts"];
++ (int)iamV2RedisplayCount {
+    return _iamV2RedisplayCount;
+}
+
+static int _iamV2RedisplayDelay = 0;
++ (void)setIamV2RedisplayDelay:(int)delay {
+    _iamV2RedisplayDelay = delay;
+}
+
++ (int)iamV2RedisplayDelay {
+    return _iamV2RedisplayDelay;
+}
+
+static NSString* _iamV2Tags = @"";
++ (void)setIamV2Tags:(NSString*)tags {
+    _iamV2Tags = tags;
+}
+
++ (NSString*)iamV2Tags {
+    return _iamV2Tags;
+}
+
+static NSString* _iamV2Outcomes = @"";
++ (void)setIamV2Outcomes:(NSString*)outcomes {
+    _iamV2Outcomes = outcomes;
+}
+
++ (NSString*)iamV2Outcomes {
+    return _iamV2Outcomes;
+}
+
+static BOOL _iamV2ShouldDismiss = false;
++ (void)setIamV2ShouldDismiss:(bool)dismiss {
+    _iamV2ShouldDismiss = dismiss;
+}
+
++ (bool)iamV2ShouldDismiss {
+    return _iamV2ShouldDismiss;
+}
+
+static NSArray* _iamV2Prompting;
++ (void)setIamV2Prompting:(NSArray*)prompts {
+    _iamV2Prompting = prompts;
+}
+
++ (NSArray*)iamV2Prompting {
+    return _iamV2Prompting;
+}
+
+typedef void(^Complete)(void);
+static Complete complete;
+
++ (void)setIAMV2Params:(NSDictionary *)params {
+    NSString *message = params.description;
+    NSLog(message);
     
-    [self receiveInAppMessages];
+    _iamV2RedisplayCount = [params[@"limit"] intValue];
+    _iamV2RedisplayDelay = [params[@"delay"] intValue];
+    _iamV2Tags = params[@"tags"];
+    _iamV2Outcomes = params[@"outcomes"];
+    _iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
+    _iamV2Prompting = params[@"prompts"];
+    
+    [OneSignal receivedInAppMessageJson:nil];
+}
+
++ (void)setCompletionHandler:(void(^)(void))delegate {
+    complete = delegate;
 }
 
 static BOOL _iamV2DataPulled = false;
 + (void)setIamV2DataPulled:(BOOL)pulled {
     _iamV2DataPulled = pulled;
+    complete();
 }
 
 + (BOOL)iamV2DataPulled {
     return _iamV2DataPulled;
-}
-
-+ (void)receiveInAppMessages {
-    NSArray *jsonArray  = [OneSignalUserDefaults.initStandard getSavedStringForKey:@"" defaultValue:nil];
-    if (!_iamV2DataPulled || jsonArray == nil || jsonArray.count == 0)
-       return;
-    
-    [OneSignal pauseInAppMessages:false];
-    
-    [OSMessagingController.sharedInstance didUpdateMessagesForSession:jsonArray];
-}
-
-//static Handler handler = new Handler();
-+ (void)handlerForIamPull {
-//   handler.postDelayed(new Runnable() {
-//      @Override
-//      public void run() {
-//         if (iamDataCached) {
-//            textView.setTextColor(appContext.getResources().getColor(android.R.color.holo_green_dark));
-//            progressBar.setVisibility(View.INVISIBLE);
-//            linearLayout.setVisibility(View.VISIBLE);
-//            handler.removeCallbacks(null);
-//         }
-//         handler.postDelayed(this, 1000);
-//      }
-//   }, 1000);
 }
 
 /*

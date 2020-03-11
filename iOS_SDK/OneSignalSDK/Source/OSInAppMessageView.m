@@ -56,6 +56,57 @@
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
+
+    //    if (OneSignal.iamV2Tags && ![OneSignal.iamV2Tags isEqualToString:@""]) {
+    //        NSArray *tagSplit = [OneSignal.iamV2Tags componentsSeparatedByString:@","];
+    //        NSMutableDictionary *tagsToAdd = [NSMutableDictionary new];
+    //        NSMutableArray *tagsToRemove = [NSMutableArray new];
+    //        for (var i = 0; i < tagSplit.count; i++) {
+    //            NSString *tag = [tagSplit objectAtIndex:i];
+    //            NSArray *splitTag = [tag componentsSeparatedByString:@":"];
+    //            NSString *tagKey = [splitTag objectAtIndex:0];
+    //
+    //            if (splitTag.count == 2) {
+    //                NSString *tagValue = [splitTag objectAtIndex:1];
+    //                if ([tagValue isEqualToString:@""]) {
+    //                    [tagsToRemove addObject:tagKey];
+    //                }
+    //                else {
+    //                    tagsToAdd[tagKey] = tagValue;
+    //                }
+    //            } else if (splitTag.count == 1) {
+    //                [tagsToRemove addObject:tagKey];
+    //            }
+    //        }
+    //        NSString* tagButton = [self addTagsButtonToHtml:tagsToAdd removes:tagsToRemove];
+    //        NSLog(tagButton);
+    //        [html stringByAppendingString:tagButton];
+    //    }
+
+    //    if (OneSignal.iamV2Outcome != null && !OneSignal.iamV2Outcome.isEmpty()) {
+    //        String[] outcomes = OneSignal.iamV2Outcome.split(",");
+    //        JSONArray outcomesToSend = new JSONArray();
+    //        for (String outcome : outcomes) {
+    //            String[] outcomeSplit = outcome.split(":");
+    //            String name = outcomeSplit[0].trim();
+    //            if (outcomeSplit.length == 1)
+    //                outcomesToSend.put(new JSONObject().put("name", name));
+    //            else if (outcomeSplit.length == 2) {
+    //                Object value = outcomeSplit[1];
+    //                if (value.toString().toLowerCase().equals("true") || value.toString().toLowerCase().equals("false")) {
+    //                    outcomesToSend.put(new JSONObject()
+    //                            .put("name", name)
+    //                            .put("unique", Boolean.valueOf(value.toString())));
+    //                } else {
+    //                    outcomesToSend.put(new JSONObject()
+    //                            .put("name", name)
+    //                            .put("weight", Double.parseDouble(value.toString())));
+    //                }
+    //            }
+    //        }
+    //        htmlStr += addOutcomesButtonToHtml(outcomesToSend);
+    //    }
+
     dispatch_sync(dispatch_get_main_queue(), ^{
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
         [self.webView loadHTMLString:html baseURL:url];

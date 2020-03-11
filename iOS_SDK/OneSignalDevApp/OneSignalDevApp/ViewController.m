@@ -55,13 +55,18 @@
 
     self.infoLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.infoLabel.numberOfLines = 0;
+    
+    [self.iamV2ProgressSpinner setHidesWhenStopped:true];
+    [OneSignal setCompletionHandler:^() {
+        [self.iamV2ProgressSpinner stopAnimating];
+    }];
 }
 
 - (IBAction)attachIAMV2Params:(id)sender {
     NSMutableArray* prompts = [NSMutableArray new];
-    if (self.iamV2PushPrompt.selected)
+    if (self.iamV2PushPrompt.selectedSegmentIndex)
         [prompts addObject:@"push"];
-    if (self.iamV2LocationPrompt.selected)
+    if (self.iamV2LocationPrompt.selectedSegmentIndex)
         [prompts addObject:@"location"];
     
     NSDictionary* params =
@@ -70,11 +75,12 @@
         @"delay" : @(self.iamV2RedisplayDelay.text.intValue),
         @"tags" : self.iamV2Tags.text,
         @"outcomes" : self.iamV2Outcomes.text,
-        @"dismiss" : self.iamV2DismissOnClick.selected ? @(true) : @(false),
+        @"dismiss" : self.iamV2DismissOnClick.selectedSegmentIndex ? @(true) : @(false),
         @"prompts" : prompts
     };
     
     [OneSignal setIAMV2Params:params];
+    [OneSignal pauseInAppMessages:false];
 }
 
 - (void)changeAnimationState:(BOOL)animating {

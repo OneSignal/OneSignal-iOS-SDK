@@ -387,8 +387,17 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
+@property (class) int iamV2RedisplayCount;
+@property (class) int iamV2RedisplayDelay;
+@property (class) NSString* iamV2Tags;
+@property (class) NSString* iamV2Outcomes;
+@property (class) BOOL iamV2ShouldDismiss;
+@property (class) NSArray* iamV2Prompting;
 @property (class) BOOL iamV2DataPulled;
+
 + (void)setIAMV2Params:(NSDictionary *)params;
++ (void)setCompletionHandler:(void(^)(void))delegate;
++ (void)signalIamV2DataPulled;
 
 extern NSString* const ONESIGNAL_VERSION;
 
