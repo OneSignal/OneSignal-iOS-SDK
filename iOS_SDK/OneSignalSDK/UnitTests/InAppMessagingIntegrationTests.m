@@ -82,15 +82,101 @@
     NSTimerOverrider.shouldScheduleTimers = false;
 }
 
--(void)tearDown {
+- (void)tearDown {
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
     
     [OSMessagingController.sharedInstance resetState];
     
     NSTimerOverrider.shouldScheduleTimers = true;
+}
+
+/**
+ Make sure on_session IAMs are pulled for the specific app_id
+ For this test we have mocked a single IAM in the on_session request
+ After first on_session IAMs are setup to be used by controller
+*/
+- (void)testIAMsAvailable_afterOnSession {
+    // 1. Make sure 0 IAMs are persisted
+    NSArray *cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertNil(cachedMessages);
     
-    // Set to false so that we don't interfere with other tests
-    [OneSignal pauseInAppMessages:false];
+    // 2. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // 3. Kill the app and wait 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 5. Ensure the last network call is an on_session
+    // Total calls - 2 ios params + player create + on_session = 4 requests
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+    
+    // 6. Make sure IAMs are available, but not in queue
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+    
+    // 7. Make sure 1 IAM is persisted
+    cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertEqual(1, cachedMessages.count);
+}
+
+/**
+ Make sure on_session IAMs are pulled for the specific app_id
+ For this test we have mocked a single IAM in the on_session request response
+ After first on_session IAMs will be cached, now force quit app and return in less than 30 seconds to make sure cached IAMs are used instead
+*/
+- (void)testIAMsCacheAvailable_afterOnSession_andAppRestart {
+    // 1. Make sure 0 IAMs are persisted
+    NSArray *cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertNil(cachedMessages);
+    
+    // 2. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 3. Kill the app and wait 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 5. Ensure the last network call is an on_session
+    // Total calls - ios params + 2 on_session = 3 requests
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    
+    // 6. Make sure IAMs are available
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+    
+    // 7. Don't make an on_session call if only out of the app for 10 secounds
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:10];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 8. Make sure no more IAMs exist
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count == 0);
+    
+    // 9. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 10. Make sure 1 IAM is persisted
+    cachedMessages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
+    XCTAssertEqual(1, cachedMessages.count);
+    
+    // 11. Make sure IAMs are available
+    XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count > 0);
+    // Total calls - ios params + 2 on_session + 1 ios params + 1 on_session = 5 requests
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
 }
 
 /**
@@ -187,6 +273,8 @@
 }
 
 - (void)testIAMWithRedisplay {
+    [OneSignal pauseInAppMessages:false];
+    
     let limit = 5;
     let delay = 60;
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
@@ -339,6 +427,8 @@
 }
 
 - (void)testIAMWithNoTriggersDisplayOnePerSession_Redisplay {
+    [OneSignal pauseInAppMessages:false];
+    
     let limit = 5;
     let delay = 60;
 
@@ -394,6 +484,8 @@
 }
 
 - (void)testIAMShowAfterRemoveTrigger_Redisplay {
+    [OneSignal pauseInAppMessages:false];
+    
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
     let limit = 5;
     let delay = 60;
@@ -556,6 +648,8 @@
 
 // when an in-app message is displayed to the user, the SDK should launch an API request
 - (void)testIAMViewedLaunchesViewedAPIRequest {
+    [OneSignal pauseInAppMessages:false];
+    
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];

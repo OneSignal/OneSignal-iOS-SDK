@@ -189,12 +189,28 @@ static NSDictionary* iOSParamsOutcomes;
         [self didCompleteRequest:request];
 
         if (successBlock) {
-            if ([request isKindOfClass:[OSRequestGetIosParams class]])
+            if ([request isKindOfClass:[OSRequestGetIosParams class]]) {
                 successBlock(self.iosParamsResponse);
-            else if (mockResponses[NSStringFromClass([request class])])
+            }
+            else if (mockResponses[NSStringFromClass([request class])]) {
                 successBlock(mockResponses[NSStringFromClass([request class])]);
-            else
-                successBlock(@{@"id": @"1234"});
+            }
+            else {
+                successBlock(@{
+                @"success" : @(true),
+                @"id" : @"1234",
+                @"in_app_messages" : @[
+                     @{
+                         @"id" : @"728dc571-e277-4bef-96ab-9dd1003744cb",
+                         @"triggers" : @[],
+                         @"variants" : @{
+                                 @"all" : @{
+                                         @"default" : @"4ad40b29-1947-4ad9-9ee6-4579c225b448"
+                                 }
+                         }
+                     }]
+                });
+            }
         }
     }
 }

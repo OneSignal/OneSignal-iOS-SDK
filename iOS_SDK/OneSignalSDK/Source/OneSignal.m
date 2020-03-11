@@ -1779,15 +1779,21 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     let messages = [NSMutableArray new];
-
-    for (NSDictionary *messageJson in messagesJson) {
-        let message = [OSInAppMessage instanceWithJson:messageJson];
-
-        if (message)
-            [messages addObject:message];
+    
+    if (messagesJson) {
+        for (NSDictionary *messageJson in messagesJson) {
+            let message = [OSInAppMessage instanceWithJson:messageJson];
+            
+            if (message)
+                [messages addObject:message];
+        }
+        
+        [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
+        return;
     }
 
-    [[OSMessagingController sharedInstance] didUpdateMessagesForSession:messages];
+    // Default is using cached IAMs in the messaging controller
+    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
 }
 
 + (NSString*)getUsableDeviceToken {
