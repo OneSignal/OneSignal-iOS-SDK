@@ -101,7 +101,7 @@
         message.displayStats = [OSInAppMessageDisplayStats instanceWithJson:json[@"redisplay"]];
     else
         message.displayStats = [[OSInAppMessageDisplayStats alloc] init];
-    
+
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
         
@@ -195,6 +195,7 @@
     [encoder encodeObject:_messageId forKey:@"messageId"];
     [encoder encodeObject:_variants forKey:@"variants"];
     [encoder encodeObject:_triggers forKey:@"triggers"];
+    [encoder encodeObject:_displayStats forKey:@"displayStats"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -202,6 +203,7 @@
         _messageId = [decoder decodeObjectForKey:@"messageId"];
         _variants = [decoder decodeObjectForKey:@"variants"];
         _triggers = [decoder decodeObjectForKey:@"triggers"];
+        _displayStats = [decoder decodeObjectForKey:@"displayStats"];
     }
     return self;
 }

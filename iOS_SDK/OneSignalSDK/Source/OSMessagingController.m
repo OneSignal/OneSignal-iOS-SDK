@@ -130,7 +130,8 @@ static BOOL _isInAppMessagingPaused = false;
         
         // Get all cached IAM data from NSUserDefaults for shown, impressions, and clicks
         self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
-        self.redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
+        self.redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"init redisplayedInAppMessages with: %@", [_redisplayedInAppMessages description]]];
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
 
@@ -330,8 +331,11 @@ static BOOL _isInAppMessagingPaused = false;
     
     BOOL messageDismissed = [_seenInAppMessages containsObject:message.messageId];
     let redisplayMessageSavedData = [_redisplayedInAppMessages objectForKey:message.messageId];
-    
-    if (messageDismissed && redisplayMessageSavedData != nil) {
+
+    NSLog(@"Redisplay dismissed: %@ and data: %@", messageDismissed ? @"YES" : @"NO", redisplayMessageSavedData.jsonRepresentation.description);
+
+    if (messageDismissed && redisplayMessageSavedData) {
+        NSLog(@"Redisplay IAM: %@", message.jsonRepresentation.description);
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@", message]];
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
@@ -469,8 +473,8 @@ static BOOL _isInAppMessagingPaused = false;
     // Update the data to enable future re displays
     // Avoid calling the userdefault data again
     [_redisplayedInAppMessages setObject:message forKey:message.messageId];
-    
-    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:self.redisplayedInAppMessages];
+
+    [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:_redisplayedInAppMessages];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
 }
 
