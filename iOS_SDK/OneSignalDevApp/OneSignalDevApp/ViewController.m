@@ -83,26 +83,6 @@
     [OneSignal pauseInAppMessages:false];
 }
 
-- (IBAction)attachIAMV2Params:(id)sender {
-    NSMutableArray* prompts = [NSMutableArray new];
-    if (self.iamV2PushPrompt.selected)
-        [prompts addObject:@"push"];
-    if (self.iamV2LocationPrompt.selected)
-        [prompts addObject:@"location"];
-    
-    NSDictionary* params =
-    @{
-        @"limit" : @(self.iamV2RedisplayCount.text.intValue),
-        @"delay" : @(self.iamV2RedisplayDelay.text.intValue),
-        @"tags" : self.iamV2Tags.text,
-        @"outcomes" : self.iamV2Outcomes.text,
-        @"dismiss" : self.iamV2DismissOnClick.selected ? @(true) : @(false),
-        @"prompts" : prompts
-    };
-    
-    [OneSignal setIAMV2Params:params];
-}
-
 - (void)changeAnimationState:(BOOL)animating {
     animating ? [self.activityIndicatorView startAnimating] : [self.activityIndicatorView stopAnimating];
     self.activityIndicatorView.hidden = !animating;
