@@ -156,8 +156,13 @@
     NSLog(@"View controller did get action: %@", actionId);
 }
 
-- (IBAction)removeExternalIdButtonPressed:(UIButton *)sender {
-    [OneSignal removeExternalUserId];
+- (IBAction)setExternalUserId:(UIButton *)sender {
+    NSString* externalUserId = self.externalUserIdTextField.text;
+    [OneSignal setExternalUserId:externalUserId  withSuccess:^(NSString *newExternalId) {
+        NSLog(@"Success w/ external user id: %@", externalUserId);
+    } withFailure:^(NSError *error) {
+        NSLog(@"Failure w/ error code: %@ and error messaage: %@", @(error.code), error.debugDescription);
+    }];
 }
 
 #pragma mark UITextFieldDelegate Methods

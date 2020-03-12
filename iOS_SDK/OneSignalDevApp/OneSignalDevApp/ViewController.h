@@ -37,6 +37,8 @@
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *subscriptionSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITextField *externalUserIdTextField;
+@property (weak, nonatomic) IBOutlet UIButton *externalUserIdButton;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *locationSharedSegementedControl;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
 @property (weak, nonatomic) IBOutlet UIButton *promptPushButton;
@@ -47,7 +49,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *removeTriggerKey;
 @property (weak, nonatomic) IBOutlet UITextField *getTriggerKey;
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
-@property (weak, nonatomic) IBOutlet UITextField *externalIdTextField;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeName;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeValueName;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeValue;

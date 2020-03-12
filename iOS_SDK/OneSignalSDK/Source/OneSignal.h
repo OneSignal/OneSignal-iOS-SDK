@@ -507,7 +507,12 @@ typedef void (^OSEmailSuccessBlock)();
 
 
 // External user id
+// Typedefs defining completion blocks for updating the external user id
+typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSString* newExternalId);
+typedef void (^OSUpdateExternalUserIdFailureBlock)(NSError* error);
+
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
 + (void)removeExternalUserId;
 
 // In-App Messaging triggers
