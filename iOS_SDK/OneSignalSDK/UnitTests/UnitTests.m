@@ -88,6 +88,9 @@
 
 @interface UnitTests : XCTestCase
 
+@property NSString* CALLBACK_EXTERNAL_USER_ID;
+@property NSError* CALLBACK_EXTERNAL_USER_ID_ERROR;
+
 @end
 
 @implementation UnitTests
@@ -1458,7 +1461,6 @@ didReceiveRemoteNotification:userInfo
     [OneSignal sendTags:@{@"key11": @"value11", @"key12": @"value12"} onSuccess:^(NSDictionary *result) {
         [expectation fulfill];
     } onFailure:^(NSError *error) {}];
-    
     [OneSignal sendTag:@"key13" value:@"value13" onSuccess:^(NSDictionary *result) {
         [expectation fulfill];
     } onFailure:^(NSError *error) {}];
@@ -2313,11 +2315,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testSetExternalUserIdWithRegistration {
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
 
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:nil];
-
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
 
@@ -2325,11 +2323,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testSetExternalUserIdAfterRegistration {
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:nil];
-
-    [UnitTestCommonMethods runBackgroundThreads];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
 
@@ -2338,22 +2332,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-}
-
-- (void)testRemoveExternalUserId {
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
-
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:nil];
-
-    [UnitTestCommonMethods runBackgroundThreads];
-
-    [OneSignal removeExternalUserId];
-
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
-
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
 }
 
 // Tests to make sure that the SDK will not send an external ID if it already successfully sent the same ID
@@ -2377,22 +2355,62 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testDoesntSendExistingExternalUserIdBeforeRegistration {
     //mimics a previous session where the external user ID was set
-    [NSUserDefaults.standardUserDefaults setObject:TEST_EXTERNAL_USER_ID forKey:OSUD_EXTERNAL_USER_ID];
-    [NSUserDefaults.standardUserDefaults synchronize];
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
 
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
-
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:nil];
-
-    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
 
     // the registration request should not have included external user ID
     // since it had been set already to the same value in a previous session
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"]);
+}
+
+- (void)testSetExternalUserId_withSuccess {
+    // 1. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSString *newExternalId) {
+        self.CALLBACK_EXTERNAL_USER_ID = newExternalId;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_EXTERNAL_USER_ID_ERROR = error;
+    }];
+    
+    // 3. Make sure an error occurred and the error is not nil
+    XCTAssertNil(self.CALLBACK_EXTERNAL_USER_ID_ERROR);
+    XCTAssertEqual(TEST_EXTERNAL_USER_ID, self.CALLBACK_EXTERNAL_USER_ID);
+}
+
+- (void)testSetExternalUserId_withFailure {
+    // 1. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    
+    
+    // 2. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSString *newExternalId) {
+        self.CALLBACK_EXTERNAL_USER_ID = newExternalId;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_EXTERNAL_USER_ID_ERROR = error;
+    }];
+    
+    // 3. Make sure an error occurred and the error is not nil
+    XCTAssertNotNil(self.CALLBACK_EXTERNAL_USER_ID_ERROR);
+}
+
+- (void)testRemoveExternalUserId {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    [OneSignal removeExternalUserId];
+
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
 }
 
 // Tests to make sure that the SDK clears out registered categories when it has saved
