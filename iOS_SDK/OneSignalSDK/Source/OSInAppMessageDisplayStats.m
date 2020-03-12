@@ -143,23 +143,4 @@
     return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeInt:_lastDisplayTime forKey:@"lastDisplayTime"];
-    [encoder encodeInt:_displayDelay forKey:@"displayDelay"];
-    [encoder encodeDouble:_displayQuantity forKey:@"displayQuantity"];
-    [encoder encodeDouble:_displayLimit forKey:@"displayLimit"];
-    [encoder encodeBool:_redisplayEnabled forKey:@"redisplayEnabled"];
-}
-
-- (id)initWithCoder:(NSCoder *)decoder {
-    if (self = [super init]) {
-        _lastDisplayTime = [decoder decodeIntForKey:@"lastDisplayTime"];
-        _displayDelay = [decoder decodeIntForKey:@"displayDelay"];
-        _displayQuantity = [decoder decodeDoubleForKey:@"displayQuantity"];
-        _displayLimit = [decoder decodeDoubleForKey:@"displayLimit"];
-        _redisplayEnabled = [decoder decodeBoolForKey:@"redisplayEnabled"];
-    }
-    return self;
-}
-
 @end
