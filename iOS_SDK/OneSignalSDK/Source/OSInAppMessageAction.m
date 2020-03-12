@@ -47,12 +47,15 @@
     return [self instanceWithJson:json];
 }
 
-+ (instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype)instanceWithJson:(NSDictionary *)tempJson {
+    NSMutableDictionary* json = [[NSMutableDictionary alloc] initWithDictionary:tempJson];
+    
     OSInAppMessageAction *action = [OSInAppMessageAction new];
     
     if ([json[@"click_type"] isKindOfClass:[NSString class]])
         action.clickType = json[@"click_type"];
-    
+
+    json[@"id"] = @"FAKE_ID_1234567890";
     if ([json[@"id"] isKindOfClass:[NSString class]])
         action.clickId = json[@"id"];
     

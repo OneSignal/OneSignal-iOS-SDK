@@ -137,7 +137,7 @@
     return message;
 }
 
--(NSDictionary *)jsonRepresentation {
+- (NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
     json[@"id"] = self.messageId;

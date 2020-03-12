@@ -144,57 +144,61 @@ static BOOL shouldDelaySubscriptionUpdate = false;
 
 
 static int _iamV2RedisplayCount = 1;
-+ (void)setIamV2RedisplayCount:(int)delay {
-    _iamV2RedisplayCount = delay;
-}
-
 + (int)iamV2RedisplayCount {
     return _iamV2RedisplayCount;
 }
++ (void)setIamV2RedisplayCount:(int)limit {
+    _iamV2RedisplayCount = limit;
+}
 
 static int _iamV2RedisplayDelay = 0;
++ (int)iamV2RedisplayDelay {
+    return _iamV2RedisplayDelay;
+}
 + (void)setIamV2RedisplayDelay:(int)delay {
     _iamV2RedisplayDelay = delay;
 }
 
-+ (int)iamV2RedisplayDelay {
-    return _iamV2RedisplayDelay;
-}
-
 static NSString* _iamV2Tags = @"";
++ (NSString*)iamV2Tags {
+    return _iamV2Tags;
+}
 + (void)setIamV2Tags:(NSString*)tags {
     _iamV2Tags = tags;
 }
 
-+ (NSString*)iamV2Tags {
-    return _iamV2Tags;
-}
-
 static NSString* _iamV2Outcomes = @"";
++ (NSString*)iamV2Outcomes {
+    return _iamV2Outcomes;
+}
 + (void)setIamV2Outcomes:(NSString*)outcomes {
     _iamV2Outcomes = outcomes;
 }
 
-+ (NSString*)iamV2Outcomes {
-    return _iamV2Outcomes;
-}
-
 static BOOL _iamV2ShouldDismiss = false;
++ (bool)iamV2ShouldDismiss {
+    return _iamV2ShouldDismiss;
+}
 + (void)setIamV2ShouldDismiss:(bool)dismiss {
     _iamV2ShouldDismiss = dismiss;
 }
 
-+ (bool)iamV2ShouldDismiss {
-    return _iamV2ShouldDismiss;
-}
-
 static NSArray* _iamV2Prompting;
-+ (void)setIamV2Prompting:(NSArray*)prompts {
-    _iamV2Prompting = prompts;
-}
-
 + (NSArray*)iamV2Prompting {
     return _iamV2Prompting;
+}
++ (void)setIamV2Prompting:(NSArray*)iamV2Prompting {
+    _iamV2Prompting = iamV2Prompting;
+}
+
+
+static BOOL _iamV2DataPulled = false;
++ (BOOL)iamV2DataPulled {
+    return _iamV2DataPulled;
+}
++ (void)setIamV2DataPulled:(BOOL)iamV2DataPulled {
+    _iamV2DataPulled = iamV2DataPulled;
+    complete();
 }
 
 typedef void(^Complete)(void);
@@ -204,28 +208,18 @@ static Complete complete;
     NSString *message = params.description;
     NSLog(message);
     
-    _iamV2RedisplayCount = [params[@"limit"] intValue];
-    _iamV2RedisplayDelay = [params[@"delay"] intValue];
-    _iamV2Tags = params[@"tags"];
-    _iamV2Outcomes = params[@"outcomes"];
-    _iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
-    _iamV2Prompting = params[@"prompts"];
+    OneSignal.iamV2RedisplayCount = [params[@"limit"] intValue];
+    OneSignal.iamV2RedisplayDelay = [params[@"delay"] intValue];
+    OneSignal.iamV2Tags = params[@"tags"];
+    OneSignal.iamV2Outcomes = params[@"outcomes"];
+    OneSignal.iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
+    OneSignal.iamV2Prompting = params[@"prompts"];
     
     [OneSignal receivedInAppMessageJson:nil];
 }
 
 + (void)setCompletionHandler:(void(^)(void))delegate {
     complete = delegate;
-}
-
-static BOOL _iamV2DataPulled = false;
-+ (void)setIamV2DataPulled:(BOOL)pulled {
-    _iamV2DataPulled = pulled;
-    complete();
-}
-
-+ (BOOL)iamV2DataPulled {
-    return _iamV2DataPulled;
 }
 
 /*
