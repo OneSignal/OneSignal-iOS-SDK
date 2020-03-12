@@ -28,7 +28,7 @@
 #import "OneSignal.h"
 #import "OSJSONHandling.h"
 
-@interface OSInAppMessageDisplayStats : NSObject <OSJSONDecodable, OSJSONEncodable>
+@interface OSInAppMessageDisplayStats : NSObject <NSCoding, OSJSONDecodable, OSJSONEncodable>
 
 //Last IAM display time in seconds
 @property (nonatomic, readwrite) double lastDisplayTime;
