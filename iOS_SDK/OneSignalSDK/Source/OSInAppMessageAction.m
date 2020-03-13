@@ -108,8 +108,7 @@
     return action;
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"OSInAppMessageAction outcome: %@ \ntag: %@ promptAction: %@", _outcomes, _tags, [_promptActions description]];
 }
 

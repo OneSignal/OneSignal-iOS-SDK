@@ -43,8 +43,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:completionHandler fallbackToSettings:YES];
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"OSInAppMessagePushPrompt didappear:%@", _didAppear ? @"YES" : @"NO"];
 }
 

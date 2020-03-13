@@ -29,6 +29,12 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageLocationPrompt.h"
 
+@interface OneSignal ()
+
++ (void)promptLocation:(void (^)(BOOL accepted))completionHandler;
+
+@end
+
 @implementation OSInAppMessageLocationPrompt
 
 - (instancetype)init
@@ -41,12 +47,10 @@
 }
 
 - (void)handlePrompt:(void (^)(BOOL accepted))completionHandler {
-    [OneSignal promptLocation];
-    completionHandler(true);
+    [OneSignal promptLocation:completionHandler];
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"OSInAppMessageLocationPrompt didappear:%@", _didAppear ? @"YES" : @"NO"];
 }
 

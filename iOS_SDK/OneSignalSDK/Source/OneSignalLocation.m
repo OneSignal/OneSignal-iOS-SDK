@@ -53,7 +53,6 @@ UIBackgroundTaskIdentifier fcTask;
 static id locationManager = nil;
 static bool started = false;
 static bool hasDelayed = false;
-
 // CoreLocation must be statically linked for geotagging to work on iOS 6 and possibly 7.
 // plist NSLocationUsageDescription (iOS 6 & 7) and NSLocationWhenInUseUsageDescription (iOS 8+) keys also required.
 
@@ -64,6 +63,12 @@ static bool hasDelayed = false;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
+NSMutableArray *_locationListeners;
++(NSMutableArray*)locationListeners {
+    if (!_locationListeners)
+        _locationListeners = [NSMutableArray new];
+    return _locationListeners;
+}
 
 NSObject *_mutexObjectForLastLocation;
 +(NSObject*)mutexObjectForLastLocation {
@@ -97,7 +102,10 @@ static OneSignalLocation* singleInstance = nil;
     }
 }
 
-+ (void)getLocation:(bool)prompt {
++ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(BOOL accepted))completionHandler {
+    if (completionHandler)
+        [OneSignalLocation.locationListeners addObject:completionHandler];
+
     if (hasDelayed)
         [OneSignalLocation internalGetLocation:prompt];
     else {
@@ -165,7 +173,15 @@ static OneSignalLocation* singleInstance = nil;
     fcTask = UIBackgroundTaskInvalid;
 }
 
-
++ (void)sendAndClearLocationListener:(BOOL)accept {
+    if (OneSignalLocation.locationListeners.count == 0)
+        return;
+    onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocation.locationListeners]);
+    for (int i = 0; i < OneSignalLocation.locationListeners.count; i++) {
+        ((void (^)(BOOL accepted))[OneSignalLocation.locationListeners objectAtIndex:i])(accept);
+    }
+    [OneSignalLocation.locationListeners removeAllObjects];
+}
 
 + (void)internalGetLocation:(bool)prompt {
     if ([self started])
@@ -174,8 +190,10 @@ static OneSignalLocation* singleInstance = nil;
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
     
     // Check for location in plist
-    if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)])
+    if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)]) {
+        [self sendAndClearLocationListener:false];
         return;
+    }
     int permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
     // return if permission not determined and should not prompt
     if (permissionStatus == 0 && !prompt)
@@ -217,9 +235,13 @@ static OneSignalLocation* singleInstance = nil;
 #pragma mark CLLocationManagerDelegate
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
+    onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"CLLocationManagerDelegate locationManager didUpdateLocations: %@", locations]);
     // return if the user has not granted privacy permissions or location shared is false
-    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared])
+    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared]) {
+        onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManagerDelegate Location not available");
+        [OneSignalLocation sendAndClearLocationListener:false];
         return;
+    }
     
     [manager performSelector:@selector(stopUpdatingLocation)];
     
@@ -248,11 +270,13 @@ static OneSignalLocation* singleInstance = nil;
     
     if(!initialLocationSent)
         [OneSignalLocation sendLocation];
-
+    
+    [OneSignalLocation sendAndClearLocationListener:true];
 }
 
 -(void)locationManager:(id)manager didFailWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
+    [OneSignalLocation sendAndClearLocationListener:false];
 }
 
 + (void)resetSendTimer {

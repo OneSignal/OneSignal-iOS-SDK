@@ -474,6 +474,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+    _currentPromptAction = nil;
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         if (![promptAction didAppear]) {
             _currentPromptAction = promptAction;
@@ -485,7 +486,6 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
         _currentPromptAction.didAppear = YES;
         [_currentPromptAction handlePrompt:^(BOOL accepted) {
-            _currentPromptAction = nil;
             [self handlePromptActions:promptActions];
         }];
     } else if (!_viewController) { // IAM dismissed by action
