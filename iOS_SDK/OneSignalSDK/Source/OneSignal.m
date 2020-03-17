@@ -2568,14 +2568,14 @@ static NSString *_lastnonActiveMessageId;
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is already set", externalId]];
         
         results[@"push"] = @{
-            @"success" : @(1)
+            @"success" : @(true)
         };
         [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
         
         // Make sure to only add email if email was attempted
         if (requests[@"email"]) {
             results[@"email"] = @{
-                @"success" : @(1)
+                @"success" : @(true)
             };
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
         } else {

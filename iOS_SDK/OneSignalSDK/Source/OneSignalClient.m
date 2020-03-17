@@ -103,13 +103,13 @@
             [self executeRequest:request onSuccess:^(NSDictionary *result) {
                 results[identifier] = result;
                 // Add a success as 1 (success) to the response
-                response[identifier] = @{ @"success" : @(1) };
+                response[identifier] = @{ @"success" : @(true) };
                 NSLog(@"Request %@ success result %@", request, result);
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
                 // Add a success as 0 (failed) to the response
-                response[identifier] = @{ @"success" : @(0) };
+                response[identifier] = @{ @"success" : @(false) };
                 NSLog(@"Request %@ fail result error %@", request, error);
                 dispatch_group_leave(group);
             }];
@@ -125,7 +125,7 @@
             for (NSString *key in requests.allKeys) {
                 errors[key] = [self genericTimedOutError];
                 // Add a success as 0 (timeout/failed) to the response
-                response[key] = @{ @"success" : @(0) };
+                response[key] = @{ @"success" : @(false) };
             }
         }
         

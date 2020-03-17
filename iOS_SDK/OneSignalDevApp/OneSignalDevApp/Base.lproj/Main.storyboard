@@ -278,7 +278,7 @@
                                                 </connections>
                                             </segmentedControl>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="srQ-s9-3O9" userLabel="Update App Id">
-                                                <rect key="frame" x="120" y="519" width="136" height="30"/>
+                                                <rect key="frame" x="120.66666666666669" y="519" width="136" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <state key="normal" title="Set External User Id"/>
@@ -329,7 +329,6 @@
                                                 <state key="normal" title="Logout Email"/>
                                                 <connections>
                                                     <action selector="logoutEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="WKC-pn-1O6"/>
-                                                    <action selector="setEmailButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Q3w-Gf-4nI"/>
                                                 </connections>
                                             </button>
                                         </subviews>
