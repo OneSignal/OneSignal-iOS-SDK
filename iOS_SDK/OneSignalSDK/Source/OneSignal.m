@@ -1589,7 +1589,7 @@ static dispatch_queue_t serialQueue;
     // should be set to true even before the API request is finished
     performedOnSessionRequest = true;
 
-    if (pendingExternalUserId && [self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
+    if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
         dataDic[@"external_user_id"] = pendingExternalUserId;
 
     pendingExternalUserId = nil;
