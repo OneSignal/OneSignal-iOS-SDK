@@ -67,6 +67,7 @@
 // Email
 #define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
 #define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID
+#define OSUD_EMAIL_EXTERNAL_USER_ID                                         @"OSUD_EMAIL_EXTERNAL_USER_ID"                                      // OSUD_EMAIL_EXTERNAL_USER_ID
 #define OSUD_REQUIRE_EMAIL_AUTH                                             @"GT_REQUIRE_EMAIL_AUTH"                                            // * OSUD_REQUIRE_EMAIL_AUTH
 #define OSUD_EMAIL_AUTH_CODE                                                @"GT_EMAIL_AUTH_CODE"                                               // * OSUD_EMAIL_AUTH_CODE
 // Notification

@@ -34,6 +34,7 @@
 
 typedef void (^OSDataRequestSuccessBlock)(NSData *data);
 
+typedef void (^OSMultipleCompletionBlock)(NSDictionary<NSString *, NSError *> *reponses);
 typedef void (^OSMultipleFailureBlock)(NSDictionary<NSString *, NSError *> *errors);
 typedef void (^OSMultipleSuccessBlock)(NSDictionary<NSString *, NSDictionary *> *results);
 
@@ -47,6 +48,7 @@ typedef void (^OSMultipleSuccessBlock)(NSDictionary<NSString *, NSDictionary *> 
 
 // Executes multiple OneSignalRequest's simultaneously, needs a unique identifier for each request
 - (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock;
+- (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withCompletion:(OSMultipleCompletionBlock)completionBlock;
 @end
 
 #endif

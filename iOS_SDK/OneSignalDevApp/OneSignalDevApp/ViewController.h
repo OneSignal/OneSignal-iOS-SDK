@@ -33,16 +33,23 @@
 
 @interface ViewController : UIViewController <OSInAppMessageDelegate>
 
-@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *subscriptionSegmentedControl;
-@property (weak, nonatomic) IBOutlet UITextField *externalUserIdTextField;
-@property (weak, nonatomic) IBOutlet UIButton *externalUserIdButton;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *locationSharedSegementedControl;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
+@property (weak, nonatomic) IBOutlet UIButton *updateAppIdButton;
+@property (weak, nonatomic) IBOutlet UIButton *getTagsButton;
+@property (weak, nonatomic) IBOutlet UIButton *sendTagsButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptPushButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptLocationButton;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *subscriptionSegmentedControl;
+@property (weak, nonatomic) IBOutlet UITextField *emailTextField;
+@property (weak, nonatomic) IBOutlet UIButton *setEmailButton;
+@property (weak, nonatomic) IBOutlet UIButton *logoutEmailButton;
+@property (weak, nonatomic) IBOutlet UITextField *externalUserIdTextField;
+@property (weak, nonatomic) IBOutlet UIButton *setExternalUserIdButton;
+@property (weak, nonatomic) IBOutlet UIButton *removeExternalUserIdButton;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *locationSharedSegementedControl;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *inAppMessagingSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITextField *addTriggerKey;
 @property (weak, nonatomic) IBOutlet UITextField *addTriggerValue;
 @property (weak, nonatomic) IBOutlet UIButton *addTriggerButton;
