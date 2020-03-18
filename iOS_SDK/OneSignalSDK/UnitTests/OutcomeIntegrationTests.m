@@ -89,7 +89,7 @@
     [OneSignalTracker onFocus:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 4. Ensure onfocus is made right away.
+    // 4. Ensure onFocus is made right away.
     [RestClientAsserts assertOnFocusAtIndex:2 withTime:60];
 }
 
@@ -118,7 +118,7 @@
     [NSTimerOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 7. Ensure onfocus is sent in the background.
+    // 7. Ensure onFocus is sent in the background.
     [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
 }
 
@@ -147,7 +147,7 @@
     [NSTimerOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 7. Ensure onfocus is sent in the background.
+    // 7. Ensure onFocus is sent in the background.
     [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
 }
 

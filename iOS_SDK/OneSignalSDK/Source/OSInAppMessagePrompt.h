@@ -34,7 +34,7 @@
 
 @protocol OSInAppMessagePrompt <NSObject>
 
-@property (nonatomic) BOOL didAppear;
+@property (nonatomic) BOOL hasPrompted;
 
 - (void)handlePrompt:(void (^)(BOOL accepted))completionHandler;
 

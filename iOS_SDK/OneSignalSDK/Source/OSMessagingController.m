@@ -72,6 +72,8 @@
 
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 
+@property (nonatomic) BOOL isAppInactive;
+
 @end
 
 @implementation OSMessagingController
@@ -136,6 +138,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
         self.currentPromptAction = nil;
+        self.isAppInactive = NO;
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
     }
@@ -200,7 +203,12 @@ static BOOL _isInAppMessagingPaused = false;
         // Return early if an IAM is already showing
         if (self.isInAppMessageShowing)
             return;
-        
+        // Return early if the app is not active
+        if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Pause IAMs display due to app inactivity"];
+            _isAppInactive = YES;
+            return;
+        }
         [self displayMessage:message];
     };
 }
@@ -340,7 +348,6 @@ static BOOL _isInAppMessagingPaused = false;
             [self.impressionedInAppMessages removeObject:message.messageId];
             [message clearClickIds];
             return;
-            
         }
     }
 }
@@ -424,7 +431,9 @@ static BOOL _isInAppMessagingPaused = false;
 
         if (!_currentPromptAction) {
             [self evaluateMessageDisplayQueue];
-        } // else do nothing prompt is handling the re-showing
+        } else { //do nothing prompt is handling the re-showing
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Stop evaluateMessageDisplayQueue because prompt is currently displayed"];
+        }
     }
 }
 
@@ -473,26 +482,25 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
 }
 
-- (void)handlePromptAction:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
-        if (![promptAction didAppear]) {
+        // Don't show prompt twice
+        if (!promptAction.hasPrompted) {
             _currentPromptAction = promptAction;
+            break;
         }
-        break;
     }
 
     if (_currentPromptAction) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
-        _currentPromptAction.didAppear = YES;
+        _currentPromptAction.hasPrompted = YES;
         [_currentPromptAction handlePrompt:^(BOOL accepted) {
             _currentPromptAction = nil;
-            // IAM dismissed by action
-            if (!_viewController) {
-                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
-                [self evaluateMessageDisplayQueue];
-            }
-            //TODO: continue handling more than one prompt
+            [self handlePromptActions:promptActions];
         }];
+    } else if (!_viewController) { // IAM dismissed by action
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
+        [self evaluateMessageDisplayQueue];
     }
 }
 
@@ -503,7 +511,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    [self handlePromptAction:action.promptActions];
+    [self handlePromptActions:action.promptActions];
 
     if (self.actionClickBlock)
         self.actionClickBlock(action);
@@ -609,6 +617,16 @@ static BOOL _isInAppMessagingPaused = false;
     [self evaluateMessages];
 }
 
+#pragma mark OSMessagingControllerDelegate Methods
+- (void)onApplicationDidBecomeActive {
+    // To avoid excesive message evaluation
+    // we should re-evaluate all in-app messages only if it was paused by inactive
+    if (_isAppInactive) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating messages due to inactive app"];
+        _isAppInactive = NO;
+        [self evaluateMessages];
+    }
+}
 @end
 
 @implementation DummyOSMessagingController

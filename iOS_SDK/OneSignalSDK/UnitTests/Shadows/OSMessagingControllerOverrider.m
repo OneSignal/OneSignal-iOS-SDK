@@ -93,10 +93,6 @@
     return [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
 }
 
-+ (BOOL)currentPromptAppear {
-    return OSMessagingController.sharedInstance.currentPromptAction.didAppear;
-}
-
 + (BOOL)isInAppMessageShowing {
     return OSMessagingController.sharedInstance.isInAppMessageShowing;
 }

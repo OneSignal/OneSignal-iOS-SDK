@@ -25,15 +25,32 @@
 * THE SOFTWARE.
 */
 
-#ifndef OSInAppMessagingPushPrompt_h
-#define OSInAppMessagingPushPrompt_h
+#import <Foundation/Foundation.h>
+#import "OSInAppMessageLocationPrompt.h"
 
-#import "OSInAppMessagePrompt.h"
+@interface OneSignal ()
 
-@interface OSInAppMessagePushPrompt : NSObject <OSInAppMessagePrompt>
-
-@property (nonatomic) BOOL hasPrompted;
++ (void)promptLocation:(void (^)(BOOL accepted))completionHandler;
 
 @end
 
-#endif /* OSInAppMessagingPushPrompt_h */
+@implementation OSInAppMessageLocationPrompt
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _hasPrompted = NO;
+    }
+    return self;
+}
+
+- (void)handlePrompt:(void (^)(BOOL accepted))completionHandler {
+    [OneSignal promptLocation:completionHandler];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageLocationPrompt hasPrompted:%@", _hasPrompted ? @"YES" : @"NO"];
+}
+
+@end

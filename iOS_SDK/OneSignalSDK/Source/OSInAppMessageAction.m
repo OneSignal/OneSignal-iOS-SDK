@@ -27,6 +27,7 @@
 
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessagePushPrompt.h"
+#import "OSInAppMessageLocationPrompt.h"
 
 @implementation OSInAppMessageAction
 
@@ -94,8 +95,11 @@
         NSArray<NSString *> *promptActionsStrings = json[@"prompts"];
         
         for (NSString *prompt in promptActionsStrings) {
+            // TODO: We should refactor this string handling to enums
             if ([prompt isEqualToString:@"push"]) {
                 [promptActions addObject:[[OSInAppMessagePushPrompt alloc] init]];
+            } else if ([prompt isEqualToString:@"location"]) {
+                [promptActions addObject:[[OSInAppMessageLocationPrompt alloc] init]];
             }
         }
 
@@ -105,8 +109,7 @@
     return action;
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"OSInAppMessageAction outcome: %@ \ntag: %@ promptAction: %@", _outcomes, _tags, [_promptActions description]];
 }
 
