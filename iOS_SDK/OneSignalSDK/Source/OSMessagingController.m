@@ -72,6 +72,8 @@
 
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 
+@property (nonatomic) BOOL pausedByInactive;
+
 @end
 
 @implementation OSMessagingController
@@ -136,6 +138,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
         self.currentPromptAction = nil;
+        self.pausedByInactive = NO;
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
     }
@@ -200,7 +203,12 @@ static BOOL _isInAppMessagingPaused = false;
         // Return early if an IAM is already showing
         if (self.isInAppMessageShowing)
             return;
-        
+        // Return early if the app is not active
+        if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Pause IAMs display due to app inactivity"];
+            _pausedByInactive = YES;
+            return;
+        }
         [self displayMessage:message];
     };
 }
@@ -424,7 +432,9 @@ static BOOL _isInAppMessagingPaused = false;
 
         if (!_currentPromptAction) {
             [self evaluateMessageDisplayQueue];
-        } // else do nothing prompt is handling the re-showing
+        } else { //do nothing prompt is handling the re-showing
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Stop evaluateMessageDisplayQueue because prompt is currently displayed"];
+        }
     }
 }
 
@@ -474,8 +484,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
-    _currentPromptAction = nil;
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
+        // Don't show prompt twice
         if (![promptAction didAppear]) {
             _currentPromptAction = promptAction;
             break;
@@ -486,6 +496,7 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
         _currentPromptAction.didAppear = YES;
         [_currentPromptAction handlePrompt:^(BOOL accepted) {
+            _currentPromptAction = nil;
             [self handlePromptActions:promptActions];
         }];
     } else if (!_viewController) { // IAM dismissed by action
@@ -607,6 +618,16 @@ static BOOL _isInAppMessagingPaused = false;
     [self evaluateMessages];
 }
 
+#pragma mark OSMessagingControllerDelegate Methods
+- (void)onApplicationDidBecomeActive {
+    // To avoid excesive message evaluation
+    // we should re-evaluate all in-app messages only if it was paused by inactive
+    if (_pausedByInactive) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating messages due to inactive app"];
+        _pausedByInactive = NO;
+        [self evaluateMessages];
+    }
+}
 @end
 
 @implementation DummyOSMessagingController

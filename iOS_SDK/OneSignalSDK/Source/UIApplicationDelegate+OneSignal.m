@@ -36,6 +36,7 @@
 #import "OneSignalLocation.h"
 #import "OneSignalSelectorHelpers.h"
 #import "OneSignalHelper.h"
+#import "OSMessagingController.h"
 
 @interface OneSignal (UN_extra)
 + (void) didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken;
@@ -267,6 +268,7 @@ static NSArray* delegateSubclasses = nil;
     if ([OneSignal app_id]) {
         [OneSignalTracker onFocus:NO];
         [OneSignalLocation onfocus:YES];
+        [[OSMessagingController sharedInstance] onApplicationDidBecomeActive];
     }
     
     if ([self respondsToSelector:@selector(oneSignalApplicationDidBecomeActive:)])
