@@ -72,7 +72,7 @@
 
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 
-@property (nonatomic) BOOL pausedByInactive;
+@property (nonatomic) BOOL isAppInactive;
 
 @end
 
@@ -138,7 +138,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
         self.currentPromptAction = nil;
-        self.pausedByInactive = NO;
+        self.isAppInactive = NO;
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
     }
@@ -206,7 +206,7 @@ static BOOL _isInAppMessagingPaused = false;
         // Return early if the app is not active
         if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Pause IAMs display due to app inactivity"];
-            _pausedByInactive = YES;
+            _isAppInactive = YES;
             return;
         }
         [self displayMessage:message];
@@ -348,7 +348,6 @@ static BOOL _isInAppMessagingPaused = false;
             [self.impressionedInAppMessages removeObject:message.messageId];
             [message clearClickIds];
             return;
-            
         }
     }
 }
@@ -486,7 +485,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         // Don't show prompt twice
-        if (![promptAction didAppear]) {
+        if (!promptAction.hasPrompted) {
             _currentPromptAction = promptAction;
             break;
         }
@@ -494,7 +493,7 @@ static BOOL _isInAppMessagingPaused = false;
 
     if (_currentPromptAction) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
-        _currentPromptAction.didAppear = YES;
+        _currentPromptAction.hasPrompted = YES;
         [_currentPromptAction handlePrompt:^(BOOL accepted) {
             _currentPromptAction = nil;
             [self handlePromptActions:promptActions];
@@ -622,9 +621,9 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)onApplicationDidBecomeActive {
     // To avoid excesive message evaluation
     // we should re-evaluate all in-app messages only if it was paused by inactive
-    if (_pausedByInactive) {
+    if (_isAppInactive) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating messages due to inactive app"];
-        _pausedByInactive = NO;
+        _isAppInactive = NO;
         [self evaluateMessages];
     }
 }

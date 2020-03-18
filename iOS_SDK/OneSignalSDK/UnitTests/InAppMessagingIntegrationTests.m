@@ -879,13 +879,14 @@
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
-    [actionJson setValue:@[@"push"] forKey:@"prompts"];
-    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    actionJson[@"prompts"] = @[@"push"];
+    let action = [OSInAppMessageAction instanceWithJson:actionJson];
     let testMessage = [OSInAppMessage instanceWithJson:message];
     
-    XCTAssertFalse(action.promptActions[0].didAppear);
+    XCTAssertEqual(1, action.promptActions.count);
+    XCTAssertFalse(action.promptActions[0].hasPrompted);
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
-    XCTAssertTrue(action.promptActions[0].didAppear);
+    XCTAssertTrue(action.promptActions[0].hasPrompted);
 }
 
 - (void)testIAMClickedLaunchesLocationPrompt {
@@ -900,13 +901,14 @@
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
-    [actionJson setValue:@[@"location"] forKey:@"prompts"];
-    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    actionJson[@"prompts"] = @[@"location"];
+    let action = [OSInAppMessageAction instanceWithJson:actionJson];
     let testMessage = [OSInAppMessage instanceWithJson:message];
     
-    XCTAssertFalse(action.promptActions[0].didAppear);
+    XCTAssertEqual(1, action.promptActions.count);
+    XCTAssertFalse(action.promptActions[0].hasPrompted);
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
-    XCTAssertTrue(action.promptActions[0].didAppear);
+    XCTAssertTrue(action.promptActions[0].hasPrompted);
 }
 
 - (void)testIAMClickedLaunchesPushLocationPrompt {
@@ -921,16 +923,17 @@
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
-    [actionJson setValue:@[@"push", @"location"] forKey:@"prompts"];
-    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    actionJson[@"prompts"] = @[@"push", @"location"];
+    let action = [OSInAppMessageAction instanceWithJson:actionJson];
     let testMessage = [OSInAppMessage instanceWithJson:message];
     
-    XCTAssertFalse(action.promptActions[0].didAppear);
-    XCTAssertFalse(action.promptActions[1].didAppear);
+    XCTAssertEqual(2, action.promptActions.count);
+    XCTAssertFalse(action.promptActions[0].hasPrompted);
+    XCTAssertFalse(action.promptActions[1].hasPrompted);
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertTrue(action.promptActions[0].didAppear);
-    XCTAssertTrue(action.promptActions[1].didAppear);
+    XCTAssertTrue(action.promptActions[0].hasPrompted);
+    XCTAssertTrue(action.promptActions[1].hasPrompted);
 }
 
 - (void)testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay {

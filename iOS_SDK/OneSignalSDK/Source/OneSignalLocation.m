@@ -121,7 +121,7 @@ static OneSignalLocation* singleInstance = nil;
     // Listen to app going to and from background
 }
 
-+ (void)onfocus:(BOOL)isActive {
++ (void)onFocus:(BOOL)isActive {
     
     // return if the user has not granted privacy permissions
     if ([OneSignal requiresUserPrivacyConsent])

@@ -34,7 +34,7 @@
 {
     self = [super init];
     if (self) {
-        _didAppear = NO;
+        _hasPrompted = NO;
     }
     return self;
 }
@@ -44,7 +44,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"OSInAppMessagePushPrompt didappear:%@", _didAppear ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"OSInAppMessagePushPrompt hasPrompted:%@", _hasPrompted ? @"YES" : @"NO"];
 }
 
 @end

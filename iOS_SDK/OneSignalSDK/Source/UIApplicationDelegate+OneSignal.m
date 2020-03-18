@@ -114,7 +114,7 @@ static NSArray* delegateSubclasses = nil;
     // Used to track how long the app has been closed
     injectToProperClass(@selector(oneSignalApplicationWillTerminate:),
                         @selector(applicationWillTerminate:), delegateSubclasses, newClass, delegateClass);
-    
+
     [self setOneSignalDelegate:delegate];
 }
 
@@ -256,7 +256,7 @@ static NSArray* delegateSubclasses = nil;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalApplicationDidEnterBackground"];
     
     if ([OneSignal app_id])
-        [OneSignalLocation onfocus:NO];
+        [OneSignalLocation onFocus:NO];
     
     if ([self respondsToSelector:@selector(oneSignalApplicationDidEnterBackground:)])
         [self oneSignalApplicationDidEnterBackground:application];
@@ -267,7 +267,7 @@ static NSArray* delegateSubclasses = nil;
     
     if ([OneSignal app_id]) {
         [OneSignalTracker onFocus:NO];
-        [OneSignalLocation onfocus:YES];
+        [OneSignalLocation onFocus:YES];
         [[OSMessagingController sharedInstance] onApplicationDidBecomeActive];
     }
     

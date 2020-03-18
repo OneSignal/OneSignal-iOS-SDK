@@ -32,7 +32,7 @@
 
 @interface OSInAppMessageLocationPrompt : NSObject <OSInAppMessagePrompt>
 
-@property (nonatomic) BOOL didAppear;
+@property (nonatomic) BOOL hasPrompted;
 
 @end
 
