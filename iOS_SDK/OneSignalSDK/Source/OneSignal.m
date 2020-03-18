@@ -1136,7 +1136,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil];
     
-    if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
+    if ([self isEmailSetup])
         requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:self.currentEmailSubscriptionState.emailAuthCode];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
@@ -1589,7 +1589,7 @@ static dispatch_queue_t serialQueue;
     // should be set to true even before the API request is finished
     performedOnSessionRequest = true;
 
-    if (pendingExternalUserId && ![self.existingExternalUserId isEqualToString:pendingExternalUserId])
+    if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
         dataDic[@"external_user_id"] = pendingExternalUserId;
 
     pendingExternalUserId = nil;
@@ -1673,13 +1673,19 @@ static dispatch_queue_t serialQueue;
     let requests = [NSMutableDictionary new];
     requests[@"push"] = [OSRequestRegisterUser withData:pushDataDic userId:self.currentSubscriptionState.userId];
     
-    if (self.currentEmailSubscriptionState.emailUserId &&
-        (!self.currentEmailSubscriptionState.requiresEmailAuth || self.currentEmailSubscriptionState.emailAuthCode)) {
+    if ([self isEmailSetup]) {
         let emailDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
         emailDataDic[@"device_type"] = [NSNumber numberWithInt:DEVICE_TYPE_EMAIL];
         emailDataDic[@"email_auth_hash"] = self.currentEmailSubscriptionState.emailAuthCode;
         
+        // If push device has external id we want to add it to the email device also
+        if (dataDic[@"external_user_id"])
+            emailDataDic[@"external_user_id"] = dataDic[@"external_user_id"];
+        
         requests[@"email"] = [OSRequestRegisterUser withData:emailDataDic userId:self.currentEmailSubscriptionState.emailUserId];
+    } else {
+        // If no email is setup clear the email external user id
+        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
     }
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
@@ -1697,10 +1703,16 @@ static dispatch_queue_t serialQueue;
             
             if (self.currentEmailSubscriptionState.emailUserId && ![self.currentEmailSubscriptionState.emailUserId isEqualToString:results[@"email"][@"id"]] && self.currentEmailSubscriptionState.emailAuthCode) {
                 [self emailChangedWithNewEmailPlayerId:results[@"email"][@"id"]];
+                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
             }
             
             self.currentEmailSubscriptionState.emailUserId = results[@"email"][@"id"];
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_PLAYER_ID withValue:self.currentEmailSubscriptionState.emailUserId];
+            
+            // Email successfully updated, so if there was an external user id we should cache it for email now
+            if (dataDic[@"external_user_id"]) {
+                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:dataDic[@"external_user_id"]];
+            }
         }
         
         //update push player id
@@ -1752,10 +1764,10 @@ static dispatch_queue_t serialQueue;
         }
 
         // If the external user ID was sent as part of this request, we need to save it
-        // The 'successfullySentExternalUserId' method already calls NSUserDefaults synchronize
-        // so there is no need to call it again
-        if (dataDic[@"external_user_id"])
-            [self successfullySentExternalUserId:dataDic[@"external_user_id"]];
+        // Cache the external id if it exists within the registration payload
+        if (dataDic[@"external_user_id"]) {
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:dataDic[@"external_user_id"]];
+        }
         
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         waitingForOneSReg = false;
@@ -2285,18 +2297,45 @@ static NSString *_lastnonActiveMessageId;
     }
 }
 
-+ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
++ (void)setEmail:(NSString * _Nonnull)email {
     
     // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:"])
+        return;
+    
+    [self setEmail:email withSuccess:nil withFailure:nil];
+}
+
++ (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withSuccess:withFailure:"])
+        return;
+    
+    [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
+}
+
++ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withEmailAuthHashToken:"])
+        return;
+    
+    [self setEmail:email withEmailAuthHashToken:hashToken withSuccess:nil withFailure:nil];
+}
+
++ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
+    
+    // Return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withEmailAuthHashToken:withSuccess:withFailure:"])
         return;
     
-    //some clients/wrappers may send NSNull instead of nil as the auth token
+    // Some clients/wrappers may send NSNull instead of nil as the auth token
     NSString *emailAuthToken = hashToken;
     if (hashToken == (id)[NSNull null])
         emailAuthToken = nil;
     
-    //checks to ensure it is a valid email
+    // Checks to ensure it is a valid email
     if (![OneSignalHelper isValidEmail:email]) {
         [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid email (%@) passed to setEmail", email]];
         if (failureBlock)
@@ -2304,14 +2343,14 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    //checks to make sure that if email_auth is required, the user has passed in a hash token
+    // Checks to make sure that if email_auth is required, the user has passed in a hash token
     if (self.currentEmailSubscriptionState.requiresEmailAuth && (!emailAuthToken || emailAuthToken.length == 0)) {
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal.email" code:0 userInfo:@{@"error" : @"Email authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
         return;
     }
     
-    // if both the email address & hash token are the same, there's no need to make a network call here.
+    // If both the email address & hash token are the same, there's no need to make a network call here.
     if ([self.currentEmailSubscriptionState.emailAddress isEqualToString:email] && ([self.currentEmailSubscriptionState.emailAuthCode isEqualToString:emailAuthToken] || (self.currentEmailSubscriptionState.emailAuthCode == nil && emailAuthToken == nil))) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Email already exists, there is no need to call setEmail again"];
         if (successBlock)
@@ -2319,22 +2358,18 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    /*
-       if the iOS params (with the require_email_auth setting) has not been downloaded yet, we should delay the request
-       however, if this method was called with an email auth code passed in, then there is no need to check this setting
-       and we do not need to delay the request
-    */
-    
+    // If the iOS params (with the require_email_auth setting) has not been downloaded yet, we should delay the request
+    //  however, if this method was called with an email auth code passed in, then there is no need to check this setting
+    //  and we do not need to delay the request
     if (!self.currentSubscriptionState.userId || (_downloadedParameters == false && emailAuthToken != nil)) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setEmail: until the parameters have been downloaded."];
         delayedEmailParameters = [OneSignalSetEmailParameters withEmail:email withAuthToken:emailAuthToken withSuccess:successBlock withFailure:failureBlock];
         return;
     }
     
-    // if the user already has a onesignal email player_id, then we should call update the device token
-    // otherwise we should call Create Device
-    // since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
-    
+    // If the user already has a onesignal email player_id, then we should call update the device token
+    //  otherwise, we should call Create Device
+    // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
     if (self.currentEmailSubscriptionState.emailUserId) {
         [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id deviceToken:email notificationTypes:nil withParentId:nil emailAuthToken:emailAuthToken email:nil] onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock];
@@ -2342,10 +2377,9 @@ static NSString *_lastnonActiveMessageId;
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice
-                                                      withAppId:self.app_id withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_EMAIL] withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.app_id withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_EMAIL] withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken] onSuccess:^(NSDictionary *result) {
             
-            let emailPlayerId = (NSString *)result[@"id"];
+            let emailPlayerId = (NSString*) result[@"id"];
             
             if (emailPlayerId) {
                 self.currentEmailSubscriptionState.emailAddress = email;
@@ -2369,13 +2403,13 @@ static NSString *_lastnonActiveMessageId;
     }
 }
 
-+ (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
++ (void)logoutEmail {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withSuccess:withFailure:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutEmail"])
         return;
     
-    [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
+    [self logoutEmailWithSuccess:nil withFailure:nil];
 }
 
 + (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
@@ -2392,7 +2426,6 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    
     [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.app_id emailPlayerId:self.currentEmailSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentEmailSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
         
         [OneSignalUserDefaults.initStandard removeValueForKey:OSUD_EMAIL_PLAYER_ID];
@@ -2408,33 +2441,6 @@ static NSString *_lastnonActiveMessageId;
     } onFailure:^(NSError *error) {
         [self callFailureBlockOnMainThread:failureBlock withError:error];
     }];
-}
-
-+ (void)setEmail:(NSString * _Nonnull)email {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:"])
-        return;
-    
-    [self setEmail:email withSuccess:nil withFailure:nil];
-}
-
-+ (void)logoutEmail {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutEmail"])
-        return;
-    
-    [self logoutEmailWithSuccess:nil withFailure:nil];
-}
-
-+ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setEmail:withEmailAuthHashToken:"])
-        return;
-    
-    [self setEmail:email withEmailAuthHashToken:hashToken withSuccess:nil withFailure:nil];
 }
 
 + (void)emailChangedWithNewEmailPlayerId:(NSString * _Nullable)emailPlayerId {
@@ -2523,46 +2529,59 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
-
+    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
         return;
+    
+    [self setExternalUserId:externalId withCompletion:nil];
+}
 
-    if ([self.existingExternalUserId isEqualToString:externalId])
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withCompletion:"])
         return;
 
+    // Can't set the external id if init is not done or the app id or user id has not ben set yet
     if (!performedOnSessionRequest) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
         return;
     } else if (!self.currentSubscriptionState.userId || !self.app_id) {
-        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external-userID while %@ is not set", self.app_id == nil ? @"app ID" : @"OneSignal user ID"]];
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]];
         return;
     }
-
+    
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
-
-    if (self.currentEmailSubscriptionState.emailUserId && (self.currentEmailSubscriptionState.requiresEmailAuth == false || self.currentEmailSubscriptionState.emailAuthCode))
+    
+    // Check if the email has been set, this will decide on updtaing the external id for the email channel
+    if ([self isEmailSetup])
         requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
-
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
-        // the success/fail callbacks always execute on the main thread
-        [self successfullySentExternalUserId:externalId];
-    } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
-        // if either request fails, this block is executed
-        NSError *error = errors[@"push"] ?: errors[@"email"];
-        [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to set external ID: %@", error.description]];
+    
+    // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
+    if (![self shouldUpdateExternalUserId:externalId withRequests:requests]) {
+        // Use callback to return success for both cases here, since push and
+        //  email (if email is not setup, email is not included) have been set already
+        let results = [self getDuplicateExternalUserIdResponse:externalId withRequests:requests];
+        if (completionBlock)
+            completionBlock(results);
+        
+        return;
+    }
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
+        if (results[@"push"] && results[@"push"][@"success"])
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
+            
+        if (results[@"email"] && results[@"email"][@"success"])
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
+        
+        if (completionBlock)
+            completionBlock(results);
     }];
-}
-
-+ (NSString *)existingExternalUserId {
-    return [NSUserDefaults.standardUserDefaults stringForKey:OSUD_EXTERNAL_USER_ID] ?: @"";
-}
-
-+ (void)successfullySentExternalUserId:(NSString *)externalId {
-    [NSUserDefaults.standardUserDefaults setObject:externalId forKey:OSUD_EXTERNAL_USER_ID];
-    [NSUserDefaults.standardUserDefaults synchronize];
 }
 
 + (void)removeExternalUserId {
@@ -2570,7 +2589,54 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
         return;
 
-    [self setExternalUserId:@""];
+    [self setExternalUserId:@"" withCompletion:nil];
+}
+
++ (void)removeExternalUserId:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId:"])
+        return;
+
+    [self setExternalUserId:@"" withCompletion:completionBlock];
+}
+
++ (NSString*)existingPushExternalUserId {
+    return [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EXTERNAL_USER_ID defaultValue:@""];
+}
+
++ (NSString*)existingEmailExternalUserId {
+    return [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID defaultValue:@""];
+}
+
++ (BOOL)isEmailSetup {
+    return self.currentEmailSubscriptionState.emailUserId && (!self.currentEmailSubscriptionState.requiresEmailAuth || self.currentEmailSubscriptionState.emailAuthCode);
+}
+
++ (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests {
+    return (![self.existingPushExternalUserId isEqualToString:externalId] && !requests[@"email"])
+            || (requests[@"email"] && ![self.existingEmailExternalUserId isEqualToString:externalId]);
+}
+
++ (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests {
+    NSMutableDictionary *results = [NSMutableDictionary new];
+    [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is already set", externalId]];
+    
+    results[@"push"] = @{
+        @"success" : @(true)
+    };
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
+    
+    // Make sure to only add email if email was attempted
+    if (requests[@"email"]) {
+        results[@"email"] = @{
+            @"success" : @(true)
+        };
+        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
+    } else {
+        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
+    }
+    
+    return results;
 }
 
 /*

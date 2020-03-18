@@ -80,6 +80,63 @@
     return [NSError errorWithDomain:@"OneSignal Error" code:0 userInfo:@{@"error" : @"The request timed out"}];
 }
 
+- (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withCompletion:(OSMultipleCompletionBlock)completionBlock {
+    if (requests.allKeys.count == 0)
+        return;
+    
+    // Execute on a background thread or the semaphore will block the caller thread
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_group_t group = dispatch_group_create();
+        
+        __block NSMutableDictionary<NSString *, NSError *> *errors = [NSMutableDictionary new];
+        __block NSMutableDictionary<NSString *, NSDictionary *> *results = [NSMutableDictionary new];
+        
+        // Used as the reasposne for the completion callback
+        __block NSMutableDictionary *response = [NSMutableDictionary new];
+        
+        for (NSString *identifier in requests.allKeys) {
+            let request = requests[identifier];
+            
+            // Use a dispatch_group instead of a semaphore, in case the failureBlock gets called synchronously
+            // This will prevent the SDK from waiting/blocking on a request that instantly failed
+            dispatch_group_enter(group);
+            [self executeRequest:request onSuccess:^(NSDictionary *result) {
+                results[identifier] = result;
+                // Add a success as 1 (success) to the response
+                response[identifier] = @{ @"success" : @(true) };
+                NSLog(@"Request %@ success result %@", request, result);
+                dispatch_group_leave(group);
+            } onFailure:^(NSError *error) {
+                errors[identifier] = error;
+                // Add a success as 0 (failed) to the response
+                response[identifier] = @{ @"success" : @(false) };
+                NSLog(@"Request %@ fail result error %@", request, error);
+                dispatch_group_leave(group);
+            }];
+        }
+        
+        // Will wait for up to (maxTimeout) seconds and will then give up and call
+        //  the failure block if the request times out.
+        let timedOut = (bool)(0 != dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, MAX_TIMEOUT)));
+        
+        // Add a generic 'timed out' error if the request timed out
+        //  and there are no other errors present.
+        if (timedOut && errors.allKeys.count == 0) {
+            for (NSString *key in requests.allKeys) {
+                errors[key] = [self genericTimedOutError];
+                // Add a success as 0 (timeout/failed) to the response
+                response[key] = @{ @"success" : @(false) };
+            }
+        }
+        
+        // Requests should all be completed at this point, the response NSDictionary will be passed back
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completionBlock)
+                completionBlock(response);
+        });
+    });
+}
+
 - (void)executeSimultaneousRequests:(NSDictionary<NSString *, OneSignalRequest *> *)requests withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
     if (requests.allKeys.count == 0)
         return;

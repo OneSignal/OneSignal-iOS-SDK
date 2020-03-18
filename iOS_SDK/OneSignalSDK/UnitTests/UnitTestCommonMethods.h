@@ -31,6 +31,7 @@
 #import "OneSignalNotificationCategoryController.h"
 
 #define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
+#define TEST_EMAIL @"test@onesignal.com"
 
 NSString * serverUrlWithPath(NSString *path);
 
