@@ -2561,29 +2561,11 @@ static NSString *_lastnonActiveMessageId;
     if ([self isEmailSetup])
         requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
     
-    
     // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
-    NSMutableDictionary *results = [NSMutableDictionary new];
     if (![self shouldUpdateExternalUserId:externalId withRequests:requests]) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is already set", externalId]];
-        
-        results[@"push"] = @{
-            @"success" : @(true)
-        };
-        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
-        
-        // Make sure to only add email if email was attempted
-        if (requests[@"email"]) {
-            results[@"email"] = @{
-                @"success" : @(true)
-            };
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
-        } else {
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
-        }
-        
         // Use callback to return success for both cases here, since push and
         //  email (if email is not setup, email is not included) have been set already
+        let results = [self getDuplicateExternalUserIdResponse:externalId withRequests:requests];
         if (completionBlock)
             completionBlock(results);
         
@@ -2633,6 +2615,28 @@ static NSString *_lastnonActiveMessageId;
 + (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests {
     return (![self.existingPushExternalUserId isEqualToString:externalId] && !requests[@"email"])
             || (requests[@"email"] && ![self.existingEmailExternalUserId isEqualToString:externalId]);
+}
+
++ (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests {
+    NSMutableDictionary *results = [NSMutableDictionary new];
+    [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is already set", externalId]];
+    
+    results[@"push"] = @{
+        @"success" : @(true)
+    };
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
+    
+    // Make sure to only add email if email was attempted
+    if (requests[@"email"]) {
+        results[@"email"] = @{
+            @"success" : @(true)
+        };
+        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
+    } else {
+        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
+    }
+    
+    return results;
 }
 
 /*
