@@ -34,7 +34,7 @@
 {
     self = [super init];
     if (self) {
-        _didAppear = NO;
+        _hasPrompted = NO;
     }
     return self;
 }
@@ -43,9 +43,8 @@
     [OneSignal promptForPushNotificationsWithUserResponse:completionHandler fallbackToSettings:YES];
 }
 
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"OSInAppMessagePushPrompt didappear:%@", _didAppear ? @"YES" : @"NO"];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessagePushPrompt hasPrompted:%@", _hasPrompted ? @"YES" : @"NO"];
 }
 
 @end

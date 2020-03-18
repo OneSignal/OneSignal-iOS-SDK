@@ -961,7 +961,7 @@
     XCTAssertEqual(0 ,[OneSignalClientOverrider.lastHTTPRequest[@"tags"] count]);
 }
 
-- (void)testIAMClickedLaunchesPrompt {
+- (void)testIAMClickedLaunchesPushPrompt {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
 
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -973,13 +973,61 @@
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
-    [actionJson setValue:@[@"push"] forKey:@"prompts"];
-    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    actionJson[@"prompts"] = @[@"push"];
+    let action = [OSInAppMessageAction instanceWithJson:actionJson];
     let testMessage = [OSInAppMessage instanceWithJson:message];
     
-    XCTAssertFalse(action.promptActions[0].didAppear);
+    XCTAssertEqual(1, action.promptActions.count);
+    XCTAssertFalse(action.promptActions[0].hasPrompted);
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
-    XCTAssertTrue(action.promptActions[0].didAppear);
+    XCTAssertTrue(action.promptActions[0].hasPrompted);
+}
+
+- (void)testIAMClickedLaunchesLocationPrompt {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    actionJson[@"prompts"] = @[@"location"];
+    let action = [OSInAppMessageAction instanceWithJson:actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    XCTAssertEqual(1, action.promptActions.count);
+    XCTAssertFalse(action.promptActions[0].hasPrompted);
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    XCTAssertTrue(action.promptActions[0].hasPrompted);
+}
+
+- (void)testIAMClickedLaunchesPushAndLocationPrompt {
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    actionJson[@"prompts"] = @[@"push", @"location"];
+    let action = [OSInAppMessageAction instanceWithJson:actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    
+    XCTAssertEqual(2, action.promptActions.count);
+    XCTAssertFalse(action.promptActions[0].hasPrompted);
+    XCTAssertFalse(action.promptActions[1].hasPrompted);
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    [UnitTestCommonMethods runBackgroundThreads];
+    XCTAssertTrue(action.promptActions[0].hasPrompted);
+    XCTAssertTrue(action.promptActions[1].hasPrompted);
 }
 
 - (void)testDisablingIAMs_stillCreatesMessageQueue_butPreventsMessageDisplay {

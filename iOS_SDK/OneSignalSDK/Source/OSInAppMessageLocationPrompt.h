@@ -25,15 +25,15 @@
 * THE SOFTWARE.
 */
 
-#ifndef OSInAppMessagingPushPrompt_h
-#define OSInAppMessagingPushPrompt_h
+#ifndef OSInAppMessageLocationPrompt_h
+#define OSInAppMessageLocationPrompt_h
 
 #import "OSInAppMessagePrompt.h"
 
-@interface OSInAppMessagePushPrompt : NSObject <OSInAppMessagePrompt>
+@interface OSInAppMessageLocationPrompt : NSObject <OSInAppMessagePrompt>
 
 @property (nonatomic) BOOL hasPrompted;
 
 @end
 
-#endif /* OSInAppMessagingPushPrompt_h */
+#endif /* OSInAppMessageLocationPrompt_h */

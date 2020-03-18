@@ -26,6 +26,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 
 #import "OneSignalLocation.h"
 #import "OneSignalHelper.h"
@@ -64,6 +65,12 @@ static bool hasDelayed = false;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
+NSMutableArray *_locationListeners;
++(NSMutableArray*)locationListeners {
+    if (!_locationListeners)
+        _locationListeners = [NSMutableArray new];
+    return _locationListeners;
+}
 
 NSObject *_mutexObjectForLastLocation;
 +(NSObject*)mutexObjectForLastLocation {
@@ -97,7 +104,10 @@ static OneSignalLocation* singleInstance = nil;
     }
 }
 
-+ (void)getLocation:(bool)prompt {
++ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(BOOL accepted))completionHandler {
+    if (completionHandler)
+        [OneSignalLocation.locationListeners addObject:completionHandler];
+
     if (hasDelayed)
         [OneSignalLocation internalGetLocation:prompt];
     else {
@@ -108,17 +118,17 @@ static OneSignalLocation* singleInstance = nil;
             [OneSignalLocation internalGetLocation:prompt];
         });
     }
-    
-    //Listen to app going to and from background
+    // Listen to app going to and from background
 }
 
-+ (void)onfocus:(BOOL)isActive {
++ (void)onFocus:(BOOL)isActive {
     
     // return if the user has not granted privacy permissions
     if ([OneSignal requiresUserPrivacyConsent])
         return;
     
-    if(!locationManager || ![self started]) return;
+    if (!locationManager || ![self started])
+        return;
     
     /**
      We have a state switch
@@ -129,58 +139,80 @@ static OneSignalLocation* singleInstance = nil;
         Otherwise set timer to NULL
     **/
     
-    
     NSTimeInterval remainingTimerTime = sendLocationTimer.fireDate.timeIntervalSinceNow;
     NSTimeInterval requiredWaitTime = isActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime ;
     NSTimeInterval adjustedTime = remainingTimerTime > 0 ? remainingTimerTime : requiredWaitTime;
 
-    if(isActive) {
+    if (isActive) {
         if(sendLocationTimer && initialLocationSent) {
             //Keep timer going with the remaining time
             [sendLocationTimer invalidate];
             sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:adjustedTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
         }
-    }
-    else {
-        
+    } else {
         //Check if always granted
-        if( (int)[NSClassFromString(@"CLLocationManager") performSelector:@selector(authorizationStatus)] == 3) {
+        if ((int)[NSClassFromString(@"CLLocationManager") performSelector:@selector(authorizationStatus)] == kCLAuthorizationStatusAuthorizedAlways) {
             [OneSignalLocation beginTask];
             [sendLocationTimer invalidate];
             sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:adjustedTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
             [[NSRunLoop mainRunLoop] addTimer:sendLocationTimer forMode:NSRunLoopCommonModes];
+        } else {
+            sendLocationTimer = NULL;
         }
-        else sendLocationTimer = NULL;
     }
 }
 
-+ (void) beginTask {
++ (void)beginTask {
     fcTask = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
         [OneSignalLocation endTask];
     }];
 }
 
-+ (void) endTask {
++ (void)endTask {
     [[UIApplication sharedApplication] endBackgroundTask: fcTask];
     fcTask = UIBackgroundTaskInvalid;
 }
 
++ (void)sendAndClearLocationListener:(BOOL)accept {
+    onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocation.locationListeners]);
+    for (int i = 0; i < OneSignalLocation.locationListeners.count; i++) {
+        ((void (^)(BOOL accepted))[OneSignalLocation.locationListeners objectAtIndex:i])(accept);
+    }
+    // We only call the listeners once
+    [OneSignalLocation.locationListeners removeAllObjects];
+}
 
++ (void)sendCurrentAuthStatusToListeners {
+    id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
+    CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    if (permissionStatus == kCLAuthorizationStatusNotDetermined)
+        return;
+
+    // If already given or denied the permission, listeners should have the response
+    let denied = permissionStatus == kCLAuthorizationStatusRestricted || permissionStatus == kCLAuthorizationStatusDenied;
+    [self sendAndClearLocationListener:!denied];
+}
 
 + (void)internalGetLocation:(bool)prompt {
-    if ([self started])
+    if ([self started]) {
+        [self sendCurrentAuthStatusToListeners];
         return;
+    }
     
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
     
     // Check for location in plist
-    if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)])
+    if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)]) {
+        [self sendAndClearLocationListener:false];
         return;
-    int permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    }
+    
+    CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
     // return if permission not determined and should not prompt
-    if (permissionStatus == 0 && !prompt)
+    if (permissionStatus == kCLAuthorizationStatusNotDetermined && !prompt)
         return;
     
+    [self sendCurrentAuthStatusToListeners];
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
     
@@ -192,15 +224,15 @@ static OneSignalLocation* singleInstance = nil;
         NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
         NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
         // use background location updates if always permission granted or prompt allowed
-        if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == 3 || prompt)) {
+        if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
             [locationManager performSelector:@selector(requestAlwaysAuthorization)];
-            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"]) {
+            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
                 [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
-            }
         }
         
         else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-            if (permissionStatus == 0) [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+            if (permissionStatus == kCLAuthorizationStatusNotDetermined)
+                [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
         }
         
         else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
@@ -218,8 +250,10 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
-    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared])
+    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared]) {
+        [OneSignalLocation sendAndClearLocationListener:false];
         return;
+    }
     
     [manager performSelector:@selector(stopUpdatingLocation)];
     
@@ -243,20 +277,22 @@ static OneSignalLocation* singleInstance = nil;
         lastLocation->cords = cords;
     }
     
-    if(!sendLocationTimer)
+    if (!sendLocationTimer)
         [OneSignalLocation resetSendTimer];
     
-    if(!initialLocationSent)
+    if (!initialLocationSent)
         [OneSignalLocation sendLocation];
-
+    
+    [OneSignalLocation sendAndClearLocationListener:true];
 }
 
--(void)locationManager:(id)manager didFailWithError:(NSError *)error {
+- (void)locationManager:(id)manager didFailWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
+    [OneSignalLocation sendAndClearLocationListener:false];
 }
 
 + (void)resetSendTimer {
-    NSTimeInterval requiredWaitTime = [UIApplication sharedApplication].applicationState == UIApplicationStateActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime ;
+    NSTimeInterval requiredWaitTime = [UIApplication sharedApplication].applicationState == UIApplicationStateActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime;
     sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:requiredWaitTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
 }
 
@@ -267,7 +303,8 @@ static OneSignalLocation* singleInstance = nil;
         return;
     
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
-        if (!lastLocation || ![OneSignal mUserId]) return;
+        if (!lastLocation || ![OneSignal mUserId])
+            return;
         
         //Fired from timer and not initial location fetched
         if (initialLocationSent)

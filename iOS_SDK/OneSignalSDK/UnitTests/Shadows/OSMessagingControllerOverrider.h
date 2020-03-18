@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setSeenMessages:(NSMutableSet <NSString *> *)seenMessages;
 + (void)setMockDateGenerator:(NSTimeInterval(^)(void))testDateGenerator;
 + (BOOL)isInAppMessageShowing;
-+ (BOOL)currentPromptAppear;
 + (NSArray <OSInAppMessage *> *)messageDisplayQueue;
 + (NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay;
 

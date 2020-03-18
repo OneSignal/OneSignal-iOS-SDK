@@ -65,4 +65,8 @@
     return nil;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageOutcome name: %@\nweight: %@unique: %s\n", _name, _weight, _unique ? "YES" : "NO"];
+}
+
 @end
