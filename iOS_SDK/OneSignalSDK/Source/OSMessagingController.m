@@ -435,6 +435,7 @@ static BOOL _isInAppMessagingPaused = false;
             OSInAppMessage *showingIAM = self.messageDisplayQueue.firstObject;
             [self.seenInAppMessages addObject:showingIAM.messageId];
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Dismissing IAM save seenInAppMessages: %@", _seenInAppMessages]];
             // Remove dismissed IAM from messageDisplayQueue
             [self.messageDisplayQueue removeObjectAtIndex:0];
             [self persistInAppMessageForRedisplay:showingIAM];
@@ -477,8 +478,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
-    // If the IAM doesn't have the re display prop there is no need to save it
-    if (![message.displayStats isRedisplayEnabled])
+    // If the IAM doesn't have the re display prop or is a preview IAM there is no need to save it
+    if (![message.displayStats isRedisplayEnabled] || message.isPreview)
       return;
 
     let displayTimeSeconds = self.dateGenerator();
@@ -511,6 +512,7 @@ static BOOL _isInAppMessagingPaused = false;
         _currentPromptAction.hasPrompted = YES;
         [_currentPromptAction handlePrompt:^(BOOL accepted) {
             _currentPromptAction = nil;
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %@", accepted ? @"YES" : @"NO"]];
             [self handlePromptActions:promptActions];
         }];
     } else if (!_viewController) { // IAM dismissed by action
@@ -531,9 +533,28 @@ static BOOL _isInAppMessagingPaused = false;
     if (self.actionClickBlock)
         self.actionClickBlock(action);
     
+    if (message.isPreview) {
+        [self processPreviewInAppMessage:message withAction:action];
+        return;
+    }
+
+    // The following features are for non preview IAM
+    // Make sure no click, outcome, tag tracking is performed for IAM previews
     [self sendClickRESTCall:message withAction:action];
     [self sendTagCallWithAction:action];
     [self sendOutcomes:action.outcomes];
+}
+
+/*
+* Show the developer what will happen with a non IAM preview
+ */
+- (void)processPreviewInAppMessage:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+     if (action.tags)
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tags detected inside of the action click payload, ignoring because action came from IAM preview\nTags: %@", action.tags.jsonRepresentation]];
+
+    if (action.outcomes.count > 0) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Outcomes detected inside of the action click payload, ignoring because action came from IAM preview: %@", [action.outcomes description]]];
+    }
 }
 
 /*
@@ -548,11 +569,10 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)sendClickRESTCall:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
     let clickId = action.clickId;
-    // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // unless that click is from an IAM with redisplay
     // Handles body, button, or image clicks
-    if (message.isPreview || ![self isClickAvailable:message withClickId:clickId])
+    if (![self isClickAvailable:message withClickId:clickId])
         return;
     // Add clickId to clickedClickIds
     [self.clickedClickIds addObject:clickId];
