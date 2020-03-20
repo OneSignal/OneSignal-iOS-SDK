@@ -26,6 +26,7 @@
 */
 
 #import "OSInAppMessageTag.h"
+#import "OneSignalHelper.h"
 
 @implementation OSInAppMessageTag
 
@@ -62,6 +63,18 @@
 
 + (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
     return nil;
+}
+
+
+- (NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+    
+    if (_tagsToAdd)
+        json[@"adds"] = _tagsToAdd;
+    if (_tagsToRemove)
+        json[@"removes"] = _tagsToRemove;
+
+    return json;
 }
 
 - (NSString *)description {
