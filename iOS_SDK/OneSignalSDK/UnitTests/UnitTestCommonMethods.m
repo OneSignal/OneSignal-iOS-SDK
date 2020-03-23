@@ -52,7 +52,7 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 
 NSString * serverUrlWithPath(NSString *path) {
-    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+    return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 @interface OneSignal ()
