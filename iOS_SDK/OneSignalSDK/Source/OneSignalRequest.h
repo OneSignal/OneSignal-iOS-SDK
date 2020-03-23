@@ -40,7 +40,6 @@
 @property (strong, nonatomic, nullable) NSDictionary *parameters;
 @property (nonatomic) int reattemptCount;
 @property (nonatomic) BOOL dataRequest; //false for JSON based requests
-@property (strong, nonatomic, nonnull) NSString *requestContentType; //ie. application/json
 -(BOOL)missingAppId; //for requests that don't require an appId parameter, the subclass should override this method and return false
 -(NSMutableURLRequest * _Nonnull )urlRequest;
 

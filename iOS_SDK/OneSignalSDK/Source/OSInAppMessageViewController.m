@@ -218,7 +218,7 @@
         let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"hmtl"]];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
         
-        let baseUrl = [NSURL URLWithString:SERVER_URL];
+        let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
         NSString* htmlContent = data[@"html"];
         [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
         

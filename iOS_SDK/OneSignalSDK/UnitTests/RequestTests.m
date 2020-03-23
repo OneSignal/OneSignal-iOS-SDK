@@ -100,7 +100,7 @@ NSString *urlStringForRequest(OneSignalRequest *request) {
 }
 
 NSString *correctUrlWithPath(NSString *path) {
-    return [[SERVER_URL stringByAppendingString:API_VERSION] stringByAppendingString:path];
+    return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 // only works for dictionaries with values that are strings, numbers, or sub-dictionaries/arrays of strings and numbers
@@ -397,7 +397,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 
     XCTAssertEqualObjects(request.urlRequest.URL.absoluteString, correctUrlWithPath(iamUrlPath));
     XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"GET");
-    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
+    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/vnd.onesignal.v1+json");
     XCTAssertFalse(request.dataRequest);
 }
 
