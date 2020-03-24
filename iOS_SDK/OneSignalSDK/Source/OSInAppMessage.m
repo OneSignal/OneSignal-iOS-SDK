@@ -126,11 +126,7 @@
     }
     else
         return nil;
-    
-    //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
-    if (json[@"displayed_in_session"]) {
-        message.isDisplayedInSession = json[@"displayed_in_session"];
-    }
+
     return message;
 }
 
@@ -163,14 +159,12 @@
     if ([_displayStats isRedisplayEnabled]) {
         json[@"redisplay"] = [_displayStats jsonRepresentation];
     }
-    //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
-    json[@"displayed_in_session"] = @(_isDisplayedInSession);
     
     return json;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayStats: %@", self.messageId, self.triggers, self.displayStats];
+    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayed_in_session: %@ \ndisplayStats: %@", self.messageId, self.triggers, self.isDisplayedInSession ? @"YES" : @"NO", self.displayStats];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -196,6 +190,8 @@
     [encoder encodeObject:_variants forKey:@"variants"];
     [encoder encodeObject:_triggers forKey:@"triggers"];
     [encoder encodeObject:_displayStats forKey:@"displayStats"];
+    //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
+    [encoder encodeBool:_isDisplayedInSession forKey:@"displayed_in_session"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -204,6 +200,8 @@
         _variants = [decoder decodeObjectForKey:@"variants"];
         _triggers = [decoder decodeObjectForKey:@"triggers"];
         _displayStats = [decoder decodeObjectForKey:@"displayStats"];
+        //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
+        _isDisplayedInSession = [decoder decodeBoolForKey:@"displayed_in_session"];
     }
     return self;
 }

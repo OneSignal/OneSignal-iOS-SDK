@@ -150,10 +150,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
+
     [self evaluateMessages];
 }
 
 - (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
     self.messages = newMessages;
     
     // Cache if messages passed in are not null, this method is called from on_session for
@@ -167,6 +169,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)resetRedisplayMessagesBySession {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetRedisplayMessagesBySession with redisplayedInAppMessages: %@", [_redisplayedInAppMessages description]]];
+    
     for (NSString *messageId in _redisplayedInAppMessages) {
         [_redisplayedInAppMessages objectForKey:messageId].isDisplayedInSession = false;
     }
@@ -347,12 +351,13 @@ static BOOL _isInAppMessagingPaused = false;
 
     if (messageDismissed && redisplayMessageSavedData) {
         NSLog(@"Redisplay IAM: %@", message.jsonRepresentation.description);
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@", message]];
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
         
         // Message that don't have triggers should display only once per session
         BOOL triggerHasChanged = message.isTriggerChanged || (!redisplayMessageSavedData.isDisplayedInSession && [message.triggers count] == 0);
+        
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@ \ntriggerHasChanged: %@ \nno triggers: %@ \ndisplayed in session saved: %@", message, message.isTriggerChanged ? @"YES" : @"NO", [message.triggers count] == 0 ? @"YES" : @"NO", redisplayMessageSavedData.isDisplayedInSession  ? @"YES" : @"NO"]];
         // Check if conditions are correct for redisplay
         if (triggerHasChanged &&
             [message.displayStats isDelayTimeSatisfied:self.dateGenerator()] &&
@@ -495,7 +500,12 @@ static BOOL _isInAppMessagingPaused = false;
     [_redisplayedInAppMessages setObject:message forKey:message.messageId];
 
     [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:_redisplayedInAppMessages];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], _redisplayedInAppMessages]];
+    
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    let redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay saved redisplayedInAppMessages: %@", [redisplayedInAppMessages description]]];
 }
 
 - (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
