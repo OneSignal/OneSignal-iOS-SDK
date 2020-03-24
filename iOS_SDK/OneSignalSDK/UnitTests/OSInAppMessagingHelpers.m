@@ -29,7 +29,6 @@
 #import "OneSignalHelper.h"
 #import "OSTriggerController.h"
 #import "OSMessagingController.h"
-#import "OSInAppMessageDisplayStats.h"
 
 @implementation OSTrigger (Test)
 
