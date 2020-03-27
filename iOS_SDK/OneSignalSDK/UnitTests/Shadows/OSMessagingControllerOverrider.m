@@ -83,14 +83,10 @@
 
 + (void)load {
     injectToProperClass(@selector(overrideShowAndImpressMessage:), @selector(showAndImpressMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
-    injectToProperClass(@selector(overrideHideWindow), @selector(hideWindow), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
 }
 
 - (void)overrideShowAndImpressMessage:(OSInAppMessage *)message {
     [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
-}
-
-- (void)overrideHideWindow {
 }
 
 + (void)dismissCurrentMessage {
