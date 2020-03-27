@@ -475,11 +475,12 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 /*
- Hide the window and call makeKeyWindow to ensure the IAM will not be shown
- */
+ Hide the top level IAM window
+ After the IAM window is hidden, iOS will automatically promote the main window
+ This also re-shows the keyboard automatically if it had focus in a text input
+*/
 - (void)hideWindow {
     self.window.hidden = true;
-    [UIApplication.sharedApplication.delegate.window makeKeyWindow];
 }
 
 - (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
