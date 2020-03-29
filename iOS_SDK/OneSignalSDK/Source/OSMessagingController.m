@@ -654,6 +654,12 @@ static BOOL _isInAppMessagingPaused = false;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.opaque = true;
     self.window.clipsToBounds = true;
+    
+    if (@available(iOS 13.0, *)) {
+        // Required to display if the app is using a Scene
+        // See https://github.com/OneSignal/OneSignal-iOS-SDK/issues/648
+        self.window.windowScene = UIApplication.sharedApplication.keyWindow.windowScene;
+    }
     [self.window makeKeyAndVisible];
 }
 
