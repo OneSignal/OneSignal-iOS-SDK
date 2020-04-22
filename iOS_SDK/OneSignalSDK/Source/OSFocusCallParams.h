@@ -25,6 +25,8 @@
  * THE SOFTWARE.
  */
 
+#import "OSFocusInfluenceParam.h"
+
 @interface OSFocusCallParams : NSObject
 
 @property (nonatomic, readonly) NSString *appId;
@@ -32,11 +34,17 @@
 @property (nonatomic, readonly) NSString *emailUserId;
 @property (nonatomic, readonly) NSString *emailAuthToken;
 @property (nonatomic, readonly) NSNumber *netType;
-@property (nonatomic, readonly) NSArray *notificationIds;
+@property (nonatomic, readonly) NSArray<OSFocusInfluenceParam *> *influenceParams;
 @property (nonatomic, readonly) NSTimeInterval timeElapsed;
-@property (nonatomic, readonly) BOOL direct;
 @property (nonatomic, readonly) BOOL onSessionEnded;
 
-- (id)initWithParamsAppId:(NSString *)appId userId:(NSString *)userId emailUserId:(NSString *)emailUserId emailAuthToken:(NSString *)emailAuthToken netType:(NSNumber *)netType timeElapsed:(NSTimeInterval)timeElapsed notificationIds:(NSArray *)notificationIds direct:(BOOL)direct onSessionEnded:(BOOL)onSessionEnded;
+- (id)initWithParamsAppId:(NSString *)appId
+                   userId:(NSString *)userId
+              emailUserId:(NSString *)emailUserId
+           emailAuthToken:(NSString *)emailAuthToken
+                  netType:(NSNumber *)netType
+              timeElapsed:(NSTimeInterval)timeElapsed
+          influenceParams:(NSArray<OSFocusInfluenceParam *> *)influenceParams
+           onSessionEnded:(BOOL)onSessionEnded;
 
 @end

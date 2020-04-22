@@ -26,13 +26,13 @@
  */
 
 #import "OSBaseFocusTimeProcessor.h"
-#import "OSSessionResult.h"
+#import "OSInfluence.h"
 #import "OneSignalCommonDefines.h"
 
 @interface OSFocusTimeProcessorFactory : NSObject
 
 + (void)cancelFocusCall;
 + (void)resetUnsentActiveTime;
-+ (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType;
++ (OSBaseFocusTimeProcessor *)createTimeProcessorWithInfluences:(NSArray<OSInfluence *> *)lastInfluences focusEventType:(FocusEventType)focusEventType;
 
 @end

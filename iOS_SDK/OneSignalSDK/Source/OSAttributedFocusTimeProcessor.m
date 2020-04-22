@@ -113,10 +113,10 @@ static let DELAY_TIME = 30;
         
         let requests = [NSMutableDictionary new];
     
-        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:nil deviceType:@(DEVICE_TYPE_PUSH) directSession:params.direct notificationIds:params.notificationIds];
+        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:nil deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
         
         // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
-        //   outcome fields which would double report the session time
+        //   outcome fields which would double report the influence time
         if (params.emailUserId)
             requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:params.emailAuthToken deviceType:@(DEVICE_TYPE_EMAIL)];
 

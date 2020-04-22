@@ -28,12 +28,13 @@
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
-#import "OSOutcomesUtils.h"
+#import "OSInfluenceDataDefines.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
 #import "OSSubscription.h"
 #import "OneSignalInternal.h"
 #import "OneSignalReceiveReceiptsController.h"
+#import "OSSessionManager.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
@@ -56,12 +57,7 @@
     
     // Get and check the received notification id
     let receivedNotificationId = payload.notificationID;
-    if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
-        // Track confirmed delivery
-        [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:receivedNotificationId];
-        // Save received notification id
-        [OSOutcomesUtils saveReceivedNotificationFromBackground:receivedNotificationId];
-    }
+    [self onNotificationReceived:receivedNotificationId];
 
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request
@@ -97,6 +93,16 @@
         return;
     
     [OneSignalHelper addActionButtons:payload toNotificationContent:replacementContent];
+}
+
++ (void)onNotificationReceived:(NSString *)receivedNotificationId {
+    if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
+        // Track confirmed delivery
+        [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:receivedNotificationId];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OneSignal sessionManager]]];
+        // Save received notification id
+        [[OneSignal sessionManager] onNotificationReceived:receivedNotificationId];
+   }
 }
 
 @end

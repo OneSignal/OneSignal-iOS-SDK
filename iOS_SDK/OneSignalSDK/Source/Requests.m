@@ -341,10 +341,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
-                deviceType:(NSNumber * _Nonnull)deviceType
-             directSession:(BOOL)directSession
-            notificationIds:(NSArray *)notificationIds {
-
+                deviceType:(NSNumber *)deviceType
+           influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
     let request = [OSRequestOnFocus new];
 
     let params = [NSMutableDictionary new];
@@ -354,8 +352,11 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     params[@"active_time"] = activeTime;
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
-    params[IS_DIRECT] = @(directSession);
-    params[NOTIFICATION_IDS] = notificationIds;
+    
+    for (OSFocusInfluenceParam *influenceParam in influenceParams) {
+        params[influenceParam.influenceKey] = influenceParam.influenceIds;
+        params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
+    }
 
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
@@ -473,7 +474,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 @end
 
-@implementation OSRequestSendOutcomesToServer
+@implementation OSRequestSendOutcomesV1ToServer
 NSString * const APP_ID = @"app_id";
 NSString * const DEVICE = @"device_type";
 NSString * const OUTCOME_ID = @"id";
@@ -482,7 +483,7 @@ NSString * const WEIGHT = @"weight";
 + (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                      appId:(NSString * _Nonnull)appId
                                 deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestSendOutcomesToServer new];
+    let request = [OSRequestSendOutcomesV1ToServer new];
 
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
@@ -506,7 +507,7 @@ NSString * const WEIGHT = @"weight";
 + (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                        appId:(NSString * _Nonnull)appId
                                   deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestSendOutcomesToServer new];
+    let request = [OSRequestSendOutcomesV1ToServer new];
 
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
@@ -530,7 +531,7 @@ NSString * const WEIGHT = @"weight";
 + (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                            appId:(NSString * _Nonnull)appId
                                       deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestSendOutcomesToServer new];
+    let request = [OSRequestSendOutcomesV1ToServer new];
 
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
@@ -548,4 +549,23 @@ NSString * const WEIGHT = @"weight";
     return request;
 }
 
+@end
+
+@implementation OSRequestSendOutcomesV2ToServer
+NSString * const OUTCOME_SOURCE = @"source";
+
++ (instancetype)measureOutcomeEvent:(OSOutcomeEventParams *)outcome appId:(NSString *)appId deviceType:(NSNumber *)deviceType {
+    let request = [OSRequestSendOutcomesV2ToServer new];
+    
+    let params = [NSMutableDictionary new];
+    params[APP_ID] = appId;
+    params[DEVICE] = deviceType;
+    [params addEntriesFromDictionary:[outcome toDictionaryObject]];
+    
+    request.parameters = params;
+    request.method = POST;
+    request.path = @"outcomes/measure_sources";
+
+    return request;
+}
 @end

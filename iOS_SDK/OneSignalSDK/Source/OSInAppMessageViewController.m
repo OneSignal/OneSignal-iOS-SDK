@@ -30,6 +30,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignalViewHelper.h"
 #import "OSInAppMessageController.h"
+#import "OSSessionManager.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessageBridgeEvent.h"
 
@@ -37,6 +38,12 @@
 #define HIGH_CONSTRAINT_PRIORITY 990.0f
 #define MEDIUM_CONSTRAINT_PRIORITY 950.0f
 #define LOW_CONSTRAINT_PRIORITY 900.0f
+
+@interface OneSignal ()
+
++ (OSSessionManager*)sessionManager;
+
+@end
 
 @interface OSInAppMessageViewController ()
 
@@ -218,6 +225,9 @@
         let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"hmtl"]];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
         
+        if (!self.message.isPreview)
+            [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
+
         let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
         NSString* htmlContent = data[@"html"];
         [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
