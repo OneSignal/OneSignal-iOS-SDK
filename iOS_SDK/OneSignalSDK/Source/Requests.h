@@ -28,7 +28,9 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalRequest.h"
 #import "OneSignalLocation.h"
+#import "OSOutcomeEventParams.h"
 #import "OSInAppMessageAction.h"
+#import "OSFocusInfluenceParam.h"
 
 #ifndef OneSignalRequests_h
 #define OneSignalRequests_h
@@ -111,8 +113,7 @@ NS_ASSUME_NONNULL_END
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
                          deviceType:(NSNumber * _Nonnull)deviceType
-                      directSession:(BOOL)directSession
-                     notificationIds:(NSArray * _Nullable)notificationId;
+                    influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams;
 @end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest
@@ -139,7 +140,7 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withOneSignalUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId;
 @end
 
-@interface OSRequestSendOutcomesToServer : OneSignalRequest
+@interface OSRequestSendOutcomesV1ToServer : OneSignalRequest
 + (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                      appId:(NSString * _Nonnull)appId
                                 deviceType:(NSNumber * _Nonnull)deviceType;
@@ -151,6 +152,13 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
                                            appId:(NSString * _Nonnull)appId
                                       deviceType:(NSNumber * _Nonnull)deviceType;
+@end
+
+@interface OSRequestSendOutcomesV2ToServer : OneSignalRequest
++ (instancetype _Nonnull)measureOutcomeEvent:(OSOutcomeEventParams * _Nonnull)outcome
+                                     appId:(NSString * _Nonnull)appId
+                                deviceType:(NSNumber * _Nonnull)deviceType;
+
 @end
 
 @interface OSRequestReceiveReceipts : OneSignalRequest

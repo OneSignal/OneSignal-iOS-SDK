@@ -30,21 +30,27 @@
 
 @implementation OSFocusCallParams
 
-- (id)initWithParamsAppId:(NSString *)appId userId:(NSString *)userId emailUserId:(NSString *)emailUserId emailAuthToken:(NSString *)emailAuthToken netType:(NSNumber *)netType timeElapsed:(NSTimeInterval)timeElapsed notificationIds:(NSArray *)notificationIds direct:(BOOL)direct onSessionEnded:(BOOL)onSessionEnded {
+- (id)initWithParamsAppId:(NSString *)appId
+                   userId:(NSString *)userId
+              emailUserId:(NSString *)emailUserId
+           emailAuthToken:(NSString *)emailAuthToken
+                  netType:(NSNumber *)netType
+              timeElapsed:(NSTimeInterval)timeElapsed
+          influenceParams:(NSArray *)influenceParams
+           onSessionEnded:(BOOL)onSessionEnded {
     _appId = appId;
     _userId = userId;
     _emailUserId = emailUserId;
     _emailAuthToken = emailAuthToken;
     _netType = netType;
     _timeElapsed = timeElapsed;
-    _notificationIds = notificationIds;
-    _direct = direct;
+    _influenceParams = influenceParams;
     _onSessionEnded = onSessionEnded;
     return self;
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"OSFocusCallParams appId: %@ userId: %@ emailUserId: %@ emailAuthToken: %@ netType: %@ timeElapsed: %f notificationIds: %@ isDirect: %@ onSessionEnded: %@", _appId, _userId, _emailUserId, _emailAuthToken, _netType, _timeElapsed, _notificationIds, _direct ? @"YES" : @"NO", _onSessionEnded ? @"YES" : @"NO"];
+    return [NSString stringWithFormat:@"OSFocusCallParams appId: %@ userId: %@ emailUserId: %@ emailAuthToken: %@ netType: %@ timeElapsed: %f influenceParams: %@ onSessionEnded: %@", _appId, _userId, _emailUserId, _emailAuthToken, _netType, _timeElapsed, _influenceParams.description, _onSessionEnded ? @"YES" : @"NO"];
 }
 @end

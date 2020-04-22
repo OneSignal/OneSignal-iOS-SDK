@@ -41,7 +41,6 @@
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
-#import "OSOutcomesUtils.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalReceiveReceiptsController.h"
 

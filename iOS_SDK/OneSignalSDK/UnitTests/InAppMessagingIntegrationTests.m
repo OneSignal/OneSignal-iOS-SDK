@@ -34,6 +34,8 @@
 #import "OSTrigger.h"
 #import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
+#import "OSTrackerFactory.h"
+#import "OSOutcomeEventsCache.h"
 #import "OSDynamicTriggerController.h"
 #import "NSTimerOverrider.h"
 #import "UnitTestCommonMethods.h"
@@ -55,6 +57,14 @@
 #import "NSDateOverrider.h"
 #import "OSInAppMessageTag.h"
 #import "NSObjectOverrider.h"
+
+@interface OneSignal ()
+
++ (OSInfluenceDataRepository *)influenceDataRepository;
++ (OSOutcomeEventsCache *)outcomeEventsCache;
++ (OSTrackerFactory*)trackerFactory;
+
+@end
 
 @interface InAppMessagingIntegrationTests : XCTestCase
 
@@ -83,11 +93,42 @@
 }
 
 - (void)tearDown {
+    // Wait for IAM viewDidLoad if available to not conflict with other tests
+    [UnitTestCommonMethods runBackgroundThreads];
+    
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
     
     [OSMessagingController.sharedInstance resetState];
     
     NSTimerOverrider.shouldScheduleTimers = true;
+}
+
+- (void)setOutcomesParamsEnabled {
+    [[[OSInfluenceDataRepository alloc] init] saveInfluenceParams:@{
+        @"outcomes": @{
+                @"direct": @{
+                        @"enabled": @YES
+                },
+                @"indirect": @{
+                        @"notification_attribution": @{
+                                @"minutes_since_displayed": @1440,
+                                @"limit": @10
+                        },
+                        @"in_app_message_attribution": @{
+                                @"minutes_since_displayed": @1440,
+                                @"limit": @10
+                        },
+                        @"enabled": @YES
+                },
+                @"unattributed" : @{
+                        @"enabled": @YES
+                }
+        },
+    }];
+}
+
+- (void)setOutcomesV2Enabled {
+    [[[OSOutcomeEventsCache alloc] init] saveOutcomesV2ServiceEnabled:YES];
 }
 
 /**
@@ -689,7 +730,7 @@
 }
 
 - (void)testIAMClickedLaunchesOutcomeAPIRequest {
-    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    [self setOutcomesParamsEnabled];
 
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
 
@@ -715,13 +756,55 @@
     let testMessage = [OSInAppMessage instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
     XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
+    XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"direct"]);
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"]);
 }
 
+- (void)testIAMClickedLaunchesOutcomeAPIV2Request {
+    [self setOutcomesParamsEnabled];
+    [self setOutcomesV2Enabled];
+
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let outcomeName = @"test_outcome";
+    NSDictionary *outcomeJson = @{
+        @"name" : outcomeName
+    };
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    [actionJson setValue:@[outcomeJson] forKey:@"outcomes"];
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
+    id directBody = [source objectForKey:@"direct"];
+    id indirectBody = [source objectForKey:@"indirect"];
+    id iamIds = [directBody objectForKey:@"in_app_message_ids"];
+    XCTAssertEqual(1, [iamIds count]);
+    XCTAssertNil(indirectBody);
+    XCTAssertFalse([source objectForKey:@"weight"]);
+}
+
 - (void)testIAMClickedLaunchesOutcomeWithValueAPIRequest {
-    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    [self setOutcomesParamsEnabled];
+
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -748,13 +831,55 @@
     let testMessage = [OSInAppMessage instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
     XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
     XCTAssertEqual(outcomeWeight, [[OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"] intValue]);
 }
 
+- (void)testIAMClickedLaunchesOutcomeWithValueAPIV2Request {
+    [self setOutcomesParamsEnabled];
+    [self setOutcomesV2Enabled];
+    
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let outcomeName = @"test_outcome";
+    int outcomeWeight = 10;
+    NSDictionary *outcomeWithWeightJson = @{
+        @"name" : outcomeName,
+        @"weight" : @(outcomeWeight)
+    };
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    [actionJson setValue:@[outcomeWithWeightJson] forKey:@"outcomes"];
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
+    id directBody = [source objectForKey:@"direct"];
+    id indirectBody = [source objectForKey:@"indirect"];
+    id iamIds = [directBody objectForKey:@"in_app_message_ids"];
+    XCTAssertEqual(1, [iamIds count]);
+    XCTAssertNil(indirectBody);
+    XCTAssertEqual(outcomeWeight, [[OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"] intValue]);
+}
+
 - (void)testIAMClickedLaunchesMultipleOutcomesAPIRequest {
-    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    [self setOutcomesParamsEnabled];
+
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -784,7 +909,7 @@
     let testMessage = [OSInAppMessage instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
     XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
     XCTAssertEqual(outcomeWeight, [[OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"] intValue]);
     
@@ -798,7 +923,8 @@
 }
 
 - (void)testIAMClickedNoLaunchesOutcomesAPIRequestWhenDisabled {
-    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    [self setOutcomesParamsEnabled];
+
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -823,11 +949,12 @@
     let testMessage = [OSInAppMessage instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // With unattributed outcomes disable no outcome request should happen
-    XCTAssertNotEqual(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertNotEqual(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
 }
 
 - (void)testIAMClickedLaunchesUniqueOutcomeAPIRequest {
-    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    [self setOutcomesParamsEnabled];
+
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
@@ -850,8 +977,50 @@
     let testMessage = [OSInAppMessage instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
     XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
+    XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"]);
+
+    [OneSignalClientOverrider reset:self];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action shouldn't cause an "outcome" API request
+    XCTAssertFalse(OneSignalClientOverrider.lastHTTPRequestType);
+}
+
+- (void)testIAMClickedLaunchesUniqueOutcomeAPIV2Request {
+    [self setOutcomesParamsEnabled];
+    [self setOutcomesV2Enabled];
+    
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    let outcomeName = @"test_outcome";
+    NSDictionary *outcomeJson = @{
+        @"name" : outcomeName,
+        @"unique" : @(YES)
+    };
+    NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
+    [actionJson setValue:@[outcomeJson] forKey:@"outcomes"];
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction instanceWithJson: actionJson];
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
+    id directBody = [source objectForKey:@"direct"];
+    id indirectBody = [source objectForKey:@"indirect"];
+    id iamIds = [directBody objectForKey:@"in_app_message_ids"];
+    XCTAssertEqual(1, [iamIds count]);
+    XCTAssertNil(indirectBody);
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"]);
 
     [OneSignalClientOverrider reset:self];
@@ -952,7 +1121,7 @@
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
     let testMessage = [OSInAppMessage instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
-     // Make sure all 3 sets of tags where send in 1 network call.
+    // Make sure all 3 sets of tags where send in 1 network call.
     [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
@@ -1046,6 +1215,35 @@
     // Make sure no IAM is showing, but the queue has any IAMs
     XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
+}
+
+- (void)testInAppMessageIdTracked {
+    [OneSignal pauseInAppMessages:false];
+    
+    let limit = 1;
+    let delay = 60;
+    let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
+
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
+    
+    [self initOneSignalWithInAppMessage:message];
+    
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
+    
+    // Check no influence id saved
+    NSArray *lastReceivedIds = [[[[OSTrackerFactory alloc] init] iamChannelTracker] lastReceivedIds];
+    XCTAssertEqual(lastReceivedIds.count, 0);
+
+    [OneSignal addTrigger:@"testProp" withValue:@2];
+
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertTrue(OSMessagingControllerOverrider.isInAppMessageShowing);
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
+    
+    // Check influence id saved
+    lastReceivedIds = [[[OneSignal trackerFactory] iamChannelTracker] lastReceivedIds];
+    XCTAssertEqual(lastReceivedIds.count, 1);
 }
 
 /**

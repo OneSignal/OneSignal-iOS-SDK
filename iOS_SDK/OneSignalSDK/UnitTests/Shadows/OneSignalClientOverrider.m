@@ -35,7 +35,7 @@
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessagingHelpers.h"
-#import "OSOutcomeEventsDefines.h"
+#import "OSInfluenceDataDefines.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

@@ -40,7 +40,7 @@
 #import "OSEmailSubscription.h"
 
 #import "OneSignalCommonDefines.h"
-#import "OneSignalSessionManager.h"
+#import "OSSessionManager.h"
 #import "OneSignalOutcomeEventsController.h"
 #import "OneSignalReceiveReceiptsController.h"
 
@@ -80,7 +80,7 @@
 @property (class) OneSignalReceiveReceiptsController* receiveReceiptsController;
 
 @property (class) AppEntryAction appEntryState;
-@property (class) OneSignalSessionManager* sessionManager;
+@property (class) OSSessionManager* sessionManager;
 @property (class) OneSignalOutcomeEventsController* outcomeEventsController;
 
 @end

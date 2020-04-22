@@ -25,21 +25,30 @@
  THE SOFTWARE.
  */
 
-#ifndef OSOutcomeEventsDefines_h
-#define OSOutcomeEventsDefines_h
+#import "OSInfluence.h"
+#import "OSTrackerFactory.h"
 
-// Outcome param keys
-static NSString* const OUTCOMES_PARAM = @"outcomes";
-static NSString* const DIRECT_PARAM = @"direct";
-static NSString* const INDIRECT_PARAM = @"indirect";
-static NSString* const UNATTRIBUTED_PARAM = @"unattributed";
-static NSString* const ENABLED_PARAM = @"enabled";
-static NSString* const NOTIFICATION_ATTRIBUTION_PARAM = @"notification_attribution";
-static NSString* const MINUTES_SINCE_DISPLAYED_PARAM = @"minutes_since_displayed";
-static NSString* const LIMIT_PARAM = @"limit";
+@protocol SessionStatusDelegate <NSObject>
 
-// Outcome default param values
-static int DEFAULT_INDIRECT_NOTIFICATION_LIMIT = 10;
-static int DEFAULT_INDIRECT_ATTRIBUTION_WINDOW = 24 * 60;
++ (void)onSessionEnding:(NSArray<OSInfluence *> * _Nonnull)lastInfluences;
 
-#endif /* OSOutcomeEventsDefines_h */
+@end
+
+@interface OSSessionManager : NSObject
+
+@property (nonatomic) id<SessionStatusDelegate> _Nonnull delegate;
+
+- (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nonnull)delegate withTrackerFactory:(OSTrackerFactory *_Nonnull)trackerFactory;
+
+- (NSArray<OSInfluence *> *_Nonnull)getInfluences;
+- (NSArray<OSInfluence *> *_Nonnull)getSessionInfluences;
+- (void)initSessionFromCache;
+- (void)restartSessionIfNeeded:(AppEntryAction)entryAction;
+- (void)onInAppMessageReceived:(NSString * _Nonnull)messageId;
+- (void)onDirectInfluenceFromIAMClick:(NSString * _Nonnull)directIAMId;
+- (void)onDirectInfluenceFromIAMClickFinished;
+- (void)onNotificationReceived:(NSString * _Nonnull)notificationId;
+- (void)onDirectInfluenceFromNotificationOpen:(AppEntryAction)entryAction withNotificationId:(NSString * _Nonnull)directNotificationId;
+- (void)attemptSessionUpgrade:(AppEntryAction)entryAction;
+
+@end
