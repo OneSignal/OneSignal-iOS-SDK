@@ -27,10 +27,9 @@
 
 #import <XCTest/XCTest.h>
 #import "OneSignalOutcomeEventsController.h"
-#import "OneSignalSessionManager.h"
+#import "OSSessionManager.h"
 #import "OneSignalUserDefaults.h"
-#import "OSSessionResult.h"
-#import "OSOutcomesUtils.h"
+#import "OSInfluence.h"
 #import "OneSignalHelper.h"
 #import "OneSignalTracker.h"
 #import "OneSignalOverrider.h"
@@ -40,7 +39,7 @@
 #import "NSDateOverrider.h"
 #import "UNUserNotificationCenterOverrider.h"
 #import "RestClientAsserts.h"
-#import "OSOutcomesUtils.h"
+#import "CommonAsserts.h"
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalClientOverrider.h"
 #import "UIApplicationOverrider.h"
@@ -48,7 +47,8 @@
 #import "NSTimerOverrider.h"
 
 @interface OneSignal ()
-+ (OneSignalSessionManager*)sessionManager;
++ (OSSessionManager*)sessionManager;
++ (OSTrackerFactory*)trackerFactory;
 + (OneSignalOutcomeEventsController*)outcomeEventsController;
 @end
 
@@ -59,7 +59,7 @@
     
 }
 
-+ (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult {}
++ (void)onSessionEnding:(OSInfluence * _Nonnull)sessionResult {}
 
 - (void)setUp {
     
@@ -73,15 +73,18 @@
     // 1. Open App
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 2. Make sure the session is UNATTRIBUTED and has 0 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
+    // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
 }
 
 - (void)testUnattributedSession_onFocusUnattributed {
     // 1. Open App
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     // 2. Wait 60 secounds
     [NSDateOverrider advanceSystemTimeBy:60];
     
@@ -167,10 +170,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is INDIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
-    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_1"]);
+    // 5. Make sure NOTIFICATION influence is INDIRECT and has 1 notification
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
     
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -189,13 +202,23 @@
     [RestClientAsserts assertOnFocusAtIndex:4 payload:@{
         @"active_time": @(15),
         @"notification_ids": @[@"test_notification_1"],
-        @"direct": @(false)
+        @"direct": @(NO)
     }];
     
-    // 9. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
-    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_2"]);
+    // 9. Make sure NOTIFICATION influence is DIRECT and has 1 notification
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_2"]];
+        }
+    }
 }
 
 - (void)testSavingNullReceivedNotificationId {
@@ -214,9 +237,12 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is UNATTRIBUTED and has 0 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
+    // 5. Make sure all influences are UNATTRIBUTED and has 0 notifications
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
     
     // 6. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -229,9 +255,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 9. Make sure the session is INDIRECT and has 1 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 9. Make sure NOTIFICATION influence is INDIRECT and has 1 notifications
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
 }
 
 - (void)testIndirectSession_afterReceiveingNotifications {
@@ -251,9 +288,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is INDIRECT and has 3 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 3);
+    // 5. Make sure NOTIFICATION influence is INDIRECT and has 3 notifications
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 3);
+        }
+    }
 }
 
 - (void)testDirectSession_afterReceiveingNotifications {
@@ -276,9 +323,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 6. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 6. Make sure NOTIFICATION influence is DIRECT and has 1 notification
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+        }
+    }
 }
 
 - (void)testUnattributedSession_afterAllNotificationsPastAttributionWindow {
@@ -296,9 +353,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 5. Make sure NOTIFICATION influence is DIRECT and has 1 notification
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+        }
+    }
     
     // 6. Close the app for 24 hours and 1 minute
     [UnitTestCommonMethods backgroundApp];
@@ -308,9 +375,12 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 8. Make sure the session is UNATTRIBUTED and has 0 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
+    // 8. Make sure all influences are UNATTRIBUTED and has 0 notifications
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
 }
 
 - (void)testDirectSession_overridesDirectSession {
@@ -328,10 +398,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is INDIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
-    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_1"]);
+    // 5. Make sure NOTIFICATION influence is INDIRECT and has 1 notification
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
     
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -344,10 +424,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 9. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
-    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_2"]);
+    // 9. Make sure NOTIFICATION influence is DIRECT and has 1 notification
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_2"]];
+        }
+    }
 }
 
 - (void)testDirectSession_overridesIndirectSession {
@@ -365,10 +455,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is INDIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
-    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_1"]);
+    // 5. Make sure NOTIFICTION influence is INDIRECT and has 1 notification
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
     
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -381,19 +481,32 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 9. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
-    XCTAssertEqualObjects(OneSignal.sessionManager.getNotificationIds, @[@"test_notification_2"]);
+    // 9. Make sure NOTIFICTION influence is DIRECT and has 1 notification
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_2"]];
+        }
+    }
 }
 
 - (void)testIndirectSession_overridesUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 2. Make sure the session is UNATTRIBUTED and has 0 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
+    // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
     
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -406,19 +519,33 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 6. Make sure the session is INDIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 6. Make sure NOTIFICTION influence is INDIRECT and has 1 notification
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
 }
 
 - (void)testDirectSession_overridesUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 2. Make sure the session is UNATTRIBUTED and has 0 notifications
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 0);
-    
+    // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
+
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
     [NSDateOverrider advanceSystemTimeBy:15];
@@ -430,9 +557,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 6. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 6. Make sure NOTIFICTION influence is DIRECT and has 1 notification
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
 }
 
 - (void)testIndirectSessionWontOverrideDirectSession {
@@ -450,9 +588,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Make sure the session is DIRECT and has 1 notification
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 5. Make sure NOTIFICTION influence is DIRECT and has 1 notification
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
     
     // 6. Close the app for less than 30 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -467,17 +616,32 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 9. Make sure the session is still DIRECT and has 1 notification since session has not ended
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
-    XCTAssertEqual(OneSignal.sessionManager.getNotificationIds.count, 1);
+    // 9. Make sure NOTIFICATION influence is still DIRECT and has 1 notification since session has not ended
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
 }
 
 - (void)testSendingOutcome_inUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 2. Validate session is UNATTRIBUTED and send 2 outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
+    // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
     [OneSignal sendOutcome:@"normal_1"];
     [OneSignal sendOutcome:@"normal_2"];
     
@@ -507,8 +671,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Validate session is INDIRECT and send 2 outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    // 5. Validate NOTIFICATION influence is INDIRECT and send 2 outcomes
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 2);
+        }
+    }
     [OneSignal sendOutcome:@"normal_1"];
     [OneSignal sendOutcome:@"normal_2"];
     
@@ -541,8 +716,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Validate session is DIRECT and send 2 outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
+    // 5. Validate NOTIFICATION influence is DIRECT and send 2 outcomes
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
     [OneSignal sendOutcome:@"normal_1"];
     [OneSignal sendOutcome:@"normal_2"];
     
@@ -564,8 +751,12 @@
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 2. Validate session is UNATTRIBUTED and send 2 outcomes with values
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
+    // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes with values
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
     [OneSignal sendOutcomeWithValue:@"value_1" value:@3.4];
     [OneSignal sendOutcomeWithValue:@"value_2" value:@9.95];
 
@@ -595,8 +786,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    // 5. Validate session is INDIRECT and send 2 outcomes with values
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    // 5. Validate NOTIFICATION influence INDIRECT and send 2 outcomes with values
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 2);
+        }
+    }
     let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
     let val2 = [NSNumber numberWithDouble:9.95];
@@ -633,8 +835,20 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Validate session is DIRECT and send 2 outcomes with values
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
+    // 5. Validate NOTIFICATION influence is DIRECT and send 2 outcomes with values
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_1"]];
+        }
+    }
     let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
     let val2 = [NSNumber numberWithDouble:9.95];
@@ -660,8 +874,12 @@
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 2. Validate session is UNATTRIBUTED and send 2 of the same unique outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
+    // 2. Validate all influences are UNATTRIBUTED and send 2 of the same unique outcomes
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
@@ -682,8 +900,12 @@
     // 6. Make sure a on_session request is made
     [RestClientAsserts assertOnSessionAtIndex:3];
 
-    // 7. Validate new session is UNATTRIBUTED and send the same 2 unique outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, UNATTRIBUTED);
+    // 7. Validate new influences are UNATTRIBUTED and send the same 2 unique outcomes
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+        XCTAssertEqual(influence.ids, nil);
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
@@ -711,8 +933,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Validate new session is INDIRECT and send 2 of the same unique outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    // 5. Validate new NOTIFICATION influence is INDIRECT and send 2 of the same unique outcomes
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 3);
+        }
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
     
@@ -739,8 +972,19 @@
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods foregroundApp];
 
-    // 10. Validate new session is INDIRECT and send the same 2 unique outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    // 10. Validate new NOTIFICATION influence is INDIRECT and send the same 2 unique outcomes
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 3);
+        }
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
@@ -770,14 +1014,26 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Validate new session is ATTRIBUTED (DIRECT or INDIRECT) and send 2 of the same unique outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
+    // 5. Validate new influences are ATTRIBUTED (DIRECT or INDIRECT) and send 2 of the same unique outcomes
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_2"]];
+        }
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
     
     // 6. Make sure only 1 measure request has been made
     [RestClientAsserts assertMeasureAtIndex:4 payload:@{
-        @"direct" : @(true),
+        @"direct" : @(YES),
         @"notification_ids" : @[@"test_notification_2"],
         @"id" : @"unique"
     }];
@@ -798,13 +1054,25 @@
     [UnitTestCommonMethods foregroundApp];
 
     // 10. Validate new session is DIRECT and send the same 2 unique outcomes
-    XCTAssertEqual(OneSignal.sessionManager.getSession, DIRECT);
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, DIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[@"test_notification_2"]];
+        }
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 11. Make sure 2 measure requests have been made in total
-    [RestClientAsserts assertMeasureAtIndex:8 payload:@{
-        @"direct" : @(true),
+    [RestClientAsserts assertMeasureAtIndex:7 payload:@{
+        @"direct" : @(YES),
         @"notification_ids" : @[@"test_notification_2"],
         @"id" : @"unique"
     }];
@@ -827,8 +1095,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 5. Validate new session is ATTRIBUTED (DIRECT or INDIRECT) and send 1 unique outcome
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    // 5. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send 1 unique outcome
+    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 2);
+        }
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
     
     // 6. Make sure only 1 measure request has been made
@@ -852,8 +1131,19 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods initOneSignalAndThreadWait];
 
-    // 10. Validate new session is ATTRIBUTED (DIRECT or INDIRECT) and send the same unique outcome
-    XCTAssertEqual(OneSignal.sessionManager.getSession, INDIRECT);
+    // 10. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send the same unique outcome
+    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 5);
+        }
+    }
     [OneSignal sendUniqueOutcome:@"unique"];
 
     // 11. Make sure 2 measure requests have been made in total and does not include already sent notification ids for the unique outcome

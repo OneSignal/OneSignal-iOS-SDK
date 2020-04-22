@@ -27,14 +27,17 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignal.h"
+#import "OSOutcomeEventParams.h"
 #import "OSJSONHandling.h"
 
 @interface OSOutcomeEvent () <OSJSONDecodable>
 
-- (id _Nonnull)initWithSession:(Session)session
+- (id _Nonnull)initWithSession:(OSInfluenceType)session
                notificationIds:(NSArray * _Nullable)notificationIds
                           name:(NSString * _Nonnull)name
                      timestamp:(NSNumber * _Nonnull)timestamp
                         weight:(NSNumber * _Nonnull)value;
+
+- (id _Nonnull)initFromOutcomeEventParams:(OSOutcomeEventParams * _Nonnull)eventParams;
 
 @end

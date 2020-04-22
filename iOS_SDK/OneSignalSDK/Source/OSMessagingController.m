@@ -37,9 +37,7 @@
 
 @interface OneSignal ()
 
-+ (void)sendClickActionOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
-+ (void)sendClickActionUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)sendClickActionOutcome:(NSString * _Nonnull)name;
++ (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes;
 
 @end
 
@@ -268,7 +266,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)showAndImpressMessage:(OSInAppMessage *)message {
-    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
+    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
 
     dispatch_async(dispatch_get_main_queue(), ^{
            [[self.viewController view] setNeedsLayout];
@@ -553,7 +551,7 @@ static BOOL _isInAppMessagingPaused = false;
     // Make sure no click, outcome, tag tracking is performed for IAM previews
     [self sendClickRESTCall:message withAction:action];
     [self sendTagCallWithAction:action];
-    [self sendOutcomes:action.outcomes];
+    [self sendOutcomes:action.outcomes forMessageId:message.messageId];
 }
 
 /*
@@ -623,16 +621,9 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes {
-    for (OSInAppMessageOutcome *outcome in outcomes) {
-        if (outcome.unique) {
-            [OneSignal sendClickActionUniqueOutcome:outcome.name];
-        } else if (outcome.weight > 0) {
-            [OneSignal sendClickActionOutcomeWithValue:outcome.name value:outcome.weight];
-        } else {
-            [OneSignal sendClickActionOutcome:outcome.name];
-        }
-    }
+- (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes forMessageId:(NSString *) messageId {
+    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:messageId];
+    [OneSignal sendClickActionOutcomes:outcomes];
 }
 
 /*

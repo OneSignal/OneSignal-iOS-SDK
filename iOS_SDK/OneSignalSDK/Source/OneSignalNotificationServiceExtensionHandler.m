@@ -28,7 +28,7 @@
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
-#import "OSOutcomesUtils.h"
+#import "OSInfluenceDataDefines.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSNotificationPayload+Internal.h"
 #import "OSSubscription.h"
@@ -60,7 +60,7 @@
         // Track confirmed delivery
         [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:receivedNotificationId];
         // Save received notification id
-        [OSOutcomesUtils saveReceivedNotificationFromBackground:receivedNotificationId];
+        [[OneSignal sessionManager] onNotificationReceived:receivedNotificationId];
     }
 
     // Action Buttons

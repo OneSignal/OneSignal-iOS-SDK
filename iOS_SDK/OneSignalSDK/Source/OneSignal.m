@@ -42,7 +42,8 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotificationPayload+Internal.h"
-#import "OSOutcomesUtils.h"
+#import "OSOutcomeEventsFactory.h"
+#import "OSOutcomeEventsCache.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCacheCleaner.h"
@@ -73,6 +74,8 @@
 #import "DelayedInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
+#import "OSInfluenceDataRepository.h"
+#import "OSTrackerFactory.h"
 #import "OSMessagingController.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessage.h"
@@ -363,13 +366,33 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _appEntryState = appEntryState;
 }
 
-static OneSignalSessionManager* _sessionManager;
-+ (OneSignalSessionManager*)sessionManager {
+static OSTrackerFactory *_trackerFactory;
++ (OSTrackerFactory*)trackerFactory {
+    return _trackerFactory;
+}
+
+static OSSessionManager *_sessionManager;
++ (OSSessionManager*)sessionManager {
     return _sessionManager;
 }
 
-static OneSignalOutcomeEventsController* _outcomeEventsController;
-+ (OneSignalOutcomeEventsController*)getOutcomeEventsController {
+static OSInfluenceDataRepository *_influenceDataRepository;
++ (OSInfluenceDataRepository *)influenceDataRepository {
+    return _influenceDataRepository;
+}
+
+static OSOutcomeEventsCache *_outcomeEventsCache;
++ (OSOutcomeEventsCache *)outcomeEventsCache {
+    return _outcomeEventsCache;
+}
+
+static OSOutcomeEventsFactory *_outcomeEventFactory;
++ (OSOutcomeEventsFactory *)outcomeEventFactory {
+    return _outcomeEventFactory;
+}
+
+static OneSignalOutcomeEventsController *_outcomeEventsController;
++ (OneSignalOutcomeEventsController *)getOutcomeEventsController {
     return _outcomeEventsController;
 }
 
@@ -452,6 +475,12 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
+    
+    _trackerFactory = nil;
+    _sessionManager = nil;
+    _outcomeEventsCache = nil;
+    _outcomeEventFactory = nil;
+    _outcomeEventsController = nil;
 }
 
 // Set to false as soon as it's read.
@@ -537,6 +566,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     if (!success)
         return self;
     
+    _influenceDataRepository = [[OSInfluenceDataRepository alloc] init];
+    _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:_influenceDataRepository];
+    _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
@@ -552,8 +584,9 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     initializationTime = [NSDate date];
     
     // Outcomes init
-    _sessionManager = [[OneSignalSessionManager alloc] init:self];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
+    _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:_trackerFactory];
+    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:_outcomeEventsCache];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:_sessionManager outcomeEventsFactory:_outcomeEventFactory];
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false withCompletionHandler:nil];
@@ -805,7 +838,10 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
             [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
 
-        [OSOutcomesUtils saveOutcomeParamsForApp:result];
+        if (result[IOS_OUTCOMES_V2_SERVICE_ENABLE])
+            [_outcomeEventsCache saveOutcomesV2ServiceEnabled:result[IOS_OUTCOMES_V2_SERVICE_ENABLE]];
+        
+        [_trackerFactory saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
@@ -1570,7 +1606,8 @@ static dispatch_queue_t serialQueue;
     if (![self shouldRegisterNow])
         return;
     
-    [self.sessionManager restartSessionIfNeeded];
+    [_outcomeEventsController clearOutcomes];
+    [_sessionManager restartSessionIfNeeded:_appEntryState];
 
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
@@ -2011,7 +2048,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground) {
         OneSignal.appEntryState = NOTIFICATION_CLICK;
-        [OneSignal.sessionManager onDirectSessionFromNotificationOpen:messageId];
+        [_sessionManager onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
     }
 
     // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
@@ -2646,6 +2683,16 @@ static NSString *_lastnonActiveMessageId;
 /*
  Start of outcome module
  */
+
++ (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
+    if (!_outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        return;
+    }
+
+    [_outcomeEventsController sendClickActionOutcomes:outcomes appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+}
+
 + (void)sendOutcome:(NSString * _Nonnull)name {
     [self sendOutcome:name onSuccess:nil];
 }
@@ -2686,19 +2733,6 @@ static NSString *_lastnonActiveMessageId;
     [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
-+ (void)sendClickActionUniqueOutcome:(NSString * _Nonnull)name {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendUniqueOutcome:onSuccess:"])
-        return;
-
-    if (!_outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
-        return;
-    }
-    
-    [_outcomeEventsController sendUniqueClickOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
-}
-
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
     [self sendOutcomeWithValue:name value:value onSuccess:nil];
 }
@@ -2722,23 +2756,6 @@ static NSString *_lastnonActiveMessageId;
     [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
-+ (void)sendClickActionOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendClickOutcomeWithValue:value:"])
-        return;
-
-    if (!_outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
-        return;
-    }
-    
-    [_outcomeEventsController sendClickOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
-}
-
-+ (void)sendClickActionOutcome:(NSString * _Nonnull)name {
-    [self sendClickActionOutcomeWithValue:name value:@0];
-}
-
 + (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
     if (!name || [name length] == 0) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
@@ -2760,11 +2777,11 @@ static NSString *_lastnonActiveMessageId;
 
 @implementation OneSignal (SessionStatusDelegate)
 
-+ (void)onSessionEnding:(OSSessionResult *)sessionResult {
++ (void)onSessionEnding:(NSArray<OSInfluence *> *)lastInfluences {
     if (_outcomeEventsController)
         [_outcomeEventsController clearOutcomes];
-    if (sessionResult)
-        [OneSignalTracker onSessionEnded:sessionResult];
+    
+    [OneSignalTracker onSessionEnded:lastInfluences];
 }
 
 @end

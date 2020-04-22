@@ -31,14 +31,14 @@
 
 @implementation OSOutcomeEvent
 
-- (id _Nonnull)initWithSession:(Session)session
+- (id _Nonnull)initWithSession:(OSInfluenceType)influenceType
                notificationIds:(NSArray * _Nullable)notificationIds
                           name:(NSString * _Nonnull)name
                      timestamp:(NSNumber * _Nonnull)timestamp
                         weight:(NSNumber * _Nonnull)value {
     
     if (self = [super init]) {
-        _session = session;
+        _influenceType = influenceType;
         _notificationIds = notificationIds;
         _name = name;
         _timestamp = timestamp;
@@ -47,10 +47,35 @@
     return self;
 }
 
+- (id)initFromOutcomeEventParams:(OSOutcomeEventParams *)outcomeEventParams {
+    if (self = [super init]) {
+        OSOutcomeSource *source = outcomeEventParams.outcomeSource;
+        OSInfluenceType influenceType = UNATTRIBUTED;
+        NSArray *notificationId = nil;
+        
+        if (source) {
+            if (source.directBody && source.directBody.notificationIds && source.directBody.notificationIds.count > 0) {
+                influenceType = DIRECT;
+                notificationId = source.directBody.notificationIds;
+            } else if (source.indirectBody && source.indirectBody.notificationIds && source.indirectBody.notificationIds.count > 0) {
+                influenceType = INDIRECT;
+                notificationId = source.indirectBody.notificationIds;
+            }
+        }
+        
+        _influenceType = influenceType;
+        _notificationIds = notificationId;
+        _name = outcomeEventParams.outcomeId;
+        _timestamp = outcomeEventParams.timestamp;
+        _weight = outcomeEventParams.weight;
+    }
+    return self;
+}
+
 - (NSDictionary * _Nonnull)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
-    json[@"session"] = OS_SESSION_TO_STRING(self.session);
+    json[@"session"] = OS_INFLUENCE_TO_STRING(self.influenceType);
     json[@"id"] = self.name;
     json[@"timestamp"] = @(self.timestamp.intValue);
     json[@"weight"] = self.weight.stringValue;

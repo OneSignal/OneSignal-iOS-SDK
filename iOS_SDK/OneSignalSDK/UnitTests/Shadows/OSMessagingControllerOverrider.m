@@ -86,6 +86,10 @@
 }
 
 - (void)overrideShowAndImpressMessage:(OSInAppMessage *)message {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
+        [viewController viewDidLoad];
+    });
     [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
 }
 

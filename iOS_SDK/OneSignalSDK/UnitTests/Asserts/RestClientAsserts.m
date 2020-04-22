@@ -96,7 +96,7 @@
 + (void)assertNumberOfMeasureRequests:(int)expectedCount {
     int actualCount = 0;
     for (id request in OneSignalClientOverrider.executedRequests) {
-        if ([request isKindOfClass:OSRequestSendOutcomesToServer.self])
+        if ([request isKindOfClass:OSRequestSendOutcomesV1ToServer.self])
             actualCount++;
     }
     
@@ -117,7 +117,7 @@
     let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
     _XCTPrimitiveAssertTrue(
         UnitTestCommonMethods.currentXCTestCase,
-        [request isKindOfClass:OSRequestSendOutcomesToServer.self],
+        [request isKindOfClass:OSRequestSendOutcomesV1ToServer.self],
         @"isKindOfClass:OSRequestSendOutcomesToServer"
     );
     

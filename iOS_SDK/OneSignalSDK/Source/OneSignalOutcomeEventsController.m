@@ -29,63 +29,71 @@
 #import "OneSignalOutcomeEventsController.h"
 #import "Requests.h"
 #import "OSOutcomeEvent.h"
-#import "OSUniqueOutcomeNotification.h"
+#import "OSCachedUniqueOutcome.h"
 #import "OneSignalClient.h"
-#import "OneSignalSessionManager.h"
-#import "OSOutcomesUtils.h"
+#import "OSSessionManager.h"
+#import "OSOutcomeEventsRepository.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
-#import "OSOutcomeEventsDefines.h"
+#import "OSInfluenceDataDefines.h"
+
+@interface OneSignalOutcomeEventsController ()
+
+@property (strong, nonatomic, readonly, nonnull) OSSessionManager *sessionManager;
+@property (strong, nonatomic, readonly, nonnull) OSOutcomeEventsFactory *outcomeEventsFactory;
+
+@end
 
 @implementation OneSignalOutcomeEventsController
 
 // Keeps track of unique outcome events sent for UNATTRIBUTED sessions on a per session level
 NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
 
-// Keeps track of unique outcome events sent for ATTRIBUTED sessions on a per notification level
-NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotificationIdsSentArray;
-
-- (instancetype _Nonnull)init:(OneSignalSessionManager * _Nonnull)sessionManager {
+- (instancetype _Nonnull)initWithSessionManager:(OSSessionManager * _Nonnull)sessionManager
+                           outcomeEventsFactory:(OSOutcomeEventsFactory *)outcomeEventsFactory {
     if (self = [super init]) {
-        self.osSessionManager = sessionManager;
+        _sessionManager = sessionManager;
+        _outcomeEventsFactory = outcomeEventsFactory;
         [self initUniqueOutcomeEventsFromCache];
     }
     return self;
 }
 
 - (void)initUniqueOutcomeEventsFromCache {
-    NSSet *tempUnattributedUniqueOutcomeEventsSentSet = [self getUnattributedUniqueOutcomeEventNames];
+    NSSet *tempUnattributedUniqueOutcomeEventsSentSet = [_outcomeEventsFactory.repository getUnattributedUniqueOutcomeEventsSent];
     if (tempUnattributedUniqueOutcomeEventsSentSet)
         unattributedUniqueOutcomeEventsSentSet = [NSMutableSet setWithSet:tempUnattributedUniqueOutcomeEventsSentSet];
-
-    NSArray *tempAttributedUniqueOutcomeEventNotificationIdsSentArray = [self getAttributedUniqueOutcomeEventNotificationIds];
-    if (tempAttributedUniqueOutcomeEventNotificationIdsSentArray)
-        attributedUniqueOutcomeEventNotificationIdsSentArray = [NSMutableArray arrayWithArray:tempAttributedUniqueOutcomeEventNotificationIdsSentArray];
 }
 
 - (void)clearOutcomes {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Unique Outcome clear for current session"];
     unattributedUniqueOutcomeEventsSentSet = [NSMutableSet set];
-    [self saveUnattributedUniqueOutcomeEventNames];
+    [self saveUnattributedUniqueOutcomeEvents];
 }
 
-// Save the current set of UNATTRIBUTED unique outcome names to NSUserDefaults
-- (NSSet *)getUnattributedUniqueOutcomeEventNames {
-    return [OneSignalUserDefaults.initShared getSavedSetForKey:OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT defaultValue:nil];
+- (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType {
+    for (OSInAppMessageOutcome *outcome in outcomes) {
+        NSString *name = outcome.name;
+
+        if (outcome.unique)
+            [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
+        else if (outcome.weight > 0)
+            [self sendOutcomeEventWithValue:name value:outcome.weight appId:appId deviceType:deviceType successBlock:nil];
+        else
+            [self sendOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
+    }
+    // Requests are sent or cached at this point
+    [_sessionManager onDirectInfluenceFromIAMClickFinished];
 }
 
-// Save the current set of UNATTRIBUTED unique outcome names to NSUserDefaults
-- (void)saveUnattributedUniqueOutcomeEventNames {
-    [OneSignalUserDefaults.initShared saveSetForKey:OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT withValue:unattributedUniqueOutcomeEventsSentSet];
-}
-
-// Save the current set of ATTRIBUTED unique outcome names and notificationIds to NSUserDefaults
-- (NSArray *)getAttributedUniqueOutcomeEventNotificationIds {
-    return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT defaultValue:nil];
-}
-
-// Save the current set of ATTRIBUTED unique outcome names and notificationIds to NSUserDefaults
-- (void)saveAttributedUniqueOutcomeEventNotificationIds {
-    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT withValue:attributedUniqueOutcomeEventNotificationIdsSentArray];
+- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+                   appId:(NSString * _Nonnull)appId
+              deviceType:(NSNumber * _Nonnull)deviceType
+            successBlock:(OSSendOutcomeSuccess _Nullable)success {
+    NSArray <OSInfluence *>* influences = [_sessionManager getInfluences];
+    [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType influences:influences successBlock:success];
 }
 
 /*
@@ -95,32 +103,20 @@ NSMutableArray<OSUniqueOutcomeNotification *> *attributedUniqueOutcomeEventNotif
                    appId:(NSString * _Nonnull)appId
               deviceType:(NSNumber * _Nonnull)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success {
-
-    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-    OSSessionResult *sessionResult = [self.osSessionManager getSessionResult];
-
-    OSOutcomeEvent *outcome = [[OSOutcomeEvent new] initWithSession:sessionResult.session
-                                                    notificationIds:sessionResult.notificationIds
-                                                               name:name
-                                                          timestamp:[NSNumber numberWithDouble:timestamp]
-                                                             weight:@0];
-
-    [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:success];
+    NSArray <OSInfluence *>* influences = [_sessionManager getInfluences];
+    [self sendAndCreateOutcomeEvent:name weight:@0 appId:appId deviceType:deviceType influences:influences successBlock:success];
 }
 
-- (void)sendUniqueClickOutcomeEvent:(NSString * _Nonnull)name
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType {
-    OSSessionResult *sessionResult = [self.osSessionManager getIAMSessionResult];
-    [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil sessionResult:sessionResult];
-}
-
-- (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
+/*
+ Create an OSOutcomeEvent with a value and send an outcome request using measure 'endpoint'
+ */
+- (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
+                   value:(NSNumber * _Nullable)weight
                    appId:(NSString * _Nonnull)appId
               deviceType:(NSNumber * _Nonnull)deviceType
             successBlock:(OSSendOutcomeSuccess _Nullable)success {
-    OSSessionResult *sessionResult = [self.osSessionManager getSessionResult];
-    [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType successBlock:success sessionResult:sessionResult];
+    NSArray <OSInfluence *>* influences = [_sessionManager getInfluences];
+    [self sendAndCreateOutcomeEvent:name weight:weight appId:appId deviceType:deviceType influences:influences successBlock:success];
 }
 
 /*
@@ -134,42 +130,48 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
                     Cache is cleaned on every new session in onSessionEnding callback
 */
 - (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
-            successBlock:(OSSendOutcomeSuccess _Nullable)success
-           sessionResult:(OSSessionResult *)sessionResult{
-
-    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+                         appId:(NSString * _Nonnull)appId
+                    deviceType:(NSNumber * _Nonnull)deviceType
+                    influences:(NSArray<OSInfluence *> *)sessionInfluences
+                  successBlock:(OSSendOutcomeSuccess _Nullable)success {
+    NSArray<OSInfluence *> *influences = [self removeDisabledInfluences:sessionInfluences];
+    if (influences.count == 0) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Unique Outcome disabled for current session"];
+        return;
+    }
+    
+    BOOL attributed = NO;
+    for (OSInfluence *influence in influences) {
+        if (influence.influenceType == DIRECT || influence.influenceType == INDIRECT) {
+            // At least one channel attributed this outcome
+            attributed = YES;
+            break;
+        }
+    }
     
     // Handle unique outcome event for ATTRIBUTED and UNATTRIBUTED
-    if ([OSOutcomesUtils isAttributedSession:sessionResult.session]) {
+    if (attributed) {
         // For the ATTRIBUTED unique outcome send only the notificationIds not sent yet
-        NSArray *notificationIds = [self getUniqueNotificationIdsNotSentWithOutcome:name timestamp:[NSNumber numberWithDouble:timestamp]];
-        if (!notificationIds || [notificationIds count] == 0) {
+        NSArray *uniqueInfluences = [_outcomeEventsFactory.repository getNotCachedUniqueInfluencesForOutcome:name influences:influences];
+        if (!uniqueInfluences || [uniqueInfluences count] == 0) {
             // Return null within the callback to determine not a failure, but not a success in terms of the request made
-            NSString* message = @"Unique outcome already sent for: session: %@, name: %@, notificationIds: %@";
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:message, OS_SESSION_TO_STRING(sessionResult.session), name, sessionResult.notificationIds]];
+            NSString* message = @"Measure endpoint will not send because unique outcome already sent for: SessionInfluences: %@, Outcome name: %@";
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:message, [influences description], name]];
 
             if (success)
                 success(nil);
 
             return;
         }
-
-        OSOutcomeEvent *outcome = [[OSOutcomeEvent new] initWithSession:sessionResult.session
-                                                        notificationIds:notificationIds
-                                                                   name:name
-                                                              timestamp:[NSNumber numberWithDouble:timestamp]
-                                                                 weight:@0];
-        [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:success];
-       
-    } else if (sessionResult.session == UNATTRIBUTED) {
+        
+        [self sendAndCreateOutcomeEvent:name weight:@0 appId:appId deviceType:deviceType influences:influences successBlock:success];
+    } else {
 
         // If the UNATTRIBUTED unique outcome has been sent for this session, do not send it again
         if ([unattributedUniqueOutcomeEventsSentSet containsObject:name]) {
             // Return null within the callback to determine not a failure, but not a success in terms of the request made
             NSString* message = @"Unique outcome already sent for: session: %@, name: %@";
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:message, OS_SESSION_TO_STRING(sessionResult.session), name]];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:message, OS_INFLUENCE_TO_STRING(UNATTRIBUTED), name]];
             
             if (success)
                 success(nil);
@@ -178,96 +180,70 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
         }
         
         [unattributedUniqueOutcomeEventsSentSet addObject:name];
-
-        OSOutcomeEvent *outcome = [[OSOutcomeEvent new] initWithSession:sessionResult.session
-                                                        notificationIds:@[]
-                                                                   name:name
-                                                              timestamp:[NSNumber numberWithDouble:timestamp]
-                                                                 weight:@0];
-        [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:success];
+        [self sendAndCreateOutcomeEvent:name weight:@0 appId:appId deviceType:deviceType influences:influences successBlock:success];
     }
 }
 
-/*
- Create an OSOutcomeEvent with a value and send an outcome request using measure 'endpoint'
- */
-- (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
-                   value:(NSNumber * _Nullable)weight
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType
-            successBlock:(OSSendOutcomeSuccess _Nullable)success {
-    
-    OSSessionResult *sessionResult = [self.osSessionManager getSessionResult];
+- (OSOutcomeSourceBody *)setSourceChannelIdsWithInfluence:(OSInfluence *)influence sourceBody:(OSOutcomeSourceBody *) sourceBody {
+    switch (influence.influenceChannel) {
+        case IN_APP_MESSAGE:
+            sourceBody.inAppMessagesIds = influence.ids;
+            break;
+        case NOTIFICATION:
+            sourceBody.notificationIds = influence.ids;
+            break;
+    }
 
-    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-    OSOutcomeEvent *outcome = [[OSOutcomeEvent new] initWithSession:sessionResult.session
-                                                    notificationIds:sessionResult.notificationIds
-                                                               name:name
-                                                          timestamp:[NSNumber numberWithDouble:timestamp]
-                                                             weight:weight];
-
-    [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:success];
-}
-
-- (void)sendClickOutcomeEventWithValue:(NSString * _Nonnull)name
-                   value:(NSNumber * _Nullable)weight
-                   appId:(NSString * _Nonnull)appId
-              deviceType:(NSNumber * _Nonnull)deviceType {
-    
-    OSSessionResult *sessionResult = [self.osSessionManager getIAMSessionResult];
-
-    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
-    OSOutcomeEvent *outcome = [[OSOutcomeEvent new] initWithSession:sessionResult.session
-                                                    notificationIds:sessionResult.notificationIds
-                                                               name:name
-                                                          timestamp:[NSNumber numberWithDouble:timestamp]
-                                                             weight:weight];
-
-    [self sendOutcomeEventRequest:appId deviceType:deviceType outcome:outcome successBlock:nil];
+    return sourceBody;
 }
 
 /*
  Send an outcome request based on the current session of the app
  Handle the success and failure of the request
  */
-- (void)sendOutcomeEventRequest:(NSString *)appId
-                     deviceType:(NSNumber * _Nonnull)deviceType
-                        outcome:(OSOutcomeEvent * _Nonnull)outcome
-                   successBlock:(OSSendOutcomeSuccess _Nullable)success {
-
-    OneSignalRequest *request;
-    switch (outcome.session) {
-        case DIRECT:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending direct outcome"];
-            request = [OSRequestSendOutcomesToServer directWithOutcome:outcome
-                                                       appId:appId
-                                                  deviceType:deviceType];
-            break;
-        case INDIRECT:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending indirect outcome"];
-            request = [OSRequestSendOutcomesToServer indirectWithOutcome:outcome
-                                                         appId:appId
-                                                    deviceType:deviceType];
-            break;
-        case UNATTRIBUTED:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending unattributed outcome"];
-            request = [OSRequestSendOutcomesToServer unattributedWithOutcome:outcome
-                                                             appId:appId
-                                                        deviceType:deviceType];
-            break;
-        case DISABLED:
-        default:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Outcomes for current session are disabled"];
-            return;
+- (void)sendAndCreateOutcomeEvent:(NSString * _Nonnull)name
+                           weight:(NSNumber * _Nonnull)weight
+                            appId:(NSString * _Nonnull)appId
+                       deviceType:(NSNumber * _Nonnull)deviceType
+                       influences:(NSArray<OSInfluence *> *)influences
+                     successBlock:(OSSendOutcomeSuccess _Nullable)success {
+    NSTimeInterval timestamp = [[NSDate date] timeIntervalSince1970];
+    OSOutcomeSourceBody *directSourceBody = nil;
+    OSOutcomeSourceBody *indirectSourceBody = nil;
+    BOOL unattributed = NO;
+    
+    for (OSInfluence *influence in influences) {
+        switch (influence.influenceType) {
+            case DIRECT:
+                directSourceBody = [self setSourceChannelIdsWithInfluence:influence sourceBody:directSourceBody == nil ? [[OSOutcomeSourceBody alloc] init] : directSourceBody];
+                break;
+            case INDIRECT:
+                indirectSourceBody = [self setSourceChannelIdsWithInfluence:influence sourceBody:indirectSourceBody == nil ? [[OSOutcomeSourceBody alloc] init] : indirectSourceBody];
+                break;
+            case UNATTRIBUTED:
+                unattributed = true;
+                break;
+            case DISABLED:
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRINGS(influence.influenceChannel)]];
+                return; // finish method
+        }
     }
 
-    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+    if (directSourceBody == nil && indirectSourceBody == nil && !unattributed) {
+        // Disabled for all channels
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Outcomes disabled for all channels"];
+        return;
+    }
+
+    OSOutcomeSource *source = [[OSOutcomeSource alloc] initWithDirectBody:directSourceBody indirectBody:indirectSourceBody];
+    OSOutcomeEventParams *eventParams = [[OSOutcomeEventParams alloc] initWithOutcomeId:name outcomeSource:source weight:weight timestamp:[NSNumber numberWithDouble:timestamp]];
+    
+    [_outcomeEventsFactory.repository requestMeasureOutcomeEventWithAppId:appId deviceType:deviceType event:eventParams onSuccess:^(NSDictionary *result) {
         // Cache unique outcomes
-        [self saveUnattributedUniqueOutcomeEventNames];
-        [self saveAttributedUniqueOutcomeEventNotificationIds];
+        [self saveUniqueOutcome:eventParams];
 
         if (success)
-            success(outcome);
+            success([[OSOutcomeEvent alloc] initFromOutcomeEventParams:eventParams]);
 
     } onFailure:^(NSError *error) {
         // Reset unique outcomes
@@ -277,37 +253,40 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
             success(nil);
     }];
 }
-
-/*
- 1. Iterate over all notifications and find the ones in the set that don't exist (ex. "<name> + "_" + <notificationId>"
- 2. Create an NSArray of these notificationIds and return it
- 3. If the array has notifications send the request for only these ids
- */
-- (NSArray *)getUniqueNotificationIdsNotSentWithOutcome:(NSString *)name timestamp:(NSNumber *)timestamp {
-    NSMutableArray *uniqueNotificationIds = [NSMutableArray new];
-    NSArray *notificationIds = [NSArray arrayWithArray:[self.osSessionManager getNotificationIds]];
-
-    for (NSString *notifId in notificationIds) {
-        OSUniqueOutcomeNotification *uniqueNotifNotSent = [[OSUniqueOutcomeNotification new] initWithParamsNotificationId:name notificationId:notifId timestamp:timestamp];
-
-        BOOL breakOut = false;
-        for (OSUniqueOutcomeNotification *uniqueNotifSent in attributedUniqueOutcomeEventNotificationIdsSentArray) {
-            // If the notif has been sent with this unique outcome, then it should not be included in the returned NSArray
-            if ([uniqueNotifNotSent isEqual:uniqueNotifSent]) {
-                NSString* message = @"Measure endpoint will not send because unique outcome already sent for: name: %@, notificationId: %@";
-                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:message, name, notifId]];
-                breakOut = true;
-                break;
-            }
-        }
-
-        if (!breakOut) {
-            [uniqueNotificationIds addObject:notifId];
-            [attributedUniqueOutcomeEventNotificationIdsSentArray addObject:uniqueNotifNotSent];
+                 
+- (NSArray<OSInfluence *> *)removeDisabledInfluences:(NSArray<OSInfluence *> *) influences {
+    NSMutableArray<OSInfluence *> *availableInfluences = [influences mutableCopy];
+    for (OSInfluence *influence in influences) {
+        if (influence.influenceType == DISABLED) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRINGS(influence.influenceChannel)]];
+            [availableInfluences removeObject:influence];
         }
     }
 
-    return uniqueNotificationIds;
+    return availableInfluences;
+}
+
+- (void)saveUniqueOutcome:(OSOutcomeEventParams *)eventParams {
+    OSOutcomeSource * outcomeSource = eventParams.outcomeSource;
+    if (outcomeSource == nil || (outcomeSource.directBody == nil && outcomeSource.indirectBody == nil))
+        [self saveUnattributedUniqueOutcomeEvents];
+    else
+        [self saveAttributedUniqueOutcomeFromParams:eventParams];
+
+}
+
+/**
+ * Save the ATTRIBUTED JSONArray of notification ids with unique outcome names to SQL
+ */
+- (void)saveAttributedUniqueOutcomeFromParams:(OSOutcomeEventParams *) eventParams {
+   [_outcomeEventsFactory.repository saveUniqueOutcomeEventParams:eventParams];
+}
+
+/**
+ * Save the current set of UNATTRIBUTED unique outcome names to SharedPrefs
+ */
+- (void)saveUnattributedUniqueOutcomeEvents {
+    [_outcomeEventsFactory.repository saveUnattributedUniqueOutcomeEventsSent:unattributedUniqueOutcomeEventsSentSet];
 }
 
 @end

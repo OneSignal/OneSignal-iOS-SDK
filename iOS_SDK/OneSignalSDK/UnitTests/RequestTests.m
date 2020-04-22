@@ -29,10 +29,11 @@
 #import "Requests.h"
 #import "OSOutcomeEvent.h"
 #import "OneSignalHelper.h"
-#import "OSOutcomeEventsDefines.h"
+#import "OSInfluenceDataDefines.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OSFocusInfluenceParam.h"
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"
 
@@ -188,7 +189,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     testOutcome = [[OSOutcomeEvent new] initWithSession:DIRECT notificationIds:testNotificationIds name:@"test" timestamp:@0 weight:@0];
     
-    let request = [OSRequestSendOutcomesToServer directWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
+    let request = [OSRequestSendOutcomesV1ToServer directWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     
@@ -201,7 +202,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
     testOutcome = [[OSOutcomeEvent new] initWithSession:INDIRECT notificationIds:testNotificationIds name:@"test" timestamp:@0 weight:@1];
     
-    let request = [OSRequestSendOutcomesToServer indirectWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
+    let request = [OSRequestSendOutcomesV1ToServer indirectWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     
@@ -213,7 +214,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 - (void)testSendUnattributedOutcome {
     testOutcome = [[OSOutcomeEvent new] initWithSession:UNATTRIBUTED notificationIds:nil name:@"test" timestamp:@0 weight:@0];
     
-    let request = [OSRequestSendOutcomesToServer unattributedWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
+    let request = [OSRequestSendOutcomesV1ToServer unattributedWithOutcome:testOutcome appId:testAppId deviceType:testDeviceType];
     
     let correctUrl = correctUrlWithPath(@"outcomes/measure");
     
@@ -337,7 +338,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     
     XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
     
-    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType directSession:NO notificationIds:[NSArray arrayWithObject:testNotificationId]];
+    OSFocusInfluenceParam *influenceParams = [[OSFocusInfluenceParam alloc] initWithParamsInfluenceIds:[NSArray arrayWithObject:testNotificationId] influenceKey:@"notification_ids" directInfluence:NO influenceDirectKey:@"direct"];
+    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId activeTime:@2 netType:@3 emailAuthToken:nil deviceType:testDeviceType influenceParams:[NSArray arrayWithObject:influenceParams]];
 
     let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
     

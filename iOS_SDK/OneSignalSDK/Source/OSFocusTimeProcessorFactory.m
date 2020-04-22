@@ -30,7 +30,6 @@
 #import "OSAttributedFocusTimeProcessor.h"
 #import "OSUnattributedFocusTimeProcessor.h"
 #import "OneSignalHelper.h"
-#import "OSOutcomesUtils.h"
 
 @implementation OSFocusTimeProcessorFactory
 
@@ -58,8 +57,15 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", self.focusTimeProcessors]];
 }
 
-+ (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType {
-    let isAttributed = [OSOutcomesUtils isAttributedSession:result.session];
++ (OSBaseFocusTimeProcessor *)createTimeProcessorWithInfluences:(NSArray<OSInfluence *> *)lastInfluences focusEventType:(FocusEventType)focusEventType {
+    BOOL isAttributed = NO;
+    for (OSInfluence *influence in lastInfluences) {
+        // At least one channel influenced this session
+        if ([influence isAttributedInfluence]) {
+            isAttributed = YES;
+            break;
+        }
+    }
     let attributionState = isAttributed ? ATTRIBUTED : NOT_ATTRIBUTED;
     NSString *key = focusAttributionStateString(attributionState);
     

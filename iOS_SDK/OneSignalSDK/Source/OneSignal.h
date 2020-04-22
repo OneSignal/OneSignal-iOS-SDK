@@ -210,18 +210,23 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
-/* OneSignal Session Types */
-typedef NS_ENUM(NSUInteger, Session) {
+/* OneSignal Influence Types */
+typedef NS_ENUM(NSUInteger, OSInfluenceType) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
     DISABLED
 };
+/* OneSignal Influence Channels */
+typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
+    IN_APP_MESSAGE,
+    NOTIFICATION,
+};
 
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) Session session;
+@property (nonatomic) OSInfluenceType influenceType;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -351,7 +356,6 @@ typedef void (^OSHandleInAppMessageActionClickBlock)(OSInAppMessageAction* actio
 
 /*Block for handling outcome event being sent successfully*/
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
-
 
 /*Dictionary of keys to pass alongside the init settings*/
     

@@ -25,32 +25,22 @@
  THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "OSIndirectNotification.h"
+#ifndef OSInfluenceDataDefines_h
+#define OSInfluenceDataDefines_h
 
-@implementation OSIndirectNotification
+// Influence param keys
+static NSString* const OUTCOMES_PARAM = @"outcomes";
+static NSString* const DIRECT_PARAM = @"direct";
+static NSString* const INDIRECT_PARAM = @"indirect";
+static NSString* const UNATTRIBUTED_PARAM = @"unattributed";
+static NSString* const ENABLED_PARAM = @"enabled";
+static NSString* const NOTIFICATION_ATTRIBUTION_PARAM = @"notification_attribution";
+static NSString* const IAM_ATTRIBUTION_PARAM = @"in_app_message_attribution";
+static NSString* const MINUTES_SINCE_DISPLAYED_PARAM = @"minutes_since_displayed";
+static NSString* const LIMIT_PARAM = @"limit";
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp {
-    _notificationId = notificationId;
-    _timestamp = timestamp;
-    return self;
-}
+// Influence default param values
+static int DEFAULT_INDIRECT_NOTIFICATION_LIMIT = 10;
+static int DEFAULT_INDIRECT_ATTRIBUTION_WINDOW = 24 * 60;
 
-- (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
-    [encoder encodeDouble:_timestamp forKey:@"timestamp"];
-}
-
-- (id)initWithCoder:(NSCoder *)decoder {
-    if (self = [super init]) {
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
-        _timestamp = [decoder decodeDoubleForKey:@"timestamp"];
-    }
-    return self;
-}
-
-- (NSString *)description {
-    return [NSString stringWithFormat:@"Notification Id: %@ Timestamp: %f", _notificationId, _timestamp];
-}
-
-@end
+#endif /* OSInfluenceDataDefines_h */

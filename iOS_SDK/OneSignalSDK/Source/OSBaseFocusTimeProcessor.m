@@ -26,7 +26,7 @@
  */
 
 #import "OneSignal.h"
-#import "OSSessionResult.h"
+#import "OSInfluence.h"
 #import "OSBaseFocusTimeProcessor.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
