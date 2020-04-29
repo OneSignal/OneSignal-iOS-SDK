@@ -33,7 +33,7 @@
 // Networking
 #define OS_API_VERSION @"1"
 #define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
-#define OS_API_SERVER_URL @"https://api.onesignal.com/"
+#define OS_API_SERVER_URL @"https://api.staging-01.onesignal.com/"
 
 #define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
 

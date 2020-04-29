@@ -75,6 +75,14 @@ THE SOFTWARE.
     return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_RECEIVED_NOTIFICATION_IDS defaultValue:nil];
 }
 
+- (void)cacheIndirectIAMs:(NSArray *)notifications {
+    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS withValue:notifications];
+}
+
+- (NSArray * _Nullable)cachedIndirectIAMs {
+    return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS defaultValue:nil];
+}
+
 - (void)saveIAMs:(NSArray *)iams {
     [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_RECEIVED_IAM_IDS withValue:iams];
 }

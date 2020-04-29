@@ -87,7 +87,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-                     message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %d",timeProcesor, isAttributed]];
+                     message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %d", timeProcesor, isAttributed]];
     
     return timeProcesor;
 }

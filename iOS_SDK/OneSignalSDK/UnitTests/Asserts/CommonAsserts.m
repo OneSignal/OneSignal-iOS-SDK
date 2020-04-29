@@ -34,7 +34,7 @@
 
 + (void)assertArrayEqualsWithExpected:(NSArray *)expected actual:(NSArray *)actual {
     XCTAssertEqual(expected.count, actual.count);
-    for (int i = 0; i < expected.count; i++) {
+     for (int i = 0; i < expected.count; i++) {
         id expectedString = [expected objectAtIndex:i];
         id actualString = [actual objectAtIndex:i];
         XCTAssertTrue([expectedString isEqualToString:actualString]);

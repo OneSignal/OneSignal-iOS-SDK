@@ -50,7 +50,6 @@ THE SOFTWARE.
 - (NSArray * _Nonnull)lastChannelObjectsReceivedByNewId:(NSString *)identifier {
     NSArray *lastChannelObjectReceived = [self lastChannelObjects];
     // For IAM we handle redisplay, we need to remove duplicates for new influence Id
-    // If min sdk is greater than KITKAT we can refactor this logic to removeObject from JSONArray
     NSMutableArray *auxLastChannelObjectReceived = [NSMutableArray new];
     if (lastChannelObjectReceived) {
         for (var i = 0; i < lastChannelObjectReceived.count; i++) {

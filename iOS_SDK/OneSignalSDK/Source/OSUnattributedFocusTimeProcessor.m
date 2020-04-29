@@ -49,7 +49,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
 - (void)endBackgroundFocusTask {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-                     message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:endDelayBackgroundTask:%d", focusBackgroundTask]];
+                     message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)focusBackgroundTask]];
     [UIApplication.sharedApplication endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"endBackgroundFocusTask called"];

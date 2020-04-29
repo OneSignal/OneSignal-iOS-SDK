@@ -266,7 +266,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)showAndImpressMessage:(OSInAppMessage *)message {
-    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
+    self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
 
     dispatch_async(dispatch_get_main_queue(), ^{
            [[self.viewController view] setNeedsLayout];
@@ -622,6 +622,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes forMessageId:(NSString *) messageId {
+    if (outcomes.count == 0)
+        return;
     [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:messageId];
     [OneSignal sendClickActionOutcomes:outcomes];
 }

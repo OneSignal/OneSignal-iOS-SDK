@@ -366,19 +366,25 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _appEntryState = appEntryState;
 }
 
+static OSInfluenceDataRepository *_influenceDataRepository;
++ (OSInfluenceDataRepository *)influenceDataRepository {
+    if (!_influenceDataRepository)
+        _influenceDataRepository = [OSInfluenceDataRepository new];
+    return _influenceDataRepository;
+}
+
 static OSTrackerFactory *_trackerFactory;
 + (OSTrackerFactory*)trackerFactory {
+    if (!_trackerFactory)
+        _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:[OneSignal influenceDataRepository]];
     return _trackerFactory;
 }
 
 static OSSessionManager *_sessionManager;
 + (OSSessionManager*)sessionManager {
+    if (!_sessionManager)
+        _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:[OneSignal trackerFactory]];
     return _sessionManager;
-}
-
-static OSInfluenceDataRepository *_influenceDataRepository;
-+ (OSInfluenceDataRepository *)influenceDataRepository {
-    return _influenceDataRepository;
 }
 
 static OSOutcomeEventsCache *_outcomeEventsCache;
@@ -566,9 +572,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (!success)
         return self;
     
-    _influenceDataRepository = [[OSInfluenceDataRepository alloc] init];
-    _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:_influenceDataRepository];
-    _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
     // Wrapper SDK's call init twice and pass null as the appId on the first call
     //  the app ID is required to download parameters, so do not download params until the appID is provided
     if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
@@ -584,9 +587,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     initializationTime = [NSDate date];
     
     // Outcomes init
-    _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:_trackerFactory];
+    _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
     _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:_outcomeEventsCache];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:_sessionManager outcomeEventsFactory:_outcomeEventFactory];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:[OneSignal sessionManager] outcomeEventsFactory:_outcomeEventFactory];
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false withCompletionHandler:nil];
@@ -841,7 +844,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         if (result[IOS_OUTCOMES_V2_SERVICE_ENABLE])
             [_outcomeEventsCache saveOutcomesV2ServiceEnabled:result[IOS_OUTCOMES_V2_SERVICE_ENABLE]];
         
-        [_trackerFactory saveInfluenceParams:result];
+        [[OneSignal trackerFactory] saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
@@ -2048,7 +2051,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground) {
         OneSignal.appEntryState = NOTIFICATION_CLICK;
-        [_sessionManager onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
+        [[OneSignal sessionManager] onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
     }
 
     // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called

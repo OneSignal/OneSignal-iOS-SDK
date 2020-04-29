@@ -251,7 +251,7 @@
 - (void)sendSessionEndingWithInfluences:(NSArray<OSInfluence *> *)endingInfluences {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal SessionManager sendSessionEndingWithInfluences with influences: %@", endingInfluences.description]];
     // Only end session if there are influences available to end
-    if (endingInfluences.count > 0)
+    if (endingInfluences.count > 0 && _delegate)
         [_delegate onSessionEnding:endingInfluences];
 }
 
