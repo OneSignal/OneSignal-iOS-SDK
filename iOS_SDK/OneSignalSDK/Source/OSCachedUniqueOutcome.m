@@ -57,7 +57,7 @@
     [encoder encodeObject:_name forKey:@"name"];
     [encoder encodeObject:_uniqueId forKey:@"uniqueId"];
     [encoder encodeInteger:[_timestamp integerValue] forKey:@"timestamp"];
-    [encoder encodeObject:OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel) forKey:@"channel"];
+    [encoder encodeObject:OS_INFLUENCE_CHANNEL_TO_STRING(_channel) forKey:@"channel"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -71,7 +71,7 @@
         _timestamp = [NSNumber numberWithLong:[decoder decodeIntegerForKey:@"timestamp"]];
         id channel = [decoder decodeObjectForKey:@"channel"];
         if (channel)
-            _channel = OS_INFLUENCE_CHANNEL_FROM_STRINGS(channel);
+            _channel = OS_INFLUENCE_CHANNEL_FROM_STRING(channel);
         else
             _channel = NOTIFICATION;
     }
@@ -79,19 +79,19 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"Name: %@ Unique Id: %@ Timestamp: %@ Channel: %@", _name, _uniqueId, _timestamp, OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel)];
+    return [NSString stringWithFormat:@"Name: %@ Unique Id: %@ Timestamp: %@ Channel: %@", _name, _uniqueId, _timestamp, OS_INFLUENCE_CHANNEL_TO_STRING(_channel)];
 }
 
 - (BOOL)isEqual:(OSCachedUniqueOutcome *)other {
-    NSString *key = [NSString stringWithFormat:@"%@_%@_%@", _name, _uniqueId, OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel)];
-    NSString *otherKey = [NSString stringWithFormat:@"%@_%@_%@", other.name, other.uniqueId, OS_INFLUENCE_CHANNEL_TO_STRINGS(other.channel)];
+    NSString *key = [NSString stringWithFormat:@"%@_%@_%@", _name, _uniqueId, OS_INFLUENCE_CHANNEL_TO_STRING(_channel)];
+    NSString *otherKey = [NSString stringWithFormat:@"%@_%@_%@", other.name, other.uniqueId, OS_INFLUENCE_CHANNEL_TO_STRING(other.channel)];
     return [key isEqualToString:otherKey];
 }
 
 - (NSUInteger)hash {
     NSUInteger result = [_name hash];
     result = 31 * result + [_uniqueId hash];
-    result = 31 * result + [OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel) hash];
+    result = 31 * result + [OS_INFLUENCE_CHANNEL_TO_STRING(_channel) hash];
     return result;
 }
 

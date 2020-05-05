@@ -100,7 +100,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)applicationForegrounded {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Foregrounded started"];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
@@ -137,7 +137,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)applicationBackgrounded {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Backgrounded started"];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
     [self updateLastClosedTime];
     
@@ -156,13 +156,13 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded started"];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];
     let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
     
     if (!timeProcessor) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded no time processor to end"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
     
@@ -178,7 +178,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     NSMutableArray<OSFocusInfluenceParam *> *focusInfluenceParams = [NSMutableArray new];
     
     for (OSInfluence *influence in lastInfluences) {
-        NSString *channelString = [OS_INFLUENCE_CHANNEL_TO_STRINGS(influence.influenceChannel) lowercaseString];
+        NSString *channelString = [OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel) lowercaseString];
         OSFocusInfluenceParam * focusInfluenceParam = [[OSFocusInfluenceParam alloc] initWithParamsInfluenceIds:influence.ids
                                                                                                    influenceKey:[NSString stringWithFormat:@"%@_%@", channelString, @"ids"]
                                                                                                 directInfluence:influence.influenceType == DIRECT

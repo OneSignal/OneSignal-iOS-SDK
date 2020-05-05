@@ -116,17 +116,14 @@
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     [sessionManager onInAppMessageReceived:testGenericId];
     
-    // 3. Init sessionManager and attempt to restart the session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 4. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
+    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
     let sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
                 XCTAssertEqual(influence.influenceType, INDIRECT);
                 XCTAssertEqual(influence.ids.count, 2);
+                break;
             case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
                 XCTAssertEqual(influence.ids, nil);
@@ -144,17 +141,14 @@
     [sessionManager onInAppMessageReceived:testGenericId];
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     
-    // 3. Init sessionManager and attempt to restart the session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 4. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
+    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
     let sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
                 XCTAssertEqual(influence.influenceType, INDIRECT);
-                XCTAssertEqual(influence.ids.count, 12);
+                XCTAssertEqual(influence.ids.count, 2);
+                break;
             case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
                 XCTAssertEqual(influence.ids, nil);
@@ -162,7 +156,6 @@
         }
     }
 }
-
 
 - (void)testDirectSession {
     // 1. Set outcome params enabled
@@ -205,11 +198,7 @@
     // 4. Rceive 3 notifications
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     
-    // 5. Init sessionManager and attempt to start a new session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 6. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 iam
+    // 5. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -231,11 +220,7 @@
     // 2. Receive a notification
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     
-    // 3. Init sessionManager and attempt to start a new session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 6. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
+    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
     NSArray<OSInfluence *> *sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -252,11 +237,8 @@
     // 4. Receive 2 more iams
     [sessionManager onInAppMessageReceived:testNotificationId];
     [sessionManager onInAppMessageReceived:testGenericId];
-    
-    // 5. Init sessionManager without new session
-    [sessionManager initSessionFromCache];
 
-    // 6. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 iams because IAM influence does not depend on session
+    // 5. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 iams because IAM influence does not depend on session
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -275,25 +257,22 @@
     // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
     
-    // 2. Receive a notification and open it
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:testNotificationId];
+    // 2. Receive an iam and direct influence from it
+    [sessionManager onInAppMessageReceived:testInAppMessageId];
+    [sessionManager onDirectInfluenceFromIAMClick:testInAppMessageId];
     
-    // 3. Init sessionManager without new session
-    [sessionManager initSessionFromCache];
-    
-    // 4. Make sure session
+    // 3. Make sure IN_APP_MESSAGE influence is DIRECT
     let sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, DIRECT);
                 XCTAssertEqual(influence.ids.count, 1);
-                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[testNotificationId]];
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[testInAppMessageId]];
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
         }
     }
 }
@@ -303,45 +282,39 @@
     [self setOutcomesParamsEnabled];
     
     // 2. Receive 2 notifications
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onNotificationReceived:testNotificationId];
+    [sessionManager onInAppMessageReceived:testInAppMessageId];
+    [sessionManager onInAppMessageReceived:testGenericId];
 
-    // 3. Init sessionManager and attempt to start a new session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 4. Make sure NOTIFICATION influence is INDIRECT and has 2 notification
+    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 2 iam
     NSArray<OSInfluence *> *sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, INDIRECT);
                 XCTAssertEqual(influence.ids.count, 2);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
         }
     }
     
     // 5. Receive a notification and open it
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:testNotificationId];
-    
-    // 6. Init sessionManager without new session
-    [sessionManager initSessionFromCache];
-    
-    // 7. Make sure NOTIFICATION influence is DIRECT and has 1 notification
+    [sessionManager onInAppMessageReceived:testNotificationId];
+    [sessionManager onDirectInfluenceFromIAMClick:testNotificationId];
+
+    // 6. Make sure IN_APP_MESSAGE influence is DIRECT and has 1 iam
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, DIRECT);
                 XCTAssertEqual(influence.ids.count, 1);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                
         }
     }
 }
@@ -350,159 +323,40 @@
     // 1. Set outcome params enabled
     [self setOutcomesParamsEnabled];
     
-    let firstTestNotificationId = @"test";
-    // 2. Receieve a notification and open it
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:firstTestNotificationId];
-    
-    // 3. Init sessionManager without new session
-    [sessionManager initSessionFromCache];
+    // 2. Receieve an IAM and showed it
+    [sessionManager onInAppMessageReceived:testGenericId];
+    [sessionManager onDirectInfluenceFromIAMClick:testGenericId];
     
     NSArray<OSInfluence *> *sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, DIRECT);
                 XCTAssertEqual(influence.ids.count, 1);
-                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[firstTestNotificationId]];
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[testGenericId]];
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
         }
     }
 
-    // 4. Receieve a notification and open it
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:testNotificationId];
+    // 2. Receieve an IAM and showed it
+    [sessionManager onInAppMessageReceived:testInAppMessageId];
+    [sessionManager onDirectInfluenceFromIAMClick:testInAppMessageId];
     
-    // 5. Init sessionManager without new session
-    [sessionManager initSessionFromCache];
-    
-    // 6. Make sure NOTIFICATION influence is DIRECT and has 1 notifciation
+    // 5. Make sure IN_APP_MESSAGE influence is DIRECT and has 1 iam
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
                 XCTAssertEqual(influence.influenceType, DIRECT);
                 XCTAssertEqual(influence.ids.count, 1);
-                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[testNotificationId]];
-        }
-    }
-}
-
-- (void)testUnattributedSession_whenOutcomesIsDisabled {
-    // 1. Set outcome params disabled
-    [self setOutcomesParamsDisabled];
-    
-    // 2. Init sessionManager and attempt to start a new session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 3. Make sure all influences are DISABLED and no ids exist
-    let sessionInfluences = [sessionManager getInfluences];
-    for (OSInfluence *influence in sessionInfluences) {
-        switch (influence.influenceChannel) {
-            case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, DISABLED);
-                XCTAssertEqual(influence.ids, nil);
+                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:@[testInAppMessageId]];
                 break;
             case NOTIFICATION:
-                XCTAssertEqual(influence.influenceType, DISABLED);
-                XCTAssertEqual(influence.ids, nil);
-        }
-    }
-}
-
-- (void)testIndirectSession_whenOutcomesIsDisabled {
-    // 1. Set outcome params disabled
-    [self setOutcomesParamsDisabled];
-    
-    // 2. Receive 2 notifications
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onNotificationReceived:testNotificationId];
-    
-    // 3. Init sessionManager and attempt to start a new session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 4. Make sure all influences are DISABLED and no ids exist
-    let sessionInfluences = [sessionManager getInfluences];
-    for (OSInfluence *influence in sessionInfluences) {
-        switch (influence.influenceChannel) {
-            case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, DISABLED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
-                XCTAssertEqual(influence.influenceType, DISABLED);
-                XCTAssertEqual(influence.ids, nil);
-        }
-    }
-}
-
-- (void)testDirectSession_whenOutcomesIsDisabled {
-    // 1. Set outcome params disabled
-    [self setOutcomesParamsDisabled];
-    
-    // 2. Receieve a notification and open it
-    [sessionManager onNotificationReceived:testNotificationId];
-    [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:testNotificationId];
-    
-    // 3. Init sessionManager without new session
-    [sessionManager initSessionFromCache];
-    
-    // 4. Make sure all influences are DISABLED and no ids exist
-    let sessionInfluences = [sessionManager getInfluences];
-    for (OSInfluence *influence in sessionInfluences) {
-        switch (influence.influenceChannel) {
-            case IN_APP_MESSAGE:
-                XCTAssertEqual(influence.influenceType, DISABLED);
-                XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
-                XCTAssertEqual(influence.influenceType, DISABLED);
-                XCTAssertEqual(influence.ids, nil);
-        }
-    }
-}
-
-- (void)testIndirectSession_attributionNotificationLimit {
-    // 1. Set outcome params enabled
-    [self setOutcomesParamsEnabled];
-    
-    // 2. Receive 15 notifications
-    NSMutableArray *recentNotifIds = [NSMutableArray new];
-    for (int i = 0; i <= 15; i++) {
-        NSString *notifId = [NSString stringWithFormat:@"test_notification_%i", i + 1];
-        [sessionManager onNotificationReceived:notifId];
-        
-        // Add the most recent 10 notifications by removing 0 index after count passes 10
-        [recentNotifIds addObject:notifId];
-        if (recentNotifIds.count > 10)
-            [recentNotifIds removeObjectAtIndex:0];
-    }
-    
-    // 3. Init sessionManager and attempt to start a new session
-    [sessionManager initSessionFromCache];
-    [sessionManager restartSessionIfNeeded:APP_OPEN];
-    
-    // 4. Make sure session is INDIRECT and only has the most recent 10 notifications
-    let sessionInfluences = [sessionManager getInfluences];
-    for (OSInfluence *influence in sessionInfluences) {
-        switch (influence.influenceChannel) {
-            case IN_APP_MESSAGE:
                 XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
                 XCTAssertEqual(influence.ids, nil);
-                break;
-            case NOTIFICATION:
-                XCTAssertEqual(influence.influenceType, INDIRECT);
-                XCTAssertEqual(influence.ids.count, 10);
-                [CommonAsserts assertArrayEqualsWithExpected:influence.ids actual:recentNotifIds];
         }
     }
 }

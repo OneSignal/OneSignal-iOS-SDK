@@ -31,7 +31,7 @@
 
 @implementation OSOutcomeEvent
 
-- (id _Nonnull)initWithSession:(OSInfluenceType)influenceType
+- (id _Nonnull)initWithSession:(Session)influenceType
                notificationIds:(NSArray * _Nullable)notificationIds
                           name:(NSString * _Nonnull)name
                      timestamp:(NSNumber * _Nonnull)timestamp
@@ -42,7 +42,7 @@
         _notificationIds = notificationIds;
         _name = name;
         _timestamp = timestamp;
-        _weight = [NSDecimalNumber decimalNumberWithDecimal: value.decimalValue];
+        _weight = [NSDecimalNumber decimalNumberWithDecimal:value.decimalValue];
     }
     return self;
 }
@@ -50,7 +50,7 @@
 - (id)initFromOutcomeEventParams:(OSOutcomeEventParams *)outcomeEventParams {
     if (self = [super init]) {
         OSOutcomeSource *source = outcomeEventParams.outcomeSource;
-        OSInfluenceType influenceType = UNATTRIBUTED;
+        Session influenceType = UNATTRIBUTED;
         NSArray *notificationId = nil;
         
         if (source) {
@@ -67,7 +67,7 @@
         _notificationIds = notificationId;
         _name = outcomeEventParams.outcomeId;
         _timestamp = outcomeEventParams.timestamp;
-        _weight = outcomeEventParams.weight;
+        _weight = [NSDecimalNumber decimalNumberWithDecimal:outcomeEventParams.weight.decimalValue];
     }
     return self;
 }
@@ -75,7 +75,7 @@
 - (NSDictionary * _Nonnull)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
-    json[@"session"] = OS_INFLUENCE_TO_STRING(self.influenceType);
+    json[@"session"] = OS_INFLUENCE_TYPE_TO_STRING(self.influenceType);
     json[@"id"] = self.name;
     json[@"timestamp"] = @(self.timestamp.intValue);
     json[@"weight"] = self.weight.stringValue;

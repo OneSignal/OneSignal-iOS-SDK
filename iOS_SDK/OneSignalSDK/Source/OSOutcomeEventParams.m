@@ -35,14 +35,21 @@ THE SOFTWARE.
     if (self) {
         _outcomeId = outcomeId;
         _outcomeSource = outcomeSource;
-        _weight = [NSDecimalNumber decimalNumberWithDecimal: weight.decimalValue];
+        _weight = weight;
         _timestamp = timestamp;
     }
     return self;
 }
 
 - (NSDictionary *)toDictionaryObject {
-    return [_outcomeSource toDictionaryObject];
+    NSMutableDictionary *params = [NSMutableDictionary new];
+    params[@"id"] = _outcomeId;
+    params[@"sources"] = [_outcomeSource toDictionaryObject];
+    if (_weight > 0)
+        params[@"weight"] = _weight;
+    if (_timestamp > 0)
+        params[@"timestamp"] = _timestamp;
+    return params;
 }
 
 - (NSString *)description {

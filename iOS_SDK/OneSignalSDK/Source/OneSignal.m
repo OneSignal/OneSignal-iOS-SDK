@@ -74,6 +74,7 @@
 #import "DelayedInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
+#import "OSInfluenceDataDefines.h"
 #import "OSInfluenceDataRepository.h"
 #import "OSTrackerFactory.h"
 #import "OSMessagingController.h"
@@ -376,14 +377,14 @@ static OSInfluenceDataRepository *_influenceDataRepository;
 static OSTrackerFactory *_trackerFactory;
 + (OSTrackerFactory*)trackerFactory {
     if (!_trackerFactory)
-        _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:[OneSignal influenceDataRepository]];
+        _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:OneSignal.influenceDataRepository];
     return _trackerFactory;
 }
 
 static OSSessionManager *_sessionManager;
 + (OSSessionManager*)sessionManager {
     if (!_sessionManager)
-        _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:[OneSignal trackerFactory]];
+        _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:OneSignal.trackerFactory];
     return _sessionManager;
 }
 
@@ -589,7 +590,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // Outcomes init
     _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
     _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:_outcomeEventsCache];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:[OneSignal sessionManager] outcomeEventsFactory:_outcomeEventFactory];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:OneSignal.sessionManager outcomeEventsFactory:_outcomeEventFactory];
     
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false withCompletionHandler:nil];
@@ -841,10 +842,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
             [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
 
-        if (result[IOS_OUTCOMES_V2_SERVICE_ENABLE])
-            [_outcomeEventsCache saveOutcomesV2ServiceEnabled:result[IOS_OUTCOMES_V2_SERVICE_ENABLE]];
+        if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
+            [_outcomeEventsCache saveOutcomesV2ServiceEnabled:result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
         
-        [[OneSignal trackerFactory] saveInfluenceParams:result];
+        [OneSignal.trackerFactory saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
@@ -2051,7 +2052,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!foreground) {
         OneSignal.appEntryState = NOTIFICATION_CLICK;
-        [[OneSignal sessionManager] onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
+        [OneSignal.sessionManager onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
     }
 
     // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called

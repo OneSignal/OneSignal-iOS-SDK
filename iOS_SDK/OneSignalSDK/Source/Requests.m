@@ -560,11 +560,8 @@ NSString * const OUTCOME_SOURCE = @"source";
     let params = [NSMutableDictionary new];
     params[APP_ID] = appId;
     params[DEVICE] = deviceType;
-    params[OUTCOME_SOURCE] = [outcome toDictionaryObject];
-
-    if ([outcome.weight doubleValue] > 0)
-        params[WEIGHT] = outcome.weight;
-
+    [params addEntriesFromDictionary:[outcome toDictionaryObject]];
+    
     request.parameters = params;
     request.method = POST;
     request.path = @"outcomes/measure_sources";

@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 @implementation OSInfluence
 
-- (id)initWithInfluenceType:(OSInfluenceType)influenceType
+- (id)initWithInfluenceType:(Session)influenceType
         forInfluenceChannel:(OSInfluenceChannel)influenceChannel
                     withIds:(NSArray *)ids {
     if (self = [super init]) {
@@ -82,7 +82,7 @@ THE SOFTWARE.
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"OSInfluence channel: %@ influenceType: %@ ids:%@",
-            OS_INFLUENCE_CHANNEL_TO_STRINGS(_influenceChannel), OS_INFLUENCE_TO_STRING(_influenceType), _ids];
+            OS_INFLUENCE_CHANNEL_TO_STRING(_influenceChannel), OS_INFLUENCE_TYPE_TO_STRING(_influenceType), _ids];
 }
 
 @end

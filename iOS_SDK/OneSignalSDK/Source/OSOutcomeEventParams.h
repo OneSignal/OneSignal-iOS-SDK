@@ -34,7 +34,7 @@ THE SOFTWARE.
 
 @property (strong, nonatomic, readwrite) NSString *outcomeId;
 @property (strong, nonatomic, readwrite) OSOutcomeSource *outcomeSource;
-@property (strong, nonatomic, readwrite) NSDecimalNumber *weight;
+@property (strong, nonatomic, readwrite) NSNumber *weight;
 @property (strong, nonatomic, readwrite) NSNumber *timestamp;
 
 - (id)initWithOutcomeId:(NSString *)outcomeId outcomeSource:(OSOutcomeSource *)outcomeSource weight:(NSNumber *)weight timestamp:(NSNumber *)timestamp;

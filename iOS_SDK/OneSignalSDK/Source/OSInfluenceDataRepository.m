@@ -33,22 +33,22 @@ THE SOFTWARE.
 
 @implementation OSInfluenceDataRepository
 
-- (void)cacheNotificationInfluenceType:(OSInfluenceType) influenceType {
-    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE withValue:OS_INFLUENCE_TO_STRING(influenceType)];
+- (void)cacheNotificationInfluenceType:(Session) influenceType {
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE withValue:OS_INFLUENCE_TYPE_TO_STRING(influenceType)];
 }
 
-- (OSInfluenceType)notificationCachedInfluenceType {
-    NSString *sessionString = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE defaultValue:OS_INFLUENCE_TO_STRING(UNATTRIBUTED)];
-    return OS_INFLUENCE_FROM_STRING(sessionString);
+- (Session)notificationCachedInfluenceType {
+    NSString *sessionString = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE defaultValue:OS_INFLUENCE_TYPE_TO_STRING(UNATTRIBUTED)];
+    return OS_INFLUENCE_TYPE_FROM_STRING(sessionString);
 }
 
-- (void)cacheIAMInfluenceType:(OSInfluenceType) influenceType {
-    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_IAM_INFLUENCE withValue:OS_INFLUENCE_TO_STRING(influenceType)];
+- (void)cacheIAMInfluenceType:(Session) influenceType {
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_IAM_INFLUENCE withValue:OS_INFLUENCE_TYPE_TO_STRING(influenceType)];
 }
 
-- (OSInfluenceType)iamCachedInfluenceType {
-    NSString *sessionString = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_CACHED_IAM_INFLUENCE defaultValue:OS_INFLUENCE_TO_STRING(UNATTRIBUTED)];
-    return OS_INFLUENCE_FROM_STRING(sessionString);
+- (Session)iamCachedInfluenceType {
+    NSString *sessionString = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_CACHED_IAM_INFLUENCE defaultValue:OS_INFLUENCE_TYPE_TO_STRING(UNATTRIBUTED)];
+    return OS_INFLUENCE_TYPE_FROM_STRING(sessionString);
 }
 
 - (void)cacheNotificationOpenId:(NSString *)notificationId {

@@ -94,7 +94,7 @@
 }
 
 + (void)dismissCurrentMessage {
-    return [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
+    [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
 }
 
 + (BOOL)isInAppMessageShowing {

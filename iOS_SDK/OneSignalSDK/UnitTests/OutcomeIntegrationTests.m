@@ -122,16 +122,17 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 7. Ensure onFocus is sent in the background.
-    [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
+    [RestClientAsserts assertOnFocusAtIndex:4 withTime:15 withNotifications:@[@"test_notification_1"] direct:NO];
 }
 
 - (void)testDirectSession_onFocusAttributed {
     // 1. Open App and wait for 5 secounds
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [NSDateOverrider advanceSystemTimeBy:5];
-    
+
     // 2. Background app, receive notification, and open notification
     [OneSignalTracker onFocus:true];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     
     // 3. Swipe away app and reopen it 31 secounds later.
@@ -151,7 +152,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 7. Ensure onFocus is sent in the background.
-    [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
+    [RestClientAsserts assertOnFocusAtIndex:5 withTime:15 withNotifications:@[@"test_notification_1"] direct:YES];
 }
 
 - (void)testDirectSession_overridesIndirectSession_andSendsOnFocus {

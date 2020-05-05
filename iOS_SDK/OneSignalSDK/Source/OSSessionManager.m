@@ -93,6 +93,7 @@
     
     OSChannelTracker *inAppMessageTracker = [_trackerFactory iamChannelTracker];
     [inAppMessageTracker saveLastId:messageId];
+    [inAppMessageTracker resetAndInitInfluence];
 }
 
 - (void)onDirectInfluenceFromIAMClick:(NSString *)directIAMId {
@@ -196,17 +197,17 @@
 /*
  Called when the session for the app changes, caches the state, and broadcasts the session that just ended
  */
-- (BOOL)setSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(OSInfluenceType)influenceType directNotificationId:(NSString *)directNotificationId indirectNotificationIds:(NSArray *)indirectNotificationIds {
+- (BOOL)setSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(Session)influenceType directNotificationId:(NSString *)directNotificationId indirectNotificationIds:(NSArray *)indirectNotificationIds {
     if (![self willChangeSessionForChannel:channelTracker withInfluenceType:influenceType directNotificationId:directNotificationId indirectNotificationIds:indirectNotificationIds])
         return NO;
     
     NSString *message = @"OSChannelTracker changed: %@  \nfrom:  \ninfluenceType: %@  \n, directNotificationId: %@  \n, indirectNotificationIds: %@  \nto:  \ninfluenceType: %@  \n, directNotificationId: %@  \n, indirectNotificationIds: %@";
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:message,
                                                        [channelTracker idTag],
-                                                       OS_INFLUENCE_TO_STRING(channelTracker.influenceType),
+                                                       OS_INFLUENCE_TYPE_TO_STRING(channelTracker.influenceType),
                                                        channelTracker.directId,
                                                        channelTracker.indirectIds,
-                                                       OS_INFLUENCE_TO_STRING(influenceType),
+                                                       OS_INFLUENCE_TYPE_TO_STRING(influenceType),
                                                        directNotificationId,
                                                        indirectNotificationIds]];
     
@@ -226,7 +227,7 @@
     2. Is DIRECT session data different from incoming DIRECT session data?
     3. Is INDIRECT session data different from incoming INDIRECT session data?
  */
-- (BOOL)willChangeSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(OSInfluenceType)influenceType directNotificationId:(NSString *)directNotificationId indirectNotificationIds:(NSArray *)indirectNotificationIds {
+- (BOOL)willChangeSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(Session)influenceType directNotificationId:(NSString *)directNotificationId indirectNotificationIds:(NSArray *)indirectNotificationIds {
     if (channelTracker.influenceType != influenceType)
         return true;
 

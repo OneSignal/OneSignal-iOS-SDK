@@ -292,8 +292,14 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
     influences = [sessionManager getInfluences];
 
     for (OSInfluence *influence in influences) {
-        XCTAssertEqual(UNATTRIBUTED, influence.influenceType);
-        XCTAssertNil(influence.ids);
+        switch (influence.influenceChannel) {
+            case NOTIFICATION:
+                XCTAssertEqual(UNATTRIBUTED, influence.influenceType);
+                XCTAssertNil(influence.ids);
+                break;
+            default:
+                break;
+        }
     }
 
     // We test that channel ending is working
@@ -312,6 +318,7 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
 
     [sessionManager onNotificationReceived:testGenericId];
     [sessionManager onInAppMessageReceived:testGenericId];
+    
     [sessionManager attemptSessionUpgrade:APP_OPEN];
 
     influences = [sessionManager getInfluences];
@@ -322,18 +329,14 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
         [CommonAsserts assertArrayEqualsWithExpected:@[testGenericId] actual:influence.ids];
     }
 
-    // We test that channel ending is working for both IAM and Notification
-    XCTAssertEqual(2, lastInfluencesBySessionEnding.count);
+    // We test that channel ending is working for Notification
+    // IAM was already indirect
+    XCTAssertEqual(1, lastInfluencesBySessionEnding.count);
     OSInfluence *endingNotificationInfluence = [lastInfluencesBySessionEnding objectAtIndex:0];
-    OSInfluence *endingIAMInfluence = [lastInfluencesBySessionEnding objectAtIndex:1];
 
     XCTAssertEqual(NOTIFICATION, endingNotificationInfluence.influenceChannel);
     XCTAssertEqual(UNATTRIBUTED, endingNotificationInfluence.influenceType);
     XCTAssertNil(endingNotificationInfluence.ids);
-
-    XCTAssertEqual(IN_APP_MESSAGE, endingIAMInfluence.influenceChannel);
-    XCTAssertEqual(UNATTRIBUTED, endingIAMInfluence.influenceType);
-    XCTAssertNil(endingIAMInfluence.ids);
 }
 
 - (void)testSessionUpgradeFromUnattributedToDirectNotification {
@@ -360,18 +363,14 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
     XCTAssertEqual(1, [notificationInfluence ids].count);
     [CommonAsserts assertArrayEqualsWithExpected:@[testGenericId] actual:notificationInfluence.ids];
 
-    // We test that channel ending is working for both IAM and Notification
-    XCTAssertEqual(2, lastInfluencesBySessionEnding.count);
+    // We test that channel ending is working for Notification
+    // IAM was already indirect
+    XCTAssertEqual(1, lastInfluencesBySessionEnding.count);
     OSInfluence *endingNotificationInfluence = [lastInfluencesBySessionEnding objectAtIndex:0];
-    OSInfluence *endingIAMInfluence = [lastInfluencesBySessionEnding objectAtIndex:1];
 
     XCTAssertEqual(NOTIFICATION, endingNotificationInfluence.influenceChannel);
     XCTAssertEqual(UNATTRIBUTED, endingNotificationInfluence.influenceType);
     XCTAssertNil(endingNotificationInfluence.ids);
-
-    XCTAssertEqual(IN_APP_MESSAGE, endingIAMInfluence.influenceChannel);
-    XCTAssertEqual(UNATTRIBUTED, endingIAMInfluence.influenceType);
-    XCTAssertNil(endingIAMInfluence.ids);
 }
 
 - (void)testSessionUpgradeFromIndirectToDirect {
@@ -536,8 +535,8 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
     OSInfluence *iamInfluence = [[trackerFactory iamChannelTracker] currentSessionInfluence];
     OSInfluence *notificationInfluence = [[trackerFactory notificationChannelTracker] currentSessionInfluence];
 
-    XCTAssertEqual(UNATTRIBUTED, iamInfluence.influenceType);
-    XCTAssertNil(iamInfluence.ids);
+    XCTAssertEqual(INDIRECT, iamInfluence.influenceType);
+    XCTAssertEqual(1, iamInfluence.ids.count);
     XCTAssertEqual(UNATTRIBUTED, notificationInfluence.influenceType);
     XCTAssertNil(notificationInfluence.ids);
 }

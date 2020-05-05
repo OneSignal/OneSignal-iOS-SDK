@@ -82,7 +82,7 @@ THE SOFTWARE.
     if (self.influenceType == INDIRECT)
         self.indirectIds = [self lastReceivedIds];
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"InAppMessageTracker initInfluencedTypeFromCache: %@", [self description]]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"InAppMessageTracker initInfluencedTypeFromCache: %@", [self description]]];
 }
 
 - (void)cacheState {

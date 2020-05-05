@@ -66,7 +66,7 @@ THE SOFTWARE.
 }
 
 - (void)initInfluencedTypeFromCache {
-    OSInfluenceType influenceType = [self.dataRepository notificationCachedInfluenceType];
+    Session influenceType = [self.dataRepository notificationCachedInfluenceType];
     self.influenceType = influenceType;
 
     if (influenceType == INDIRECT)
@@ -74,7 +74,7 @@ THE SOFTWARE.
     else if (influenceType == DIRECT)
         self.directId = [self.dataRepository cachedNotificationOpenId];
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NotificationTracker initInfluencedTypeFromCache: %@", [self description]]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"NotificationTracker initInfluencedTypeFromCache: %@", [self description]]];
 }
 
 - (void)cacheState {

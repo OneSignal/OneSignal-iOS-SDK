@@ -76,6 +76,14 @@
     [self assertOnFocusAtIndex:index payload:@{@"active_time": @(time)}];
 }
 
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time withNotifications:(NSArray *)notifications direct:(BOOL)direct {
+    [self assertOnFocusAtIndex:index payload:@{
+        @"active_time": @(time),
+        @"direct": @(direct),
+        @"notification_ids": notifications,
+    }];
+}
+
 /*
  Assert that a 'on_focus' request was made at a specific index in executedRequests and with specific parameters
  */
@@ -111,6 +119,26 @@
 }
 
 /*
+ Assert number of 'measure_sources' requests made in executedRequests
+ */
++ (void)assertNumberOfMeasureSourcesRequests:(int)expectedCount {
+    int actualCount = 0;
+    for (id request in OneSignalClientOverrider.executedRequests) {
+        if ([request isKindOfClass:OSRequestSendOutcomesV2ToServer.self])
+            actualCount++;
+    }
+    
+    _XCTPrimitiveAssertEqual(
+        UnitTestCommonMethods.currentXCTestCase,
+        actualCount,
+        @"actualCount",
+        expectedCount,
+        @"expectedCount",
+        @"actualCount == expectedCount"
+    );
+}
+
+/*
  Assert that a 'measure' request was made at a specific index in executedRequests and with specific parameters
  */
 + (void)assertMeasureAtIndex:(int)index payload:(NSDictionary*)payload {
@@ -118,7 +146,21 @@
     _XCTPrimitiveAssertTrue(
         UnitTestCommonMethods.currentXCTestCase,
         [request isKindOfClass:OSRequestSendOutcomesV1ToServer.self],
-        @"isKindOfClass:OSRequestSendOutcomesToServer"
+        @"isKindOfClass:OSRequestSendOutcomesV1ToServer"
+    );
+    
+    [self assertDictionarySubset:payload actual:request.parameters];
+}
+
+/*
+ Assert that a 'measure_sources' request was made at a specific index in executedRequests and with specific parameters
+ */
++ (void)assertMeasureSourcesAtIndex:(int)index payload:(NSDictionary*)payload {
+    let request = [OneSignalClientOverrider.executedRequests objectAtIndex:index];
+    _XCTPrimitiveAssertTrue(
+        UnitTestCommonMethods.currentXCTestCase,
+        [request isKindOfClass:OSRequestSendOutcomesV2ToServer.self],
+        @"isKindOfClass:OSRequestSendOutcomesV2ToServer"
     );
     
     [self assertDictionarySubset:payload actual:request.parameters];

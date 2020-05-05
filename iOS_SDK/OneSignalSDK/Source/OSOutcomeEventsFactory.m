@@ -51,7 +51,18 @@ THE SOFTWARE.
 - (OSOutcomeEventsRepository *)repository {
     if (!_repository)
         [self createRepository];
+    else
+        [self checkVersionChanged];
     return _repository;
+}
+
+- (void)checkVersionChanged {
+    if (![_cache isOutcomesV2ServiceEnabled] && [_repository class] == [OSOutcomeEventsV1Repository class])
+        return;
+    if ([_cache isOutcomesV2ServiceEnabled] && [_repository class] == [OSOutcomeEventsV2Repository class])
+        return;
+
+    [self createRepository];
 }
 
 - (void)createRepository {

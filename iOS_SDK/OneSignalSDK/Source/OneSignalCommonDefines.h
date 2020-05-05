@@ -33,7 +33,7 @@
 // Networking
 #define OS_API_VERSION @"1"
 #define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
-#define OS_API_SERVER_URL @"https://api.staging-01.onesignal.com/"
+#define OS_API_SERVER_URL @"https://api.onesignal.com/"
 
 #define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
 
@@ -94,7 +94,6 @@
 #define OSUD_CACHED_INDIRECT_NOTIFICATION_IDS                               @"CACHED_INDIRECT_NOTIFICATION_IDS"                                 // * OSUD_CACHED_INDIRECT_NOTIFICATION_IDS
 #define OSUD_CACHED_RECEIVED_NOTIFICATION_IDS                               @"CACHED_RECEIVED_NOTIFICATION_IDS"                                 // * OSUD_CACHED_RECEIVED_NOTIFICATION_IDS
 #define OSUD_CACHED_RECEIVED_IAM_IDS                                        @"CACHED_RECEIVED_IAM_IDS"                                          // * OSUD_CACHED_RECEIVED_IAM_IDS
-
 #define OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT                 @"CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"                   // * OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT
 #define OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT   @"CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT"     // * OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT
 // Time Tracking
@@ -147,16 +146,16 @@
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
 // OneSignal Influence Strings
-#define OS_INFLUENCE_STRINGS @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"]
+#define OS_INFLUENCE_TYPE_STRINGS @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"]
 // Convert String to Influence enum and vice versa
-#define OS_INFLUENCE_TO_STRING(enum) [OS_INFLUENCE_STRINGS objectAtIndex:enum]
-#define OS_INFLUENCE_FROM_STRING(string) [OS_INFLUENCE_STRINGS indexOfObject:string]
+#define OS_INFLUENCE_TYPE_TO_STRING(enum) [OS_INFLUENCE_TYPE_STRINGS objectAtIndex:enum]
+#define OS_INFLUENCE_TYPE_FROM_STRING(string) [OS_INFLUENCE_TYPE_STRINGS indexOfObject:string]
 
 // OneSignal Influence Channel
-#define OS_INFLUENCE_CHANNEL_STRINGS @[@"IN_APP_MESSAGE", @"NOTIFICATION"]
+#define OS_INFLUENCE_CHANNEL_STRING @[@"IN_APP_MESSAGE", @"NOTIFICATION"]
 // Convert String to Influence Channel enum and vice versa
-#define OS_INFLUENCE_CHANNEL_TO_STRINGS(enum) [OS_INFLUENCE_CHANNEL_STRINGS objectAtIndex:enum]
-#define OS_INFLUENCE_CHANNEL_FROM_STRINGS(string) [OS_INFLUENCE_CHANNEL_STRINGS indexOfObject:string]
+#define OS_INFLUENCE_CHANNEL_TO_STRING(enum) [OS_INFLUENCE_CHANNEL_STRING objectAtIndex:enum]
+#define OS_INFLUENCE_CHANNEL_FROM_STRING(string) [OS_INFLUENCE_CHANNEL_STRING indexOfObject:string]
 
 // OneSignal App Entry Action Types
 typedef enum {NOTIFICATION_CLICK, APP_OPEN, APP_CLOSE} AppEntryAction;

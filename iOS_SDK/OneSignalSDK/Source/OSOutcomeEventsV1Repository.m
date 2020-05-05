@@ -42,26 +42,26 @@ THE SOFTWARE.
     OneSignalRequest *request;
     switch (outcome.influenceType) {
         case DIRECT:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending direct outcome"];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending direct outcome"];
             request = [OSRequestSendOutcomesV1ToServer directWithOutcome:outcome
                                                                  appId:appId
                                                             deviceType:deviceType];
             break;
         case INDIRECT:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending indirect outcome"];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending indirect outcome"];
             request = [OSRequestSendOutcomesV1ToServer indirectWithOutcome:outcome
                                                                    appId:appId
                                                               deviceType:deviceType];
             break;
         case UNATTRIBUTED:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Sending unattributed outcome"];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending unattributed outcome"];
             request = [OSRequestSendOutcomesV1ToServer unattributedWithOutcome:outcome
                                                                        appId:appId
                                                                   deviceType:deviceType];
             break;
         case DISABLED:
         default:
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Outcomes for current session are disabled"];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Outcomes for current session are disabled"];
             return;
     }
 
