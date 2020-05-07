@@ -34,6 +34,7 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
+#import "OneSignalCommonDefines.h"
 
 @interface OneSignal ()
 
@@ -69,6 +70,10 @@
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
+
+@property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt> *> *currentPromptActions;
+
+@property (nonatomic, nullable) OSInAppMessage *currentInAppMessage;
 
 @property (nonatomic) BOOL isAppInactive;
 
@@ -509,7 +514,8 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay saved redisplayedInAppMessages: %@", [redisplayedInAppMessages description]]];
 }
 
-- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions withMessage:(OSInAppMessage *)inAppMessage {
+    _currentPromptAction = nil;
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         // Don't show prompt twice
         if (!promptAction.hasPrompted) {
@@ -521,15 +527,38 @@ static BOOL _isInAppMessagingPaused = false;
     if (_currentPromptAction) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
         _currentPromptAction.hasPrompted = YES;
-        [_currentPromptAction handlePrompt:^(BOOL accepted) {
-            _currentPromptAction = nil;
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %@", accepted ? @"YES" : @"NO"]];
-            [self handlePromptActions:promptActions];
+        [_currentPromptAction handlePrompt:^(PromptActionResult result) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %u", result]];
+            if (inAppMessage.isPreview && result == LOCATION_PERMISSIONS_MISSING_INFO_PLIST) {
+                [self showAlertDialogMessage:inAppMessage promptActions:promptActions];
+            } else {
+                [self handlePromptActions:promptActions withMessage:inAppMessage];
+            }
         }];
     } else if (!_viewController) { // IAM dismissed by action
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
+        _currentInAppMessage = nil;
+        _currentPromptActions = nil;
         [self evaluateMessageDisplayQueue];
     }
+}
+
+- (void)showAlertDialogMessage:(OSInAppMessage *)inAppMessage
+                 promptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions  {
+    _currentInAppMessage = inAppMessage;
+    _currentPromptActions = promptActions;
+    let messageTitle = @"Location Not Available";
+    let message = @"Looks like this app doesn't have location services configured. Please see OneSignal docs for more information.";
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:messageTitle
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:nil
+                                          otherButtonTitles:@"OK", nil];
+    [alert show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    [self handlePromptActions:_currentPromptActions withMessage:_currentInAppMessage];
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
@@ -540,7 +569,7 @@ static BOOL _isInAppMessagingPaused = false;
         [self handleMessageActionWithURL:action];
     
     if (action.promptActions && action.promptActions.count > 0)
-        [self handlePromptActions:action.promptActions];
+        [self handlePromptActions:action.promptActions withMessage:message];
 
     if (self.actionClickBlock) {
         // Any outcome sent on this callback should count as DIRECT from this IAM
