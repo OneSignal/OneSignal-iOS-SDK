@@ -1397,7 +1397,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [self promptLocation:nil];
 }
 
-+ (void)promptLocation:(void (^)(BOOL accepted))completionHandler {
++ (void)promptLocation:(void (^)(PromptActionResult result))completionHandler {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
         return;

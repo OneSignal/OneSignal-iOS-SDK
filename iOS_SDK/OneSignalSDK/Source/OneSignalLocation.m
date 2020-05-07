@@ -104,7 +104,7 @@ static OneSignalLocation* singleInstance = nil;
     }
 }
 
-+ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(BOOL accepted))completionHandler {
++ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(PromptActionResult result))completionHandler {
     if (completionHandler)
         [OneSignalLocation.locationListeners addObject:completionHandler];
 
@@ -173,10 +173,10 @@ static OneSignalLocation* singleInstance = nil;
     fcTask = UIBackgroundTaskInvalid;
 }
 
-+ (void)sendAndClearLocationListener:(BOOL)accept {
++ (void)sendAndClearLocationListener:(PromptActionResult)result {
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocation.locationListeners]);
     for (int i = 0; i < OneSignalLocation.locationListeners.count; i++) {
-        ((void (^)(BOOL accepted))[OneSignalLocation.locationListeners objectAtIndex:i])(accept);
+        ((void (^)(PromptActionResult result))[OneSignalLocation.locationListeners objectAtIndex:i])(result);
     }
     // We only call the listeners once
     [OneSignalLocation.locationListeners removeAllObjects];
@@ -190,7 +190,7 @@ static OneSignalLocation* singleInstance = nil;
 
     // If already given or denied the permission, listeners should have the response
     let denied = permissionStatus == kCLAuthorizationStatusRestricted || permissionStatus == kCLAuthorizationStatusDenied;
-    [self sendAndClearLocationListener:!denied];
+    [self sendAndClearLocationListener:denied ? PERMISSION_DENIED : PERMISSION_GRANTED];
 }
 
 + (void)internalGetLocation:(bool)prompt {
@@ -203,7 +203,7 @@ static OneSignalLocation* singleInstance = nil;
     
     // Check for location in plist
     if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)]) {
-        [self sendAndClearLocationListener:false];
+        [self sendAndClearLocationListener:ERROR];
         return;
     }
     
@@ -229,13 +229,16 @@ static OneSignalLocation* singleInstance = nil;
             if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
                 [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
         }
-        
+
         else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
             if (permissionStatus == kCLAuthorizationStatusNotDetermined)
                 [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
         }
-        
-        else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+
+        else {
+            onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+            [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
+        }
     }
         
     // For iOS 6 and 7, location services are prompted here
@@ -251,7 +254,7 @@ static OneSignalLocation* singleInstance = nil;
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
     if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared]) {
-        [OneSignalLocation sendAndClearLocationListener:false];
+        [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
         return;
     }
     
@@ -283,12 +286,12 @@ static OneSignalLocation* singleInstance = nil;
     if (!initialLocationSent)
         [OneSignalLocation sendLocation];
     
-    [OneSignalLocation sendAndClearLocationListener:true];
+    [OneSignalLocation sendAndClearLocationListener:PERMISSION_GRANTED];
 }
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
-    [OneSignalLocation sendAndClearLocationListener:false];
+    [OneSignalLocation sendAndClearLocationListener:ERROR];
 }
 
 + (void)resetSendTimer {
