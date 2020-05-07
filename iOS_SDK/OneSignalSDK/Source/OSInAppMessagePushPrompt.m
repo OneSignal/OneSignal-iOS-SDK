@@ -27,6 +27,7 @@
 
 #import "OSInAppMessagePushPrompt.h"
 #import "OneSignal.h"
+#import "OneSignalHelper.h"
 
 @implementation OSInAppMessagePushPrompt
 
@@ -39,8 +40,12 @@
     return self;
 }
 
-- (void)handlePrompt:(void (^)(BOOL accepted))completionHandler {
-    [OneSignal promptForPushNotificationsWithUserResponse:completionHandler fallbackToSettings:YES];
+- (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler {
+    let acceptedCompletionHandler = ^(BOOL accepted) {
+        let result = accepted ? PERMISSION_GRANTED : PERMISSION_DENIED;
+        completionHandler(result);
+    };
+    [OneSignal promptForPushNotificationsWithUserResponse:acceptedCompletionHandler fallbackToSettings:YES];
 }
 
 - (NSString *)description {
