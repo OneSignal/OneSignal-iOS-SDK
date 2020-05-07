@@ -104,7 +104,7 @@ static OneSignalLocation* singleInstance = nil;
     }
 }
 
-+ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(BOOL accepted))completionHandler {
++ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler {
     if (completionHandler)
         [OneSignalLocation.locationListeners addObject:completionHandler];
 
@@ -174,9 +174,13 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (void)sendAndClearLocationListener:(BOOL)accept {
+    [self sendAndClearLocationListenerWithMessageTitle:nil message:nil accept:accept];
+}
+
++ (void)sendAndClearLocationListenerWithMessageTitle:(NSString *)messageTitle message:(NSString *)message accept:(BOOL)accept {
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocation.locationListeners]);
     for (int i = 0; i < OneSignalLocation.locationListeners.count; i++) {
-        ((void (^)(BOOL accepted))[OneSignalLocation.locationListeners objectAtIndex:i])(accept);
+        ((void (^)(NSString *messageTitle, NSString *message, BOOL accepted))[OneSignalLocation.locationListeners objectAtIndex:i])(messageTitle, message, accept);
     }
     // We only call the listeners once
     [OneSignalLocation.locationListeners removeAllObjects];
@@ -229,13 +233,18 @@ static OneSignalLocation* singleInstance = nil;
             if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
                 [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
         }
-        
+
         else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
             if (permissionStatus == kCLAuthorizationStatusNotDetermined)
                 [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
         }
-        
-        else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+
+        else {
+            onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+            [self sendAndClearLocationListenerWithMessageTitle:@"Location Not Available"
+                                                       message:@"Looks like this app doesn\'t have location permissions granted"
+                                                        accept:false];
+        }
     }
         
     // For iOS 6 and 7, location services are prompted here

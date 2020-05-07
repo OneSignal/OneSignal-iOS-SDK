@@ -30,7 +30,7 @@
 
 @interface OneSignal ()
 
-+ (void)promptLocation:(void (^)(BOOL accepted))completionHandler;
++ (void)promptLocation:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler;
 
 @end
 
@@ -45,7 +45,7 @@
     return self;
 }
 
-- (void)handlePrompt:(void (^)(BOOL accepted))completionHandler {
+- (void)handlePrompt:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler {
     [OneSignal promptLocation:completionHandler];
 }
 

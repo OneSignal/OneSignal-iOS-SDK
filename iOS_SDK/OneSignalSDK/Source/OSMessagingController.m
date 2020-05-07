@@ -72,6 +72,10 @@
 
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 
+@property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt> *> *currentPromptActions;
+
+@property (nonatomic, nullable) OSInAppMessage *currentInAppMessage;
+
 @property (nonatomic) BOOL isAppInactive;
 
 @end
@@ -509,7 +513,8 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay saved redisplayedInAppMessages: %@", [redisplayedInAppMessages description]]];
 }
 
-- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions withMessage:(OSInAppMessage *)inAppMessage {
+    _currentPromptAction = nil;
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         // Don't show prompt twice
         if (!promptAction.hasPrompted) {
@@ -521,15 +526,38 @@ static BOOL _isInAppMessagingPaused = false;
     if (_currentPromptAction) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
         _currentPromptAction.hasPrompted = YES;
-        [_currentPromptAction handlePrompt:^(BOOL accepted) {
-            _currentPromptAction = nil;
+        [_currentPromptAction handlePrompt:^(NSString *messageTitle, NSString *message, BOOL accepted) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %@", accepted ? @"YES" : @"NO"]];
-            [self handlePromptActions:promptActions];
+            if (inAppMessage.isPreview && messageTitle && message) {
+                [self showAlertDialogMessage:message messageTitle:messageTitle inAppMessage:inAppMessage promptActions:promptActions];
+            } else {
+                [self handlePromptActions:promptActions withMessage:inAppMessage];
+            }
         }];
     } else if (!_viewController) { // IAM dismissed by action
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
+        _currentInAppMessage = nil;
+        _currentPromptActions = nil;
         [self evaluateMessageDisplayQueue];
     }
+}
+
+- (void)showAlertDialogMessage:(NSString *)message
+                  messageTitle:(NSString *)messageTitle
+                  inAppMessage:(OSInAppMessage *)inAppMessage
+                 promptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions  {
+    _currentInAppMessage = inAppMessage;
+    _currentPromptActions = promptActions;
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:messageTitle
+                                                    message:message
+                                                   delegate:self
+                                          cancelButtonTitle:nil
+                                          otherButtonTitles:@"OK", nil];
+    [alert show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    [self handlePromptActions:_currentPromptActions withMessage:_currentInAppMessage];
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
@@ -539,7 +567,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    [self handlePromptActions:action.promptActions];
+    [self handlePromptActions:action.promptActions withMessage:message];
 
     if (self.actionClickBlock)
         self.actionClickBlock(action);

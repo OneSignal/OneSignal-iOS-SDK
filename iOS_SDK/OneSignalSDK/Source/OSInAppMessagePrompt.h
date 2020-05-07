@@ -36,7 +36,7 @@
 
 @property (nonatomic) BOOL hasPrompted;
 
-- (void)handlePrompt:(void (^)(BOOL accepted))completionHandler;
+- (void)handlePrompt:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler;
 
 @end
 

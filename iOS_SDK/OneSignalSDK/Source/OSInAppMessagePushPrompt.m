@@ -27,6 +27,7 @@
 
 #import "OSInAppMessagePushPrompt.h"
 #import "OneSignal.h"
+#import "OneSignalHelper.h"
 
 @implementation OSInAppMessagePushPrompt
 
@@ -39,8 +40,11 @@
     return self;
 }
 
-- (void)handlePrompt:(void (^)(BOOL accepted))completionHandler {
-    [OneSignal promptForPushNotificationsWithUserResponse:completionHandler fallbackToSettings:YES];
+- (void)handlePrompt:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler {
+    let acceptedCompletionHandler = ^(BOOL accepted) {
+        completionHandler(nil, nil, accepted);
+    };
+    [OneSignal promptForPushNotificationsWithUserResponse:acceptedCompletionHandler fallbackToSettings:YES];
 }
 
 - (NSString *)description {
