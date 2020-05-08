@@ -30,7 +30,7 @@
 
 @interface OneSignal ()
 
-+ (void)promptLocation:(void (^)(PromptActionResult result))completionHandler;
++ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler;
 
 @end
 
@@ -46,7 +46,7 @@
 }
 
 - (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler {
-    [OneSignal promptLocation:completionHandler];
+    [OneSignal promptLocationFallbackToSettings:true completionHandler:completionHandler];
 }
 
 - (NSString *)description {
