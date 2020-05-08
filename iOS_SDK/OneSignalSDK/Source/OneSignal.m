@@ -556,7 +556,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
     
     if (appId && mShareLocation)
-       [OneSignalLocation getLocation:false withCompletionHandler:nil];
+       [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
     
     /*
      * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
@@ -1394,15 +1394,15 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)promptLocation {
-    [self promptLocation:nil];
+    [self promptLocationFallbackToSettings:false completionHandler:nil];
 }
 
-+ (void)promptLocation:(void (^)(PromptActionResult result))completionHandler {
++ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
         return;
     
-    [OneSignalLocation getLocation:true withCompletionHandler:completionHandler];
+    [OneSignalLocation getLocation:true fallbackToSettings:fallback withCompletionHandler:completionHandler];
 }
 
 + (BOOL)isLocationShared {
