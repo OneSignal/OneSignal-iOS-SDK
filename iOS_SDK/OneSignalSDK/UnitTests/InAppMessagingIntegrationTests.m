@@ -95,7 +95,9 @@
 - (void)tearDown {
     // Wait for IAM viewDidLoad if available to not conflict with other tests
     [UnitTestCommonMethods runBackgroundThreads];
-    
+    [OneSignal setInAppMessageClickHandler:nil];
+    [OneSignal pauseInAppMessages:true];
+
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
     
     [OSMessagingController.sharedInstance resetState];
@@ -875,6 +877,98 @@
     XCTAssertEqual(1, [iamIds count]);
     XCTAssertNil(indirectBody);
     XCTAssertEqual(outcomeWeight, [[OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"] intValue]);
+}
+
+- (void)testIAMClickedLaunchesClickHandlerSendDirectOutcomeV2Request {
+    [self setOutcomesParamsEnabled];
+    [self setOutcomesV2Enabled];
+
+    let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
+
+    OSInAppMessage * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+
+    [self initOneSignalWithInAppMessage:message];
+    
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
+
+    __block OSInAppMessageAction *actionReceived = nil;
+    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
+        actionReceived = action;
+
+        [OneSignal sendOutcome:@"test"];
+        [UnitTestCommonMethods runBackgroundThreads];
+
+        // The action should cause an "outcome" API request
+        XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
+        XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
+        id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
+        id directBody = [source objectForKey:@"direct"];
+        id indirectBody = [source objectForKey:@"indirect"];
+        id iamIds = [directBody objectForKey:@"in_app_message_ids"];
+        XCTAssertEqual(1, [iamIds count]);
+        XCTAssertNil(indirectBody);
+        XCTAssertNil([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"]);
+    };
+    [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
+    
+    [OneSignal addTrigger:@"testProp" withValue:@2];
+    [UnitTestCommonMethods runBackgroundThreads];
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction instanceWithJson: OSInAppMessageTestHelper.testActionJson];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:message withAction:action];
+
+    XCTAssertNotNil(actionReceived);
+}
+
+- (void)testIAMClickedLaunchesClickHandlerDismissIAMSendIndirectOutcomeV2Request {
+    [OneSignal pauseInAppMessages:false];
+    [self setOutcomesParamsEnabled];
+    [self setOutcomesV2Enabled];
+
+    let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
+
+    OSInAppMessage * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+
+    [self initOneSignalWithInAppMessage:message];
+
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
+
+    // Check no influence id saved
+    NSArray *lastReceivedIds = [[[[OSTrackerFactory alloc] init] iamChannelTracker] lastReceivedIds];
+    XCTAssertEqual(lastReceivedIds.count, 0);
+
+    __block OSInAppMessageAction *actionReceived = nil;
+    id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
+        actionReceived = action;
+    };
+    [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
+
+    [OneSignal addTrigger:@"testProp" withValue:@2];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction instanceWithJson: OSInAppMessageTestHelper.testActionJson];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:message withAction:action];
+
+    XCTAssertNotNil(actionReceived);
+
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+
+    [OneSignal sendOutcome:@"test"];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
+    id directBody = [source objectForKey:@"direct"];
+    id indirectBody = [source objectForKey:@"indirect"];
+    id iamIds = [indirectBody objectForKey:@"in_app_message_ids"];
+    XCTAssertEqual(1, [iamIds count]);
+    XCTAssertNil(directBody);
+    XCTAssertNil([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"]);
 }
 
 - (void)testIAMClickedLaunchesMultipleOutcomesAPIRequest {

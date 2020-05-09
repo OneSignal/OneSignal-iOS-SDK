@@ -432,7 +432,9 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
-        
+        // Remove DIRECT influence due to ClickHandler of ClickAction outcomes
+        [OneSignal.sessionManager onDirectInfluenceFromIAMClickFinished];
+
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
             OSInAppMessage *showingIAM = self.messageDisplayQueue.firstObject;
@@ -537,10 +539,14 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    [self handlePromptActions:action.promptActions];
+    if (action.promptActions && action.promptActions.count > 0)
+        [self handlePromptActions:action.promptActions];
 
-    if (self.actionClickBlock)
+    if (self.actionClickBlock) {
+        // Any outcome sent on this callback should count as DIRECT from this IAM
+        [OneSignal.sessionManager onDirectInfluenceFromIAMClick:message.messageId];
         self.actionClickBlock(action);
+    }
     
     if (message.isPreview) {
         [self processPreviewInAppMessage:message withAction:action];
