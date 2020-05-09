@@ -79,6 +79,7 @@ THE SOFTWARE.
     _indirectIds = [self lastReceivedIds];
     _influenceType = _indirectIds != nil && _indirectIds.count > 0 ? INDIRECT : UNATTRIBUTED;
     
+    [self cacheState];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker resetAndInitInfluence for: %@ finish with influenceType: %@", [self idTag], OS_INFLUENCE_TYPE_TO_STRING(_influenceType)]];
 }
 

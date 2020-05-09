@@ -84,8 +84,6 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
         else
             [self sendOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
     }
-    // Requests are sent or cached at this point
-    [_sessionManager onDirectInfluenceFromIAMClickFinished];
 }
 
 - (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name
