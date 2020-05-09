@@ -89,5 +89,4 @@ THE SOFTWARE.
     [self.dataRepository cacheIAMInfluenceType:self.influenceType];
 }
 
-
 @end

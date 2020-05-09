@@ -318,6 +318,7 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
 
     [sessionManager onNotificationReceived:testGenericId];
     [sessionManager onInAppMessageReceived:testGenericId];
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     
     [sessionManager attemptSessionUpgrade:APP_OPEN];
 
@@ -350,6 +351,7 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
 
     [sessionManager onNotificationReceived:testGenericId];
     [sessionManager onInAppMessageReceived:testGenericId];
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:testGenericId];
 
     iamInfluence = [[trackerFactory iamChannelTracker] currentSessionInfluence];
@@ -511,6 +513,7 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
     [self setOutcomesParamsEnabled];
 
     [sessionManager onInAppMessageReceived:testIAMId];
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     [sessionManager onNotificationReceived:testNotificationId];
 
     [sessionManager restartSessionIfNeeded:APP_OPEN];
@@ -528,6 +531,7 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
     [self setOutcomesParamsEnabled];
 
     [sessionManager onInAppMessageReceived:testIAMId];
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     [sessionManager onNotificationReceived:testNotificationId];
 
     [sessionManager restartSessionIfNeeded:APP_CLOSE];

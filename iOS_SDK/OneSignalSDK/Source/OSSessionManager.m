@@ -93,7 +93,6 @@
     
     OSChannelTracker *inAppMessageTracker = [_trackerFactory iamChannelTracker];
     [inAppMessageTracker saveLastId:messageId];
-    [inAppMessageTracker resetAndInitInfluence];
 }
 
 - (void)onDirectInfluenceFromIAMClick:(NSString *)directIAMId {

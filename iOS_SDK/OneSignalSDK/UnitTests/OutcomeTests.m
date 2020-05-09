@@ -185,7 +185,7 @@
         XCTAssertEqual(influence.ids, nil);
     }
     
-    // 4. Rceive 3 notifications
+    // 4. Receive 3 notifications
     [sessionManager onNotificationReceived:testNotificationId];
     [sessionManager onNotificationReceived:testNotificationId];
     [sessionManager onNotificationReceived:testNotificationId];
