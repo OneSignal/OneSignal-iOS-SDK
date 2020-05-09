@@ -45,9 +45,9 @@ THE SOFTWARE.
     NSMutableDictionary *params = [NSMutableDictionary new];
     params[@"id"] = _outcomeId;
     params[@"sources"] = [_outcomeSource toDictionaryObject];
-    if (_weight > 0)
+    if ([_weight intValue] > 0)
         params[@"weight"] = _weight;
-    if (_timestamp > 0)
+    if ([_timestamp intValue] > 0)
         params[@"timestamp"] = _timestamp;
     return params;
 }

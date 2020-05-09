@@ -240,7 +240,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"direct" : @{
                         @"notification_ids" : @[testNotificationId]
                 },
@@ -263,7 +264,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"indirect" : @{
                         @"notification_ids" : @[testNotificationId]
                 },
@@ -286,8 +288,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
+        @"id" : @"test",
         @"weight": @10,
-        @"source" : @{
+        @"sources" : @{
                 @"indirect" : @{
                         @"notification_ids" : @[testNotificationId]
                 },
@@ -310,7 +313,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"direct" : @{
                         @"in_app_message_ids" : @[testNotificationId]
                 },
@@ -333,7 +337,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"indirect" : @{
                         @"in_app_message_ids" : @[testNotificationId, @"iam_test"]
                 },
@@ -356,8 +361,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
+        @"id" : @"test",
         @"weight" : @9.99999,
-        @"source" : @{
+        @"sources" : @{
                 @"indirect" : @{
                         @"in_app_message_ids" : @[testNotificationId, @"iam_test"]
                 },
@@ -381,7 +387,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"direct" : @{
                         @"notification_ids" : @[testNotificationId],
                         @"in_app_message_ids" : @[testNotificationId]
@@ -406,7 +413,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"indirect" : @{
                         @"notification_ids" : @[testNotificationId, @"notification_test"],
                         @"in_app_message_ids" : @[testNotificationId, @"iam_test"]
@@ -432,7 +440,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{
+        @"id" : @"test",
+        @"sources" : @{
                 @"direct" : @{
                         @"notification_ids" : @[testNotificationId],
                         @"in_app_message_ids" : @[testNotificationId]
@@ -458,7 +467,8 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
-        @"source" : @{}
+        @"id" : @"test",
+        @"sources" : @{}
     }));
 }
 
@@ -475,8 +485,9 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{
         @"app_id" : testAppId,
         @"device_type" : testDeviceType,
+        @"id" : @"test",
         @"weight" : @9.9999999999,
-        @"source" : @{}
+        @"sources" : @{}
     }));
 }
 

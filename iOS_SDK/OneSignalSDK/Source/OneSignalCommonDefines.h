@@ -120,7 +120,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
-#define IOS_OUTCOMES_V2_SERVICE_ENABLE @"outcomes_v2_service_enabled"
+#define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"

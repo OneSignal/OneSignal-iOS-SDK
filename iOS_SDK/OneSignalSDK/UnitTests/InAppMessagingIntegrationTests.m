@@ -793,7 +793,7 @@
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
-    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"source"];
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
     id directBody = [source objectForKey:@"direct"];
     id indirectBody = [source objectForKey:@"indirect"];
     id iamIds = [directBody objectForKey:@"in_app_message_ids"];
@@ -868,7 +868,7 @@
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
-    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"source"];
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
     id directBody = [source objectForKey:@"direct"];
     id indirectBody = [source objectForKey:@"indirect"];
     id iamIds = [directBody objectForKey:@"in_app_message_ids"];
@@ -1015,7 +1015,7 @@
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV2ToServer class]));
-    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"source"];
+    id source = [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"sources"];
     id directBody = [source objectForKey:@"direct"];
     id indirectBody = [source objectForKey:@"indirect"];
     id iamIds = [directBody objectForKey:@"in_app_message_ids"];
