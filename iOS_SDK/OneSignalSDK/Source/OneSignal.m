@@ -695,7 +695,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         [self registerForAPNsToken];
     }
         
-    // Validate the kOSSettingsKeyNotificationDisplayOption launchg option exists and is of kind NSNumber
+    // Validate the kOSSettingsKeyNotificationDisplayOption launch option exists and is of kind NSNumber
     if (settings[kOSSettingsKeyNotificationDisplayOption] && [settings[kOSSettingsKeyNotificationDisplayOption] isKindOfClass:[NSNumber class]]) {
         NSNumber *NDSetting = settings[kOSSettingsKeyNotificationDisplayOption];
         // Make sure an option for 0 (Silent) or 1 (Notification) is passed
