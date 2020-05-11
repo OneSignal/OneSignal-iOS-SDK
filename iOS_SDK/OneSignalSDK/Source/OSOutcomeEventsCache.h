@@ -33,11 +33,11 @@ THE SOFTWARE.
 - (BOOL)isOutcomesV2ServiceEnabled;
 - (void)saveOutcomesV2ServiceEnabled:(BOOL)isEnabled;
 
-- (NSSet *)getUnattributedUniqueOutcomeEventsSent;
-- (void)saveUnattributedUniqueOutcomeEventsSent:(NSSet *)unattributedUniqueOutcomeEventsSentSet;
+- (NSSet * _Nullable)getUnattributedUniqueOutcomeEventsSent;
+- (void)saveUnattributedUniqueOutcomeEventsSent:(NSSet * _Nullable)unattributedUniqueOutcomeEventsSentSet;
 
-- (NSArray *)getAttributedUniqueOutcomeEventSent;
-- (void)saveAttributedUniqueOutcomeEventNotificationIds:(NSArray *)attributedUniqueOutcomeEventNotificationIdsSent;
+- (NSArray * _Nullable)getAttributedUniqueOutcomeEventSent;
+- (void)saveAttributedUniqueOutcomeEventNotificationIds:(NSArray * _Nullable)attributedUniqueOutcomeEventNotificationIdsSent;
 
 @end
 

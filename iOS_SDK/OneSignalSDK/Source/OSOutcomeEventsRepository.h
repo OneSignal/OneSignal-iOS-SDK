@@ -37,18 +37,18 @@ THE SOFTWARE.
 
 @property (strong, nonatomic, readonly, nonnull) OSOutcomeEventsCache *outcomeEventsCache;
 
-- (id)initWithCache:(OSOutcomeEventsCache *)outcomeEventsCache;
-- (void)requestMeasureOutcomeEventWithAppId:(NSString *)appId
-                                 deviceType:(NSNumber *)deviceType
-                                      event:(OSOutcomeEventParams *)event
-                                  onSuccess:(OSResultSuccessBlock)successBlock
-                                  onFailure:(OSFailureBlock)failureBlock;
+- (id _Nonnull)initWithCache:(OSOutcomeEventsCache * _Nonnull)outcomeEventsCache;
+- (void)requestMeasureOutcomeEventWithAppId:(NSString * _Nonnull)appId
+                                 deviceType:(NSNumber * _Nonnull)deviceType
+                                      event:(OSOutcomeEventParams * _Nonnull)event
+                                  onSuccess:(OSResultSuccessBlock _Nonnull)successBlock
+                                  onFailure:(OSFailureBlock _Nonnull)failureBlock;
 
-- (NSSet *)getUnattributedUniqueOutcomeEventsSent;
-- (void)saveUnattributedUniqueOutcomeEventsSent:(NSSet *)unattributedUniqueOutcomeEventsSentSet;
+- (NSSet * _Nullable)getUnattributedUniqueOutcomeEventsSent;
+- (void)saveUnattributedUniqueOutcomeEventsSent:(NSSet * _Nullable)unattributedUniqueOutcomeEventsSentSet;
 
-- (NSArray *)getNotCachedUniqueInfluencesForOutcome:(NSString *)name influences:(NSArray<OSInfluence *> *)influences;
-- (void)saveUniqueOutcomeEventParams:(OSOutcomeEventParams *)eventParams;
+- (NSArray * _Nonnull)getNotCachedUniqueInfluencesForOutcome:(NSString * _Nonnull)name influences:(NSArray<OSInfluence *> * _Nonnull)influences;
+- (void)saveUniqueOutcomeEventParams:(OSOutcomeEventParams * _Nonnull)eventParams;
 
 @end
 

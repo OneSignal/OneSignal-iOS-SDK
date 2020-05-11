@@ -33,9 +33,9 @@ THE SOFTWARE.
 
 @interface OSOutcomeEventsFactory : NSObject
 
-- (instancetype)initWithCache:(OSOutcomeEventsCache *)cache;
+- (id _Nonnull)initWithCache:(OSOutcomeEventsCache * _Nonnull)cache;
 
-- (OSOutcomeEventsRepository *)repository;
+- (OSOutcomeEventsRepository * _Nonnull)repository;
 
 @end
 
