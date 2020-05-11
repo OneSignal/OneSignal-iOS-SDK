@@ -539,7 +539,8 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    [self handlePromptActions:action.promptActions];
+    if (action.promptActions && action.promptActions.count > 0)
+        [self handlePromptActions:action.promptActions];
 
     if (self.actionClickBlock)
         self.actionClickBlock(action);
