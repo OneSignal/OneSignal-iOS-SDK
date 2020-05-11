@@ -48,11 +48,11 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 }
 
 - (void)endBackgroundFocusTask {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)focusBackgroundTask]];
     [UIApplication.sharedApplication endBackgroundTask: focusBackgroundTask];
     focusBackgroundTask = UIBackgroundTaskInvalid;
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"endBackgroundFocusTask called"];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"endBackgroundFocusTask called"];
 }
 
 - (int)getMinSessionTime {
@@ -67,10 +67,10 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
     let unsentActive = [super getUnsentActiveTime];
     let totalTimeActive = unsentActive + params.timeElapsed;
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendOnFocusCall unattributed with totalTimeActive %f", totalTimeActive]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendOnFocusCall unattributed with totalTimeActive %f", totalTimeActive]];
     
     if (![super hasMinSyncTime:totalTimeActive]) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"unattributed influence saveUnsentActiveTime %f", totalTimeActive]];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"unattributed influence saveUnsentActiveTime %f", totalTimeActive]];
         [super saveUnsentActiveTime:totalTimeActive];
         return;
     }
@@ -80,7 +80,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
 - (void)sendUnsentActiveTime:(OSFocusCallParams *)params {
     let unsentActive = [super getUnsentActiveTime];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"sendUnsentActiveTime unattributed with unsentActive %f", unsentActive]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"sendUnsentActiveTime unattributed with unsentActive %f", unsentActive]];
     
     [self sendOnFocusCallWithParams:params totalTimeActive:unsentActive];
 }
@@ -91,7 +91,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self beginBackgroundFocusTask];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"beginBackgroundFocusTask start"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"beginBackgroundFocusTask start"];
        
         let deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
         let requests = [NSMutableDictionary new];
@@ -103,10 +103,10 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
             [self endBackgroundFocusTask];
         } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
+            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
             [self endBackgroundFocusTask];
         }];
     });

@@ -129,7 +129,7 @@ THE SOFTWARE.
 }
 
 - (void)saveUniqueOutcomeEventParams:(OSOutcomeEventParams *)eventParams {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSOutcomeEventsRepository saveUniqueOutcomeEventParams: %@", eventParams.description]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSOutcomeEventsRepository saveUniqueOutcomeEventParams: %@", eventParams.description]];
     if (eventParams.outcomeSource == nil)
         return;
     
@@ -144,7 +144,7 @@ THE SOFTWARE.
     NSArray<OSCachedUniqueOutcome *> *attributedUniqueOutcomeEventSent = [self getAttributedUniqueOutcomeEventSent];
     
     NSArray *finalAttributedUniqueOutcomeEventSent = [attributedUniqueOutcomeEventSent arrayByAddingObjectsFromArray:newAttributedIds];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSOutcomeEventsRepository finalAttributedUniqueOutcomeEventSent: %@", finalAttributedUniqueOutcomeEventSent.description]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSOutcomeEventsRepository finalAttributedUniqueOutcomeEventSent: %@", finalAttributedUniqueOutcomeEventSent.description]];
     [self saveAttributedUniqueOutcomeEventNotificationIds:finalAttributedUniqueOutcomeEventSent];
 }
 
