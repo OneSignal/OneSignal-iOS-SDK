@@ -27,7 +27,7 @@
 
 #import "OSJSONHandling.h"
 
-@interface OSIndirectInfluence : NSObject <NSCoding, OSJSONDecodable, OSJSONEncodable>
+@interface OSIndirectInfluence : NSObject <NSCoding, OSJSONEncodable, OSJSONDecodable>
 
 @property (nonatomic, readonly) NSString *channelIdTag;
 @property (nonatomic, readonly) NSString *influenceId;
