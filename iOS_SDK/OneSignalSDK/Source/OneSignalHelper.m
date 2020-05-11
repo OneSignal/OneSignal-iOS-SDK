@@ -183,7 +183,7 @@
         //If remote silent -> shown = false
         //If app is active and in-app alerts are not enabled -> shown = false
         if (_silentNotification ||
-            (_isAppInFocus && OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone))
+            (_isAppInFocus && OneSignal.notificationDisplayType == OSNotificationDisplayTypeSilent))
             _shown = false;
         
     }

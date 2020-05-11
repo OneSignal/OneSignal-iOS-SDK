@@ -165,7 +165,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 7. Ensure onfocus is sent in the background.
-    [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
+    [RestClientAsserts assertOnFocusAtIndex:5 withTime:15];
 }
 
 - (void)testDirectSession_overridesIndirectSession_andSendsOnFocus {

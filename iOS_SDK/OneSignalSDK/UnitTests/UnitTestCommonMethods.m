@@ -101,7 +101,7 @@ static XCTestCase* _currentXCTestCase;
  */
 + (void)initOneSignal {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal setLaunchOptions:@{}];
 }
 
 /*
@@ -111,7 +111,7 @@ static XCTestCase* _currentXCTestCase;
 + (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
         notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+[OneSignal setLaunchOptions:@{}];
     [OneSignal setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate];
     [OneSignal setNotificationOpenedHandler:notificationOpenedDelegate];
 }

@@ -33,7 +33,6 @@
 #import "OneSignalReachability.h"
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalMobileProvision.h"
-#import "OneSignalAlertViewDelegate.h"
 #import "OneSignalHelper.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
@@ -88,14 +87,11 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
 
-/* Enable the default in-app alerts*/
-NSString* const kOSSettingsKeyInAppAlerts = @"kOSSettingsKeyInAppAlerts";
-
 /* Enable the default in-app launch urls*/
 NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
-/* Set InFocusDisplayOption value must be an OSNotificationDisplayType enum*/
-NSString* const kOSSettingsKeyInFocusDisplayOption = @"kOSSettingsKeyInFocusDisplayOption";
+/* Set notificationDisplayType value must be an OSNotificationDisplayType enum*/
+NSString* const kOSSettingsKeyNotificationDisplayOption = @"kOSSettingsKeyNotificationDisplayOption";
 
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
@@ -135,7 +131,6 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 NSString* const ONESIGNAL_VERSION = @"021205";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
-
 static BOOL shouldDelaySubscriptionUpdate = false;
 
 /*
@@ -173,7 +168,7 @@ static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
 // Make sure launchOptions have been set
-// We need this BOL because launchOptions can be null so simply null checking
+// We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
 static BOOL hasSetLaunchOptions = false;
 // Ensure we only initlize the SDK once even if the public method is called more
@@ -211,16 +206,12 @@ static BOOL providesAppNotificationSettings = false;
 static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
 
-static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
-+ (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
-    NSInteger op = value;
-    if ([OneSignalHelper isIOSVersionLessThan:@"10.0"] && OSNotificationDisplayTypeNotification == op)
-        op = OSNotificationDisplayTypeInAppAlert;
-    
-    _inFocusDisplayType = op;
+static OSNotificationDisplayType _notificationDisplayType = OSNotificationDisplayTypeNotification;
++ (void)setNotificationDisplayType:(OSNotificationDisplayType)value {
+    _notificationDisplayType = value;
 }
-+ (OSNotificationDisplayType)inFocusDisplayType {
-    return _inFocusDisplayType;
++ (OSNotificationDisplayType)notificationDisplayType {
+    return _notificationDisplayType;
 }
 
 // iOS version implementation
@@ -703,22 +694,13 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         [self checkProvisionalAuthorizationStatus];
         [self registerForAPNsToken];
     }
-
-    /* Check if in-app setting passed assigned
-     *  LOGIC: Default - InAppAlerts enabled / InFocusDisplayOption InAppAlert.
-     *  Priority for kOSSettingsKeyInFocusDisplayOption.
-     */
-    NSNumber *IAASetting = settings[kOSSettingsKeyInAppAlerts];
-    let inAppAlertsPassed = IAASetting && (IAASetting.integerValue == 0 || IAASetting.integerValue == 1);
-    
-    NSNumber *IFDSetting = settings[kOSSettingsKeyInFocusDisplayOption];
-    let inFocusDisplayPassed = IFDSetting && IFDSetting.integerValue > -1 && IFDSetting.integerValue < 3;
-    
-    if (inAppAlertsPassed || inFocusDisplayPassed) {
-        if (!inFocusDisplayPassed)
-            self.inFocusDisplayType = (OSNotificationDisplayType)IAASetting.integerValue;
-        else
-            self.inFocusDisplayType = (OSNotificationDisplayType)IFDSetting.integerValue;
+        
+    // Validate the kOSSettingsKeyNotificationDisplayOption launchg option exists and is of kind NSNumber
+    if (settings[kOSSettingsKeyNotificationDisplayOption] && [settings[kOSSettingsKeyNotificationDisplayOption] isKindOfClass:[NSNumber class]]) {
+        NSNumber *NDSetting = settings[kOSSettingsKeyNotificationDisplayOption];
+        // Make sure an option for 0 (Silent) or 1 (Notification) is passed
+        if (NDSetting && NDSetting.integerValue > -1 && NDSetting.integerValue < 2)
+            self.notificationDisplayType = (OSNotificationDisplayType) NDSetting.integerValue;
     }
  
     if (self.currentSubscriptionState.userId)
@@ -1934,16 +1916,9 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
         
-        let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
-        // Make sure it is not a silent one do display, if inAppAlerts are enabled
-        if (inAppAlert && !isPreview && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
-            [OneSignalAlertView showInAppAlert:messageDict];
-            return;
-        }
-        
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
-        [OneSignalHelper handleNotificationReceived:self.inFocusDisplayType fromBackground:NO];
+        [OneSignalHelper handleNotificationReceived:self.notificationDisplayType fromBackground:NO];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1961,7 +1936,7 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OneSignal.inFocusDisplayType];
+        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OneSignal.notificationDisplayType];
     }
 }
 
@@ -2017,8 +1992,8 @@ static NSString *_lastnonActiveMessageId;
     }
 
     // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
-    if (displayType != OSNotificationDisplayTypeNone || (displayType == OSNotificationDisplayTypeNone && !isActive)) {
-        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
+    if (_notificationDisplayType != OSNotificationDisplayTypeSilent || (_notificationDisplayType == OSNotificationDisplayTypeSilent && !isActive)) {
+        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:_notificationDisplayType];
     }
 }
 
@@ -2209,7 +2184,7 @@ static NSString *_lastnonActiveMessageId;
     else {
         [OneSignalHelper lastMessageReceived:userInfo];
         if ([OneSignalHelper isRemoteSilentNotification:userInfo])
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNone fromBackground:NO];
+            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeSilent fromBackground:NO];
         else
             [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:YES];
     }

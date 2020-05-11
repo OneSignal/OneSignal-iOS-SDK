@@ -39,9 +39,7 @@
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_ERROR];
-    
-    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
         NSLog(@"OSNotificationOpenedResult: %@", result);
@@ -67,12 +65,6 @@
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
 
-//    [OneSignal initWithLaunchOptions:launchOptions
-//                               appId:[AppDelegate getOneSignalAppId]
-//          handleNotificationReceived:notificationReceiverBlock
-//            handleNotificationAction:openNotificationHandler
-//                            settings:@{kOSSettingsKeyAutoPrompt: @false,
-//                                       kOSSettingsKeyInAppLaunchURL: @true}];
     [OneSignal setAppSettings:@{
         kOSSettingsKeyAutoPrompt: @false,
         kOSSettingsKeyInAppLaunchURL: @true

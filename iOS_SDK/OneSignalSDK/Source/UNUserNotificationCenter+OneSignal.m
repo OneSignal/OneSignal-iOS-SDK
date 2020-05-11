@@ -178,14 +178,13 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
     NSUInteger completionHandlerOptions = 0;
     if (!uuid) {
-        switch (OneSignal.inFocusDisplayType) {
-            case OSNotificationDisplayTypeNone: completionHandlerOptions = 0; break; // Nothing
-            case OSNotificationDisplayTypeInAppAlert: completionHandlerOptions = 3; break; // Badge + Sound
+        switch (OneSignal.notificationDisplayType) {
+            case OSNotificationDisplayTypeSilent: completionHandlerOptions = 0; break; // Nothing
             case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
             default: break;
         }
     }
-    let notShown = OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone && notification.request.content.body != nil;
+    let notShown = OneSignal.notificationDisplayType == OSNotificationDisplayTypeSilent && notification.request.content.body != nil;
     
     if ([OneSignal appId])
         [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:notShown];
@@ -261,7 +260,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         return;
     
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive &&
-                    OneSignal.inFocusDisplayType != OSNotificationDisplayTypeNotification;
+                    OneSignal.notificationDisplayType != OSNotificationDisplayTypeNotification;
     
     let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];

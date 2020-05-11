@@ -56,13 +56,11 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 
 /* The way a notification was displayed to the user */
 typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
-    /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
-    OSNotificationDisplayTypeNone,
     
-    /*Default UIAlertView display*/
-    OSNotificationDisplayTypeInAppAlert,
+    /* Notification is silent */
+    OSNotificationDisplayTypeSilent,
     
-    /*iOS native notification display*/
+    /* iOS native notification display */
     OSNotificationDisplayTypeNotification
 };
 
@@ -71,7 +69,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* The type of the notification action */
 @property(readonly)OSNotificationActionType type;
 
-/* The ID associated with the button tapped. NULL when the actionType is NotificationTapped or InAppAlertClosed */
+/* The ID associated with the button tapped. NULL when the actionType is NotificationTapped */
 @property(readonly)NSString* actionID;
 
 @end
@@ -357,9 +355,6 @@ typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
     
 /*Let OneSignal directly prompt for push notifications on init*/
 extern NSString * const kOSSettingsKeyAutoPrompt;
-    
-/*Enable the default in-app alerts*/
-extern NSString * const kOSSettingsKeyInAppAlerts;
 
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
@@ -371,7 +366,7 @@ extern NSString * const kOSSSettingsKeyPromptBeforeOpeningPushURL;
  Set notification's in-focus display option.
  Value must be an OSNotificationDisplayType enum
 */
-extern NSString * const kOSSettingsKeyInFocusDisplayOption;
+extern NSString * const kOSSettingsKeyNotificationDisplayOption;
 
 
 /* iOS 12 +
@@ -405,7 +400,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (BOOL)requiresUserPrivacyConsent; // tells your application if privacy consent is still needed from the current user
 + (void)setRequiresUserPrivacyConsent:(BOOL)required; //used by wrapper SDK's to require user privacy consent
 
-@property (class) OSNotificationDisplayType inFocusDisplayType;
+@property (class) OSNotificationDisplayType notificationDisplayType;
 
 + (NSString*)appId;
 + (NSString*)sdk_version_raw;
