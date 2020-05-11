@@ -51,7 +51,7 @@ static let DELAY_TIME = 30;
 
 - (void)endDelayBackgroundTask {
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG
-                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroundTask:%d", delayBackgroundTask]];
+                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)delayBackgroundTask]];
     [UIApplication.sharedApplication endBackgroundTask:delayBackgroundTask];
     delayBackgroundTask = UIBackgroundTaskInvalid;
 }

@@ -73,6 +73,10 @@
     return indirectInfluence;
 }
 
++ (instancetype)instancePreviewFromPayload:(OSNotificationPayload *)payload {
+    return [OSIndirectInfluence new];
+}
+
 -(NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
 

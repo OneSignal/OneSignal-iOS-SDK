@@ -30,7 +30,7 @@
 #import "OSOutcomeEventParams.h"
 #import "OSJSONHandling.h"
 
-@interface OSOutcomeEvent () <OSJSONDecodable>
+@interface OSOutcomeEvent () <OSJSONEncodable>
 
 - (id _Nonnull)initWithSession:(Session)session
                notificationIds:(NSArray * _Nullable)notificationIds
