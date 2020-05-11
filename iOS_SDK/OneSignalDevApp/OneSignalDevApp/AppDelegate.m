@@ -90,9 +90,12 @@
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
 
 + (NSString*)getOneSignalAppId {
+    NSString* newAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
-    if (!onesignalAppId)
-        onesignalAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
+    if (![newAppId isEqualToString:onesignalAppId]) {
+        [self setOneSignalAppId:newAppId];
+        onesignalAppId = newAppId;
+    }
 
     return onesignalAppId;
 }
