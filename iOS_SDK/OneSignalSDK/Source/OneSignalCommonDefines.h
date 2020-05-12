@@ -145,6 +145,9 @@
 #define OS_SESSION_TO_STRING(enum) [OS_SESSION_STRINGS objectAtIndex:enum]
 #define OS_SESSION_FROM_STRING(string) [OS_SESSION_STRINGS indexOfObject:string]
 
+// OneSignal Prompt Action Result
+typedef enum {PERMISSION_GRANTED, PERMISSION_DENIED, LOCATION_PERMISSIONS_MISSING_INFO_PLIST, ERROR} PromptActionResult;
+
 // OneSignal App Entry Action Types
 typedef enum {NOTIFICATION_CLICK, APP_OPEN, APP_CLOSE} AppEntryAction;
 

@@ -40,9 +40,10 @@
     return self;
 }
 
-- (void)handlePrompt:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler {
+- (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler {
     let acceptedCompletionHandler = ^(BOOL accepted) {
-        completionHandler(nil, nil, accepted);
+        let result = accepted ? PERMISSION_GRANTED : PERMISSION_DENIED;
+        completionHandler(result);
     };
     [OneSignal promptForPushNotificationsWithUserResponse:acceptedCompletionHandler fallbackToSettings:YES];
 }

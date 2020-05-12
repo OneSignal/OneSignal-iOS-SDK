@@ -29,6 +29,7 @@
 #define OSInAppMessagingPrompt_h
 
 #import "OneSignal.h"
+#import "OneSignalCommonDefines.h"
 
 #import <Foundation/Foundation.h>
 
@@ -36,7 +37,7 @@
 
 @property (nonatomic) BOOL hasPrompted;
 
-- (void)handlePrompt:(void (^)(NSString *messageTitle, NSString *message, BOOL accepted))completionHandler;
+- (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler;
 
 @end
 

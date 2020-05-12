@@ -34,6 +34,7 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
+#import "OneSignalCommonDefines.h"
 
 @interface OneSignal ()
 
@@ -526,10 +527,10 @@ static BOOL _isInAppMessagingPaused = false;
     if (_currentPromptAction) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
         _currentPromptAction.hasPrompted = YES;
-        [_currentPromptAction handlePrompt:^(NSString *messageTitle, NSString *message, BOOL accepted) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %@", accepted ? @"YES" : @"NO"]];
-            if (inAppMessage.isPreview && messageTitle && message) {
-                [self showAlertDialogMessage:message messageTitle:messageTitle inAppMessage:inAppMessage promptActions:promptActions];
+        [_currentPromptAction handlePrompt:^(PromptActionResult result) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %u", result]];
+            if (inAppMessage.isPreview && result == LOCATION_PERMISSIONS_MISSING_INFO_PLIST) {
+                [self showAlertDialogMessage:inAppMessage promptActions:promptActions];
             } else {
                 [self handlePromptActions:promptActions withMessage:inAppMessage];
             }
@@ -542,12 +543,12 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (void)showAlertDialogMessage:(NSString *)message
-                  messageTitle:(NSString *)messageTitle
-                  inAppMessage:(OSInAppMessage *)inAppMessage
+- (void)showAlertDialogMessage:(OSInAppMessage *)inAppMessage
                  promptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions  {
     _currentInAppMessage = inAppMessage;
     _currentPromptActions = promptActions;
+    let messageTitle = @"Location Not Available";
+    let message = @"Looks like this app doesn't have location services configured. Please see OneSignal docs for more information.";
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:messageTitle
                                                     message:message
                                                    delegate:self
