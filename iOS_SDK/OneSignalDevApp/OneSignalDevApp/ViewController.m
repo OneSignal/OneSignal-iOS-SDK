@@ -82,9 +82,8 @@
 }
 
 - (void)setupData {
-    data1 = [NSMutableArray arrayWithArray:@[@"item1_1", @"item1_2", @"item1_3", @"item1_4"]];
-    
-    data2 = [NSMutableArray arrayWithArray:@[@"item2_1", @"item2_2", @"item2_3", @"item2_4"]];
+    data1 = [NSMutableArray new];
+    data2 = [NSMutableArray new];
     
     [self startOutcomeIdUpdater];
 }
@@ -118,20 +117,20 @@
     NSArray *directIamId = data[@"direct_iam_id"];
     NSArray *indirectIamIds = data[@"indirect_iam_id"];
     
-    NSString *notifTitle = @"";
+    NSString *notifTitle = @"Unattributed or Disabled";
     if (directNotifId.count > 0) {
         data1 = [NSMutableArray arrayWithArray:directNotifId];
         notifTitle = [NSString stringWithFormat:@"Direct Notification Id: %lu", data1.count];
-    } else {
+    } else if (indirectNotifIds.count > 0) {
         data1 = [NSMutableArray arrayWithArray:indirectNotifIds];
         notifTitle = [NSString stringWithFormat:@"Indirect Notification Ids: %lu", data1.count];
     }
     
-    NSString *iamTitle = @"";
+    NSString *iamTitle = @"Unattributed or Disabled";
     if (directIamId.count > 0) {
         data2 = [NSMutableArray arrayWithArray:directIamId];
         iamTitle = [NSString stringWithFormat:@"Direct In-App Message Id: %lu", data2.count];
-    } else {
+    } else if (indirectIamIds.count > 0) {
         data2 = [NSMutableArray arrayWithArray:indirectIamIds];
         iamTitle = [NSString stringWithFormat:@"Indirect In-App Message Ids: %lu", data2.count];
     }
