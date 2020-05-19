@@ -31,7 +31,100 @@
 #import "ViewController.h"
 #import "AppDelegate.h"
 
+@interface ViewController ()<UITableViewDataSource,UITableViewDelegate> {
+    NSMutableArray *data1;
+    NSMutableArray *data2;
+}
+@property (weak, nonatomic) IBOutlet UITableView *dataTableView1;
+@property (weak, nonatomic) IBOutlet UITableView *dataTableView2;
+@end
+
 @implementation ViewController
+
+// START DEMO APP SETUP IAM BUG BASH
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    int size = 0;
+    if ([tableView isEqual:_dataTableView1]) {
+        size = data1.count;
+    } else if ([tableView isEqual:_dataTableView2]) {
+        size = data2.count;
+    }
+    
+    return size;
+}
+
+- (UITableViewCell *)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([tableView isEqual:_dataTableView1]) {
+        static NSString *cellId = @"cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+         
+        if (!cell) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+        }
+        
+        cell.textLabel.text = [data1 objectAtIndex:indexPath.row];
+        
+        return cell;
+    } else if ([tableView isEqual:_dataTableView2]) {
+        static NSString *cellId = @"cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+         
+        if (!cell) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+        }
+        
+        cell.textLabel.text = [data2 objectAtIndex:indexPath.row];
+        
+        return cell;
+    }
+    
+    return [UITableViewCell new];
+}
+
+- (void)setupData {
+    data1 = [NSMutableArray arrayWithArray:@[@"item1_1", @"item1_2", @"item1_3", @"item1_4"]];
+    
+    data2 = [NSMutableArray arrayWithArray:@[@"item2_1", @"item2_2", @"item2_3", @"item2_4"]];
+    
+    [self startOutcomeIdUpdater];
+}
+
+- (IBAction)attachIAMV2Params:(id)sender {
+    NSDictionary* params =
+    @{
+        @"tags" : self.iamV2Tags.text,
+        @"outcomes" : self.iamV2Outcomes.text,
+    };
+    
+    [OneSignal setIAMV2Params:params];
+    
+    [OneSignal pauseInAppMessages:false];
+}
+
+- (void)startOutcomeIdUpdater {
+    // NSTimer calling updateOutcomeIds, every 1 second
+    [NSTimer scheduledTimerWithTimeInterval:1.0f
+                                     target:self
+                                   selector:@selector(updateOutcomeIds:)
+                                   userInfo:nil
+                                    repeats:YES];
+}
+
+- (void)updateOutcomeIds:(NSTimer *)timer {
+    NSDictionary* data = [OneSignal getOutcomeIds];
+    
+    data1 = data[@"direct_notif_id"];
+//    idDict[@"indirect_notif_id"];
+    data2 = data[@"direct_iam_id"];
+//    idDict[@"indirect_iam_id"];
+    
+    self.notificationIdTrackingTitle.text = [NSString stringWithFormat:@"Notification Id(s): %lu", data1.count];
+    self.iamIdTrackingTitle.text = [NSString stringWithFormat:@"In-App Message Id(s): %lu", data2.count];
+    
+    [_dataTableView1 reloadData];
+    [_dataTableView2 reloadData];
+}
+// END DEMO APP SETUP IAM BUG BASH
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -46,41 +139,18 @@
     self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) OneSignal.isLocationShared;
     
     self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal isInAppMessagingPaused];
-    
-    self.iamV2DismissOnClick.selectedSegmentIndex = 0;
-    self.iamV2PushPrompt.selectedSegmentIndex = 0;
-    self.iamV2LocationPrompt.selectedSegmentIndex = 0;
 
     self.appIdTextField.text = [AppDelegate getOneSignalAppId];
 
     self.infoLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.infoLabel.numberOfLines = 0;
     
+    [self setupData];
+    
     [self.iamV2ProgressSpinner setHidesWhenStopped:true];
     [OneSignal setCompletionHandler:^() {
         [self.iamV2ProgressSpinner stopAnimating];
     }];
-}
-
-- (IBAction)attachIAMV2Params:(id)sender {
-    NSMutableArray* prompts = [NSMutableArray new];
-    if (self.iamV2PushPrompt.selectedSegmentIndex)
-        [prompts addObject:@"push"];
-    if (self.iamV2LocationPrompt.selectedSegmentIndex)
-        [prompts addObject:@"location"];
-    
-    NSDictionary* params =
-    @{
-        @"limit" : @(self.iamV2RedisplayCount.text.intValue),
-        @"delay" : @(self.iamV2RedisplayDelay.text.intValue),
-        @"tags" : self.iamV2Tags.text,
-        @"outcomes" : self.iamV2Outcomes.text,
-        @"dismiss" : self.iamV2DismissOnClick.selectedSegmentIndex ? @(true) : @(false),
-        @"prompts" : prompts
-    };
-    
-    [OneSignal setIAMV2Params:params];
-    [OneSignal pauseInAppMessages:false];
 }
 
 - (void)changeAnimationState:(BOOL)animating {

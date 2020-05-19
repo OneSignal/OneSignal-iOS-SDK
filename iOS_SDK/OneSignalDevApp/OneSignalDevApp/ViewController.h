@@ -64,14 +64,12 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *iamV2Title;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *iamV2ProgressSpinner;
-@property (weak, nonatomic) IBOutlet UITextField *iamV2RedisplayCount;
-@property (weak, nonatomic) IBOutlet UITextField *iamV2RedisplayDelay;
 @property (weak, nonatomic) IBOutlet UITextField *iamV2Tags;
 @property (weak, nonatomic) IBOutlet UITextField *iamV2Outcomes;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *iamV2DismissOnClick;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *iamV2PushPrompt;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *iamV2LocationPrompt;
 @property (weak, nonatomic) IBOutlet UIButton *iamV2AttachButton;
+
+@property (weak, nonatomic) IBOutlet UILabel *notificationIdTrackingTitle;
+@property (weak, nonatomic) IBOutlet UILabel *iamIdTrackingTitle;
 
 @end
 

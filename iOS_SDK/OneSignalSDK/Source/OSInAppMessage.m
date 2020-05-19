@@ -96,7 +96,7 @@
         message.variants = json[@"variants"];
     else
         return nil;
-    
+
     if (json[@"redisplay"] && [json[@"redisplay"] isKindOfClass:[NSDictionary class]])
         message.displayStats = [OSInAppMessageDisplayStats instanceWithJson:json[@"redisplay"]];
     else

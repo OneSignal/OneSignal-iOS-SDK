@@ -398,6 +398,7 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 + (void)setIAMV2Params:(NSDictionary *)params;
 + (void)setCompletionHandler:(void(^)(void))delegate;
 + (void)signalIamV2DataPulled;
++ (NSDictionary*)getOutcomeIds;
 
 extern NSString* const ONESIGNAL_VERSION;
 

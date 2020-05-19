@@ -143,22 +143,7 @@ static BOOL coldStartFromTapOnNotification = NO;
 static BOOL shouldDelaySubscriptionUpdate = false;
 
 
-static int _iamV2RedisplayCount = 1;
-+ (int)iamV2RedisplayCount {
-    return _iamV2RedisplayCount;
-}
-+ (void)setIamV2RedisplayCount:(int)limit {
-    _iamV2RedisplayCount = limit;
-}
-
-static int _iamV2RedisplayDelay = 0;
-+ (int)iamV2RedisplayDelay {
-    return _iamV2RedisplayDelay;
-}
-+ (void)setIamV2RedisplayDelay:(int)delay {
-    _iamV2RedisplayDelay = delay;
-}
-
+// START OF BUG BASH DEMO APP CODE
 static NSString* _iamV2Tags = @"";
 + (NSString*)iamV2Tags {
     return _iamV2Tags;
@@ -175,23 +160,6 @@ static NSString* _iamV2Outcomes = @"";
     _iamV2Outcomes = outcomes;
 }
 
-static BOOL _iamV2ShouldDismiss = false;
-+ (bool)iamV2ShouldDismiss {
-    return _iamV2ShouldDismiss;
-}
-+ (void)setIamV2ShouldDismiss:(bool)dismiss {
-    _iamV2ShouldDismiss = dismiss;
-}
-
-static NSArray* _iamV2Prompting;
-+ (NSArray*)iamV2Prompting {
-    return _iamV2Prompting;
-}
-+ (void)setIamV2Prompting:(NSArray*)iamV2Prompting {
-    _iamV2Prompting = iamV2Prompting;
-}
-
-
 static BOOL _iamV2DataPulled = false;
 + (BOOL)iamV2DataPulled {
     return _iamV2DataPulled;
@@ -207,20 +175,29 @@ static Complete complete;
 + (void)setIAMV2Params:(NSDictionary *)params {
     NSString *message = params.description;
     NSLog(message);
-
-    OneSignal.iamV2RedisplayCount = [params[@"limit"] intValue];
-    OneSignal.iamV2RedisplayDelay = [params[@"delay"] intValue];
+    
     OneSignal.iamV2Tags = params[@"tags"];
     OneSignal.iamV2Outcomes = params[@"outcomes"];
-    OneSignal.iamV2ShouldDismiss = [params[@"dismiss"] boolValue];
-    OneSignal.iamV2Prompting = params[@"prompts"];
 
     [OneSignal receivedInAppMessageJson:nil];
+}
+
++ (NSDictionary*)getOutcomeIds {
+    NSMutableDictionary* idDict = [NSMutableDictionary new];
+    idDict[@"direct_notif_id"] = @[@"item1"];
+    idDict[@"indirect_notif_id"] = @[@"item1"];
+    idDict[@"direct_iam_id"] = @[@"item1"];
+    idDict[@"indirect_iam_id"] = @[@"item1"];
+    
+    return idDict;
 }
 
 + (void)setCompletionHandler:(void(^)(void))delegate {
     complete = delegate;
 }
+// END OF BUG BASH DEMO APP CODE
+
+
 
 /*
     if setEmail: was called before the device was registered (push playerID = nil),
