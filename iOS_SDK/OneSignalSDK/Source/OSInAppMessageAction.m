@@ -54,8 +54,7 @@
     
     if ([json[@"click_type"] isKindOfClass:[NSString class]])
         action.clickType = json[@"click_type"];
-
-    json[@"id"] = @"FAKE_ID_1234567890";
+    
     if ([json[@"id"] isKindOfClass:[NSString class]])
         action.clickId = json[@"id"];
     
@@ -85,11 +84,74 @@
         }
     }
     action.outcomes = outcomes;
+
+    // TODO: TESTING ONLY
+    if (OneSignal.iamV2Outcomes && ![OneSignal.iamV2Outcomes isEqualToString:@""]) {
+        NSArray *outcomeSplit = [OneSignal.iamV2Outcomes componentsSeparatedByString:@","];
+        NSMutableArray *outcomesToSend = [NSMutableArray new];
+        for (int i = 0; i < outcomeSplit.count; i++) {
+            NSString *outcome = [outcomeSplit objectAtIndex:i];
+            NSArray *splitOutcome = [outcome componentsSeparatedByString:@":"];
+            NSString *name = [splitOutcome objectAtIndex:0];
+            if (outcomeSplit.count == 1)
+                [outcomesToSend addObject:@{
+                    @"name": name,
+                }];
+            else if (outcomeSplit.count == 2) {
+                NSString *value = [[outcomeSplit objectAtIndex:1] lowercaseString];
+                if ([value isEqualToString:@"true"] || [value isEqualToString:@"false"]) {
+                    [outcomesToSend addObject:@{
+                        @"name": name,
+                        @"unique": @(value.boolValue),
+                    }];
+                } else {
+                    [outcomesToSend addObject:@{
+                        @"name": name,
+                        @"weight": @(value.doubleValue),
+                    }];
+                }
+            }
+        }
+        NSMutableArray *outcomes = [NSMutableArray new];
+        for (NSDictionary *outcomeJson in outcomesToSend) {
+            [outcomes addObject:[OSInAppMessageOutcome instanceWithJson:outcomeJson]];
+        }
+        action.outcomes = outcomes;
+    }
+    
     //TODO: when backend is ready check if key match
     if (json[@"tags"]) {
         action.tags= [OSInAppMessageTag instanceWithJson:json[@"tags"]];
     } else {
         action.tags = nil;
+    }
+    
+    // TODO: TESTING ONLY
+    if (OneSignal.iamV2Tags && ![OneSignal.iamV2Tags isEqualToString:@""]) {
+        NSArray *tagSplit = [OneSignal.iamV2Tags componentsSeparatedByString:@","];
+        NSMutableDictionary *allTags = [NSMutableDictionary new];
+        NSMutableDictionary *tagsToAdd = [NSMutableDictionary new];
+        NSMutableArray *tagsToRemove = [NSMutableArray new];
+        for (int i = 0; i < tagSplit.count; i++) {
+            NSString *tag = [tagSplit objectAtIndex:i];
+            NSArray *splitTag = [tag componentsSeparatedByString:@":"];
+            NSString *tagKey = [splitTag objectAtIndex:0];
+
+            if (splitTag.count == 2) {
+                NSString *tagValue = [splitTag objectAtIndex:1];
+                if ([tagValue isEqualToString:@""]) {
+                    [tagsToRemove addObject:tagKey];
+                }
+                else {
+                    tagsToAdd[tagKey] = tagValue;
+                }
+            } else if (splitTag.count == 1) {
+                [tagsToRemove addObject:tagKey];
+            }
+        }
+        allTags[@"adds"] = tagsToAdd;
+        allTags[@"removes"] = tagsToRemove;
+        action.tags = [OSInAppMessageTag instanceWithJson:allTags];
     }
     
     NSMutableArray<NSObject<OSInAppMessagePrompt>*> *promptActions = [NSMutableArray new];
