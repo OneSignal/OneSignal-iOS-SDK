@@ -195,6 +195,39 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
     return sourceBody;
 }
 
+- (OSOutcomeSource*)createOutcomeEvent {
+    NSArray <OSInfluence *>* influences = [_sessionManager getInfluences];
+    
+    OSOutcomeSourceBody *directSourceBody = nil;
+    OSOutcomeSourceBody *indirectSourceBody = nil;
+    BOOL unattributed = NO;
+    
+    for (OSInfluence *influence in influences) {
+        switch (influence.influenceType) {
+            case DIRECT:
+                directSourceBody = [self setSourceChannelIdsWithInfluence:influence sourceBody:directSourceBody == nil ? [[OSOutcomeSourceBody alloc] init] : directSourceBody];
+                break;
+            case INDIRECT:
+                indirectSourceBody = [self setSourceChannelIdsWithInfluence:influence sourceBody:indirectSourceBody == nil ? [[OSOutcomeSourceBody alloc] init] : indirectSourceBody];
+                break;
+            case UNATTRIBUTED:
+                unattributed = true;
+                break;
+            case DISABLED:
+                [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel)]];
+                return nil; // finish method
+        }
+    }
+
+    if (directSourceBody == nil && indirectSourceBody == nil && !unattributed) {
+        // Disabled for all channels
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Outcomes disabled for all channels"];
+        return nil;
+    }
+
+    return [[OSOutcomeSource alloc] initWithDirectBody:directSourceBody indirectBody:indirectSourceBody];
+}
+
 /*
  Send an outcome request based on the current session of the app
  Handle the success and failure of the request

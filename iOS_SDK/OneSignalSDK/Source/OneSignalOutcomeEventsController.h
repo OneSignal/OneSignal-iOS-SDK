@@ -32,6 +32,8 @@
 
 @interface OneSignalOutcomeEventsController : NSObject
 
+- (OSOutcomeSource*)createOutcomeEvent;
+
 - (instancetype _Nonnull)initWithSessionManager:(OSSessionManager * _Nonnull)sessionManager
                            outcomeEventsFactory:(OSOutcomeEventsFactory *_Nonnull)outcomeEventsFactory;
 

@@ -183,11 +183,30 @@ static Complete complete;
 }
 
 + (NSDictionary*)getOutcomeIds {
+    OSOutcomeSource * source = [_outcomeEventsController createOutcomeEvent];
+    
     NSMutableDictionary* idDict = [NSMutableDictionary new];
-    idDict[@"direct_notif_id"] = @[@"item1"];
-    idDict[@"indirect_notif_id"] = @[@"item1"];
-    idDict[@"direct_iam_id"] = @[@"item1"];
-    idDict[@"indirect_iam_id"] = @[@"item1"];
+    idDict[@"direct_notif_id"] = @[];
+    idDict[@"indirect_notif_id"] = @[];
+    idDict[@"direct_iam_id"] = @[];
+    idDict[@"indirect_iam_id"] = @[];
+    
+    if (!source)
+        return idDict;
+    
+    if (source.directBody) {
+        if (source.directBody.notificationIds)
+            idDict[@"direct_notif_id"] = source.directBody.notificationIds;
+        if (source.directBody.inAppMessagesIds)
+            idDict[@"direct_iam_id"] = source.directBody.inAppMessagesIds;
+    }
+    
+    if (source.indirectBody) {
+        if (source.indirectBody.notificationIds)
+            idDict[@"indirect_notif_id"] = source.indirectBody.notificationIds;
+        if (source.indirectBody.inAppMessagesIds)
+            idDict[@"indirect_iam_id"] = source.indirectBody.inAppMessagesIds;
+    }
     
     return idDict;
 }
