@@ -272,17 +272,17 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lRx-gU-hOE">
                                                 <rect key="frame" x="15" y="1020" width="345" height="34"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="IAM V2 Bug Bash:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s7B-Zn-9Az">
-                                                        <rect key="frame" x="29" y="7" width="160" height="20"/>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="IAM V2 Bug Bash:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s7B-Zn-9Az">
+                                                        <rect key="frame" x="8" y="7" width="329" height="27"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="width" constant="160" id="bbc-fw-fyl"/>
+                                                            <constraint firstAttribute="width" constant="329" id="bbc-fw-fyl"/>
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="jJr-k8-3O5">
-                                                        <rect key="frame" x="197" y="7" width="23" height="20"/>
+                                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="jJr-k8-3O5">
+                                                        <rect key="frame" x="161" y="10" width="23" height="20"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="23" id="ufu-wA-Gz0"/>
                                                         </constraints>
@@ -290,10 +290,10 @@
                                                 </subviews>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                                 <constraints>
-                                                    <constraint firstItem="s7B-Zn-9Az" firstAttribute="top" secondItem="jJr-k8-3O5" secondAttribute="top" id="GDR-H5-S8q"/>
-                                                    <constraint firstItem="jJr-k8-3O5" firstAttribute="leading" secondItem="s7B-Zn-9Az" secondAttribute="trailing" constant="8" id="hre-Am-kWC"/>
-                                                    <constraint firstItem="s7B-Zn-9Az" firstAttribute="leading" secondItem="lRx-gU-hOE" secondAttribute="leading" constant="29" id="ndf-Ao-lCT"/>
-                                                    <constraint firstItem="s7B-Zn-9Az" firstAttribute="centerY" secondItem="lRx-gU-hOE" secondAttribute="centerY" id="wdH-77-kVr"/>
+                                                    <constraint firstItem="s7B-Zn-9Az" firstAttribute="top" secondItem="jJr-k8-3O5" secondAttribute="top" constant="-3" id="GDR-H5-S8q"/>
+                                                    <constraint firstItem="jJr-k8-3O5" firstAttribute="leading" secondItem="s7B-Zn-9Az" secondAttribute="trailing" constant="-176" id="hre-Am-kWC"/>
+                                                    <constraint firstItem="s7B-Zn-9Az" firstAttribute="leading" secondItem="lRx-gU-hOE" secondAttribute="leading" constant="8" id="ndf-Ao-lCT"/>
+                                                    <constraint firstItem="s7B-Zn-9Az" firstAttribute="centerY" secondItem="lRx-gU-hOE" secondAttribute="centerY" constant="3.5" id="wdH-77-kVr"/>
                                                 </constraints>
                                             </view>
                                             <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A38-En-69W">
@@ -383,18 +383,18 @@
                                                         </connections>
                                                     </tableView>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="In-App Message Id(s):" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="czI-Bs-WVv">
-                                                        <rect key="frame" x="8" y="225" width="221" height="29"/>
+                                                        <rect key="frame" x="8" y="225" width="329" height="29"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="width" constant="221" id="3jI-jg-qpS"/>
+                                                            <constraint firstAttribute="width" constant="329" id="3jI-jg-qpS"/>
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Notification Id(s):" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QTh-FI-4El">
-                                                        <rect key="frame" x="8" y="7" width="231" height="26"/>
+                                                        <rect key="frame" x="8" y="7" width="329" height="26"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="width" constant="231" id="DNt-xp-6JC"/>
+                                                            <constraint firstAttribute="width" constant="329" id="DNt-xp-6JC"/>
                                                         </constraints>
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>

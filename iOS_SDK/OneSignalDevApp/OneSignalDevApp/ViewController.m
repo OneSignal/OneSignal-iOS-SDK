@@ -113,13 +113,31 @@
 - (void)updateOutcomeIds:(NSTimer *)timer {
     NSDictionary* data = [OneSignal getOutcomeIds];
     
-    data1 = data[@"direct_notif_id"];
-//    idDict[@"indirect_notif_id"];
-    data2 = data[@"direct_iam_id"];
-//    idDict[@"indirect_iam_id"];
+    NSArray *directNotifId = data[@"direct_notif_id"];
+    NSArray *indirectNotifIds = data[@"indirect_notif_id"];
+    NSArray *directIamId = data[@"direct_iam_id"];
+    NSArray *indirectIamIds = data[@"indirect_iam_id"];
     
-    self.notificationIdTrackingTitle.text = [NSString stringWithFormat:@"Notification Id(s): %lu", data1.count];
-    self.iamIdTrackingTitle.text = [NSString stringWithFormat:@"In-App Message Id(s): %lu", data2.count];
+    NSString *notifTitle = @"";
+    if (directNotifId.count > 0) {
+        data1 = [NSMutableArray arrayWithArray:directNotifId];
+        notifTitle = [NSString stringWithFormat:@"Direct Notification Id: %lu", data1.count];
+    } else {
+        data1 = [NSMutableArray arrayWithArray:indirectNotifIds];
+        notifTitle = [NSString stringWithFormat:@"Indirect Notification Ids: %lu", data1.count];
+    }
+    
+    NSString *iamTitle = @"";
+    if (directIamId.count > 0) {
+        data2 = [NSMutableArray arrayWithArray:directIamId];
+        iamTitle = [NSString stringWithFormat:@"Direct In-App Message Id: %lu", data2.count];
+    } else {
+        data2 = [NSMutableArray arrayWithArray:indirectIamIds];
+        iamTitle = [NSString stringWithFormat:@"Indirect In-App Message Ids: %lu", data2.count];
+    }
+    
+    self.notificationIdTrackingTitle.text = notifTitle;
+    self.iamIdTrackingTitle.text = iamTitle;
     
     [_dataTableView1 reloadData];
     [_dataTableView2 reloadData];
