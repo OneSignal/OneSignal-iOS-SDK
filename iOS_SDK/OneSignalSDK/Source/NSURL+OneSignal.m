@@ -26,6 +26,7 @@
  */
 
 #import "NSURL+OneSignal.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation NSURL (OneSignal)
 - (NSString *)valueFromQueryParameter:(NSString *)parameter {
@@ -37,4 +38,28 @@
     
     return nil;
 }
+
+- (NSString*)supportedFileExtension {
+    NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:false];
+    
+    for(int i = (int)components.queryItems.count-1; i > -1; i--) {
+        NSURLQueryItem *item = components.queryItems[i];
+        NSString *value = item.value;
+        NSString *extension = [self findExtensionInParam:value];
+        if (extension)
+            return extension;
+    }
+    return nil;
+}
+
+- (NSString*)findExtensionInParam:(NSString *)parameter {
+    NSArray *paramComponents = [parameter componentsSeparatedByString:@"."];
+    for (int i = (int)paramComponents.count-1; i > -1; i--) {
+        NSString *component = paramComponents[i];
+        if ([ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:component])
+            return component;
+    }
+    return nil;
+}
+
 @end

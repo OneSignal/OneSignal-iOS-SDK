@@ -81,6 +81,11 @@
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
     response = aResponse;
+    long long expectedLength = response.expectedContentLength;
+    if (expectedLength > 50000000) { //Enforcing 50 mb limit on media before downloading
+        completionHandler(NSURLSessionResponseCancel);
+        return;
+    }
     completionHandler(NSURLSessionResponseAllow);
 }
 
@@ -785,21 +790,16 @@ static OneSignal* singleInstance = nil;
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
     
     let url = [NSURL URLWithString:urlString];
-    
-    NSString* extension = url.pathExtension;
-    
-    if ([extension isEqualToString:@""])
-        extension = nil;
-    
-    // Unrecognized extention
-    if (extension != nil && ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension])
-        return nil;
-    
+     
+    //Try to get extension from the filname parameter
+    NSString* extension = [[[NSURL URLWithString:urlString] valueFromQueryParameter:@"filename"]
+                            supportedFileExtension];
+     
+    //Download the file
     var name = [self randomStringWithLength:10];
-    
+        
     if (extension)
         name = [name stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
-    
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     
@@ -813,18 +813,24 @@ static OneSignal* singleInstance = nil;
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
             return nil;
         }
-        
         if (!extension) {
             NSString *newExtension;
-            
+            //Use the MIME type for the extension if one wasn't provided in the filename parameter
             if (mimeType != nil && ![mimeType isEqualToString:@""]) {
                 newExtension = mimeType.fileExtensionForMimeType;
-            } else {
-                newExtension = [[[NSURL URLWithString:urlString] valueFromQueryParameter:@"filename"] supportedFileExtension];
             }
             
-            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension])
-                return nil;
+            //Try using url.pathExtension
+            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension]) {
+                newExtension =  url.pathExtension;
+            }
+            
+            //Try getting an extension from the query
+            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension]) {
+                newExtension = url.supportedFileExtension;
+                if (!newExtension || [newExtension isEqualToString:@""])
+                     return nil;
+            }
             
             name = [NSString stringWithFormat:@"%@.%@", name, newExtension];
             
@@ -834,12 +840,12 @@ static OneSignal* singleInstance = nil;
         }
         
         if (error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error    while attempting to download file with URL: %@", error]];
             return nil;
         }
-        
+         
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
-        
+         
         NSArray* cachedFiles = [standardUserDefaults getSavedObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA defaultValue:nil];
         NSMutableArray* appendedCache;
         if (cachedFiles) {
@@ -848,7 +854,7 @@ static OneSignal* singleInstance = nil;
         }
         else
             appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
-        
+         
         [standardUserDefaults saveObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA withValue:appendedCache];
         return name;
     } @catch (NSException *exception) {
@@ -856,7 +862,6 @@ static OneSignal* singleInstance = nil;
         
         return nil;
     }
-
 }
 
 // TODO: Add back after testing

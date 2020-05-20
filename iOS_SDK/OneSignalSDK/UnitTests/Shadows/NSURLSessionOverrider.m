@@ -50,8 +50,8 @@
     
     if ([url.absoluteString isEqualToString:@"http://domain.com/file"])
         return @"image/png";
-    else if ([url.absoluteString isEqualToString:@"http://domain.com/secondFile"])
-        return nil;
+    else if ([url.path isEqualToString:@"/secondFile"])
+        return @"image/heic";
     else
         return @"image/jpg";
 }
