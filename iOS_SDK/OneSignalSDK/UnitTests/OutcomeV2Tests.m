@@ -115,8 +115,10 @@
     // 2. Receive 2 iam
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     [sessionManager onInAppMessageReceived:testGenericId];
+    // 3. Dismiss iam
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     
-    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
+    // 4. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
     let sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -140,8 +142,10 @@
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     [sessionManager onInAppMessageReceived:testGenericId];
     [sessionManager onInAppMessageReceived:testInAppMessageId];
+    // 3. Dismiss iam
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     
-    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
+    // 4. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 notifications
     let sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -195,10 +199,12 @@
         XCTAssertEqual(influence.ids, nil);
     }
     
-    // 4. Rceive 3 notifications
+    // 4. Receive 3 notifications
     [sessionManager onInAppMessageReceived:testInAppMessageId];
+    // 5. Dismiss iam
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     
-    // 5. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
+    // 6. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -219,8 +225,10 @@
     
     // 2. Receive a notification
     [sessionManager onInAppMessageReceived:testInAppMessageId];
+    // 3. Dismiss iam
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
     
-    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
+    // 4. Make sure IN_APP_MESSAGE influence is INDIRECT and has 1 iam
     NSArray<OSInfluence *> *sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -234,11 +242,13 @@
         }
     }
     
-    // 4. Receive 2 more iams
+    // 5. Receive 2 more iams
     [sessionManager onInAppMessageReceived:testNotificationId];
     [sessionManager onInAppMessageReceived:testGenericId];
-
-    // 5. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 iams because IAM influence does not depend on session
+    // 6. Dismiss iam
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
+    
+    // 7. Make sure IN_APP_MESSAGE influence is INDIRECT and has 3 iams because IAM influence does not depend on session
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -284,8 +294,10 @@
     // 2. Receive 2 notifications
     [sessionManager onInAppMessageReceived:testInAppMessageId];
     [sessionManager onInAppMessageReceived:testGenericId];
-
-    // 3. Make sure IN_APP_MESSAGE influence is INDIRECT and has 2 iam
+    // 4. Dismiss iam
+    [sessionManager onDirectInfluenceFromIAMClickFinished];
+    
+    // 5. Make sure IN_APP_MESSAGE influence is INDIRECT and has 2 iam
     NSArray<OSInfluence *> *sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -299,11 +311,11 @@
         }
     }
     
-    // 5. Receive a notification and open it
+    // 6. Receive a notification and open it
     [sessionManager onInAppMessageReceived:testNotificationId];
     [sessionManager onDirectInfluenceFromIAMClick:testNotificationId];
 
-    // 6. Make sure IN_APP_MESSAGE influence is DIRECT and has 1 iam
+    // 7. Make sure IN_APP_MESSAGE influence is DIRECT and has 1 iam
     sessionInfluences = [sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {

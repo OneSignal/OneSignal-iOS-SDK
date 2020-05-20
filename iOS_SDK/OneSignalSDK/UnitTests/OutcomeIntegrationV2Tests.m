@@ -654,8 +654,10 @@
     // 2. Receive 2 iam
     [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
     [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
+    // 3. Dismiss iam
+    [[OneSignal sessionManager] onDirectInfluenceFromIAMClickFinished];
     
-    // 3. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
+    // 4. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -672,7 +674,7 @@
     [OneSignal sendOutcome:@"normal_1"];
     [OneSignal sendOutcome:@"normal_2"];
     
-    // 6. Make sure 2 measure requests were made with correct params
+    // 5. Make sure 2 measure requests were made with correct params
     [RestClientAsserts assertMeasureSourcesAtIndex:2 payload:@{
         @"sources": @{
                 @"indirect": @{
@@ -731,8 +733,10 @@
     // 2. Receive 2 iam
     [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
     [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
+    // 3. Dismiss iam
+    [[OneSignal sessionManager] onDirectInfluenceFromIAMClickFinished];
     
-    // 3. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
+    // 4. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -751,7 +755,7 @@
     let val2 = [NSNumber numberWithDouble:9.95];
     [OneSignal sendOutcomeWithValue:@"value_2" value:val2];
 
-    // 6. Make sure 2 measure requests were made with correct params
+    // 5. Make sure 2 measure requests were made with correct params
     [RestClientAsserts assertMeasureSourcesAtIndex:2 payload:@{
         @"sources": @{
                 @"indirect": @{
