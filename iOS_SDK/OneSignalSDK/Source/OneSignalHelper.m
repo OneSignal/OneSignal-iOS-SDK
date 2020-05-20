@@ -840,7 +840,7 @@ static OneSignal* singleInstance = nil;
         }
         
         if (error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error    while attempting to download file with URL: %@", error]];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
             return nil;
         }
          
