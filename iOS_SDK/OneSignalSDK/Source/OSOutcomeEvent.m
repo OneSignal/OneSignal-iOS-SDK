@@ -38,7 +38,7 @@
                         weight:(NSNumber * _Nonnull)value {
     
     if (self = [super init]) {
-        _influenceType = influenceType;
+        _session = influenceType;
         _notificationIds = notificationIds;
         _name = name;
         _timestamp = timestamp;
@@ -63,7 +63,7 @@
             }
         }
         
-        _influenceType = influenceType;
+        _session = influenceType;
         _notificationIds = notificationId;
         _name = outcomeEventParams.outcomeId;
         _timestamp = outcomeEventParams.timestamp;
@@ -75,7 +75,7 @@
 - (NSDictionary * _Nonnull)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
-    json[@"session"] = OS_INFLUENCE_TYPE_TO_STRING(self.influenceType);
+    json[@"session"] = OS_INFLUENCE_TYPE_TO_STRING(self.session);
     json[@"id"] = self.name;
     json[@"timestamp"] = @(self.timestamp.intValue);
     json[@"weight"] = self.weight.stringValue;

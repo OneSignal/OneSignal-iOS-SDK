@@ -57,9 +57,9 @@ THE SOFTWARE.
 }
 
 - (void)checkVersionChanged {
-    if (![_cache isOutcomesV2ServiceEnabled] && [_repository class] == [OSOutcomeEventsV1Repository class])
+    if (![_cache isOutcomesV2ServiceEnabled] && [_repository isKindOfClass:[OSOutcomeEventsV1Repository class]])
         return;
-    if ([_cache isOutcomesV2ServiceEnabled] && [_repository class] == [OSOutcomeEventsV2Repository class])
+    if ([_cache isOutcomesV2ServiceEnabled] && [_repository isKindOfClass:[OSOutcomeEventsV2Repository class]])
         return;
 
     [self createRepository];
