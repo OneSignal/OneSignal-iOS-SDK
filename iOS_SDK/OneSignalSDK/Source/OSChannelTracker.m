@@ -163,7 +163,7 @@ THE SOFTWARE.
 
 - (NSString *)description {
     return [NSString stringWithFormat:
-            @"OSChannelTracker tag: %@ influenceType: %@ indirectIds: %@ directIs: %@", [self idTag], OS_INFLUENCE_TYPE_TO_STRING(_influenceType), _indirectIds, _directId];
+            @"OSChannelTracker tag: %@ influenceType: %@ indirectIds: %@ directIds: %@", [self idTag], OS_INFLUENCE_TYPE_TO_STRING(_influenceType), _indirectIds, _directId];
 }
 
 @end

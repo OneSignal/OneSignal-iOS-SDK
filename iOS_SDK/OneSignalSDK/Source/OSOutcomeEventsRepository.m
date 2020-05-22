@@ -144,7 +144,7 @@ THE SOFTWARE.
     NSArray<OSCachedUniqueOutcome *> *attributedUniqueOutcomeEventSent = [self getAttributedUniqueOutcomeEventSent];
     
     NSArray *finalAttributedUniqueOutcomeEventSent = [attributedUniqueOutcomeEventSent arrayByAddingObjectsFromArray:newAttributedIds];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSOutcomeEventsRepository finalAttributedUniqueOutcomeEventSent: %@", finalAttributedUniqueOutcomeEventSent.description]];
+    
     [self saveAttributedUniqueOutcomeEventNotificationIds:finalAttributedUniqueOutcomeEventSent];
 }
 

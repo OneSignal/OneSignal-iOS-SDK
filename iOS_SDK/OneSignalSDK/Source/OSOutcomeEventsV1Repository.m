@@ -40,7 +40,7 @@ THE SOFTWARE.
                          onFailure:(OSFailureBlock)failureBlock {
     OSOutcomeEvent *outcome = [[OSOutcomeEvent alloc] initFromOutcomeEventParams:event];
     OneSignalRequest *request;
-    switch (outcome.influenceType) {
+    switch (outcome.session) {
         case DIRECT:
             [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending direct outcome"];
             request = [OSRequestSendOutcomesV1ToServer directWithOutcome:outcome
