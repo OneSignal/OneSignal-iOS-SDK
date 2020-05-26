@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -8,7 +8,6 @@ let package = Package(
     products: [
         .library(
             name: "OneSignal",
-            type: .static,
             targets: ["OneSignal"]),
     ],
     targets: [
@@ -17,7 +16,7 @@ let package = Package(
             dependencies: [],
             path: "iOS_SDK/OneSignalSDK/",
             sources: ["Source"],
-            publicHeadersPath:"Source"),
+            publicHeadersPath:"SwiftPM/Public/Headers"),
     ]
 )
 
