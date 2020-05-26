@@ -53,8 +53,7 @@
 
 - (NSString*)findExtensionInParam:(NSString *)parameter {
     NSArray *paramComponents = [parameter componentsSeparatedByString:@"."];
-    for (int i = (int)paramComponents.count-1; i > -1; i--) {
-        NSString *component = paramComponents[i];
+    for (NSString *component in [paramComponents reverseObjectEnumerator]) {
         if ([ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:component])
             return component;
     }
