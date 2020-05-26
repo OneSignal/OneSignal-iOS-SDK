@@ -1583,8 +1583,6 @@ static dispatch_queue_t serialQueue;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     
     let infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    NSString* build = infoDictionary[(NSString*)kCFBundleVersionKey];
-
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    app_id, @"app_id",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
@@ -1606,8 +1604,9 @@ static dispatch_queue_t serialQueue;
     if (deviceModel)
         dataDic[@"device_model"] = deviceModel;
     
-    if (build)
-        dataDic[@"game_version"] = build;
+    NSString *version = infoDictionary[@"CFBundleShortVersionString"];
+    if (version)
+        dataDic[@"game_version"] = version;
     
     if ([OneSignalJailbreakDetection isJailbroken])
         dataDic[@"rooted"] = @YES;
