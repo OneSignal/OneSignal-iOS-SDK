@@ -238,4 +238,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // variance and floating-point error.
 #define OS_ROUGHLY_EQUAL(left, right) (fabs(left - right) < 0.03)
 
+#define MAX_NOTIFICATION_MEDIA_SIZE_BYTES 50000000
+
 #endif /* OneSignalCommonDefines_h */

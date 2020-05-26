@@ -39,7 +39,7 @@
     return nil;
 }
 
-- (NSString*)supportedFileExtension {
+- (NSString *)supportedFileExtensionFromQueryItems {
     NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:false];
     
     for (NSURLQueryItem *item in [components.queryItems reverseObjectEnumerator]) {

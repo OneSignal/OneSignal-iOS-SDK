@@ -31,6 +31,6 @@
 
 - (NSString *)valueFromQueryParameter:(NSString *)parameter;
 
-- (NSString*)supportedFileExtension;
+- (NSString *)supportedFileExtensionFromQueryItems;
 
 @end

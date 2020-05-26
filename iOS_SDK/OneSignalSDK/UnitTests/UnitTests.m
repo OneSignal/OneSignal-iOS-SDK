@@ -2165,7 +2165,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"png"]);
 }
 
-- (void)testExtractFileExtensionFromAnyParamter {
+- (void)testExtractFileExtensionFromAnyParameter {
     //test to make sure the fallback of parsing all parameters for a file type works correctly
     //NSURLSessionOverrider returns an unallowed extension (heic) for this URL to test the fallback
     id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/secondFile?file=test.png&media=image&type=.fakeextension"];

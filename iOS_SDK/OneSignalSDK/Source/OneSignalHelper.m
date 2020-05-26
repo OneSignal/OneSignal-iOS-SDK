@@ -79,10 +79,10 @@
     [outputHandle writeData:data];
 }
 
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
     response = aResponse;
     long long expectedLength = response.expectedContentLength;
-    if (expectedLength > 50000000) { //Enforcing 50 mb limit on media before downloading
+    if (expectedLength > MAX_NOTIFICATION_MEDIA_SIZE_BYTES) { //Enforcing 50 mb limit on media before downloading
         completionHandler(NSURLSessionResponseCancel);
         return;
     }
@@ -782,24 +782,14 @@ static OneSignal* singleInstance = nil;
 /*
  Synchroneously downloads an attachment
  On success returns bundle resource name, otherwise returns nil
- The preference order for file type determination is as follows:
-    1. File extension in the actual URL
-    2. MIME type
-    3. URL Query parameter called 'filename', such as test.jpg. The SDK will extract the file extension from it
 */
-+ (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString {
++ (NSString *)downloadMediaAndSaveInBundle:(NSString*)urlString {
     
     let url = [NSURL URLWithString:urlString];
-     
-    //Try to get extension from the filname parameter
-    NSString* extension = [[[NSURL URLWithString:urlString] valueFromQueryParameter:@"filename"]
-                            supportedFileExtension];
      
     //Download the file
     var name = [self randomStringWithLength:10];
         
-    if (extension)
-        name = [name stringByAppendingString:[NSString stringWithFormat:@".%@", extension]];
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     
@@ -813,31 +803,16 @@ static OneSignal* singleInstance = nil;
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
             return nil;
         }
-        if (!extension) {
-            NSString *newExtension;
-            //Use the MIME type for the extension if one wasn't provided in the filename parameter
-            if (mimeType != nil && ![mimeType isEqualToString:@""]) {
-                newExtension = mimeType.fileExtensionForMimeType;
-            }
-            
-            //Try using url.pathExtension
-            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension]) {
-                newExtension =  url.pathExtension;
-            }
-            
-            //Try getting an extension from the query
-            if (!newExtension || ![ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:newExtension]) {
-                newExtension = url.supportedFileExtension;
-                if (!newExtension || [newExtension isEqualToString:@""])
-                     return nil;
-            }
-            
-            name = [NSString stringWithFormat:@"%@.%@", name, newExtension];
-            
-            let newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
-            
-            [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
-        }
+
+        NSString *extension = [OneSignalHelper getSupportedFileExtensionFromURL:url mimeType:mimeType];
+        if (!extension || [extension isEqualToString:@""])
+            return nil;
+        
+        name = [NSString stringWithFormat:@"%@.%@", name, extension];
+        
+        let newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
+        
+        [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
         
         if (error) {
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
@@ -862,6 +837,41 @@ static OneSignal* singleInstance = nil;
         
         return nil;
     }
+}
+
+
+/*
+ The preference order for file type determination is as follows:
+    1. URL Query parameter called 'filename', such as test.jpg. The SDK will extract the file extension from it
+    2. MIME type
+    3. File extension in the actual URL
+    4. A file extension extracted by searching through all URL Query parameters
+ */
++ (NSString *)getSupportedFileExtensionFromURL:(NSURL *)url mimeType:(NSString *)mimeType {
+    //Try to get extension from the filename parameter
+    NSString* extension = [[url valueFromQueryParameter:@"filename"]
+                            supportedFileExtension];
+    if (extension && [ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension]) {
+        return extension;
+    }
+    //Use the MIME type for the extension
+    if (mimeType != nil && ![mimeType isEqualToString:@""]) {
+        extension = mimeType.fileExtensionForMimeType;
+        if (extension && [ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension]) {
+            return extension;
+        }
+    }
+    //Try using url.pathExtension
+    extension =  url.pathExtension;
+    if (extension && [ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension]) {
+        return extension;
+    }
+    //Try getting an extension from the query
+    extension = url.supportedFileExtensionFromQueryItems;
+    if (extension && [ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:extension]) {
+        return extension;
+    }
+    return nil;
 }
 
 // TODO: Add back after testing
