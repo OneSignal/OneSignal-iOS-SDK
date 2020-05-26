@@ -783,7 +783,7 @@ static OneSignal* singleInstance = nil;
  Synchroneously downloads an attachment
  On success returns bundle resource name, otherwise returns nil
 */
-+ (NSString *)downloadMediaAndSaveInBundle:(NSString*)urlString {
++ (NSString *)downloadMediaAndSaveInBundle:(NSString *)urlString {
     
     let url = [NSURL URLWithString:urlString];
      
