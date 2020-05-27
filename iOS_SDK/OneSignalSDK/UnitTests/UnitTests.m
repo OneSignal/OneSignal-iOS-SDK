@@ -2136,16 +2136,7 @@ didReceiveRemoteNotification:userInfo
                      }};
 }
 
-- (void)testExtractFileExtensionFromMimeType {
-    //test to make sure the MIME type parsing works correctly
-    //NSURLSessionOverrider returns image/png for this URL
-    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file"];
-    
-    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
-    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
-}
-
-- (void)testExtractFileExtensionFromQueryParameter {
+- (void)testExtractFileExtensionFromFileNameQueryParameter {
     // we allow developers to add ?filename=test.jpg (for example) to attachment URL's in cases where there is no extension & no mime type
     // tests to make sure the SDK correctly extracts the file extension from the `filename` URL query parameter
     // NSURLSessionOverrider returns nil for this URL
@@ -2155,14 +2146,32 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue([downloadedJpgFilename.supportedFileExtension isEqualToString:@"jpg"]);
 }
 
-- (void)testFileExtensionPrioritizesURLFileExtension {
-    //tests to make sure that the URL's file extension is prioritized above the MIME type and URL query param
-    //this attachment URL will have a file extension, a MIME type, and a filename query parameter. It should prioritize the URL file extension (gif)
+- (void)testExtractFileExtensionFromMimeType {
+    //test to make sure the MIME type parsing works correctly
+    //NSURLSessionOverrider returns image/png for this URL
+    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file"];
+    
+    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
+}
+
+- (void)testFileExtensionPrioritizesFileNameParameter {
+    //tests to make sure that the filename query parameter is prioritized above the MIME type and URL extension
+    //this attachment URL will have a file extension, a MIME type, and a filename query parameter. It should prioritize the filename query parameter (png)
     //NSURLSessionOverrider returns image/png for this URL
     id gifFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file.gif?filename=test.png"];
     
     let downloadedGifFilename = [self deliverNotificationWithJSON:gifFormat].URL.lastPathComponent;
-    XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"gif"]);
+    XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"png"]);
+}
+
+- (void)testExtractFileExtensionFromAnyParameter {
+    //test to make sure the fallback of parsing all parameters for a file type works correctly
+    //NSURLSessionOverrider returns an unallowed extension (heic) for this URL to test the fallback
+    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/secondFile?file=test.png&media=image&type=.fakeextension"];
+    
+    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
 }
 
 /*
