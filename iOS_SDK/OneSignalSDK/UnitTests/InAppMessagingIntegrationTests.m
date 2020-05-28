@@ -87,7 +87,7 @@
     [OSMessagingController.sharedInstance resetState];
 
     // Set to false so that we don't interfere with other tests
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
 }
 
 /*
@@ -109,7 +109,8 @@
     XCTAssertNil(cachedMessages);
 
     // 2. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
 
     // 3. Kill the app and wait 31 seconds
@@ -119,11 +120,12 @@
     [UnitTestCommonMethods runBackgroundThreads];
 
     // 4. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
 
     // 5. Ensure the last network call is an on_session
-    // Total calls - 2 ios params + player create + on_session = 4 requests
+    // Total calls - 2 ios params + player update + on_session = 4 requests
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234/on_session"));
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
 
@@ -146,7 +148,9 @@
     XCTAssertNil(cachedMessages);
 
     // 2. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
 
     // 3. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -154,7 +158,9 @@
     [UnitTestCommonMethods runBackgroundThreads];
 
     // 4. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
 
     // 5. Ensure the last network call is an on_session
     // Total calls - ios params + 2 on_session = 3 requests
@@ -174,7 +180,8 @@
     XCTAssertTrue([OSMessagingController.sharedInstance getInAppMessages].count == 0);
 
     // 9. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
 
     // 10. Make sure 1 IAM is persisted
@@ -233,7 +240,7 @@
     
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
     
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     XCTAssertEqual(2, OSMessagingControllerOverrider.messageDisplayQueue.count);
@@ -365,7 +372,7 @@
 
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the in app message
@@ -410,7 +417,7 @@
  Tests adding & removing trigger values using the public OneSignal trigger methods
  */
 - (void)testRemoveTriggers {
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignal addTrigger:@"test1" withValue:@"value1"];
     XCTAssertEqual(1, [OneSignal getTriggers].count);
@@ -676,7 +683,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
     
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // the message should now be displayed
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
@@ -691,7 +698,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
     
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -717,7 +724,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -748,7 +755,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -781,7 +788,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -825,7 +832,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:NO];
 
     // the message should now be displayed
@@ -854,7 +861,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     let outcomeName = @"test_outcome";
     NSDictionary *outcomeJson = @{
         @"name" : outcomeName,
@@ -886,7 +893,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -922,7 +929,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     let tagKey = @"test1";
     let tagsJson = @{
                      @"removes" :  @[tagKey]
@@ -952,7 +959,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -988,7 +995,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
     actionJson[@"prompts"] = @[@"push"];
@@ -1010,7 +1017,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
     actionJson[@"prompts"] = @[@"location"];
@@ -1032,7 +1039,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
     actionJson[@"prompts"] = @[@"push", @"location"];
@@ -1059,7 +1066,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // Make sure no IAM is showing, but the queue has any IAMs
     XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
@@ -1084,7 +1091,7 @@
     
     [NSLocaleOverrider setPreferredLanguagesArray:@[@"es", @"en"]];
     
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"wait_for_message_html"];
     expectation.expectedFulfillmentCount = 1;
@@ -1165,7 +1172,7 @@
 - (void)initOneSignalWithRegistrationJSON:(NSDictionary *)registrationJson {
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationJson];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 }
 
 @end

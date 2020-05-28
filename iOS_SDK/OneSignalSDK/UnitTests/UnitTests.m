@@ -2280,14 +2280,14 @@ didReceiveRemoteNotification:userInfo
 - (void)testSetExternalUserIdWithRegistration {
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
 }
 
 - (void)testSetExternalUserIdAfterRegistration {
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
 
@@ -2300,13 +2300,14 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId {
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    [UnitTestCommonMethods runBackgroundThreads];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     [OneSignal removeExternalUserId];
+    [UnitTestCommonMethods runBackgroundThreads];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
-
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
 }
 
@@ -2314,7 +2315,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testDoesntSendExistingExternalUserIdAfterRegistration {
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
 
@@ -2331,7 +2332,7 @@ didReceiveRemoteNotification:userInfo
 
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestRegisterUser class]));
 
@@ -2342,7 +2343,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testSetExternalUserId_forPush_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
@@ -2361,7 +2362,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testSetExternalUserId_forPushAndEmail_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2384,7 +2385,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testSetExternalUserId_forPush_afterLogoutEmail_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2433,7 +2434,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
 
     // 2. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2460,7 +2461,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:@"12345"];
 
     // 2. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2487,7 +2488,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
 
     // 2. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2514,7 +2515,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:@"12345"];
 
     // 2. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 3. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2537,7 +2538,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPush {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
@@ -2558,7 +2559,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPushAndEmail {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
@@ -2583,7 +2584,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPush_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
@@ -2614,7 +2615,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPushAndEmail_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
