@@ -52,7 +52,7 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 
 NSString * serverUrlWithPath(NSString *path) {
-    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+    return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 @interface OneSignal ()
@@ -148,9 +148,7 @@ static XCTestCase* _currentXCTestCase;
     
     [NSTimerOverrider reset];
     
-    [OSMessagingControllerOverrider reset];
-    
-    [OSMessagingController.sharedInstance reset];
+    [OSMessagingController.sharedInstance resetState];
 }
 
 + (void)beforeAllTest:(XCTestCase *)testCase {
@@ -175,6 +173,8 @@ static XCTestCase* _currentXCTestCase;
     // InstallUncaughtExceptionHandler();
     
     OneSignalHelperOverrider.mockIOSVersion = 10;
+    
+    [OneSignal pauseInAppMessages:true];
 }
 
 + (void) beforeEachTest:(XCTestCase *)testCase {

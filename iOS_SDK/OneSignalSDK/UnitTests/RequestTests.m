@@ -43,6 +43,7 @@
 @implementation RequestTests {
     NSString *testAppId;
     NSString *testUserId;
+    NSString *testExternalUserId;
     NSString *testEmailUserId;
     NSString *testMessageId;
     NSString *testEmailAddress;
@@ -64,6 +65,7 @@
     testAppId = @"test_app_id";
     testUserId = @"test_user_id";
     testEmailUserId = @"test_email_user_id";
+    testExternalUserId = @"test_external_id";
     testEmailAddress = @"test@test.com";
     testMessageId = @"test_message_id";
     testInAppMessageId = @"test_in_app_message_id";
@@ -98,7 +100,7 @@ NSString *urlStringForRequest(OneSignalRequest *request) {
 }
 
 NSString *correctUrlWithPath(NSString *path) {
-    return [[SERVER_URL stringByAppendingString:API_VERSION] stringByAppendingString:path];
+    return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 // only works for dictionaries with values that are strings, numbers, or sub-dictionaries/arrays of strings and numbers
@@ -395,18 +397,18 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 
     XCTAssertEqualObjects(request.urlRequest.URL.absoluteString, correctUrlWithPath(iamUrlPath));
     XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"GET");
-    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
+    XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/vnd.onesignal.v1+json");
     XCTAssertFalse(request.dataRequest);
 }
 
 - (void)testSendExternalUserId {
-    let request = [OSRequestUpdateExternalUserId withUserId:@"test_external" withOneSignalUserId:testUserId appId:testAppId];
+    let request = [OSRequestUpdateExternalUserId withUserId:testExternalUserId withOneSignalUserId:testUserId appId:testAppId];
 
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
 
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
 
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : @"test_external"}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : testExternalUserId}));
 }
 
 @end

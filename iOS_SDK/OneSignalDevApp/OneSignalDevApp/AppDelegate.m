@@ -39,7 +39,7 @@
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_ERROR];
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     
     OneSignal.inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
     

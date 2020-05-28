@@ -84,6 +84,33 @@
     }
 }
 
+- (IBAction)setEmailButton:(id)sender {
+    NSString *email = self.emailTextField.text;
+    [OneSignal setEmail:email withSuccess:^{
+        NSLog(@"Set email successful with email: %@", email);
+    } withFailure:^(NSError *error) {
+        NSLog(@"Set email failed with code: %@ and message: %@", @(error.code), error.description);
+    }];
+}
+
+- (IBAction)logoutEmailButton:(id)sender {
+    [OneSignal logoutEmailWithSuccess:^{
+        NSLog(@"Email logout successful");
+    } withFailure:^(NSError *error) {
+        NSLog(@"Error logging out email with code: %@ and message: %@", @(error.code), error.description);
+    }];
+}
+
+- (IBAction)getTagsButton:(id)sender {
+    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
+        NSLog(@"IdsAvailable userId: %@, and pushToken: %@", userId, pushToken);
+    }];
+    
+    [OneSignal getTags:^(NSDictionary *result) {
+        NSLog(@"Tags: %@", result.description);
+    }];
+}
+
 - (IBAction)sendTagButton:(id)sender {
     [OneSignal sendTag:@"key1"
                  value:@"value1"
@@ -94,10 +121,6 @@
              onFailure:^(NSError *error) {
                  static int failures = 0;
                  NSLog(@"failures: %d", ++failures);
-    }];
-    
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        NSLog(@"IdsAvailable Fired");
     }];
 }
 
@@ -111,10 +134,6 @@
 
 - (IBAction)promptLocationAction:(UIButton *)sender {
     [OneSignal promptLocation];
-}
-
-- (IBAction)setEmailButtonPressed:(UIButton *)sender {
-    [AppDelegate setOneSignalAppId:self.appIdTextField.text];
 }
 
 - (void)promptForNotificationsWithNativeiOS10Code {
@@ -152,12 +171,21 @@
     [OneSignal pauseInAppMessages:(bool) !sender.selectedSegmentIndex];
 }
 
--(void)handleMessageAction:(NSString *)actionId {
+- (void)handleMessageAction:(NSString *)actionId {
     NSLog(@"View controller did get action: %@", actionId);
 }
 
-- (IBAction)removeExternalIdButtonPressed:(UIButton *)sender {
-    [OneSignal removeExternalUserId];
+- (IBAction)setExternalUserId:(UIButton *)sender {
+    NSString* externalUserId = self.externalUserIdTextField.text;
+    [OneSignal setExternalUserId:externalUserId withCompletion:^(NSDictionary *results) {
+        NSLog(@"External user id update complete with results: %@", results.description);
+    }];
+}
+
+- (IBAction)removeExternalUserId:(UIButton *)sender {
+    [OneSignal removeExternalUserId:^(NSDictionary *results) {
+        NSLog(@"External user id update complete with results: %@", results.description);
+    }];
 }
 
 #pragma mark UITextFieldDelegate Methods

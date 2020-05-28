@@ -46,6 +46,7 @@
 - (Session)getSession;
 - (NSArray * _Nullable)getNotificationIds;
 - (OSSessionResult * _Nonnull)getSessionResult;
+- (OSSessionResult * _Nonnull)getIAMSessionResult;
 - (void)initSessionFromCache;
 - (void)restartSessionIfNeeded;
 - (void)onDirectSessionFromNotificationOpen:(NSString * _Nonnull)directNotificationId;

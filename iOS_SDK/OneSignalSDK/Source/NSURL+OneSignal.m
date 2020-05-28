@@ -26,15 +26,38 @@
  */
 
 #import "NSURL+OneSignal.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation NSURL (OneSignal)
 - (NSString *)valueFromQueryParameter:(NSString *)parameter {
     NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:false];
     
-    for(NSURLQueryItem *item in components.queryItems)
+    for (NSURLQueryItem *item in components.queryItems)
         if([item.name isEqualToString:parameter])
             return item.value;
     
     return nil;
 }
+
+- (NSString *)supportedFileExtensionFromQueryItems {
+    NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:false];
+    
+    for (NSURLQueryItem *item in [components.queryItems reverseObjectEnumerator]) {
+        NSString *value = item.value;
+        NSString *extension = [self findExtensionInParam:value];
+        if (extension)
+            return extension;
+    }
+    return nil;
+}
+
+- (NSString*)findExtensionInParam:(NSString *)parameter {
+    NSArray *paramComponents = [parameter componentsSeparatedByString:@"."];
+    for (NSString *component in [paramComponents reverseObjectEnumerator]) {
+        if ([ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES containsObject:component])
+            return component;
+    }
+    return nil;
+}
+
 @end
