@@ -230,44 +230,12 @@
 	}];
 }
 
-- (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_AlwaysUsage {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
-    
-    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification", @"location"],
-                                             @"NSLocationAlwaysUsageDescription" : @YES
-                                             };
-    
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
-    [self assertLocationShared_withGrantLocationServices];
-}
-
-- (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_AlwaysAndWhenInUseUsage {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
-    
-    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification", @"location"],
-                                             @"NSLocationAlwaysAndWhenInUseUsageDescription" : @YES
-                                             };
-    
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
-    [self assertLocationShared_withGrantLocationServices];
-}
-
-- (void)testLocationPromptAcceptedWithSetLocationShared_iOS8_WhenInUseUsage {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+- (void)testLocationPromptAcceptedWithSetLocationShared_iOS9_WhenInUseUsage {
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"],
                                              @"NSLocationWhenInUseUsageDescription" : @YES
                                              };
-    
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
-    [self assertLocationShared_withGrantLocationServices];
-}
-
-- (void)testLocationPromptAcceptedWithSetLocationShared_iOS7AndUnder {
-    OneSignalHelperOverrider.mockIOSVersion = 7;
     
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
@@ -288,34 +256,6 @@
     [OneSignalLocationOverrider grantLocationServices];
     // Last location should not exist since we are not sharing location
     XCTAssertTrue([OneSignalLocation lastLocation]);
-}
-
-- (void)testRegisterationOniOS7 {
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    OneSignalHelperOverrider.mockIOSVersion = 7;
-    
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-        
-    // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [OneSignalHelper getDeviceVariant];
-    
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_model"], deviceModel);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"device_type"], @0);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"en-US");
-    
-    // 2nd init call should not fire another on_session call.
-    OneSignalClientOverrider.lastHTTPRequest = nil;
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
-    
-    // Make the following methods were not called as they are not available on iOS 7
-    XCTAssertFalse(UIApplicationOverrider.calledRegisterForRemoteNotifications);
-    XCTAssertFalse(UIApplicationOverrider.calledCurrentUserNotificationSettings);
 }
 
 // Test exists since we've seen a few rare crash reports where
@@ -404,13 +344,8 @@
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [self sharedTestPermissionChangeObserver];
 }
-- (void)testPermissionChangeObserverIOS8 {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
-    [self sharedTestPermissionChangeObserver];
-}
-
-- (void)testPermissionChangeObserverIOS7 {
-    OneSignalHelperOverrider.mockIOSVersion = 7;
+- (void)testPermissionChangeObserverIOS9 {
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     [self sharedTestPermissionChangeObserver];
 }
 
@@ -486,14 +421,11 @@
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
 }
-- (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS8 {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+- (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS9 {
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
 }
-- (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS7 {
-    OneSignalHelperOverrider.mockIOSVersion = 7;
-    [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
-}
+
 - (void)sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     
@@ -814,9 +746,9 @@
     XCTAssertTrue(didAccept);
 }
 
-- (void)testPromptForPushNotificationsWithUserResponseOnIOS8 {
+- (void)testPromptForPushNotificationsWithUserResponseOnIOS9 {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
@@ -829,23 +761,6 @@
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
 }
-
-- (void)testPromptForPushNotificationsWithUserResponseOnIOS7 {
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    OneSignalHelperOverrider.mockIOSVersion = 7;
-    
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
-    __block BOOL didAccept;
-    [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
-        didAccept = accepted;
-    }];
-    [self backgroundApp];
-    [UnitTestCommonMethods answerNotificationPrompt:true];
-    [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertTrue(didAccept);
-}
-
 
 - (void)testPromptedButNeveranswerNotificationPrompt {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
@@ -863,7 +778,7 @@
 }
 
 - (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     
     [OneSignal initWithLaunchOptions:nil
@@ -1401,8 +1316,8 @@ didReceiveRemoteNotification:userInfo
 }
 
 // Testing iOS 8 - with os_data aps payload format
-- (void)testGeneratingLocalNotificationWithButtonsiOS8_osdata_format {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+- (void)testGeneratingLocalNotificationWithButtonsiOS9_osdata_format {
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [self backgroundApp];
     
@@ -1420,8 +1335,8 @@ didReceiveRemoteNotification:userInfo
     [self assertLocalNotification:userInfo];
 }
 
-- (void)testGeneratingLocalNotificationWithButtonsiOS8 {
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+- (void)testGeneratingLocalNotificationWithButtonsiOS9 {
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     [self backgroundApp];
     

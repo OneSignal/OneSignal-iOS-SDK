@@ -49,8 +49,7 @@
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
-#import "OneSignalNotificationSettingsIOS8.h"
-#import "OneSignalNotificationSettingsIOS7.h"
+#import "OneSignalNotificationSettingsIOS9.h"
 
 #import "OSObservable.h"
 
@@ -218,15 +217,14 @@ static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayType
 }
 
 // iOS version implementation
-static NSObject<OneSignalNotificationSettings>* _osNotificationSettings;
-+ (NSObject<OneSignalNotificationSettings>*)osNotificationSettings {
+static NSObject<OneSignalNotificationSettings> *_osNotificationSettings;
++ (NSObject<OneSignalNotificationSettings> *)osNotificationSettings {
     if (!_osNotificationSettings) {
-        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-        else if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
-            _osNotificationSettings = [OneSignalNotificationSettingsIOS8 new];
-        else
-            _osNotificationSettings = [OneSignalNotificationSettingsIOS7 new];
+        } else {
+            _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
+        }
     }
     return _osNotificationSettings;
 }
@@ -651,10 +649,8 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 + (void)initSettings:(NSDictionary*)settings withStandardUserDefaults:(OneSignalUserDefaults*)standardUserDefaults {
-    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"])
-        registeredWithApple = self.currentPermissionState.accepted;
-    else
-        registeredWithApple = self.currentSubscriptionState.pushToken || [standardUserDefaults getSavedBoolForKey:OSUD_REGISTERED_WITH_APPLE defaultValue:false];
+    
+    registeredWithApple = self.currentPermissionState.accepted;
     
     // Check if disabled in-app launch url if passed a NO
     if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
@@ -891,10 +887,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     return providesAppNotificationSettings;
 }
 
-// iOS 8+, only tries to register for an APNs token
+// iOS 9+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken {
-    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
-        return false;
     
     if (waitingForApnsResponse)
         return true;
@@ -1439,9 +1433,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
-    
-    // iOS 7
-    [self.osNotificationSettings onAPNsResponse:false];
 }
 
 + (void)updateDeviceToken:(NSString*)deviceToken {
@@ -1451,13 +1442,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
     
-    // iOS 7
-    [self.osNotificationSettings onAPNsResponse:true];
-    
     let isPushTokenDifferent = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken];
     self.currentSubscriptionState.pushToken = deviceToken;
 
-    // iOS 8+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
+    // iOS 9+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
     // The goal is to only have 1 server call.
     [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
         if (status.answeredPrompt || status.provisional) {
@@ -2077,19 +2065,11 @@ static NSString *_lastnonActiveMessageId;
         disableBadgeClearing = NO;
     
     if (disableBadgeClearing ||
-        ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"] && [self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+        ([self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
-    
-    if ((!(NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_7_1) && fromNotifOpened) || wasBadgeSet) {
-        // Clear badges and notifications from this app.
-        // Setting to 1 then 0 was needed to clear the notifications on iOS 6 & 7. (Otherwise you can click the notification multiple times.)
-        // iOS 8+ auto dismisses the notification you tap on so only clear the badge (and notifications [side-effect]) if it was set.
-        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:1];
-        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-    }
-    
+
     return wasBadgeSet;
 }
 
@@ -2127,7 +2107,6 @@ static NSString *_lastnonActiveMessageId;
         [self registerUser];
 }
 
-// iOS 8.0+ only
 //    User just responed to the iOS native notification permission prompt.
 //    Also extra calls to registerUserNotificationSettings will fire this without prompting again.
 + (void)updateNotificationTypes:(int)notificationTypes {
@@ -2222,7 +2201,7 @@ static NSString *_lastnonActiveMessageId;
     return startedBackgroundJob;
 }
 
-// iOS 8-9 - Entry point when OneSignal action button notification is displayed or opened.
+// iOS 9 - Entry point when OneSignal action button notification is displayed or opened.
 + (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
@@ -2805,9 +2784,6 @@ static NSString *_lastnonActiveMessageId;
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
     if ([[processInfo processName] isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [[processInfo processName] isEqualToString:@"IBDesignablesAgent-iOS"])
-        return;
-    
-    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
         return;
 
     // Double loading of class detection.

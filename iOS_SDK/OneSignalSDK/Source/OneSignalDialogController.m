@@ -73,17 +73,6 @@
 }
 
 - (void)displayDialog:(OSDialogRequest * _Nonnull)request {
-    //iOS 7
-    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"]) {
-        
-        let alertView = [[UIAlertView alloc] initWithTitle:request.title message:request.message delegate:self cancelButtonTitle:request.cancelTitle otherButtonTitles:request.actionTitle, nil];
-        
-        [alertView show];
-        
-        return;
-    }
-    
-    //iOS 8 and later
     let rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
     
     let controller = [UIAlertController alertControllerWithTitle:request.title message:request.message preferredStyle:UIAlertControllerStyleAlert];

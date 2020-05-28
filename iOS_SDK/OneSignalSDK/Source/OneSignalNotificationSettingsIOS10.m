@@ -191,9 +191,7 @@ static dispatch_queue_t serialQueue;
 }
 
 // Ignore these 2 events, promptForNotifications: already takes care of these.
-// Only iOS 8 & 9
+// Only iOS 9
 - (void)onNotificationPromptResponse:(int)notificationTypes { }
-// Only iOS 7
-- (void)onAPNsResponse:(BOOL)success {}
 
 @end
