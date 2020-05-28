@@ -119,7 +119,7 @@ NSArray *locations;
 - (void)overrideStartUpdatingLocation {
     // If iOS is less than 8.0, the startUpdatingLocation prompts the user
     // Otherwise, we want to check if the location request was made for info.plist params
-    if (OneSignalHelperOverrider.mockIOSVersion < 8.0 || calledRequestAlwaysAuthorization || calledRequestWhenInUseAuthorization)
+    if (calledRequestAlwaysAuthorization || calledRequestWhenInUseAuthorization)
         [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
 }
 

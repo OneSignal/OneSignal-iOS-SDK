@@ -26,13 +26,13 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "OneSignalNotificationSettingsIOS8.h"
+#import "OneSignalNotificationSettingsIOS9.h"
 #import "OneSignalInternal.h"
 #import "OneSignalUserDefaults.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 
-@implementation OneSignalNotificationSettingsIOS8 {
+@implementation OneSignalNotificationSettingsIOS9 {
     void (^notificationPromptReponseCallback)(BOOL);
 }
 
@@ -86,10 +86,6 @@
     OneSignal.currentPermissionState.accepted = accepted;
     OneSignal.currentPermissionState.answeredPrompt = true;
 }
-
-// Only iOS 7 - The above is used for iOS 8 & 9
-- (void)onAPNsResponse:(BOOL)success {}
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {}
 
 #pragma GCC diagnostic pop
 

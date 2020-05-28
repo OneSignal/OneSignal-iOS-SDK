@@ -163,7 +163,7 @@ static NSArray* delegateSubclasses = nil;
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
 }
 
-// iOS 8 & 9 Only
+// iOS 9 Only
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterUserNotifications:settings:"];
     

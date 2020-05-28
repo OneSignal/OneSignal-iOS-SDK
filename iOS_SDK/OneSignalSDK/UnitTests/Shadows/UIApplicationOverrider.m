@@ -152,21 +152,12 @@ static int apnsTokenLength = 32;
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
-// Called on iOS 8+
 - (void) overrideRegisterForRemoteNotifications {
     calledRegisterForRemoteNotifications = true;
     [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
 
-// iOS 7
-- (void)overrideRegisterForRemoteNotificationTypes:(UIRemoteNotificationType)types {
-    // Just using this flag to mimic the non-prompted behavoir
-    if (UNUserNotificationCenterOverrider.authorizationStatus != [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined])
-        [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
-}
-
-
-// iOS 8 & 9 Only
+// iOS 9 Only
 - (UIUserNotificationSettings*) overrideCurrentUserNotificationSettings {
     calledCurrentUserNotificationSettings = true;
     
