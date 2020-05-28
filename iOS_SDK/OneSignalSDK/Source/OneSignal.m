@@ -2577,12 +2577,12 @@ static NSString *_lastnonActiveMessageId;
     }
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
-        if (results[@"push"] && results[@"push"][@"success"])
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
-            
-        if (results[@"email"] && results[@"email"][@"success"])
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
         
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
+
         if (completionBlock)
             completionBlock(results);
     }];
@@ -2617,8 +2617,16 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests {
-    return (![self.existingPushExternalUserId isEqualToString:externalId] && !requests[@"email"])
-            || (requests[@"email"] && ![self.existingEmailExternalUserId isEqualToString:externalId]);
+    // If we are not making a request to email user, no need to validate that external user id
+    bool updateExternalUserId = ![self.existingPushExternalUserId isEqualToString:externalId]
+                                && !requests[@"email"];
+    
+    // If we are making a request to email user, we need validate both external user ids
+    bool updateEmailExternalUserId = (![self.existingPushExternalUserId isEqualToString:externalId]
+                                      && requests[@"email"]
+                                      && ![self.existingEmailExternalUserId isEqualToString:externalId]);
+    
+    return updateExternalUserId || updateEmailExternalUserId;
 }
 
 + (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests {
@@ -2628,16 +2636,12 @@ static NSString *_lastnonActiveMessageId;
     results[@"push"] = @{
         @"success" : @(true)
     };
-    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
-    
+
     // Make sure to only add email if email was attempted
     if (requests[@"email"]) {
         results[@"email"] = @{
             @"success" : @(true)
         };
-        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
-    } else {
-        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
     }
     
     return results;
