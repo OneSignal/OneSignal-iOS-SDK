@@ -192,9 +192,9 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
     [UIAlertViewOverrider reset];
-    
+
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
-    
+
     [NSTimerOverrider reset];
     
     [OSMessagingControllerOverrider reset];
