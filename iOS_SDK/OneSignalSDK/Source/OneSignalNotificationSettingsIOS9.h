@@ -25,14 +25,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettingsIOS8_h
-#define OneSignalNotificationSettingsIOS8_h
+#ifndef OneSignalNotificationSettingsIOS9_h
+#define OneSignalNotificationSettingsIOS9_h
 
 #import "OneSignalNotificationSettings.h"
 
-// Used for iOS 9 & 8
-@interface OneSignalNotificationSettingsIOS8 : NSObject <OneSignalNotificationSettings>
+// Used for iOS 9
+@interface OneSignalNotificationSettingsIOS9 : NSObject <OneSignalNotificationSettings>
 
 @end
 
-#endif /* OneSignalNotificationSettingsIOS8_h */
+#endif /* OneSignalNotificationSettingsIOS9_h */

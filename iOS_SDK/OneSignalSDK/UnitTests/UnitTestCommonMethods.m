@@ -162,8 +162,9 @@ static XCTestCase* _currentXCTestCase;
     if (setupUIApplicationDelegate)
         return;
     
+    //ECM Todo safe?
     // Force swizzle in all methods for tests.
-    OneSignalHelperOverrider.mockIOSVersion = 8;
+    OneSignalHelperOverrider.mockIOSVersion = 9;
     
     // Normally this just loops internally, overwrote _run to work around this.
     UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
@@ -251,12 +252,9 @@ static XCTestCase* _currentXCTestCase;
     
     if (OneSignalHelperOverrider.mockIOSVersion > 9) {
         [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:accept];
-    } else if (OneSignalHelperOverrider.mockIOSVersion > 7) {
+    } else {
         UIApplication *sharedApp = [UIApplication sharedApplication];
         [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UNUserNotificationCenterOverrider.notifTypesOverride categories:nil]];
-    }
-    else  { // iOS 7 - Only support accepted for now.
-        [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
     }
 }
 

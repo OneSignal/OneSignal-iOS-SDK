@@ -184,6 +184,7 @@ static OneSignalLocation* singleInstance = nil;
     [OneSignalLocation.locationListeners removeAllObjects];
 }
 
+
 + (void)sendCurrentAuthStatusToListeners {
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
     CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
@@ -231,33 +232,30 @@ static OneSignalLocation* singleInstance = nil;
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
     
-    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"]) {
         
-        //Check info plist for request descriptions
-        //LocationAlways > LocationWhenInUse > No entry (Log error)
-        //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
-        NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
-        NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
-        // use background location updates if always permission granted or prompt allowed
-        if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
-            [locationManager performSelector:@selector(requestAlwaysAuthorization)];
-            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
-                [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
-        }
+    //Check info plist for request descriptions
+    //LocationAlways > LocationWhenInUse > No entry (Log error)
+    //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
+    // use background location updates if always permission granted or prompt allowed
+    if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
+        [locationManager performSelector:@selector(requestAlwaysAuthorization)];
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
+            [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
+    }
 
-        else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-            if (permissionStatus == kCLAuthorizationStatusNotDetermined)
-                [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
-        }
+    else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+        if (permissionStatus == kCLAuthorizationStatusNotDetermined)
+            [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+    }
 
-        else {
-            onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
-            [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
-        }
+    else {
+        onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+        [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
     }
         
-    // For iOS 6 and 7, location services are prompted here
-    // This method is also used for getting the location manager to obtain an initial location fix
+    // This method is used for getting the location manager to obtain an initial location fix
     // and will notify your delegate by calling its locationManager:didUpdateLocations: method
     [locationManager performSelector:@selector(startUpdatingLocation)];
     

@@ -522,7 +522,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return [self isIOSVersionGreaterThanOrEqual:@"8.0"];
 }
 
-// For iOS 8 and 9
+//For iOS 9
 + (UILocalNotification*)createUILocalNotification:(OSNotificationPayload*)payload {
     let notification = [UILocalNotification new];
     
@@ -564,13 +564,11 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return notification;
 }
 
-// iOS 8 and 9
+// iOS 9
 + (UILocalNotification*)prepareUILocalNotification:(OSNotificationPayload*)payload {
     let notification = [self createUILocalNotification:payload];
     
-    // alertTitle was added in iOS 8.2
-    if ([notification respondsToSelector:@selector(alertTitle)])
-        notification.alertTitle = payload.title;
+    notification.alertTitle = payload.title;
     
     notification.alertBody = payload.body;
     
