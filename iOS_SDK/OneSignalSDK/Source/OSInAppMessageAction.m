@@ -26,6 +26,8 @@
  */
 
 #import "OSInAppMessageAction.h"
+#import "OSInAppMessagePushPrompt.h"
+#import "OSInAppMessageLocationPrompt.h"
 
 @implementation OSInAppMessageAction
 
@@ -69,8 +71,46 @@
         action.closesMessage = [json[@"close"] boolValue];
     else
         action.closesMessage = true; // Default behavior
+
+    NSMutableArray *outcomes = [NSMutableArray new];
+    //TODO: when backend is ready check that key matches
+    if ([json[@"outcomes"] isKindOfClass:[NSArray class]]) {
+        NSArray *outcomesString = json[@"outcomes"];
+        
+        for (NSDictionary *outcomeJson in outcomesString) {
+            [outcomes addObject:[OSInAppMessageOutcome instanceWithJson:outcomeJson]];
+        }
+    }
+    action.outcomes = outcomes;
+    //TODO: when backend is ready check if key match
+    if (json[@"tags"]) {
+        action.tags= [OSInAppMessageTag instanceWithJson:json[@"tags"]];
+    } else {
+        action.tags = nil;
+    }
     
+    NSMutableArray<NSObject<OSInAppMessagePrompt>*> *promptActions = [NSMutableArray new];
+    //TODO: when backend is ready check if key match
+    if ([json[@"prompts"] isKindOfClass:[NSArray class]]) {
+        NSArray<NSString *> *promptActionsStrings = json[@"prompts"];
+        
+        for (NSString *prompt in promptActionsStrings) {
+            // TODO: We should refactor this string handling to enums
+            if ([prompt isEqualToString:@"push"]) {
+                [promptActions addObject:[[OSInAppMessagePushPrompt alloc] init]];
+            } else if ([prompt isEqualToString:@"location"]) {
+                [promptActions addObject:[[OSInAppMessageLocationPrompt alloc] init]];
+            }
+        }
+
+    }
+    action.promptActions = promptActions;
+
     return action;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageAction outcome: %@ \ntag: %@ promptAction: %@", _outcomes, _tags, [_promptActions description]];
 }
 
 @end

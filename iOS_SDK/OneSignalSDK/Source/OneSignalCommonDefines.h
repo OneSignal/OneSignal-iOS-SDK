@@ -31,8 +31,11 @@
 #import <Foundation/Foundation.h>
 
 // Networking
-#define API_VERSION @"api/v1/"
-#define SERVER_URL @"https://onesignal.com/"
+#define OS_API_VERSION @"1"
+#define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
+#define OS_API_SERVER_URL @"https://api.onesignal.com/"
+
+#define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
 
 // OneSignalUserDefault keys
 // String values start with "OSUD_" to maintain a level of uniqueness from other libs and app code
@@ -67,6 +70,7 @@
 // Email
 #define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
 #define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID
+#define OSUD_EMAIL_EXTERNAL_USER_ID                                         @"OSUD_EMAIL_EXTERNAL_USER_ID"                                      // OSUD_EMAIL_EXTERNAL_USER_ID
 #define OSUD_REQUIRE_EMAIL_AUTH                                             @"GT_REQUIRE_EMAIL_AUTH"                                            // * OSUD_REQUIRE_EMAIL_AUTH
 #define OSUD_EMAIL_AUTH_CODE                                                @"GT_EMAIL_AUTH_CODE"                                               // * OSUD_EMAIL_AUTH_CODE
 // Notification
@@ -140,6 +144,9 @@
 // Convert String to Session enum and vice versa
 #define OS_SESSION_TO_STRING(enum) [OS_SESSION_STRINGS objectAtIndex:enum]
 #define OS_SESSION_FROM_STRING(string) [OS_SESSION_STRINGS indexOfObject:string]
+
+// OneSignal Prompt Action Result
+typedef enum {PERMISSION_GRANTED, PERMISSION_DENIED, LOCATION_PERMISSIONS_MISSING_INFO_PLIST, ERROR} PromptActionResult;
 
 // OneSignal App Entry Action Types
 typedef enum {NOTIFICATION_CLICK, APP_OPEN, APP_CLOSE} AppEntryAction;
@@ -230,5 +237,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // To make up for this, we can check to make sure the values are close enough to account for
 // variance and floating-point error.
 #define OS_ROUGHLY_EQUAL(left, right) (fabs(left - right) < 0.03)
+
+#define MAX_NOTIFICATION_MEDIA_SIZE_BYTES 50000000
 
 #endif /* OneSignalCommonDefines_h */

@@ -58,24 +58,6 @@ static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 static NSDictionary* iOSParamsOutcomes;
 
-+ (void)reset:(XCTestCase*)testInstance {
-//    serialMockMainLooper = nil;
-//    executionQueue = nil;
-    
-    lastUrl = nil;
-    networkRequestCount = 0;
-    lastHTTPRequest = nil;
-    currentTestInstance = testInstance;
-    executeInstantaneously = true;
-    lastHTTPRequestType = nil;
-    requiresEmailAuth = false;
-    shouldUseProvisionalAuthorization = false;;
-    disableOverride = false;
-    [executedRequests removeAllObjects];
-    mockResponses = [NSMutableDictionary new];
-    iOSParamsOutcomes = @{};
-}
-
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
     
@@ -206,12 +188,28 @@ static NSDictionary* iOSParamsOutcomes;
         [self didCompleteRequest:request];
 
         if (successBlock) {
-            if ([request isKindOfClass:[OSRequestGetIosParams class]])
+            if ([request isKindOfClass:[OSRequestGetIosParams class]]) {
                 successBlock(self.iosParamsResponse);
-            else if (mockResponses[NSStringFromClass([request class])])
+            }
+            else if (mockResponses[NSStringFromClass([request class])]) {
                 successBlock(mockResponses[NSStringFromClass([request class])]);
-            else
-                successBlock(@{@"id": @"1234"});
+            }
+            else {
+                successBlock(@{
+                @"success" : @(true),
+                @"id" : @"1234",
+                @"in_app_messages" : @[
+                     @{
+                         @"id" : @"728dc571-e277-4bef-96ab-9dd1003744cb",
+                         @"triggers" : @[],
+                         @"variants" : @{
+                                 @"all" : @{
+                                         @"default" : @"4ad40b29-1947-4ad9-9ee6-4579c225b448"
+                                 }
+                         }
+                     }]
+                });
+            }
         }
     }
 }
@@ -247,6 +245,18 @@ static NSDictionary* iOSParamsOutcomes;
 
 + (void)setShouldExecuteInstantaneously:(BOOL)instant {
     executeInstantaneously = instant;
+}
+
++ (void)reset:(XCTestCase*)testInstance {
+    currentTestInstance = testInstance;
+    shouldUseProvisionalAuthorization = false;
+    networkRequestCount = 0;
+    lastUrl = nil;
+    lastHTTPRequest = nil;
+    lastHTTPRequestType = nil;
+    [executedRequests removeAllObjects];
+    mockResponses = [NSMutableDictionary new];
+    iOSParamsOutcomes = @{};
 }
 
 + (void)setLastHTTPRequest:(NSDictionary*)value {

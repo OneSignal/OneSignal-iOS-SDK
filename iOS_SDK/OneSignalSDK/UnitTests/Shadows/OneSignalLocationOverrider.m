@@ -99,7 +99,7 @@ NSArray *locations;
     calledRequestAlwaysAuthorization = false;
     calledRequestWhenInUseAuthorization = false;
     
-    [OneSignalLocation internalGetLocation:true];
+    [OneSignalLocation internalGetLocation:true fallbackToSettings:false];
 }
 
 + (int)overrideAuthorizationStatus {

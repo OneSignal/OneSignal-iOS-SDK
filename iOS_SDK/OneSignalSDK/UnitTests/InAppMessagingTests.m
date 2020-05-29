@@ -55,9 +55,14 @@
 
 @implementation InAppMessagingTests {
     OSInAppMessage *testMessage;
+    OSInAppMessage *testMessageRedisplay;
     OSInAppMessageAction *testAction;
     OSInAppMessageBridgeEvent *testBridgeEvent;
 }
+
+NSInteger const LIMIT = 5;
+NSInteger const DELAY = 60;
+
 
 /*
  Put setup code here
@@ -69,7 +74,7 @@
     
     NSTimerOverrider.shouldScheduleTimers = false;
     
-    testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:@[
+    let trigger = @[
         @[
             @{
                 @"id" : @"test_trigger_id",
@@ -79,7 +84,10 @@
                 @"value" : @"home_vc"
             }
         ]
-    ]];
+    ];
+
+    testMessage = [OSInAppMessageTestHelper testMessageWithTriggersJson:trigger];
+    testMessageRedisplay = [OSInAppMessageTestHelper testMessageWithTriggersJson:trigger redisplayLimit:LIMIT delay:[NSNumber numberWithInteger:DELAY]];
     
     testBridgeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
         @"type" : @"action_taken",
@@ -182,6 +190,7 @@
 #pragma mark Message JSON Parsing Tests
 -(void)testCorrectlyParsedMessageId {
     XCTAssertTrue([testMessage.messageId containsString:OS_TEST_MESSAGE_ID]);
+    XCTAssertTrue([testMessageRedisplay.messageId containsString:OS_TEST_MESSAGE_ID]);
 }
 
 -(void)testCorrectlyParsedVariants {
@@ -190,11 +199,76 @@
 }
 
 -(void)testCorrectlyParsedTriggers {
-    XCTAssertTrue(testMessage.triggers.count == 1);
+    XCTAssertEqual(1, testMessage.triggers.count);
     XCTAssertEqual(testMessage.triggers.firstObject.firstObject.operatorType, OSTriggerOperatorTypeEqualTo);
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.kind, @"view_controller");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.value, @"home_vc");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.triggerId, @"test_trigger_id");
+}
+
+- (void)testCorrectlyParsedDisplayStats {
+    XCTAssertEqual(testMessageRedisplay.displayStats.displayLimit, LIMIT);
+    XCTAssertEqual(testMessageRedisplay.displayStats.displayDelay, DELAY);
+    XCTAssertEqual(testMessageRedisplay.displayStats.displayQuantity, 0);
+    XCTAssertEqual(testMessageRedisplay.displayStats.lastDisplayTime, -1);
+    XCTAssertTrue(testMessageRedisplay.displayStats.isRedisplayEnabled);
+
+    XCTAssertEqual(testMessage.displayStats.displayLimit, NSIntegerMax);
+    XCTAssertEqual(testMessage.displayStats.displayDelay, 0);
+    XCTAssertEqual(testMessage.displayStats.displayQuantity, 0);
+    XCTAssertEqual(testMessage.displayStats.lastDisplayTime, -1);
+    XCTAssertFalse(testMessage.displayStats.isRedisplayEnabled);
+}
+
+- (void)testCorrectlyDisplayStatsLimit {
+    for (int i = 0; i < LIMIT; i++) {
+        XCTAssertTrue([testMessageRedisplay.displayStats shouldDisplayAgain]);
+        [testMessageRedisplay.displayStats incrementDisplayQuantity];
+    }
+
+    [testMessageRedisplay.displayStats incrementDisplayQuantity];
+    XCTAssertFalse([testMessageRedisplay.displayStats shouldDisplayAgain]);
+}
+
+- (void)testCorrectlyDisplayStatsDelay {
+    NSDateComponents* comps = [[NSDateComponents alloc]init];
+    comps.year = 2019;
+    comps.month = 6;
+    comps.day = 10;
+    comps.hour = 10;
+    comps.minute = 1;
+
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDate* date = [calendar dateFromComponents:comps];
+    NSTimeInterval currentTime = [date timeIntervalSince1970];
+
+    XCTAssertTrue([testMessageRedisplay.displayStats isDelayTimeSatisfied:currentTime]);
+
+    testMessageRedisplay.displayStats.lastDisplayTime = currentTime - DELAY;
+    XCTAssertTrue([testMessageRedisplay.displayStats isDelayTimeSatisfied:currentTime]);
+
+    testMessageRedisplay.displayStats.lastDisplayTime = currentTime - DELAY + 1;
+    XCTAssertFalse([testMessageRedisplay.displayStats isDelayTimeSatisfied:currentTime]);
+}
+
+- (void)testCorrectlyClickIds {
+    let clickId = @"click_id";
+    XCTAssertTrue([testMessageRedisplay isClickAvailable:clickId]);
+
+    [testMessageRedisplay addClickId:clickId];
+    XCTAssertFalse([testMessageRedisplay isClickAvailable:clickId]);
+
+    [testMessageRedisplay clearClickIds];
+    XCTAssertTrue([testMessageRedisplay isClickAvailable:clickId]);
+
+    // Test on a IAM without redisplay
+    XCTAssertTrue([testMessage isClickAvailable:clickId]);
+
+    [testMessage addClickId:clickId];
+    XCTAssertFalse([testMessage isClickAvailable:clickId]);
+
+    [testMessage clearClickIds];
+    XCTAssertTrue([testMessage isClickAvailable:clickId]);
 }
 
 - (void)testCorrectlyParsedActionId {

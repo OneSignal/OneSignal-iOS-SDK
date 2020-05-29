@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) id<OSTriggerControllerDelegate> delegate;
 
 - (BOOL)messageMatchesTriggers:(OSInAppMessage *)message;
+- (BOOL)hasSharedTriggers:(OSInAppMessage *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (NSDictionary<NSString *, id> *)getTriggers;

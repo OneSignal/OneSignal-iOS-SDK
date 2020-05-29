@@ -1,21 +1,21 @@
 /*
  Modified MIT License
- 
+
  Copyright 2019 OneSignal
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  1. The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  2. All copies of substantial portions of the Software may only be used in connection
  with services provided by OneSignal.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -102,7 +102,7 @@
     [OneSignalTracker onFocus:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 4. Ensure onfocus is made right away.
+    // 4. Ensure onFocus is made right away.
     [RestClientAsserts assertOnFocusAtIndex:2 withTime:60];
 }
 
@@ -133,7 +133,7 @@
     [NSTimerOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 7. Ensure onfocus is sent in the background.
+    // 7. Ensure onFocus is sent in the background.
     [RestClientAsserts assertOnFocusAtIndex:4 withTime:15];
 }
 
@@ -164,7 +164,7 @@
     [NSTimerOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 7. Ensure onfocus is sent in the background.
+    // 7. Ensure onFocus is sent in the background.
     [RestClientAsserts assertOnFocusAtIndex:5 withTime:15];
 }
 

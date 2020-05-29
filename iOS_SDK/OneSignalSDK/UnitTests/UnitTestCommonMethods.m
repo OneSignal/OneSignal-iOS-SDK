@@ -52,7 +52,7 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 
 NSString * serverUrlWithPath(NSString *path) {
-    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+    return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 @interface OneSignal ()
@@ -101,7 +101,7 @@ static XCTestCase* _currentXCTestCase;
  */
 + (void)initOneSignal {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:@{}];
+    [OneSignal setLaunchOptions:nil];
 }
 
 /*
@@ -111,7 +111,7 @@ static XCTestCase* _currentXCTestCase;
 + (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
         notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-[OneSignal setLaunchOptions:@{}];
+    [OneSignal setLaunchOptions:nil];
     [OneSignal setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate];
     [OneSignal setNotificationOpenedHandler:notificationOpenedDelegate];
 }
@@ -185,13 +185,11 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
     
     [UIAlertViewOverrider reset];
-    
+
     [NSTimerOverrider reset];
     
-    [OSMessagingControllerOverrider reset];
-    
-    [OSMessagingController.sharedInstance reset];
-    
+    [OSMessagingController.sharedInstance resetState];
+
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
 }
 
@@ -217,6 +215,8 @@ static XCTestCase* _currentXCTestCase;
     // InstallUncaughtExceptionHandler();
     
     OneSignalHelperOverrider.mockIOSVersion = 10;
+
+    [OneSignal pauseInAppMessages:true];
 }
 
 + (void) beforeEachTest:(XCTestCase *)testCase {
@@ -247,21 +247,21 @@ static XCTestCase* _currentXCTestCase;
     // Mocking an iOS 10 notification
     // Setting response.notification.request.content.userInfo
     UNNotificationResponse *notifResponse = [UNNotificationResponse alloc];
-    
+
     // Normal tap on notification
     [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
-    
+
     UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
     UNNotification *unNotif = [UNNotification alloc];
     UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
     // Set as remote push type
     [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
-    
+
     [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
     [notifResponse setValue:unNotif forKeyPath:@"notification"];
     [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
     [unNotifContent setValue:userInfo forKey:@"userInfo"];
-    
+
     return notifResponse;
 }
 

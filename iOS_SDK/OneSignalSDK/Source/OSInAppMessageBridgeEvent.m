@@ -74,6 +74,10 @@
     return instance;
 }
 
+- (NSString *)description{
+    return [NSString stringWithFormat:@"OSInAppMessageBridgeEvent type: %lu\nrenderingComplete: %@\nresize: %@\nuserAction: %@", (unsigned long)_type, _renderingComplete, _resize, _userAction];
+}
+
 @end
 
 
@@ -95,6 +99,10 @@
     
     return instance;
 }
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageBridgeEventRenderingComplete height: %@\ndisplayLocation: %lu", _height, (unsigned long)_displayLocation];
+}
 @end
 
 @implementation OSInAppMessageBridgeEventResize
@@ -109,5 +117,9 @@
         instance.height = json[@"pageMetaData"][@"rect"][@"height"];
     
     return instance;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageBridgeEventResize height: %@", _height];
 }
 @end

@@ -29,7 +29,22 @@
 #import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
 
+@interface OSInAppMessage ()
+
+@property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
+
+@end
+
 @implementation OSInAppMessage
+
+- (instancetype)init {
+    if (self = [super init]) {
+        self.clickedClickIds = [[NSMutableSet alloc] init];
+        self.isTriggerChanged = false;
+    }
+    
+    return self;
+}
 
 - (BOOL)isBanner {
     return self.position == OSInAppMessageDisplayPositionTop || self.position == OSInAppMessageDisplayPositionBottom;
@@ -39,6 +54,22 @@
     if (self.actionTaken)
         return false;
     return self.actionTaken = true;
+}
+
+- (BOOL)isClickAvailable:(NSString *)clickId {
+    return ![_clickedClickIds containsObject:clickId];
+}
+
+- (void)clearClickIds {
+    _clickedClickIds = [[NSMutableSet alloc] init];
+}
+
+- (void)addClickId:(NSString *)clickId {
+    [_clickedClickIds addObject:clickId];
+}
+
+- (NSSet<NSString *> *)getClickedClickIds {
+    return _clickedClickIds;
 }
 
 + (instancetype)instanceWithData:(NSData *)data {
@@ -66,6 +97,11 @@
     else
         return nil;
     
+    if (json[@"redisplay"] && [json[@"redisplay"] isKindOfClass:[NSDictionary class]])
+        message.displayStats = [OSInAppMessageDisplayStats instanceWithJson:json[@"redisplay"]];
+    else
+        message.displayStats = [[OSInAppMessageDisplayStats alloc] init];
+
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
         
@@ -90,7 +126,7 @@
     }
     else
         return nil;
-    
+
     return message;
 }
 
@@ -120,7 +156,54 @@
     
     json[@"triggers"] = triggers;
     
+    if ([_displayStats isRedisplayEnabled]) {
+        json[@"redisplay"] = [_displayStats jsonRepresentation];
+    }
+    
     return json;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayed_in_session: %@ \ndisplayStats: %@", self.messageId, self.triggers, self.isDisplayedInSession ? @"YES" : @"NO", self.displayStats];
+}
+
+- (BOOL)isEqual:(id)object {
+  if (self == object) {
+    return YES;
+  }
+
+  if (![object isKindOfClass:[OSInAppMessage class]]) {
+    return NO;
+  }
+
+  OSInAppMessage *iam = object;
+    
+  return [self.messageId isEqualToString:iam.messageId];
+}
+
+- (NSUInteger)hash {
+    return [self.messageId hash];
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:_messageId forKey:@"messageId"];
+    [encoder encodeObject:_variants forKey:@"variants"];
+    [encoder encodeObject:_triggers forKey:@"triggers"];
+    [encoder encodeObject:_displayStats forKey:@"displayStats"];
+    //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
+    [encoder encodeBool:_isDisplayedInSession forKey:@"displayed_in_session"];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        _messageId = [decoder decodeObjectForKey:@"messageId"];
+        _variants = [decoder decodeObjectForKey:@"variants"];
+        _triggers = [decoder decodeObjectForKey:@"triggers"];
+        _displayStats = [decoder decodeObjectForKey:@"displayStats"];
+        //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
+        _isDisplayedInSession = [decoder decodeBoolForKey:@"displayed_in_session"];
+    }
+    return self;
 }
 
 @end

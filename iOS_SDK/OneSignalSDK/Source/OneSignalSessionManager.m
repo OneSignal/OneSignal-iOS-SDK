@@ -200,6 +200,14 @@
     return [[OSSessionResult alloc] init:DISABLED];
 }
 
+- (OSSessionResult *)getIAMSessionResult {
+    if ([OSOutcomesUtils isUnattributedSessionEnabled]) {
+        return [[OSSessionResult alloc] init:UNATTRIBUTED];
+    }
+    
+    return [[OSSessionResult alloc] init:DISABLED];
+}
+
 /*
  Get the current notifications ids that influenced the session
  */
