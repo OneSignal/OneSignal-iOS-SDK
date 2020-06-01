@@ -178,7 +178,7 @@ static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
 // Make sure launchOptions have been set
-// We need this BOL because launchOptions can be null so simply null checking
+// We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
 static BOOL hasSetLaunchOptions = false;
 // Ensure we only initlize the SDK once even if the public method is called more
@@ -530,8 +530,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (!newAppId || newAppId.length == 0) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
         return;
-    }
-    else if (appId && ![newAppId isEqualToString:appId])  {
+    } else if (appId && ![newAppId isEqualToString:appId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
@@ -572,8 +571,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                 let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
                 if (!prevAppId) {
                     [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"launchOptions set, but please call setAppId(appId) with a valid appId to complete OneSignal init!"];
-                }
-                else {
+                } else {
                     [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appContext set and an old appId was found, attempting to call setAppId(oldAppId)"];
                     [self setAppId:prevAppId];
                 }
