@@ -184,7 +184,6 @@ static OneSignalLocation* singleInstance = nil;
     [OneSignalLocation.locationListeners removeAllObjects];
 }
 
-
 + (void)sendCurrentAuthStatusToListeners {
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
     CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];

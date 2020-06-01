@@ -522,7 +522,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return [self isIOSVersionGreaterThanOrEqual:@"8.0"];
 }
 
-//For iOS 9
+// For iOS 9
 + (UILocalNotification*)createUILocalNotification:(OSNotificationPayload*)payload {
     let notification = [UILocalNotification new];
     

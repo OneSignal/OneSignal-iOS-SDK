@@ -117,8 +117,7 @@ NSArray *locations;
 }
 
 - (void)overrideStartUpdatingLocation {
-    // If iOS is less than 8.0, the startUpdatingLocation prompts the user
-    // Otherwise, we want to check if the location request was made for info.plist params
+    // Check if the location request was made for info.plist params
     if (calledRequestAlwaysAuthorization || calledRequestWhenInUseAuthorization)
         [[OneSignalLocation sharedInstance] locationManager:locationManager didUpdateLocations:locations];
 }
