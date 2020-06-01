@@ -517,11 +517,6 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return systemInfoMachine;
 }
 
-// Can call currentUserNotificationSettings
-+ (BOOL) canGetNotificationTypes {
-    return [self isIOSVersionGreaterThanOrEqual:@"8.0"];
-}
-
 // For iOS 9
 + (UILocalNotification*)createUILocalNotification:(OSNotificationPayload*)payload {
     let notification = [UILocalNotification new];

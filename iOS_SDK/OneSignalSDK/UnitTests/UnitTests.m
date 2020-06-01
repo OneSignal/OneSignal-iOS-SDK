@@ -1315,7 +1315,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(actions[0].title, @"text1");
 }
 
-// Testing iOS 8 - with os_data aps payload format
+// Testing iOS 9 - with os_data aps payload format
 - (void)testGeneratingLocalNotificationWithButtonsiOS9_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods initOneSignalAndThreadWait];
