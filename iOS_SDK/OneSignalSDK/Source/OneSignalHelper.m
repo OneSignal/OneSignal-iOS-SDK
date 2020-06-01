@@ -479,7 +479,7 @@ OneSignalWebView *webVC;
     return @1;
 }
 
-+ (NSString*)getCurrentDeviceVersion {
++ (NSString *)getCurrentDeviceVersion {
     return [[UIDevice currentDevice] systemVersion];
 }
 
@@ -948,11 +948,9 @@ static OneSignal* singleInstance = nil;
         [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withAction:openAction cancelTitle:cancelAction withActionCompletion:^(BOOL tappedAction) {
             openUrlBlock(tappedAction);
         }];
-    }
-    else {
+    } else {
         openUrlBlock(true);
     }
-        
 }
 
 + (void)runOnMainThread:(void(^)())block {

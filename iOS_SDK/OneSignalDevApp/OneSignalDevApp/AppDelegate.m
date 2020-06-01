@@ -64,17 +64,14 @@
 
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
-
+    
+    // OneSignal Init with app settings, app id, and lauch options
     [OneSignal setAppSettings:@{
         kOSSettingsKeyAutoPrompt: @false,
         kOSSettingsKeyInAppLaunchURL: @true
     }];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
     [OneSignal setLaunchOptions:launchOptions];
-    
-    [OneSignal setLocationShared:false];
-    
-    [OneSignal sendTag:@"someKey1122" value:@"03222017"];
 
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
