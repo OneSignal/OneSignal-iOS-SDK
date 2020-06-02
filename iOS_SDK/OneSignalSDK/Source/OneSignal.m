@@ -47,6 +47,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCacheCleaner.h"
+#import "OSMigrationController.h"
 
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -551,7 +552,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                    settings:(NSDictionary*)settings {
     
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
-    
+    [[OSMigrationController new] migrate];
     [OneSignalHelper setNotificationActionBlock:actionCallback];
     [OneSignalHelper setNotificationReceivedBlock:receivedCallback];
     
