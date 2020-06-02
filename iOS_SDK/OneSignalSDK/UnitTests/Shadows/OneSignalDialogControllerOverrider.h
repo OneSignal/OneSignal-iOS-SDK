@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OneSignalDialogControllerOverrider : NSObject
 + (OSDialogRequest *)getCurrentDialog;
++ (void)completeDialog:(int)result;
 @end
 
 NS_ASSUME_NONNULL_END

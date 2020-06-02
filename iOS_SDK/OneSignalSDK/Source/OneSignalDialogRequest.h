@@ -34,11 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong, nonatomic, nonnull) NSString *title;
 @property (strong, nonatomic, nonnull) NSString *message;
-@property (strong, nonatomic, nullable) NSString *actionTitle;
+@property (strong, nonatomic, nullable) NSArray<NSString *> *actionTitles;
 @property (strong, nonatomic, nonnull) NSString *cancelTitle;
 @property (nonatomic, nullable) OSDialogActionCompletion completion;
 
 - (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitle:(NSString * _Nullable)actionTitle withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion;
+
+- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitles:(NSArray<NSString *> * _Nullable)actionTitles withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion;
 
 @end
 

@@ -59,7 +59,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
     OSNotificationDisplayTypeNone,
     
-    /*Default UIAlertView display*/
+    /*Default UIAlertController display*/
     OSNotificationDisplayTypeInAppAlert,
     
     /*iOS native notification display*/

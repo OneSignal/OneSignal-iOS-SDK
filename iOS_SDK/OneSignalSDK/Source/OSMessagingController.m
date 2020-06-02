@@ -35,6 +35,7 @@
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalDialogController.h"
 
 @interface OneSignal ()
 
@@ -547,18 +548,14 @@ static BOOL _isInAppMessagingPaused = false;
                  promptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions  {
     _currentInAppMessage = inAppMessage;
     _currentPromptActions = promptActions;
-    let messageTitle = @"Location Not Available";
-    let message = @"Looks like this app doesn't have location services configured. Please see OneSignal docs for more information.";
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:messageTitle
-                                                    message:message
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:@"OK", nil];
-    [alert show];
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    [self handlePromptActions:_currentPromptActions withMessage:_currentInAppMessage];
+    
+    let message = NSLocalizedString(@"Looks like this app doesn't have location services configured. Please see OneSignal docs for more information.", @"An alert message indicating that the application is not configured to use have location services.");
+    let title = NSLocalizedString(@"Location Not Available", @"An alert title indicating that the location service is unavailable.");
+    let okAction = NSLocalizedString(@"OK", @"Allows the user to acknowledge and dismiss the alert");
+    [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withActions:nil cancelTitle:okAction withActionCompletion:^(int tappedActionIndex) {
+        //completion is called on the main thread
+        [self handlePromptActions:_currentPromptActions withMessage:_currentInAppMessage];
+    }];
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {

@@ -943,8 +943,8 @@ static OneSignal* singleInstance = nil;
         let openAction = NSLocalizedString(@"Open", @"Allows the user to open the URL/website");
         let cancelAction = NSLocalizedString(@"Cancel", @"The user won't open the URL/website");
         
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withAction:openAction cancelTitle:cancelAction withActionCompletion:^(BOOL tappedAction) {
-            openUrlBlock(tappedAction);
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withActions:@[openAction] cancelTitle:cancelAction withActionCompletion:^(int tappedActionIndex) {
+            openUrlBlock(tappedActionIndex > -1);
         }];
     } else {
         openUrlBlock(true);

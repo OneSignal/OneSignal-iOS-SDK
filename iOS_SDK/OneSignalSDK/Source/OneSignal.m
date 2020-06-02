@@ -33,7 +33,6 @@
 #import "OneSignalReachability.h"
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalMobileProvision.h"
-#import "OneSignalAlertViewDelegate.h"
 #import "OneSignalHelper.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
@@ -893,7 +892,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         NSLog(@"%@", [levelString stringByAppendingString:message]);
     
     if (logLevel <= _visualLogLevel) {
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withAction:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
 }
 
@@ -974,10 +973,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             localizedMessage = NSLocalizedString(@"You currently have notifications turned off for this application. You can open Settings to re-enable them", @"A message explaining that users can open Settings to re-enable push notifications");
         
         
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withAction:localizedSettingsActionTitle cancelTitle:localizedCancelActionTitle withActionCompletion:^(BOOL tappedAction) {
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
             
             //completion is called on the main thread
-            if (tappedAction)
+            if (tappedActionIndex > -1)
                 [self presentAppSettings];
         }];
         
@@ -1977,7 +1976,7 @@ static NSString *_lastnonActiveMessageId;
         let inAppAlert = (self.inFocusDisplayType == OSNotificationDisplayTypeInAppAlert);
         // Make sure it is not a silent one do display, if inAppAlerts are enabled
         if (inAppAlert && !isPreview && ![OneSignalHelper isRemoteSilentNotification:messageDict]) {
-            [OneSignalAlertView showInAppAlert:messageDict];
+            [[OneSignalDialogController sharedInstance] presentDialogWithMessageDict:messageDict];
             return;
         }
         

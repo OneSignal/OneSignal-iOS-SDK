@@ -43,7 +43,7 @@ typedef struct os_last_location {
     double horizontalAccuracy;
 } os_last_location;
 
-@interface OneSignalLocation : NSObject <UIAlertViewDelegate>
+@interface OneSignalLocation : NSObject
 
 + (OneSignalLocation*) sharedInstance;
 + (bool)started;
