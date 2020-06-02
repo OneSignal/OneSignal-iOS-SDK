@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate, OSMessagingControllerDelegate, UIAlertViewDelegate>
+@interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate, OSMessagingControllerDelegate>
 
 @property (class, readonly) BOOL isInAppMessagingPaused;
 

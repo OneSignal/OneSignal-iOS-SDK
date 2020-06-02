@@ -29,11 +29,15 @@
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
-typedef void (^OSDialogActionCompletion)(BOOL tappedAction);
+typedef void (^OSDialogActionCompletion)(int tappedActionIndex);
 
 @interface OneSignalDialogController : NSObject <UIAlertViewDelegate>
 + (instancetype _Nonnull)sharedInstance;
-- (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withAction:(NSString * _Nullable)actionTitle cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion;
+- (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActions:(NSArray<NSString *> * _Nullable)actionTitles cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion;
+
+- (void)presentDialogWithMessageDict:(NSDictionary *)messageDict;
+
+- (void)clearQueue;
 @end
 
 NS_ASSUME_NONNULL_END

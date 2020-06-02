@@ -1185,9 +1185,28 @@
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
+/*
+ [OneSignal promptForPushNotificationsWithUserResponse:nil fallbackToSettings:true];
+ 
+ [UnitTestCommonMethods runBackgroundThreads];
+ 
+ //assert that the correct dialog was presented
+ XCTAssertNotNil([OneSignalDialogControllerOverrider getCurrentDialog]);
+ XCTAssertEqualObjects(OneSignalDialogControllerOverrider.getCurrentDialog.title, @"Open Settings");
+ 
+ //answer 'Open Settings' on the prompt
+ OneSignalDialogControllerOverrider.getCurrentDialog.completion(0);
+ 
+ [UnitTestCommonMethods runBackgroundThreads];
+ 
+ //make sure the app actually tried to open settings
+ XCTAssertNotNil(UIApplicationOverrider.lastOpenedUrl);
+ XCTAssertEqualObjects(UIApplicationOverrider.lastOpenedUrl.absoluteString, UIApplicationOpenSettingsURLString);
+ */
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
 - (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
+    [[OneSignalDialogController sharedInstance] clearQueue];
     __block BOOL openedWasFire = false;
     id receiveBlock = ^(OSNotificationOpenedResult *result) {
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
@@ -1215,12 +1234,16 @@
                         willPresentNotification:[notifResponse notification]
                           withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
-    XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
-    [UIAlertViewOverrider.lastUIAlertViewDelegate alertView:nil clickedButtonAtIndex:1];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(OneSignalDialogControllerOverrider.getCurrentDialog.actionTitles.count, 1);
+    [OneSignalDialogControllerOverrider completeDialog:0];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(openedWasFire, true);
 }
 
 - (void)testOldFormatNotificationAlertButtonsDisplay {
+    OneSignalHelperOverrider.mockIOSVersion = 7;
     id oldFormat = @{@"aps" : @{
                              @"mutable-content" : @1,
                              @"alert" : @{
@@ -1238,6 +1261,7 @@
 }
 
 - (void)testNewFormatNotificationAlertButtonsDisplay {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
     id newFormat = @{@"aps": @{
                              @"mutable-content": @1,
                              @"alert": @{@"body": @"Message Body", @"title": @"title"},
@@ -2182,6 +2206,7 @@ didReceiveRemoteNotification:userInfo
 */
 - (void)testOpenNotificationSettings {
     OneSignalHelperOverrider.mockIOSVersion = 10;
+    [[OneSignalDialogController sharedInstance] clearQueue];
     
     //set up the test so that the user has declined the prompt.
     //we can then call prompt with Settings fallback.
@@ -2212,7 +2237,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalDialogControllerOverrider.getCurrentDialog.title, @"Open Settings");
     
     //answer 'Open Settings' on the prompt
-    OneSignalDialogControllerOverrider.getCurrentDialog.completion(true);
+    OneSignalDialogControllerOverrider.getCurrentDialog.completion(0);
     
     [UnitTestCommonMethods runBackgroundThreads];
     
