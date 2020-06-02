@@ -99,6 +99,10 @@
 		7A9173A2231971E5007848FA /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
 		7AA2848A2406FC6400C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7AA2848B2406FC6500C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
+		7AAA60662485D0310004FADE /* OSMigrationController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AAA60652485D0090004FADE /* OSMigrationController.h */; };
+		7AAA60682485D0420004FADE /* OSMigrationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AAA60672485D0420004FADE /* OSMigrationController.m */; };
+		7AAA60692485D0420004FADE /* OSMigrationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AAA60672485D0420004FADE /* OSMigrationController.m */; };
+		7AAA606A2485D0420004FADE /* OSMigrationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AAA60672485D0420004FADE /* OSMigrationController.m */; };
 		7ABAF9D22457C3650074DFA0 /* CommonAsserts.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ABAF9D12457C3650074DFA0 /* CommonAsserts.m */; };
 		7ABAF9D32457C4620074DFA0 /* CommonAsserts.h in Headers */ = {isa = PBXBuildFile; fileRef = 7ABAF9D02457C3570074DFA0 /* CommonAsserts.h */; };
 		7ABAF9D62457D3FF0074DFA0 /* ChannelTrackersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ABAF9D52457D3FF0074DFA0 /* ChannelTrackersTests.m */; };
@@ -488,6 +492,8 @@
 		7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessagePushPrompt.m; sourceTree = "<group>"; };
 		7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalReceiveReceiptsController.m; sourceTree = "<group>"; };
 		7A9173A3231971F8007848FA /* OneSignalReceiveReceiptsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalReceiveReceiptsController.h; sourceTree = "<group>"; };
+		7AAA60652485D0090004FADE /* OSMigrationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSMigrationController.h; sourceTree = "<group>"; };
+		7AAA60672485D0420004FADE /* OSMigrationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSMigrationController.m; sourceTree = "<group>"; };
 		7ABAF9D02457C3570074DFA0 /* CommonAsserts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonAsserts.h; sourceTree = "<group>"; };
 		7ABAF9D12457C3650074DFA0 /* CommonAsserts.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommonAsserts.m; sourceTree = "<group>"; };
 		7ABAF9D52457D3FF0074DFA0 /* ChannelTrackersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChannelTrackersTests.m; sourceTree = "<group>"; };
@@ -842,6 +848,15 @@
 			name = ReceiveReceipts;
 			sourceTree = "<group>";
 		};
+		7AAA606B2485D0D70004FADE /* migration */ = {
+			isa = PBXGroup;
+			children = (
+				7AAA60652485D0090004FADE /* OSMigrationController.h */,
+				7AAA60672485D0420004FADE /* OSMigrationController.m */,
+			);
+			name = migration;
+			sourceTree = "<group>";
+		};
 		7ABAF9D42457D3160074DFA0 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -961,6 +976,7 @@
 		912411EE1E73342200E41FD7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				7AAA606B2485D0D70004FADE /* migration */,
 				7AF98632243F84AC00C36EAE /* Influence */,
 				7A674F172360D7DB001F9ACD /* OnFocus */,
 				7ADE379222E8B56F00263048 /* OutcomeEvents */,
@@ -1199,6 +1215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAA96218A6243000ACAA5 /* OSInAppMessageViewController.h in Headers */,
+				7AAA60662485D0310004FADE /* OSMigrationController.h in Headers */,
 				CA47439D2190FEA80020DC8C /* OSTrigger.h in Headers */,
 				7A1232A4235E175C002B6CE3 /* OneSignalOutcomeEventsController.h in Headers */,
 				7AF98690244A566F00C36EAE /* OSOutcomeEventsCache.h in Headers */,
@@ -1462,6 +1479,7 @@
 				9129C6B81E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				CA8E19062193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
 				7AF98664244975AD00C36EAE /* OSOutcomeSourceBody.m in Sources */,
+				7AAA60682485D0420004FADE /* OSMigrationController.m in Sources */,
 				7A12EBDD23060B37005C4FA5 /* OSIndirectInfluence.m in Sources */,
 				9D1BD96D237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */,
 				7A674F1B2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
@@ -1549,6 +1567,7 @@
 				9129C6B91E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				9D1BD96E237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */,
 				7AF98665244975AD00C36EAE /* OSOutcomeSourceBody.m in Sources */,
+				7AAA60692485D0420004FADE /* OSMigrationController.m in Sources */,
 				7A1232AB235E17B8002B6CE3 /* OneSignalOutcomeEventsController.m in Sources */,
 				CA36A42E208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */,
 				912412131E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
@@ -1703,6 +1722,7 @@
 				7AF9868E244A556F00C36EAE /* OSOutcomeEventsFactory.m in Sources */,
 				7AF986452444C47400C36EAE /* OSNotificationTracker.m in Sources */,
 				7A72EB1023E252C700B4D50F /* OSInAppMessageDisplayStats.m in Sources */,
+				7AAA606A2485D0420004FADE /* OSMigrationController.m in Sources */,
 				CACBAA9F218A6243000ACAA5 /* OSInAppMessageView.m in Sources */,
 				CA4742E7218B8FF30020DC8C /* OSTriggerController.m in Sources */,
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
