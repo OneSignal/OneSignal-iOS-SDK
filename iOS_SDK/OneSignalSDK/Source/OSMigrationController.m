@@ -26,21 +26,44 @@ THE SOFTWARE.
 */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
 #import "OSMigrationController.h"
+#import "OSInfluenceDataRepository.h"
 #import "OSIndirectInfluence.h"
+#import "OneSignal.h"
+#import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
+#import "OneSignalHelper.h"
+
+@interface OneSignal ()
++ (OSInfluenceDataRepository *)influenceDataRepository;
+@end
 
 @implementation OSMigrationController
 
 - (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
+    [self saveCurrentSDKVersion];
 }
 
 /**
  * Support renaming of decodable classes for cached data
  */
 - (void)migrateToVersion_02_14_00_AndGreater {
-    [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
+    let influenceVersion = 21400;
+    let sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    if (sdkVersion < influenceVersion) {
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating from version : %d", sdkVersion]];
+
+        [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
+        NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OneSignal influenceDataRepository] lastNotificationsReceivedData];
+        if (indirectInfluenceData)
+            [[OneSignal influenceDataRepository] saveNotifications:indirectInfluenceData];
+    }
+}
+
+- (void)saveCurrentSDKVersion {
+    let currentVersion = [[OneSignal sdk_version_raw] intValue];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION withValue:currentVersion];
 }
 
 @end

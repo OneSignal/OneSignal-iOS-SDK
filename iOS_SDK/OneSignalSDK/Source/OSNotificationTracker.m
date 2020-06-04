@@ -45,11 +45,11 @@ THE SOFTWARE.
     return NOTIFICATION;
 }
 
-- (NSArray * _Nonnull)lastChannelObjectsReceivedByNewId:(NSString *)identifier {
+- (NSArray * _Nullable)lastChannelObjectsReceivedByNewId:(NSString *)identifier {
     return [self lastChannelObjects];
 }
 
-- (NSArray * _Nonnull)lastChannelObjects {
+- (NSArray * _Nullable)lastChannelObjects {
     return [self.dataRepository lastNotificationsReceivedData];
 }
 
