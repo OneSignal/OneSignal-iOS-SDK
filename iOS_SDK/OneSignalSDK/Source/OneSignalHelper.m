@@ -189,7 +189,6 @@
         if (_silentNotification ||
             (_isAppInFocus && OneSignal.notificationDisplayType == OSNotificationDisplayTypeSilent))
             _shown = false;
-        
     }
     return self;
 }
@@ -245,6 +244,54 @@
     NSError *err;
     NSData *jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+@end
+
+@implementation OSNotificationGenerationJob
+@synthesize displayType = _displayType, notificationId = _notificationId, title = _title, body = _body;
+
+OSNotificationPayload *_payload;
+OSNotificationDisplayTypeResponse _completion;
+NSTimer *_timeoutTimer;
+- (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
+    self = [super init];
+    if (self) {
+        _payload = payload;
+        
+        _displayType = displayType;
+        
+        _body = _payload.body;
+        
+        _title = _payload.title;
+        
+        _notificationId = _payload.notificationID;
+        
+        _completion = completion;
+        
+        _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
+    }
+    return self;
+}
+
+- (void)complete {
+    [_timeoutTimer invalidate];
+    _completion(self.displayType);
+}
+
+- (void)startTimeoutTimer {
+    [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
+}
+
+- (void)timeoutTimerFired:(NSTimer *)timer {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
+    message:[NSString stringWithFormat:@"NotificationGenerationJob timedout. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
+    [self complete];
+}
+
+- (void)dealloc {
+    if (_timeoutTimer)
+        [_timeoutTimer invalidate];
 }
 
 @end
@@ -405,6 +452,15 @@ OneSignalWebView *webVC;
     return userInfo;
 }
 
++ (void)handleWillShowInForegroundHandlerForPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
+    let notifJob = [[OSNotificationGenerationJob alloc] initWithPayload:payload displayType:displayType completion:completion];
+    if (notificationWillShowInForegroundHandler) {
+        [notifJob startTimeoutTimer];
+        notificationWillShowInForegroundHandler(notifJob);
+    } else {
+        completion(displayType);
+    }
+}
 
 // Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
 + (BOOL)isOneSignalPayload:(NSDictionary *)payload {
@@ -420,10 +476,9 @@ OneSignalWebView *webVC;
     let payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
     if ([self handleIAMPreview:payload])
         return;
-    
+
     // The payload is a valid OneSignal notification payload and is not a preview
     // Proceed and treat as a normal OneSignal notification
-    let notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
 
     // Prevent duplicate calls to same receive event
     if ([payload.notificationID isEqualToString:lastMessageID])
@@ -432,9 +487,6 @@ OneSignalWebView *webVC;
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
                      message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
-
-    if (notificationWillShowInForegroundHandler)
-       notificationWillShowInForegroundHandler(notification);
 }
 
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {

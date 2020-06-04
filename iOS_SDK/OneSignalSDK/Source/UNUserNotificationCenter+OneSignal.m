@@ -43,9 +43,12 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentationOptions options);
+
 @interface OneSignal (UN_extra)
 + (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
++ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion;
 @end
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
@@ -170,42 +173,52 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         return;
     }
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired!"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired! %@", notification.request.content.body]];
     
-    NSDictionary * userInfo = notification.request.content.userInfo;
-    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:userInfo];
-    NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
+    [OneSignal handleWillPresentNotificationInForegroundWithPayload:notification.request.content.userInfo withCompletion:^(OSNotificationDisplayType displayType) {
+        finishProcessingNotification(notification, center, displayType, completionHandler, self);
+    }];
+}
 
-    NSUInteger completionHandlerOptions = 0;
-    if (!uuid) {
-        switch (OneSignal.notificationDisplayType) {
-            case OSNotificationDisplayTypeSilent: completionHandlerOptions = 0; break; // Nothing
-            case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
-            default: break;
-        }
+// To avoid complications caused by swizzling, this is implemented as a C function
+void finishProcessingNotification(UNNotification *notification,
+                                  UNUserNotificationCenter *center,
+                                  OSNotificationDisplayType displayType,
+                                  OSUNNotificationCenterCompletionHandler completionHandler,
+                                  OneSignalUNUserNotificationCenter *instance) {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"finishProcessingNotification: Fired!"];
+    NSUInteger completionHandlerOptions = 7;
+    
+    switch (displayType) {
+        case OSNotificationDisplayTypeSilent: completionHandlerOptions = 0; break; // Nothing
+        case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
+        default: break;
     }
-    let notShown = OneSignal.notificationDisplayType == OSNotificationDisplayTypeSilent && notification.request.content.body != nil;
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
+    let notShown = displayType == OSNotificationDisplayTypeSilent && notification.request.content.body != nil;
     
     if ([OneSignal appId])
-        [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:notShown];
+        [OneSignal notificationReceived:notification.request.content.userInfo foreground:YES isActive:YES wasOpened:notShown];
+
     
     // Call orginal selector if one was set.
-    if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
-        [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
+    if ([instance respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
+        [instance onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
     // Or call a legacy AppDelegate selector
     else {
         [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
-                                                isTextReply:false
-                                           actionIdentifier:nil
-                                                   userText:nil
-                                    fromPresentNotification:true
-                                      withCompletionHandler:^() {}];
+                                                               isTextReply:false
+                                                          actionIdentifier:nil
+                                                                  userText:nil
+                                                   fromPresentNotification:true
+                                                     withCompletionHandler:^() {}];
     }
     
     // Calling completionHandler for the following reasons:
     //   App dev may have not implented userNotificationCenter:willPresentNotification.
     //   App dev may have implemented this selector but forgot to call completionHandler().
     // Note - iOS only uses the first call to completionHandler().
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"finishProcessingNotification: call completionHandler with options: %lu",(unsigned long)completionHandlerOptions]];
     completionHandler(completionHandlerOptions);
 }
 
