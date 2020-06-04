@@ -54,10 +54,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSInAppMessageTestHelper : NSObject
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
 + (OSInAppMessage *)testMessage;
++ (OSInAppMessage *)testMessagePreview;
 + (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
 + (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages;
 + (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value;
 + (NSDictionary*)testInAppMessageGetContainsWithHTML:(NSString *)html;
++ (NSDictionary *)testMessagePreviewJson;
 @end
 
 NS_ASSUME_NONNULL_END
