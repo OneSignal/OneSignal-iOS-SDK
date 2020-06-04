@@ -202,9 +202,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 128
 
-    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
-    // the callback to set the display type for a given notification
-    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
+    // Defines how long the SDK will wait for a OSNotificationGenerationJob's complete method to execute
+#define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -218,9 +217,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 5
 
-    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
-    // the callback to set the display type for a given notification
-    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
+    // Unit testing value for how long the SDK will wait for a
+    // OSNotificationGenerationJob's complete method to execute
+#define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

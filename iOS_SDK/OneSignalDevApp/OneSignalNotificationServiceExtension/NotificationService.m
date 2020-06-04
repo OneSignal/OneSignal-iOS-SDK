@@ -19,7 +19,7 @@
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification object:nil queue:[NSOperationQueue new] usingBlock:^(NSNotification * _Nonnull note) {
         NSLog(@"Memory warning received");
     }];
-   */
+    */
     
     NSLog(@"######## Start NotificationService!");
 
@@ -43,7 +43,6 @@
     
     
 //    [NSThread sleepForTimeInterval:25.0f];
-    
     self.contentHandler(self.bestAttemptContent);
     
 //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{

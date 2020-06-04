@@ -177,6 +177,30 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @end
 
+/* OneSignal OSNotificationGenerationJob used in notificationWillShowInForegroundHandler. The display type for the notification can be changed before it is presented.*/
+@interface OSNotificationGenerationJob : NSObject
+
+/* Display method of the notification */
+@property(nonatomic)OSNotificationDisplayType displayType;
+
+/* Additional key value properties set within the payload */
+@property(readonly)NSDictionary *additionalData;
+
+/* The Notification ID */
+@property(readonly)NSString *notificationId;
+
+/* The message title */
+@property(readonly)NSString *title;
+
+/* The message body */
+@property(readonly)NSString *body;
+
+// Method controlling completion from the notificationWillShowInForegroundHandler
+// If 'complete' is not called within 25 seconds of receiving the OSNotificationGenerationJob in notificationWillShowInForegroundHandler then 'complete' will be automatically fired.
+- (void)complete;
+@end
+
+
 @interface OSNotificationOpenedResult : NSObject
 
 @property(readonly)OSNotification* notification;
@@ -208,6 +232,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
+typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
 /* OneSignal Session Types */
 typedef NS_ENUM(NSUInteger, Session) {
     DIRECT,
@@ -339,7 +364,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 typedef void (^OSIdsAvailableBlock)(NSString* userId, NSString* pushToken);
 
 /*Block for handling the reception of a remote notification */
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification* notification);
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotificationGenerationJob* notification);
 
 /*Block for handling a user reaction to a notification*/
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
@@ -417,9 +442,9 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
 
 // - Blocks
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)delegate;
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)delegate;
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)delegate;
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block;
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)block;
++ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block;
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;

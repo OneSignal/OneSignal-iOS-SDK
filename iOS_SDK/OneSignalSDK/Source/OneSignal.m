@@ -536,19 +536,19 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     appSettings = newSettings;
 }
 
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)delegate {
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
-    [OneSignalHelper setNotificationWillShowInForegroundBlock:delegate];
+    [OneSignalHelper setNotificationWillShowInForegroundBlock:block];
 }
 
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)delegate {
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)block {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Notification opened handler set successfully"];
-    [OneSignalHelper setNotificationOpenedBlock:delegate];
+    [OneSignalHelper setNotificationOpenedBlock:block];
 }
 
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)delegate {
++ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:delegate];
+    [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
 }
 
 /*
@@ -1950,6 +1950,24 @@ static NSString *_lastnonActiveMessageId;
     return nil;
 }
 
++ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion {
+    OSNotificationDisplayType type = self.notificationDisplayType;
+    // check to make sure the app is in focus and it's a OneSignal notification
+    if (![OneSignalHelper isOneSignalPayload:payload]
+        || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
+        completion(type);
+        return;
+    }
+    //Only call the willShowInForegroundHandler for notifications not preview IAMs
+    
+    let osPayload = [OSNotificationPayload parseWithApns:payload];
+    if ([osPayload additionalData][ONESIGNAL_IAM_PREVIEW]) {
+        completion(OSNotificationDisplayTypeSilent);
+        return;
+    }
+    [OneSignalHelper handleWillShowInForegroundHandlerForPayload:osPayload displayType:[OneSignal notificationDisplayType] completion:completion];
+}
+
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
                        foreground:(BOOL)foreground
                         isActive:(BOOL)isActive
@@ -2246,7 +2264,6 @@ static NSString *_lastnonActiveMessageId;
 
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    
     return [OneSignalNotificationServiceExtensionHandler
             didReceiveNotificationExtensionRequest:request
             withMutableNotificationContent:replacementContent];

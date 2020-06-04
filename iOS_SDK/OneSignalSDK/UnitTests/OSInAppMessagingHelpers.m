@@ -82,6 +82,23 @@ int messageIdIncrementer = 0;
     };
 }
 
++ (NSDictionary *)testMessagePreviewJson {
+    return @{
+        @"aps" : @{
+            @"alert" : @"Tap to see In-App Message preview",
+            @"mutable-content" : @1,
+            @"sound" : @"default"
+        },
+        @"custom": @{
+            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+            @"a": @{
+                @"os_in_app_message_preview_id" : @"c0e8dcb2-d966-4fdc-b345-36bbc00fe76a"
+            }
+        },
+        @"triggers" : @[]
+    };
+}
+
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
     
@@ -94,6 +111,14 @@ int messageIdIncrementer = 0;
 
 + (OSInAppMessage *)testMessage {
     let messageJson = self.testMessageJson;
+    
+    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
+    
+    return [OSInAppMessage instanceWithData:data];
+}
+
++ (OSInAppMessage *)testMessagePreview {
+    let messageJson = self.testMessagePreviewJson;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
     
