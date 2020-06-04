@@ -77,6 +77,8 @@
 		7A12EBDD23060B37005C4FA5 /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; };
 		7A1F2D8F2406EFC5007799A9 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7A2E90622460DA1500B3428C /* OutcomeIntegrationV2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E90612460DA1500B3428C /* OutcomeIntegrationV2Tests.m */; };
+		7A5A818224897693002E07C8 /* MigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5A818124897693002E07C8 /* MigrationTests.m */; };
+		7A5A8185248990CD002E07C8 /* OSIndirectNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */; };
 		7A600B42245378ED00514A53 /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; };
 		7A600B442453790700514A53 /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
 		7A600B452453790700514A53 /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
@@ -477,6 +479,9 @@
 		7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageTag.m; sourceTree = "<group>"; };
 		7A1F2D902406EFDA007799A9 /* OSInAppMessageTag.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageTag.h; sourceTree = "<group>"; };
 		7A2E90612460DA1500B3428C /* OutcomeIntegrationV2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeIntegrationV2Tests.m; sourceTree = "<group>"; };
+		7A5A818124897693002E07C8 /* MigrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MigrationTests.m; sourceTree = "<group>"; };
+		7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSIndirectNotification.m; sourceTree = "<group>"; };
+		7A5A8186248990DA002E07C8 /* OSIndirectNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSIndirectNotification.h; sourceTree = "<group>"; };
 		7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSFocusInfluenceParam.h; sourceTree = "<group>"; };
 		7A600B432453790700514A53 /* OSFocusInfluenceParam.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSFocusInfluenceParam.m; sourceTree = "<group>"; };
 		7A65D628246627AD007FF196 /* OSInAppMessageViewOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageViewOverrider.h; sourceTree = "<group>"; };
@@ -821,6 +826,15 @@
 			name = Model;
 			sourceTree = "<group>";
 		};
+		7A5A818324899050002E07C8 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				7A5A8186248990DA002E07C8 /* OSIndirectNotification.h */,
+				7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		7A674F172360D7DB001F9ACD /* OnFocus */ = {
 			isa = PBXGroup;
 			children = (
@@ -848,13 +862,13 @@
 			name = ReceiveReceipts;
 			sourceTree = "<group>";
 		};
-		7AAA606B2485D0D70004FADE /* migration */ = {
+		7AAA606B2485D0D70004FADE /* Migration */ = {
 			isa = PBXGroup;
 			children = (
 				7AAA60652485D0090004FADE /* OSMigrationController.h */,
 				7AAA60672485D0420004FADE /* OSMigrationController.m */,
 			);
-			name = migration;
+			name = Migration;
 			sourceTree = "<group>";
 		};
 		7ABAF9D42457D3160074DFA0 /* Model */ = {
@@ -939,6 +953,7 @@
 		911E2CBB1E398AB3003112A4 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				7A5A818324899050002E07C8 /* Models */,
 				03866CBE2378A5ED0009C1D8 /* Asserts */,
 				4529DECD1FA81DE000CEAB1D /* Shadows */,
 				CA8E19012193C6B0009DA223 /* InAppMessagingIntegrationTests.m */,
@@ -969,6 +984,7 @@
 				03217238238278EB004F0E85 /* DelayedSelectors.m */,
 				7ABAF9D52457D3FF0074DFA0 /* ChannelTrackersTests.m */,
 				7ABAF9D72457DD620074DFA0 /* SessionManagerTests.m */,
+				7A5A818124897693002E07C8 /* MigrationTests.m */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -976,7 +992,7 @@
 		912411EE1E73342200E41FD7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				7AAA606B2485D0D70004FADE /* migration */,
+				7AAA606B2485D0D70004FADE /* Migration */,
 				7AF98632243F84AC00C36EAE /* Influence */,
 				7A674F172360D7DB001F9ACD /* OnFocus */,
 				7ADE379222E8B56F00263048 /* OutcomeEvents */,
@@ -1652,6 +1668,7 @@
 				03217239238278EB004F0E85 /* DelayedSelectors.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
+				7A5A8185248990CD002E07C8 /* OSIndirectNotification.m in Sources */,
 				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
 				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
 				7AF98666244975AD00C36EAE /* OSOutcomeSourceBody.m in Sources */,
@@ -1728,6 +1745,7 @@
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				7AECE59823674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
+				7A5A818224897693002E07C8 /* MigrationTests.m in Sources */,
 				7AECE5A023675F6300537907 /* OSFocusTimeProcessorFactory.m in Sources */,
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412141E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,

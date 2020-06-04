@@ -60,11 +60,11 @@ THE SOFTWARE.
 }
 
 - (void)cacheIndirectNotifications:(NSArray *)notifications {
-    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS withValue:notifications];
+    [OneSignalUserDefaults.initShared saveObjectForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS withValue:notifications];
 }
 
 - (NSArray * _Nullable)cachedIndirectNotifications {
-    return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS defaultValue:nil];
+    return [OneSignalUserDefaults.initShared getSavedObjectForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS defaultValue:nil];
 }
 
 - (void)saveNotifications:(NSArray *)notifications {
@@ -73,14 +73,6 @@ THE SOFTWARE.
 
 - (NSArray * _Nullable)lastNotificationsReceivedData {
     return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_RECEIVED_NOTIFICATION_IDS defaultValue:nil];
-}
-
-- (void)cacheIndirectIAMs:(NSArray *)notifications {
-    [OneSignalUserDefaults.initShared saveCodeableDataForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS withValue:notifications];
-}
-
-- (NSArray * _Nullable)cachedIndirectIAMs {
-    return [OneSignalUserDefaults.initShared getSavedCodeableDataForKey:OSUD_CACHED_INDIRECT_NOTIFICATION_IDS defaultValue:nil];
 }
 
 - (void)saveIAMs:(NSArray *)iams {

@@ -61,7 +61,7 @@ THE SOFTWARE.
     return auxLastChannelObjectReceived;
 }
 
-- (NSArray * _Nonnull)lastChannelObjects {
+- (NSArray * _Nullable)lastChannelObjects {
     return [self.dataRepository lastIAMsReceivedData];
 }
 

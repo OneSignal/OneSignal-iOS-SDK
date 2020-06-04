@@ -51,8 +51,8 @@ THE SOFTWARE.
  */
 - (NSString * _Nonnull)idTag { mustOverride(); }
 - (OSInfluenceChannel)channelType { mustOverride(); }
-- (NSArray * _Nonnull)lastChannelObjectsReceivedByNewId:(NSString *)identifier { mustOverride(); }
-- (NSArray * _Nonnull)lastChannelObjects { mustOverride(); }
+- (NSArray * _Nullable)lastChannelObjectsReceivedByNewId:(NSString *)identifier { mustOverride(); }
+- (NSArray * _Nullable)lastChannelObjects { mustOverride(); }
 - (NSInteger)channelLimit { mustOverride(); }
 - (NSInteger)indirectAttributionWindow { mustOverride(); }
 - (void)saveChannelObjects:(NSArray * _Nonnull)channelObjects { mustOverride(); }
@@ -116,7 +116,7 @@ THE SOFTWARE.
        
     // Create channelObjectToSave to be saved at a limited size, removing any old notifications
     NSArray *channelObjectToSave;
-    if (lastChannelObjectsReceived == nil || lastChannelObjectsReceived.count == 0) {
+    if (!lastChannelObjectsReceived || lastChannelObjectsReceived.count == 0) {
         channelObjectToSave = [NSArray arrayWithObject:indirectInfluence];
     } else if (lastChannelObjectsReceived.count < channelLimit) {
         NSMutableArray *lastChannelObjectsReceivedMutable = [lastChannelObjectsReceived mutableCopy];
