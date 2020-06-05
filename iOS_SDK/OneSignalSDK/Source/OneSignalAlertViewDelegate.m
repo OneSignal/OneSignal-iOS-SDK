@@ -77,10 +77,10 @@
 
 NSDictionary* mMessageDict;
 
-
- //delegateReference exist to keep ARC from cleaning up this object when it goes out of scope.
- //This is becuase UIAlertView delegate is set to weak instead of strong
- 
+/*
+ delegateReference exist to keep ARC from cleaning up this object when it goes out of scope.
+ This is becuase UIAlertView delegate is set to weak instead of strong
+ */
 static NSMutableArray* delegateReference;
 
 - (id)initWithMessageDict:(NSDictionary*)messageDict {

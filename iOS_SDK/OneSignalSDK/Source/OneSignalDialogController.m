@@ -79,6 +79,7 @@
 - (void)presentDialogWithMessageDict:(NSDictionary *)messageDict {
     if ([OneSignalHelper isIOSVersionLessThan:@"8.0"]) {
         [OneSignalAlertView showInAppAlert:messageDict];
+        return;
     }
     let payload = [OSNotificationPayload parseWithApns:messageDict];
     // Add action buttons to payload

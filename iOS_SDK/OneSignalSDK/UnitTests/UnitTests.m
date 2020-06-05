@@ -1185,24 +1185,6 @@
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
-/*
- [OneSignal promptForPushNotificationsWithUserResponse:nil fallbackToSettings:true];
- 
- [UnitTestCommonMethods runBackgroundThreads];
- 
- //assert that the correct dialog was presented
- XCTAssertNotNil([OneSignalDialogControllerOverrider getCurrentDialog]);
- XCTAssertEqualObjects(OneSignalDialogControllerOverrider.getCurrentDialog.title, @"Open Settings");
- 
- //answer 'Open Settings' on the prompt
- OneSignalDialogControllerOverrider.getCurrentDialog.completion(0);
- 
- [UnitTestCommonMethods runBackgroundThreads];
- 
- //make sure the app actually tried to open settings
- XCTAssertNotNil(UIApplicationOverrider.lastOpenedUrl);
- XCTAssertEqualObjects(UIApplicationOverrider.lastOpenedUrl.absoluteString, UIApplicationOpenSettingsURLString);
- */
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
 - (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
