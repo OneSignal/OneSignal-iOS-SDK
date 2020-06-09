@@ -360,9 +360,6 @@ typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
-/*Block for notifying availability of the User's ID and push token*/
-typedef void (^OSIdsAvailableBlock)(NSString* userId, NSString* pushToken);
-
 /*Block for handling the reception of a remote notification */
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotificationGenerationJob* notification);
 
@@ -383,9 +380,6 @@ extern NSString * const kOSSettingsKeyAutoPrompt;
 
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
-
-/*Prompt user yes/no to open URL's from push notifications*/
-extern NSString * const kOSSSettingsKeyPromptBeforeOpeningPushURL;
 
 /* iOS 10 +
  Set notification's in-focus display option.
@@ -416,9 +410,9 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
  */
 
 // - Initialization
-+ (void)setAppId:(NSString*)newAppId;
-+ (void)setLaunchOptions:(NSDictionary*)launchOptions;
-+ (void)setAppSettings:(NSDictionary*)settings;
++ (void)setAppId:(NSString* _Nonnull)newAppId;
++ (void)setLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)setAppSettings:(NSDictionary* _Nonnull)settings;
 
 // - Privacy
 + (void)consentGranted:(BOOL)granted;
@@ -432,63 +426,53 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (NSString*)sdk_semantic_version;
 
 // Only use if you set kOSSettingsKeyAutoPrompt to false
-+ (void)registerForPushNotifications __deprecated_msg("Please use promptForPushNotificationsWithUserResponse instead.");
 + (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler;
 + (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL accepted))completionHandler fallbackToSettings:(BOOL)fallback;
 
-// This method opens the iOS Settings app and navigates to the Push Notification Settings
-// page for your app specifically
-+ (void)presentAppSettings;
 + (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler;
 
 // - Blocks
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block;
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)block;
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block;
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nonnull)block;
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nonnull)block;
++ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nonnull)block;
 
 // - Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
-+ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*)message;
++ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
 // - Tagging
-+ (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
++ (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 + (void)sendTag:(NSString*)key value:(NSString*)value;
-+ (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
-+ (void)sendTags:(NSDictionary*)keyValuePair;
-+ (void)sendTagsWithJsonString:(NSString*)jsonString;
-+ (void)getTags:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
-+ (void)getTags:(OSResultSuccessBlock)successBlock;
-+ (void)deleteTag:(NSString*)key onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
-+ (void)deleteTag:(NSString*)key;
-+ (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
-+ (void)deleteTags:(NSArray*)keys;
-+ (void)deleteTagsWithJsonString:(NSString*)jsonString;
-// Optional method that sends us the user's email as an anonymized hash so that we can better target and personalize notifications sent to that user across their devices.
-// Sends as MD5 and SHA1 of the provided email
-+ (void)syncHashedEmail:(NSString*)email __deprecated_msg("Please refer to our new Email methods/functionality such as setEmail(). This method will be removed in a future version of the OneSignal SDK");
-
-// - Subscription and Permissions
-+ (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock __deprecated_msg("Please use getPermissionSubscriptionState or addSubscriptionObserver and addPermissionObserver instead.");
++ (void)sendTags:(NSDictionary* _Nonnull)keyValuePair onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)sendTags:(NSDictionary* _Nonnull)keyValuePair;
++ (void)sendTagsWithJsonString:(NSString* _Nonnull)jsonString;
++ (void)getTags:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)getTags:(OSResultSuccessBlock _Nullable)successBlock;
++ (void)deleteTag:(NSString* _Nonnull)key onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)deleteTag:(NSString* _Nonnull)key;
++ (void)deleteTags:(NSArray* _Nonnull)keys onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)deleteTags:(NSArray* _Nonnull)keys;
++ (void)deleteTagsWithJsonString:(NSString* _Nonnull)jsonString;
 
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>* _Nonnull)observer;
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>* _Nonnull)observer;
 
-+ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>* _Nonnull)observer;
++ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>* _Nonnull)observer;
 
-+ (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
-+ (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
++ (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>* _Nonnull)observer;
++ (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>* _Nonnull)observer;
 
 + (void)setSubscription:(BOOL)enable;
 + (BOOL)isInAppMessagingPaused;
 + (void)pauseInAppMessages:(BOOL)pause;
 
 // - Posting Notification
-+ (void)postNotification:(NSDictionary*)jsonData;
-+ (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
-+ (void)postNotificationWithJsonString:(NSString*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock;
++ (void)postNotification:(NSDictionary* _Nonnull)jsonData;
++ (void)postNotification:(NSDictionary* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
++ (void)postNotificationWithJsonString:(NSString* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 + (NSString*)parseNSErrorAsJsonString:(NSError*)error;
 
 // - Request and track user's location
@@ -498,13 +482,13 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
-+ (void)setMSDKType:(NSString*)type;
++ (void)setMSDKType:(NSString* _Nonnull)type;
 
 // iOS 10 only
 // Process from Notification Service Extension.
 // Used for iOS Media Attachemtns and Action Buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
 
 // Email methods
 

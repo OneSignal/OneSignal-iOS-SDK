@@ -20,7 +20,6 @@
         NSLog(@"Memory warning received");
     }];
     */
-    
     NSLog(@"######## Start NotificationService!");
 
     self.receivedRequest = request;

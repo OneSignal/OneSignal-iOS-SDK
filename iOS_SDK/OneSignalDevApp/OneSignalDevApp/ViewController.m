@@ -96,14 +96,10 @@
                  NSLog(@"failures: %d", ++failures);
     }];
     
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        NSLog(@"IdsAvailable Fired");
-    }];
 }
 
 - (IBAction)promptPushAction:(UIButton *)sender {
     //    [self promptForNotificationsWithNativeiOS10Code];
-    //    [OneSignal registerForPushNotifications];
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         NSLog(@"OneSignal Demo App promptForPushNotificationsWithUserResponse: %d", accepted);
     }];
