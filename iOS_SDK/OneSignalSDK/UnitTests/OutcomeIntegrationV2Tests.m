@@ -812,6 +812,58 @@
     [RestClientAsserts assertNumberOfMeasureSourcesRequests:2];
 }
 
+- (void)testSendingOutcome_inIAMDirectSession_SaveIndirectSession {
+    // 1. Open app
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    
+    // 2. Receive 1 IAM and send outcomes from action
+    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    
+    let val1 = [NSNumber numberWithDouble:3.4];
+    [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
+    let val2 = [NSNumber numberWithDouble:9.95];
+    [OneSignal sendOutcomeWithValue:@"value_2" value:val2];
+    
+    // 3. Make sure 2 measure requests were made with correct params
+    [RestClientAsserts assertMeasureSourcesAtIndex:2 payload:@{
+        @"sources": @{
+                @"direct": @{
+                       @"in_app_message_ids" : @[@"test_in_app_message_1"],
+                },
+        },
+        @"id" : @"value_1",
+        @"weight" : val1
+    }];
+    [RestClientAsserts assertMeasureSourcesAtIndex:3 payload:@{
+        @"sources": @{
+                @"direct": @{
+                        @"in_app_message_ids" : @[@"test_in_app_message_1"],
+                },
+        },
+        @"id" : @"value_2",
+        @"weight" : val2
+    }];
+    [RestClientAsserts assertNumberOfMeasureSourcesRequests:2];
+    
+    // 4. If we don't dissmiss IAM indirect session shoud be cached
+    [[OneSignal sessionManager] initSessionFromCache];
+    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    for (OSInfluence *influence in sessionInfluences) {
+        switch (influence.influenceChannel) {
+            case IN_APP_MESSAGE:
+                XCTAssertEqual(influence.influenceType, INDIRECT);
+                XCTAssertEqual(influence.ids.count, 1);
+                break;
+            case NOTIFICATION:
+                XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
+                XCTAssertEqual(influence.ids, nil);
+                break;
+        }
+    }
+}
+
 
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeIAMsCleanedAfter7Days {
     // 1. Open app

@@ -86,7 +86,10 @@ THE SOFTWARE.
 }
 
 - (void)cacheState {
-    [self.dataRepository cacheIAMInfluenceType:self.influenceType];
+    // We only need to cache INDIRECT and UNATTRIBUTED influence types
+    // DIRECT is downgrade to INDIRECT to avoid inconsistency state
+    // where the app might be close before dismissing current displayed IAM
+    [self.dataRepository cacheIAMInfluenceType:self.influenceType == DIRECT ? INDIRECT : self.influenceType];
 }
 
 @end
