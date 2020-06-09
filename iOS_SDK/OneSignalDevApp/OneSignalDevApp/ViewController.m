@@ -102,10 +102,6 @@
 }
 
 - (IBAction)getTagsButton:(id)sender {
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        NSLog(@"IdsAvailable userId: %@, and pushToken: %@", userId, pushToken);
-    }];
-    
     [OneSignal getTags:^(NSDictionary *result) {
         NSLog(@"Tags: %@", result.description);
     }];
@@ -126,7 +122,6 @@
 
 - (IBAction)promptPushAction:(UIButton *)sender {
     //    [self promptForNotificationsWithNativeiOS10Code];
-    //    [OneSignal registerForPushNotifications];
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         NSLog(@"OneSignal Demo App promptForPushNotificationsWithUserResponse: %d", accepted);
     }];

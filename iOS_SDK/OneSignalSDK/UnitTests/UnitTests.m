@@ -141,10 +141,7 @@
 }
 
 - (void)registerForPushNotifications {
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignal registerForPushNotifications];
-    #pragma clang diagnostic pop
+    [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods backgroundApp];
 }
                                                                           
@@ -728,7 +725,7 @@
 - (void)testPromptForPushNotificationsWithUserResponseOnIOS9 {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 9;
-    
+
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     __block BOOL didAccept;
@@ -816,11 +813,11 @@
     #pragma clang diagnostic pop
 
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     [self registerForPushNotifications];
-    
+
     [UnitTestCommonMethods answerNotificationPrompt:false];
-    
+
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(idsAvailable1Called);
 
@@ -1085,13 +1082,13 @@
 - (void)testNotificationReceivedWhileAppInactive {
     __block BOOL openedWasFired = false;
     __block BOOL receivedWasFired = false;
-    
+
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotification *notification) {
         receivedWasFired = true;
     } notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         openedWasFired = true;
     }];
-    
+
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
 
     id userInfo = @{@"aps": @{
