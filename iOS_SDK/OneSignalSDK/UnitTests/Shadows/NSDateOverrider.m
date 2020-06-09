@@ -67,10 +67,6 @@ static NSTimeInterval _globalTimeOffset;
     _globalTimeOffset = 1;
 }
 
-+(void) setTimeOffset:(NSTimeInterval)offset {
-    _globalTimeOffset = offset;
-}
-
 +(void) advanceSystemTimeBy:(NSTimeInterval)sec {
     _globalTimeOffset += sec;
 }

@@ -96,9 +96,6 @@ NSString* const kOSSettingsKeyNotificationDisplayOption = @"kOSSettingsKeyNotifi
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
-/* Determine whether to automatically open push notification URL's or prompt user for permission */
-NSString* const kOSSSettingsKeyPromptBeforeOpeningPushURL = @"kOSSSettingsKeyPromptBeforeOpeningPushURL";
-
 /* Used to determine if the app is able to present it's own customized Notification Settings view (iOS 12+) */
 NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKeyProvidesAppNotificationSettings";
 
@@ -154,9 +151,6 @@ static BOOL waitingForApnsResponse = false;
 // Under Capabilities is "Background Modes" > "Remote notifications" enabled.
 static BOOL backgroundModesEnabled = false;
 
-static BOOL promptBeforeOpeningPushURLs = false;
-
-
 // Indicates if initialization of the SDK has been delayed until the user gives privacy consent
 static BOOL delayedInitializationForPrivacyConsent = false;
 
@@ -195,7 +189,6 @@ NSMutableDictionary* tagsToSend;
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
 
-OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
@@ -673,13 +666,6 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         [self enableInAppLaunchURL:true];
     }
     
-    if (settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] && [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] isKindOfClass:[NSNumber class]]) {
-        promptBeforeOpeningPushURLs = [settings[kOSSSettingsKeyPromptBeforeOpeningPushURL] boolValue];
-        [standardUserDefaults saveBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS withValue:promptBeforeOpeningPushURLs];
-    }
-    else
-        promptBeforeOpeningPushURLs = [standardUserDefaults getSavedBoolForKey:OSUD_PROMPT_BEFORE_NOTIFICATION_LAUNCH_URL_OPENS defaultValue:false];
-    
     usesAutoPrompt = YES;
     if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
         usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
@@ -1024,39 +1010,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer {
     [self.emailSubscriptionStateChangesObserver removeObserver:observer];
-}
-
-// Block not assigned if userID nil and there is a device token
-+ (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"IdsAvailable:"])
-        return;
-    
-    idsAvailableBlockWhenReady = idsAvailableBlock;
-    [self fireIdsAvailableCallback];
-}
-
-+ (void)fireIdsAvailableCallback {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    if (!idsAvailableBlockWhenReady)
-        return;
-    if (!self.currentSubscriptionState.userId)
-        return;
-    
-    // Ensure we are on the main thread incase app developer updates UI from the callback.
-    [OneSignalHelper dispatch_async_on_main_queue: ^{
-        id pushToken = [self getUsableDeviceToken];
-        if (!idsAvailableBlockWhenReady)
-            return;
-        idsAvailableBlockWhenReady(self.currentSubscriptionState.userId, pushToken);
-        if (pushToken)
-           idsAvailableBlockWhenReady = nil;
-    }];
 }
 
 + (void)sendTagsWithJsonString:(NSString*)jsonString {
@@ -1482,7 +1435,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
           email:nil
       ];
       [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:nil];
-      [self fireIdsAvailableCallback];
 }
 
 // Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
@@ -1741,11 +1693,9 @@ static dispatch_queue_t serialQueue;
             [OneSignalLocation sendLocation];
             
             if (emailToSet) {
-                [OneSignal syncHashedEmail:emailToSet];
+                [OneSignal setEmail:emailToSet];
                 emailToSet = nil;
             }
-            
-            [self fireIdsAvailableCallback];
             
             [self sendNotificationTypesUpdate];
             
@@ -1834,9 +1784,6 @@ static dispatch_queue_t serialQueue;
                 [self.currentSubscriptionState setAccepted:[self getNotificationTypes] > 0];
             
         } onFailure:nil];
-        
-        if ([self getUsableDeviceToken])
-            [self fireIdsAvailableCallback];
         
         return true;
     }
@@ -2015,10 +1962,6 @@ static NSString *_lastnonActiveMessageId;
     }
 }
 
-+ (BOOL)shouldPromptToShowURL {
-    return promptBeforeOpeningPushURLs;
-}
-
 + (void)launchWebURL:(NSString*)openUrl {
     
     NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
@@ -2138,9 +2081,6 @@ static NSString *_lastnonActiveMessageId;
         [OneSignal registerUser];
     else if (self.currentSubscriptionState.pushToken)
         [self sendNotificationTypesUpdate];
-    
-    if ([self getUsableDeviceToken])
-        [self fireIdsAvailableCallback];
 }
 
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app
@@ -2234,32 +2174,6 @@ static NSString *_lastnonActiveMessageId;
                               isActive:isActive
                             actionType:OSNotificationActionTypeActionTaken
                            displayType:OSNotificationDisplayTypeNotification];
-}
-
-+ (void)syncHashedEmail:(NSString *)email {
-    
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"syncHashedEmail:"])
-        return;
-    
-    if (!email) {
-        [self onesignal_Log:ONE_S_LL_WARN message:@"OneSignal syncHashedEmail: The provided email is nil"];
-        return;
-    }
-    
-    let trimmedEmail = [email stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    
-    if (![OneSignalHelper isValidEmail:trimmedEmail]) {
-        [self onesignal_Log:ONE_S_LL_WARN message:@"OneSignal syncHashedEmail: The provided email is invalid"];
-        return;
-    }
-    
-    if (!self.currentSubscriptionState.userId) {
-        emailToSet = email;
-        return;
-    }
-    
-    [OneSignalClient.sharedClient executeRequest:[OSRequestSyncHashedEmail withUserId:self.currentSubscriptionState.userId appId:self.appId email:trimmedEmail networkType:[OneSignalHelper getNetType]] onSuccess:nil onFailure:nil];
 }
 
 // Called from the app's Notification Service Extension

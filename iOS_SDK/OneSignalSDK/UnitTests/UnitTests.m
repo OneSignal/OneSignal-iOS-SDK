@@ -134,7 +134,7 @@
 }
 
 - (void)registerForPushNotifications {
-    [OneSignal registerForPushNotifications];
+    [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [self backgroundApp];
 }
 
@@ -876,36 +876,6 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
 }
 
-- (void)testIdsAvailableNotAcceptingNotifications {
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @true}];
-    [UnitTestCommonMethods initOneSignal];
-    
-    __block BOOL idsAvailable1Called = false;
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        idsAvailable1Called = true;
-    }];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    [self registerForPushNotifications];
-    
-    [UnitTestCommonMethods answerNotificationPrompt:false];
-    
-    [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertTrue(idsAvailable1Called);
-    
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
-    __block BOOL idsAvailable2Called = false;
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        idsAvailable2Called = true;
-    }];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    XCTAssertTrue(idsAvailable2Called);
-}
-
 /*
  Tests that a normal notification opened on iOS 10 triggers the handleNotificationAction.
  */
@@ -1575,14 +1545,14 @@ didReceiveRemoteNotification:userInfo
     
     // Don't make an on_session call if only out of the app for 20 secounds
     [self backgroundApp];
-    NSDateOverrider.timeOffset = 10;
+    [NSDateOverrider advanceSystemTimeBy:10];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Anything over 30 secounds should count as a session.
     [self backgroundApp];
-    NSDateOverrider.timeOffset = 41;
+    [NSDateOverrider advanceSystemTimeBy:41];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     

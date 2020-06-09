@@ -32,7 +32,5 @@
 
 + (NSTimeInterval)globalTimeOffset;
 
-// Use advanceSystemTimeBy over setTimeOffset
-+(void) setTimeOffset:(NSTimeInterval)offset __deprecated;
 +(void) advanceSystemTimeBy:(NSTimeInterval)sec;
 @end
