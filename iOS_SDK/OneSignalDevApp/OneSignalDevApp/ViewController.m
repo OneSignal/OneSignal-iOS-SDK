@@ -41,7 +41,7 @@
     
     self.consentSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal requiresUserPrivacyConsent];
 
-    self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getPermissionSubscriptionState.subscriptionStatus.subscribed;
+    self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getUserDevice.isSubscribed;
     
     self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) OneSignal.isLocationShared;
     
