@@ -335,6 +335,48 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
+@interface OSDevice : NSObject
+/**
+ * Get the app's notification permission
+ * @return false if the user disabled notifications for the app, otherwise true
+ */
+- (BOOL)isNotificationEnabled;
+/**
+ * Get whether the user is subscribed to OneSignal notifications or not
+ * @return false if the user is not subscribed to OneSignal notifications, otherwise true
+ */
+- (BOOL)isUserSubscribed;
+/**
+ * Get whether the user is subscribed
+ * @return true if  isNotificationEnabled,  isUserSubscribed, getUserId and getPushToken are true, otherwise false
+ */
+- (BOOL)isSubscribed;
+/**
+ * Get  the user notification permision status
+ * @return OSNotificationPermission
+*/
+- (OSNotificationPermission)getNotificationPermissionStatus;
+/**
+ * Get user id from registration (player id)
+ * @return user id if user is registered, otherwise false
+ */
+- (NSString*)getUserId;
+/**
+ * Get apple deice push token
+ * @return push token if available, otherwise null
+ */
+- (NSString*)getPushToken;
+/**
+ * Get the user email id
+ * @return email id if user address was registered, otherwise null
+ */
+- (NSString*)getEmailUserId;
+/**
+ * Get the user email
+ * @return email address if set, otherwise null
+ */
+- (NSString*)getEmailAddress;
+@end
 
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 
@@ -451,6 +493,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock __deprecated_msg("Please use getPermissionSubscriptionState or addSubscriptionObserver and addPermissionObserver instead.");
 
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
++ (OSDevice*)getUserDevice;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;

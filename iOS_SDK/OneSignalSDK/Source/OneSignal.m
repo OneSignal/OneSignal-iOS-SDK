@@ -332,6 +332,13 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
+static OSDevice* _userDevice;
++ (OSDevice *)getUserDevice {
+    if (!_userDevice)
+        _userDevice = [OSDevice new];
+    return _userDevice;
+}
+
 /*
  Indicates if the iOS params request has started
  Set to true when the method is called and set false if the request's failure callback is triggered

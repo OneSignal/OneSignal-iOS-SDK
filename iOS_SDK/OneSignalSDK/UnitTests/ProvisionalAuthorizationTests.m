@@ -196,4 +196,90 @@
     }
 }
 
+- (void)testOSDeviceHasEmailAddress {
+    NSString *testEmail = @"test@onesignal.com";
+
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertNil([[OneSignal getUserDevice] getEmailAddress]);
+
+    [OneSignal setEmail:testEmail];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(testEmail, [[OneSignal getUserDevice] getEmailAddress]);
+}
+
+- (void)testOSDeviceHasEmailId {
+    NSString *testEmail = @"test@onesignal.com";
+
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertNil([[OneSignal getUserDevice] getEmailAddress]);
+
+    [OneSignal setEmail:testEmail];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertNotNil([[OneSignal getUserDevice] getEmailAddress]);
+}
+
+- (void)testOSDeviceHasUserId {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertNotNil([[OneSignal getUserDevice] getUserId]);
+}
+
+- (void)testOSDeviceHasPushToken {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertNotNil([[OneSignal getUserDevice] getPushToken]);
+}
+
+- (void)testOSDeviceSubscribed {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertTrue([[OneSignal getUserDevice] isSubscribed]);
+}
+
+- (void)testOSDeviceUserSubscribed {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertTrue([[OneSignal getUserDevice] isUserSubscribed]);
+}
+
+- (void)testOSDeviceNotificationReachable {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertTrue([[OneSignal getUserDevice] isNotificationEnabled]);
+}
+
+- (void)testOSDeviceHasNotificationPermissionStatus {
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
+            handleNotificationAction:nil
+                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(OSNotificationPermissionAuthorized, [[OneSignal getUserDevice] getNotificationPermissionStatus]);
+}
+
 @end
