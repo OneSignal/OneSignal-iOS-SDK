@@ -99,6 +99,7 @@
 		7A880F322404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A880F332404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A9173A2231971E5007848FA /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
+		7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */; };
 		7AA2848A2406FC6400C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7AA2848B2406FC6500C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7AAA60662485D0310004FADE /* OSMigrationController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AAA60652485D0090004FADE /* OSMigrationController.h */; };
@@ -497,6 +498,8 @@
 		7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessagePushPrompt.m; sourceTree = "<group>"; };
 		7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalReceiveReceiptsController.m; sourceTree = "<group>"; };
 		7A9173A3231971F8007848FA /* OneSignalReceiveReceiptsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalReceiveReceiptsController.h; sourceTree = "<group>"; };
+		7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUniqueOutcomeNotification.m; sourceTree = "<group>"; };
+		7A94D8E2249ABF0C00E90B40 /* OSUniqueOutcomeNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSUniqueOutcomeNotification.h; sourceTree = "<group>"; };
 		7AAA60652485D0090004FADE /* OSMigrationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSMigrationController.h; sourceTree = "<group>"; };
 		7AAA60672485D0420004FADE /* OSMigrationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSMigrationController.m; sourceTree = "<group>"; };
 		7ABAF9D02457C3570074DFA0 /* CommonAsserts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonAsserts.h; sourceTree = "<group>"; };
@@ -831,6 +834,8 @@
 			children = (
 				7A5A8186248990DA002E07C8 /* OSIndirectNotification.h */,
 				7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */,
+				7A94D8E2249ABF0C00E90B40 /* OSUniqueOutcomeNotification.h */,
+				7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1642,6 +1647,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */,
 				7A1232B2235E1BE6002B6CE3 /* OneSignalUserDefaults.m in Sources */,
 				7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */,
 				7A880F2D23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */,
