@@ -947,7 +947,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Firing registerForRemoteNotifications"];
     
     waitingForApnsResponse = true;
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    }];
     
     return true;
 }
