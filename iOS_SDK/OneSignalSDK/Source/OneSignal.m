@@ -390,6 +390,8 @@ static OSSessionManager *_sessionManager;
 
 static OSOutcomeEventsCache *_outcomeEventsCache;
 + (OSOutcomeEventsCache *)outcomeEventsCache {
+    if (!_outcomeEventsCache)
+        _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
     return _outcomeEventsCache;
 }
 
@@ -588,8 +590,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     initializationTime = [NSDate date];
     
     // Outcomes init
-    _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
-    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:_outcomeEventsCache];
+    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:OneSignal.outcomeEventsCache];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:OneSignal.sessionManager outcomeEventsFactory:_outcomeEventFactory];
     
     if (appId && mShareLocation)

@@ -28,8 +28,11 @@
 #import <XCTest/XCTest.h>
 #import "OSMigrationController.h"
 #import "OSInfluenceDataRepository.h"
+#import "OSOutcomeEventsCache.h"
 #import "OSIndirectInfluence.h"
 #import "OSIndirectNotification.h"
+#import "OSCachedUniqueOutcome.h"
+#import "OSUniqueOutcomeNotification.h"
 #import "OneSignalHelper.h"
 #import "UnitTestCommonMethods.h"
 #import "OneSignalUserDefaults.h"
@@ -42,6 +45,7 @@
 @implementation MigrationTests {
     OSMigrationController *migrationController;
     OSInfluenceDataRepository *dataRepository;
+    OSOutcomeEventsCache *outcomesCache;
 }
 
 - (void)setUp {
@@ -49,6 +53,7 @@
     [UnitTestCommonMethods beforeEachTest:self];
     migrationController = [OSMigrationController new];
     dataRepository = [OSInfluenceDataRepository new];
+    outcomesCache = [OSOutcomeEventsCache new];
 }
 
 - (void)testNoIndirectInfluenceDataAvailableToMigrate {
@@ -115,6 +120,78 @@
     XCTAssertTrue([indirectInfluenceAfterMigration.influenceId isEqualToString:notificationId]);
     XCTAssertTrue([indirectInfluenceAfterMigration.channelIdTag isEqualToString:channelId]);
     XCTAssertEqual(timestamp, indirectInfluenceAfterMigration.timestamp);
+    
+    NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+}
+
+- (void)testNoAttributedUniqueOutcomeDataAvailableToMigrate {
+    NSArray *uniqueOutcomes = [outcomesCache getAttributedUniqueOutcomeEventSent];
+    NSInteger sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertNil(uniqueOutcomes);
+    XCTAssertEqual(0, sdkVersion);
+    [migrationController migrate];
+    
+    NSArray *uniqueOutcomesAfterMigration = [outcomesCache getAttributedUniqueOutcomeEventSent];
+    XCTAssertNil(uniqueOutcomesAfterMigration);
+    
+    NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+}
+
+- (void)testUniqueOutcomeNotificationToCacheUniqueOutcomeMigration {
+    NSString *notificationId = @"1234-5678-1234-5678-1234";
+    NSString *outcome = @"test";
+    NSNumber *timestamp = @(10);
+    OSUniqueOutcomeNotification *uniqueOutcome = [[OSUniqueOutcomeNotification alloc] initWithParamsNotificationId:outcome notificationId:notificationId timestamp:timestamp];
+    NSMutableArray *uniqueOutcomes = [NSMutableArray new];
+    [uniqueOutcomes addObject:uniqueOutcome];
+
+    [outcomesCache saveAttributedUniqueOutcomeEventNotificationIds:uniqueOutcomes];
+
+    NSArray *lastUniqueOutcomeSaved = [outcomesCache getAttributedUniqueOutcomeEventSent];
+    NSInteger sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertEqual(1, [lastUniqueOutcomeSaved count]);
+    XCTAssertEqual(0, sdkVersion);
+    
+    [migrationController migrate];
+
+    NSArray *lastUniqueOutcomeAfterMigration = [outcomesCache getAttributedUniqueOutcomeEventSent];
+    XCTAssertEqual(1, [lastUniqueOutcomeAfterMigration count]);
+
+    OSCachedUniqueOutcome *cachedUniqueOutcome = [lastUniqueOutcomeAfterMigration objectAtIndex:0];
+    XCTAssertTrue([cachedUniqueOutcome.uniqueId isEqualToString:notificationId]);
+    XCTAssertEqual(cachedUniqueOutcome.channel, NOTIFICATION);
+    XCTAssertEqual([timestamp intValue], [cachedUniqueOutcome.timestamp intValue]);
+    
+    NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+}
+
+- (void)testCachedUniqueOutcomeToCachedUniqueOutcomeMigration {
+    NSString *notificationId = @"1234-5678-1234-5678-1234";
+    NSString *outcome = @"test";
+    NSNumber *timestamp = @(10);
+    OSCachedUniqueOutcome *cachedUniqueOutcome = [[OSCachedUniqueOutcome alloc] initWithParamsName:outcome uniqueId:notificationId timestamp:timestamp channel:NOTIFICATION];
+    NSMutableArray *cacheUniqueOutcomes = [NSMutableArray new];
+    [cacheUniqueOutcomes addObject:cachedUniqueOutcome];
+    
+    [outcomesCache saveAttributedUniqueOutcomeEventNotificationIds:cacheUniqueOutcomes];
+    NSArray *lastCachedUniqueOutcomes = [outcomesCache getAttributedUniqueOutcomeEventSent];
+    NSInteger sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertEqual(1, [lastCachedUniqueOutcomes count]);
+    XCTAssertEqual(0, sdkVersion);
+    
+    [migrationController migrate];
+
+    NSArray<OSCachedUniqueOutcome *> *lastCachedUniqueOutcomesAfterMigration = [outcomesCache getAttributedUniqueOutcomeEventSent];
+    XCTAssertEqual(1, [lastCachedUniqueOutcomesAfterMigration count]);
+
+    OSCachedUniqueOutcome *cachedUniqueOutcomeAfterMigration = [lastCachedUniqueOutcomesAfterMigration objectAtIndex:0];
+    XCTAssertTrue([cachedUniqueOutcomeAfterMigration.name isEqualToString:outcome]);
+    XCTAssertTrue([cachedUniqueOutcomeAfterMigration.uniqueId isEqualToString:notificationId]);
+    XCTAssertEqual(NOTIFICATION, cachedUniqueOutcomeAfterMigration.channel);
+    XCTAssertEqual([timestamp intValue], [cachedUniqueOutcomeAfterMigration.timestamp intValue]);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
