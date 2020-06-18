@@ -33,12 +33,13 @@
 #import "OneSignalWebView.h"
 #import "OneSignalClient.h"
 #import "Requests.h"
-#import "OSOutcomesUtils.h"
+#import "OSInfluenceDataDefines.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 #import "OSFocusTimeProcessorFactory.h"
 #import "OSBaseFocusTimeProcessor.h"
 #import "OSFocusCallParams.h"
+#import "OSFocusInfluenceParam.h"
 #import "OSMessagingController.h"
 
 @interface OneSignal ()
@@ -99,7 +100,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)applicationForegrounded {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Foregrounded started"];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
@@ -113,7 +114,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     else {
         // This checks if notification permissions changed when app was backgrounded
         [OneSignal sendNotificationTypesUpdate];
-        [OneSignal.sessionManager attemptSessionUpgrade];
+        [OneSignal.sessionManager attemptSessionUpgrade:OneSignal.appEntryState];
         [OneSignal receivedInAppMessageJson:nil];
     }
     
@@ -136,7 +137,7 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)applicationBackgrounded {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Backgrounded started"];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
     [self updateLastClosedTime];
     
@@ -145,23 +146,23 @@ static BOOL lastOnFocusWasToBackground = YES;
         return;
     
     OneSignal.appEntryState = APP_CLOSE;
-    
-    let sessionResult = [OneSignal.sessionManager getSessionResult];
-    let focusCallParams = [self createFocusCallParams:sessionResult onSessionEnded:false];
-    let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:sessionResult focusEventType:BACKGROUND];
+
+    let influences = [OneSignal.sessionManager getSessionInfluences];
+    let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
+    let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:influences focusEventType:BACKGROUND];
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
 }
 
-+ (void)onSessionEnded:(OSSessionResult *)lastSessionResult {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded started"];
++ (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];
-    let focusCallParams = [self createFocusCallParams:lastSessionResult onSessionEnded:true];
-    let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithSessionResult:lastSessionResult focusEventType:END_SESSION];
+    let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
+    let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
     
     if (!timeProcessor) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"onSessionEnded no time processor to end"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
     
@@ -172,16 +173,26 @@ static BOOL lastOnFocusWasToBackground = YES;
         [timeProcessor sendOnFocusCall:focusCallParams];
 }
 
-+ (OSFocusCallParams *)createFocusCallParams:(OSSessionResult *)sessionResult onSessionEnded:(BOOL)onSessionEnded  {
++ (OSFocusCallParams *)createFocusCallParams:(NSArray<OSInfluence *> *)lastInfluences onSessionEnded:(BOOL)onSessionEnded  {
     let timeElapsed = [self getTimeFocusedElapsed];
+    NSMutableArray<OSFocusInfluenceParam *> *focusInfluenceParams = [NSMutableArray new];
+    
+    for (OSInfluence *influence in lastInfluences) {
+        NSString *channelString = [OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel) lowercaseString];
+        OSFocusInfluenceParam * focusInfluenceParam = [[OSFocusInfluenceParam alloc] initWithParamsInfluenceIds:influence.ids
+                                                                                                   influenceKey:[NSString stringWithFormat:@"%@_%@", channelString, @"ids"]
+                                                                                                directInfluence:influence.influenceType == DIRECT
+                                                                                             influenceDirectKey:@"direct"];
+        [focusInfluenceParams addObject:focusInfluenceParam];
+    }
+
     return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal app_id]
                                                    userId:[OneSignal mUserId]
                                               emailUserId:[OneSignal mEmailUserId]
                                            emailAuthToken:[OneSignal mEmailAuthToken]
                                                   netType:[OneSignalHelper getNetType]
                                               timeElapsed:timeElapsed
-                                          notificationIds:sessionResult.notificationIds
-                                                   direct:sessionResult.session == DIRECT
+                                          influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];
 }
 

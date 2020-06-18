@@ -1188,6 +1188,7 @@
 
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
 - (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
+    [[OneSignalDialogController sharedInstance] clearQueue];
     __block BOOL openedWasFire = false;
     id receiveBlock = ^(OSNotificationOpenedResult *result) {
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
@@ -1215,12 +1216,16 @@
                         willPresentNotification:[notifResponse notification]
                           withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
-    XCTAssertEqual(UIAlertViewOverrider.uiAlertButtonArrayCount, 1);
-    [UIAlertViewOverrider.lastUIAlertViewDelegate alertView:nil clickedButtonAtIndex:1];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(OneSignalDialogControllerOverrider.getCurrentDialog.actionTitles.count, 1);
+    [OneSignalDialogControllerOverrider completeDialog:0];
+    [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(openedWasFire, true);
 }
 
 - (void)testOldFormatNotificationAlertButtonsDisplay {
+    OneSignalHelperOverrider.mockIOSVersion = 7;
     id oldFormat = @{@"aps" : @{
                              @"mutable-content" : @1,
                              @"alert" : @{
@@ -1238,6 +1243,7 @@
 }
 
 - (void)testNewFormatNotificationAlertButtonsDisplay {
+    OneSignalHelperOverrider.mockIOSVersion = 10;
     id newFormat = @{@"aps": @{
                              @"mutable-content": @1,
                              @"alert": @{@"body": @"Message Body", @"title": @"title"},
@@ -2136,16 +2142,7 @@ didReceiveRemoteNotification:userInfo
                      }};
 }
 
-- (void)testExtractFileExtensionFromMimeType {
-    //test to make sure the MIME type parsing works correctly
-    //NSURLSessionOverrider returns image/png for this URL
-    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file"];
-    
-    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
-    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
-}
-
-- (void)testExtractFileExtensionFromQueryParameter {
+- (void)testExtractFileExtensionFromFileNameQueryParameter {
     // we allow developers to add ?filename=test.jpg (for example) to attachment URL's in cases where there is no extension & no mime type
     // tests to make sure the SDK correctly extracts the file extension from the `filename` URL query parameter
     // NSURLSessionOverrider returns nil for this URL
@@ -2155,14 +2152,32 @@ didReceiveRemoteNotification:userInfo
     XCTAssertTrue([downloadedJpgFilename.supportedFileExtension isEqualToString:@"jpg"]);
 }
 
-- (void)testFileExtensionPrioritizesURLFileExtension {
-    //tests to make sure that the URL's file extension is prioritized above the MIME type and URL query param
-    //this attachment URL will have a file extension, a MIME type, and a filename query parameter. It should prioritize the URL file extension (gif)
+- (void)testExtractFileExtensionFromMimeType {
+    //test to make sure the MIME type parsing works correctly
+    //NSURLSessionOverrider returns image/png for this URL
+    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file"];
+    
+    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
+}
+
+- (void)testFileExtensionPrioritizesFileNameParameter {
+    //tests to make sure that the filename query parameter is prioritized above the MIME type and URL extension
+    //this attachment URL will have a file extension, a MIME type, and a filename query parameter. It should prioritize the filename query parameter (png)
     //NSURLSessionOverrider returns image/png for this URL
     id gifFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/file.gif?filename=test.png"];
     
     let downloadedGifFilename = [self deliverNotificationWithJSON:gifFormat].URL.lastPathComponent;
-    XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"gif"]);
+    XCTAssertTrue([downloadedGifFilename.supportedFileExtension isEqualToString:@"png"]);
+}
+
+- (void)testExtractFileExtensionFromAnyParameter {
+    //test to make sure the fallback of parsing all parameters for a file type works correctly
+    //NSURLSessionOverrider returns an unallowed extension (heic) for this URL to test the fallback
+    id pngFormat = [self exampleNotificationJSONWithMediaURL:@"http://domain.com/secondFile?file=test.png&media=image&type=.fakeextension"];
+    
+    let downloadedPngFilename = [self deliverNotificationWithJSON:pngFormat].URL.lastPathComponent;
+    XCTAssertTrue([downloadedPngFilename.supportedFileExtension isEqualToString:@"png"]);
 }
 
 /*
@@ -2173,6 +2188,7 @@ didReceiveRemoteNotification:userInfo
 */
 - (void)testOpenNotificationSettings {
     OneSignalHelperOverrider.mockIOSVersion = 10;
+    [[OneSignalDialogController sharedInstance] clearQueue];
     
     //set up the test so that the user has declined the prompt.
     //we can then call prompt with Settings fallback.
@@ -2203,7 +2219,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalDialogControllerOverrider.getCurrentDialog.title, @"Open Settings");
     
     //answer 'Open Settings' on the prompt
-    OneSignalDialogControllerOverrider.getCurrentDialog.completion(true);
+    OneSignalDialogControllerOverrider.getCurrentDialog.completion(0);
     
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2373,10 +2389,10 @@ didReceiveRemoteNotification:userInfo
     
     // 2. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
-        if (results[@"push"] && results[@"push"][@"success"])
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
-        if (results[@"email"] && results[@"email"][@"success"])
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -2396,31 +2412,214 @@ didReceiveRemoteNotification:userInfo
     
     // 3. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
-        if (results[@"push"] && results[@"push"][@"success"])
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
-        if (results[@"email"] && results[@"email"][@"success"])
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 3. Make sure push and email external id were updated in completion callback
+    // 4. Make sure push and email external id were updated in completion callback
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
 }
 
-- (void)testRemoveExternalUserId {
+- (void)testSetExternalUserId_forPush_afterLogoutEmail_withCompletion {
+    // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
+    // 2. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 3. Call setExternalUserId with completion callback
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Make sure push and email external id were updated in completion callback
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    
+    // 5. Clear out external user id callback ids
+    self.CALLBACK_EXTERNAL_USER_ID = nil;
+    self.CALLBACK_EMAIL_EXTERNAL_USER_ID = nil;
+    
+    // 6. Log out email
+    [OneSignal logoutEmail];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 7. Call setExternalUserId with completion callback
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 8. Make sure push external id was updated in completion callback
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);
+}
+
+- (void)testOverwriteSameExternalUserId_forPushAndEmail_withCompletion {
+    // 1. Cache the same external user ids for push and email channel
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
+    
+    // 2. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 3. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 5. Make sure only push external id was attempted to be set since no email was set yet
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+}
+
+- (void)testOverwriteDifferentExternalUserId_forPushAndEmail_withCompletion {
+    // 1. Cache different same external user ids for push and email channel
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:@"12345"];
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:@"12345"];
+    
+    // 2. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 3. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 5. Make sure only push external id was attempted to be set since no email was set yet
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+}
+
+- (void)testOverwriteExternalUserId_forPushAndEmail_withCompletion {
+    // 1. Cache two different external user ids for push and email channel
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:@"12345"];
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
+    
+    // 2. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 3. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 5. Make sure only push external id was attempted to be set since no email was set yet
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+}
+
+- (void)testOverwriteEmailExternalUserId_forPushAndEmail_withCompletion {
+    // 1. Cache two different external user ids for push and email channel
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:TEST_EXTERNAL_USER_ID];
+    [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:@"12345"];
+    
+    // 2. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 3. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 5. Make sure only push external id was attempted to be set since no email was set yet
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+}
+
+- (void)testRemoveExternalUserId_forPush {
+    // 1. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // 3. Make sure last request was external id and had the correct external id being used in the request payload
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
     
+    // 4. Remove the external user id
     [OneSignal removeExternalUserId];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // 5. Make sure last request was external id and the external id being used was an empty string
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
+}
+
+- (void)testRemoveExternalUserId_forPushAndEmail {
+    // 1. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 3. Set external user id
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Make sure last request was external id and had the correct external id being used in the request payload
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+    
+    // 5. Remove the external user id
+    [OneSignal removeExternalUserId];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 6. Make sure last request was external id and the external id being used was an empty string
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
 }
@@ -2437,12 +2636,12 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
     
-    // 4. Remove the external user id
+    // 4. Remove the external user id with a callack implemented
     [OneSignal removeExternalUserId:^(NSDictionary *results) {
-        if (results[@"push"] && results[@"push"][@"success"])
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = @"";
         
-        if (results[@"email"] && results[@"email"][@"success"])
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = @"";
     }];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -2464,29 +2663,29 @@ didReceiveRemoteNotification:userInfo
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 2. Set external user id
+    // 3. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // 3. Make sure last request was external id and had the correct external id being used in the request payload
+    // 4. Make sure last request was external id and had the correct external id being used in the request payload
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
     
-    // 4. Remove the external user id
+    // 5. Remove the external user id
     [OneSignal removeExternalUserId:^(NSDictionary *results) {
-        if (results[@"push"] && results[@"push"][@"success"])
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = @"";
         
-        if (results[@"email"] && results[@"email"][@"success"])
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = @"";
     }];
     [UnitTestCommonMethods runBackgroundThreads];
 
-    // 5. Make sure last request was external id and the external id being used was an empty string
+    // 6. Make sure last request was external id and the external id being used was an empty string
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], @"");
     
-    // 6. Make sure completion handler was called, push and email external ids are empty strings
+    // 7. Make sure completion handler was called, push and email external ids are empty strings
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, @"");
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, @"");
 }

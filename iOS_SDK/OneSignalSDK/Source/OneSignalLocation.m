@@ -33,6 +33,7 @@
 #import "OneSignal.h"
 #import "OneSignalClient.h"
 #import "Requests.h"
+#import "OneSignalDialogController.h"
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
@@ -50,10 +51,12 @@ NSTimer* sendLocationTimer = nil;
 os_last_location *lastLocation;
 bool initialLocationSent = false;
 UIBackgroundTaskIdentifier fcTask;
+const int alertSettingsTag = 199;
 
 static id locationManager = nil;
 static bool started = false;
 static bool hasDelayed = false;
+static bool fallbackToSettings = false;
 
 // CoreLocation must be statically linked for geotagging to work on iOS 6 and possibly 7.
 // plist NSLocationUsageDescription (iOS 6 & 7) and NSLocationWhenInUseUsageDescription (iOS 8+) keys also required.
@@ -104,18 +107,18 @@ static OneSignalLocation* singleInstance = nil;
     }
 }
 
-+ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(BOOL accepted))completionHandler {
++ (void)getLocation:(bool)prompt fallbackToSettings:(BOOL)fallback withCompletionHandler:(void (^)(PromptActionResult result))completionHandler {
     if (completionHandler)
         [OneSignalLocation.locationListeners addObject:completionHandler];
 
     if (hasDelayed)
-        [OneSignalLocation internalGetLocation:prompt];
+        [OneSignalLocation internalGetLocation:prompt fallbackToSettings:fallback];
     else {
         // Delay required for locationServicesEnabled and authorizationStatus return the correct values when CoreLocation is not statically linked.
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 2.0 * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
             hasDelayed = true;
-            [OneSignalLocation internalGetLocation:prompt];
+            [OneSignalLocation internalGetLocation:prompt fallbackToSettings:fallback];
         });
     }
     // Listen to app going to and from background
@@ -173,10 +176,10 @@ static OneSignalLocation* singleInstance = nil;
     fcTask = UIBackgroundTaskInvalid;
 }
 
-+ (void)sendAndClearLocationListener:(BOOL)accept {
++ (void)sendAndClearLocationListener:(PromptActionResult)result {
     onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"OneSignalLocation sendAndClearLocationListener listeners: %@", OneSignalLocation.locationListeners]);
     for (int i = 0; i < OneSignalLocation.locationListeners.count; i++) {
-        ((void (^)(BOOL accepted))[OneSignalLocation.locationListeners objectAtIndex:i])(accept);
+        ((void (^)(PromptActionResult result))[OneSignalLocation.locationListeners objectAtIndex:i])(result);
     }
     // We only call the listeners once
     [OneSignalLocation.locationListeners removeAllObjects];
@@ -190,20 +193,33 @@ static OneSignalLocation* singleInstance = nil;
 
     // If already given or denied the permission, listeners should have the response
     let denied = permissionStatus == kCLAuthorizationStatusRestricted || permissionStatus == kCLAuthorizationStatusDenied;
-    [self sendAndClearLocationListener:!denied];
+    [self sendAndClearLocationListener:denied ? PERMISSION_DENIED : PERMISSION_GRANTED];
 }
 
-+ (void)internalGetLocation:(bool)prompt {
++ (void)internalGetLocation:(bool)prompt fallbackToSettings:(BOOL)fallback {
+    fallbackToSettings = fallback;
+    id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
+    
+    // On the application init we are always calling this method
+    // If location permissions was not asked "started" will never be true
     if ([self started]) {
-        [self sendCurrentAuthStatusToListeners];
+        // We evaluate the following cases after permissions were asked (denied or given)
+        CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+        // Fallback to settings alert view when the following condition are true:
+        //   - On a prompt flow
+        //   - Fallback to settings is enabled
+        //   - Permission were denied
+        if (prompt && fallback && permissionStatus == kCLAuthorizationStatusDenied)
+            [self showLocationSettingsAlertController];
+        else
+            [self sendCurrentAuthStatusToListeners];
         return;
     }
     
-    id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
-    
     // Check for location in plist
     if (![clLocationManagerClass performSelector:@selector(locationServicesEnabled)]) {
-        [self sendAndClearLocationListener:false];
+        onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManager locationServices Disabled.");
+        [self sendAndClearLocationListener:ERROR];
         return;
     }
     
@@ -229,13 +245,16 @@ static OneSignalLocation* singleInstance = nil;
             if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
                 [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
         }
-        
+
         else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
             if (permissionStatus == kCLAuthorizationStatusNotDetermined)
                 [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
         }
-        
-        else onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+
+        else {
+            onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+            [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
+        }
     }
         
     // For iOS 6 and 7, location services are prompted here
@@ -246,12 +265,25 @@ static OneSignalLocation* singleInstance = nil;
     started = true;
 }
 
++ (void)showLocationSettingsAlertController {
+    onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManager permissionStatus kCLAuthorizationStatusDenied fallaback to settings");
+    [[OneSignalDialogController sharedInstance] presentDialogWithTitle:@"Location Not Available" withMessage:@"You have previously denied sharing your device location. Please go to settings to enable." withActions:@[@"Open Settings"] cancelTitle:@"Cancel" withActionCompletion:^(int tappedActionIndex) {
+        if (tappedActionIndex > -1) {
+            onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManage open settings option click");
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
+        [OneSignalLocation sendAndClearLocationListener:false];
+        return;
+    }];
+}
+
 #pragma mark CLLocationManagerDelegate
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
-    if ([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared]) {
-        [OneSignalLocation sendAndClearLocationListener:false];
+    if (([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared]) && !fallbackToSettings) {
+        onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManagerDelegate clear Location listener due to permissions denied or location shared not available");
+        [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
         return;
     }
     
@@ -283,12 +315,12 @@ static OneSignalLocation* singleInstance = nil;
     if (!initialLocationSent)
         [OneSignalLocation sendLocation];
     
-    [OneSignalLocation sendAndClearLocationListener:true];
+    [OneSignalLocation sendAndClearLocationListener:PERMISSION_GRANTED];
 }
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
-    [OneSignalLocation sendAndClearLocationListener:false];
+    [OneSignalLocation sendAndClearLocationListener:ERROR];
 }
 
 + (void)resetSendTimer {

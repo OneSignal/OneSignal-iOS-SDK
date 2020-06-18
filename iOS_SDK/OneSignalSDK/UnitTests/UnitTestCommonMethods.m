@@ -46,17 +46,22 @@
 #import "NSTimerOverrider.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OSOutcomeEventsCache.h"
+#import "OSInfluenceDataRepository.h"
 #import "OneSignalLocation.h"
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
+#import "OSMessagingControllerOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
-    return [NSString stringWithFormat:@"%@%@%@", SERVER_URL, API_VERSION, path];
+    return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 @interface OneSignal ()
+
 + (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
+
 @end
 
 @implementation UnitTestCommonMethods
@@ -136,6 +141,7 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
     
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
+    
     [OneSignalTrackFirebaseAnalytics performSelector:NSSelectorFromString(@"resetLocals")];
     
     [NSObjectOverrider reset];
@@ -144,7 +150,7 @@ static XCTestCase* _currentXCTestCase;
     
     [UIAlertViewOverrider reset];
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
     
     [NSTimerOverrider reset];
     

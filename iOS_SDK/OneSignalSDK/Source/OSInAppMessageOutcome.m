@@ -53,7 +53,7 @@
         outcome.weight = @0;
     }
     if ([json[@"unique"] isKindOfClass:[NSNumber class]]) {
-        outcome.unique = json[@"unique"];
+        outcome.unique = [json[@"unique"] boolValue];
     } else {
         outcome.unique = NO;
     }
@@ -66,7 +66,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"OSInAppMessageOutcome name: %@\nweight: %@unique: %s\n", _name, _weight, _unique ? "YES" : "NO"];
+    return [NSString stringWithFormat:@"OSInAppMessageOutcome name: %@ weight: %@ unique: %s\n", _name, _weight, _unique ? "YES" : "NO"];
 }
 
 @end

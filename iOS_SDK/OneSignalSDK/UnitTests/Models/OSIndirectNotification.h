@@ -25,31 +25,14 @@
  THE SOFTWARE.
  */
 
-#import "OSSessionResult.h"
 
-@protocol SessionStatusDelegate <NSObject>
+#import "OSJSONHandling.h"
 
-+ (void)onSessionEnding:(OSSessionResult * _Nonnull)sessionResult;
+@interface OSIndirectNotification : NSObject <NSCoding, OSJSONEncodable, OSJSONDecodable>
 
-@end
+@property (nonatomic, readonly) NSString *notificationId;
+@property (nonatomic, readonly) double timestamp; // seconds
 
-@interface OneSignalSessionManager : NSObject
-
-@property (nonatomic) id<SessionStatusDelegate> _Nonnull delegate;
-
-@property (nonatomic) Session session;
-@property (strong, nonatomic, nullable) NSString *directNotificationId;
-@property (strong, nonatomic, nullable) NSArray *indirectNotificationIds;
-
-- (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nonnull)delegate;
-
-- (Session)getSession;
-- (NSArray * _Nullable)getNotificationIds;
-- (OSSessionResult * _Nonnull)getSessionResult;
-- (OSSessionResult * _Nonnull)getIAMSessionResult;
-- (void)initSessionFromCache;
-- (void)restartSessionIfNeeded;
-- (void)onDirectSessionFromNotificationOpen:(NSString * _Nonnull)directNotificationId;
-- (void)attemptSessionUpgrade;
+- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp;
 
 @end

@@ -26,15 +26,20 @@
  */
 
 #import "OneSignal.h"
-#import "OneSignalSessionManager.h"
+#import "OSSessionManager.h"
+#import "OSOutcomeEventsFactory.h"
+#import "OSInAppMessageOutcome.h"
 
 @interface OneSignalOutcomeEventsController : NSObject
 
-@property (strong, nonatomic, nonnull) OneSignalSessionManager *osSessionManager;
-
-- (instancetype _Nonnull)init:(OneSignalSessionManager* _Nonnull)sessionManager;
+- (instancetype _Nonnull)initWithSessionManager:(OSSessionManager * _Nonnull)sessionManager
+                           outcomeEventsFactory:(OSOutcomeEventsFactory *_Nonnull)outcomeEventsFactory;
 
 - (void)clearOutcomes;
+
+- (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *_Nonnull)outcomes
+                          appId:(NSString * _Nonnull)appId
+                     deviceType:(NSNumber * _Nonnull)deviceType;
 
 - (void)sendOutcomeEvent:(NSString * _Nonnull)name
                    appId:(NSString * _Nonnull)appId
@@ -46,19 +51,10 @@
                     deviceType:(NSNumber * _Nonnull)deviceType
                   successBlock:(OSSendOutcomeSuccess _Nullable)success;
 
-- (void)sendUniqueClickOutcomeEvent:(NSString * _Nonnull)name
-                              appId:(NSString * _Nonnull)appId
-                         deviceType:(NSNumber * _Nonnull)deviceType;
-
 - (void)sendOutcomeEventWithValue:(NSString * _Nonnull)name
                             value:(NSNumber * _Nullable)weight
                             appId:(NSString * _Nonnull)appId
                        deviceType:(NSNumber * _Nonnull)deviceType
                      successBlock:(OSSendOutcomeSuccess _Nullable)success;
-
-- (void)sendClickOutcomeEventWithValue:(NSString * _Nonnull)name
-                                 value:(NSNumber * _Nullable)weight
-                                 appId:(NSString * _Nonnull)appId
-                            deviceType:(NSNumber * _Nonnull)deviceType;
 
 @end

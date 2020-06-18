@@ -83,18 +83,18 @@
 
 + (void)load {
     injectToProperClass(@selector(overrideShowAndImpressMessage:), @selector(showAndImpressMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
-    injectToProperClass(@selector(overrideHideWindow), @selector(hideWindow), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
 }
 
 - (void)overrideShowAndImpressMessage:(OSInAppMessage *)message {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
+        [viewController viewDidLoad];
+    });
     [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
 }
 
-- (void)overrideHideWindow {
-}
-
 + (void)dismissCurrentMessage {
-    return [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
+    [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
 }
 
 + (BOOL)isInAppMessageShowing {

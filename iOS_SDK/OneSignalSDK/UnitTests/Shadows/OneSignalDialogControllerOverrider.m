@@ -53,4 +53,11 @@ static OSDialogRequest *currentDialog;
     return currentDialog;
 }
 
++ (void)completeDialog:(int)result {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (currentDialog.completion)
+            currentDialog.completion(result);
+    });
+}
+
 @end

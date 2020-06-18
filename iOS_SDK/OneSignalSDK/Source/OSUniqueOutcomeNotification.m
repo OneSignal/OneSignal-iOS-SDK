@@ -26,44 +26,62 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSUniqueOutcomeNotification.h"
+#import "OSCachedUniqueOutcome.h"
+#import "OneSignalCommonDefines.h"
 
-@implementation OSUniqueOutcomeNotification
+@implementation OSCachedUniqueOutcome
 
-- (id)initWithParamsNotificationId:(NSString *)name notificationId:(NSString *)notificationId timestamp:(NSNumber *)timestamp {
-    _name = name;
-    _notificationId = notificationId;
-    _timestamp = timestamp;
+- (id)initWithParamsName:(NSString *)name uniqueId:(NSString *)uniqueId timestamp:(NSNumber *)timestamp channel:(OSInfluenceChannel)channel {
+    self = [super init];
+    if (self) {
+        _name = name;
+        _uniqueId = uniqueId;
+        _channel = channel;
+        _timestamp = timestamp;
+    }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:_name forKey:@"name"];
-    [encoder encodeObject:_notificationId forKey:@"notificationId"];
+    [encoder encodeObject:_uniqueId forKey:@"uniqueId"];
     [encoder encodeInteger:[_timestamp integerValue] forKey:@"timestamp"];
+    [encoder encodeObject:OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel) forKey:@"channel"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
         _name = [decoder decodeObjectForKey:@"name"];
-        _notificationId = [decoder decodeObjectForKey:@"notificationId"];
+        id identifier = [decoder decodeObjectForKey:@"notificationId"];
+        if (identifier)
+            _uniqueId = identifier;
+        else
+            _uniqueId = [decoder decodeObjectForKey:@"uniqueId"];
         _timestamp = [NSNumber numberWithLong:[decoder decodeIntegerForKey:@"timestamp"]];
+        id channel = [decoder decodeObjectForKey:@"channel"];
+        if (channel)
+            _channel = OS_INFLUENCE_CHANNEL_FROM_STRINGS(channel);
+        else
+            _channel = NOTIFICATION;
     }
     return self;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"Name: %@ Notification Id: %@ Timestamp: %@", _name, _notificationId, _timestamp];
+    return [NSString stringWithFormat:@"Name: %@ Notification Id: %@ Timestamp: %@", _name, _uniqueId, _timestamp];
 }
 
-- (BOOL)isEqual:(OSUniqueOutcomeNotification *)other {
-    NSString *key = [NSString stringWithFormat:@"%@_%@", _name, _notificationId];
-    NSString *otherKey = [NSString stringWithFormat:@"%@_%@", other.name, other.notificationId];
+- (BOOL)isEqual:(OSCachedUniqueOutcome *)other {
+    NSString *key = [NSString stringWithFormat:@"%@_%@_%@", _name, _uniqueId, OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel)];
+    NSString *otherKey = [NSString stringWithFormat:@"%@_%@_%@", other.name, other.uniqueId, OS_INFLUENCE_CHANNEL_TO_STRINGS(other.channel)];
     return [key isEqualToString:otherKey];
 }
 
 - (NSUInteger)hash {
-    return [_notificationId hash];
+    NSUInteger result = [_name hash];
+    result = 31 * result + [_uniqueId hash];
+    result = 31 * result + [OS_INFLUENCE_CHANNEL_TO_STRINGS(_channel) hash];
+    return result;
 }
 
 @end

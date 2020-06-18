@@ -29,7 +29,7 @@
 
 @interface OneSignalReceiveReceiptsController : NSObject
 
-- (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId;
+- (void)sendReceiveReceiptWithNotificationId:(NSString * _Nonnull)notificationId;
 
 - (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
                         notificationId:(nonnull NSString *)notificationId

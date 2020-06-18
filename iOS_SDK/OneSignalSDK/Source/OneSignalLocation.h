@@ -25,10 +25,12 @@
  * THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "OneSignalCommonDefines.h"
+
 #ifndef OneSignalLocation_h
 #define OneSignalLocation_h
-
-#import <Foundation/Foundation.h>
 
 typedef struct os_location_coordinate {
     double latitude;
@@ -45,9 +47,9 @@ typedef struct os_last_location {
 
 + (OneSignalLocation*) sharedInstance;
 + (bool)started;
-+ (void)internalGetLocation:(bool)prompt;
++ (void)internalGetLocation:(bool)prompt fallbackToSettings:(BOOL)fallback;
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations;
-+ (void)getLocation:(bool)prompt withCompletionHandler:(void (^)(BOOL accepted))completionHandler;
++ (void)getLocation:(bool)prompt fallbackToSettings:(BOOL)fallback withCompletionHandler:(void (^)(PromptActionResult result))completionHandler;
 + (void)sendLocation;
 + (os_last_location*)lastLocation;
 + (void)clearLastLocation;

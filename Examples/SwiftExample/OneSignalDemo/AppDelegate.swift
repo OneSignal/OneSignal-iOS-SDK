@@ -38,15 +38,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
     let redViewController = RedViewController()
     let greenViewController = GreenViewController()
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         // For debugging
-        //OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
+        OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         
         let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
             
-            print("Received Notification: \(notification!.payload.notificationID)")
-            print("launchURL = \(notification?.payload.launchURL ?? "None")")
+            print("Received Notification: ", notification!.payload.notificationID!)
+            print("launchURL: ", notification?.payload.launchURL ?? "No Launch Url")
             print("content_available = \(notification?.payload.contentAvailable ?? false)")
         }
         
@@ -54,16 +54,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             // This block gets called when the user reacts to a notification received
             let payload: OSNotificationPayload? = result?.notification.payload
             
-            print("Message = \(payload!.body)")
-            print("badge number = \(payload?.badge ?? 0)")
-            print("notification sound = \(payload?.sound ?? "None")")
+            print("Message: ", payload!.body!)
+            print("badge number: ", payload?.badge ?? 0)
+            print("notification sound: ", payload?.sound ?? "No sound")
             
             if let additionalData = result!.notification.payload!.additionalData {
-                print("additionalData = \(additionalData)")
-                
+                print("additionalData: ", additionalData)
                 
                 if let actionSelected = payload?.actionButtons {
-                    print("actionSelected = \(actionSelected)")
+                    print("actionSelected: ", actionSelected)
                 }
                 
                 // DEEP LINK from action buttons
@@ -92,10 +91,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
                 }
             }
         }
-        
+
         let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true, ]
         
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "b2f7f966-d8cc-11e4-bed1-df8f05be55ba", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "3beb3078-e0f1-4629-af17-fde833b9f716", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
         
         OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
         
@@ -119,7 +118,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             }
         }
         // prints out all properties
-        print("PermissionStateChanges: \n\(stateChanges)")
+        print("PermissionStateChanges: ", stateChanges!)
     }
     
     // Output:
@@ -138,7 +137,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         if !stateChanges.from.subscribed && stateChanges.to.subscribed {
             print("Subscribed for OneSignal push notifications!")
         }
-        print("SubscriptionStateChange: \n\(stateChanges)")
+        print("SubscriptionStateChange: ", stateChanges!)
     }
     
     // Output:

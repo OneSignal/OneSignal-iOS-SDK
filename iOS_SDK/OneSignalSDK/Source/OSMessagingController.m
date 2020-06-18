@@ -34,12 +34,12 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
+#import "OneSignalCommonDefines.h"
+#import "OneSignalDialogController.h"
 
 @interface OneSignal ()
 
-+ (void)sendClickActionOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
-+ (void)sendClickActionUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)sendClickActionOutcome:(NSString * _Nonnull)name;
++ (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes;
 
 @end
 
@@ -71,6 +71,10 @@
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
+
+@property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt> *> *currentPromptActions;
+
+@property (nonatomic, nullable) OSInAppMessage *currentInAppMessage;
 
 @property (nonatomic) BOOL isAppInactive;
 
@@ -150,10 +154,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
+
     [self evaluateMessages];
 }
 
 - (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
     self.messages = newMessages;
     
     // Cache if messages passed in are not null, this method is called from on_session for
@@ -167,6 +173,8 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)resetRedisplayMessagesBySession {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetRedisplayMessagesBySession with redisplayedInAppMessages: %@", [_redisplayedInAppMessages description]]];
+    
     for (NSString *messageId in _redisplayedInAppMessages) {
         [_redisplayedInAppMessages objectForKey:messageId].isDisplayedInSession = false;
     }
@@ -347,12 +355,13 @@ static BOOL _isInAppMessagingPaused = false;
 
     if (messageDismissed && redisplayMessageSavedData) {
         NSLog(@"Redisplay IAM: %@", message.jsonRepresentation.description);
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@", message]];
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
         
         // Message that don't have triggers should display only once per session
         BOOL triggerHasChanged = message.isTriggerChanged || (!redisplayMessageSavedData.isDisplayedInSession && [message.triggers count] == 0);
+        
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@ \ntriggerHasChanged: %@ \nno triggers: %@ \ndisplayed in session saved: %@", message, message.isTriggerChanged ? @"YES" : @"NO", [message.triggers count] == 0 ? @"YES" : @"NO", redisplayMessageSavedData.isDisplayedInSession  ? @"YES" : @"NO"]];
         // Check if conditions are correct for redisplay
         if (triggerHasChanged &&
             [message.displayStats isDelayTimeSatisfied:self.dateGenerator()] &&
@@ -429,12 +438,15 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)messageViewControllerWasDismissed {
     @synchronized (self.messageDisplayQueue) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
-        
+        // Remove DIRECT influence due to ClickHandler of ClickAction outcomes
+        [OneSignal.sessionManager onDirectInfluenceFromIAMClickFinished];
+
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
             OSInAppMessage *showingIAM = self.messageDisplayQueue.firstObject;
             [self.seenInAppMessages addObject:showingIAM.messageId];
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Dismissing IAM save seenInAppMessages: %@", _seenInAppMessages]];
             // Remove dismissed IAM from messageDisplayQueue
             [self.messageDisplayQueue removeObjectAtIndex:0];
             [self persistInAppMessageForRedisplay:showingIAM];
@@ -469,16 +481,17 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 /*
- Hide the window and call makeKeyWindow to ensure the IAM will not be shown
- */
+ Hide the top level IAM window
+ After the IAM window is hidden, iOS will automatically promote the main window
+ This also re-shows the keyboard automatically if it had focus in a text input
+*/
 - (void)hideWindow {
     self.window.hidden = true;
-    [UIApplication.sharedApplication.delegate.window makeKeyWindow];
 }
 
 - (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
-    // If the IAM doesn't have the re display prop there is no need to save it
-    if (![message.displayStats isRedisplayEnabled])
+    // If the IAM doesn't have the re display prop or is a preview IAM there is no need to save it
+    if (![message.displayStats isRedisplayEnabled] || message.isPreview)
       return;
 
     let displayTimeSeconds = self.dateGenerator();
@@ -494,10 +507,16 @@ static BOOL _isInAppMessagingPaused = false;
     [_redisplayedInAppMessages setObject:message forKey:message.messageId];
 
     [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:_redisplayedInAppMessages];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], _redisplayedInAppMessages]];
+    
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    let redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[standardUserDefaults getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay saved redisplayedInAppMessages: %@", [redisplayedInAppMessages description]]];
 }
 
-- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions {
+- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions withMessage:(OSInAppMessage *)inAppMessage {
+    _currentPromptAction = nil;
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         // Don't show prompt twice
         if (!promptAction.hasPrompted) {
@@ -509,14 +528,34 @@ static BOOL _isInAppMessagingPaused = false;
     if (_currentPromptAction) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle: %@", [_currentPromptAction description]]];
         _currentPromptAction.hasPrompted = YES;
-        [_currentPromptAction handlePrompt:^(BOOL accepted) {
-            _currentPromptAction = nil;
-            [self handlePromptActions:promptActions];
+        [_currentPromptAction handlePrompt:^(PromptActionResult result) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"IAM prompt to handle finished accepted: %u", result]];
+            if (inAppMessage.isPreview && result == LOCATION_PERMISSIONS_MISSING_INFO_PLIST) {
+                [self showAlertDialogMessage:inAppMessage promptActions:promptActions];
+            } else {
+                [self handlePromptActions:promptActions withMessage:inAppMessage];
+            }
         }];
     } else if (!_viewController) { // IAM dismissed by action
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM with prompt dismissed from actionTaken"];
+        _currentInAppMessage = nil;
+        _currentPromptActions = nil;
         [self evaluateMessageDisplayQueue];
     }
+}
+
+- (void)showAlertDialogMessage:(OSInAppMessage *)inAppMessage
+                 promptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions  {
+    _currentInAppMessage = inAppMessage;
+    _currentPromptActions = promptActions;
+    
+    let message = NSLocalizedString(@"Looks like this app doesn't have location services configured. Please see OneSignal docs for more information.", @"An alert message indicating that the application is not configured to use have location services.");
+    let title = NSLocalizedString(@"Location Not Available", @"An alert title indicating that the location service is unavailable.");
+    let okAction = NSLocalizedString(@"OK", @"Allows the user to acknowledge and dismiss the alert");
+    [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withActions:nil cancelTitle:okAction withActionCompletion:^(int tappedActionIndex) {
+        //completion is called on the main thread
+        [self handlePromptActions:_currentPromptActions withMessage:_currentInAppMessage];
+    }];
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
@@ -526,14 +565,37 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];
     
-    [self handlePromptActions:action.promptActions];
+    if (action.promptActions && action.promptActions.count > 0)
+        [self handlePromptActions:action.promptActions withMessage:message];
 
-    if (self.actionClickBlock)
+    if (self.actionClickBlock) {
+        // Any outcome sent on this callback should count as DIRECT from this IAM
+        [OneSignal.sessionManager onDirectInfluenceFromIAMClick:message.messageId];
         self.actionClickBlock(action);
+    }
     
+    if (message.isPreview) {
+        [self processPreviewInAppMessage:message withAction:action];
+        return;
+    }
+
+    // The following features are for non preview IAM
+    // Make sure no click, outcome, tag tracking is performed for IAM previews
     [self sendClickRESTCall:message withAction:action];
     [self sendTagCallWithAction:action];
-    [self sendOutcomes:action.outcomes];
+    [self sendOutcomes:action.outcomes forMessageId:message.messageId];
+}
+
+/*
+* Show the developer what will happen with a non IAM preview
+ */
+- (void)processPreviewInAppMessage:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+     if (action.tags)
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tags detected inside of the action click payload, ignoring because action came from IAM preview\nTags: %@", action.tags.jsonRepresentation]];
+
+    if (action.outcomes.count > 0) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Outcomes detected inside of the action click payload, ignoring because action came from IAM preview: %@", [action.outcomes description]]];
+    }
 }
 
 /*
@@ -548,11 +610,10 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)sendClickRESTCall:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
     let clickId = action.clickId;
-    // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // unless that click is from an IAM with redisplay
     // Handles body, button, or image clicks
-    if (message.isPreview || ![self isClickAvailable:message withClickId:clickId])
+    if (![self isClickAvailable:message withClickId:clickId])
         return;
     // Add clickId to clickedClickIds
     [self.clickedClickIds addObject:clickId];
@@ -592,16 +653,11 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes {
-    for (OSInAppMessageOutcome *outcome in outcomes) {
-        if (outcome.unique) {
-            [OneSignal sendClickActionUniqueOutcome:outcome.name];
-        } else if (outcome.weight > 0) {
-            [OneSignal sendClickActionOutcomeWithValue:outcome.name value:outcome.weight];
-        } else {
-            [OneSignal sendClickActionOutcome:outcome.name];
-        }
-    }
+- (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes forMessageId:(NSString *) messageId {
+    if (outcomes.count == 0)
+        return;
+    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:messageId];
+    [OneSignal sendClickActionOutcomes:outcomes];
 }
 
 /*
@@ -623,7 +679,22 @@ static BOOL _isInAppMessagingPaused = false;
     self.window.backgroundColor = [UIColor clearColor];
     self.window.opaque = true;
     self.window.clipsToBounds = true;
+    
+    [self addKeySceneToWindow:self.window];
+    
     [self.window makeKeyAndVisible];
+}
+
+// Required to display if the app is using a Scene
+// See https://github.com/OneSignal/OneSignal-iOS-SDK/issues/648
+- (void)addKeySceneToWindow:(UIWindow*)window {
+    if (@available(iOS 13.0, *)) {
+        // The below lines can be replace with this single line once Xcode 10 support is dropped
+        // window.windowScene = UIApplication.sharedApplication.keyWindow.windowScene;
+        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+        id windowScene = [keyWindow performSelector:@selector(windowScene)];
+        [window performSelector:@selector(setWindowScene:) withObject:windowScene];
+    }
 }
 
 #pragma mark OSTriggerControllerDelegate Methods

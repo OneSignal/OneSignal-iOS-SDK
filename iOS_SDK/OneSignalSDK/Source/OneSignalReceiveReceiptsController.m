@@ -64,15 +64,15 @@
                           failureBlock:(nullable OSFailureBlock)failure {
     
     let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId playerId:%@ notificationId: %@, appId: %@", playerId, notificationId, appId];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
 
     if (!appId) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"appId not available from shared UserDefaults!"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"appId not available from shared UserDefaults!"];
         return;
     }
     
     if (![self isReceiveReceiptsEnabled]) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Receieve receipts disabled"];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Receieve receipts disabled"];
         return;
     }
 

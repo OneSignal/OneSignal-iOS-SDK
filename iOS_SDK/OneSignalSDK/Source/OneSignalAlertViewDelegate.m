@@ -73,7 +73,6 @@
 
 @end
 
-
 @implementation OneSignalAlertViewDelegate
 
 NSDictionary* mMessageDict;
@@ -138,3 +137,4 @@ static NSMutableArray* delegateReference;
 }
 
 @end
+

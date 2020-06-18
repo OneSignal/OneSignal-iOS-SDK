@@ -25,11 +25,22 @@
  THE SOFTWARE.
  */
 
-@interface OSIndirectNotification : NSObject
+#ifndef OSInfluenceDataDefines_h
+#define OSInfluenceDataDefines_h
 
-@property (nonatomic, readonly) NSString *notificationId;
-@property (nonatomic, readonly) double timestamp; // seconds
+// Influence param keys
+static NSString* const OUTCOMES_PARAM = @"outcomes";
+static NSString* const DIRECT_PARAM = @"direct";
+static NSString* const INDIRECT_PARAM = @"indirect";
+static NSString* const UNATTRIBUTED_PARAM = @"unattributed";
+static NSString* const ENABLED_PARAM = @"enabled";
+static NSString* const NOTIFICATION_ATTRIBUTION_PARAM = @"notification_attribution";
+static NSString* const IAM_ATTRIBUTION_PARAM = @"in_app_message_attribution";
+static NSString* const MINUTES_SINCE_DISPLAYED_PARAM = @"minutes_since_displayed";
+static NSString* const LIMIT_PARAM = @"limit";
 
-- (id)initWithParamsNotificationId:(NSString *)notificationId timestamp:(double)timestamp;
+// Influence default param values
+static int DEFAULT_INDIRECT_NOTIFICATION_LIMIT = 10;
+static int DEFAULT_INDIRECT_ATTRIBUTION_WINDOW = 24 * 60;
 
-@end
+#endif /* OSInfluenceDataDefines_h */

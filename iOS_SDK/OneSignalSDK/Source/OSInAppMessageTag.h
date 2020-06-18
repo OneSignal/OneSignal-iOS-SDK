@@ -32,7 +32,7 @@
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
 
-@interface OSInAppMessageTag : NSObject <OSJSONDecodable>
+@interface OSInAppMessageTag : NSObject <OSJSONEncodable, OSJSONDecodable>
 
 @property (strong, nonatomic, nullable) NSDictionary *tagsToAdd;
 @property (strong, nonatomic, nullable) NSArray *tagsToRemove;
