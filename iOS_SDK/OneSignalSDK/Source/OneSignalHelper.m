@@ -272,7 +272,10 @@ NSTimer *_timeoutTimer;
 
 - (void)complete {
     [_timeoutTimer invalidate];
-    _completion(self.displayType);
+    if (_completion) {
+        _completion(self.displayType);
+        _completion = nil;
+    }
 }
 
 - (void)startTimeoutTimer {
