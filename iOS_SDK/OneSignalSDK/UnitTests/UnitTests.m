@@ -2080,6 +2080,20 @@ didReceiveRemoteNotification:userInfo
     }];
 }
 
+// If the OSNotificationGenerationJob's complete method is fired by the willShowInForegroundHandler block after the job has timed out, the complete method should not result in the completion handler being called
+- (void)testCompleteAfterTimeoutInNotificationForegroundHandler {
+    [self fireWillPresentNotificationInForegroundHandlerWithForegroundBlock:^(OSNotificationGenerationJob *notifJob) {
+        notifJob.displayType = OSNotificationDisplayTypeSilent;
+        XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Always fail"];
+        XCTWaiterResult result = [XCTWaiter waitForExpectations:@[expectation] timeout:2.0];
+        if (result != XCTWaiterResultTimedOut) {
+            XCTFail(@"Somehow the expectation didn't timeout");
+        }
+        //WE ARE CALLING COMPLETE AFTER THE TIMEOUT. THIS MEANS THE NOTIFICATIONJOB'S TIMER SHOULD FIRE AND THE SECOND CALL TO COMPLETE SHOULD NOT RESULT IN THE COMPLETION HANDLER BEING CALLED A SECOND TIME.
+        [notifJob complete];
+    }];
+}
+
 
 - (void)testWillShowInForegroundHandlerNotFiredForIAM {
     __block var option = (UNNotificationPresentationOptions)7;
