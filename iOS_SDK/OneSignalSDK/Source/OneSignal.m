@@ -96,9 +96,6 @@ NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
 /* Enable the default in-app launch urls*/
 NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
-/* Set notificationDisplayType value must be an OSNotificationDisplayType enum*/
-NSString* const kOSSettingsKeyNotificationDisplayOption = @"kOSSettingsKeyNotificationDisplayOption";
-
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
@@ -650,7 +647,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignalTrackFirebaseAnalytics init];
 
     [OneSignalLifecycleObserver registerLifecycleObserver];
-    
+
     initDone = true;
 }
 
@@ -725,14 +722,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [self registerForAPNsToken];
     }
 
-    // Validate the kOSSettingsKeyNotificationDisplayOption launch option exists and is of kind NSNumber
-    if (settings[kOSSettingsKeyNotificationDisplayOption] && [settings[kOSSettingsKeyNotificationDisplayOption] isKindOfClass:[NSNumber class]]) {
-        NSNumber *NDSetting = settings[kOSSettingsKeyNotificationDisplayOption];
-        // Make sure an option for 0 (Silent) or 1 (Notification) is passed
-        if (NDSetting && NDSetting.integerValue > -1 && NDSetting.integerValue < 2)
-            self.notificationDisplayType = (OSNotificationDisplayType) NDSetting.integerValue;
-    }
- 
     if (self.currentSubscriptionState.userId)
         [self registerUser];
     else {
