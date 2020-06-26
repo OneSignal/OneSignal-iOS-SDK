@@ -180,7 +180,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     }];
 }
 
-// To avoid complications caused by swizzling, this is implemented as a C function
+// To avoid a crash caused by using the swizzled OneSignalUNUserNotificationCenter type this is implemented as a C function
 void finishProcessingNotification(UNNotification *notification,
                                   UNUserNotificationCenter *center,
                                   OSNotificationDisplayType displayType,

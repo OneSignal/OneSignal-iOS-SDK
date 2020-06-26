@@ -283,8 +283,8 @@ NSTimer *_timeoutTimer;
 }
 
 - (void)timeoutTimerFired:(NSTimer *)timer {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-    message:[NSString stringWithFormat:@"NotificationGenerationJob timedout. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR
+    message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
     [self complete];
 }
 
