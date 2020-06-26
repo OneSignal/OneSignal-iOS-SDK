@@ -60,7 +60,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
         [alert show];
     };
-
     id notificationReceiverBlock = ^(OSNotificationGenerationJob *notifJob) {
         NSLog(@"Will Receive Notification - %@", notifJob.notificationId);
         [notifJob complete];
@@ -91,7 +90,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal setNotificationOpenedHandler:openNotificationHandler];
-    
+
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;

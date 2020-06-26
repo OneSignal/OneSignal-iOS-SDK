@@ -44,7 +44,7 @@
 + (void) updateNotificationTypes:(int)notificationTypes;
 + (NSString*) appId;
 + (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
-+ (BOOL) remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
++ (BOOL) receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
@@ -83,7 +83,7 @@ static NSArray* delegateSubclasses = nil;
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
     //   UNNotificationServiceExtension (mutable-content) and UNNotificationContentExtension (with category) replaced it.
-    injectToProperClass(@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:),
+    injectToProperClass(@selector(oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:),
                         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, newClass, delegateClass);
     
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
@@ -165,7 +165,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 
-// Fallback method - Normally this would not fire as oneSignalRemoteSilentNotification below will fire instead. Was needed for iOS 6 support in the past.
+// Fallback method - Normally this would not fire as oneSignalReceiveRemoteNotification below will fire instead. Was needed for iOS 6 support in the past.
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalReceivedRemoteNotification:userInfo:"];
 
@@ -183,21 +183,21 @@ static NSArray* delegateSubclasses = nil;
 // NOTE: completionHandler must only be called once!
 //          iOS 10 - This crashes the app if it is called twice! Crash will happen when the app is resumed.
 //          iOS 9  - Does not have this issue.
-- (void) oneSignalRemoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:"];
+- (void) oneSignalReceiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
     
-    BOOL callExistingSelector = [self respondsToSelector:@selector(oneSignalRemoteSilentNotification:UserInfo:fetchCompletionHandler:)];
+    BOOL callExistingSelector = [self respondsToSelector:@selector(oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:)];
     BOOL startedBackgroundJob = false;
     
     if ([OneSignal appId]) {
         if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
             [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:NO];
         else
-            startedBackgroundJob = [OneSignal remoteSilentNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
+            startedBackgroundJob = [OneSignal receiveRemoteNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
     }
     
     if (callExistingSelector) {
-        [self oneSignalRemoteSilentNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
+        [self oneSignalReceiveRemoteNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
         return;
     }
     
