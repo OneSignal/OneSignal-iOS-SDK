@@ -345,21 +345,6 @@
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
-- (void)testFocusSettingsOnInit {
-    // Test old kOSSettingsKeyNotificationDisplayOption
-    [OneSignal setAppSettings:@{kOSSettingsKeyNotificationDisplayOption: @(OSNotificationDisplayTypeSilent)}];
-    [UnitTestCommonMethods initOneSignal];
-    
-    XCTAssertEqual(OneSignal.notificationDisplayType, OSNotificationDisplayTypeSilent);
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-
-    [OneSignal setAppSettings:@{kOSSettingsKeyNotificationDisplayOption: @(OSNotificationDisplayTypeNotification)}];
-    [UnitTestCommonMethods initOneSignal];
-    
-    XCTAssertEqual(OneSignal.notificationDisplayType, OSNotificationDisplayTypeNotification);
-}
-
 - (void)testCallingMethodsWorks_beforeInit {
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     

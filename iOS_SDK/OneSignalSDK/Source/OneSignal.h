@@ -381,13 +381,6 @@ extern NSString * const kOSSettingsKeyAutoPrompt;
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
 
-/* iOS 10 +
- Set notification's in-focus display option.
- Value must be an OSNotificationDisplayType enum
-*/
-extern NSString * const kOSSettingsKeyNotificationDisplayOption;
-
-
 /* iOS 12 +
  Used to determine if the app is able to present it's
  own customized Notification Settings view
