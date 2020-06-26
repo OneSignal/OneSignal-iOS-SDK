@@ -1984,7 +1984,7 @@ didReceiveRemoteNotification:userInfo
     return payload;
 }
 
-- (void)fireWillPresentNotificationInForegroundHandlerWithForegroundBlock:(OSNotificationWillShowInForegroundBlock)willShowInForegroundBlock {
+- (void)fireDefaultNotificationWithForeGroundBlock:(OSNotificationWillShowInForegroundBlock)willShowInForegroundBlock withNotificationOpenedBlock:(OSNotificationOpenedBlock)openedBlock {
     __block var option = (UNNotificationPresentationOptions)7;
     __block var completionCount = 0;
     let expectation = [self expectationWithDescription:@"wait_for_timeout"];
@@ -2002,7 +2002,7 @@ didReceiveRemoteNotification:userInfo
                                                     @{@"i": @"id1",
                                                       @"n": @"text1"}],
                                }};
-    let userInfo = [self setUpWillShowInForegroundHandlerTestWithBlock:willShowInForegroundBlock withDisplayType:OSNotificationDisplayTypeNotification withNotificationOpenedBlock:nil withPayload:payload];
+    let userInfo = [self setUpWillShowInForegroundHandlerTestWithBlock:willShowInForegroundBlock withDisplayType:OSNotificationDisplayTypeNotification withNotificationOpenedBlock:openedBlock withPayload:payload];
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
@@ -2025,24 +2025,24 @@ didReceiveRemoteNotification:userInfo
 
 // Testing overriding the notification's display type in the willShowInForegroundHandler block
 - (void)testOverrideNotificationDisplayType {
-    [self fireWillPresentNotificationInForegroundHandlerWithForegroundBlock:^(OSNotificationGenerationJob *notifJob) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotificationGenerationJob *notifJob) {
         notifJob.displayType = OSNotificationDisplayTypeSilent;
         [notifJob complete];
-    }];
+    } withNotificationOpenedBlock:nil];
 }
 
 // If the OSNotificationGenerationJob's complete method is not fired by the willShowInForegroundHandler block, the complete method
 // should be called automatically based on the job's timer.
 - (void)testTimeoutOverrideNotificationDisplayType {
-    [self fireWillPresentNotificationInForegroundHandlerWithForegroundBlock:^(OSNotificationGenerationJob *notifJob) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotificationGenerationJob *notifJob) {
         notifJob.displayType = OSNotificationDisplayTypeSilent;
         //WE ARE NOT CALLING COMPLETE. THIS MEANS THE NOTIFICATIONJOB'S TIMER SHOULD FIRE
-    }];
+    } withNotificationOpenedBlock:nil];
 }
 
 // If the OSNotificationGenerationJob's complete method is fired by the willShowInForegroundHandler block after the job has timed out, the complete method should not result in the completion handler being called
 - (void)testCompleteAfterTimeoutInNotificationForegroundHandler {
-    [self fireWillPresentNotificationInForegroundHandlerWithForegroundBlock:^(OSNotificationGenerationJob *notifJob) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotificationGenerationJob *notifJob) {
         notifJob.displayType = OSNotificationDisplayTypeSilent;
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Always fail"];
         XCTWaiterResult result = [XCTWaiter waitForExpectations:@[expectation] timeout:2.0];
@@ -2051,7 +2051,7 @@ didReceiveRemoteNotification:userInfo
         }
         //WE ARE CALLING COMPLETE AFTER THE TIMEOUT. THIS MEANS THE NOTIFICATIONJOB'S TIMER SHOULD FIRE AND THE SECOND CALL TO COMPLETE SHOULD NOT RESULT IN THE COMPLETION HANDLER BEING CALLED A SECOND TIME.
         [notifJob complete];
-    }];
+    } withNotificationOpenedBlock:nil];
 }
 
 - (void)testWillShowInForegroundHandlerNotFiredForIAM {
@@ -2082,6 +2082,16 @@ didReceiveRemoteNotification:userInfo
            XCTAssertEqual(completionCount, 1); //The UNNotificationCenter completion should still get called so that we handle the IAM properly
            XCTAssertEqual(option, 0); //Since its an IAM preview the display type should be set to silent
        }];
+}
+
+//Change the notification display type to silent and ensure that the opened handler does not fire
+- (void)testOpenedHandlerNotFiredWhenOverridingDisplayType {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotificationGenerationJob *notifJob) {
+        notifJob.displayType = OSNotificationDisplayTypeSilent;
+        [notifJob complete];
+    } withNotificationOpenedBlock:^(OSNotificationOpenedResult * result) {
+        XCTFail(@"The notification should not have been considered opened");
+    }];
 }
 
 - (UNNotificationAttachment *)deliverNotificationWithJSON:(id)json {

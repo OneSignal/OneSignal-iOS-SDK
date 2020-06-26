@@ -195,10 +195,9 @@ void finishProcessingNotification(UNNotification *notification,
         default: break;
     }
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
-    let notShown = displayType == OSNotificationDisplayTypeSilent && notification.request.content.body != nil;
     
     if ([OneSignal appId])
-        [OneSignal notificationReceived:notification.request.content.userInfo foreground:YES isActive:YES wasOpened:notShown];
+        [OneSignal notificationReceived:notification.request.content.userInfo foreground:YES isActive:YES wasOpened:NO];
 
     
     // Call orginal selector if one was set.

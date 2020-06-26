@@ -504,7 +504,7 @@ OneSignalWebView *webVC;
     
     [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
     
-    if (!notificationOpenedHandler)
+    if (!notificationOpenedHandler || displayType == OSNotificationDisplayTypeSilent)
         return;
     notificationOpenedHandler(result);
 }
