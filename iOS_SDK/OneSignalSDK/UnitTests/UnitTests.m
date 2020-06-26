@@ -1164,6 +1164,7 @@
     __block BOOL receivedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotificationGenerationJob *notifJob) {
         receivedWasFire = true;
+        // TODO: Fix this unit test since generation jobs do not have action buttons
         //let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
         //XCTAssertEqualObjects(notifJob.actionButtons, actionButons);
     } notificationOpenedHandler:nil];
