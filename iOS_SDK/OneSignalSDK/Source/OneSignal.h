@@ -512,7 +512,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 
 // - Tagging
 + (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)sendTag:(NSString*)key value:(NSString*)value;
++ (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value;
 + (void)sendTags:(NSDictionary* _Nonnull)keyValuePair onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 + (void)sendTags:(NSDictionary* _Nonnull)keyValuePair;
 + (void)sendTagsWithJsonString:(NSString* _Nonnull)jsonString;
@@ -524,7 +524,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)deleteTags:(NSArray* _Nonnull)keys;
 + (void)deleteTagsWithJsonString:(NSString* _Nonnull)jsonString;
 
-+ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
++ (OSPermissionSubscriptionState* _Nonnull)getPermissionSubscriptionState;
 + (OSDevice*)getUserDevice;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>* _Nonnull)observer;
@@ -544,7 +544,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)postNotification:(NSDictionary* _Nonnull)jsonData;
 + (void)postNotification:(NSDictionary* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 + (void)postNotificationWithJsonString:(NSString* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (NSString*)parseNSErrorAsJsonString:(NSError*)error;
++ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
 
 // - Request and track user's location
 + (void)promptLocation;
