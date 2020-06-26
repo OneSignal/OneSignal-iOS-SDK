@@ -1936,7 +1936,7 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OneSignal.notificationDisplayType];
+        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:self.notificationDisplayType];
     }
 }
 
@@ -2165,7 +2165,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignal updateDeviceToken:parsedDeviceToken];
 }
     
-+ (BOOL)remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
++ (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     var startedBackgroundJob = false;
     
     NSDictionary* richData = nil;

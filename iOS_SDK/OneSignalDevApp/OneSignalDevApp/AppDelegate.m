@@ -61,7 +61,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
         [alert show];
     };
-
     id notificationReceiverBlock = ^(OSNotificationGenerationJob *notifJob) {
         NSLog(@"Will Receive Notification - %@", notifJob.notificationId);
         [notifJob complete];
@@ -107,10 +106,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"0ba9731b-33bd-43f4-8b59-61172e27447d"
 
 + (NSString*)getOneSignalAppId {
-    NSString* newAppId = @"77e32082-ea27-42e3-a898-c72e141824ef";
+    NSString* newAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
 
     if (![newAppId isEqualToString:onesignalAppId]) {
