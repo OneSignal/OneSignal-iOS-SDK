@@ -203,6 +203,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Whether or not the click action dismisses the message */
 @property (nonatomic) BOOL closesMessage;
 
+// Convert the object into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
 @end
 
 @protocol OSInAppMessageDelegate <NSObject>

@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import "OneSignalHelper.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessagePushPrompt.h"
 #import "OSInAppMessageLocationPrompt.h"
@@ -107,6 +108,17 @@
     action.promptActions = promptActions;
 
     return action;
+}
+
+- (NSDictionary *_Nonnull)jsonRepresentation {
+    let json = @{
+        @"click_name": self.clickName ?: [NSNull null],
+        @"click_url": self.clickUrl.absoluteString ?: [NSNull null],
+        @"first_click": @(self.firstClick),
+        @"closes_message": @(self.closesMessage)
+    };
+    
+    return json;
 }
 
 - (NSString *)description {
