@@ -81,7 +81,7 @@
 
 // Only iOS 8 & 9
 - (void)onNotificationPromptResponse:(int)notificationTypes {}
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {}
+- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {}
 
 // Only iOS 7
 - (void)onAPNsResponse:(BOOL)success {

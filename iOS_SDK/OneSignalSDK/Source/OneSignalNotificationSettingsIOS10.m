@@ -159,7 +159,7 @@ static dispatch_queue_t serialQueue;
     [OneSignal registerForAPNsToken];
 }
 
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
+- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
     
     if ([OneSignalHelper isIOSVersionLessThan:@"12.0"]) {
         return;
@@ -169,8 +169,8 @@ static dispatch_queue_t serialQueue;
     
     //don't register for provisional if the user has already accepted the prompt
     if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt) {
-        if (completionHandler)
-            completionHandler(true);
+        if (block)
+            block(true);
         return;
     }
     
@@ -182,8 +182,8 @@ static dispatch_queue_t serialQueue;
         [OneSignalHelper dispatch_async_on_main_queue:^{
             OneSignal.currentPermissionState.provisional = true;
             [OneSignal updateNotificationTypes: options];
-            if (completionHandler)
-                completionHandler(granted);
+            if (block)
+                block(granted);
         }];
     };
     
