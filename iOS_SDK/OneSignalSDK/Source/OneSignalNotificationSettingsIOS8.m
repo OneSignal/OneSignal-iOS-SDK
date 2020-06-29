@@ -89,7 +89,7 @@
 
 // Only iOS 7 - The above is used for iOS 8 & 9
 - (void)onAPNsResponse:(BOOL)success {}
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {}
+- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {}
 
 #pragma GCC diagnostic pop
 
