@@ -753,9 +753,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self.osNotificationSettings registerForProvisionalAuthorization:nil];
 }
 
-+ (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
++ (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
-        [self.osNotificationSettings registerForProvisionalAuthorization:completionHandler];
+        [self.osNotificationSettings registerForProvisionalAuthorization:block];
     else
         onesignal_Log(ONE_S_LL_WARN, @"registerForProvisionalAuthorization is only available in iOS 12+.");
 }
@@ -947,13 +947,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 // if user has disabled push notifications & fallback == true,
 // the SDK will prompt the user to open notification Settings for this app
-+ (void)promptForPushNotificationsWithUserResponse:(void (^)(BOOL accepted))completionHandler fallbackToSettings:(BOOL)fallback {
++ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback {
     
     if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
         
-        if (completionHandler)
-            completionHandler(false);
+        if (block)
+            block(false);
         
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
         let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
@@ -976,10 +976,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         return;
     }
     
-    [self promptForPushNotificationsWithUserResponse:completionHandler];
+    [self promptForPushNotificationsWithUserResponse:block];
 }
 
-+ (void)promptForPushNotificationsWithUserResponse:(void(^)(BOOL accepted))completionHandler {
++ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block {
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptForPushNotificationsWithUserResponse:"])
@@ -989,7 +989,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     self.currentPermissionState.hasPrompted = true;
     
-    [self.osNotificationSettings promptForNotifications:completionHandler];
+    [self.osNotificationSettings promptForNotifications:block];
 }
 
 // This registers for a push token and prompts the user for notifiations permisions
