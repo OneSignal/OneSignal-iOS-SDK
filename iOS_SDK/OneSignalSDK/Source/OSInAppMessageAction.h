@@ -42,7 +42,7 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
     OSInAppMessageActionUrlTypeReplaceContent
 };
 
-@interface OSInAppMessageAction () <OSJSONEncodable, OSJSONDecodable>
+@interface OSInAppMessageAction () <OSJSONDecodable>
 
 // The type of element that was clicked, button or image
 @property (strong, nonatomic, nonnull) NSString *clickType;

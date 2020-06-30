@@ -191,19 +191,19 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @interface OSInAppMessageAction : NSObject
 
-/* The action name attached to the IAM action */
+// The action name attached to the IAM action
 @property (strong, nonatomic, nullable) NSString *clickName;
 
-/* The URL (if any) that should be opened when the action occurs */
+// The URL (if any) that should be opened when the action occurs
 @property (strong, nonatomic, nullable) NSURL *clickUrl;
 
-/* Whether or not the click action is first click on the IAM */
+// Whether or not the click action is first click on the IAM
 @property (nonatomic) BOOL firstClick;
 
-/* Whether or not the click action dismisses the message */
+// Whether or not the click action dismisses the message
 @property (nonatomic) BOOL closesMessage;
 
-// Convert the object into a NSDictionary
+// Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;
 
 @end

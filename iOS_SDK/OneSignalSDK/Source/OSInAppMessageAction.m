@@ -110,13 +110,15 @@
     return action;
 }
 
-- (NSDictionary *_Nonnull)jsonRepresentation {
-    let json = @{
-        @"click_name": self.clickName ?: [NSNull null],
-        @"click_url": self.clickUrl.absoluteString ?: [NSNull null],
-        @"first_click": @(self.firstClick),
-        @"closes_message": @(self.closesMessage)
-    };
+- (NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+    
+    json[@"click_name"] = self.clickName;
+    json[@"first_click"] = @(self.firstClick);
+    json[@"closes_message"] = @(self.closesMessage);
+    
+    if (self.clickUrl)
+        json[@"click_url"] = self.clickUrl.absoluteString;
     
     return json;
 }
