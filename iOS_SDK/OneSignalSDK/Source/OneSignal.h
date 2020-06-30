@@ -189,6 +189,27 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @end;
 
+@interface OSInAppMessageOutcome : NSObject
+
+@property (strong, nonatomic, nonnull) NSString *name;
+@property (strong, nonatomic, nonnull) NSNumber *weight;
+@property (nonatomic) BOOL unique;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
+@interface OSInAppMessageTag : NSObject
+
+@property (strong, nonatomic, nullable) NSDictionary *tagsToAdd;
+@property (strong, nonatomic, nullable) NSArray *tagsToRemove;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
 @interface OSInAppMessageAction : NSObject
 
 // The action name attached to the IAM action
@@ -202,6 +223,12 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 // Whether or not the click action dismisses the message
 @property (nonatomic) BOOL closesMessage;
+
+// The outcome to send for this action
+@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
+
+// The tags to send for this action
+@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
 
 // Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;

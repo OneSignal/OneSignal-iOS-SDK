@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import "OneSignalHelper.h"
 #import "OSInAppMessageOutcome.h"
 
 @implementation OSInAppMessageOutcome
@@ -63,6 +64,16 @@
 
 + (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
     return nil;
+}
+
+- (NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+    
+    json[@"name"] = self.name;
+    json[@"weight"] = self.weight;
+    json[@"unique"] = @(self.unique);
+
+    return json;
 }
 
 - (NSString *)description {
