@@ -70,7 +70,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly)OSNotificationActionType type;
 
 /* The ID associated with the button tapped. NULL when the actionType is NotificationTapped */
-@property(readonly)NSString* actionID;
+@property(readonly, nullable)NSString* actionID;
 
 @end
 
@@ -78,13 +78,13 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @interface OSNotificationPayload : NSObject
 
 /* Unique Message Identifier */
-@property(readonly)NSString* notificationID;
+@property(readonly, nullable)NSString* notificationID;
 
 /* Unique Template Identifier */
-@property(readonly)NSString* templateID;
+@property(readonly, nullable)NSString* templateID;
 
 /* Name of Template */
-@property(readonly)NSString* templateName;
+@property(readonly, nullable)NSString* templateName;
 
 /* True when the key content-available is set to 1 in the aps payload.
    content-available is used to wake your app when the payload is received.
@@ -106,39 +106,39 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
  See Apple's documenation for more details.
  https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SupportingNotificationsinYourApp.html#//apple_ref/doc/uid/TP40008194-CH4-SW26
 */
-@property(readonly)NSString* category;
+@property(readonly, nullable)NSString* category;
 
 /* The badge assigned to the application icon */
-@property(readonly)NSUInteger badge;
+@property(readonly)NSInteger badge;
 @property(readonly)NSInteger badgeIncrement;
 
 /* The sound parameter passed to the notification
  By default set to UILocalNotificationDefaultSoundName */
-@property(readonly)NSString* sound;
+@property(readonly, nullable)NSString* sound;
 
 /* Main push content */
-@property(readonly)NSString* title;
-@property(readonly)NSString* subtitle;
-@property(readonly)NSString* body;
+@property(readonly, nullable)NSString* title;
+@property(readonly, nullable)NSString* subtitle;
+@property(readonly, nullable)NSString* body;
 
 /* Web address to launch within the app via a WKWebView */
-@property(readonly)NSString* launchURL;
+@property(readonly, nullable)NSString* launchURL;
 
 /* Additional key value properties set within the payload */
-@property(readonly)NSDictionary* additionalData;
+@property(readonly, nullable)NSDictionary* additionalData;
 
 /* iOS 10+ : Attachments sent as part of the rich notification */
-@property(readonly)NSDictionary* attachments;
+@property(readonly, nullable)NSDictionary* attachments;
 
 /* Action buttons passed */
-@property(readonly)NSArray *actionButtons;
+@property(readonly, nullable)NSArray *actionButtons;
 
 /* Holds the original payload received
  Keep the raw value for users that would like to root the push */
-@property(readonly)NSDictionary *rawPayload;
+@property(readonly, nonnull)NSDictionary *rawPayload;
 
 /* iOS 10+ : Groups notifications into threads */
-@property(readonly)NSString *threadId;
+@property(readonly, nullable)NSString *threadId;
 
 /* Parses an APS push payload into a OSNotificationPayload object.
    Useful to call from your NotificationServiceExtension when the
@@ -152,7 +152,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @interface OSNotification : NSObject
 
 /* Notification Payload */
-@property(readonly)OSNotificationPayload* payload;
+@property(readonly, nonnull)OSNotificationPayload* payload;
 
 /* Display method of the notification */
 @property(readonly)OSNotificationDisplayType displayType;
@@ -174,7 +174,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly, getter=hasMutableContent)BOOL mutableContent;
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
-- (NSString*)stringify;
+- (NSString* _Nonnull)stringify;
 
 @end
 
@@ -185,16 +185,16 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(nonatomic)OSNotificationDisplayType displayType;
 
 /* Additional key value properties set within the payload */
-@property(readonly)NSDictionary *additionalData;
+@property(readonly, nullable)NSDictionary *additionalData;
 
 /* The Notification ID */
-@property(readonly)NSString *notificationId;
+@property(readonly, nullable)NSString *notificationId;
 
 /* The message title */
-@property(readonly)NSString *title;
+@property(readonly, nullable)NSString *title;
 
 /* The message body */
-@property(readonly)NSString *body;
+@property(readonly, nullable)NSString *body;
 
 // Method controlling completion from the notificationWillShowInForegroundHandler
 // If 'complete' is not called within 25 seconds of receiving the OSNotificationGenerationJob in notificationWillShowInForegroundHandler then 'complete' will be automatically fired.
@@ -203,11 +203,11 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @interface OSNotificationOpenedResult : NSObject
 
-@property(readonly)OSNotification* notification;
-@property(readonly)OSNotificationAction *action;
+@property(readonly, nonnull)OSNotification* notification;
+@property(readonly, nonnull)OSNotificationAction *action;
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
-- (NSString*)stringify;
+- (NSString* _Nonnull)stringify;
 
 @end;
 
@@ -319,20 +319,20 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @property (readonly, nonatomic) BOOL hasPrompted;
 @property (readonly, nonatomic) BOOL providesAppNotificationSettings;
 @property (readonly, nonatomic) OSNotificationPermission status;
-- (NSDictionary*)toDictionary;
+- (NSDictionary* _Nonnull)toDictionary;
 
 @end
 
 @interface OSPermissionStateChanges : NSObject
 
-@property (readonly) OSPermissionState* to;
-@property (readonly) OSPermissionState* from;
-- (NSDictionary*)toDictionary;
+@property (readonly, nullable) OSPermissionState* to;
+@property (readonly, nullable) OSPermissionState* from;
+- (NSDictionary* _Nonnull)toDictionary;
 
 @end
 
 @protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges;
+- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
 // Subscription Classes
@@ -340,46 +340,46 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
 @property (readonly, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
-@property (readonly, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
-@property (readonly, nonatomic) NSString* pushToken; // AKA Apple Device Token
-- (NSDictionary*)toDictionary;
+@property (readonly, nonatomic, nullable) NSString* userId;    // AKA OneSignal PlayerId
+@property (readonly, nonatomic, nullable) NSString* pushToken; // AKA Apple Device Token
+- (NSDictionary* _Nonnull)toDictionary;
 
 @end
 
 @interface OSEmailSubscriptionState : NSObject
-@property (readonly, nonatomic) NSString* emailUserId; // The new Email user ID
-@property (readonly, nonatomic) NSString *emailAddress;
+@property (readonly, nonatomic, nullable) NSString* emailUserId; // The new Email user ID
+@property (readonly, nonatomic, nullable) NSString *emailAddress;
 @property (readonly, nonatomic) BOOL subscribed;
-- (NSDictionary*)toDictionary;
+- (NSDictionary* _Nonnull)toDictionary;
 @end
 
 @interface OSSubscriptionStateChanges : NSObject
-@property (readonly) OSSubscriptionState* to;
-@property (readonly) OSSubscriptionState* from;
-- (NSDictionary*)toDictionary;
+@property (readonly, nullable) OSSubscriptionState* to;
+@property (readonly, nullable) OSSubscriptionState* from;
+- (NSDictionary* _Nonnull)toDictionary;
 @end
 
 @interface OSEmailSubscriptionStateChanges : NSObject
-@property (readonly) OSEmailSubscriptionState* to;
-@property (readonly) OSEmailSubscriptionState* from;
-- (NSDictionary*)toDictionary;
+@property (readonly, nullable) OSEmailSubscriptionState* to;
+@property (readonly, nullable) OSEmailSubscriptionState* from;
+- (NSDictionary* _Nonnull)toDictionary;
 @end
 
 @protocol OSSubscriptionObserver <NSObject>
-- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges;
+- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges* _Nonnull)stateChanges;
 @end
 
 @protocol OSEmailSubscriptionObserver <NSObject>
-- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges*)stateChanges;
+- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges* _Nonnull)stateChanges;
 @end
 
 // Permission+Subscription Classes
 @interface OSPermissionSubscriptionState : NSObject
 
-@property (readonly) OSPermissionState* permissionStatus;
-@property (readonly) OSSubscriptionState* subscriptionStatus;
-@property (readonly) OSEmailSubscriptionState *emailSubscriptionStatus;
-- (NSDictionary*)toDictionary;
+@property (readonly, nullable) OSPermissionState* permissionStatus;
+@property (readonly, nullable) OSSubscriptionState* subscriptionStatus;
+@property (readonly, nullable) OSEmailSubscriptionState *emailSubscriptionStatus;
+- (NSDictionary* _Nonnull)toDictionary;
 
 @end
 
@@ -448,6 +448,8 @@ extern NSString * const kOSSettingsKeyInAppLaunchURL;
  own customized Notification Settings view
 */
 extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
+
+
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
