@@ -50,12 +50,6 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 // The unique identifier for this click
 @property (strong, nonatomic, nonnull) NSString *clickId;
 
-// The outcome to send for this action
-@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
-
-// The tags to send for this action
-@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
-
 // The prompt action available
 @property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt>*> *promptActions;
 
