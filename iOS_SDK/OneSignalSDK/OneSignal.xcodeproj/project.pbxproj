@@ -29,6 +29,17 @@
 			name = "OneSignal-Dynamic-Framework";
 			productName = "OneSignal-Dynamic-Framework";
 		};
+		DEC2EA8E24B7B63800C1FD34 /* OneSignal-XCFramework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = DEC2EA9024B7B63800C1FD34 /* Build configuration list for PBXAggregateTarget "OneSignal-XCFramework" */;
+			buildPhases = (
+				DEC2EA8F24B7B63800C1FD34 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "OneSignal-XCFramework";
+			productName = "OneSignal-Dynamic-Framework";
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -1401,6 +1412,10 @@
 						DevelopmentTeam = 4ZR3G6ZK9T;
 						ProvisioningStyle = Automatic;
 					};
+					DEC2EA8E24B7B63800C1FD34 = {
+						DevelopmentTeam = 4ZR3G6ZK9T;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 37747F8E19147D6400558FAD /* Build configuration list for PBXProject "OneSignal" */;
@@ -1421,6 +1436,7 @@
 				911E2CB91E398AB3003112A4 /* UnitTests */,
 				CAA98897213F4B34009FEE5E /* OneSignal-Dynamic-Framework */,
 				CA2951BD2167F9860064227A /* OneSignal-Static-Framework */,
+				DEC2EA8E24B7B63800C1FD34 /* OneSignal-XCFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -1468,6 +1484,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh ${SRCROOT}/build_dynamic_framework.sh\n";
+		};
+		DEC2EA8F24B7B63800C1FD34 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh ${SRCROOT}/build_xcframework.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2088,6 +2117,32 @@
 			};
 			name = Debug;
 		};
+		DEC2EA9124B7B63800C1FD34 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
+				ONESIGNAL_DESTINATION_PATH = "${SRCROOT}/Framework";
+				ONESIGNAL_MACH_O_TYPE = staticlib;
+				ONESIGNAL_OUTPUT_NAME = OneSignal;
+				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		DEC2EA9224B7B63800C1FD34 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4ZR3G6ZK9T;
+				ONESIGNAL_DESTINATION_PATH = "${SRCROOT}/Framework";
+				ONESIGNAL_MACH_O_TYPE = staticlib;
+				ONESIGNAL_OUTPUT_NAME = OneSignal;
+				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2141,6 +2196,15 @@
 			buildConfigurations = (
 				CA2951BA2167F4120064227A /* Release */,
 				CA2951C62167FB950064227A /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEC2EA9024B7B63800C1FD34 /* Build configuration list for PBXAggregateTarget "OneSignal-XCFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEC2EA9124B7B63800C1FD34 /* Release */,
+				DEC2EA9224B7B63800C1FD34 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
