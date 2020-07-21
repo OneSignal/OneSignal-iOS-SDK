@@ -74,6 +74,12 @@ static dispatch_queue_t serialQueue;
             status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined && settings.authorizationStatus != provisionalStatus;
             status.provisional = (settings.authorizationStatus == 3);
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized && !status.provisional;
+            if (@available(iOS 14.0, *)) {
+                status.ephemeral = (settings.authorizationStatus == UNAuthorizationStatusEphemeral);
+                status.accepted = status.accepted || status.ephemeral;
+            } else {
+                status.ephemeral = false;
+            }
             
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)

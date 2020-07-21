@@ -145,14 +145,14 @@
 }
 
 - (OSNotificationPermission)status {
+    if (self.ephemeral)
+        return OSNotificationPermissionEphemeral;
+    
     if (_accepted)
         return OSNotificationPermissionAuthorized;
     
     if (self.answeredPrompt)
         return OSNotificationPermissionDenied;
-    
-    if (self.ephemeral)
-        return OSNotificationPermissionEphemeral;
     
     if (self.provisional)
         return OSNotificationPermissionProvisional;
