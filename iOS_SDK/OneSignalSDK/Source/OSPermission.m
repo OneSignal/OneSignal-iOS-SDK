@@ -49,6 +49,7 @@
     _hasPrompted = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM defaultValue:false];
     _answeredPrompt = [standardUserDefaults getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM defaultValue:false];
     _accepted  = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM defaultValue:false];
+    _ephemeral = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_EPHEMERAL_FROM defaultValue:false];
     _provisional = [standardUserDefaults getSavedBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM defaultValue:false];
     _providesAppNotificationSettings = [standardUserDefaults getSavedBoolForKey:OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS defaultValue:false];
     
@@ -60,6 +61,7 @@
     [standardUserDefaults saveBoolForKey:OSUD_WAS_PROMPTED_FOR_NOTIFICATIONS_FROM withValue:_hasPrompted];
     [standardUserDefaults saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_FROM withValue:_answeredPrompt];
     [standardUserDefaults saveBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM withValue:_accepted];
+    [standardUserDefaults saveBoolForKey:OSUD_PERMISSION_EPHEMERAL_FROM withValue:_ephemeral];
     [standardUserDefaults saveBoolForKey:OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM withValue:_provisional];
     [standardUserDefaults saveBoolForKey:OSUD_APP_PROVIDES_NOTIFICATION_SETTINGS withValue:_providesAppNotificationSettings];
 }
@@ -72,6 +74,7 @@
         copy->_hasPrompted = _hasPrompted;
         copy->_answeredPrompt = _answeredPrompt;
         copy->_accepted = _accepted;
+        copy->_ephemeral = _ephemeral;
         copy->_provisional = _provisional;
         copy->_providesAppNotificationSettings = _providesAppNotificationSettings;
     }
@@ -94,7 +97,7 @@
 }
 
 - (BOOL)reachable {
-    return self.provisional || self.accepted;
+    return self.provisional || self.accepted || self.ephemeral;
 }
 
 - (void)setProvisional:(BOOL)provisional {
@@ -130,6 +133,13 @@
         [self.observable notifyChange:self];
 }
 
+- (void)setEphemeral:(BOOL)ephemeral {
+    BOOL changed = _ephemeral != ephemeral;
+    _ephemeral = ephemeral;
+    if (changed)
+        [self.observable notifyChange:self];
+}
+
 - (void)setProvidesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
     _providesAppNotificationSettings = providesAppNotificationSettings;
 }
@@ -140,6 +150,9 @@
     
     if (self.answeredPrompt)
         return OSNotificationPermissionDenied;
+    
+    if (self.ephemeral)
+        return OSNotificationPermissionEphemeral;
     
     if (self.provisional)
         return OSNotificationPermissionProvisional;
@@ -157,12 +170,15 @@
             return @"Denied";
         case OSNotificationPermissionProvisional:
             return @"Provisional";
+        case OSNotificationPermissionEphemeral:
+            return @"Ephemeral";
     }
     return @"NotDetermined";
 }
 
 - (BOOL)compare:(OSPermissionState*)from {
     return self.accepted != from.accepted ||
+           self.ephemeral != from.ephemeral ||
            self.answeredPrompt != from.answeredPrompt ||
            self.hasPrompted != from.hasPrompted;
 }

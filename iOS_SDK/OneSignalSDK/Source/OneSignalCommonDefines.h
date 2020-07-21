@@ -59,6 +59,8 @@
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO                              @"OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO"                           // OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM                            @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"                         // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM
 #define OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION                            @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"                    // * OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION
+#define OSUD_PERMISSION_EPHEMERAL_TO                                        @"OSUD_PERMISSION_EPHEMERAL_TO"                                     // * OSUD_PERMISSION_EPHEMERAL_TO
+#define OSUD_PERMISSION_EPHEMERAL_FROM                                      @"OSUD_PERMISSION_EPHEMERAL_FROM"                                   // * OSUD_PERMISSION_EPHEMERAL_FROM
 // Player
 #define OSUD_EXTERNAL_USER_ID                                               @"OS_EXTERNAL_USER_ID"                                              // * OSUD_EXTERNAL_USER_ID
 #define OSUD_PLAYER_ID_TO                                                   @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID_TO
