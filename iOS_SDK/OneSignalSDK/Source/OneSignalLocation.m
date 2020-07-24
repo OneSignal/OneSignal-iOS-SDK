@@ -231,7 +231,7 @@ static OneSignalLocation* singleInstance = nil;
     [self sendCurrentAuthStatusToListeners];
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
-    
+
         
     //Check info plist for request descriptions
     //LocationAlways > LocationWhenInUse > No entry (Log error)

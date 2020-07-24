@@ -25,6 +25,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Test Location</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Test Location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

@@ -29,6 +29,10 @@
 		<key>NSAppClipRequestLocationConfirmation</key>
 		<true/>
 	</dict>
+	<key>NSLocationUsageDescription</key>
+	<string>Test usage description</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>when in usage description</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
