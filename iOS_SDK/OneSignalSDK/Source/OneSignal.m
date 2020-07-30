@@ -81,6 +81,8 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessage.h"
 
+#import "OneSignalLifecycleObserver.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -622,6 +624,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     if ([OneSignalTrackFirebaseAnalytics libraryExists])
         [OneSignalTrackFirebaseAnalytics init];
+    
+    [OneSignalLifecycleObserver registerLifecycleObserver];
     
     return self;
 }

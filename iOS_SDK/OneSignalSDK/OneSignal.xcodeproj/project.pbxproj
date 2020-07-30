@@ -421,6 +421,9 @@
 		CAE2E5A9215D80070036FD32 /* OSNotificationPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F41FAD2E5A00D74CCF /* OSNotificationPayload.m */; };
 		CAE2E5AA215D80380036FD32 /* OneSignalNotificationServiceExtensionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 454F94F11FAD218000D74CCF /* OneSignalNotificationServiceExtensionHandler.m */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
+		DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
+		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
+		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -693,6 +696,8 @@
 		CACBAAA7218A6280000ACAA5 /* OSJSONHandling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSJSONHandling.h; sourceTree = "<group>"; };
 		CACBAAA9218A65AE000ACAA5 /* InAppMessagingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InAppMessagingTests.m; sourceTree = "<group>"; };
 		CACBAAAB218A662B000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLifecycleObserver.m; sourceTree = "<group>"; };
+		DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLifecycleObserver.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1027,6 +1032,8 @@
 				91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */,
 				912411F01E73342200E41FD7 /* OneSignal.h */,
 				912411F11E73342200E41FD7 /* OneSignal.m */,
+				DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */,
+				DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */,
 				CAB4112720852E48005A70D1 /* DelayedInitializationParameters.h */,
 				CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */,
 				CA70E3332023D51000019273 /* OneSignalSetEmailParameters.h */,
@@ -1267,6 +1274,7 @@
 				91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */,
 				CA4742E4218B8FF30020DC8C /* OSTriggerController.h in Headers */,
 				7A1232AA235E17B4002B6CE3 /* OSSessionManager.h in Headers */,
+				DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */,
 				9D1BD9642379F42700A064F7 /* OSInfluenceDataDefines.h in Headers */,
 				7A674F192360D813001F9ACD /* OSBaseFocusTimeProcessor.h in Headers */,
 				CA8E19052193C76D009DA223 /* OSInAppMessagingHelpers.h in Headers */,
@@ -1541,6 +1549,7 @@
 				912412121E73342200E41FD7 /* OneSignalAlertViewDelegate.m in Sources */,
 				CA36A42D208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */,
 				912412421E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
+				DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				7A880F2B23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */,
 				9124123A1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				9D3300F523145AF3000F0A83 /* OneSignalViewHelper.m in Sources */,
@@ -1630,6 +1639,7 @@
 				0338566B1FBBD2270002F7C1 /* OSNotificationPayload.m in Sources */,
 				9DDFEEF323189C0E00EAE0BB /* OneSignalViewHelper.m in Sources */,
 				7A880F2C23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */,
+				DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				912412431E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				CA47439F2190FEA80020DC8C /* OSTrigger.m in Sources */,
 				9124123B1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
