@@ -142,8 +142,17 @@
 
 - (void)backgroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationWillResignActive:sharedApp];
+    if (@available(iOS 13.0, *)) {
+        NSDictionary *sceneManifest = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+        if (sceneManifest) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneWillDeactivateNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidEnterBackgroundNotification object:nil];
+            return;
+        }
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+    
 }
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
@@ -1673,12 +1682,24 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
-- (void)testPermissionChangedInSettingsOutsideOfApp {
+- (void)testPermissionChangedInSettingsOutsideOfAppWithAppDelegate {
+    [self permissionChangedInSettingsOutsideOfApp:NO];
+}
+
+- (void)testPermissionChangedInSettingsOutsideOfAppWithSceneDelegate {
+    [self permissionChangedInSettingsOutsideOfApp:YES];
+}
+
+- (void)permissionChangedInSettingsOutsideOfApp: (BOOL)useSceneDelegate {
+    
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [self backgroundModesDisabledInXcode];
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];
+    
+   
+    [UnitTestCommonMethods useSceneLifecycle: useSceneDelegate];
     
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     

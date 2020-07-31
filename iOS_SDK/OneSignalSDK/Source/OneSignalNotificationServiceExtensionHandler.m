@@ -40,9 +40,8 @@
 
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
                                          withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
-    // Set default log level of NSE to VERBOSE so we get all logs from NSE logic
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"NSE request received, setting OneSignal log level to VERBOSE!"];
+
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"NSE request received"];
     
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];

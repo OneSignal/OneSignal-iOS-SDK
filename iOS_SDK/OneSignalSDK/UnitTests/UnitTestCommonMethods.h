@@ -40,6 +40,7 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)setCurrentNotificationPermissionAsUnanswered;
 + (void)foregroundApp;
 + (void)backgroundApp;
++ (void)useSceneLifecycle:(BOOL)useSceneLifecycle;
 + (void)initOneSignal;
 + (void)initOneSignalAndThreadWait;
 + (void)runBackgroundThreads;

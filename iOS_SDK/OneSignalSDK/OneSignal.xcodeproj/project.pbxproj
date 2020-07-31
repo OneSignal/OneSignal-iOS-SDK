@@ -424,6 +424,8 @@
 		DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
+		DE16C17024D3989A00670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
+		DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -698,6 +700,8 @@
 		CACBAAAB218A662B000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLifecycleObserver.m; sourceTree = "<group>"; };
 		DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLifecycleObserver.h; sourceTree = "<group>"; };
+		DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageViewControllerOverrider.m; sourceTree = "<group>"; };
+		DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageViewControllerOverrider.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -836,6 +840,8 @@
 				CAAE0DFC2195216900A57402 /* OneSignalOverrider.m */,
 				9D348538233D2DCF00EB81C9 /* OneSignalLocationOverrider.h */,
 				9D348539233D2E3600EB81C9 /* OneSignalLocationOverrider.m */,
+				DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */,
+				DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */,
 			);
 			path = Shadows;
 			sourceTree = "<group>";
@@ -1732,6 +1738,7 @@
 				CAABF34D205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				912412301E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
 				91F58D851E7C88230017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */,
+				DE16C17024D3989A00670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				CAAE0DFD2195216900A57402 /* OneSignalOverrider.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CA8E190B2194FE0B009DA223 /* OSMessagingControllerOverrider.m in Sources */,
@@ -1806,6 +1813,7 @@
 				7AFE856D2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */,
 				CA8E19082193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
 				4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */,
+				DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */,
 				7AF986602447C13C00C36EAE /* OSInfluenceDataRepository.m in Sources */,
 				912412441E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				03866CC12378A67B0009C1D8 /* RestClientAsserts.m in Sources */,
