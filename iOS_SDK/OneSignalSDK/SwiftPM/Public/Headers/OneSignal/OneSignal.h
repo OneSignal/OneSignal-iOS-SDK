@@ -59,7 +59,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
     /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
     OSNotificationDisplayTypeNone,
     
-    /*Default UIAlertView display*/
+    /*Default UIAlertController display*/
     OSNotificationDisplayTypeInAppAlert,
     
     /*iOS native notification display*/
@@ -189,19 +189,49 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @end;
 
+@interface OSInAppMessageOutcome : NSObject
+
+@property (strong, nonatomic, nonnull) NSString *name;
+@property (strong, nonatomic, nonnull) NSNumber *weight;
+@property (nonatomic) BOOL unique;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
+@interface OSInAppMessageTag : NSObject
+
+@property (strong, nonatomic, nullable) NSDictionary *tagsToAdd;
+@property (strong, nonatomic, nullable) NSArray *tagsToRemove;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
 @interface OSInAppMessageAction : NSObject
 
-/* The action name attached to the IAM action */
+// The action name attached to the IAM action
 @property (strong, nonatomic, nullable) NSString *clickName;
 
-/* The URL (if any) that should be opened when the action occurs */
+// The URL (if any) that should be opened when the action occurs
 @property (strong, nonatomic, nullable) NSURL *clickUrl;
 
-/* Whether or not the click action is first click on the IAM */
+// Whether or not the click action is first click on the IAM
 @property (nonatomic) BOOL firstClick;
 
-/* Whether or not the click action dismisses the message */
+// Whether or not the click action dismisses the message
 @property (nonatomic) BOOL closesMessage;
+
+// The outcome to send for this action
+@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
+
+// The tags to send for this action
+@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
 
 @end
 
@@ -210,12 +240,17 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
-/* OneSignal Session Types */
+/* OneSignal Influence Types */
 typedef NS_ENUM(NSUInteger, Session) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
     DISABLED
+};
+/* OneSignal Influence Channels */
+typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
+    IN_APP_MESSAGE,
+    NOTIFICATION,
 };
 
 @interface OSOutcomeEvent : NSObject
@@ -330,6 +365,48 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
+@interface OSDevice : NSObject
+/**
+ * Get the app's notification permission
+ * @return false if the user disabled notifications for the app, otherwise true
+ */
+- (BOOL)isNotificationEnabled;
+/**
+ * Get whether the user is subscribed to OneSignal notifications or not
+ * @return false if the user is not subscribed to OneSignal notifications, otherwise true
+ */
+- (BOOL)isUserSubscribed;
+/**
+ * Get whether the user is subscribed
+ * @return true if  isNotificationEnabled,  isUserSubscribed, getUserId and getPushToken are true, otherwise false
+ */
+- (BOOL)isSubscribed;
+/**
+ * Get  the user notification permision status
+ * @return OSNotificationPermission
+*/
+- (OSNotificationPermission)getNotificationPermissionStatus;
+/**
+ * Get user id from registration (player id)
+ * @return user id if user is registered, otherwise false
+ */
+- (NSString*)getUserId;
+/**
+ * Get apple deice push token
+ * @return push token if available, otherwise null
+ */
+- (NSString*)getPushToken;
+/**
+ * Get the user email id
+ * @return email id if user address was registered, otherwise null
+ */
+- (NSString*)getEmailUserId;
+/**
+ * Get the user email
+ * @return email address if set, otherwise null
+ */
+- (NSString*)getEmailAddress;
+@end
 
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 
@@ -351,7 +428,6 @@ typedef void (^OSHandleInAppMessageActionClickBlock)(OSInAppMessageAction* actio
 
 /*Block for handling outcome event being sent successfully*/
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
-
 
 /*Dictionary of keys to pass alongside the init settings*/
     
@@ -447,6 +523,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)IdsAvailable:(OSIdsAvailableBlock)idsAvailableBlock __deprecated_msg("Please use getPermissionSubscriptionState or addSubscriptionObserver and addPermissionObserver instead.");
 
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
++ (OSDevice*)getUserDevice;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
