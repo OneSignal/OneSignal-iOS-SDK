@@ -136,23 +136,11 @@
 }
 
 - (void)registerForPushNotifications {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignal registerForPushNotifications];
-    [self backgroundApp];
-}
-
-- (void)backgroundApp {
-    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
-    if (@available(iOS 13.0, *)) {
-        NSDictionary *sceneManifest = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
-        if (sceneManifest) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneWillDeactivateNotification object:nil];
-            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidEnterBackgroundNotification object:nil];
-            return;
-        }
-    }
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillResignActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
-    
+    #pragma clang diagnostic pop
+    [UnitTestCommonMethods backgroundApp];
 }
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
@@ -394,7 +382,7 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
@@ -600,7 +588,7 @@
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
                           completionHandler:^(BOOL granted, NSError* error) {}];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->fireCount, 1);
@@ -633,7 +621,7 @@
     UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge)
                           completionHandler:^(BOOL granted, NSError* error) {}];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     // Full bug details explained in answerNotifiationPrompt
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -655,7 +643,7 @@
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
     
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     
     //answer the prompt to allow notification
     [UnitTestCommonMethods answerNotificationPrompt:true];
@@ -817,7 +805,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         didAccept = accepted;
     }];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
@@ -833,7 +821,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         didAccept = accepted;
     }];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
@@ -849,7 +837,7 @@
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
         didAccept = accepted;
     }];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(didAccept);
@@ -932,9 +920,12 @@
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
     __block BOOL idsAvailable1Called = false;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         idsAvailable1Called = true;
     }];
+    #pragma clang diagnostic pop
     
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -951,9 +942,12 @@
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
     __block BOOL idsAvailable2Called = false;
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
         idsAvailable2Called = true;
     }];
+    #pragma clang diagnostic pop
     
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertTrue(idsAvailable2Called);
@@ -1444,6 +1438,8 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(localNotif.category, @"__dynamic__");
     XCTAssertEqualObjects(localNotif.userInfo, userInfo);
     
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     let categories = [UIApplication sharedApplication].currentUserNotificationSettings.categories;
     
     XCTAssertEqual(categories.count, 1);
@@ -1452,6 +1448,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(category.identifier, @"__dynamic__");
     
     let actions = [category actionsForContext:UIUserNotificationActionContextDefault];
+    #pragma clang diagnostic pop
     XCTAssertEqualObjects(actions[0].identifier, @"id1");
     XCTAssertEqualObjects(actions[0].title, @"text1");
 }
@@ -1460,7 +1457,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testGeneratingLocalNotificationWithButtonsiOS8_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
                     @"os_data": @{
@@ -1479,7 +1476,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testGeneratingLocalNotificationWithButtonsiOS8 {
     OneSignalHelperOverrider.mockIOSVersion = 8;
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
                     @"m": @"alert body only",
@@ -1709,8 +1706,8 @@ didReceiveRemoteNotification:userInfo
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
-    
-    [self backgroundApp];
+
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -1727,7 +1724,7 @@ didReceiveRemoteNotification:userInfo
     [self backgroundModesDisabledInXcode];
     
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     
@@ -1750,15 +1747,15 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // Don't make an on_session call if only out of the app for 20 secounds
-    [self backgroundApp];
-    NSDateOverrider.timeOffset = 10;
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:10];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     
     // Anything over 30 secounds should count as a session.
-    [self backgroundApp];
-    NSDateOverrider.timeOffset = 41;
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:41];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -1772,7 +1769,7 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 2. Kill the app and wait 31 seconds
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
@@ -2812,8 +2809,11 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testHexStringFromDataWithInvalidValues {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wnonnull"
     XCTAssertNil([NSString hexStringFromData:nil]);
     XCTAssertNil([NSString hexStringFromData:NULL]);
+    #pragma clang diagnostic pop
     XCTAssertNil([NSString hexStringFromData:[NSData new]]);
 }
 
