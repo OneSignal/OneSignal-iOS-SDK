@@ -136,7 +136,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021402";
+NSString* const ONESIGNAL_VERSION = @"021500";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
@@ -332,6 +332,13 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
+static OSDevice* _userDevice;
++ (OSDevice *)getUserDevice {
+    if (!_userDevice)
+        _userDevice = [OSDevice new];
+    return _userDevice;
+}
+
 /*
  Indicates if the iOS params request has started
  Set to true when the method is called and set false if the request's failure callback is triggered
@@ -390,6 +397,8 @@ static OSSessionManager *_sessionManager;
 
 static OSOutcomeEventsCache *_outcomeEventsCache;
 + (OSOutcomeEventsCache *)outcomeEventsCache {
+    if (!_outcomeEventsCache)
+        _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
     return _outcomeEventsCache;
 }
 
@@ -588,8 +597,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     initializationTime = [NSDate date];
     
     // Outcomes init
-    _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
-    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:_outcomeEventsCache];
+    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:OneSignal.outcomeEventsCache];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:OneSignal.sessionManager outcomeEventsFactory:_outcomeEventFactory];
     
     if (appId && mShareLocation)
@@ -947,7 +955,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Firing registerForRemoteNotifications"];
     
     waitingForApnsResponse = true;
-    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    }];
     
     return true;
 }

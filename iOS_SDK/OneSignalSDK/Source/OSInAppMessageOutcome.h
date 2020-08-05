@@ -32,11 +32,7 @@
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
 
-@interface OSInAppMessageOutcome : NSObject <OSJSONDecodable>
-
-@property (strong, nonatomic, nonnull) NSString *name;
-@property (strong, nonatomic, nonnull) NSNumber *weight;
-@property (nonatomic) BOOL unique;
+@interface OSInAppMessageOutcome () <OSJSONDecodable>
 
 @end
 

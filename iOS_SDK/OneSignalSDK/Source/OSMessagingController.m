@@ -146,7 +146,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.currentPromptAction = nil;
         self.isAppInactive = NO;
         // BOOL that controls if in-app messaging is paused or not (false by default)
-        [self setInAppMessagingPaused:false];
+        _isInAppMessagingPaused = false;
     }
     
     return self;

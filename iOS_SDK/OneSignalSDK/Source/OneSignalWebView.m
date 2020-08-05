@@ -67,10 +67,7 @@ UIViewController *viewControllerForPresentation;
 
 - (void)dismiss:(id)sender {
     [self.navigationController dismissViewControllerAnimated:true completion:^{
-        // Clear web view
-        [_webView loadHTMLString:@"" baseURL:nil];
-        if (viewControllerForPresentation)
-            [viewControllerForPresentation.view removeFromSuperview];
+        [self clearWebView];
     }];
 }
 
@@ -108,6 +105,7 @@ UIViewController *viewControllerForPresentation;
     if (!navController) {
         navController = [[UINavigationController alloc] initWithRootViewController:self];
         navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        navController.presentationController.delegate = self;
     }
     if (!viewControllerForPresentation) {
         viewControllerForPresentation = [[UIViewController alloc] init];
@@ -133,7 +131,15 @@ UIViewController *viewControllerForPresentation;
     @catch(NSException* exception) { }
 }
 
+- (void)clearWebView {
+    [_webView loadHTMLString:@"" baseURL:nil];
+    if (viewControllerForPresentation)
+        [viewControllerForPresentation.view removeFromSuperview];
+}
 
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
+    [self clearWebView];
+}
 
 @end
 

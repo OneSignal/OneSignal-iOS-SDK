@@ -1123,7 +1123,7 @@
     XCTAssertFalse(OneSignalClientOverrider.lastHTTPRequestType);
 }
 
-- (void)testIAMClickedLaunchesTagSendPIRequest {
+- (void)testIAMClickedLaunchesTagSendAPIRequest {
     let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
     
