@@ -2243,15 +2243,14 @@ static NSString *_lastnonActiveMessageId;
         }
     }
     // Method was called due to a tap on a notification - Fire open notification
-    else if (application.applicationState != UIApplicationStateBackground) {
+    else if (application.applicationState == UIApplicationStateActive) {
         [OneSignalHelper lastMessageReceived:userInfo];
         
-        if (application.applicationState == UIApplicationStateActive)
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:NO];
-
-        if (![OneSignalHelper isRemoteSilentNotification:userInfo])
-            [OneSignal notificationReceived:userInfo foreground:application.applicationState == UIApplicationStateActive isActive:NO wasOpened:YES];
+        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:NO];
         
+        if (![OneSignalHelper isRemoteSilentNotification:userInfo]) {
+             [OneSignal notificationReceived:userInfo foreground:YES isActive:NO wasOpened:YES];
+        }
         return startedBackgroundJob;
     }
     // content-available notification received in the background - Fire handleNotificationReceived block in app
