@@ -1186,6 +1186,42 @@
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
+// Testing receiving a notification while the app is in the foreground but inactive.
+// Received should be called but opened should not be called
+- (void)testNotificationReceivedWhileAppInactive {
+    __block BOOL openedWasFired = false;
+    __block BOOL receivedWasFired = false;
+    
+    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+        receivedWasFired = true;
+    } handleNotificationAction:^(OSNotificationOpenedResult *result) {
+        openedWasFired = true;
+    } settings:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
+    
+    id userInfo = @{@"aps": @{
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body"
+                            },
+                    @"os_data": @{
+                            @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                            @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                            }};
+    
+    UNNotification *notif = [UnitTestCommonMethods createBasiciOSNotificationWithPayload:userInfo];
+ 
+    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    id notifCenterDelegate = notifCenter.delegate;
+    
+    [notifCenterDelegate userNotificationCenter:notifCenter willPresentNotification:notif withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+
+
+    XCTAssertEqual(openedWasFired, false);
+    XCTAssertEqual(receivedWasFired, true);
+}
+
 // Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
 - (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
     [[OneSignalDialogController sharedInstance] clearQueue];

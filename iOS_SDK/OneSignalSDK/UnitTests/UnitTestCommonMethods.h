@@ -48,10 +48,11 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)beforeEachTest:(XCTestCase *)testCase;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
++ (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo;
 + (void)answerNotificationPrompt:(BOOL)accept;
 + (void)setCurrentNotificationPermission:(BOOL)accepted;
 + (void)receiveNotification:(NSString*)notificationId wasOpened:(BOOL)opened;
-+ (void)handleNotificationReceived:(NSString*)notificationId messageDict:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
++ (void)handleNotificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 + (XCTestCase*)currentXCTestCase;
 @end
 

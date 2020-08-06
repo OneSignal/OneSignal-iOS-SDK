@@ -111,18 +111,21 @@ static XCTestCase* _currentXCTestCase;
     // Normal tap on notification
     [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
     
+    [notifResponse setValue:[self createBasiciOSNotificationWithPayload:userInfo] forKeyPath:@"notification"];
+    
+    return notifResponse;
+}
+
++ (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo {
     UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
     UNNotification *unNotif = [UNNotification alloc];
     UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
     // Set as remote push type
     [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
-    
-    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
-    [notifResponse setValue:unNotif forKeyPath:@"notification"];
-    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
     [unNotifContent setValue:userInfo forKey:@"userInfo"];
-    
-    return notifResponse;
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    return unNotif;
 }
 
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
