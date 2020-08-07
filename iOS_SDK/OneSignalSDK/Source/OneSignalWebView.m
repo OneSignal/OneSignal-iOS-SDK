@@ -105,8 +105,9 @@ UIViewController *viewControllerForPresentation;
     if (!navController) {
         navController = [[UINavigationController alloc] initWithRootViewController:self];
         navController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-        navController.presentationController.delegate = self;
     }
+    navController.presentationController.delegate = self;
+
     if (!viewControllerForPresentation) {
         viewControllerForPresentation = [[UIViewController alloc] init];
         [[viewControllerForPresentation view] setBackgroundColor:[UIColor clearColor]];
@@ -122,8 +123,9 @@ UIViewController *viewControllerForPresentation;
     
     UIWindow* mainWindow = [[UIApplication sharedApplication] keyWindow];
     
-    if (!viewControllerForPresentation.view.superview)
+    if (!viewControllerForPresentation.view.superview) {
         [mainWindow addSubview:[viewControllerForPresentation view]];
+    }
     
     @try {
         [viewControllerForPresentation presentViewController:navController animated:YES completion:nil];
@@ -133,11 +135,15 @@ UIViewController *viewControllerForPresentation;
 
 - (void)clearWebView {
     [_webView loadHTMLString:@"" baseURL:nil];
-    if (viewControllerForPresentation)
+    if (viewControllerForPresentation) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"clearing web view"];
         [viewControllerForPresentation.view removeFromSuperview];
+    }
+        
 }
 
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
     [self clearWebView];
 }
 
