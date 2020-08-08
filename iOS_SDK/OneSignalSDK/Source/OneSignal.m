@@ -2192,7 +2192,7 @@ static NSString *_lastnonActiveMessageId;
     
     if (!startedRegister && [self shouldRegisterNow])
         [OneSignal registerUser];
-    else if (self.currentSubscriptionState.pushToken)
+    else
         [self sendNotificationTypesUpdate];
     
     if ([self getUsableDeviceToken])
