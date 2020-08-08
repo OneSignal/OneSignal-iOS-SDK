@@ -899,16 +899,21 @@
     [self backgroundModesDisabledInXcode];
     
     [UnitTestCommonMethods initOneSignal];
-    // Don't make a network call right away
+    // Testing network call is not being made from the main thread.
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
-    [UnitTestCommonMethods answerNotificationPrompt:false];
+    // Run pending player create call, notification_types should never answnser prompt
     [UnitTestCommonMethods runBackgroundThreads];
-    
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @(ERROR_PUSH_PROMPT_NEVER_ANSWERED));
+    
+    // Ensure we make an PUT call to update to notification_types declined
+    [UnitTestCommonMethods answerNotificationPrompt:false];
+    [UnitTestCommonMethods runBackgroundThreads];
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234"));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @(NOTIFICATION_TYPE_NONE));
 }
 
 - (void)testIdsAvailableNotAcceptingNotifications {
