@@ -224,7 +224,7 @@ static BOOL _isInAppMessagingPaused = false;
         if (self.isInAppMessageShowing)
             return;
         // Return early if the app is not active
-        if ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive) {
+        if (![UIApplication applicationIsActive]) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Pause IAMs display due to app inactivity"];
             _isAppInactive = YES;
             return;

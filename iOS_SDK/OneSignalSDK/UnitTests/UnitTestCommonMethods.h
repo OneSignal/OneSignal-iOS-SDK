@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
+#import "UIApplication+OneSignal.h"
 #import "OneSignalNotificationCategoryController.h"
 
 #define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
@@ -40,6 +41,7 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)setCurrentNotificationPermissionAsUnanswered;
 + (void)foregroundApp;
 + (void)backgroundApp;
++ (void)useSceneLifecycle:(BOOL)useSceneLifecycle;
 + (void)initOneSignal;
 + (void)initOneSignalAndThreadWait;
 + (void)runBackgroundThreads;
