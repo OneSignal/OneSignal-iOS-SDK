@@ -425,7 +425,11 @@
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
 		DE16C17024D3989A00670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
+		DE20425E24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
+		DE20425F24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
+		DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */; };
+		DEE8198D24E21DF000868CBA /* UIApplication+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -700,6 +704,8 @@
 		CACBAAAB218A662B000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalLifecycleObserver.m; sourceTree = "<group>"; };
 		DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalLifecycleObserver.h; sourceTree = "<group>"; };
+		DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIApplication+OneSignal.h"; sourceTree = "<group>"; };
+		DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+OneSignal.m"; sourceTree = "<group>"; };
 		DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageViewControllerOverrider.m; sourceTree = "<group>"; };
 		DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageViewControllerOverrider.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1104,6 +1110,8 @@
 				CA1A6E6820DC2E31001C41B9 /* OneSignalDialogController.m */,
 				CA1A6E6D20DC2E73001C41B9 /* OneSignalDialogRequest.h */,
 				CA1A6E6E20DC2E73001C41B9 /* OneSignalDialogRequest.m */,
+				DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */,
+				DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -1320,6 +1328,7 @@
 				9124123D1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.h in Headers */,
 				7AF9865324451F3900C36EAE /* OSFocusCallParams.h in Headers */,
 				CAB269D921B0B6F000F8A43C /* OSInAppMessageAction.h in Headers */,
+				DEE8198D24E21DF000868CBA /* UIApplication+OneSignal.h in Headers */,
 				7AECE59C23675F5700537907 /* OSFocusTimeProcessorFactory.h in Headers */,
 				7AECE59A23674ADC00537907 /* OSUnattributedFocusTimeProcessor.h in Headers */,
 				CA63AFC22022670A00E340FB /* ReattemptRequest.h in Headers */,
@@ -1588,6 +1597,7 @@
 				CA63AFC32022670A00E340FB /* ReattemptRequest.m in Sources */,
 				912412221E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CACBAAA4218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */,
+				DE20425E24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */,
 				CA7FC8A021927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
 				7AECE59623674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				1AF75EAE1E8567FD0097B315 /* NSString+OneSignal.m in Sources */,
@@ -1678,6 +1688,7 @@
 				CA7FC8A121927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
 				912412231E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				9D1BD965237A08A400A064F7 /* OneSignalUserDefaults.m in Sources */,
+				DE20425F24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */,
 				7AF9863C2444C43900C36EAE /* OSInAppMessageTracker.m in Sources */,
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
@@ -1762,6 +1773,7 @@
 				912412341E73342200E41FD7 /* OneSignalTracker.m in Sources */,
 				7AF98694244A567B00C36EAE /* OSOutcomeEventsCache.m in Sources */,
 				03866CBD2378A33B0009C1D8 /* OutcomeIntegrationTests.m in Sources */,
+				DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */,
 				CA36F35B21C33A2500300C77 /* OSInAppMessageController.m in Sources */,
 				9124122C1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
 				03389F691FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m in Sources */,

@@ -222,7 +222,7 @@ static XCTestCase* _currentXCTestCase;
 + (void)foregroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
     
-    if ([OneSignalLifecycleObserver isAppUsingUIScene]) {
+    if ([UIApplication isAppUsingUIScene]) {
         if (@available(iOS 13.0, *)) {
             [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidActivateNotification object:nil];
         }
@@ -233,7 +233,7 @@ static XCTestCase* _currentXCTestCase;
 
 + (void)backgroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
-    if ([OneSignalLifecycleObserver isAppUsingUIScene]) {
+    if ([UIApplication isAppUsingUIScene]) {
         if (@available(iOS 13.0, *)) {
             [[NSNotificationCenter defaultCenter] postNotificationName:UISceneWillDeactivateNotification object:nil];
             [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidEnterBackgroundNotification object:nil];

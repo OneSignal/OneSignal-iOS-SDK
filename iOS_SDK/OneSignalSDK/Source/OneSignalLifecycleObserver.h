@@ -28,5 +28,4 @@ THE SOFTWARE.
 + (OneSignalLifecycleObserver*) sharedInstance;
 + (void)registerLifecycleObserver;
 + (void)removeObserver;
-+ (BOOL)isAppUsingUIScene;
 @end

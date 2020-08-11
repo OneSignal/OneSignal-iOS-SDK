@@ -32,6 +32,7 @@ THE SOFTWARE.
 #import "OneSignalTracker.h"
 #import "OneSignalLocation.h"
 #import "OSMessagingController.h"
+#import "UIApplication+OneSignal.h"
 
 @implementation OneSignalLifecycleObserver
 
@@ -47,16 +48,9 @@ static OneSignalLifecycleObserver* _instance = nil;
     return _instance;
 }
 
-+ (BOOL)isAppUsingUIScene {
-    if (@available(iOS 13.0, *)) {
-        return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"] != nil;
-    }
-    return NO;
-}
-
 + (void)registerLifecycleObserver {
     // Replacing swizzled lifecycle selectors with notification center observers for scene based Apps
-    if ([self isAppUsingUIScene]) {
+    if ([UIApplication isAppUsingUIScene]) {
         [self registerLifecycleObserverAsUIScene];
     } else {
         [self registerLifecycleObserverAsUIApplication];
