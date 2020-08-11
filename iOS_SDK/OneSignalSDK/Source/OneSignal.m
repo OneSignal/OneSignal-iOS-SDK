@@ -2195,7 +2195,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     if (!startedRegister && [self shouldRegisterNow])
-        [OneSignal registerUser];
+        [self registerUser];
     else
         [self sendNotificationTypesUpdate];
     

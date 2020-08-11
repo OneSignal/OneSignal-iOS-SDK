@@ -54,23 +54,27 @@ THE SOFTWARE.
 - (void)migrateToVersion_02_14_00_AndGreater {
     let influenceVersion = 21400;
     let uniqueCacheOutcomeVersion = 21403;
-    let sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     if (sdkVersion < influenceVersion) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %d", sdkVersion]];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
         NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OneSignal influenceDataRepository] lastNotificationsReceivedData];
-        if (indirectInfluenceData)
+        if (indirectInfluenceData) {
+            [NSKeyedArchiver setClassName:@"OSIndirectInfluence" forClass:[OSIndirectInfluence class]];
             [[OneSignal influenceDataRepository] saveNotifications:indirectInfluenceData];
+        }
     }
     
     if (sdkVersion < uniqueCacheOutcomeVersion) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %d", sdkVersion]];
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
         
         [NSKeyedUnarchiver setClass:[OSCachedUniqueOutcome class] forClassName:@"OSUniqueOutcomeNotification"];
         NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OneSignal outcomeEventsCache] getAttributedUniqueOutcomeEventSent];
-        if (attributedCacheUniqueOutcomeEvents)
+        if (attributedCacheUniqueOutcomeEvents) {
+            [NSKeyedArchiver setClassName:@"OSCachedUniqueOutcome" forClass:[OSCachedUniqueOutcome class]];
             [[OneSignal outcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
+        }
     }
 }
 

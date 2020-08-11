@@ -35,6 +35,7 @@
 #import "OneSignalInternal.h"
 #import "OneSignalReceiveReceiptsController.h"
 #import "OSSessionManager.h"
+#import "OSMigrationController.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
@@ -98,6 +99,8 @@
     if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
         // Track confirmed delivery
         [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:receivedNotificationId];
+        // If update was made without app being initialized/launched before -> migrate
+        [[OSMigrationController new] migrate];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OneSignal sessionManager]]];
         // Save received notification id
         [[OneSignal sessionManager] onNotificationReceived:receivedNotificationId];

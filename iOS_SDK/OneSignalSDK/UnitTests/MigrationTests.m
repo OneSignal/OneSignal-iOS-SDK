@@ -77,9 +77,13 @@
     NSMutableArray *indirectNotifications = [NSMutableArray new];
     [indirectNotifications addObject:indirectNotification];
     
+    [NSKeyedArchiver setClassName:@"OSIndirectNotification" forClass:[OSIndirectNotification class]];
     [dataRepository saveNotifications:indirectNotifications];
-    NSArray *lastNotificationReceived = [dataRepository lastNotificationsReceivedData];
+    [NSKeyedUnarchiver setClass:[OSIndirectNotification class] forClassName:@"OSIndirectNotification"];
+    NSArray<OSIndirectNotification *> *lastNotificationReceived = [dataRepository lastNotificationsReceivedData];
+    OSIndirectNotification *lastIndirectNotificationReceived = [lastNotificationReceived objectAtIndex:0];
     NSInteger sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertTrue([lastIndirectNotificationReceived.notificationId isEqualToString:notificationId]);
     XCTAssertEqual(1, [lastNotificationReceived count]);
     XCTAssertEqual(0, sdkVersion);
     
@@ -121,6 +125,42 @@
     XCTAssertTrue([indirectInfluenceAfterMigration.channelIdTag isEqualToString:channelId]);
     XCTAssertEqual(timestamp, indirectInfluenceAfterMigration.timestamp);
     
+    NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+}
+
+- (void)testIndirectNotificationToIndirectInfluenceMigration_NotificationServiceExtensionHandler {
+    NSString *notificationId = @"1234-5678-1234-5678-1234";
+    double timestamp = 10;
+    OSIndirectNotification *indirectNotification = [[OSIndirectNotification alloc] initWithParamsNotificationId:notificationId timestamp:timestamp];
+    NSMutableArray *indirectNotifications = [NSMutableArray new];
+    [indirectNotifications addObject:indirectNotification];
+   
+    [NSKeyedArchiver setClassName:@"OSIndirectNotification" forClass:[OSIndirectNotification class]];
+    [dataRepository saveNotifications:indirectNotifications];
+    [NSKeyedUnarchiver setClass:[OSIndirectNotification class] forClassName:@"OSIndirectNotification"];
+    NSArray<OSIndirectNotification *> *lastNotificationReceived = [dataRepository lastNotificationsReceivedData];
+    OSIndirectNotification *lastIndirectNotificationReceived = [lastNotificationReceived objectAtIndex:0];
+    NSInteger sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    XCTAssertTrue([lastIndirectNotificationReceived.notificationId isEqualToString:notificationId]);
+    XCTAssertEqual(1, [lastNotificationReceived count]);
+    XCTAssertEqual(0, sdkVersion);
+   
+    // Receive notification
+    [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
+    
+    NSArray<OSIndirectInfluence *> *lastNotificationReceivedAfterMigration = [dataRepository lastNotificationsReceivedData];
+    XCTAssertEqual(2, [lastNotificationReceivedAfterMigration count]);
+
+    OSIndirectInfluence *indirectInfluenceMigrated = [lastNotificationReceivedAfterMigration objectAtIndex:0];
+    XCTAssertTrue([indirectInfluenceMigrated.influenceId isEqualToString:notificationId]);
+    XCTAssertTrue([indirectInfluenceMigrated.channelIdTag isEqualToString:@"notification_id"]);
+    XCTAssertEqual(timestamp, indirectInfluenceMigrated.timestamp);
+    
+    OSIndirectInfluence *indirectInfluenceReceived = [lastNotificationReceivedAfterMigration objectAtIndex:1];
+    XCTAssertTrue([indirectInfluenceReceived.influenceId isEqualToString:@"test_notification_1"]);
+    XCTAssertTrue([indirectInfluenceReceived.channelIdTag isEqualToString:@"notification_id"]);
+   
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
 }
