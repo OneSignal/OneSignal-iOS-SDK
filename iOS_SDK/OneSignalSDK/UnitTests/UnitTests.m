@@ -236,7 +236,7 @@
                                              };
 
     [UnitTestCommonMethods initOneSignalAndThreadWait];
-    
+
     [self assertLocationShared_withGrantLocationServices];
 }
 
@@ -291,19 +291,18 @@
 }
 
 - (void)testFocusSettingsOnInit {
-    // Test old kOSSettingsKeyInFocusDisplayOption
-    [OneSignal setAppSettings:@{kOSSettingsKeyInFocusDisplayOption: @(OSNotificationDisplayTypeNone)}];
+    // Test old kOSSettingsKeyNotificationDisplayOption
+    [OneSignal setAppSettings:@{kOSSettingsKeyNotificationDisplayOption: @(OSNotificationDisplayTypeSilent)}];
     [UnitTestCommonMethods initOneSignal];
-    
-    XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
+
+    XCTAssertEqual(OneSignal.notificationDisplayType, OSNotificationDisplayTypeSilent);
     
     [UnitTestCommonMethods clearStateForAppRestart:self];
 
-    // Test old kOSSettingsKeyInAppAlerts
-    [OneSignal setAppSettings:@{kOSSettingsKeyInAppAlerts: @(false)}];
+    [OneSignal setAppSettings:@{kOSSettingsKeyNotificationDisplayOption: @(OSNotificationDisplayTypeNotification)}];
     [UnitTestCommonMethods initOneSignal];
 
-    XCTAssertEqual(OneSignal.inFocusDisplayType, OSNotificationDisplayTypeNone);
+    XCTAssertEqual(OneSignal.notificationDisplayType, OSNotificationDisplayTypeNotification);
 }
 
 - (void)testCallingMethodsWorks_beforeInit {
@@ -846,7 +845,6 @@
  */
 - (void)testNotificationOpen {
     __block BOOL openedWasFire = false;
-    [OneSignal setAppSettings:@{kOSSettingsKeyInAppAlerts: @(true)}];
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertNil(result.notification.payload.additionalData);
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
@@ -899,13 +897,13 @@
     
     // Make sure we track the notification open event
     XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
-    id event =  @{
-                  @"os_notification_opened": @{
-                      @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
-                      @"medium": @"notification",
-                      @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-                      @"source": @"OneSignal"}
-                  };
+    id event = @{
+        @"os_notification_opened": @{
+                @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+                @"medium": @"notification",
+                @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                @"source": @"OneSignal"}
+    };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], event);
 }
 
@@ -931,7 +929,7 @@
               @"medium": @"notification",
               @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
               @"source": @"OneSignal"}
-         };
+    };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[0], received_event);
     
     // Trigger a new app session
@@ -946,12 +944,12 @@
     //   an influence_open should be sent to firebase.
     XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 2);
     id influence_open_event = @{
-       @"os_notification_influence_open": @{
-          @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
-          @"medium": @"notification",
-          @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
-          @"source": @"OneSignal"}
-       };
+        @"os_notification_influence_open": @{
+                @"campaign": @"Template Name - 1117f966-d8cc-11e4-bed1-df8f05be55bb",
+                @"medium": @"notification",
+                @"notification_id": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                @"source": @"OneSignal"}
+    };
     XCTAssertEqualObjects(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents[1], influence_open_event);
 }
 
@@ -1118,73 +1116,6 @@
     XCTAssertEqual(receivedWasFired, true);
 }
 
-// Testing iOS 10 - 2.4.0+ button fromat - with os_data aps payload format
-- (void)notificationAlertButtonsDisplayWithFormat:(NSDictionary *)userInfo {
-    [[OneSignalDialogController sharedInstance] clearQueue];
-    __block BOOL openedWasFire = false;
-    [OneSignal setAppSettings:@{kOSSettingsKeyInAppAlerts: @(true)}];
-    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
-        XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
-        XCTAssertEqualObjects(result.action.actionID, @"id1");
-        id actionButons = @[@{@"id": @"id1", @"text": @"text1"}];
-        XCTAssertEqualObjects(result.notification.payload.actionButtons, actionButons);
-        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
-        
-        XCTAssertEqualObjects(result.notification.payload.threadId, @"test1");
-        
-        openedWasFire = true;
-    }];
-    
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    [notifResponse setValue:@"id1" forKeyPath:@"actionIdentifier"];
-    
-    UNUserNotificationCenter *notifCenter = [UNUserNotificationCenter currentNotificationCenter];
-    id notifCenterDelegate = notifCenter.delegate;
-    [notifCenterDelegate userNotificationCenter:notifCenter
-                        willPresentNotification:[notifResponse notification]
-                          withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
-    
-    [UnitTestCommonMethods runBackgroundThreads];
-
-    XCTAssertEqual(OneSignalDialogControllerOverrider.getCurrentDialog.actionTitles.count, 1);
-    [OneSignalDialogControllerOverrider completeDialog:0];
-    [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertTrue(openedWasFire);
-}
-
-- (void)testOldFormatNotificationAlertButtonsDisplay {
-    OneSignalHelperOverrider.mockIOSVersion = 7;
-    id oldFormat = @{@"aps" : @{
-                             @"mutable-content" : @1,
-                             @"alert" : @{
-                                     @"title" : @"Test Title"
-                                     },
-                             @"thread-id" : @"test1"
-                             },
-                     @"buttons" : @[@{@"i": @"id1", @"n": @"text1"}],
-                     @"custom" : @{
-                             @"i" : @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf"
-                             }
-                     };
-    
-    [self notificationAlertButtonsDisplayWithFormat:oldFormat];
-}
-
-- (void)testNewFormatNotificationAlertButtonsDisplay {
-    OneSignalHelperOverrider.mockIOSVersion = 10;
-    id newFormat = @{@"aps": @{
-                             @"mutable-content": @1,
-                             @"alert": @{@"body": @"Message Body", @"title": @"title"},
-                             @"thread-id": @"test1"
-                             },
-                     @"os_data": @{
-                             @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55bf",
-                             @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
-                             }};
-    
-    [self notificationAlertButtonsDisplayWithFormat:newFormat];
-}
-
 // Testing iOS 10 - with original aps payload format
 - (void)testOpeningWithAdditionalData {
     __block BOOL openedWasFire = false;
@@ -1194,7 +1125,7 @@
         XCTAssertNil(result.action.actionID);
         openedWasFire = true;
     }];
-    
+
     let userInfo = @{@"custom": @{
                       @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
                       @"a": @{ @"foo": @"bar" }
@@ -1207,7 +1138,7 @@
     // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     XCTAssertTrue(openedWasFire);
     
     // Part 2 - New paylaod test
@@ -1566,7 +1497,7 @@ didReceiveRemoteNotification:userInfo
 - (void)permissionChangedInSettingsOutsideOfApp: (BOOL)useSceneDelegate {
 
     [UnitTestCommonMethods clearStateForAppRestart:self];
-    
+
     [self backgroundModesDisabledInXcode];
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusDenied];

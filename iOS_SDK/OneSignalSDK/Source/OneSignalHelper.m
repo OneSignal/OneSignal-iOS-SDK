@@ -187,7 +187,7 @@
         //If remote silent -> shown = false
         //If app is active and in-app alerts are not enabled -> shown = false
         if (_silentNotification ||
-            (_isAppInFocus && OneSignal.inFocusDisplayType == OSNotificationDisplayTypeNone))
+            (_isAppInFocus && OneSignal.notificationDisplayType == OSNotificationDisplayTypeSilent))
             _shown = false;
         
     }
@@ -297,7 +297,7 @@ UIBackgroundTaskIdentifier mediaBackgroundTask;
     [OneSignalHelper lastMessageReceived:nil];
     _lastMessageIdFromAction = nil;
     lastMessageID = @"";
-    
+
     notificationWillShowInForegroundHandler = nil;
     notificationOpenedHandler = nil;
 }
@@ -779,10 +779,10 @@ static OneSignal* singleInstance = nil;
 + (NSString *)downloadMediaAndSaveInBundle:(NSString *)urlString {
     
     let url = [NSURL URLWithString:urlString];
-     
+
     //Download the file
     var name = [self randomStringWithLength:10];
-        
+
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString* filePath = [paths[0] stringByAppendingPathComponent:name];
     
@@ -800,20 +800,20 @@ static OneSignal* singleInstance = nil;
         NSString *extension = [OneSignalHelper getSupportedFileExtensionFromURL:url mimeType:mimeType];
         if (!extension || [extension isEqualToString:@""])
             return nil;
-        
+
         name = [NSString stringWithFormat:@"%@.%@", name, extension];
-        
+
         let newPath = [paths[0] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@", name]];
-        
+
         [[NSFileManager defaultManager] moveItemAtPath:filePath toPath:newPath error:&error];
         
         if (error) {
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error while attempting to download file with URL: %@", error]];
             return nil;
         }
-         
+
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
-         
+
         NSArray* cachedFiles = [standardUserDefaults getSavedObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA defaultValue:nil];
         NSMutableArray* appendedCache;
         if (cachedFiles) {
@@ -822,7 +822,7 @@ static OneSignal* singleInstance = nil;
         }
         else
             appendedCache = [[NSMutableArray alloc] initWithObjects:name, nil];
-         
+
         [standardUserDefaults saveObjectForKey:OSUD_TEMP_CACHED_NOTIFICATION_MEDIA withValue:appendedCache];
         return name;
     } @catch (NSException *exception) {

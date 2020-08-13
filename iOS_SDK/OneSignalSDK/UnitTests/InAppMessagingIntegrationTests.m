@@ -1,28 +1,28 @@
-/**
- * Modified MIT License
- *
- * Copyright 2017 OneSignal
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * 1. The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * 2. All copies of substantial portions of the Software may only be used in connection
- * with services provided by OneSignal.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+/*
+ Modified MIT License
+
+ Copyright 2017 OneSignal
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 #import <XCTest/XCTest.h>
@@ -85,7 +85,7 @@
 
     [OneSignalClientOverrider reset:self];
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
-    
+
     UNUserNotificationCenterOverrider.notifTypesOverride = 7;
     UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusAuthorized];
     
@@ -299,9 +299,7 @@
 
 - (void)testIAMDisplayedAfterTimer {
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0];
-    
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
     [self initOneSignalWithInAppMessage:message];
     
     OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
@@ -326,9 +324,7 @@
 - (void)testDelaysSettingUpTimers {
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
     let secondTrigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@15];
-    
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger]]];
-    
     [self initOneSignalWithInAppMessage:message];
     
     // the timer shouldn't be scheduled yet
@@ -669,9 +665,7 @@
 
 - (void)testTimeSinceLastInAppMessageTrigger_withNoPreviousInAppMessages {
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@10];
-    
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
     [self initOneSignalWithInAppMessage:message];
     
     // Check to make sure the timer was not scheduled since the IAM should just show instantly
@@ -686,9 +680,7 @@
  */
 - (void)testExpiredExactTimeTrigger {
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@-10];
-    
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
     [self initOneSignalWithInAppMessage:message];
     
     // Check to make sure the timer was not scheduled since the IAM should just show instantly
@@ -708,11 +700,8 @@
     NSTimerOverrider.shouldScheduleTimers = false;
     
     let targetTimestamp = NSDate.date.timeIntervalSince1970 - 1000.0f;
-    
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE withOperator:OSTriggerOperatorTypeGreaterThan withValue:@(targetTimestamp)];
-    
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
-    
     [self initOneSignalWithInAppMessage:message];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
@@ -1373,14 +1362,13 @@
     XCTAssertEqual(lastReceivedIds.count, 1);
 }
 
-/**
+/*
  This tests to make sure that:
     (A) The SDK picks the correct language variant to use for in-app messages.
     (B) The SDK loads HTML content with the correct URL
-*/
+ */
 - (void)testMessageHTMLLoadWithCorrectLanguage {
-    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
@@ -1419,14 +1407,13 @@
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
 }
 
-/**
-    This test doesn't check the actual load result (the above test already does this),
+/*
+ This test doesn't check the actual load result (the above test already does this),
     this test makes sure that if there is no matching preferred language that the
     SDK will use the 'default' variant.
-*/
+ */
 - (void)testMessageHTMLLoadWithDefaultLanguage {
-    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     let htmlContents = [OSInAppMessageTestHelper testInAppMessageGetContainsWithHTML:OS_DUMMY_HTML];
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestLoadInAppMessageContent class]) withResponse:htmlContents];
@@ -1457,8 +1444,10 @@
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
 }
 
-// Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
-// Mock response JSON and initializes the OneSignal SDK
+/*
+ Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
+ Mock response JSON and initializes the OneSignal SDK
+ */
 - (void)initOneSignalWithInAppMessage:(OSInAppMessage *)message {
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
     [self initOneSignalWithRegistrationJSON:registrationJson];
