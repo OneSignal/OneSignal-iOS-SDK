@@ -20,13 +20,13 @@
 		</dict>
 		<dict>
 			<key>LibraryIdentifier</key>
-			<string>ios-x86_64_i386-simulator</string>
+			<string>ios-i386_x86_64-simulator</string>
 			<key>LibraryPath</key>
 			<string>OneSignal.framework</string>
 			<key>SupportedArchitectures</key>
 			<array>
-				<string>x86_64</string>
 				<string>i386</string>
+				<string>x86_64</string>
 			</array>
 			<key>SupportedPlatform</key>
 			<string>ios</string>
