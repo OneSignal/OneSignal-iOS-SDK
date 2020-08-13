@@ -536,7 +536,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
     }
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) successful and launchOptions are set, continuing OneSignal init..."];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) successful and launchOptions are set, initializing OneSignal..."];
     [self init];
 }
 
@@ -551,7 +551,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     launchOptions = newLaunchOptions;
     hasSetLaunchOptions = true;
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(id) finished, checking if appId has been set before proceeding...!"];
     if (!appId || appId.length == 0) {
         // Read from .plist if not passed in with this method call
         appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
@@ -562,9 +562,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
                 let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
                 if (!prevAppId) {
-                    [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"launchOptions set, but please call setAppId(appId) with a valid appId to complete OneSignal init!"];
+                    [OneSignal onesignal_Log:ONE_S_LL_INFO message:@"launchOptions set, now waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
                 } else {
-                    [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appContext set and an old appId was found, attempting to call setAppId(oldAppId)"];
+                    let logMessage = [NSString stringWithFormat:@"launchOptions set, initializing OneSignal with cached appId: '%@'.", prevAppId];
+                    [OneSignal onesignal_Log:ONE_S_LL_INFO message:logMessage];
                     [self setAppId:prevAppId];
                 }
                 return;
@@ -572,7 +573,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         }
     }
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, continuing OneSignal init..."];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
     [self init];
 }
 
@@ -702,10 +703,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return true;
 }
 
-+ (void)initSettings:(NSDictionary*)settings withStandardUserDefaults:(OneSignalUserDefaults*)standardUserDefaults {
-
++ (void)initSettings:(NSDictionary*)settings {
     registeredWithApple = self.currentPermissionState.accepted;
     
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
     // Check if disabled in-app launch url if passed a NO
     if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
         [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];

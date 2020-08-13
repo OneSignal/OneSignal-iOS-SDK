@@ -235,7 +235,7 @@
                                              @"NSLocationWhenInUseUsageDescription" : @YES
                                              };
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     [self assertLocationShared_withGrantLocationServices];
 }
@@ -729,7 +729,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     OneSignalHelperOverrider.mockIOSVersion = 9;
     
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     __block BOOL didAccept;
     [OneSignal promptForPushNotificationsWithUserResponse:^(BOOL accepted) {
@@ -1263,8 +1263,8 @@ didReceiveRemoteNotification:userInfo
 // Testing iOS 9 - with os_data aps payload format
 - (void)testGeneratingLocalNotificationWithButtonsiOS9_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 9;
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [self backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
                     @"os_data": @{
@@ -1282,8 +1282,8 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testGeneratingLocalNotificationWithButtonsiOS9 {
     OneSignalHelperOverrider.mockIOSVersion = 9;
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [self backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
                     @"m": @"alert body only",
