@@ -469,6 +469,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 // - Initialization
 + (void)setAppId:(NSString*)newAppId;
 + (void)setLaunchOptions:(NSDictionary*)launchOptions;
+// TODO: Remove before releasing major release 3.0.0
 + (void)setAppSettings:(NSDictionary*)settings;
 
 // - Privacy
