@@ -630,8 +630,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     initializationTime = [NSDate date];
 
     // Outcomes init
-    _sessionManager = [[OneSignalSessionManager alloc] init:self];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
+    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:OneSignal.outcomeEventsCache];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:OneSignal.sessionManager outcomeEventsFactory:_outcomeEventFactory];
 
     if (appId && mShareLocation)
        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
@@ -656,6 +656,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if ([OneSignalTrackFirebaseAnalytics libraryExists])
         [OneSignalTrackFirebaseAnalytics init];
 
+    [OneSignalLifecycleObserver registerLifecycleObserver];
+    
     initDone = true;
 }
 
@@ -2693,7 +2695,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
 
-    [_outcomeEventsController sendClickActionOutcomes:outcomes appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+    [_outcomeEventsController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 + (void)sendOutcome:(NSString * _Nonnull)name {

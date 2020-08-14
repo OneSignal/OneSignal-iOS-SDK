@@ -83,6 +83,7 @@
 - (void)testUnattributedSession_onAppColdStart {
     // 1. Open App
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
     let sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -242,6 +243,7 @@
 - (void)testSavingNullReceivedNotificationId {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -292,6 +294,7 @@
 - (void)testIndirectSession_afterReceiveingNotifications {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -324,6 +327,7 @@
 - (void)testDirectSession_afterReceiveingNotifications {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -359,6 +363,7 @@
 - (void)testUnattributedSession_afterAllNotificationsPastAttributionWindow {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -405,6 +410,7 @@
     // 1. Open app
     //    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -463,6 +469,7 @@
     // 1. Open app
     //    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -521,6 +528,7 @@
     // 1. Open app
     //    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -560,6 +568,7 @@
     // 1. Open app
     //    [UnitTestCommonMethods initOneSignalAndThreadWait];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Make sure all influences are UNATTRIBUTED and has 0 notifications
     NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
@@ -598,6 +607,7 @@
 - (void)testIndirectSessionWontOverrideDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];

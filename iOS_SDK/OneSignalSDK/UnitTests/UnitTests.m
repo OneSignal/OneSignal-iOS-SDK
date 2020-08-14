@@ -1085,14 +1085,13 @@
 - (void)testNotificationReceivedWhileAppInactive {
     __block BOOL openedWasFired = false;
     __block BOOL receivedWasFired = false;
-
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" handleNotificationReceived:^(OSNotification *notification) {
+    
+    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotification *notification) {
         receivedWasFired = true;
-    } handleNotificationAction:^(OSNotificationOpenedResult *result) {
+    } notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         openedWasFired = true;
-    } settings:nil];
-
-    [UnitTestCommonMethods runBackgroundThreads];
+    }];
+    
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
 
     id userInfo = @{@"aps": @{
@@ -1264,7 +1263,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testGeneratingLocalNotificationWithButtonsiOS9_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
                     @"os_data": @{
@@ -1283,7 +1282,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testGeneratingLocalNotificationWithButtonsiOS9 {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     
     let userInfo = @{@"aps": @{@"content_available": @1},
                     @"m": @"alert body only",
@@ -1535,7 +1534,7 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
 
-    [self backgroundApp];
+    [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     

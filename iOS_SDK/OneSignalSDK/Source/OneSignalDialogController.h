@@ -35,8 +35,6 @@ typedef void (^OSDialogActionCompletion)(int tappedActionIndex);
 + (instancetype _Nonnull)sharedInstance;
 - (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActions:(NSArray<NSString *> * _Nullable)actionTitles cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion;
 
-- (void)presentDialogWithMessageDict:(NSDictionary *)messageDict;
-
 - (void)clearQueue;
 @end
 

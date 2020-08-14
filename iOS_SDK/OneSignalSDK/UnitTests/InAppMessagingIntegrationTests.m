@@ -99,8 +99,7 @@
 
     [OSMessagingController.sharedInstance resetState];
 
-    // Set to false so that we don't interfere with other tests
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
 }
 
 /*
@@ -799,7 +798,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -872,7 +871,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
@@ -1115,7 +1114,7 @@
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     let outcomeName = @"test_outcome";
     NSDictionary *outcomeJson = @{
         @"name" : outcomeName,

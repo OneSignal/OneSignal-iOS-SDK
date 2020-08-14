@@ -196,8 +196,6 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
 
     [NSTimerOverrider reset];
-    
-    [OSMessagingControllerOverrider reset];
 
     [OSMessagingController.sharedInstance resetState];
 
