@@ -32,9 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RestClientAsserts : NSObject
 + (void)assertOnSessionAtIndex:(int)index;
 + (void)assertOnFocusAtIndex:(int)index withTime:(int)time;
++ (void)assertOnFocusAtIndex:(int)index withTime:(int)time withNotifications:(NSArray *)notifications direct:(BOOL)direct;
 + (void)assertOnFocusAtIndex:(int)index payload:(NSDictionary*)payload;
 + (void)assertNumberOfMeasureRequests:(int)expectedCount;
++ (void)assertNumberOfMeasureSourcesRequests:(int)expectedCount;
 + (void)assertMeasureAtIndex:(int)index payload:(NSDictionary*)payload;
++ (void)assertMeasureSourcesAtIndex:(int)index payload:(NSDictionary*)payload;
 @end
 
 NS_ASSUME_NONNULL_END

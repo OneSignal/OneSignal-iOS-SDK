@@ -25,6 +25,7 @@
  * THE SOFTWARE.
  */
 
+#import "OneSignalHelper.h"
 #import "OSInAppMessageOutcome.h"
 
 @implementation OSInAppMessageOutcome
@@ -53,7 +54,7 @@
         outcome.weight = @0;
     }
     if ([json[@"unique"] isKindOfClass:[NSNumber class]]) {
-        outcome.unique = json[@"unique"];
+        outcome.unique = [json[@"unique"] boolValue];
     } else {
         outcome.unique = NO;
     }
@@ -63,6 +64,16 @@
 
 + (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
     return nil;
+}
+
+- (NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+    
+    json[@"name"] = self.name;
+    json[@"weight"] = self.weight;
+    json[@"unique"] = @(self.unique);
+
+    return json;
 }
 
 - (NSString *)description {

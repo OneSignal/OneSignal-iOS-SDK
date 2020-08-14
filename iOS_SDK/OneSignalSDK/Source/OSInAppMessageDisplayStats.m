@@ -88,6 +88,10 @@
     return displayStats;
 }
 
++ (instancetype)instancePreviewFromPayload:(OSNotificationPayload *)payload {
+    return [OSInAppMessageDisplayStats new];
+}
+
 -(NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
 

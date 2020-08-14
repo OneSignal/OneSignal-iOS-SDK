@@ -29,13 +29,26 @@
 
 @implementation OSDialogRequest
 
-- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitle:(NSString * _Nullable)actionTitle withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion
-{
+- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitle:(NSString * _Nullable)actionTitle withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion {
+    
     self = [super init];
     if (self) {
         self.title = title;
         self.message = message;
-        self.actionTitle = actionTitle;
+        self.actionTitles = @[actionTitle];
+        self.cancelTitle = cancelTitle;
+        self.completion = completion;
+    }
+    return self;
+}
+
+- (instancetype _Nonnull)initWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActionTitles:(NSArray<NSString *> * _Nullable)actionTitles withCancelTitle:(NSString * _Nonnull)cancelTitle withCompletion:(OSDialogActionCompletion _Nullable)completion {
+    
+    self = [super init];
+    if (self) {
+        self.title = title;
+        self.message = message;
+        self.actionTitles = actionTitles;
         self.cancelTitle = cancelTitle;
         self.completion = completion;
     }

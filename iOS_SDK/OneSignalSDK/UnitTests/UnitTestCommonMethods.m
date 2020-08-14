@@ -46,17 +46,23 @@
 #import "NSTimerOverrider.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OSInAppMessagingHelpers.h"
+#import "OSOutcomeEventsCache.h"
+#import "OSInfluenceDataRepository.h"
 #import "OneSignalLocation.h"
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
+#import "OSMessagingControllerOverrider.h"
+#import "OneSignalLifecycleObserver.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 @interface OneSignal ()
+
 + (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
+
 @end
 
 @implementation UnitTestCommonMethods
@@ -106,18 +112,21 @@ static XCTestCase* _currentXCTestCase;
     // Normal tap on notification
     [notifResponse setValue:@"com.apple.UNNotificationDefaultActionIdentifier" forKeyPath:@"actionIdentifier"];
     
+    [notifResponse setValue:[self createBasiciOSNotificationWithPayload:userInfo] forKeyPath:@"notification"];
+    
+    return notifResponse;
+}
+
++ (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo {
     UNNotificationContent *unNotifContent = [UNNotificationContent alloc];
     UNNotification *unNotif = [UNNotification alloc];
     UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
     // Set as remote push type
     [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
-    
-    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
-    [notifResponse setValue:unNotif forKeyPath:@"notification"];
-    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
     [unNotifContent setValue:userInfo forKey:@"userInfo"];
-    
-    return notifResponse;
+    [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
+    [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
+    return unNotif;
 }
 
 + (void)clearStateForAppRestart:(XCTestCase *)testCase {
@@ -136,6 +145,7 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
     
     [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
+    
     [OneSignalTrackFirebaseAnalytics performSelector:NSSelectorFromString(@"resetLocals")];
     
     [NSObjectOverrider reset];
@@ -144,11 +154,13 @@ static XCTestCase* _currentXCTestCase;
     
     [UIAlertViewOverrider reset];
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
     
     [NSTimerOverrider reset];
     
     [OSMessagingController.sharedInstance resetState];
+    
+    [OneSignalLifecycleObserver removeObserver];
 }
 
 + (void)beforeAllTest:(XCTestCase *)testCase {
@@ -210,14 +222,35 @@ static XCTestCase* _currentXCTestCase;
 
 + (void)foregroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationDidBecomeActive:sharedApp];
+    
+    if ([UIApplication isAppUsingUIScene]) {
+        if (@available(iOS 13.0, *)) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidActivateNotification object:nil];
+        }
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
+    }
 }
 
 + (void)backgroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationWillResignActive:sharedApp];
+    if ([UIApplication isAppUsingUIScene]) {
+        if (@available(iOS 13.0, *)) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneWillDeactivateNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidEnterBackgroundNotification object:nil];
+        }
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+    }
+}
+
+//Call this method before init OneSignal. Make sure not to overwrite the NSBundleDictionary in later calls.
++ (void)useSceneLifecycle:(BOOL)useSceneLifecycle {
+    NSMutableDictionary *currentBundleDictionary = [[NSMutableDictionary alloc] initWithDictionary:NSBundleOverrider.nsbundleDictionary];
+    if (useSceneLifecycle)
+        [currentBundleDictionary setObject:@[@"SceneDelegate"] forKey:@"UIApplicationSceneManifest"];
+    NSBundleOverrider.nsbundleDictionary = currentBundleDictionary;
 }
 
 + (void)setCurrentNotificationPermission:(BOOL)accepted {

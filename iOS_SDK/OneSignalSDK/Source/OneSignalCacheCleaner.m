@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalCacheCleaner.h"
 #import "OneSignalCommonDefines.h"
-#import "OSUniqueOutcomeNotification.h"
+#import "OSCachedUniqueOutcome.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 
@@ -47,7 +47,7 @@
     
     NSTimeInterval timeInSeconds = [[NSDate date] timeIntervalSince1970];
     NSMutableArray *finalNotifications = [NSMutableArray new];
-    for (OSUniqueOutcomeNotification *notif in uniqueOutcomeNotifications) {
+    for (OSCachedUniqueOutcome *notif in uniqueOutcomeNotifications) {
         
         // Save notif if it has been stored for less than or equal to a week
         NSTimeInterval diff = timeInSeconds - [notif.timestamp doubleValue];

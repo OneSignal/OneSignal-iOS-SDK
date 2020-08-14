@@ -41,6 +41,16 @@
 
 @end
 
+@interface OneSignal ()
+
++ (void)handleNotificationOpened:(NSDictionary*)messageDict
+                      foreground:(BOOL)foreground
+                        isActive:(BOOL)isActive
+                      actionType:(OSNotificationActionType)actionType
+                     displayType:(OSNotificationDisplayType)displayType;
+
+@end
+
 @implementation OneSignalDialogController
 
 + (instancetype _Nonnull)sharedInstance {
@@ -55,11 +65,76 @@
     return sharedInstance;
 }
 
-- (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withAction:(NSString * _Nullable)actionTitle cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion {
+- (NSArray<NSString *> *)getActionTitlesFromPayload:(OSNotificationPayload *)payload {
+    NSMutableArray<NSString *> *actionTitles = [NSMutableArray<NSString *> new];
+    if (payload.actionButtons) {
+        for (id button in payload.actionButtons) {
+            [actionTitles addObject:button[@"text"]];
+        }
+    }
+    return actionTitles;
+}
+
+- (void)presentDialogWithMessageDict:(NSDictionary *)messageDict {
+    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"]) {
+        [OneSignalAlertView showInAppAlert:messageDict];
+        return;
+    }
+    let payload = [OSNotificationPayload parseWithApns:messageDict];
+    // Add action buttons to payload
+    NSArray<NSString *> *actionTitles = [self getActionTitlesFromPayload:payload];
+
+    [self presentDialogWithTitle:payload.title withMessage:payload.body withActions:actionTitles cancelTitle:@"Close" withActionCompletion:^(int tappedActionIndex) {
+        OSNotificationActionType actionType = OSNotificationActionTypeOpened;
+
+        NSDictionary *finalDict = messageDict;
+
+        if (tappedActionIndex > -1) {
+
+            actionType = OSNotificationActionTypeActionTaken;
+
+            NSMutableDictionary* userInfo = [messageDict mutableCopy];
+
+            // Fixed for iOS 7, which has 'actionbuttons' as a root property of the dict, not in 'os_data'
+            if (messageDict[@"os_data"] && !messageDict[@"actionbuttons"]) {
+                if ([messageDict[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]])
+                    userInfo[@"actionSelected"] = messageDict[@"os_data"][@"buttons"][@"o"][tappedActionIndex - 1][@"i"];
+                else
+                    userInfo[@"actionSelected"] = messageDict[@"os_data"][@"buttons"][tappedActionIndex][@"i"];
+            } else if (messageDict[@"buttons"]) {
+                 userInfo[@"actionSelected"] = messageDict[@"buttons"][tappedActionIndex][@"i"];
+            } else {
+                NSMutableDictionary* customDict = userInfo[@"custom"] ? [userInfo[@"custom"] mutableCopy] : [NSMutableDictionary new];
+                NSMutableDictionary* additionalData = customDict[@"a"] ? [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]] : [NSMutableDictionary new];
+
+                if([additionalData[@"actionButtons"] isKindOfClass:[NSArray class]]) {
+                    additionalData[@"actionSelected"] = additionalData[@"actionButtons"][tappedActionIndex - 1][@"id"];
+                } else if([messageDict[@"o"] isKindOfClass:[NSArray class]]) {
+                    additionalData[@"actionSelected"] = messageDict[@"o"][tappedActionIndex][@"i"];
+                } else if ([messageDict[@"actionbuttons"] isKindOfClass:[NSArray class]]) {
+                    additionalData[@"actionSelected"] = messageDict[@"actionbuttons"][tappedActionIndex][@"i"];
+                }
+
+                customDict[@"a"] = additionalData;
+                userInfo[@"custom"] = customDict;
+            }
+
+            finalDict = userInfo;
+        }
+
+        [OneSignal handleNotificationOpened:finalDict foreground:YES isActive:YES actionType:actionType displayType:OSNotificationDisplayTypeInAppAlert];
+    }];
+
+    // Message received that was displayed (Foreground + InAppAlert is true)
+    // Call received callback
+    [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeInAppAlert fromBackground:NO];
+}
+
+- (void)presentDialogWithTitle:(NSString * _Nonnull)title withMessage:(NSString * _Nonnull)message withActions:(NSArray<NSString *> * _Nullable)actionTitles cancelTitle:(NSString * _Nonnull)cancelTitle withActionCompletion:(OSDialogActionCompletion _Nullable)completion {
     
     //ensure this UI code executes on the main thread
     dispatch_async(dispatch_get_main_queue(), ^{
-        let request = [[OSDialogRequest alloc] initWithTitle:title withMessage:message withActionTitle:actionTitle withCancelTitle:cancelTitle withCompletion:completion];
+        let request = [[OSDialogRequest alloc] initWithTitle:title withMessage:message withActionTitles:actionTitles withCancelTitle:cancelTitle withCompletion:completion];
         
         [self.queue addObject:request];
         
@@ -78,19 +153,26 @@
     let controller = [UIAlertController alertControllerWithTitle:request.title message:request.message preferredStyle:UIAlertControllerStyleAlert];
     
     [controller addAction:[UIAlertAction actionWithTitle:request.cancelTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-        [self delayResult:false];
+        [self delayResult:-1];
     }]];
     
-    if (request.actionTitle != nil) {
-        [controller addAction:[UIAlertAction actionWithTitle:request.actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [self delayResult:true];
-        }]];
+    if (request.actionTitles != nil) {
+        for (int i = 0; i < request.actionTitles.count; i++) {
+            NSString *actionTitle = request.actionTitles[i];
+            [controller addAction:[UIAlertAction actionWithTitle:actionTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self delayResult:i];
+            }]];
+        }
     }
     
     [rootViewController presentViewController:controller animated:true completion:nil];
 }
 
-- (void)delayResult:(BOOL)result {
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    [self delayResult:(int)buttonIndex-1];
+}
+
+- (void)delayResult:(int)result {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         let currentDialog = self.queue.firstObject;
         
@@ -109,8 +191,8 @@
     });
 }
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    [self delayResult:buttonIndex > 0];
+- (void)clearQueue {
+    self.queue = [NSMutableArray new];
 }
 
 @end

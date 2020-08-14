@@ -30,7 +30,6 @@
 #import "OSAttributedFocusTimeProcessor.h"
 #import "OSUnattributedFocusTimeProcessor.h"
 #import "OneSignalHelper.h"
-#import "OSOutcomesUtils.h"
 
 @implementation OSFocusTimeProcessorFactory
 
@@ -46,7 +45,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
         let timeProcesor = [self.focusTimeProcessors objectForKey:key];
         [timeProcesor cancelDelayedJob];
     }
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"cancelFocusCall of %@", self.focusTimeProcessors]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"cancelFocusCall of %@", self.focusTimeProcessors]];
 }
 
 + (void)resetUnsentActiveTime {
@@ -55,11 +54,18 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
         [timeProcesor resetUnsentActiveTime];
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", self.focusTimeProcessors]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", self.focusTimeProcessors]];
 }
 
-+ (OSBaseFocusTimeProcessor *)createTimeProcessorWithSessionResult:(OSSessionResult *)result focusEventType:(FocusEventType)focusEventType {
-    let isAttributed = [OSOutcomesUtils isAttributedSession:result.session];
++ (OSBaseFocusTimeProcessor *)createTimeProcessorWithInfluences:(NSArray<OSInfluence *> *)lastInfluences focusEventType:(FocusEventType)focusEventType {
+    BOOL isAttributed = NO;
+    for (OSInfluence *influence in lastInfluences) {
+        // At least one channel influenced this session
+        if ([influence isAttributedInfluence]) {
+            isAttributed = YES;
+            break;
+        }
+    }
     let attributionState = isAttributed ? ATTRIBUTED : NOT_ATTRIBUTED;
     NSString *key = focusAttributionStateString(attributionState);
     
@@ -80,8 +86,8 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
         [self.focusTimeProcessors setValue:timeProcesor forKey:key];
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-                     message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %d",timeProcesor, isAttributed]];
+    [OneSignal onesignal_Log:ONE_S_LL_DEBUG
+                     message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %d", timeProcesor, isAttributed]];
     
     return timeProcesor;
 }

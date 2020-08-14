@@ -80,17 +80,24 @@
 // Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
+#define OSUD_OUTCOMES_V2                                                    @"OSUD_OUTCOMES_V2"
 #define OSUD_NOTIFICATION_LIMIT                                             @"NOTIFICATION_LIMIT"                                               // * OSUD_NOTIFICATION_LIMIT
+#define OSUD_IAM_LIMIT                                                      @"OSUD_IAM_LIMIT"
 #define OSUD_NOTIFICATION_ATTRIBUTION_WINDOW                                @"NOTIFICATION_ATTRIBUTION_WINDOW"                                  // * OSUD_NOTIFICATION_ATTRIBUTION_WINDOW
+#define OSUD_IAM_ATTRIBUTION_WINDOW                                         @"OSUD_IAM_ATTRIBUTION_WINDOW"
 #define OSUD_DIRECT_SESSION_ENABLED                                         @"DIRECT_SESSION_ENABLED"                                           // * OSUD_DIRECT_SESSION_ENABLED
 #define OSUD_INDIRECT_SESSION_ENABLED                                       @"INDIRECT_SESSION_ENABLED"                                         // * OSUD_INDIRECT_SESSION_ENABLED
 #define OSUD_UNATTRIBUTED_SESSION_ENABLED                                   @"UNATTRIBUTED_SESSION_ENABLED"                                     // * OSUD_UNATTRIBUTED_SESSION_ENABLED
-#define OSUD_CACHED_SESSION                                                 @"CACHED_SESSION"                                                   // * OSUD_CACHED_SESSION
+#define OSUD_CACHED_NOTIFICATION_INFLUENCE                                  @"CACHED_SESSION"                                                   // * OSUD_CACHED_NOTIFICATION_INFLUENCE
+#define OSUD_CACHED_IAM_INFLUENCE                                           @"OSUD_CACHED_IAM_INFLUENCE"
 #define OSUD_CACHED_DIRECT_NOTIFICATION_ID                                  @"CACHED_DIRECT_NOTIFICATION_ID"                                    // * OSUD_CACHED_DIRECT_NOTIFICATION_ID
 #define OSUD_CACHED_INDIRECT_NOTIFICATION_IDS                               @"CACHED_INDIRECT_NOTIFICATION_IDS"                                 // * OSUD_CACHED_INDIRECT_NOTIFICATION_IDS
 #define OSUD_CACHED_RECEIVED_NOTIFICATION_IDS                               @"CACHED_RECEIVED_NOTIFICATION_IDS"                                 // * OSUD_CACHED_RECEIVED_NOTIFICATION_IDS
+#define OSUD_CACHED_RECEIVED_IAM_IDS                                        @"OSUD_CACHED_RECEIVED_IAM_IDS"
 #define OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT                 @"CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT"                   // * OSUD_CACHED_UNATTRIBUTED_UNIQUE_OUTCOME_EVENTS_SENT
 #define OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT   @"CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT"     // * OSUD_CACHED_ATTRIBUTED_UNIQUE_OUTCOME_EVENT_NOTIFICATION_IDS_SENT
+// Migration
+#define OSUD_CACHED_SDK_VERSION                                             @"OSUD_CACHED_SDK_VERSION"
 // Time Tracking
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
@@ -115,6 +122,7 @@
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
+#define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
 
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
@@ -139,11 +147,17 @@
 
 #define ONESIGNAL_SUPPORTED_ATTACHMENT_TYPES @[@"aiff", @"wav", @"mp3", @"mp4", @"jpg", @"jpeg", @"png", @"gif", @"mpeg", @"mpg", @"avi", @"m4a", @"m4v"]
 
-// OneSignal Session Strings
-#define OS_SESSION_STRINGS @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"]
-// Convert String to Session enum and vice versa
-#define OS_SESSION_TO_STRING(enum) [OS_SESSION_STRINGS objectAtIndex:enum]
-#define OS_SESSION_FROM_STRING(string) [OS_SESSION_STRINGS indexOfObject:string]
+// OneSignal Influence Strings
+#define OS_INFLUENCE_TYPE_STRINGS @[@"DIRECT", @"INDIRECT", @"UNATTRIBUTED", @"DISABLED"]
+// Convert String to Influence enum and vice versa
+#define OS_INFLUENCE_TYPE_TO_STRING(enum) [OS_INFLUENCE_TYPE_STRINGS objectAtIndex:enum]
+#define OS_INFLUENCE_TYPE_FROM_STRING(string) [OS_INFLUENCE_TYPE_STRINGS indexOfObject:string]
+
+// OneSignal Influence Channel
+#define OS_INFLUENCE_CHANNEL_STRING @[@"IN_APP_MESSAGE", @"NOTIFICATION"]
+// Convert String to Influence Channel enum and vice versa
+#define OS_INFLUENCE_CHANNEL_TO_STRING(enum) [OS_INFLUENCE_CHANNEL_STRING objectAtIndex:enum]
+#define OS_INFLUENCE_CHANNEL_FROM_STRING(string) [OS_INFLUENCE_CHANNEL_STRING indexOfObject:string]
 
 // OneSignal Prompt Action Result
 typedef enum {PERMISSION_GRANTED, PERMISSION_DENIED, LOCATION_PERMISSIONS_MISSING_INFO_PLIST, ERROR} PromptActionResult;

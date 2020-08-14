@@ -33,6 +33,7 @@
 #import "OneSignal.h"
 #import "OneSignalClient.h"
 #import "Requests.h"
+#import "OneSignalDialogController.h"
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
@@ -209,7 +210,7 @@ static OneSignalLocation* singleInstance = nil;
         //   - Fallback to settings is enabled
         //   - Permission were denied
         if (prompt && fallback && permissionStatus == kCLAuthorizationStatusDenied)
-            [self showLocationSettingsAlertView];
+            [self showLocationSettingsAlertController];
         else
             [self sendCurrentAuthStatusToListeners];
         return;
@@ -261,22 +262,16 @@ static OneSignalLocation* singleInstance = nil;
     started = true;
 }
 
-+ (void)showLocationSettingsAlertView {
++ (void)showLocationSettingsAlertController {
     onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManager permissionStatus kCLAuthorizationStatusDenied fallaback to settings");
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Location Not Available" message:@"You have previously denied sharing your device location. Please go to settings to enable." delegate:singleInstance cancelButtonTitle:@"Cancel" otherButtonTitles:@"Open Settings", nil];
-    alertView.tag = alertSettingsTag;
-    [alertView show];
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-   if (alertView.tag == alertSettingsTag) {
-       if (buttonIndex == 1) {
-           onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManage open settings option click");
-           [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-       }
-       [OneSignalLocation sendAndClearLocationListener:false];
-       return;
-   }
+    [[OneSignalDialogController sharedInstance] presentDialogWithTitle:@"Location Not Available" withMessage:@"You have previously denied sharing your device location. Please go to settings to enable." withActions:@[@"Open Settings"] cancelTitle:@"Cancel" withActionCompletion:^(int tappedActionIndex) {
+        if (tappedActionIndex > -1) {
+            onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManage open settings option click");
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }
+        [OneSignalLocation sendAndClearLocationListener:false];
+        return;
+    }];
 }
 
 #pragma mark CLLocationManagerDelegate

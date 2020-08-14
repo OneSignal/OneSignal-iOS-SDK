@@ -79,6 +79,12 @@ RELEASE_OUTPUT_FRAMEWORK_DIR="${WORKING_DIR}/Framework/OneSignal.framework"
 rm -rf "${WORKING_DIR}/Framework/OneSignal.framework"
 cp -a "${FINAL_FRAMEWORK}" "${WORKING_DIR}/Framework/OneSignal.framework"
 
+echo "Copying public header for SwiftPM"
+#Copy the public header to the SwiftPM public headers directory
+rm -rf "${WORKING_DIR}/SwiftPM"
+mkdir -p "${WORKING_DIR}/SwiftPM/Public/Headers/OneSignal"
+cp -a "${WORKING_DIR}/Source/OneSignal.h" "${WORKING_DIR}/SwiftPM/Public/Headers/OneSignal/OneSignal.h"
+
 echo "Listing frameworks of final framework"
 file "${RELEASE_OUTPUT_FRAMEWORK_DIR}/Versions/A/OneSignal"
 ls -l "${RELEASE_OUTPUT_FRAMEWORK_DIR}/Versions/A/OneSignal"
