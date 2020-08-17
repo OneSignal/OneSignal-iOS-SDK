@@ -628,6 +628,7 @@ static BOOL _isInAppMessagingPaused = false;
     let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
                                                     withPlayerId:OneSignal.currentSubscriptionState.userId
                                                    withMessageId:message.messageId
+                                                      withPageId:action.pageId
                                                     forVariantId:message.variantId
                                                       withAction:action];
 

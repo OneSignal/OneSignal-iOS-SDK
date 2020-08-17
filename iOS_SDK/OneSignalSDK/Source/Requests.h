@@ -127,6 +127,7 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
+                        withPageId:(NSString * _Nullable)pageId
                       forVariantId:(NSString * _Nonnull)variantId
                      withAction:(OSInAppMessageAction * _Nonnull)action;
 @end
