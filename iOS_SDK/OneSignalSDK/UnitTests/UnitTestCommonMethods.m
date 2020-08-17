@@ -81,6 +81,15 @@ static XCTestCase* _currentXCTestCase;
 }
 
 /*
+ Init OneSignal and foreground the app and then run background threads
+ */
++ (void)initOneSignal_andThreadWaitWithForeground {
+    [self initOneSignal];
+    [self foregroundApp];
+    [self runBackgroundThreads];
+}
+
+/*
  Init OneSignal with default appId (@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba") and launchOptions (nil)
  Params passed will be used to set notificationWillShowInForegroundHandler & notificationOpenedHandler
  */

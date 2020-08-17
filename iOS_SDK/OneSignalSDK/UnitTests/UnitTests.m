@@ -771,6 +771,7 @@
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
     
     // Run pending player create call, notification_types should never answnser prompt
+    [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
@@ -782,44 +783,6 @@
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, serverUrlWithPath(@"players/1234"));
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @(NOTIFICATION_TYPE_NONE));
-}
-
-- (void)testIdsAvailableNotAcceptingNotifications {
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @true}];
-    [UnitTestCommonMethods initOneSignal];
-
-    __block BOOL idsAvailable1Called = false;
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        idsAvailable1Called = true;
-    }];
-    #pragma clang diagnostic pop
-
-    [UnitTestCommonMethods runBackgroundThreads];
-
-    [self registerForPushNotifications];
-
-    [UnitTestCommonMethods answerNotificationPrompt:false];
-
-    [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertTrue(idsAvailable1Called);
-
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-
-    __block BOOL idsAvailable2Called = false;
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignal IdsAvailable:^(NSString *userId, NSString *pushToken) {
-        idsAvailable2Called = true;
-    }];
-    #pragma clang diagnostic pop
-
-    [UnitTestCommonMethods runBackgroundThreads];
-
-    XCTAssertTrue(idsAvailable2Called);
 }
 
 /*
@@ -1068,7 +1031,7 @@
     __block BOOL openedWasFired = false;
     __block BOOL receivedWasFired = false;
 
-    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotification *notification) {
+    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotificationGenerationJob *job) {
         receivedWasFired = true;
     } notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         openedWasFired = true;

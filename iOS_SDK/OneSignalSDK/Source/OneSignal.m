@@ -1961,7 +1961,7 @@ static NSString *_lastnonActiveMessageId;
     OSNotificationDisplayType type = self.notificationDisplayType;
     // check to make sure the app is in focus and it's a OneSignal notification
     if (![OneSignalHelper isOneSignalPayload:payload]
-        || UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
+        || UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
         completion(type);
         return;
     }

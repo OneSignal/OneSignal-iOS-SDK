@@ -46,8 +46,9 @@ NSString * serverUrlWithPath(NSString *path);
                           withLaunchOptions:(NSDictionary*)launchOptions
 withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
               withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
-// Inits with no thread waits, foregrounding app, or running selectors
+// Inits with thread waits
 + (void)initOneSignal_andThreadWait;
++ (void)initOneSignal_andThreadWaitWithForeground;
 + (void)initOneSignalWithHanders_andThreadWait:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
                       notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
 + (void)initOneSignalWithAppId:(NSString*)appId
