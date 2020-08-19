@@ -58,6 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clearClickIds;
 - (void)addClickId:(NSString *)clickId;
 
+- (NSSet<NSString *> *)getViewedPageIds;
+- (void)clearPageIds;
+- (void)addPageId:(NSString *)pageId;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -284,6 +284,10 @@ static BOOL _isInAppMessagingPaused = false;
     if (![self shouldSendImpression:message])
         return;
     
+    if ([[message getViewedPageIds] containsObject:action.pageId]) {
+        return;
+    }
+    [message addPageId:action.pageId];
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
                                                    withPlayerId:OneSignal.currentSubscriptionState.userId
@@ -405,6 +409,7 @@ static BOOL _isInAppMessagingPaused = false;
             [self.seenInAppMessages removeObject:message.messageId];
             [self.impressionedInAppMessages removeObject:message.messageId];
             [message clearClickIds];
+            [message clearPageIds];
             return;
         }
     }
