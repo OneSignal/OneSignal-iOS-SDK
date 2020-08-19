@@ -420,6 +420,29 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 }
 @end
 
+@implementation OSRequestInAppMessagePageViewed
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+                      withPlayerId:(NSString * _Nonnull)playerId
+                     withMessageId:(NSString * _Nonnull)messageId
+                        withPageId:(NSString * _Nonnull)pageId
+                      forVariantId:(NSString *)variantId {
+    let request = [OSRequestInAppMessagePageViewed new];
+
+    request.parameters = @{
+       @"device_type": @0,
+       @"player_id": playerId,
+       @"app_id": appId,
+       @"variant_id": variantId,
+       @"page_id": pageId
+    };
+
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"in_app_messages/%@/pageImpression", messageId];
+
+    return request;
+}
+@end
+
 @implementation OSRequestInAppMessageClicked
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId
