@@ -280,6 +280,32 @@ static BOOL _isInAppMessagingPaused = false;
     });
 }
 
+- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+    if (![self shouldSendImpression:message])
+        return;
+    
+    // Create the request and attach a payload to it
+    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
+                                                   withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                  withMessageId:message.messageId
+                                                     withPageId:action.pageId
+                                                   forVariantId:message.variantId];
+    
+    [OneSignalClient.sharedClient executeRequest:metricsRequest
+                                       onSuccess:^(NSDictionary *result) {
+        NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, action.pageId, result];
+                                           [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
+                                       }
+                                       onFailure:^(NSError *error) {
+        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, action.pageId, error];
+                                           [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+                                       }];
+}
+
+- (BOOL)shouldSendImpression:(OSInAppMessage *)message {
+    return !(message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId]);
+}
+
 /*
  Make an impression POST to track that the IAM has been
  Request should only be made for IAMs that are not previews and have not been impressioned yet
@@ -287,7 +313,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)messageViewImpressionRequest:(OSInAppMessage *)message {
     // Make sure no tracking is performed for previewed IAMs
     // If the messageId exists in cached impressionedInAppMessages return early so the impression is not tracked again
-    if (message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId])
+    if (![self shouldSendImpression:message])
         return;
     
     // Add messageId to impressionedInAppMessages
@@ -314,6 +340,12 @@ static BOOL _isInAppMessagingPaused = false;
                                            // If the post failed, remove the messageId from the impressionedInAppMessages set
                                            [self.impressionedInAppMessages removeObject:message.messageId];
                                        }];
+}
+
+- (void)sendPageImpression:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+    dispatch_async(dispatch_get_main_queue(), ^{
+           [self messageViewPageImpressionRequest:message withAction:action];
+    });
 }
 
 /*
@@ -589,6 +621,10 @@ static BOOL _isInAppMessagingPaused = false;
     [self sendClickRESTCall:message withAction:action];
     [self sendTagCallWithAction:action];
     [self sendOutcomes:action.outcomes forMessageId:message.messageId];
+}
+
+- (void)messageViewDidDisplayPageAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+    [self sendPageImpression:message withAction:action];
 }
 
 /*

@@ -651,6 +651,10 @@
                 [self.messageView loadReplacementURL:event.userAction.clickUrl];
             if (event.userAction.closesMessage)
                 [self dismissCurrentInAppMessage];
+            /*
+             if (event.userAction.pageDisplay)
+                [self.delegate messageViewDidDisplayPageAction:self.message withAction: event.userAction];
+             */
         }
     }
 }
