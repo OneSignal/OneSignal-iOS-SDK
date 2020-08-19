@@ -35,7 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
     OSInAppMessageBridgeEventTypePageRenderingComplete,
     OSInAppMessageBridgeEventTypeActionTaken,
-    OSInAppMessageBridgeEventTypePageResize
+    OSInAppMessageBridgeEventTypePageResize,
+    OSInAppMessageBridgeEventTypePageChange,
 };
 
 @interface OSInAppMessageBridgeEventRenderingComplete : NSObject <OSJSONDecodable>
