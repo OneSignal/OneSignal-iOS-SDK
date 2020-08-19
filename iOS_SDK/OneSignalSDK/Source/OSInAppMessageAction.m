@@ -63,6 +63,9 @@
     if ([json[@"name"] isKindOfClass:[NSString class]])
         action.clickName = json[@"name"];
     
+    if ([json[@"pageId"] isKindOfClass:[NSString class]])
+        action.pageId = json[@"pageId"];
+    
     if ([json[@"url_target"] isKindOfClass:[NSString class]] && OS_IS_VALID_URL_ACTION(json[@"url_target"]))
         action.urlActionType = OS_URL_ACTION_TYPE_FROM_STRING(json[@"url_target"]);
     else
