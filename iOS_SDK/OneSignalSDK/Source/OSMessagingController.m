@@ -280,28 +280,28 @@ static BOOL _isInAppMessagingPaused = false;
     });
 }
 
-- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId {
     if (![self shouldSendImpression:message])
         return;
     
-    if ([[message getViewedPageIds] containsObject:action.pageId]) {
+    if ([[message getViewedPageIds] containsObject:pageId]) {
         return;
     }
-    [message addPageId:action.pageId];
+    [message addPageId:pageId];
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
-                                                   withPlayerId:OneSignal.currentSubscriptionState.userId
-                                                  withMessageId:message.messageId
-                                                     withPageId:action.pageId
-                                                   forVariantId:message.variantId];
+                                                       withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                      withMessageId:message.messageId
+                                                         withPageId:pageId
+                                                       forVariantId:message.variantId];
     
     [OneSignalClient.sharedClient executeRequest:metricsRequest
                                        onSuccess:^(NSDictionary *result) {
-        NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, action.pageId, result];
+        NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, pageId, result];
                                            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
                                        }
                                        onFailure:^(NSError *error) {
-        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, action.pageId, error];
+        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error];
                                            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
                                        }];
 }
@@ -344,12 +344,6 @@ static BOOL _isInAppMessagingPaused = false;
                                            // If the post failed, remove the messageId from the impressionedInAppMessages set
                                            [self.impressionedInAppMessages removeObject:message.messageId];
                                        }];
-}
-
-- (void)sendPageImpression:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
-    dispatch_async(dispatch_get_main_queue(), ^{
-           [self messageViewPageImpressionRequest:message withAction:action];
-    });
 }
 
 /*
@@ -628,8 +622,10 @@ static BOOL _isInAppMessagingPaused = false;
     [self sendOutcomes:action.outcomes forMessageId:message.messageId];
 }
 
-- (void)messageViewDidDisplayPageAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
-    [self sendPageImpression:message withAction:action];
+- (void)messageViewDidDisplayPage:(OSInAppMessage *)message withPageId:(NSString *)pageId {
+    dispatch_async(dispatch_get_main_queue(), ^{
+           [self messageViewPageImpressionRequest:message withPageId:pageId];
+    });
 }
 
 /*

@@ -658,7 +658,7 @@
                 break;
             }
             case OSInAppMessageBridgeEventTypePageChange: {
-                [self.delegate messageViewDidDisplayPageAction:self.message withAction: event.userAction];
+                [self.delegate messageViewDidDisplayPage:self.message withPageId: event.pageChange.page.pageId];
                 break;
             }
             default:
