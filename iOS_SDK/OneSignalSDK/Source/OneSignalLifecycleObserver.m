@@ -80,7 +80,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)didBecomeActive {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"application/scene didBecomeActive"];
     
-    if ([OneSignal app_id]) {
+    if ([OneSignal appId]) {
         [OneSignalTracker onFocus:NO];
         [OneSignalLocation onFocus:YES];
         [[OSMessagingController sharedInstance] onApplicationDidBecomeActive];
@@ -90,14 +90,14 @@ static OneSignalLifecycleObserver* _instance = nil;
 - (void)willResignActive {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
     
-    if ([OneSignal app_id])
+    if ([OneSignal appId])
         [OneSignalTracker onFocus:YES];
 }
 
 - (void)didEnterBackground {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
     
-    if ([OneSignal app_id])
+    if ([OneSignal appId])
         [OneSignalLocation onFocus:NO];
 }
 

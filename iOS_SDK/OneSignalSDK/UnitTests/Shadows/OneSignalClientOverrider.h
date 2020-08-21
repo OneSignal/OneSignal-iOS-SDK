@@ -31,22 +31,22 @@
 #import "OneSignalRequest.h"
 
 @interface OneSignalClientOverrider : NSObject
-+(void)reset:(XCTestCase*)testInstance;
-+(void)enableOutcomes;
-+(void)setLastHTTPRequest:(NSDictionary*)value;
-+(NSDictionary*)lastHTTPRequest;
-+(int)networkRequestCount;
-+(void)setLastUrl:(NSString*)value;
-+(NSString*)lastUrl;
-+(void)setShouldExecuteInstantaneously:(BOOL)instant;
-+(dispatch_queue_t)getHTTPQueue;
-+(void)runBackgroundThreads;
-+(NSString *)lastHTTPRequestType;
-+(void)setRequiresEmailAuth:(BOOL)required;
-+(BOOL)hasExecutedRequestOfType:(Class)type;
-+(void)setShouldUseProvisionalAuth:(BOOL)provisional;
-+(void)disableExecuteRequestOverride:(BOOL)disable;
-+(NSArray<OneSignalRequest *> *)executedRequests;
++ (void)reset:(XCTestCase*)testInstance;
++ (void)enableOutcomes;
++ (void)setLastHTTPRequest:(NSDictionary*)value;
++ (NSDictionary*)lastHTTPRequest;
++ (int)networkRequestCount;
++ (void)setLastUrl:(NSString*)value;
++ (NSString*)lastUrl;
++ (void)setShouldExecuteInstantaneously:(BOOL)instant;
++ (dispatch_queue_t)getHTTPQueue;
++ (void)runBackgroundThreads;
++ (NSString *)lastHTTPRequestType;
++ (void)setRequiresEmailAuth:(BOOL)required;
++ (BOOL)hasExecutedRequestOfType:(Class)type;
++ (void)setShouldUseProvisionalAuth:(BOOL)provisional;
++ (void)disableExecuteRequestOverride:(BOOL)disable;
++ (NSArray<OneSignalRequest *> *)executedRequests;
 + (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
 @end
 

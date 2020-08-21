@@ -41,13 +41,15 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation OneSignalClientOverrider
+
 static dispatch_queue_t serialMockMainLooper;
+static dispatch_queue_t executionQueue;
+
 static NSString* lastUrl;
 static int networkRequestCount;
 static NSDictionary* lastHTTPRequest;
 static XCTestCase* currentTestInstance;
 static BOOL executeInstantaneously = true;
-static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
@@ -64,11 +66,8 @@ static NSDictionary* iOSParamsOutcomes;
     injectToProperClass(@selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:), @selector(executeSimultaneousRequests:withSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
     injectToProperClass(@selector(overrideExecuteDataRequest:onSuccess:onFailure:), @selector(executeDataRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
 
-
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
-    
     executedRequests = [NSMutableArray new];
-
     mockResponses = [NSMutableDictionary new];
 }
 
