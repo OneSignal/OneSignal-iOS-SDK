@@ -89,7 +89,6 @@
         OSSubscriptionStateTestObserver *subscriptionObserver = [OSSubscriptionStateTestObserver new];
         [OneSignal addSubscriptionObserver:subscriptionObserver];
         
-        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
         [UnitTestCommonMethods initOneSignal_andThreadWait];
         
         let state = [OneSignal getPermissionSubscriptionState];
@@ -126,7 +125,6 @@
         OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
         [UNUserNotificationCenterOverrider setShouldSetProvisionalAuthorizationStatus:true];
 
-        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
         [UnitTestCommonMethods initOneSignal_andThreadWait];
         
         [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:true];
@@ -166,7 +164,6 @@
     if (@available(iOS 12, *)) {
         OSPermissionStateTestObserver* observer = [self setupProvisionalTest];
         
-        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
         [UnitTestCommonMethods initOneSignal_andThreadWait];
         
         //ensure the SDK did not request provisional authorization
@@ -189,7 +186,6 @@
         OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
         [OneSignal addPermissionObserver:observer];
         
-        [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
         [UnitTestCommonMethods initOneSignal_andThreadWait];
         
         //ensure the SDK did not request provisional authorization
@@ -203,7 +199,6 @@
 - (void)testOSDeviceHasEmailAddress {
     NSString *testEmail = @"test@onesignal.com";
     
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     XCTAssertNil([[OneSignal getUserDevice] getEmailAddress]);
@@ -217,7 +212,6 @@
 - (void)testOSDeviceHasEmailId {
     NSString *testEmail = @"test@onesignal.com";
     
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     XCTAssertNil([[OneSignal getUserDevice] getEmailAddress]);
@@ -229,42 +223,36 @@
 }
 
 - (void)testOSDeviceHasUserId {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertNotNil([[OneSignal getUserDevice] getUserId]);
 }
 
 - (void)testOSDeviceHasPushToken {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertNotNil([[OneSignal getUserDevice] getPushToken]);
 }
 
 - (void)testOSDeviceSubscribed {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertTrue([[OneSignal getUserDevice] isSubscribed]);
 }
 
 - (void)testOSDeviceUserSubscribed {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertTrue([[OneSignal getUserDevice] isUserSubscribed]);
 }
 
 - (void)testOSDeviceNotificationReachable {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertTrue([[OneSignal getUserDevice] isNotificationEnabled]);
 }
 
 - (void)testOSDeviceHasNotificationPermissionStatus {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertEqual(OSNotificationPermissionAuthorized, [[OneSignal getUserDevice] getNotificationPermissionStatus]);

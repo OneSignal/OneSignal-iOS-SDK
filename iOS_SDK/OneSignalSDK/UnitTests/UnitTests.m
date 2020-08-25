@@ -410,7 +410,6 @@
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
 
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     
@@ -420,7 +419,6 @@
     // Restart App
     [UnitTestCommonMethods clearStateForAppRestart:self];
 
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     
     observer = [OSPermissionStateTestObserver new];
@@ -433,7 +431,6 @@
 
 - (void)testPermissionChangeObserverDontLoseFromChanges {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [self registerForPushNotifications];
@@ -485,7 +482,6 @@
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
@@ -541,7 +537,6 @@
 - (void)testDeliverQuietly {
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:false];
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
@@ -591,7 +586,6 @@
 
 - (void)testPermissionAndSubscriptionChangeObserverRemove {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     
     OSPermissionStateTestObserver* permissionObserver = [OSPermissionStateTestObserver new];
@@ -612,7 +606,6 @@
 
 - (void)testSubscriptionChangeObserverBasic {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
@@ -741,7 +734,6 @@
 - (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @7);
@@ -750,7 +742,6 @@
 
 - (void)testNeverPromptedStatus {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     
     [UnitTestCommonMethods runBackgroundThreads];
@@ -1780,7 +1771,6 @@ didReceiveRemoteNotification:userInfo
 -(void)testDelayedSubscriptionUpdate {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
 
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal setLaunchOptions:nil];
     
@@ -1848,7 +1838,6 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)assertUserConsent {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal setLaunchOptions:nil];
     
@@ -1879,7 +1868,6 @@ didReceiveRemoteNotification:userInfo
     
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
 
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal setLaunchOptions:nil];
     
@@ -2132,7 +2120,6 @@ didReceiveRemoteNotification:userInfo
     //set up the test so that the user has declined the prompt.
     //we can then call prompt with Settings fallback.
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal setLaunchOptions:nil];
     
@@ -2190,7 +2177,6 @@ didReceiveRemoteNotification:userInfo
     // do not answer the prompt (apns will not respond)
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
 
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];

@@ -95,7 +95,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testSetAuthenticatedEmail {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignal setEmail:@"test@test.com"
@@ -138,7 +137,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testUnauthenticatedEmail {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignal setEmail:@"test@test.com"
@@ -183,7 +181,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testInvalidEmail {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
@@ -223,7 +220,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 - (void)testRequiresEmailAuth {
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
@@ -256,7 +252,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testDoesNotRequireEmailAuth {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
@@ -293,7 +288,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 - (void)testSubscriptionState {
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let unsubscribedSubscriptionStatus = [OneSignal getPermissionSubscriptionState].emailSubscriptionStatus;
@@ -341,7 +335,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
@@ -434,7 +427,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testRegistration {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignalClientOverrider setRequiresEmailAuth:true];
@@ -470,7 +462,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     let observer = [OSEmailSubscriptionStateTestObserver new];
     [OneSignal addEmailSubscriptionObserver:observer];
     
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
@@ -492,7 +483,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testSetExternalIdForEmailPlayer {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignal setEmail:@"test@test.com"];
