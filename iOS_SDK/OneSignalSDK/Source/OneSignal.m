@@ -1598,20 +1598,40 @@ static dispatch_queue_t serialQueue;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    // We should delay registration if we are waiting on APNS
-    // But if APNS hasn't responded within 30 seconds,
-    // we should continue and register the user.
-    if (waitingForApnsResponse && initializationTime && [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait) {
+    if ([self shouldRegisterUserAfterDelay]) {
         [self registerUserAfterDelay];
         return;
     }
     
+    [self registerUserNow];
+}
+
++(void)registerUserNow {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserNow"];
+
     if (!serialQueue)
         serialQueue = dispatch_queue_create("com.onesignal.regiseruser", DISPATCH_QUEUE_SERIAL);
-   
-   dispatch_async(serialQueue, ^{
+    
+    dispatch_async(serialQueue, ^{
         [self registerUserInternal];
-    });
+     });
+}
+
+// We should delay registration if we are waiting on APNS
+// But if APNS hasn't responded within 30 seconds (maxApnsWait),
+// we should continue and register the user.
++ (BOOL)shouldRegisterUserAfterDelay {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", waitingForApnsResponse]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:initializationTime: %@", initializationTime]];
+    
+    // If there isn't an initializationTime yet then the SDK hasn't finished initializing so we should delay
+    if (!initializationTime)
+        return true;
+    
+    if (!waitingForApnsResponse)
+        return false;
+    
+    return [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait;
 }
 
 + (void)registerUserInternal {
