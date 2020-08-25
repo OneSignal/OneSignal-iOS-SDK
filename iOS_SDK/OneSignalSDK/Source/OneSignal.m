@@ -91,8 +91,6 @@
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
-NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
-
 /* Enable the default in-app launch urls*/
 NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
@@ -195,7 +193,6 @@ static int mSubscriptionStatus = -1;
 BOOL disableBadgeClearing = NO;
 BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
-BOOL usesAutoPrompt = false;
 
 static BOOL providesAppNotificationSettings = false;
 
@@ -453,7 +450,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appSettings = nil;
     hasSetLaunchOptions = false;
     initDone = false;
-    usesAutoPrompt = false;
     requestedProvisionalAuthorization = false;
 
     registeredWithApple = false;
@@ -715,15 +711,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [self enableInAppLaunchURL:true];
     }
     
-    usesAutoPrompt = YES;
-    if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
-        usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
-    
     if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
         providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-    if (usesAutoPrompt || registeredWithApple)
+    if (registeredWithApple)
         [self registerForPushNotifications];
     else {
         [self checkProvisionalAuthorizationStatus];
@@ -834,7 +826,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
             }
         }
 
-        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+        if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
             
             [self checkProvisionalAuthorizationStatus];
