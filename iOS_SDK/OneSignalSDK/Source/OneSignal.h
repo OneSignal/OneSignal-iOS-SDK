@@ -435,22 +435,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 /*Block for handling outcome event being sent successfully*/
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
-/*Dictionary of keys to pass alongside the init settings*/
-    
-/*Let OneSignal directly prompt for push notifications on init*/
-extern NSString * const kOSSettingsKeyAutoPrompt;
-
-/*Enable In-App display of Launch URLs*/
-extern NSString * const kOSSettingsKeyInAppLaunchURL;
-
-/* iOS 12 +
- Used to determine if the app is able to present it's
- own customized Notification Settings view
-*/
-extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
-
-
-
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
@@ -470,8 +454,8 @@ extern NSString* const ONESIGNAL_VERSION;
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
 + (void)setLaunchOptions:(NSDictionary* _Nullable)launchOptions;
-// TODO: Remove before releasing major release 3.0.0
-+ (void)setAppSettings:(NSDictionary* _Nonnull)settings;
++ (void)setLaunchURLsInApp:(BOOL)launchInApp;
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {

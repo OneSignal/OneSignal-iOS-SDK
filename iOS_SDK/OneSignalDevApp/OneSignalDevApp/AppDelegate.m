@@ -74,13 +74,11 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
     
-    // OneSignal Init with app settings, app id, and lauch options
-    [OneSignal setAppSettings:@{
-        kOSSettingsKeyAutoPrompt: @false,
-        kOSSettingsKeyInAppLaunchURL: @true
-    }];
+    // OneSignal Init app id, launch options, and settings
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
     [OneSignal setLaunchOptions:launchOptions];
+    [OneSignal setLaunchURLsInApp:YES];
+    [OneSignal setProvidesNotificationSettingsView:NO];
 
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
