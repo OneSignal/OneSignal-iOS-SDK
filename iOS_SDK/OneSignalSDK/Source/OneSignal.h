@@ -325,8 +325,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @interface OSPermissionStateChanges : NSObject
 
-@property (readonly, nullable) OSPermissionState* to;
-@property (readonly, nullable) OSPermissionState* from;
+@property (readonly, nonnull) OSPermissionState* to;
+@property (readonly, nonnull) OSPermissionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 
 @end
@@ -354,14 +354,14 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @end
 
 @interface OSSubscriptionStateChanges : NSObject
-@property (readonly, nullable) OSSubscriptionState* to;
-@property (readonly, nullable) OSSubscriptionState* from;
+@property (readonly, nonnull) OSSubscriptionState* to;
+@property (readonly, nonnull) OSSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
 @interface OSEmailSubscriptionStateChanges : NSObject
-@property (readonly, nullable) OSEmailSubscriptionState* to;
-@property (readonly, nullable) OSEmailSubscriptionState* from;
+@property (readonly, nonnull) OSEmailSubscriptionState* to;
+@property (readonly, nonnull) OSEmailSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
