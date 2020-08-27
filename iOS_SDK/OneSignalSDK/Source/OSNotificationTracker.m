@@ -66,7 +66,7 @@ THE SOFTWARE.
 }
 
 - (void)initInfluencedTypeFromCache {
-    Session influenceType = [self.dataRepository notificationCachedInfluenceType];
+    OSSession influenceType = [self.dataRepository notificationCachedInfluenceType];
     self.influenceType = influenceType;
 
     if (influenceType == INDIRECT)
