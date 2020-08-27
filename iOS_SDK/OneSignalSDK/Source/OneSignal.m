@@ -202,14 +202,6 @@ static BOOL providesAppNotificationSettings = false;
 static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
 
-static OSNotificationDisplayType _notificationDisplayType = OSNotificationDisplayTypeNotification;
-+ (void)setNotificationDisplayType:(OSNotificationDisplayType)value {
-    _notificationDisplayType = value;
-}
-+ (OSNotificationDisplayType)notificationDisplayType {
-    return _notificationDisplayType;
-}
-
 // iOS version implementation
 static NSObject<OneSignalNotificationSettings> *_osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings> *)osNotificationSettings {
@@ -1948,9 +1940,8 @@ static NSString *_lastnonActiveMessageId;
         if (newId)
             _lastAppActiveMessageId = newId;
 
-        // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
-        [OneSignalHelper handleNotificationReceived:self.notificationDisplayType fromBackground:NO];
+        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:NO];
     } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1968,7 +1959,7 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:self.notificationDisplayType];
+        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
     }
 }
 
@@ -1983,11 +1974,10 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion {
-    OSNotificationDisplayType type = self.notificationDisplayType;
     // check to make sure the app is in focus and it's a OneSignal notification
     if (![OneSignalHelper isOneSignalPayload:payload]
         || UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-        completion(type);
+        completion(OSNotificationDisplayTypeNotification);
         return;
     }
     //Only call the willShowInForegroundHandler for notifications not preview IAMs
@@ -1997,7 +1987,7 @@ static NSString *_lastnonActiveMessageId;
         completion(OSNotificationDisplayTypeSilent);
         return;
     }
-    [OneSignalHelper handleWillShowInForegroundHandlerForPayload:osPayload displayType:[OneSignal notificationDisplayType] completion:completion];
+    [OneSignalHelper handleWillShowInForegroundHandlerForPayload:osPayload displayType:OSNotificationDisplayTypeNotification completion:completion];
 }
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
@@ -2042,8 +2032,8 @@ static NSString *_lastnonActiveMessageId;
     }
 
     // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
-    if (_notificationDisplayType != OSNotificationDisplayTypeSilent || (_notificationDisplayType == OSNotificationDisplayTypeSilent && !isActive)) {
-        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:_notificationDisplayType];
+    if (displayType != OSNotificationDisplayTypeSilent || (displayType == OSNotificationDisplayTypeSilent && !isActive)) {
+        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
     }
 }
 

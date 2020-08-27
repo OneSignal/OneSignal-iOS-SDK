@@ -502,7 +502,6 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 + (void)setRequiresUserPrivacyConsent:(BOOL)required;
 
 #pragma mark Public Handlers
-@property (class) OSNotificationDisplayType notificationDisplayType;
 
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotificationGenerationJob* notification);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
