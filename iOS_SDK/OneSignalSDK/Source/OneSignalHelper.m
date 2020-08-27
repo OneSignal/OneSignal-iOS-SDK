@@ -472,26 +472,6 @@ OneSignalWebView *webVC;
     return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
 }
 
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background {
-    if (![self isOneSignalPayload:lastMessageReceived])
-        return;
-    
-    let payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
-    if ([self handleIAMPreview:payload])
-        return;
-
-    // The payload is a valid OneSignal notification payload and is not a preview
-    // Proceed and treat as a normal OneSignal notification
-
-    // Prevent duplicate calls to same receive event
-    if ([payload.notificationID isEqualToString:lastMessageID])
-        return;
-    lastMessageID = payload.notificationID;
-
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE
-                     message:[NSString stringWithFormat:@"handleNotificationReceived lastMessageID: %@ displayType: %lu",lastMessageID, (unsigned long)displayType]];
-}
-
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
     if (![self isOneSignalPayload:lastMessageReceived])
         return;

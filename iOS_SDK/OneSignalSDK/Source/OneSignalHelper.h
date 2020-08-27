@@ -45,7 +45,6 @@
 + (void)setNotificationOpenedBlock:(OSNotificationOpenedBlock)block;
 + (void)setNotificationWillShowInForegroundBlock:(OSNotificationWillShowInForegroundBlock)block;
 + (void)handleWillShowInForegroundHandlerForPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion;
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType fromBackground:(BOOL)background;
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
 + (BOOL)handleIAMPreview:(OSNotificationPayload *)payload;
 

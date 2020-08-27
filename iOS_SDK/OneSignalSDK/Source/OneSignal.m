@@ -1932,24 +1932,13 @@ static NSString *_lastnonActiveMessageId;
     if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"])
         return;
 
-    if (isActive) {
-        // Prevent duplicate calls
-        let newId = [self checkForProcessedDups:customDict lastMessageId:_lastAppActiveMessageId];
-        if ([@"dup" isEqualToString:newId])
-            return;
-        if (newId)
-            _lastAppActiveMessageId = newId;
-
-        // Call Received Block
-        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:NO];
-    } else {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
         if ([@"dup" isEqualToString:newId])
             return;
         if (newId)
             _lastnonActiveMessageId = newId;
-    }
+
 
     if (opened) {
         //app was in background / not running and opened due to a tap on a notification or an action check what type
@@ -2196,20 +2185,14 @@ static NSString *_lastnonActiveMessageId;
     else if (application.applicationState == UIApplicationStateActive) {
         [OneSignalHelper lastMessageReceived:userInfo];
         
-        [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:NO];
-        
         if (![OneSignalHelper isRemoteSilentNotification:userInfo]) {
              [OneSignal notificationReceived:userInfo foreground:YES isActive:NO wasOpened:YES];
         }
         return startedBackgroundJob;
     }
-    // content-available notification received in the background - Fire handleNotificationReceived block in app
+    // content-available notification received in the background
     else {
         [OneSignalHelper lastMessageReceived:userInfo];
-        if ([OneSignalHelper isRemoteSilentNotification:userInfo])
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeSilent fromBackground:NO];
-        else
-            [OneSignalHelper handleNotificationReceived:OSNotificationDisplayTypeNotification fromBackground:YES];
     }
     
     return startedBackgroundJob;
