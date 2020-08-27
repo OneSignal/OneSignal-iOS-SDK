@@ -128,7 +128,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021503";
+NSString* const ONESIGNAL_VERSION = @"021502";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL shouldDelaySubscriptionUpdate = false;
@@ -167,9 +167,9 @@ static NSDictionary* appSettings;
 // Make sure launchOptions have been set
 // We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
-static BOOL hasCalledInitWithLaunchOptions = false;
+static BOOL hasSetLaunchOptions = false;
 // Ensure we only initlize the SDK once even if the public method is called more
-// Called after successfully calling setAppId and initWithLaunchOptions
+// Called after successfully calling setAppId and setLaunchOptions
 static BOOL initDone = false;
 
 //used to ensure registration occurs even if APNS does not respond
@@ -443,7 +443,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appId = nil;
     launchOptions = false;
     appSettings = nil;
-    hasCalledInitWithLaunchOptions = false;
+    hasSetLaunchOptions = false;
     initDone = false;
     usesAutoPrompt = false;
     requestedProvisionalAuthorization = false;
@@ -494,7 +494,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 /*
- 1/2 steps in OneSignal init, relying on initWithLaunchOptions (usage order does not matter)
+ 1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application
  This is should be set from all OneSignal entry points
  */
@@ -502,7 +502,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"setAppId called with nil or empty AppId"];
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
         return;
     } else if (appId && ![newAppId isEqualToString:appId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
@@ -513,8 +513,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appId = newAppId;
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
-    if (!hasCalledInitWithLaunchOptions) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call initWithLaunchOptions to complete OneSignal init!"];
+    if (!hasSetLaunchOptions) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
         return;
     }
 
@@ -527,13 +527,13 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Sets the iOS sepcific app settings
  Method must be called to successfully init OneSignal
  */
-+ (void)initWithLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"initWithLaunchOptions called with launchOptions: %@!", launchOptions.description]];
++ (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
-    hasCalledInitWithLaunchOptions = true;
+    hasSetLaunchOptions = true;
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"initWithLaunchOptions finished, checking if appId has been set before proceeding...!"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(id) finished, checking if appId has been set before proceeding...!"];
     if (!appId || appId.length == 0) {
         // Read from .plist if not passed in with this method call
         appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
@@ -555,7 +555,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         }
     }
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"initWithLaunchOptions successful and appId is set, initializing OneSignal..."];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
     [self init];
 }
 
@@ -579,7 +579,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 /*
- Called after setAppId and initWithLaunchOptions, depending on which one is called last (order does not matter)
+ Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
     [[OSMigrationController new] migrate];
@@ -787,7 +787,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     // Try to init again using delayed params (order does not matter)
     [self setAppId:delayedInitParameters.appId];
-    [self initWithLaunchOptions:delayedInitParameters.launchOptions];
+    [self setLaunchOptions:delayedInitParameters.launchOptions];
 
     delayedInitializationForPrivacyConsent = false;
     delayedInitParameters = nil;
@@ -1495,15 +1495,12 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
         return false;
     
     // Don't make a 2nd on_session if have in inflight one
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"shouldRegisterNow:waitingForOneSReg: %d", waitingForOneSReg]);
     if (waitingForOneSReg)
         return false;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"shouldRegisterNow:isImmediatePlayerCreateOrOnSession: %d", [self isImmediatePlayerCreateOrOnSession]]);
     if ([self isImmediatePlayerCreateOrOnSession])
         return true;
 
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"shouldRegisterNow:isOnSessionSuccessfulForCurrentState: %d", isOnSessionSuccessfulForCurrentState]);
     if (isOnSessionSuccessfulForCurrentState)
         return false;
     
@@ -1524,7 +1521,6 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
 }
 
 + (void)registerUserAfterDelay {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserAfterDelay"];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
 }
@@ -1540,44 +1536,23 @@ static dispatch_queue_t serialQueue;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if ([self shouldRegisterUserAfterDelay]) {
+    // We should delay registration if we are waiting on APNS
+    // But if APNS hasn't responded within 30 seconds,
+    // we should continue and register the user.
+    if (waitingForApnsResponse && initializationTime && [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait) {
         [self registerUserAfterDelay];
         return;
     }
     
-    [self registerUserNow];
-}
-
-+(void)registerUserNow {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserNow"];
-
     if (!serialQueue)
         serialQueue = dispatch_queue_create("com.onesignal.regiseruser", DISPATCH_QUEUE_SERIAL);
-    
-    dispatch_async(serialQueue, ^{
+   
+   dispatch_async(serialQueue, ^{
         [self registerUserInternal];
-     });
-}
-
-// We should delay registration if we are waiting on APNS
-// But if APNS hasn't responded within 30 seconds (maxApnsWait),
-// we should continue and register the user.
-+ (BOOL)shouldRegisterUserAfterDelay {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", waitingForApnsResponse]];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:initializationTime: %@", initializationTime]];
-    
-    // If there isn't an initializationTime yet then the SDK hasn't finished initializing so we should delay
-    if (!initializationTime)
-        return true;
-    
-    if (!waitingForApnsResponse)
-        return false;
-    
-    return [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait;
+    });
 }
 
 + (void)registerUserInternal {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserInternal"];
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1661,7 +1636,7 @@ static dispatch_queue_t serialQueue;
     
     let releaseMode = [OneSignalMobileProvision releaseMode];
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
-        dataDic[@"test_type"] = [NSNumber numberWithInteger:releaseMode];
+        dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
     
     NSArray* nowProcessingCallbacks;
     
@@ -2726,10 +2701,7 @@ static NSString *_lastnonActiveMessageId;
 //            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.
 //  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
 //            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)
-#pragma clang diagnostic pop
 + (void)load {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     

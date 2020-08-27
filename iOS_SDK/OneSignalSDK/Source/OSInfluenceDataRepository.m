@@ -33,20 +33,20 @@ THE SOFTWARE.
 
 @implementation OSInfluenceDataRepository
 
-- (void)cacheNotificationInfluenceType:(OSSession) influenceType {
+- (void)cacheNotificationInfluenceType:(Session) influenceType {
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE withValue:OS_INFLUENCE_TYPE_TO_STRING(influenceType)];
 }
 
-- (OSSession)notificationCachedInfluenceType {
+- (Session)notificationCachedInfluenceType {
     NSString *sessionString = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE defaultValue:OS_INFLUENCE_TYPE_TO_STRING(UNATTRIBUTED)];
     return OS_INFLUENCE_TYPE_FROM_STRING(sessionString);
 }
 
-- (void)cacheIAMInfluenceType:(OSSession) influenceType {
+- (void)cacheIAMInfluenceType:(Session) influenceType {
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_IAM_INFLUENCE withValue:OS_INFLUENCE_TYPE_TO_STRING(influenceType)];
 }
 
-- (OSSession)iamCachedInfluenceType {
+- (Session)iamCachedInfluenceType {
     NSString *sessionString = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_CACHED_IAM_INFLUENCE defaultValue:OS_INFLUENCE_TYPE_TO_STRING(UNATTRIBUTED)];
     return OS_INFLUENCE_TYPE_FROM_STRING(sessionString);
 }

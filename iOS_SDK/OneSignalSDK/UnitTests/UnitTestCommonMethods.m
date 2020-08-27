@@ -116,7 +116,7 @@ static XCTestCase* _currentXCTestCase;
  */
 + (void)initOneSignal {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal initWithLaunchOptions:nil];
+    [OneSignal setLaunchOptions:nil];
 }
 
 /*
@@ -126,7 +126,7 @@ static XCTestCase* _currentXCTestCase;
 + (void)initOneSignalWithHandlers:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundBlock
         notificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedBlock {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal initWithLaunchOptions:nil];
+    [OneSignal setLaunchOptions:nil];
     [OneSignal setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundBlock];
     [OneSignal setNotificationOpenedHandler:notificationOpenedBlock];
 }
@@ -138,7 +138,7 @@ static XCTestCase* _currentXCTestCase;
              withLaunchOptions:(NSDictionary*)launchOptions withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)notificationWillShowInForegroundDelegate
  withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate {
     [OneSignal setAppId:appId];
-    [OneSignal initWithLaunchOptions:launchOptions];
+    [OneSignal setLaunchOptions:launchOptions];
     [OneSignal setNotificationWillShowInForegroundHandler:notificationWillShowInForegroundDelegate];
     [OneSignal setNotificationOpenedHandler:notificationOpenedDelegate];
 }
@@ -222,15 +222,13 @@ static XCTestCase* _currentXCTestCase;
     if (setupUIApplicationDelegate)
         return;
     
+    //ECM Todo safe?
     // Force swizzle in all methods for tests.
     OneSignalHelperOverrider.mockIOSVersion = 9;
     
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wnonnull"
     // Normally this just loops internally, overwrote _run to work around this.
     UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
-    #pragma clang diagnostic pop
-
+    
     setupUIApplicationDelegate = true;
     
     // InstallUncaughtExceptionHandler();
@@ -330,7 +328,7 @@ static XCTestCase* _currentXCTestCase;
     // iOS 10.2.1 Real device obserserved sequence of events:
     //   1. Call requestAuthorizationWithOptions to prompt for notifications.
     ///  2. App goes out of focus when the prompt is shown.
-    //   3. User press ACCEPT! and focus event fires.
+    //   3. User press ACCPET! and focus event fires.
     //   4. *(iOS bug?)* We check permission with currentNotificationCenter.getNotificationSettingsWithCompletionHandler and it show up as UNAuthorizationStatusDenied!?!?!
     //   5. Callback passed to getNotificationSettingsWithCompletionHandler then fires with Accpeted as TRUE.
     //   6. Check getNotificationSettingsWithCompletionHandler and it is then correctly reporting UNAuthorizationStatusAuthorized
@@ -349,10 +347,7 @@ static XCTestCase* _currentXCTestCase;
         [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:accept];
     } else {
         UIApplication *sharedApp = [UIApplication sharedApplication];
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UNUserNotificationCenterOverrider.notifTypesOverride categories:nil]];
-        #pragma clang diagnostic pop
     }
 }
 

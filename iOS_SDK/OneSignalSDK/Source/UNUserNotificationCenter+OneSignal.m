@@ -275,7 +275,7 @@ void finishProcessingNotification(UNNotification *notification,
     
     let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
-    let isAppForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+    let isAppForeground = [[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground;
 
     [OneSignal notificationReceived:userInfo foreground:isAppForeground isActive:isActive wasOpened:YES];
 }
