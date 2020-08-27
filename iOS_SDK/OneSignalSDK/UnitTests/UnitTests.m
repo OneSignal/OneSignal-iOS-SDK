@@ -1973,8 +1973,6 @@ didReceiveRemoteNotification:userInfo
 
     [UnitTestCommonMethods runBackgroundThreads];
 
-    [OneSignal setNotificationDisplayType:displayType];
-
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
 
     [UnitTestCommonMethods runBackgroundThreads];

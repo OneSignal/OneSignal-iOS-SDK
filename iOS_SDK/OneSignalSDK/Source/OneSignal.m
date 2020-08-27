@@ -1932,12 +1932,12 @@ static NSString *_lastnonActiveMessageId;
     if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"])
         return;
 
-        // Prevent duplicate calls
-        let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
-        if ([@"dup" isEqualToString:newId])
-            return;
-        if (newId)
-            _lastnonActiveMessageId = newId;
+    // Prevent duplicate calls
+    let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
+    if ([@"dup" isEqualToString:newId])
+        return;
+    if (newId)
+        _lastnonActiveMessageId = newId;
 
 
     if (opened) {
