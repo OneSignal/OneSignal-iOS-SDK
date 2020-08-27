@@ -50,7 +50,7 @@
 - (id)initFromOutcomeEventParams:(OSOutcomeEventParams *)outcomeEventParams {
     if (self = [super init]) {
         OSOutcomeSource *source = outcomeEventParams.outcomeSource;
-        Session influenceType = UNATTRIBUTED;
+        OSSession influenceType = UNATTRIBUTED;
         NSArray *notificationId = nil;
 
         if (source) {
