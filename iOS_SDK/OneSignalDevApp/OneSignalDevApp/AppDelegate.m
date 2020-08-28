@@ -80,7 +80,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         kOSSettingsKeyInAppLaunchURL: @true
     }];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
-    [OneSignal setLaunchOptions:launchOptions];
+    [OneSignal initWithLaunchOptions:launchOptions];
 
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];

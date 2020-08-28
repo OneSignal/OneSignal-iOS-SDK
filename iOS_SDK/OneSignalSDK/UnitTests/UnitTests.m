@@ -1659,7 +1659,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignal setAppId:nil];
     #pragma clang diagnostic pop
 
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     [UnitTestCommonMethods foregroundApp];
     
     // 2. Make sure iOS params did not download, since app id was invalid
@@ -1668,7 +1668,7 @@ didReceiveRemoteNotification:userInfo
 
     // 3. Init with valid app id
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     
     // 4. Make sure iOS params have been downloaded, since app_id is valid
     XCTAssertTrue(OneSignal.didCallDownloadParameters);
@@ -1786,7 +1786,7 @@ didReceiveRemoteNotification:userInfo
 
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -1854,7 +1854,7 @@ didReceiveRemoteNotification:userInfo
 - (void)assertUserConsent {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     
     //indicates initialization was delayed
     XCTAssertNil(OneSignal.appId);
@@ -1885,7 +1885,7 @@ didReceiveRemoteNotification:userInfo
 
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
@@ -2138,7 +2138,7 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     
     OSPermissionStateTestObserver* observer = [OSPermissionStateTestObserver new];
     [OneSignal addPermissionObserver:observer];
@@ -2225,7 +2225,7 @@ didReceiveRemoteNotification:userInfo
  */
 - (void)testHTTPClientTimeout {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Switches from overriding OneSignalClient to using a
@@ -2671,7 +2671,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testNotificationWithButtonsRegistersUniqueCategory {
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
+    [OneSignal initWithLaunchOptions:nil];
     [UnitTestCommonMethods runBackgroundThreads];
 
     let notification = (NSDictionary *)[self exampleNotificationJSONWithMediaURL:@"https://www.onesignal.com"];
