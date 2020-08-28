@@ -30,36 +30,26 @@
 
 @implementation OSDevice
 
-- (BOOL)isNotificationEnabled {
-    return [[[OneSignal getPermissionSubscriptionState] permissionStatus] reachable];
-}
-
-- (BOOL)isUserSubscribed {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userSubscriptionSetting];
-}
-
-- (BOOL)isSubscribed {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] subscribed];
-}
-
-- (OSNotificationPermission)getNotificationPermissionStatus {
-    return [[[OneSignal getPermissionSubscriptionState] permissionStatus] status];
-}
-
-- (NSString *)getUserId {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userId];
-}
-
-- (NSString *)getPushToken {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] pushToken];
-}
-
-- (NSString *)getEmailUserId {
-    return [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailUserId];
-}
-
-- (NSString *)getEmailAddress {
-    return [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailAddress];
+- (id)init {
+    self = [super init];
+    if (self) {
+        _notificationEnabled = [[[OneSignal getPermissionSubscriptionState] permissionStatus] reachable];
+        
+        _isUserSubscribed = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userSubscriptionSetting];
+        
+        _isSubscribed = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] subscribed];
+        
+        _notificationPermissionStatus = [[[OneSignal getPermissionSubscriptionState] permissionStatus] status];
+        
+        _userId = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userId];
+        
+        _pushToken = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] pushToken];
+        
+        _emailUserId = [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailUserId];
+        
+        _emailAddress = [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailAddress];
+    }
+    return self;
 }
 
 @end
