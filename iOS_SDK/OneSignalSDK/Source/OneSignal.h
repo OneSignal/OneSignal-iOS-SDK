@@ -264,7 +264,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, Session) {
+typedef NS_ENUM(NSUInteger, OSSession) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -279,7 +279,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) Session session;
+@property (nonatomic) OSSession session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
