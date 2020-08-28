@@ -510,7 +510,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"setAppId called with nil or empty AppId"];
         return;
     } else if (appId && ![newAppId isEqualToString:appId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
