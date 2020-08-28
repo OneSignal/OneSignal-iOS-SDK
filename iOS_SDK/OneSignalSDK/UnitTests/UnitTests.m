@@ -1654,7 +1654,11 @@ didReceiveRemoteNotification:userInfo
  */
 - (void)testiOSParams_withNullAppIdInit_andValidAppIdInit {
     // 1. Open app and init with null app id
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wnonnull"
     [OneSignal setAppId:nil];
+    #pragma clang diagnostic pop
+
     [OneSignal setLaunchOptions:nil];
     [UnitTestCommonMethods foregroundApp];
     
