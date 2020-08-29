@@ -97,8 +97,8 @@ static int apnsTokenLength = 32;
     didFailRegistarationErrorCode = value;
 }
 
-+ (void)setBlockApnsResponse:(BOOL)block {
-    blockApnsResponse = true;
++(void)setBlockApnsResponse:(BOOL)block {
+    blockApnsResponse = block;
 }
 
 + (void)setAPNSTokenLength:(int)tokenLength {
