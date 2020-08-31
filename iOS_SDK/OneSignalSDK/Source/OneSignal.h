@@ -264,7 +264,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, OSSession) {
+typedef NS_ENUM(NSUInteger, Session) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -279,7 +279,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) OSSession session;
+@property (nonatomic) Session session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -325,8 +325,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @interface OSPermissionStateChanges : NSObject
 
-@property (readonly, nonnull) OSPermissionState* to;
-@property (readonly, nonnull) OSPermissionState* from;
+@property (readonly, nullable) OSPermissionState* to;
+@property (readonly, nullable) OSPermissionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 
 @end
@@ -354,14 +354,14 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @end
 
 @interface OSSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSSubscriptionState* to;
-@property (readonly, nonnull) OSSubscriptionState* from;
+@property (readonly, nullable) OSSubscriptionState* to;
+@property (readonly, nullable) OSSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
 @interface OSEmailSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSEmailSubscriptionState* to;
-@property (readonly, nonnull) OSEmailSubscriptionState* from;
+@property (readonly, nullable) OSEmailSubscriptionState* to;
+@property (readonly, nullable) OSEmailSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
@@ -469,7 +469,7 @@ extern NSString* const ONESIGNAL_VERSION;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
-+ (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)setLaunchOptions:(NSDictionary* _Nullable)launchOptions;
 // TODO: Remove before releasing major release 3.0.0
 + (void)setAppSettings:(NSDictionary* _Nonnull)settings;
 
@@ -502,7 +502,6 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 + (void)setRequiresUserPrivacyConsent:(BOOL)required;
 
 #pragma mark Public Handlers
-@property (class) OSNotificationDisplayType notificationDisplayType;
 
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotificationGenerationJob* notification);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
