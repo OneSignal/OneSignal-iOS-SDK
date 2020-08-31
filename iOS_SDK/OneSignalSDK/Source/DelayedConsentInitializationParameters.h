@@ -26,29 +26,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <XCTest/XCTest.h>
-#import "OneSignalRequest.h"
+#import "OneSignal.h"
 
-@interface OneSignalClientOverrider : NSObject
-+ (void)reset:(XCTestCase*)testInstance;
-+ (void)enableOutcomes;
-+ (void)setLastHTTPRequest:(NSDictionary*)value;
-+ (NSDictionary*)lastHTTPRequest;
-+ (int)networkRequestCount;
-+ (void)setLastUrl:(NSString*)value;
-+ (NSString*)lastUrl;
-+ (void)setShouldExecuteInstantaneously:(BOOL)instant;
-+ (dispatch_queue_t)getHTTPQueue;
-+ (void)runBackgroundThreads;
-+ (NSString *)lastHTTPRequestType;
-+ (void)setRequiresEmailAuth:(BOOL)required;
-+ (BOOL)hasExecutedRequestOfType:(Class)type;
-+ (void)setShouldUseProvisionalAuth:(BOOL)provisional;
-+ (void)disableExecuteRequestOverride:(BOOL)disable;
-+ (NSArray<OneSignalRequest *> *)executedRequests;
-+ (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
-+ (NSDictionary*)remoteParamsResponse;
-+ (void)setRemoteParamsResponse:(NSDictionary *)params;
+@interface DelayedConsentInitializationParameters : NSObject
+
+@property (strong, nonatomic, nullable) NSDictionary *launchOptions;
+@property (strong, nonatomic, nonnull) NSString *appId;
+
+- (nonnull instancetype)initWithLaunchOptions:(nullable NSDictionary *)launchOptions withAppId:(nonnull NSString *)appId;
+
 @end
-
