@@ -31,23 +31,27 @@
 @implementation OSDevice
 
 - (id)init {
+    return [[OSDevice alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
+}
+
+- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state {
     self = [super init];
     if (self) {
-        _notificationEnabled = [[[OneSignal getPermissionSubscriptionState] permissionStatus] reachable];
+        _notificationEnabled = [[state permissionStatus] reachable];
         
-        _isUserSubscribed = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userSubscriptionSetting];
+        _isUserSubscribed = [[state subscriptionStatus] userSubscriptionSetting];
         
-        _isSubscribed = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] subscribed];
+        _isSubscribed = [[state subscriptionStatus] subscribed];
         
-        _notificationPermissionStatus = [[[OneSignal getPermissionSubscriptionState] permissionStatus] status];
+        _notificationPermissionStatus = [[state permissionStatus] status];
         
-        _userId = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userId];
+        _userId = [[state subscriptionStatus] userId];
         
-        _pushToken = [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] pushToken];
+        _pushToken = [[state subscriptionStatus] pushToken];
         
-        _emailUserId = [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailUserId];
+        _emailUserId = [[state emailSubscriptionStatus] emailUserId];
         
-        _emailAddress = [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailAddress];
+        _emailAddress = [[state emailSubscriptionStatus] emailAddress];
     }
     return self;
 }

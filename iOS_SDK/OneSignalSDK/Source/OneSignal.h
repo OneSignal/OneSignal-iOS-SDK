@@ -425,6 +425,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
  */
 @property (readonly, nullable) NSString* emailAddress;
 
+- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
+
 @end
 
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);

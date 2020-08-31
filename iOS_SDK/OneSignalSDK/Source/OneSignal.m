@@ -311,7 +311,7 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
 }
 
 + (OSDevice *)getUserDevice {
-    return [OSDevice new];
+    return [[OSDevice alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
 }
 
 static OSRemoteParamController* _remoteParamController;
