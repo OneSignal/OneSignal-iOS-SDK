@@ -257,11 +257,11 @@ void finishProcessingNotification(UNNotification *notification,
         completionHandler();
 }
 
-+ (BOOL) isDismissEvent:(UNNotificationResponse *)response {
++ (BOOL)isDismissEvent:(UNNotificationResponse *)response {
     return [@"com.apple.UNNotificationDismissActionIdentifier" isEqual:response.actionIdentifier];
 }
 
-+ (void) processiOS10Open:(UNNotificationResponse*)response {
++ (void)processiOS10Open:(UNNotificationResponse*)response {
     if (![OneSignal appId])
         return;
     

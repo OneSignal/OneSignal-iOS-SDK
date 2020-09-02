@@ -48,6 +48,8 @@
 #import "OSNotificationPayload+Internal.h"
 #import "OneSignalUserDefaults.h"
 #import "OSInAppMessagingHelpers.h"
+#import "DelayedConsentInitializationParameters.h"
+
 #import "TestHelperFunctions.h"
 #import "UnitTestAppDelegate.h"
 #import "OneSignalExtensionBadgeHandler.h"
@@ -79,12 +81,13 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
-
+@interface OneSignal (TestHelper)
++ (DelayedConsentInitializationParameters *)delayedInitParameters;
+@end
 
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
-
 
 @interface UnitTests : XCTestCase
 
@@ -223,34 +226,6 @@
 	[versionsThatFail enumerateKeysAndObjectsUsingBlock:^(NSString* raw, NSString* semantic, BOOL* stop) {
 		XCTAssertNotEqualObjects([raw one_getSemanticVersion], semantic, @"Strings are equal %@ %@", semantic, [raw one_getSemanticVersion] );
 	}];
-}
-
-- (void)testLocationPromptAcceptedWithSetLocationShared_iOS9_WhenInUseUsage {
-    OneSignalHelperOverrider.mockIOSVersion = 9;
-    
-    NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"],
-                                             @"NSLocationWhenInUseUsageDescription" : @YES
-                                             };
-
-    [UnitTestCommonMethods initOneSignal_andThreadWait];
-
-    [self assertLocationShared_withGrantLocationServices];
-}
-
-- (void)assertLocationShared_withGrantLocationServices {
-    // Set location shared false
-    [OneSignal setLocationShared:false];
-    // Simulate user granting location services
-    [OneSignalLocationOverrider grantLocationServices];
-    // Last location should not exist since we are not sharing location
-    XCTAssertFalse([OneSignalLocation lastLocation]);
-    
-    // Set location shared true
-    [OneSignal setLocationShared:true];
-    // Simulate user granting location services
-    [OneSignalLocationOverrider grantLocationServices];
-    // Last location should not exist since we are not sharing location
-    XCTAssertTrue([OneSignalLocation lastLocation]);
 }
 
 // Test exists since we've seen a few rare crash reports where
@@ -394,7 +369,6 @@
     XCTAssertEqual(observer->last.to.accepted, false);
 }
 
-
 - (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS10 {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
@@ -481,7 +455,6 @@
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
 }
-
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
@@ -1419,7 +1392,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"override_app_UUID");
 }
 
-
 - (void)testFirstInitWithNotificationsAlreadyDeclined {
     [self backgroundModesDisabledInXcode];
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
@@ -1499,7 +1471,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
-- (void) testOnSessionWhenResuming {
+- (void)testOnSessionWhenResuming {
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // Don't make an on_session call if only out of the app for 20 secounds
@@ -1520,7 +1492,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 
-- (void) testOnSessionOnColdStart {
+- (void)testOnSessionOnColdStart {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
@@ -1824,51 +1796,6 @@ didReceiveRemoteNotification:userInfo
     let cacheName = [OneSignalHelper downloadMediaAndSaveInBundle:testUrl];
     
     XCTAssertNotNil(cacheName);
-}
-
-/*
-    Tests the privacy functionality to comply with the GDPR
-*/
-- (void)testPrivacyState {
-    [NSBundleOverrider setPrivacyState:true];
-    
-    [self assertUserConsent];
-    
-    [NSBundleOverrider setPrivacyState:false];
-}
-
-- (void)testOverridePrivacyState {
-    //since some wrapper SDK's wont use an info.plist, the SDK also provides a method that can also set the privacy consent setting
-    
-    [OneSignal setRequiresUserPrivacyConsent:true];
-    
-    [self assertUserConsent];
-    
-    [OneSignal setRequiresUserPrivacyConsent:false];
-}
-
-- (void)assertUserConsent {
-    [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
-    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
-    [OneSignal setLaunchOptions:nil];
-    
-    //indicates initialization was delayed
-    XCTAssertNil(OneSignal.appId);
-    
-    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
-    
-    let latestHttpRequest = OneSignalClientOverrider.lastUrl;
-    
-    [OneSignal sendTags:@{@"test" : @"test"}];
-    
-    //if lastUrl is null, isEqualToString: will return false, so perform an equality check as well
-    XCTAssertTrue([OneSignalClientOverrider.lastUrl isEqualToString:latestHttpRequest] || latestHttpRequest == OneSignalClientOverrider.lastUrl);
-    
-    [OneSignal consentGranted:true];
-    
-    XCTAssertTrue([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:OneSignal.appId]);
-    
-    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
 }
 
 //since apps may manually request push permission while OneSignal privacy consent is not granted,
