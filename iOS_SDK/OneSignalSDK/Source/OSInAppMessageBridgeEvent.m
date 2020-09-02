@@ -80,6 +80,7 @@
             break;
         }
         case OSInAppMessageBridgeEventTypePageChange: {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ECM page change!"]];
             instance.pageChange = [OSInAppMessageBridgeEventPageChange instanceWithJson:json];
             break;
         }
@@ -173,7 +174,7 @@
 
 + (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventPageChange new];
-    instance.page = [OSInAppMessagePage instanceWithJson:json];
+    instance.page = [OSInAppMessagePage instanceWithJson:json[@"body"]];
     return instance;
 }
 

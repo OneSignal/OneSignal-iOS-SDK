@@ -41,6 +41,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.clickedClickIds = [[NSMutableSet alloc] init];
+        self.viewedPageIds = [[NSMutableSet alloc] init];
         self.isTriggerChanged = false;
     }
     
@@ -82,7 +83,7 @@
 }
 
 - (NSSet<NSString *> *)getViewedPageIds {
-    return _clickedClickIds;
+    return _viewedPageIds;
 }
 
 + (instancetype)instanceWithData:(NSData *)data {

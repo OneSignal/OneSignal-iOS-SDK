@@ -58,6 +58,7 @@
     OSInAppMessage *testMessageRedisplay;
     OSInAppMessageAction *testAction;
     OSInAppMessageBridgeEvent *testBridgeEvent;
+    OSInAppMessageBridgeEvent *testPageChangeEvent;
 }
 
 NSInteger const LIMIT = 5;
@@ -95,7 +96,16 @@ NSInteger const DELAY = 60;
             @"id" : @"test_id",
             @"url" : @"https://www.onesignal.com",
             @"url_target" : @"browser",
-            @"close" : @false
+            @"close" : @false,
+            @"pageId": @"test_page_id",
+        }
+    }];
+    
+    testPageChangeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
+        @"type" : @"page_change",
+        @"body" : @{
+            @"pageIndex" : @"1",
+            @"pageId" : @"test_id",
         }
     }];
     
@@ -289,6 +299,39 @@ NSInteger const DELAY = 60;
 
 - (void)testCorrectlyParsedActionBridgeEvent {
     XCTAssertEqual(testBridgeEvent.type, OSInAppMessageBridgeEventTypeActionTaken);
+    XCTAssertEqualObjects(testBridgeEvent.userAction.pageId, @"test_page_id");
+}
+
+- (void)testCorrectlyParsedPageChangeBridgeEvent {
+    XCTAssertEqual(testPageChangeEvent.type, OSInAppMessageBridgeEventTypePageChange);
+    XCTAssertEqualObjects(testPageChangeEvent.pageChange.page.pageId, @"test_id");
+}
+
+- (void)testCachePageChangeIds {
+    NSString *pageId1 = @"page_id_1";
+    NSString *pageId2 = @"page_id_2";
+    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId1]);
+    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId2]);
+
+    [testMessageRedisplay addPageId:pageId1];
+    XCTAssertTrue([[testMessageRedisplay getViewedPageIds] containsObject:pageId1]);
+    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId2]);
+
+    [testMessageRedisplay clearPageIds];
+    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId1]);
+    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId2]);
+
+    // Test on a IAM without redisplay
+    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId1]);
+    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId2]);
+
+    [testMessage addPageId:pageId1];
+    XCTAssertTrue([[testMessage getViewedPageIds] containsObject:pageId1]);
+    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId2]);
+
+    [testMessage clearPageIds];
+    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId1]);
+    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId2]);
 }
 
 - (void)testCorrectlyParsedRenderingCompleteBridgeEvent {

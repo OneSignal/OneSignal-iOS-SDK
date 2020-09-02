@@ -281,13 +281,19 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId {
-    if (![self shouldSendImpression:message])
-        return;
-    
-    if ([[message getViewedPageIds] containsObject:pageId]) {
+    if (message.isPreview) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Not sending page impression for preview message. ID: %@",pageId]];
         return;
     }
+        
+    if ([[message getViewedPageIds] containsObject:pageId]) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression already sent. id: %@",pageId]];
+        return;
+    }
+
     [message addPageId:pageId];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
                                                        withPlayerId:OneSignal.currentSubscriptionState.userId
