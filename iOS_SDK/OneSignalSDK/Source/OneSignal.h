@@ -388,42 +388,45 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
  * Get the app's notification permission
  * @return false if the user disabled notifications for the app, otherwise true
  */
-- (BOOL)isNotificationEnabled;
+@property (readonly) BOOL notificationEnabled;
 /**
  * Get whether the user is subscribed to OneSignal notifications or not
  * @return false if the user is not subscribed to OneSignal notifications, otherwise true
  */
-- (BOOL)isUserSubscribed;
+@property (readonly) BOOL isUserSubscribed;
 /**
  * Get whether the user is subscribed
  * @return true if  isNotificationEnabled,  isUserSubscribed, getUserId and getPushToken are true, otherwise false
  */
-- (BOOL)isSubscribed;
+@property (readonly) BOOL isSubscribed;
 /**
  * Get  the user notification permision status
  * @return OSNotificationPermission
 */
-- (OSNotificationPermission)getNotificationPermissionStatus;
+@property (readonly) OSNotificationPermission notificationPermissionStatus;
 /**
  * Get user id from registration (player id)
- * @return user id if user is registered, otherwise false
+ * @return user id if user is registered, otherwise null
  */
-- (NSString*)getUserId;
+@property (readonly, nullable) NSString* userId;
 /**
  * Get apple deice push token
  * @return push token if available, otherwise null
  */
-- (NSString*)getPushToken;
+@property (readonly, nullable) NSString* pushToken;
 /**
  * Get the user email id
  * @return email id if user address was registered, otherwise null
  */
-- (NSString*)getEmailUserId;
+@property (readonly, nullable) NSString* emailUserId;
 /**
  * Get the user email
  * @return email address if set, otherwise null
  */
-- (NSString*)getEmailAddress;
+@property (readonly, nullable) NSString* emailAddress;
+
+- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
+
 @end
 
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);

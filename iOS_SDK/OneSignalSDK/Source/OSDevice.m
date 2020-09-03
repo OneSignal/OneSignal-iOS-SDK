@@ -30,36 +30,30 @@
 
 @implementation OSDevice
 
-- (BOOL)isNotificationEnabled {
-    return [[[OneSignal getPermissionSubscriptionState] permissionStatus] reachable];
+- (id)init {
+    return [[OSDevice alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
 }
 
-- (BOOL)isUserSubscribed {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userSubscriptionSetting];
-}
-
-- (BOOL)isSubscribed {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] subscribed];
-}
-
-- (OSNotificationPermission)getNotificationPermissionStatus {
-    return [[[OneSignal getPermissionSubscriptionState] permissionStatus] status];
-}
-
-- (NSString *)getUserId {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] userId];
-}
-
-- (NSString *)getPushToken {
-    return [[[OneSignal getPermissionSubscriptionState] subscriptionStatus] pushToken];
-}
-
-- (NSString *)getEmailUserId {
-    return [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailUserId];
-}
-
-- (NSString *)getEmailAddress {
-    return [[[OneSignal getPermissionSubscriptionState] emailSubscriptionStatus] emailAddress];
+- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state {
+    self = [super init];
+    if (self) {
+        _notificationEnabled = [[state permissionStatus] reachable];
+        
+        _isUserSubscribed = [[state subscriptionStatus] userSubscriptionSetting];
+        
+        _isSubscribed = [[state subscriptionStatus] subscribed];
+        
+        _notificationPermissionStatus = [[state permissionStatus] status];
+        
+        _userId = [[state subscriptionStatus] userId];
+        
+        _pushToken = [[state subscriptionStatus] pushToken];
+        
+        _emailUserId = [[state emailSubscriptionStatus] emailUserId];
+        
+        _emailAddress = [[state emailSubscriptionStatus] emailAddress];
+    }
+    return self;
 }
 
 @end
