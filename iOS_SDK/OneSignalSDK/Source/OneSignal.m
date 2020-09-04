@@ -398,11 +398,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return appId;
 }
 
-+ (NSString*)sdk_version_raw {
++ (NSString*)sdkVersionRaw {
 	return ONESIGNAL_VERSION;
 }
 
-+ (NSString*)sdk_semantic_version {
++ (NSString*)sdkSemanticVersion {
 	// examples:
 	// ONESIGNAL_VERSION = @"020402" returns 2.4.2
 	// ONESIGNAL_VERSION = @"001000" returns 0.10.0

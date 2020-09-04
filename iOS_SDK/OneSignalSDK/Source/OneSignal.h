@@ -460,8 +460,8 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 extern NSString* const ONESIGNAL_VERSION;
 
 + (NSString*)appId;
-+ (NSString* _Nonnull)sdk_version_raw;
-+ (NSString* _Nonnull)sdk_semantic_version;
++ (NSString* _Nonnull)sdkVersionRaw;
++ (NSString* _Nonnull)sdkSemanticVersion;
 
 + (void)setSubscription:(BOOL)enable;
 
