@@ -310,8 +310,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
-+ (OSDevice *)getUserDevice {
-    return [[OSDevice alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
++ (OSDeviceState *)getDeviceState {
+    return [[OSDeviceState alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
 }
 
 static OSRemoteParamController* _remoteParamController;
