@@ -196,8 +196,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* The message body */
 @property(readonly, nullable)NSString *body;
 
-// Method controlling completion from the notificationWillShowInForegroundHandler
-// If 'complete' is not called within 25 seconds of receiving the OSNotificationGenerationJob in notificationWillShowInForegroundHandler then 'complete' will be automatically fired.
 @end
 
 @interface OSNotificationOpenedResult : NSObject
@@ -505,6 +503,7 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 
 #pragma mark Public Handlers
 
+// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired using the displayType of the OSNotificationGenerationJob object.
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotificationGenerationJob* notification, OSNotificationDisplayTypeResponse completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction* action);
