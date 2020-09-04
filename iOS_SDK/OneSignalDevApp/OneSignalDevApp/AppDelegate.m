@@ -60,9 +60,9 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
         [alert show];
     };
-    id notificationReceiverBlock = ^(OSNotificationGenerationJob *notifJob) {
+    id notificationReceiverBlock = ^(OSNotificationGenerationJob *notifJob, OSNotificationDisplayTypeResponse completion) {
         NSLog(@"Will Receive Notification - %@", notifJob.notificationId);
-        [notifJob complete];
+        completion(OSNotificationDisplayTypeNotification);
     };
     
     // Example block for IAM action click handler
