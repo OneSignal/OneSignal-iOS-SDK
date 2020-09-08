@@ -248,7 +248,7 @@
 
 @end
 
-@implementation OSNotificationGenerationJob
+@implementation OSPredisplayNotification
 @synthesize displayType = _displayType, notificationId = _notificationId, title = _title, body = _body;
 
 OSNotificationPayload *_payload;
@@ -463,10 +463,10 @@ OneSignalWebView *webVC;
 }
 
 + (void)handleWillShowInForegroundHandlerForPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
-    let notifJob = [[OSNotificationGenerationJob alloc] initWithPayload:payload displayType:displayType completion:completion];
+    let predisplayNotif = [[OSPredisplayNotification alloc] initWithPayload:payload displayType:displayType completion:completion];
     if (notificationWillShowInForegroundHandler) {
-        [notifJob startTimeoutTimer];
-        notificationWillShowInForegroundHandler(notifJob, [notifJob getCompletionBlock]);
+        [predisplayNotif startTimeoutTimer];
+        notificationWillShowInForegroundHandler(predisplayNotif, [predisplayNotif getCompletionBlock]);
     } else {
         completion(displayType);
     }

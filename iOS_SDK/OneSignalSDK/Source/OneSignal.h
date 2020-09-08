@@ -178,11 +178,11 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @end
 
-/* OneSignal OSNotificationGenerationJob used in notificationWillShowInForegroundHandler. The display type for the notification can be changed before it is presented.*/
-@interface OSNotificationGenerationJob : NSObject
+/* OneSignal OSPredisplayNotification used in notificationWillShowInForegroundHandler. The display type for the notification can be changed before it is presented.*/
+@interface OSPredisplayNotification : NSObject
 
 /* Display method of the notification */
-@property(nonatomic)OSNotificationDisplayType displayType;
+@property(readonly, nonatomic)OSNotificationDisplayType displayType;
 
 /* Additional key value properties set within the payload */
 @property(readonly, nullable)NSDictionary *additionalData;
@@ -503,8 +503,8 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 
 #pragma mark Public Handlers
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired using the displayType of the OSNotificationGenerationJob object.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotificationGenerationJob* notification, OSNotificationDisplayTypeResponse completion);
+// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired using the displayType of the OSPredisplayNotification object.
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSPredisplayNotification* notification, OSNotificationDisplayTypeResponse completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction* action);
 
