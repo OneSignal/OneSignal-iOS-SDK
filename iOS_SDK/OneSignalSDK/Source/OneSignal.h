@@ -472,7 +472,7 @@ extern NSString* const ONESIGNAL_VERSION;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
-+ (void)setLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
 // TODO: Remove before releasing major release 3.0.0
 + (void)setAppSettings:(NSDictionary* _Nonnull)settings;
 

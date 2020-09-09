@@ -529,7 +529,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Sets the iOS sepcific app settings
  Method must be called to successfully init OneSignal
  */
-+ (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
++ (void)initWithLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
@@ -801,7 +801,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
     // Try to init again using delayed params (order does not matter)
     [self setAppId:_delayedInitParameters.appId];
-    [self setLaunchOptions:_delayedInitParameters.launchOptions];
+    [self initWithLaunchOptions:_delayedInitParameters.launchOptions];
 
     delayedInitializationForPrivacyConsent = false;
     _delayedInitParameters = nil;
