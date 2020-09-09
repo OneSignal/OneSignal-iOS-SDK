@@ -28,18 +28,18 @@
 #import <Foundation/Foundation.h>
 #import "OneSignal.h"
 
-@implementation OSDevice
+@implementation OSDeviceState
 
 - (id)init {
-    return [[OSDevice alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
+    return [[OSDeviceState alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
 }
 
 - (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state {
     self = [super init];
     if (self) {
-        _notificationEnabled = [[state permissionStatus] reachable];
+        _hasNotificationPermission = [[state permissionStatus] reachable];
         
-        _isUserSubscribed = [[state subscriptionStatus] userSubscriptionSetting];
+        _isPushDisabled = ![[state subscriptionStatus] userSubscriptionSetting];
         
         _isSubscribed = [[state subscriptionStatus] subscribed];
         

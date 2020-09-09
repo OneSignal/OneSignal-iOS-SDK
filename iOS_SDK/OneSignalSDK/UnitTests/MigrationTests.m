@@ -67,7 +67,7 @@
     XCTAssertNil(lastNotificationReceivedAfterMigration);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 - (void)testIndirectNotificationToIndirectInfluenceMigration {
@@ -98,7 +98,7 @@
     XCTAssertEqual(timestamp, indirectInfluence.timestamp);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 - (void)testIndirectInfluenceToIndirectInfluenceMigration {
@@ -126,7 +126,7 @@
     XCTAssertEqual(timestamp, indirectInfluenceAfterMigration.timestamp);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 - (void)testIndirectNotificationToIndirectInfluenceMigration_NotificationServiceExtensionHandler {
@@ -162,7 +162,7 @@
     XCTAssertTrue([indirectInfluenceReceived.channelIdTag isEqualToString:@"notification_id"]);
    
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 - (void)testNoAttributedUniqueOutcomeDataAvailableToMigrate {
@@ -176,7 +176,7 @@
     XCTAssertNil(uniqueOutcomesAfterMigration);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 - (void)testUniqueOutcomeNotificationToCacheUniqueOutcomeMigration {
@@ -205,7 +205,7 @@
     XCTAssertEqual([timestamp intValue], [cachedUniqueOutcome.timestamp intValue]);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 - (void)testCachedUniqueOutcomeToCachedUniqueOutcomeMigration {
@@ -234,7 +234,7 @@
     XCTAssertEqual([timestamp intValue], [cachedUniqueOutcomeAfterMigration.timestamp intValue]);
     
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
-    XCTAssertEqual([[OneSignal sdk_version_raw] intValue], sdkVersionAfterMigration);
+    XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
 
 @end

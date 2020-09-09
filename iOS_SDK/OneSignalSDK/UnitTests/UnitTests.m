@@ -202,7 +202,7 @@
 
 - (void)testVersionStringLength {
 	XCTAssertEqual(ONESIGNAL_VERSION.length, 6, @"ONESIGNAL_VERSION length is not 6: length is %lu", (unsigned long)ONESIGNAL_VERSION.length);
-	XCTAssertEqual([OneSignal sdk_version_raw].length, 6, @"OneSignal sdk_version_raw length is not 6: length is %lu", (unsigned long)[OneSignal sdk_version_raw].length);
+	XCTAssertEqual([OneSignal sdkVersionRaw].length, 6, @"OneSignal sdk_version_raw length is not 6: length is %lu", (unsigned long)[OneSignal sdkVersionRaw].length);
 }
 
 - (void)testSymanticVersioning {
