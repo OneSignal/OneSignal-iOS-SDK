@@ -383,17 +383,17 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
-@interface OSDevice : NSObject
+@interface OSDeviceState : NSObject
 /**
  * Get the app's notification permission
  * @return false if the user disabled notifications for the app, otherwise true
  */
-@property (readonly) BOOL notificationEnabled;
+@property (readonly) BOOL hasNotificationPermission;
 /**
  * Get whether the user is subscribed to OneSignal notifications or not
  * @return false if the user is not subscribed to OneSignal notifications, otherwise true
  */
-@property (readonly) BOOL isUserSubscribed;
+@property (readonly) BOOL isPushDisabled;
 /**
  * Get whether the user is subscribed
  * @return true if  isNotificationEnabled,  isUserSubscribed, getUserId and getPushToken are true, otherwise false
@@ -460,8 +460,8 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 extern NSString* const ONESIGNAL_VERSION;
 
 + (NSString*)appId;
-+ (NSString* _Nonnull)sdk_version_raw;
-+ (NSString* _Nonnull)sdk_semantic_version;
++ (NSString* _Nonnull)sdkVersionRaw;
++ (NSString* _Nonnull)sdkSemanticVersion;
 
 + (void)setSubscription:(BOOL)enable;
 
@@ -496,7 +496,7 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 + (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block;
 + (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
-+ (OSDevice*)getUserDevice;
++ (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
 + (void)consentGranted:(BOOL)granted;

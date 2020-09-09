@@ -79,7 +79,7 @@ THE SOFTWARE.
 }
 
 - (void)saveCurrentSDKVersion {
-    let currentVersion = [[OneSignal sdk_version_raw] intValue];
+    let currentVersion = [[OneSignal sdkVersionRaw] intValue];
     [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION withValue:currentVersion];
 }
 

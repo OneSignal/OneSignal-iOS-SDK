@@ -206,12 +206,12 @@
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
-    XCTAssertNil([OneSignal getUserDevice].emailAddress);
+    XCTAssertNil([OneSignal getDeviceState].emailAddress);
 
     [OneSignal setEmail:testEmail];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(testEmail, [OneSignal getUserDevice].emailAddress);
+    XCTAssertEqual(testEmail, [OneSignal getDeviceState].emailAddress);
 }
 
 - (void)testOSDeviceHasEmailId {
@@ -220,54 +220,54 @@
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
-    XCTAssertNil([OneSignal getUserDevice].emailAddress);
+    XCTAssertNil([OneSignal getDeviceState].emailAddress);
 
     [OneSignal setEmail:testEmail];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertNotNil([OneSignal getUserDevice].emailAddress);
+    XCTAssertNotNil([OneSignal getDeviceState].emailAddress);
 }
 
 - (void)testOSDeviceHasUserId {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    XCTAssertNotNil([OneSignal getUserDevice].userId);
+    XCTAssertNotNil([OneSignal getDeviceState].userId);
 }
 
 - (void)testOSDeviceHasPushToken {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    XCTAssertNotNil([OneSignal getUserDevice].pushToken);
+    XCTAssertNotNil([OneSignal getDeviceState].pushToken);
 }
 
 - (void)testOSDeviceSubscribed {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    XCTAssertTrue([OneSignal getUserDevice].isSubscribed);
+    XCTAssertTrue([OneSignal getDeviceState].isSubscribed);
 }
 
 - (void)testOSDeviceUserSubscribed {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    XCTAssertTrue([OneSignal getUserDevice].isUserSubscribed);
+    XCTAssertFalse([OneSignal getDeviceState].isPushDisabled);
 }
 
 - (void)testOSDeviceNotificationReachable {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    XCTAssertTrue([OneSignal getUserDevice].notificationEnabled);
+    XCTAssertTrue([OneSignal getDeviceState].hasNotificationPermission);
 }
 
 - (void)testOSDeviceHasNotificationPermissionStatus {
     [OneSignal setAppSettings:@{kOSSettingsKeyAutoPrompt: @false}];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    XCTAssertEqual(OSNotificationPermissionAuthorized, [OneSignal getUserDevice].notificationPermissionStatus);
+    XCTAssertEqual(OSNotificationPermissionAuthorized, [OneSignal getDeviceState].notificationPermissionStatus);
 }
 
 @end
