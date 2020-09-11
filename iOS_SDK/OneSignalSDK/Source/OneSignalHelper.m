@@ -249,17 +249,15 @@
 @end
 
 @implementation OSPredisplayNotification
-@synthesize displayType = _displayType, notificationId = _notificationId, title = _title, body = _body;
+@synthesize notificationId = _notificationId, title = _title, body = _body;
 
 OSNotificationPayload *_payload;
 OSNotificationDisplayTypeResponse _completion;
 NSTimer *_timeoutTimer;
-- (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
+- (id)initWithPayload:(OSNotificationPayload *)payload completion:(OSNotificationDisplayTypeResponse)completion {
     self = [super init];
     if (self) {
         _payload = payload;
-        
-        _displayType = displayType;
         
         _body = _payload.body;
         
@@ -296,7 +294,7 @@ NSTimer *_timeoutTimer;
 - (void)timeoutTimerFired:(NSTimer *)timer {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR
     message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
-    [self complete:self.displayType];
+    [self complete:OSNotificationDisplayTypeNotification];
 }
 
 - (void)dealloc {
@@ -463,7 +461,7 @@ OneSignalWebView *webVC;
 }
 
 + (void)handleWillShowInForegroundHandlerForPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
-    let predisplayNotif = [[OSPredisplayNotification alloc] initWithPayload:payload displayType:displayType completion:completion];
+    let predisplayNotif = [[OSPredisplayNotification alloc] initWithPayload:payload completion:completion];
     if (notificationWillShowInForegroundHandler) {
         [predisplayNotif startTimeoutTimer];
         notificationWillShowInForegroundHandler(predisplayNotif, [predisplayNotif getCompletionBlock]);

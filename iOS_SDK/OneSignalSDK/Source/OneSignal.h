@@ -181,9 +181,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* OneSignal OSPredisplayNotification used in notificationWillShowInForegroundHandler. The display type for the notification can be changed before it is presented.*/
 @interface OSPredisplayNotification : NSObject
 
-/* Display method of the notification */
-@property(readonly, nonatomic)OSNotificationDisplayType displayType;
-
 /* Additional key value properties set within the payload */
 @property(readonly, nullable)NSDictionary *additionalData;
 
