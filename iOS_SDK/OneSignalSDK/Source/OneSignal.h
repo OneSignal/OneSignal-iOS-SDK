@@ -86,14 +86,14 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Name of Template */
 @property(readonly, nullable)NSString* templateName;
 
-/* True when the key content-available is set to 1 in the aps payload.
+/* True when the key content-available is set to 1 in the apns payload.
    content-available is used to wake your app when the payload is received.
    See Apple's documenation for more details.
   https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application
 */
 @property(readonly)BOOL contentAvailable;
 
-/* True when the key mutable-content is set to 1 in the aps payload.
+/* True when the key mutable-content is set to 1 in the apns payload.
  mutable-content is used to wake your Notification Service Extension to modify a notification.
  See Apple's documenation for more details.
  https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension
@@ -140,7 +140,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* iOS 10+ : Groups notifications into threads */
 @property(readonly, nullable)NSString *threadId;
 
-/* Parses an APS push payload into a OSNotificationPayload object.
+/* Parses an APNS push payload into a OSNotification object.
    Useful to call from your NotificationServiceExtension when the
       didReceiveNotificationRequest:withContentHandler: method fires. */
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message;

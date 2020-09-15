@@ -1975,12 +1975,12 @@ static NSString *_lastnonActiveMessageId;
     }
     //Only call the willShowInForegroundHandler for notifications not preview IAMs
     
-    let osPayload = [OSNotification parseWithApns:payload];
-    if ([osPayload additionalData][ONESIGNAL_IAM_PREVIEW]) {
+    OSNotification *osNotification = [OSNotification parseWithApns:payload];
+    if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
         completion(OSNotificationDisplayTypeSilent);
         return;
     }
-    [OneSignalHelper handleWillShowInForegroundHandlerForPayload:osPayload displayType:OSNotificationDisplayTypeNotification completion:completion];
+    [OneSignalHelper handleWillShowInForegroundHandlerForNotification:osNotification displayType:OSNotificationDisplayTypeNotification completion:completion];
 }
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict

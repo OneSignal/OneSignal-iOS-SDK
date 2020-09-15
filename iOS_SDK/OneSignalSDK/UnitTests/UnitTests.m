@@ -45,7 +45,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OSPermission.h"
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 #import "OneSignalUserDefaults.h"
 #import "OSInAppMessagingHelpers.h"
 #import "DelayedConsentInitializationParameters.h"
@@ -764,7 +764,7 @@
 - (void)testNotificationOpen {
     __block BOOL openedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
-        XCTAssertNil(result.notification.payload.additionalData);
+        XCTAssertNil(result.notification.additionalData);
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
         XCTAssertNil(result.action.actionId);
         openedWasFire = true;
@@ -873,15 +873,15 @@
 
 - (void)testOSNotificationPayloadParsesTemplateFields {
     NSDictionary *aps = @{@"custom": @{@"ti": @"templateId", @"tn": @"Template name"}};
-    OSNotificationPayload *paylaod = [OSNotificationPayload parseWithApns:aps];
-    XCTAssertEqual(paylaod.templateID, @"templateId");
-    XCTAssertEqual(paylaod.templateName, @"Template name");
+    OSNotification *notification = [OSNotification parseWithApns:aps];
+    XCTAssertEqual(notification.templateId, @"templateId");
+    XCTAssertEqual(notification.templateName, @"Template name");
     
     // Test os_data format
     aps = @{@"os_data": @{@"ti": @"templateId", @"tn": @"Template name"}};
-    paylaod = [OSNotificationPayload parseWithApns:aps];
-    XCTAssertEqual(paylaod.templateID, @"templateId");
-    XCTAssertEqual(paylaod.templateName, @"Template name");
+    notification = [OSNotification parseWithApns:aps];
+    XCTAssertEqual(notification.templateId, @"templateId");
+    XCTAssertEqual(notification.templateName, @"Template name");
 }
 
 
@@ -906,11 +906,11 @@
     XCTAssertTrue(openedWasFire);
 }
 
-// Testing iOS 10 - old pre-2.4.0 button format - with original aps payload format
+// Testing iOS 10 - old pre-2.4.0 button format - with original apns payload format
 - (void)testNotificationOpenFromButtonPress {
     __block BOOL openedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
-        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqualObjects(result.notification.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionId, @"id1");
         openedWasFire = true;
@@ -952,11 +952,11 @@
 }
 
 
-// Testing iOS 10 - 2.4.0+ button format - with os_data aps payload format
+// Testing iOS 10 - 2.4.0+ button format - with os_data apns payload format
 - (void)testNotificationOpenFromButtonPressWithNewFormat {
     __block BOOL openedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
-        XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
+        XCTAssertEqualObjects(result.notification.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
         XCTAssertEqualObjects(result.action.actionId, @"id1");
         openedWasFire = true;
@@ -1004,7 +1004,7 @@
     __block BOOL openedWasFired = false;
     __block BOOL receivedWasFired = false;
 
-    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSPredisplayNotification *job, OSNotificationDisplayTypeResponse completion) {
+    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         receivedWasFired = true;
     } notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         openedWasFired = true;
@@ -1033,11 +1033,11 @@
     XCTAssertEqual(receivedWasFired, true);
 }
 
-// Testing iOS 10 - with original aps payload format
+// Testing iOS 10 - with original apns payload format
 - (void)testOpeningWithAdditionalData {
     __block BOOL openedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
-        XCTAssertEqualObjects(result.notification.payload.additionalData[@"foo"], @"bar");
+        XCTAssertEqualObjects(result.notification.additionalData[@"foo"], @"bar");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
         XCTAssertNil(result.action.actionId);
         openedWasFire = true;
@@ -1076,11 +1076,11 @@
 }
 
 /*
- Testing iOS 10 - pre-2.4.0 button format - with os_data aps payload format
+ Testing iOS 10 - pre-2.4.0 button format - with os_data apns payload format
  */
 - (void)receivedCallbackWithButtonsWithUserInfo:(NSDictionary *)userInfo {
     __block BOOL receivedWasFire = false;
-    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         receivedWasFire = true;
         // TODO: Fix this unit test since generation jobs do not have action buttons
         //let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
@@ -1178,7 +1178,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(actions[0].title, @"text1");
 }
 
-// Testing iOS 9 - with os_data aps payload format
+// Testing iOS 9 - with os_data apns payload format
 - (void)testGeneratingLocalNotificationWithButtonsiOS9_osdata_format {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods initOneSignal_andThreadWait];
@@ -1518,7 +1518,7 @@ didReceiveRemoteNotification:userInfo
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
     
     __block BOOL receivedWasFire = false;
-    [UnitTestCommonMethods initOneSignalWithHandlers:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    [UnitTestCommonMethods initOneSignalWithHandlers:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         receivedWasFire = true;
     } notificationOpenedHandler:nil];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -1915,7 +1915,7 @@ didReceiveRemoteNotification:userInfo
 
 // Testing overriding the notification's display type in the willShowInForegroundHandler block
 - (void)testOverrideNotificationDisplayType {
-    [self fireDefaultNotificationWithForeGroundBlock:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         completion(OSNotificationDisplayTypeSilent);
     } withNotificationOpenedBlock:nil presentationOption:(UNNotificationPresentationOptions)0];
 }
@@ -1923,14 +1923,14 @@ didReceiveRemoteNotification:userInfo
 // If the OSPredisplayNotification's complete method is not fired by the willShowInForegroundHandler block, the complete method
 // should be called automatically based on the job's timer.
 - (void)testTimeoutOverrideNotificationDisplayType {
-    [self fireDefaultNotificationWithForeGroundBlock:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         //WE ARE NOT CALLING COMPLETE. THIS MEANS THE NOTIFICATIONJOB'S TIMER SHOULD FIRE
     } withNotificationOpenedBlock:nil presentationOption:(UNNotificationPresentationOptions)7];
 }
 
 // If the OSPredisplayNotification's complete method is fired by the willShowInForegroundHandler block after the job has timed out, the complete method should not result in the completion handler being called
 - (void)testCompleteAfterTimeoutInNotificationForegroundHandler {
-    [self fireDefaultNotificationWithForeGroundBlock:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         XCTestExpectation *expectation = [[XCTestExpectation alloc] initWithDescription:@"Always fail"];
         XCTWaiterResult result = [XCTWaiter waitForExpectations:@[expectation] timeout:2.0];
         if (result != XCTWaiterResultTimedOut) {
@@ -1948,7 +1948,7 @@ didReceiveRemoteNotification:userInfo
     let expectation = [self expectationWithDescription:@"wait_for_timeout"];
     expectation.expectedFulfillmentCount = 1;
 
-    let payload = [self setUpWillShowInForegroundHandlerTestWithBlock:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    let payload = [self setUpWillShowInForegroundHandlerTestWithBlock:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         handlerCalledCount ++;
     } withDisplayType:OSNotificationDisplayTypeNotification withNotificationOpenedBlock:nil withPayload:[OSInAppMessageTestHelper testMessagePreviewJson]];
     
@@ -1973,7 +1973,7 @@ didReceiveRemoteNotification:userInfo
 
 //Change the notification display type to silent and ensure that the opened handler does not fire
 - (void)testOpenedHandlerNotFiredWhenOverridingDisplayType {
-    [self fireDefaultNotificationWithForeGroundBlock:^(OSPredisplayNotification *notifJob, OSNotificationDisplayTypeResponse completion) {
+    [self fireDefaultNotificationWithForeGroundBlock:^(OSNotification *notif, OSNotificationDisplayTypeResponse completion) {
         completion(OSNotificationDisplayTypeSilent);
     } withNotificationOpenedBlock:^(OSNotificationOpenedResult * result) {
         XCTFail(@"The notification should not have been considered opened");
@@ -2182,7 +2182,7 @@ didReceiveRemoteNotification:userInfo
                              @"att": @{ @"id": @"http://domain.com/file.jpg" }
                              }};
     
-    let notification = [OSNotificationPayload parseWithApns:newFormat];
+    let notification = [OSNotification parseWithApns:newFormat];
     
     XCTAssertTrue(notification.actionButtons.count == 0);
 }

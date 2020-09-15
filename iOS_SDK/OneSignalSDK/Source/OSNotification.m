@@ -38,7 +38,7 @@
  OSNotificationDisplayTypeResponse _completion;
  NSTimer *_timeoutTimer;
  
-+(instancetype)parseWithApns:(nonnull NSDictionary*)message {
++ (instancetype)parseWithApns:(nonnull NSDictionary*)message {
     if (!message)
         return nil;
     
@@ -48,7 +48,7 @@
     return osNotification;
 }
 
--(void)initWithRawMessage:(NSDictionary*)message {
+- (void)initWithRawMessage:(NSDictionary*)message {
     _rawPayload = [NSDictionary dictionaryWithDictionary:message];
     
     if ([_rawPayload[@"os_data"] isKindOfClass:[NSDictionary class]])
@@ -62,7 +62,7 @@
 }
 
 // Original OneSignal payload format.
--(void)parseOriginalPayload {
+- (void)parseOriginalPayload {
     BOOL remoteSlient = _rawPayload[@"m"] && !_rawPayload[@"aps"][@"alert"];
     if (remoteSlient)
         [self parseRemoteSlient:_rawPayload];
@@ -88,7 +88,7 @@
 
 // New OneSignal playload format.
 //   OneSignal specific features are under "os_data".
--(void)parseOSDataPayload {
+- (void)parseOSDataPayload {
     NSDictionary *os_data = _rawPayload[@"os_data"];
     BOOL remoteSlient = os_data[@"buttons"] && !_rawPayload[@"aps"][@"alert"];
     if (remoteSlient)
@@ -112,7 +112,7 @@
     [self parseOSDataAdditionalData];
 }
 
--(void)parseOSDataAdditionalData {
+- (void)parseOSDataAdditionalData {
     NSMutableDictionary *additional = [_rawPayload mutableCopy];
     [additional removeObjectForKey:@"aps"];
     [additional removeObjectForKey:@"os_data"];
@@ -120,7 +120,7 @@
 }
 
 // Fields that share the same format for all OneSignal payload types.
--(void)parseCommonOneSignalFields:(NSDictionary*)payload {
+- (void)parseCommonOneSignalFields:(NSDictionary*)payload {
     _notificationId = payload[@"i"];
     _launchURL = payload[@"u"];
     _templateId = payload[@"ti"];
@@ -128,14 +128,14 @@
     _badgeIncrement = [payload[@"badge_inc"] integerValue];
 }
 
--(void)parseApnsFields {
+- (void)parseApnsFields {
     [self parseAlertField:_rawPayload[@"aps"][@"alert"]];
     _badge = [_rawPayload[@"aps"][@"badge"] intValue];
     _sound = _rawPayload[@"aps"][@"sound"];
 }
 
 // Pasrse the APNs alert field, can be a NSString or a NSDictionary
--(void)parseAlertField:(NSObject*)alert {
+- (void)parseAlertField:(NSObject*)alert {
     if ([alert isKindOfClass:[NSDictionary class]]) {
         NSDictionary *alertDictionary = (NSDictionary*)alert;
         _body = alertDictionary[@"body"];
@@ -149,7 +149,7 @@
 // Only used on iOS 9 and older.
 //   - Or if the OneSignal server hasn't received the iOS version update.
 // May also be used if OneSignal server hasn't received the SDK version 2.4.0+ update event
--(void)parseRemoteSlient:(NSDictionary*)payload {
+- (void)parseRemoteSlient:(NSDictionary*)payload {
     [self parseAlertField:payload[@"m"]];
     _badge = [payload[@"b"] intValue];
     _sound = payload[@"s"];
@@ -158,7 +158,7 @@
 }
 
 // Parse and convert minified keys for action buttons
--(void)parseActionButtons:(NSArray<NSDictionary*>*)buttons {
+- (void)parseActionButtons:(NSArray<NSDictionary*>*)buttons {
     NSMutableArray *buttonArray = [NSMutableArray new];
     for (NSDictionary *button in buttons) {
         
@@ -178,7 +178,7 @@
     _actionButtons = buttonArray;
 }
 
--(void)parseOtherApnsFields {
+- (void)parseOtherApnsFields {
     NSDictionary *aps = _rawPayload[@"aps"];
     if (aps[@"content-available"])
         _contentAvailable = (BOOL)aps[@"content-available"];
@@ -194,7 +194,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat: @"notificationID=%@ templateID=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
+    return [NSString stringWithFormat: @"notificationId=%@ templateId=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
 }
 
 
@@ -203,7 +203,7 @@
     [obj setObject:[NSMutableDictionary new] forKeyedSubscript:@"payload"];
     
     if (self.notificationId)
-        [obj[@"payload"] setObject:self.notificationId forKeyedSubscript: @"notificationID"];
+        [obj[@"payload"] setObject:self.notificationId forKeyedSubscript: @"notificationId"];
     
     if (self.sound)
         [obj[@"payload"] setObject:self.sound forKeyedSubscript: @"sound"];
@@ -268,13 +268,16 @@
 
  - (void)timeoutTimerFired:(NSTimer *)timer {
      [OneSignal onesignal_Log:ONE_S_LL_ERROR
-     message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
+     message:[NSString stringWithFormat:@"Notification willShowInForeground completion timed out. Completion was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
      [self complete:OSNotificationDisplayTypeNotification];
  }
 
  - (void)dealloc {
-     if (_timeoutTimer)
+     if (_timeoutTimer && _completion) {
          [_timeoutTimer invalidate];
+         [OneSignal onesignal_Log:ONE_S_LL_WARN
+                          message:[NSString stringWithFormat:@"Notification: %@ was deallocated before calling completion block.", self.notificationId]];
+     }
  }
 
 @end
