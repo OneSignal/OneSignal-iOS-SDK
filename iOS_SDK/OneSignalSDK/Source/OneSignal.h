@@ -70,7 +70,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly)OSNotificationActionType type;
 
 /* The ID associated with the button tapped. NULL when the actionType is NotificationTapped */
-@property(readonly, nullable)NSString* actionID;
+@property(readonly, nullable)NSString* actionId;
 
 @end
 
@@ -81,7 +81,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly, nullable)NSString* notificationId;
 
 /* Unique Template Identifier */
-@property(readonly, nullable)NSString* templateID;
+@property(readonly, nullable)NSString* templateId;
 
 /* Name of Template */
 @property(readonly, nullable)NSString* templateName;
@@ -109,8 +109,8 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly, nullable)NSString* category;
 
 /* The badge assigned to the application icon */
-@property(readonly, nullable)NSInteger badge;
-@property(readonly, nullable)NSInteger badgeIncrement;
+@property(readonly)NSInteger badge;
+@property(readonly)NSInteger badgeIncrement;
 
 /* The sound parameter passed to the notification
  By default set to UILocalNotificationDefaultSoundName */
@@ -455,8 +455,8 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 
 #pragma mark Public Handlers
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired using the displayType of the OSPredisplayNotification object.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSPredisplayNotification* notification, OSNotificationDisplayTypeResponse completion);
+// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification* notification, OSNotificationDisplayTypeResponse completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction* action);
 
