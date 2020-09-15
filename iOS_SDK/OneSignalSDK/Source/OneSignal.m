@@ -40,7 +40,7 @@
 #import "NSString+OneSignal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 #import "OSOutcomeEventsFactory.h"
 #import "OSOutcomeEventsCache.h"
 #import "OneSignalCommonDefines.h"
@@ -1932,7 +1932,7 @@ static NSString *_lastnonActiveMessageId;
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
     
-    BOOL isPreview = [[OSNotificationPayload parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
+    BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
     if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"])
         return;
 
@@ -1975,7 +1975,7 @@ static NSString *_lastnonActiveMessageId;
     }
     //Only call the willShowInForegroundHandler for notifications not preview IAMs
     
-    let osPayload = [OSNotificationPayload parseWithApns:payload];
+    let osPayload = [OSNotification parseWithApns:payload];
     if ([osPayload additionalData][ONESIGNAL_IAM_PREVIEW]) {
         completion(OSNotificationDisplayTypeSilent);
         return;
@@ -1993,8 +1993,8 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:foreground:isActive:actionType:displayType:"])
         return;
 
-    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:messageDict];
-    if ([OneSignalHelper handleIAMPreview:payload])
+    OSNotification *notification = [OSNotification parseWithApns:messageDict];
+    if ([OneSignalHelper handleIAMPreview:notification])
         return;
 
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
@@ -2175,13 +2175,13 @@ static NSString *_lastnonActiveMessageId;
 
     // Generate local notification for action button and/or attachments.
     if (richData) {
-        let osPayload = [OSNotificationPayload parseWithApns:userInfo];
+        let osNotification = [OSNotification parseWithApns:userInfo];
         
         if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             startedBackgroundJob = true;
-            [OneSignalHelper addNotificationRequest:osPayload completionHandler:completionHandler];
+            [OneSignalHelper addNotificationRequest:osNotification completionHandler:completionHandler];
         } else {
-            let notification = [OneSignalHelper prepareUILocalNotification:osPayload];
+            let notification = [OneSignalHelper prepareUILocalNotification:osNotification];
             [[UIApplication sharedApplication] scheduleLocalNotification:notification];
         }
     }

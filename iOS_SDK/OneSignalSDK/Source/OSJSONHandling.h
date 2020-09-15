@@ -32,7 +32,7 @@
 + (instancetype _Nullable)instanceWithData:(NSData * _Nonnull)data;
 
 + (instancetype _Nullable)instanceWithJson:(NSDictionary * _Nonnull)json;
-+ (instancetype _Nullable)instancePreviewFromOSNotification:(OSNotification * _Nonnull)notification;
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification;
 @end
 
 @protocol OSJSONEncodable

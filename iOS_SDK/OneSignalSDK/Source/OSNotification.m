@@ -34,88 +34,9 @@
 #import "OneSignalCommonDefines.h"
 
 @implementation OSNotification
-/*
- @implementation OSNotification
- @synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType, mutableContent = _mutableContent;
-
- - (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType {
-     self = [super init];
-     if (self) {
-         _payload = payload;
-         
-         _displayType = displayType;
-         
-         _silentNotification = [OneSignalHelper isRemoteSilentNotification:payload.rawPayload];
-         
-         _mutableContent = payload.rawPayload[@"aps"][@"mutable-content"] && [payload.rawPayload[@"aps"][@"mutable-content"] isEqual: @YES];
-         
-         _shown = true;
-         
-         _isAppInFocus = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-         
-         //If remote silent -> shown = false
-         //If app is active and in-app alerts are not enabled -> shown = false
-         if (_silentNotification ||
-             _isAppInFocus)
-             _shown = false;
-     }
-     return self;
- }
-
- */
-
 
  OSNotificationDisplayTypeResponse _completion;
  NSTimer *_timeoutTimer;
- - (id)initWithPayload:(OSNotificationPayload *)payload completion:(OSNotificationDisplayTypeResponse)completion {
-     self = [super init];
-     if (self) {
-         _payload = payload;
-         
-         _body = _payload.body;
-         
-         _title = _payload.title;
-         
-         _notificationId = _payload.notificationID;
-         
-         
-     }
-     return self;
- }
-
-_completion = completion;
-
-
-
- - (OSNotificationDisplayTypeResponse)getCompletionBlock {
-     OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
-         [self complete:displayType];
-     };
-     return block;
- }
-
- - (void)complete:(OSNotificationDisplayType)displayType {
-     [_timeoutTimer invalidate];
-     if (_completion) {
-         _completion(displayType);
-         _completion = nil;
-     }
- }
-
- - (void)startTimeoutTimer {
-     [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
- }
-
- - (void)timeoutTimerFired:(NSTimer *)timer {
-     [OneSignal onesignal_Log:ONE_S_LL_ERROR
-     message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
-     [self complete:OSNotificationDisplayTypeNotification];
- }
-
- - (void)dealloc {
-     if (_timeoutTimer)
-         [_timeoutTimer invalidate];
- }
  
 +(instancetype)parseWithApns:(nonnull NSDictionary*)message {
     if (!message)
@@ -319,5 +240,41 @@ _completion = completion;
     NSData *jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
+
+#pragma mark willShowInForegroundHandler Methods
+
+- (void)setCompletionBlock:(OSNotificationDisplayTypeResponse)completion {
+    _completion = completion;
+}
+
+ - (OSNotificationDisplayTypeResponse)getCompletionBlock {
+     OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
+         [self complete:displayType];
+     };
+     return block;
+ }
+
+ - (void)complete:(OSNotificationDisplayType)displayType {
+     [_timeoutTimer invalidate];
+     if (_completion) {
+         _completion(displayType);
+         _completion = nil;
+     }
+ }
+
+ - (void)startTimeoutTimer {
+     [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
+ }
+
+ - (void)timeoutTimerFired:(NSTimer *)timer {
+     [OneSignal onesignal_Log:ONE_S_LL_ERROR
+     message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
+     [self complete:OSNotificationDisplayTypeNotification];
+ }
+
+ - (void)dealloc {
+     if (_timeoutTimer)
+         [_timeoutTimer invalidate];
+ }
 
 @end

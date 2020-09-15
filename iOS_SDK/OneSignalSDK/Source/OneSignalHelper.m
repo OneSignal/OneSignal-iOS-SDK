@@ -323,7 +323,7 @@ OneSignalWebView *webVC;
 }
 
 + (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
-    [notification setCompletionBlock:completion];
+    //[notification setCompletionBlock:completion];
     if (notificationWillShowInForegroundHandler) {
         [notification startTimeoutTimer];
         notificationWillShowInForegroundHandler(notification, [notification getCompletionBlock]);
