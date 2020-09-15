@@ -697,8 +697,18 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
+- (void)makeRedisplayMessagesAvailableWithTriggers:(NSArray<NSString *> *)triggerIds {
+    for (OSInAppMessage *message in self.messages) {
+        if ([self.redisplayedInAppMessages objectForKey:message.messageId]
+            && [_triggerController hasSharedTriggers:message newTriggersKeys:triggerIds]) {
+            message.isTriggerChanged = YES;
+        }
+    }
+}
+
 #pragma mark OSTriggerControllerDelegate Methods
-- (void)triggerConditionChanged {
+- (void)triggerConditionChanged:(NSString *)triggerId {
+    [self makeRedisplayMessagesAvailableWithTriggers:@[triggerId]];
     // We should re-evaluate all in-app messages
     [self evaluateMessages];
 }

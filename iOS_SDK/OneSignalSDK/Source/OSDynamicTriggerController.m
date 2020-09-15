@@ -147,7 +147,7 @@
 
         [self.scheduledMessages removeObject:trigger.triggerId];
 
-        [self.delegate dynamicTriggerFired];
+        [self.delegate dynamicTriggerFired:trigger.triggerId];
     }
 }
 

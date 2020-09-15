@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSDynamicTriggerControllerDelegate <NSObject>
 
-- (void)dynamicTriggerFired;
+- (void)dynamicTriggerFired:(NSString *triggerId);
 
 @end
 
