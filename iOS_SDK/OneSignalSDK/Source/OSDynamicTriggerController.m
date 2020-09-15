@@ -58,7 +58,6 @@
 }
 
 - (BOOL)dynamicTriggerShouldFire:(OSTrigger *)trigger withMessageId:(NSString *)messageId {
-    
     if (!trigger.value)
         return false;
 
@@ -79,10 +78,10 @@
         // Check what type of trigger it is
         if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME]) {
             let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
-
-            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType])
+            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType]) {
+                [self.delegate dynamicTriggerCompleted:trigger.triggerId];
                 return true;
-
+            }
             offset = requiredTimeValue - currentDuration;
         } else if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_MIN_TIME_SINCE]) {
 
@@ -113,7 +112,6 @@
 
         [self.scheduledMessages addObject:trigger.triggerId];
     }
-    
     return false;
 }
 

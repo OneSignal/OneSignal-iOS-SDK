@@ -38,8 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
  The message should be shown (assuming no other triggers are false for that message)
  It is also called when the app changes trigger values
  */
+- (void)triggerConditionChanged;
 - (void)triggerConditionChanged:(NSString *)triggerId;
-
+- (void)dynamicTriggerCompleted:(NSString *)triggerId;
 @end
 
 @interface OSTriggerController : NSObject <OSDynamicTriggerControllerDelegate>
