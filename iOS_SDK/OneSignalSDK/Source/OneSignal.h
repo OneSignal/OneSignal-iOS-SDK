@@ -74,11 +74,11 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 @end
 
-/* Notification Payload Received Object */
-@interface OSNotificationPayload : NSObject
+/* OneSignal OSNotification */
+@interface OSNotification : NSObject
 
 /* Unique Message Identifier */
-@property(readonly, nullable)NSString* notificationID;
+@property(readonly, nullable)NSString* notificationId;
 
 /* Unique Template Identifier */
 @property(readonly, nullable)NSString* templateID;
@@ -98,7 +98,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
  See Apple's documenation for more details.
  https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension
  */
-@property(readonly)BOOL mutableContent;
+@property(readonly, getter=hasMutableContent)BOOL mutableContent;
 
 /*
  Notification category key previously registered to display with.
@@ -109,8 +109,8 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly, nullable)NSString* category;
 
 /* The badge assigned to the application icon */
-@property(readonly)NSInteger badge;
-@property(readonly)NSInteger badgeIncrement;
+@property(readonly, nullable)NSInteger badge;
+@property(readonly, nullable)NSInteger badgeIncrement;
 
 /* The sound parameter passed to the notification
  By default set to UILocalNotificationDefaultSoundName */
@@ -143,55 +143,10 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Parses an APS push payload into a OSNotificationPayload object.
    Useful to call from your NotificationServiceExtension when the
       didReceiveNotificationRequest:withContentHandler: method fires. */
-
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message;
-
-@end
-
-/* OneSignal OSNotification */
-@interface OSNotification : NSObject
-
-/* Notification Payload */
-@property(readonly, nonnull)OSNotificationPayload* payload;
-
-/* Display method of the notification */
-@property(readonly)OSNotificationDisplayType displayType;
-
-/* Set to true when the user was able to see the notification and reacted to it
- Set to false when app is in focus and in-app alerts are disabled, or the remote notification is silent. */
-@property(readonly, getter=wasShown)BOOL shown;
-
-/* Set to true if the app was in focus when the notification  */
-@property(readonly, getter=wasAppInFocus)BOOL isAppInFocus;
-
-/* Set to true when the received notification is silent
- Silent means there is no alert, sound, or badge payload in the aps dictionary
- requires remote-notification within UIBackgroundModes array of the Info.plist */
-@property(readonly, getter=isSilentNotification)BOOL silentNotification;
-
-/* iOS 10+: Indicates whether or not the received notification has mutableContent : 1 assigned to its payload
- Used for UNNotificationServiceExtension to launch extension. */
-@property(readonly, getter=hasMutableContent)BOOL mutableContent;
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
-
-@end
-
-/* OneSignal OSPredisplayNotification used in notificationWillShowInForegroundHandler. The display type for the notification can be changed before it is presented.*/
-@interface OSPredisplayNotification : NSObject
-
-/* Additional key value properties set within the payload */
-@property(readonly, nullable)NSDictionary *additionalData;
-
-/* The Notification ID */
-@property(readonly, nullable)NSString *notificationId;
-
-/* The message title */
-@property(readonly, nullable)NSString *title;
-
-/* The message body */
-@property(readonly, nullable)NSString *body;
 
 @end
 
