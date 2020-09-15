@@ -35,20 +35,20 @@
 
 @implementation OneSignalExtensionBadgeHandler
 
-+ (void)handleBadgeCountWithNotificationRequest:(UNNotificationRequest *)request withNotificationPayload:(OSNotificationPayload *)payload withMutableNotificationContent:(UNMutableNotificationContent *)replacementContent {
++ (void)handleBadgeCountWithNotificationRequest:(UNNotificationRequest *)request withNotification:(OSNotification *)notification withMutableNotificationContent:(UNMutableNotificationContent *)replacementContent {
     
     //if the user is setting the badge directly instead of incrementing/decrementing,
     //make sure the OneSignal cached value is updated to this value
-    if (!payload.badgeIncrement) {
-        if (payload.badge)
-            [OneSignalExtensionBadgeHandler updateCachedBadgeValue:payload.badge];
+    if (!notification.badgeIncrement) {
+        if (notification.badge)
+            [OneSignalExtensionBadgeHandler updateCachedBadgeValue:notification.badge];
         
         return;
     }
     
     var currentValue = (int)OneSignalExtensionBadgeHandler.currentCachedBadgeValue ?: 0;
     
-    currentValue += (int)payload.badgeIncrement;
+    currentValue += (int)notification.badgeIncrement;
     
     //cannot have negative badge values
     if (currentValue < 0)

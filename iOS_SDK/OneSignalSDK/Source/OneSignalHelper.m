@@ -153,153 +153,15 @@
 @end
 
 @implementation OSNotificationAction
-@synthesize type = _type, actionID = _actionID;
+@synthesize type = _type, actionId = _actionId;
 
 -(id)initWithActionType:(OSNotificationActionType)type :(NSString*)actionID {
     self = [super init];
     if(self) {
         _type = type;
-        _actionID = actionID;
+        _actionId = actionID;
     }
     return self;
-}
-
-@end
-
-@implementation OSNotification
-@synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType, mutableContent = _mutableContent;
-
-- (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType {
-    self = [super init];
-    if (self) {
-        _payload = payload;
-        
-        _displayType = displayType;
-        
-        _silentNotification = [OneSignalHelper isRemoteSilentNotification:payload.rawPayload];
-        
-        _mutableContent = payload.rawPayload[@"aps"][@"mutable-content"] && [payload.rawPayload[@"aps"][@"mutable-content"] isEqual: @YES];
-        
-        _shown = true;
-        
-        _isAppInFocus = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-        
-        //If remote silent -> shown = false
-        //If app is active and in-app alerts are not enabled -> shown = false
-        if (_silentNotification ||
-            _isAppInFocus)
-            _shown = false;
-    }
-    return self;
-}
-
-- (NSString*)stringify {
-    let obj = [NSMutableDictionary new];
-    [obj setObject:[NSMutableDictionary new] forKeyedSubscript:@"payload"];
-    
-    if (self.payload.notificationID)
-        [obj[@"payload"] setObject:self.payload.notificationID forKeyedSubscript: @"notificationID"];
-    
-    if (self.payload.sound)
-        [obj[@"payload"] setObject:self.payload.sound forKeyedSubscript: @"sound"];
-    
-    if (self.payload.title)
-        [obj[@"payload"] setObject:self.payload.title forKeyedSubscript: @"title"];
-    
-    if (self.payload.body)
-        [obj[@"payload"] setObject:self.payload.body forKeyedSubscript: @"body"];
-    
-    if (self.payload.subtitle)
-        [obj[@"payload"] setObject:self.payload.subtitle forKeyedSubscript: @"subtitle"];
-    
-    if (self.payload.additionalData)
-        [obj[@"payload"] setObject:self.payload.additionalData forKeyedSubscript: @"additionalData"];
-    
-    if (self.payload.actionButtons)
-        [obj[@"payload"] setObject:self.payload.actionButtons forKeyedSubscript: @"actionButtons"];
-    
-    if (self.payload.rawPayload)
-        [obj[@"payload"] setObject:self.payload.rawPayload forKeyedSubscript: @"rawPayload"];
-    
-    if (self.payload.launchURL)
-        [obj[@"payload"] setObject:self.payload.launchURL forKeyedSubscript: @"launchURL"];
-    
-    if (self.payload.contentAvailable)
-        [obj[@"payload"] setObject:@(self.payload.contentAvailable) forKeyedSubscript: @"contentAvailable"];
-    
-    if (self.payload.badge)
-        [obj[@"payload"] setObject:@(self.payload.badge) forKeyedSubscript: @"badge"];
-    
-    if (self.displayType)
-        [obj setObject:@(self.displayType) forKeyedSubscript: @"displayType"];
-    
-    
-    [obj setObject:@(self.shown) forKeyedSubscript: @"shown"];
-    [obj setObject:@(self.isAppInFocus) forKeyedSubscript: @"isAppInFocus"];
-    
-    if (self.silentNotification)
-        [obj setObject:@(self.silentNotification) forKeyedSubscript: @"silentNotification"];
-    
-    //Convert obj into a serialized
-    NSError *err;
-    NSData *jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-}
-
-@end
-
-@implementation OSPredisplayNotification
-@synthesize notificationId = _notificationId, title = _title, body = _body;
-
-OSNotificationPayload *_payload;
-OSNotificationDisplayTypeResponse _completion;
-NSTimer *_timeoutTimer;
-- (id)initWithPayload:(OSNotificationPayload *)payload completion:(OSNotificationDisplayTypeResponse)completion {
-    self = [super init];
-    if (self) {
-        _payload = payload;
-        
-        _body = _payload.body;
-        
-        _title = _payload.title;
-        
-        _notificationId = _payload.notificationID;
-        
-        _completion = completion;
-        
-        _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
-    }
-    return self;
-}
-
-- (OSNotificationDisplayTypeResponse)getCompletionBlock {
-    OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
-        [self complete:displayType];
-    };
-    return block;
-}
-
-- (void)complete:(OSNotificationDisplayType)displayType {
-    [_timeoutTimer invalidate];
-    if (_completion) {
-        _completion(displayType);
-        _completion = nil;
-    }
-}
-
-- (void)startTimeoutTimer {
-    [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
-}
-
-- (void)timeoutTimerFired:(NSTimer *)timer {
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR
-    message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
-    [self complete:OSNotificationDisplayTypeNotification];
-}
-
-- (void)dealloc {
-    if (_timeoutTimer)
-        [_timeoutTimer invalidate];
 }
 
 @end
@@ -326,7 +188,7 @@ NSTimer *_timeoutTimer;
     
     NSMutableDictionary* obj = [NSMutableDictionary new];
     NSMutableDictionary* action = [NSMutableDictionary new];
-    [action setObject:self.action.actionID forKeyedSubscript:@"actionID"];
+    [action setObject:self.action.actionId forKeyedSubscript:@"actionID"];
     [obj setObject:action forKeyedSubscript:@"action"];
     [obj setObject:notifDict forKeyedSubscript:@"notification"];
     if(self.action.type)

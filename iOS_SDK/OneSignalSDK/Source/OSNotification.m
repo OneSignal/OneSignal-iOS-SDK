@@ -27,20 +27,106 @@
 
 #import <Foundation/Foundation.h>
 
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 
 #import "OneSignal.h"
 
-@implementation OSNotificationPayload
+@implementation OSNotification
+/*
+ @implementation OSNotification
+ @synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType, mutableContent = _mutableContent;
 
+ - (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType {
+     self = [super init];
+     if (self) {
+         _payload = payload;
+         
+         _displayType = displayType;
+         
+         _silentNotification = [OneSignalHelper isRemoteSilentNotification:payload.rawPayload];
+         
+         _mutableContent = payload.rawPayload[@"aps"][@"mutable-content"] && [payload.rawPayload[@"aps"][@"mutable-content"] isEqual: @YES];
+         
+         _shown = true;
+         
+         _isAppInFocus = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+         
+         //If remote silent -> shown = false
+         //If app is active and in-app alerts are not enabled -> shown = false
+         if (_silentNotification ||
+             _isAppInFocus)
+             _shown = false;
+     }
+     return self;
+ }
+
+ */
+
+/*
+ 
+ @synthesize notificationId = _notificationId, title = _title, body = _body;
+
+ OSNotificationPayload *_payload;
+ OSNotificationDisplayTypeResponse _completion;
+ NSTimer *_timeoutTimer;
+ - (id)initWithPayload:(OSNotificationPayload *)payload completion:(OSNotificationDisplayTypeResponse)completion {
+     self = [super init];
+     if (self) {
+         _payload = payload;
+         
+         _body = _payload.body;
+         
+         _title = _payload.title;
+         
+         _notificationId = _payload.notificationID;
+         
+         _completion = completion;
+         
+         _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
+     }
+     return self;
+ }
+
+ - (OSNotificationDisplayTypeResponse)getCompletionBlock {
+     OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
+         [self complete:displayType];
+     };
+     return block;
+ }
+
+ - (void)complete:(OSNotificationDisplayType)displayType {
+     [_timeoutTimer invalidate];
+     if (_completion) {
+         _completion(displayType);
+         _completion = nil;
+     }
+ }
+
+ - (void)startTimeoutTimer {
+     [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
+ }
+
+ - (void)timeoutTimerFired:(NSTimer *)timer {
+     [OneSignal onesignal_Log:ONE_S_LL_ERROR
+     message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
+     [self complete:OSNotificationDisplayTypeNotification];
+ }
+
+ - (void)dealloc {
+     if (_timeoutTimer)
+         [_timeoutTimer invalidate];
+ }
+
+ @end
+ */
 +(instancetype)parseWithApns:(nonnull NSDictionary*)message {
     if (!message)
         return nil;
     
-    OSNotificationPayload *osPayload = [OSNotificationPayload new];
+    OSNotification *osNotification = [OSNotification new];
     
-    [osPayload initWithRawMessage:message];
-    return osPayload;
+    [osNotification initWithRawMessage:message];
+    return osNotification;
 }
 
 -(void)initWithRawMessage:(NSDictionary*)message {
@@ -114,9 +200,9 @@
 
 // Fields that share the same format for all OneSignal payload types.
 -(void)parseCommonOneSignalFields:(NSDictionary*)payload {
-    _notificationID = payload[@"i"];
+    _notificationId = payload[@"i"];
     _launchURL = payload[@"u"];
-    _templateID = payload[@"ti"];
+    _templateId = payload[@"ti"];
     _templateName = payload[@"tn"];
     _badgeIncrement = [payload[@"badge_inc"] integerValue];
 }
@@ -187,7 +273,51 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat: @"notificationID=%@ templateID=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationID, _templateID, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
+    return [NSString stringWithFormat: @"notificationID=%@ templateID=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
+}
+
+
+- (NSString*)stringify {
+    NSMutableDictionary *obj = [NSMutableDictionary new];
+    [obj setObject:[NSMutableDictionary new] forKeyedSubscript:@"payload"];
+    
+    if (self.notificationId)
+        [obj[@"payload"] setObject:self.notificationId forKeyedSubscript: @"notificationID"];
+    
+    if (self.sound)
+        [obj[@"payload"] setObject:self.sound forKeyedSubscript: @"sound"];
+    
+    if (self.title)
+        [obj[@"payload"] setObject:self.title forKeyedSubscript: @"title"];
+    
+    if (self.body)
+        [obj[@"payload"] setObject:self.body forKeyedSubscript: @"body"];
+    
+    if (self.subtitle)
+        [obj[@"payload"] setObject:self.subtitle forKeyedSubscript: @"subtitle"];
+    
+    if (self.additionalData)
+        [obj[@"payload"] setObject:self.additionalData forKeyedSubscript: @"additionalData"];
+    
+    if (self.actionButtons)
+        [obj[@"payload"] setObject:self.actionButtons forKeyedSubscript: @"actionButtons"];
+    
+    if (self.rawPayload)
+        [obj[@"payload"] setObject:self.rawPayload forKeyedSubscript: @"rawPayload"];
+    
+    if (self.launchURL)
+        [obj[@"payload"] setObject:self.launchURL forKeyedSubscript: @"launchURL"];
+    
+    if (self.contentAvailable)
+        [obj[@"payload"] setObject:@(self.contentAvailable) forKeyedSubscript: @"contentAvailable"];
+    
+    if (self.badge)
+        [obj[@"payload"] setObject:@(self.badge) forKeyedSubscript: @"badge"];
+    
+    //Convert obj into a serialized
+    NSError *err;
+    NSData *jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
 @end

@@ -27,11 +27,11 @@
 
 #import "OneSignal.h"
 
-#ifndef OSNotificationPayload_Internal_h
-#define OSNotificationPayload_Internal_h
+#ifndef OSNotification_Internal_h
+#define OSNotification_Internal_h
 
-@interface OSNotificationPayload (Internal)
-+(instancetype)parseWithApns:(nonnull NSDictionary*)message;
+@interface OSNotification(Internal)
++(instancetype)parseWithApns:(nonnull NSDictionary *)message;
 @end
 
-#endif /* OSNotificationPayload_Internal_h */
+#endif /* OSNotification_Internal_h */

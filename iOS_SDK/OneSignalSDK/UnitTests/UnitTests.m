@@ -766,7 +766,7 @@
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertNil(result.notification.payload.additionalData);
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
-        XCTAssertNil(result.action.actionID);
+        XCTAssertNil(result.action.actionId);
         openedWasFire = true;
     }];
     
@@ -912,7 +912,7 @@
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
-        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        XCTAssertEqualObjects(result.action.actionId, @"id1");
         openedWasFire = true;
     }];
 
@@ -958,7 +958,7 @@
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"actionSelected"], @"id1");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeActionTaken);
-        XCTAssertEqualObjects(result.action.actionID, @"id1");
+        XCTAssertEqualObjects(result.action.actionId, @"id1");
         openedWasFire = true;
     }];
 
@@ -1039,7 +1039,7 @@
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:nil notificationOpenedHandler:^(OSNotificationOpenedResult *result) {
         XCTAssertEqualObjects(result.notification.payload.additionalData[@"foo"], @"bar");
         XCTAssertEqual(result.action.type, OSNotificationActionTypeOpened);
-        XCTAssertNil(result.action.actionID);
+        XCTAssertNil(result.action.actionId);
         openedWasFire = true;
     }];
 
