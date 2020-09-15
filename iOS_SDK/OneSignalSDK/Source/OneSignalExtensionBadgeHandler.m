@@ -29,7 +29,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 

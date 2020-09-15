@@ -61,7 +61,7 @@
     return tag;
 }
 
-+ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
     return nil;
 }
 

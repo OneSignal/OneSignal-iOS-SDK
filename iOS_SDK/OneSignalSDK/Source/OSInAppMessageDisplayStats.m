@@ -88,7 +88,7 @@
     return displayStats;
 }
 
-+ (instancetype)instancePreviewFromPayload:(OSNotificationPayload *)payload {
++ (instancetype)instancePreviewFromNotification:(OSNotification *)notification {
     return [OSInAppMessageDisplayStats new];
 }
 

@@ -31,6 +31,8 @@
 
 #import "OneSignal.h"
 
+#import "OneSignalCommonDefines.h"
+
 @implementation OSNotification
 /*
  @implementation OSNotification
@@ -62,11 +64,7 @@
 
  */
 
-/*
- 
- @synthesize notificationId = _notificationId, title = _title, body = _body;
 
- OSNotificationPayload *_payload;
  OSNotificationDisplayTypeResponse _completion;
  NSTimer *_timeoutTimer;
  - (id)initWithPayload:(OSNotificationPayload *)payload completion:(OSNotificationDisplayTypeResponse)completion {
@@ -80,12 +78,14 @@
          
          _notificationId = _payload.notificationID;
          
-         _completion = completion;
          
-         _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
      }
      return self;
  }
+
+_completion = completion;
+
+
 
  - (OSNotificationDisplayTypeResponse)getCompletionBlock {
      OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
@@ -116,9 +116,7 @@
      if (_timeoutTimer)
          [_timeoutTimer invalidate];
  }
-
- @end
- */
+ 
 +(instancetype)parseWithApns:(nonnull NSDictionary*)message {
     if (!message)
         return nil;
@@ -138,6 +136,8 @@
         [self parseOriginalPayload];
     
     [self parseOtherApnsFields];
+    
+    _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
 }
 
 // Original OneSignal payload format.

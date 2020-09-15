@@ -29,7 +29,7 @@
 #import <UIKit/UIKit.h>
 
 #import "UIApplicationDelegate+OneSignal.h"
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 #import "OneSignal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"

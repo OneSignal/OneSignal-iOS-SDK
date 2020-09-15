@@ -32,6 +32,9 @@
 
 @interface OSNotification(Internal)
 +(instancetype)parseWithApns:(nonnull NSDictionary *)message;
+- (void)setCompletionBlock;
+- (void)startTimeoutTimer;
+- (OSNotificationDisplayTypeResponse)getCompletionBlock;
 @end
 
 #endif /* OSNotification_Internal_h */

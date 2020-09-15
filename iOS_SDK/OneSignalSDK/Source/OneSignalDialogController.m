@@ -65,10 +65,10 @@
     return sharedInstance;
 }
 
-- (NSArray<NSString *> *)getActionTitlesFromPayload:(OSNotificationPayload *)payload {
+- (NSArray<NSString *> *)getActionTitlesFromNotification:(OSNotification *)notification {
     NSMutableArray<NSString *> *actionTitles = [NSMutableArray<NSString *> new];
-    if (payload.actionButtons) {
-        for (id button in payload.actionButtons) {
+    if (notification.actionButtons) {
+        for (id button in notification.actionButtons) {
             [actionTitles addObject:button[@"text"]];
         }
     }
