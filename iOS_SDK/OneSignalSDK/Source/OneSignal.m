@@ -140,10 +140,12 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 NSString* _baseUrl = @"https://api.onesignal.com/";
 + (NSString*) OS_API_SERVER_URL{
+    [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"One Signal BASE_URL: %@", _baseUrl]];
     return _baseUrl;
 }
 + (void)updateApiServerURL:(NSString *)baseUrl {
-    if(baseUrl != nil && baseUrl != NULL) _baseUrl = baseUrl;
+    if(baseUrl != nil && ![baseUrl isKindOfClass:[NSNull class]])
+        _baseUrl = baseUrl;
 }
 
 NSString* const ONESIGNAL_VERSION = @"021503";
@@ -523,7 +525,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId {
     return [self initWithLaunchOptions:launchOptions
                                  appId:appId
-                               baseUrl: NULL
+                               baseUrl: nil
             handleNotificationReceived:NULL
               handleNotificationAction:NULL
                               settings:@{
@@ -553,7 +555,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
    handleNotificationAction:(OSHandleNotificationActionBlock)actionCallback {
     return [self initWithLaunchOptions:launchOptions
                                  appId:appId
-                               baseUrl: NULL
+                               baseUrl: nil
             handleNotificationReceived:NULL
               handleNotificationAction:actionCallback
                               settings:@{
@@ -587,7 +589,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                    settings:(NSDictionary*)settings {
     return [self initWithLaunchOptions:launchOptions
                                  appId:appId
-                                baseUrl: NULL
+                                baseUrl: nil
             handleNotificationReceived:NULL
               handleNotificationAction:actionCallback
                               settings:settings];
@@ -614,7 +616,7 @@ handleNotificationReceived:(OSHandleNotificationReceivedBlock)receivedCallback
                   settings:(NSDictionary*)settings {
     return [self initWithLaunchOptions:launchOptions
                                  appId:appId
-                               baseUrl: NULL
+                               baseUrl: nil
             handleNotificationReceived:NULL
               handleNotificationAction:actionCallback
                               settings:settings];
