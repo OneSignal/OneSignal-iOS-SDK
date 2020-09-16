@@ -56,7 +56,7 @@
 
 -(NSMutableURLRequest *)urlRequest {
     //build URL
-    let urlString = [OS_API_SERVER_URL stringByAppendingString:self.path];
+    let urlString = [OneSignal.OS_API_SERVER_URL stringByAppendingString:self.path];
     
     let request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     

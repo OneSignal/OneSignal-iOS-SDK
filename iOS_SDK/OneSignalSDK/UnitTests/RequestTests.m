@@ -36,6 +36,7 @@
 #import "OSFocusInfluenceParam.h"
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"
+#import "OneSignal.h"
 
 @interface RequestTests : XCTestCase
 
@@ -101,7 +102,7 @@ NSString *urlStringForRequest(OneSignalRequest *request) {
 }
 
 NSString *correctUrlWithPath(NSString *path) {
-    return [OS_API_SERVER_URL stringByAppendingString:path];
+    return [OneSignal.OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 // only works for dictionaries with values that are strings, numbers, or sub-dictionaries/arrays of strings and numbers

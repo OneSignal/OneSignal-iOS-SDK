@@ -459,6 +459,9 @@ extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
++ (NSString*) OS_API_SERVER_URL;
++ (void) updateApiServerURL:(NSString*)baseUrl;
+
 extern NSString* const ONESIGNAL_VERSION;
 
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {

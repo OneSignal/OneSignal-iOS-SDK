@@ -56,7 +56,7 @@
 #import "OneSignalLifecycleObserver.h"
 
 NSString * serverUrlWithPath(NSString *path) {
-    return [OS_API_SERVER_URL stringByAppendingString:path];
+    return [OneSignal.OS_API_SERVER_URL stringByAppendingString:path];
 }
 
 @interface OneSignal ()
