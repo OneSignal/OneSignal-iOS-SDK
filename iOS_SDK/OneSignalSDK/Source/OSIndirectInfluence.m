@@ -73,7 +73,7 @@
     return indirectInfluence;
 }
 
-+ (instancetype)instancePreviewFromPayload:(OSNotificationPayload *)payload {
++ (instancetype)instancePreviewFromNotification:(OSNotification *)notification {
     return [OSIndirectInfluence new];
 }
 

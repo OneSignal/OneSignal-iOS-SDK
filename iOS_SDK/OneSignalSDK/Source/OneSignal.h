@@ -70,35 +70,35 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 @property(readonly)OSNotificationActionType type;
 
 /* The ID associated with the button tapped. NULL when the actionType is NotificationTapped */
-@property(readonly, nullable)NSString* actionID;
+@property(readonly, nullable)NSString* actionId;
 
 @end
 
-/* Notification Payload Received Object */
-@interface OSNotificationPayload : NSObject
+/* OneSignal OSNotification */
+@interface OSNotification : NSObject
 
 /* Unique Message Identifier */
-@property(readonly, nullable)NSString* notificationID;
+@property(readonly, nullable)NSString* notificationId;
 
 /* Unique Template Identifier */
-@property(readonly, nullable)NSString* templateID;
+@property(readonly, nullable)NSString* templateId;
 
 /* Name of Template */
 @property(readonly, nullable)NSString* templateName;
 
-/* True when the key content-available is set to 1 in the aps payload.
+/* True when the key content-available is set to 1 in the apns payload.
    content-available is used to wake your app when the payload is received.
    See Apple's documenation for more details.
   https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application
 */
 @property(readonly)BOOL contentAvailable;
 
-/* True when the key mutable-content is set to 1 in the aps payload.
+/* True when the key mutable-content is set to 1 in the apns payload.
  mutable-content is used to wake your Notification Service Extension to modify a notification.
  See Apple's documenation for more details.
  https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension
  */
-@property(readonly)BOOL mutableContent;
+@property(readonly, getter=hasMutableContent)BOOL mutableContent;
 
 /*
  Notification category key previously registered to display with.
@@ -140,58 +140,13 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* iOS 10+ : Groups notifications into threads */
 @property(readonly, nullable)NSString *threadId;
 
-/* Parses an APS push payload into a OSNotificationPayload object.
+/* Parses an APNS push payload into a OSNotification object.
    Useful to call from your NotificationServiceExtension when the
       didReceiveNotificationRequest:withContentHandler: method fires. */
-
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message;
-
-@end
-
-/* OneSignal OSNotification */
-@interface OSNotification : NSObject
-
-/* Notification Payload */
-@property(readonly, nonnull)OSNotificationPayload* payload;
-
-/* Display method of the notification */
-@property(readonly)OSNotificationDisplayType displayType;
-
-/* Set to true when the user was able to see the notification and reacted to it
- Set to false when app is in focus and in-app alerts are disabled, or the remote notification is silent. */
-@property(readonly, getter=wasShown)BOOL shown;
-
-/* Set to true if the app was in focus when the notification  */
-@property(readonly, getter=wasAppInFocus)BOOL isAppInFocus;
-
-/* Set to true when the received notification is silent
- Silent means there is no alert, sound, or badge payload in the aps dictionary
- requires remote-notification within UIBackgroundModes array of the Info.plist */
-@property(readonly, getter=isSilentNotification)BOOL silentNotification;
-
-/* iOS 10+: Indicates whether or not the received notification has mutableContent : 1 assigned to its payload
- Used for UNNotificationServiceExtension to launch extension. */
-@property(readonly, getter=hasMutableContent)BOOL mutableContent;
 
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
-
-@end
-
-/* OneSignal OSPredisplayNotification used in notificationWillShowInForegroundHandler. The display type for the notification can be changed before it is presented.*/
-@interface OSPredisplayNotification : NSObject
-
-/* Additional key value properties set within the payload */
-@property(readonly, nullable)NSDictionary *additionalData;
-
-/* The Notification ID */
-@property(readonly, nullable)NSString *notificationId;
-
-/* The message title */
-@property(readonly, nullable)NSString *title;
-
-/* The message body */
-@property(readonly, nullable)NSString *body;
 
 @end
 
@@ -500,8 +455,8 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 
 #pragma mark Public Handlers
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired using the displayType of the OSPredisplayNotification object.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSPredisplayNotification* notification, OSNotificationDisplayTypeResponse completion);
+// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification* notification, OSNotificationDisplayTypeResponse completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction* action);
 

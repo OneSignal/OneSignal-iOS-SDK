@@ -130,9 +130,9 @@
     return message;
 }
 
-+ (instancetype)instancePreviewFromPayload:(OSNotificationPayload *)payload {
++ (instancetype)instancePreviewFromNotification:(OSNotification *)notification {
     let message = [OSInAppMessage new];
-    message.messageId = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
+    message.messageId = [notification additionalData][ONESIGNAL_IAM_PREVIEW];
     message.isPreview = true;
     return message;
 }

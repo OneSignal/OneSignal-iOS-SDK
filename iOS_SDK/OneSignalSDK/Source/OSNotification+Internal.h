@@ -27,11 +27,14 @@
 
 #import "OneSignal.h"
 
-#ifndef OSNotificationPayload_Internal_h
-#define OSNotificationPayload_Internal_h
+#ifndef OSNotification_Internal_h
+#define OSNotification_Internal_h
 
-@interface OSNotificationPayload (Internal)
-+(instancetype)parseWithApns:(nonnull NSDictionary*)message;
+@interface OSNotification(Internal)
++(instancetype _Nonnull )parseWithApns:(nonnull NSDictionary *)message;
+- (void)setCompletionBlock:(OSNotificationDisplayTypeResponse _Nonnull)completion;
+- (void)startTimeoutTimer;
+- (OSNotificationDisplayTypeResponse _Nullable)getCompletionBlock;
 @end
 
-#endif /* OSNotificationPayload_Internal_h */
+#endif /* OSNotification_Internal_h */

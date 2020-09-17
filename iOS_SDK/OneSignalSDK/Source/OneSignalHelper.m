@@ -31,7 +31,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import <objc/runtime.h>
 #import "OneSignalInternal.h"
@@ -153,153 +153,15 @@
 @end
 
 @implementation OSNotificationAction
-@synthesize type = _type, actionID = _actionID;
+@synthesize type = _type, actionId = _actionId;
 
 -(id)initWithActionType:(OSNotificationActionType)type :(NSString*)actionID {
     self = [super init];
     if(self) {
         _type = type;
-        _actionID = actionID;
+        _actionId = actionID;
     }
     return self;
-}
-
-@end
-
-@implementation OSNotification
-@synthesize payload = _payload, shown = _shown, isAppInFocus = _isAppInFocus, silentNotification = _silentNotification, displayType = _displayType, mutableContent = _mutableContent;
-
-- (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType {
-    self = [super init];
-    if (self) {
-        _payload = payload;
-        
-        _displayType = displayType;
-        
-        _silentNotification = [OneSignalHelper isRemoteSilentNotification:payload.rawPayload];
-        
-        _mutableContent = payload.rawPayload[@"aps"][@"mutable-content"] && [payload.rawPayload[@"aps"][@"mutable-content"] isEqual: @YES];
-        
-        _shown = true;
-        
-        _isAppInFocus = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-        
-        //If remote silent -> shown = false
-        //If app is active and in-app alerts are not enabled -> shown = false
-        if (_silentNotification ||
-            _isAppInFocus)
-            _shown = false;
-    }
-    return self;
-}
-
-- (NSString*)stringify {
-    let obj = [NSMutableDictionary new];
-    [obj setObject:[NSMutableDictionary new] forKeyedSubscript:@"payload"];
-    
-    if (self.payload.notificationID)
-        [obj[@"payload"] setObject:self.payload.notificationID forKeyedSubscript: @"notificationID"];
-    
-    if (self.payload.sound)
-        [obj[@"payload"] setObject:self.payload.sound forKeyedSubscript: @"sound"];
-    
-    if (self.payload.title)
-        [obj[@"payload"] setObject:self.payload.title forKeyedSubscript: @"title"];
-    
-    if (self.payload.body)
-        [obj[@"payload"] setObject:self.payload.body forKeyedSubscript: @"body"];
-    
-    if (self.payload.subtitle)
-        [obj[@"payload"] setObject:self.payload.subtitle forKeyedSubscript: @"subtitle"];
-    
-    if (self.payload.additionalData)
-        [obj[@"payload"] setObject:self.payload.additionalData forKeyedSubscript: @"additionalData"];
-    
-    if (self.payload.actionButtons)
-        [obj[@"payload"] setObject:self.payload.actionButtons forKeyedSubscript: @"actionButtons"];
-    
-    if (self.payload.rawPayload)
-        [obj[@"payload"] setObject:self.payload.rawPayload forKeyedSubscript: @"rawPayload"];
-    
-    if (self.payload.launchURL)
-        [obj[@"payload"] setObject:self.payload.launchURL forKeyedSubscript: @"launchURL"];
-    
-    if (self.payload.contentAvailable)
-        [obj[@"payload"] setObject:@(self.payload.contentAvailable) forKeyedSubscript: @"contentAvailable"];
-    
-    if (self.payload.badge)
-        [obj[@"payload"] setObject:@(self.payload.badge) forKeyedSubscript: @"badge"];
-    
-    if (self.displayType)
-        [obj setObject:@(self.displayType) forKeyedSubscript: @"displayType"];
-    
-    
-    [obj setObject:@(self.shown) forKeyedSubscript: @"shown"];
-    [obj setObject:@(self.isAppInFocus) forKeyedSubscript: @"isAppInFocus"];
-    
-    if (self.silentNotification)
-        [obj setObject:@(self.silentNotification) forKeyedSubscript: @"silentNotification"];
-    
-    //Convert obj into a serialized
-    NSError *err;
-    NSData *jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-}
-
-@end
-
-@implementation OSPredisplayNotification
-@synthesize notificationId = _notificationId, title = _title, body = _body;
-
-OSNotificationPayload *_payload;
-OSNotificationDisplayTypeResponse _completion;
-NSTimer *_timeoutTimer;
-- (id)initWithPayload:(OSNotificationPayload *)payload completion:(OSNotificationDisplayTypeResponse)completion {
-    self = [super init];
-    if (self) {
-        _payload = payload;
-        
-        _body = _payload.body;
-        
-        _title = _payload.title;
-        
-        _notificationId = _payload.notificationID;
-        
-        _completion = completion;
-        
-        _timeoutTimer = [NSTimer timerWithTimeInterval:CUSTOM_DISPLAY_TYPE_TIMEOUT target:self selector:@selector(timeoutTimerFired:) userInfo:_notificationId repeats:false];
-    }
-    return self;
-}
-
-- (OSNotificationDisplayTypeResponse)getCompletionBlock {
-    OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
-        [self complete:displayType];
-    };
-    return block;
-}
-
-- (void)complete:(OSNotificationDisplayType)displayType {
-    [_timeoutTimer invalidate];
-    if (_completion) {
-        _completion(displayType);
-        _completion = nil;
-    }
-}
-
-- (void)startTimeoutTimer {
-    [[NSRunLoop currentRunLoop] addTimer:_timeoutTimer forMode:NSRunLoopCommonModes];
-}
-
-- (void)timeoutTimerFired:(NSTimer *)timer {
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR
-    message:[NSString stringWithFormat:@"NotificationGenerationJob timed out. Complete was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
-    [self complete:OSNotificationDisplayTypeNotification];
-}
-
-- (void)dealloc {
-    if (_timeoutTimer)
-        [_timeoutTimer invalidate];
 }
 
 @end
@@ -326,7 +188,7 @@ NSTimer *_timeoutTimer;
     
     NSMutableDictionary* obj = [NSMutableDictionary new];
     NSMutableDictionary* action = [NSMutableDictionary new];
-    [action setObject:self.action.actionID forKeyedSubscript:@"actionID"];
+    [action setObject:self.action.actionId forKeyedSubscript:@"actionID"];
     [obj setObject:action forKeyedSubscript:@"action"];
     [obj setObject:notifDict forKeyedSubscript:@"notification"];
     if(self.action.type)
@@ -460,11 +322,11 @@ OneSignalWebView *webVC;
     return userInfo;
 }
 
-+ (void)handleWillShowInForegroundHandlerForPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
-    let predisplayNotif = [[OSPredisplayNotification alloc] initWithPayload:payload completion:completion];
++ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
+    [notification setCompletionBlock:completion];
     if (notificationWillShowInForegroundHandler) {
-        [predisplayNotif startTimeoutTimer];
-        notificationWillShowInForegroundHandler(predisplayNotif, [predisplayNotif getCompletionBlock]);
+        [notification startTimeoutTimer];
+        notificationWillShowInForegroundHandler(notification, [notification getCompletionBlock]);
     } else {
         completion(displayType);
     }
@@ -482,14 +344,13 @@ OneSignalWebView *webVC;
         return;
     
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
-    OSNotificationPayload *payload = [OSNotificationPayload parseWithApns:lastMessageReceived];
-    OSNotification *notification = [[OSNotification alloc] initWithPayload:payload displayType:displayType];
+    OSNotification *notification = [OSNotification parseWithApns:lastMessageReceived];
     OSNotificationOpenedResult *result = [[OSNotificationOpenedResult alloc] initWithNotification:notification action:action];
     
     // Prevent duplicate calls to same action
-    if ([payload.notificationID isEqualToString:_lastMessageIdFromAction])
+    if ([notification.notificationId isEqualToString:_lastMessageIdFromAction])
         return;
-    _lastMessageIdFromAction = payload.notificationID;
+    _lastMessageIdFromAction = notification.notificationId;
     
     [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
     
@@ -498,12 +359,12 @@ OneSignalWebView *webVC;
     notificationOpenedHandler(result);
 }
 
-+ (BOOL)handleIAMPreview:(OSNotificationPayload *)payload {
-    NSString *uuid = [payload additionalData][ONESIGNAL_IAM_PREVIEW];
++ (BOOL)handleIAMPreview:(OSNotification *)notification {
+    NSString *uuid = [notification additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
 
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
-        OSInAppMessage *message = [OSInAppMessage instancePreviewFromPayload:payload];
+        OSInAppMessage *message = [OSInAppMessage instancePreviewFromNotification:notification];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
         return YES;
     }
@@ -559,14 +420,14 @@ OneSignalWebView *webVC;
 }
 
 // For iOS 9
-+ (UILocalNotification*)createUILocalNotification:(OSNotificationPayload*)payload {
++ (UILocalNotification*)createUILocalNotification:(OSNotification*)osNotification {
     let notification = [UILocalNotification new];
     
     let category = [UIMutableUserNotificationCategory new];
     [category setIdentifier:@"__dynamic__"];
     
     NSMutableArray* actionArray = [NSMutableArray new];
-    for (NSDictionary* button in payload.actionButtons) {
+    for (NSDictionary* button in osNotification.actionButtons) {
         let action = [UIMutableUserNotificationAction new];
         action.title = button[@"text"];
         action.identifier = button[@"id"];
@@ -601,20 +462,20 @@ OneSignalWebView *webVC;
 }
 
 // iOS 9
-+ (UILocalNotification*)prepareUILocalNotification:(OSNotificationPayload*)payload {
-    let notification = [self createUILocalNotification:payload];
++ (UILocalNotification*)prepareUILocalNotification:(OSNotification *)osNotification {
+    let notification = [self createUILocalNotification:osNotification];
     
-    notification.alertTitle = payload.title;
+    notification.alertTitle = osNotification.title;
     
-    notification.alertBody = payload.body;
+    notification.alertBody = osNotification.body;
     
-    notification.userInfo = payload.rawPayload;
+    notification.userInfo = osNotification.rawPayload;
     
-    notification.soundName = payload.sound;
+    notification.soundName = osNotification.sound;
     if (notification.soundName == nil)
         notification.soundName = UILocalNotificationDefaultSoundName;
     
-    notification.applicationIconBadgeNumber = payload.badge;
+    notification.applicationIconBadgeNumber = osNotification.badge;
     
     return notification;
 }
@@ -654,40 +515,40 @@ static OneSignal* singleInstance = nil;
         curNotifCenter.delegate = (id)[self sharedInstance];
 }
 
-+ (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotificationPayload*)payload {
++ (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotification*)notification {
     let content = [UNMutableNotificationContent new];
     
-    [self addActionButtons:payload toNotificationContent:content];
+    [self addActionButtons:notification toNotificationContent:content];
     
-    content.title = payload.title;
-    content.subtitle = payload.subtitle;
-    content.body = payload.body;
+    content.title = notification.title;
+    content.subtitle = notification.subtitle;
+    content.body = notification.body;
     
-    content.userInfo = payload.rawPayload;
+    content.userInfo = notification.rawPayload;
     
-    if (payload.sound)
-        content.sound = [UNNotificationSound soundNamed:payload.sound];
+    if (notification.sound)
+        content.sound = [UNNotificationSound soundNamed:notification.sound];
     else
         content.sound = UNNotificationSound.defaultSound;
     
-    if (payload.badge != 0)
-        content.badge = [NSNumber numberWithInteger:payload.badge];
+    if (notification.badge != 0)
+        content.badge = [NSNumber numberWithInteger:notification.badge];
     
     // Check if media attached    
-    [self addAttachments:payload toNotificationContent:content];
+    [self addAttachments:notification toNotificationContent:content];
     
     let trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:0.25 repeats:NO];
     let identifier = [self randomStringWithLength:16];
     return [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
 }
 
-+ (void)addActionButtons:(OSNotificationPayload*)payload
++ (void)addActionButtons:(OSNotification*)notification
    toNotificationContent:(UNMutableNotificationContent*)content {
-    if (!payload.actionButtons || payload.actionButtons.count == 0)
+    if (!notification.actionButtons || notification.actionButtons.count == 0)
         return;
     
     let actionArray = [NSMutableArray new];
-    for(NSDictionary* button in payload.actionButtons) {
+    for(NSDictionary* button in notification.actionButtons) {
         let action = [UNNotificationAction actionWithIdentifier:button[@"id"]
                                                           title:button[@"text"]
                                                         options:UNNotificationActionOptionForeground];
@@ -703,7 +564,7 @@ static OneSignal* singleInstance = nil;
     // Get a full list of categories so we don't replace any exisiting ones.
     var allCategories = OneSignalNotificationCategoryController.sharedInstance.existingCategories;
     
-    let newCategoryIdentifier = [OneSignalNotificationCategoryController.sharedInstance registerNotificationCategoryForNotificationId:payload.notificationID];
+    let newCategoryIdentifier = [OneSignalNotificationCategoryController.sharedInstance registerNotificationCategoryForNotificationId:notification.notificationId];
     let category = [UNNotificationCategory categoryWithIdentifier:newCategoryIdentifier
                                                           actions:finalActionArray
                                                 intentIdentifiers:@[]
@@ -733,15 +594,15 @@ static OneSignal* singleInstance = nil;
     content.categoryIdentifier = newCategoryIdentifier;
 }
 
-+ (void)addAttachments:(OSNotificationPayload*)payload
++ (void)addAttachments:(OSNotification*)notification
  toNotificationContent:(UNMutableNotificationContent*)content {
-    if (!payload.attachments)
+    if (!notification.attachments)
         return;
     
     let unAttachments = [NSMutableArray new];
     
-    for(NSString* key in payload.attachments) {
-        let URI = [OneSignalHelper trimURLSpacing:[payload.attachments valueForKey:key]];
+    for(NSString* key in notification.attachments) {
+        let URI = [OneSignalHelper trimURLSpacing:[notification.attachments valueForKey:key]];
         
         let nsURL = [NSURL URLWithString:URI];
         
@@ -793,14 +654,14 @@ static OneSignal* singleInstance = nil;
     content.attachments = unAttachments;
 }
 
-+ (void)addNotificationRequest:(OSNotificationPayload*)payload
++ (void)addNotificationRequest:(OSNotification*)notification
              completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     
     // Start background thread to download media so we don't lock the main UI thread.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignalHelper beginBackgroundMediaTask];
         
-        let notificationRequest = [OneSignalHelper prepareUNNotificationRequest:payload];
+        let notificationRequest = [OneSignalHelper prepareUNNotificationRequest:notification];
         [[UNUserNotificationCenter currentNotificationCenter]
          addNotificationRequest:notificationRequest
          withCompletionHandler:^(NSError * _Nullable error) {}];
