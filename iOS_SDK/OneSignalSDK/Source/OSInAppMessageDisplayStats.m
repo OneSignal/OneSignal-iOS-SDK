@@ -111,7 +111,9 @@
 }
 
 - (BOOL)shouldDisplayAgain {
-    return _displayQuantity < _displayLimit;
+    BOOL result = _displayQuantity < _displayLimit;
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"In app message shouldDisplayAgain: %hhu", result]];
+    return result;
 }
 
 - (void)incrementDisplayQuantity {

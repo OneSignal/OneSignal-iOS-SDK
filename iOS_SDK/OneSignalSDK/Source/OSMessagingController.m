@@ -715,6 +715,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSTriggerControllerDelegate Methods
 - (void)triggerConditionChanged:(NSString *)triggerId {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"trigger condition changed for triggerId: %@", triggerId]];
     [self makeRedisplayMessagesAvailableWithTriggers:@[triggerId]];
     [self triggerConditionChanged];
 }

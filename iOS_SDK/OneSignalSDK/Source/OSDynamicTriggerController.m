@@ -79,6 +79,7 @@
         if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME]) {
             let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType]) {
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"session time trigger completed: %@", trigger.triggerId]];
                 [self.delegate dynamicTriggerCompleted:trigger.triggerId];
                 return true;
             }
@@ -91,9 +92,10 @@
 
             let timestampSinceLastMessage = fabs([self.timeSinceLastMessage timeIntervalSinceNow]);
 
-            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:timestampSinceLastMessage forOperator:trigger.operatorType])
+            if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:timestampSinceLastMessage forOperator:trigger.operatorType]) {
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"time since last inapp trigger completed: %@", trigger.triggerId]];
                 return true;
-
+            }
             offset = requiredTimeValue - timestampSinceLastMessage;
         }
 
@@ -107,9 +109,10 @@
                                           selector:@selector(timerFiredForMessage:)
                                           userInfo:@{@"trigger" : trigger}
                                            repeats:false];
-        if (timer)
+        if (timer) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"timer added for triggerId: %@, messageId: %@", trigger.triggerId, messageId]];
             [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-
+        }
         [self.scheduledMessages addObject:trigger.triggerId];
     }
     return false;
