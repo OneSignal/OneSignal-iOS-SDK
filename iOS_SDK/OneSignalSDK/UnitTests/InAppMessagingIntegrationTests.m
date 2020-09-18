@@ -1422,6 +1422,64 @@
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
 }
 
+- (void)testInAppMessageDisplayMultipleTimesSessionDurationTrigger {
+    [OneSignal pauseInAppMessages:NO];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThan withValue:@0.05];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:5 delay:@30];
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+    
+    // Init OneSignal IAM with redisplay
+    [self initOneSignalWithRegistrationJSON:registrationJson];
+
+    // No schedule should happen, IAM should evaluate to true
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
+
+    // Dismiss IAM will make display quantity increase and last display time to change
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    // Check IAMs was removed from queue
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
+    // Check if data after dismiss is set correctly
+    XCTAssertEqual(OSMessagingControllerOverrider.messagesForRedisplay.count, 1);
+    let displayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
+    let displayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
+    XCTAssertEqual(displayQuantity, 1);
+    XCTAssertTrue(displayTime > 0);
+
+    // 3. Kill the app and wait 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods clearStateForAppRestart:self];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+
+    // Init OneSignal IAM with redisplay
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    // No schedule should happen since session time period is very small, should evaluate to true on first run
+    // Wait for redisplay logic
+    let expectation = [self expectationWithDescription:@"wait for message to show"];
+    expectation.expectedFulfillmentCount = 1;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
+        
+        [expectation fulfill];
+    });
+    
+    [self waitForExpectations:@[expectation] timeout:1.5];
+
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    // Check IAMs was removed from queue
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
+    // Check if data after dismiss is set correctly
+    XCTAssertEqual(OSMessagingControllerOverrider.messagesForRedisplay.count, 1);
+    let secondDisplayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
+    let secondDisplayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
+    XCTAssertEqual(secondDisplayQuantity, 2);
+    XCTAssertTrue(secondDisplayTime - displayTime > 30);
+}
+
 // Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
 // Mock response JSON and initializes the OneSignal SDK
 - (void)initOneSignalWithInAppMessage:(OSInAppMessage *)message {
