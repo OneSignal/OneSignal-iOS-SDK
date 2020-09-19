@@ -104,7 +104,7 @@
             return false;
 
         // If we reach this point, it means we need to return false and set up a timer for a future time
-        let timer = [NSTimer timerWithTimeInterval:offset
+        NSTimer *timer = [NSTimer timerWithTimeInterval:offset
                                             target:self
                                           selector:@selector(timerFiredForMessage:)
                                           userInfo:@{@"trigger" : trigger}
@@ -113,6 +113,7 @@
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"timer added for triggerId: %@, messageId: %@", trigger.triggerId, messageId]];
             [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         }
+
         [self.scheduledMessages addObject:trigger.triggerId];
     }
     return false;

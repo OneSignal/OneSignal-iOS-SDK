@@ -1424,14 +1424,29 @@
 
 - (void)testInAppMessageDisplayMultipleTimesSessionDurationTrigger {
     [OneSignal pauseInAppMessages:NO];
-    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThan withValue:@0.05];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:5 delay:@30];
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
     
+    //Time interval mock
+    NSDateComponents* comps = [[NSDateComponents alloc]init];
+    comps.year = 2020;
+    comps.month = 9;
+    comps.day = 10;
+    comps.hour = 10;
+    comps.minute = 1;
+
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDate* date = [calendar dateFromComponents:comps];
+    NSTimeInterval firstInterval = [date timeIntervalSince1970];
+    
     // Init OneSignal IAM with redisplay
     [self initOneSignalWithRegistrationJSON:registrationJson];
+    
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return firstInterval;
+    }];
 
-    // No schedule should happen, IAM should evaluate to true
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 
     // Dismiss IAM will make display quantity increase and last display time to change
@@ -1444,30 +1459,31 @@
     let displayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
     XCTAssertEqual(displayQuantity, 1);
     XCTAssertTrue(displayTime > 0);
+    
+    [UnitTestCommonMethods runBackgroundThreads];
 
     // 3. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
-    [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
     [UnitTestCommonMethods runBackgroundThreads];
-
-    [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
-
+    //Time interval mock
+    comps.minute = 32;
+    NSDate* secondDate = [calendar dateFromComponents:comps];
+    NSTimeInterval secondInterval = [secondDate timeIntervalSince1970];
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return secondInterval;
+    }];
+    
     // Init OneSignal IAM with redisplay
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
-
-    // No schedule should happen since session time period is very small, should evaluate to true on first run
-    // Wait for redisplay logic
-    let expectation = [self expectationWithDescription:@"wait for message to show"];
-    expectation.expectedFulfillmentCount = 1;
+    [self initOneSignalWithRegistrationJSON:registrationJson];
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
-        
-        [expectation fulfill];
-    });
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return firstInterval;
+    }];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
-    [self waitForExpectations:@[expectation] timeout:1.5];
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 
     [OSMessagingControllerOverrider dismissCurrentMessage];
     // Check IAMs was removed from queue
@@ -1477,7 +1493,6 @@
     let secondDisplayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
     let secondDisplayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
     XCTAssertEqual(secondDisplayQuantity, 2);
-    XCTAssertTrue(secondDisplayTime - displayTime > 30);
 }
 
 // Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
