@@ -2640,4 +2640,21 @@ didReceiveRemoteNotification:userInfo
     deviceModel = [OneSignalHelper getDeviceVariant];
     XCTAssertEqualObjects(@"iPhone9,3", deviceModel);
 }
+
+- (void)testDeviceStateJson {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [OneSignal setEmail:@"test@gmail.com"];
+    [UnitTestCommonMethods runBackgroundThreads];
+    let deviceState = [[OSDeviceState alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
+    let json = [deviceState jsonRepresentation];
+    XCTAssertEqualObjects(json[@"hasNotificationPermission"], @1);
+    XCTAssertEqualObjects(json[@"isPushDisabled"], @0);
+    XCTAssertEqualObjects(json[@"isSubscribed"], @1);
+    XCTAssertEqualObjects(json[@"userId"], @"1234");
+    XCTAssertEqualObjects(json[@"pushToken"], @"0000000000000000000000000000000000000000000000000000000000000000");
+    XCTAssertEqualObjects(json[@"emailUserId"], @"1234");
+    XCTAssertEqualObjects(json[@"emailAddress"], @"test@gmail.com");
+    XCTAssertEqualObjects(json[@"notificationPermissionStatus"], @2);
+}
+
 @end

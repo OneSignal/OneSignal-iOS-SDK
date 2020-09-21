@@ -379,6 +379,9 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 - (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
 
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
 @end
 
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
