@@ -158,6 +158,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
 
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
 @end;
 
 @interface OSInAppMessageOutcome : NSObject
