@@ -158,6 +158,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
 
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
 @end;
 
 @interface OSInAppMessageOutcome : NSObject
@@ -375,6 +378,9 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @property (readonly, nullable) NSString* emailAddress;
 
 - (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
 
 @end
 

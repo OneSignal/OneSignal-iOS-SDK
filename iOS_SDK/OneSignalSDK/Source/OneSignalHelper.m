@@ -179,7 +179,14 @@
 }
 
 - (NSString*)stringify {
-    
+    NSError * err;
+    NSDictionary *jsonDictionary = [self jsonRepresentation];
+    NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:jsonDictionary options:0 error:&err];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation {
     NSError * jsonError = nil;
     NSData *objectData = [[self.notification stringify] dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *notifDict = [NSJSONSerialization JSONObjectWithData:objectData
@@ -194,10 +201,7 @@
     if(self.action.type)
         [obj[@"action"] setObject:@(self.action.type) forKeyedSubscript: @"type"];
     
-    //Convert obj into a serialized
-    NSError * err;
-    NSData * jsonData = [NSJSONSerialization  dataWithJSONObject:obj options:0 error:&err];
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    return obj;
 }
 
 @end

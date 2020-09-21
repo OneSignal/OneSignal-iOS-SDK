@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignal.h"
+#import "OneSignalHelper.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation OSDeviceState
 
@@ -54,6 +56,22 @@
         _emailAddress = [[state emailSubscriptionStatus] emailAddress];
     }
     return self;
+}
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+
+    json[@"hasNotificationPermission"] = @(_hasNotificationPermission);
+    json[@"isPushDisabled"] = @(_isPushDisabled);
+    json[@"isSubscribed"] = @(_isSubscribed);
+    json[@"userId"] = _userId;
+    json[@"pushToken"] = _pushToken;
+    json[@"emailUserId"] = _emailUserId;
+    json[@"emailAddress"] = _emailAddress;
+    json[@"notificationPermissionStatus"] = @(_notificationPermissionStatus);
+
+    return json;
 }
 
 @end
