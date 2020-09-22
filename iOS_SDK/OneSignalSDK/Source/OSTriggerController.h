@@ -39,7 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  It is also called when the app changes trigger values
  */
 - (void)triggerConditionChanged;
-- (void)triggerConditionChanged:(NSString *)triggerId;
 - (void)dynamicTriggerCompleted:(NSString *)triggerId;
 @end
 

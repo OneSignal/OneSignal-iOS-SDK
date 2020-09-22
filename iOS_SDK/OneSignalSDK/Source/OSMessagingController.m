@@ -493,8 +493,11 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
     // If the IAM doesn't have the re display prop or is a preview IAM there is no need to save it
-    if (![message.displayStats isRedisplayEnabled] || message.isPreview)
-      return;
+    if (![message.displayStats isRedisplayEnabled] || message.isPreview) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"not persisting %@",message.displayStats]];
+        return;
+    }
+
 
     let displayTimeSeconds = self.dateGenerator();
     message.displayStats.lastDisplayTime = displayTimeSeconds;
@@ -714,14 +717,10 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 #pragma mark OSTriggerControllerDelegate Methods
-- (void)triggerConditionChanged:(NSString *)triggerId {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"trigger condition changed for triggerId: %@", triggerId]];
-    [self makeRedisplayMessagesAvailableWithTriggers:@[triggerId]];
-    [self triggerConditionChanged];
-}
 
 - (void)triggerConditionChanged {
     // We should re-evaluate all in-app messages
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Trigger condition changed"];
     [self evaluateMessages];
 }
 

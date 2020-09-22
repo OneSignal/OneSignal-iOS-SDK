@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSDynamicTriggerControllerDelegate <NSObject>
 
-- (void)dynamicTriggerFired:(NSString *)triggerId;
+- (void)dynamicTriggerFired;
 // Alerts the observer that a trigger evaluated to true
 - (void)dynamicTriggerCompleted:(NSString *)triggerId;
 

@@ -81,6 +81,7 @@
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType]) {
                 [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"session time trigger completed: %@", trigger.triggerId]];
                 [self.delegate dynamicTriggerCompleted:trigger.triggerId];
+                //[self.delegate dynamicTriggerFired:trigger.triggerId];
                 return true;
             }
             offset = requiredTimeValue - currentDuration;
@@ -149,7 +150,7 @@
 
         [self.scheduledMessages removeObject:trigger.triggerId];
 
-        [self.delegate dynamicTriggerFired:trigger.triggerId];
+        [self.delegate dynamicTriggerFired];
     }
 }
 

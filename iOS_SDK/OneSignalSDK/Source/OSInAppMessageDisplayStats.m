@@ -133,6 +133,7 @@
     [encoder encodeInteger:_displayQuantity forKey:@"displayQuantity"];
     [encoder encodeDouble:_displayDelay forKey:@"displayDelay"];
     [encoder encodeDouble:_lastDisplayTime forKey:@"lastDisplayTime"];
+    [encoder encodeBool:_redisplayEnabled forKey:@"redisplayEnabled"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -141,6 +142,7 @@
         _displayQuantity = [decoder decodeIntegerForKey:@"displayQuantity"];
         _displayDelay = [decoder decodeDoubleForKey:@"displayDelay"];
         _lastDisplayTime = [decoder decodeDoubleForKey:@"lastDisplayTime"];
+        _redisplayEnabled = [decoder decodeBoolForKey:@"redisplayEnabled"];
     }
     return self;
 }

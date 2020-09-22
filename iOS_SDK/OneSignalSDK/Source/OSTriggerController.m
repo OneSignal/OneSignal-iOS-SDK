@@ -261,8 +261,8 @@
     return false;
 }
 
-- (void)dynamicTriggerFired:(NSString *)triggerId {
-    [self.delegate triggerConditionChanged:triggerId];
+- (void)dynamicTriggerFired {
+    [self.delegate triggerConditionChanged];
 }
 
 - (void)dynamicTriggerCompleted:(NSString *)triggerId {

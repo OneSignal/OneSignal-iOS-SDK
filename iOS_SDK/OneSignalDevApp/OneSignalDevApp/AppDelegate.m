@@ -85,12 +85,12 @@
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
 
 + (NSString*)getOneSignalAppId {
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
     if (!onesignalAppId)
-        onesignalAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
+        onesignalAppId = @"77e32082-ea27-42e3-a898-c72e141824ef";
 
     return onesignalAppId;
 }
