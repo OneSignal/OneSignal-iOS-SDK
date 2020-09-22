@@ -44,9 +44,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         
         let notifWillShowInForegroundHandler: OSNotificationWillShowInForegroundBlock = { notification, completion in
-            guard let notification = notification else {
-                return
-            }
             print("Received Notification: ", notification.notificationId ?? "no id")
             print("launchURL: ", notification.launchURL ?? "no launch url")
             print("content_available = \(notification.contentAvailable)")
@@ -54,9 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         
         let notificationOpenedBlock: OSNotificationOpenedBlock = { result in
             // This block gets called when the user reacts to a notification received
-            guard let notification: OSNotification = result?.notification else {
-                return
-            }
+            let notification: OSNotification = result.notification
             
             print("Message: ", notification.body ?? "empty body")
             print("badge number: ", notification.badge)
@@ -70,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
                 }
                 
                 // DEEP LINK from action buttons
-                if let actionID = result?.action.actionId {
+                if let actionID = result.action.actionId {
                     
                     // For presenting a ViewController from push notification action button
                     let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)

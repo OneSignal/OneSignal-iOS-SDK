@@ -1,9 +1,9 @@
 platform :ios, '10.3'
 
 target 'OneSignalDemo' do
-  pod 'OneSignal', :git => 'https://github.com/OneSignal/OneSignal-iOS-SDK.git', :branch => 'major_release_3.0.0'
+  pod 'OneSignal', :path => '~/Documents/Alamofire'
 end
 
 target 'NotificationServiceExtension' do
-  pod 'OneSignal', :git => 'https://github.com/OneSignal/OneSignal-iOS-SDK.git', :branch => 'major_release_3.0.0'
+  pod 'OneSignal', :path => '~/Documents/GitHub/OneSignal-iOS-SDK'#:git => 'https://github.com/OneSignal/OneSignal-iOS-SDK.git', :branch => 'major_release_3.0.0'
 end
