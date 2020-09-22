@@ -41,7 +41,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e0d-lw-fVn">
                                         <rect key="frame" x="0.0" y="120" width="343" height="30"/>
                                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" title="Get IDs Available"/>
+                                        <state key="normal" title="Get Subscription State"/>
                                         <connections>
                                             <action selector="onGetIDsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qmZ-7K-zxl"/>
                                         </connections>

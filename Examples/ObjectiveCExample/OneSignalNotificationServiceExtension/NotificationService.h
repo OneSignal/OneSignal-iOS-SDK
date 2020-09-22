@@ -25,10 +25,8 @@
 * THE SOFTWARE.
 */
 
+#import <UserNotifications/UserNotifications.h>
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
-@interface GreenViewController : UIViewController
+@interface NotificationService : UNNotificationServiceExtension
 
 @end

@@ -26,6 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface RedViewController : UIViewController
 @property (strong, nonatomic) NSURL *receivedUrl;
