@@ -18,8 +18,8 @@
 		DE4A4EC4251A8E25005FAE0A /* GreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4A4EC3251A8E25005FAE0A /* GreenViewController.m */; };
 		DE4A4ECE251A8E81005FAE0A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4A4ECD251A8E81005FAE0A /* NotificationService.m */; };
 		DE4A4ED2251A8E81005FAE0A /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = DE4A4ECA251A8E81005FAE0A /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		DE4A4EE4251A9EC9005FAE0A /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = DE4A4EE3251A9EC9005FAE0A /* OneSignal */; };
-		DE4A4EE6251A9ED2005FAE0A /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = DE4A4EE5251A9ED2005FAE0A /* OneSignal */; };
+		DE8C8686251AA40A001EFC76 /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = DE8C8685251AA40A001EFC76 /* OneSignal */; };
+		DE8C8688251AA410001EFC76 /* OneSignal in Frameworks */ = {isa = PBXBuildFile; productRef = DE8C8687251AA410001EFC76 /* OneSignal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,7 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE4A4EE4251A9EC9005FAE0A /* OneSignal in Frameworks */,
+				DE8C8686251AA40A001EFC76 /* OneSignal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,7 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE4A4EE6251A9ED2005FAE0A /* OneSignal in Frameworks */,
+				DE8C8688251AA410001EFC76 /* OneSignal in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,7 +168,7 @@
 			);
 			name = OneSignalDemo;
 			packageProductDependencies = (
-				DE4A4EE3251A9EC9005FAE0A /* OneSignal */,
+				DE8C8685251AA40A001EFC76 /* OneSignal */,
 			);
 			productName = OneSignalDemo;
 			productReference = DE4A4EA3251A8DAB005FAE0A /* OneSignalDemo.app */;
@@ -188,7 +188,7 @@
 			);
 			name = OneSignalNotificationServiceExtension;
 			packageProductDependencies = (
-				DE4A4EE5251A9ED2005FAE0A /* OneSignal */,
+				DE8C8687251AA410001EFC76 /* OneSignal */,
 			);
 			productName = OneSignalNotificationServiceExtension;
 			productReference = DE4A4ECA251A8E81005FAE0A /* OneSignalNotificationServiceExtension.appex */;
@@ -221,7 +221,7 @@
 			);
 			mainGroup = DE4A4E9A251A8DAB005FAE0A;
 			packageReferences = (
-				DE4A4EE2251A9EC9005FAE0A /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */,
+				DE8C8684251AA40A001EFC76 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */,
 			);
 			productRefGroup = DE4A4EA4251A8DAB005FAE0A /* Products */;
 			projectDirPath = "";
@@ -524,7 +524,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		DE4A4EE2251A9EC9005FAE0A /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */ = {
+		DE8C8684251AA40A001EFC76 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/OneSignal/OneSignal-iOS-SDK.git";
 			requirement = {
@@ -535,14 +535,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		DE4A4EE3251A9EC9005FAE0A /* OneSignal */ = {
+		DE8C8685251AA40A001EFC76 /* OneSignal */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE4A4EE2251A9EC9005FAE0A /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
+			package = DE8C8684251AA40A001EFC76 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
 			productName = OneSignal;
 		};
-		DE4A4EE5251A9ED2005FAE0A /* OneSignal */ = {
+		DE8C8687251AA410001EFC76 /* OneSignal */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE4A4EE2251A9EC9005FAE0A /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
+			package = DE8C8684251AA40A001EFC76 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
 			productName = OneSignal;
 		};
 /* End XCSwiftPackageProductDependency section */
