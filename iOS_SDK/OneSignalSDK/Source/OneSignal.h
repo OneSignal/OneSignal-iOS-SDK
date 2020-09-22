@@ -328,9 +328,9 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 // Permission+Subscription Classes
 @interface OSPermissionSubscriptionState : NSObject
 
-@property (readonly, nullable) OSPermissionState* permissionStatus;
-@property (readonly, nullable) OSSubscriptionState* subscriptionStatus;
-@property (readonly, nullable) OSEmailSubscriptionState *emailSubscriptionStatus;
+@property (readonly, nonnull) OSPermissionState* permissionStatus;
+@property (readonly, nonnull) OSSubscriptionState* subscriptionStatus;
+@property (readonly, nonnull) OSEmailSubscriptionState *emailSubscriptionStatus;
 - (NSDictionary* _Nonnull)toDictionary;
 
 @end
@@ -462,9 +462,9 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 #pragma mark Public Handlers
 
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification* notification, OSNotificationDisplayTypeResponse completion);
-typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * result);
-typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction* action);
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayTypeResponse _Nonnull completion);
+typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
 
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
