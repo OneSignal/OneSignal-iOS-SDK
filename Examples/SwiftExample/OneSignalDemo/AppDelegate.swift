@@ -47,6 +47,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             print("Received Notification: ", notification.notificationId ?? "no id")
             print("launchURL: ", notification.launchURL ?? "no launch url")
             print("content_available = \(notification.contentAvailable)")
+            if notification.notificationId == "example_silent_notif" {
+                completion(OSNotificationDisplayType.silent)
+            } else {
+                completion(OSNotificationDisplayType.notification)
+            }
         }
         
         let notificationOpenedBlock: OSNotificationOpenedBlock = { result in
