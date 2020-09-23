@@ -48,9 +48,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             print("launchURL: ", notification.launchURL ?? "no launch url")
             print("content_available = \(notification.contentAvailable)")
             if notification.notificationId == "example_silent_notif" {
-                completion(OSNotificationDisplayType.silent)
+                completion(nil)
             } else {
-                completion(OSNotificationDisplayType.notification)
+                completion(notification)
             }
         }
         
