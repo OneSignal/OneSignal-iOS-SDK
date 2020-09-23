@@ -39,35 +39,40 @@
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_WARN];
     
     // (Optional) - Create block the will fire when a notification is recieved while the app is in focus.
-    id notificationRecievedBlock = ^(OSNotification *notification) {
-        NSLog(@"Received Notification - %@", notification.payload.notificationID);
+    id notifWillShowInForegroundHandler = ^(OSNotification *notification, OSNotificationDisplayResponse completion) {
+        NSLog(@"Received Notification - %@", notification.notificationId);
+        if ([notification.notificationId isEqualToString:@"silent_notif"]) {
+            completion(nil);
+        } else {
+            completion(notification);
+        }
     };
     
     // (Optional) - Create block that will fire when a notification is tapped on.
     id notificationOpenedBlock = ^(OSNotificationOpenedResult *result) {
-        OSNotificationPayload* payload = result.notification.payload;
+        OSNotification* notification = result.notification;
         
         NSString* messageTitle = @"OneSignal Example";
-        NSString* fullMessage = [payload.body copy];
+        NSString* fullMessage = [notification.body copy];
         
-        if (payload.additionalData) {
+        if (notification.additionalData) {
             
-            if (payload.title)
-                messageTitle = payload.title;
+            if (notification.title)
+                messageTitle = notification.title;
             
-            if (result.action.actionID) {
-                fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionID]];
+            if (result.action.actionId) {
+                fullMessage = [fullMessage stringByAppendingString:[NSString stringWithFormat:@"\nPressed ButtonId:%@", result.action.actionId]];
                 
                 UIViewController *vc;
                 
-                if ([result.action.actionID isEqualToString: @"id2"]) {
+                if ([result.action.actionId isEqualToString: @"id2"]) {
                     RedViewController *redVC = (RedViewController *)[[UIStoryboard storyboardWithName:@"MainStoryboard" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"redVC"];
                     
-                    if (payload.additionalData[@"OpenURL"])
-                        redVC.receivedUrl = [NSURL URLWithString:(NSString *)payload.additionalData[@"OpenURL"]];
+                    if (notification.additionalData[@"OpenURL"])
+                        redVC.receivedUrl = [NSURL URLWithString:(NSString *)notification.additionalData[@"OpenURL"]];
                     
                     vc = redVC;
-                } else if ([result.action.actionID isEqualToString:@"id1"]) {
+                } else if ([result.action.actionId isEqualToString:@"id1"]) {
                     vc = [[UIStoryboard storyboardWithName:@"MainStoryboard" bundle:[NSBundle mainBundle]] instantiateViewControllerWithIdentifier:@"greenVC"];
                 }
                 
@@ -85,16 +90,15 @@
     };
     
     // (Optional) - Configuration options for OneSignal settings.
-    id oneSignalSetting = @{kOSSettingsKeyInFocusDisplayOption : @(OSNotificationDisplayTypeNotification), kOSSettingsKeyAutoPrompt : @YES};
-    
-    
+    id oneSignalSettings = @{kOSSettingsKeyInAppLaunchURL : @NO, kOSSettingsKeyAutoPrompt : @YES};
     
     // (REQUIRED) - Initializes OneSignal
-    [OneSignal initWithLaunchOptions:launchOptions
-                               appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-          handleNotificationReceived:notificationRecievedBlock
-            handleNotificationAction:notificationOpenedBlock
-                            settings:oneSignalSetting];
+    [OneSignal initWithLaunchOptions:launchOptions];
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    //Other optional initialization
+    [OneSignal setAppSettings:oneSignalSettings];
+    [OneSignal setNotificationWillShowInForegroundHandler:notifWillShowInForegroundHandler];
+    [OneSignal setNotificationOpenedHandler:notificationOpenedBlock];
     return YES;
 }
 

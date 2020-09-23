@@ -43,30 +43,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
         // For debugging
         OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         
-        let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { notification in
-            
-            print("Received Notification: ", notification!.payload.notificationID!)
-            print("launchURL: ", notification?.payload.launchURL ?? "No Launch Url")
-            print("content_available = \(notification?.payload.contentAvailable ?? false)")
+        let notifWillShowInForegroundHandler: OSNotificationWillShowInForegroundBlock = { notification, completion in
+            print("Received Notification: ", notification.notificationId ?? "no id")
+            print("launchURL: ", notification.launchURL ?? "no launch url")
+            print("content_available = \(notification.contentAvailable)")
+            if notification.notificationId == "example_silent_notif" {
+                completion(nil)
+            } else {
+                completion(notification)
+            }
         }
         
-        let notificationOpenedBlock: OSHandleNotificationActionBlock = { result in
+        let notificationOpenedBlock: OSNotificationOpenedBlock = { result in
             // This block gets called when the user reacts to a notification received
-            let payload: OSNotificationPayload? = result?.notification.payload
+            let notification: OSNotification = result.notification
             
-            print("Message: ", payload!.body!)
-            print("badge number: ", payload?.badge ?? 0)
-            print("notification sound: ", payload?.sound ?? "No sound")
+            print("Message: ", notification.body ?? "empty body")
+            print("badge number: ", notification.badge)
+            print("notification sound: ", notification.sound ?? "No sound")
             
-            if let additionalData = result!.notification.payload!.additionalData {
+            if let additionalData = notification.additionalData {
                 print("additionalData: ", additionalData)
                 
-                if let actionSelected = payload?.actionButtons {
+                if let actionSelected = notification.actionButtons {
                     print("actionSelected: ", actionSelected)
                 }
                 
                 // DEEP LINK from action buttons
-                if let actionID = result?.action.actionID {
+                if let actionID = result.action.actionId {
                     
                     // For presenting a ViewController from push notification action button
                     let mainStoryboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
@@ -92,11 +96,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             }
         }
 
-        let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true, ]
+        let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true,]
         
-        OneSignal.initWithLaunchOptions(launchOptions, appId: "3beb3078-e0f1-4629-af17-fde833b9f716", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
-        
-        OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
+        OneSignal.setAppId("3beb3078-e0f1-4629-af17-fde833b9f716")
+        OneSignal.initWithLaunchOptions(launchOptions)
+        OneSignal.setNotificationOpenedHandler(notificationOpenedBlock)
+        OneSignal.setNotificationWillShowInForegroundHandler(notifWillShowInForegroundHandler)
+        OneSignal.setAppSettings(onesignalInitSettings)
         
         // Add your AppDelegate as an obsserver
         OneSignal.add(self as OSPermissionObserver)
@@ -107,7 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
     }
     
     // Add this new method
-    func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges!) {
+    func onOSPermissionChanged(_ stateChanges: OSPermissionStateChanges) {
         
         // Example of detecting answering the permission prompt
         if stateChanges.from.status == OSNotificationPermission.notDetermined {
@@ -118,7 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             }
         }
         // prints out all properties
-        print("PermissionStateChanges: ", stateChanges!)
+        print("PermissionStateChanges: ", stateChanges)
     }
     
     // Output:
@@ -133,11 +139,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
     
     // TODO: update docs to change method name
     // Add this new method
-    func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges!) {
+    func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges) {
         if !stateChanges.from.subscribed && stateChanges.to.subscribed {
             print("Subscribed for OneSignal push notifications!")
         }
-        print("SubscriptionStateChange: ", stateChanges!)
+        print("SubscriptionStateChange: ", stateChanges)
     }
     
     // Output:
