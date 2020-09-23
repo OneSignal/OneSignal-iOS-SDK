@@ -326,13 +326,13 @@ OneSignalWebView *webVC;
     return userInfo;
 }
 
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion {
++ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion {
     [notification setCompletionBlock:completion];
     if (notificationWillShowInForegroundHandler) {
         [notification startTimeoutTimer];
         notificationWillShowInForegroundHandler(notification, [notification getCompletionBlock]);
     } else {
-        completion(displayType);
+        completion(notification);
     }
 }
 
@@ -343,7 +343,7 @@ OneSignalWebView *webVC;
     return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
 }
 
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID {
     if (![self isOneSignalPayload:lastMessageReceived])
         return;
     
@@ -358,7 +358,7 @@ OneSignalWebView *webVC;
     
     [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
     
-    if (!notificationOpenedHandler || displayType == OSNotificationDisplayTypeSilent)
+    if (!notificationOpenedHandler)
         return;
     notificationOpenedHandler(result);
 }

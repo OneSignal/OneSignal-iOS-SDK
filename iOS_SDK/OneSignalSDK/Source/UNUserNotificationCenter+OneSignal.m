@@ -48,7 +48,7 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 @interface OneSignal (UN_extra)
 + (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion;
++ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
 @end
 
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
@@ -175,7 +175,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired! %@", notification.request.content.body]];
     
-    [OneSignal handleWillPresentNotificationInForegroundWithPayload:notification.request.content.userInfo withCompletion:^(OSNotificationDisplayType displayType) {
+    [OneSignal handleWillPresentNotificationInForegroundWithPayload:notification.request.content.userInfo withCompletion:^(OSNotification *responseNotif) {
+        UNNotificationPresentationOptions displayType = responseNotif != nil ? (UNNotificationPresentationOptions)7 : (UNNotificationPresentationOptions)0;
         finishProcessingNotification(notification, center, displayType, completionHandler, self);
     }];
 }
@@ -183,17 +184,12 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 // To avoid a crash caused by using the swizzled OneSignalUNUserNotificationCenter type this is implemented as a C function
 void finishProcessingNotification(UNNotification *notification,
                                   UNUserNotificationCenter *center,
-                                  OSNotificationDisplayType displayType,
+                                  UNNotificationPresentationOptions displayType,
                                   OSUNNotificationCenterCompletionHandler completionHandler,
                                   OneSignalUNUserNotificationCenter *instance) {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"finishProcessingNotification: Fired!"];
-    NSUInteger completionHandlerOptions = 7;
+    NSUInteger completionHandlerOptions = displayType;
     
-    switch (displayType) {
-        case OSNotificationDisplayTypeSilent: completionHandlerOptions = 0; break; // Nothing
-        case OSNotificationDisplayTypeNotification: completionHandlerOptions = 7; break; // Badge + Sound + Notification
-        default: break;
-    }
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
     
     if ([OneSignal appId])

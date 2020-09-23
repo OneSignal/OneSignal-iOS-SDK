@@ -35,7 +35,7 @@
 
 @implementation OSNotification
 
- OSNotificationDisplayTypeResponse _completion;
+ OSNotificationDisplayResponse _completion;
  NSTimer *_timeoutTimer;
  
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message {
@@ -243,21 +243,21 @@
 
 #pragma mark willShowInForegroundHandler Methods
 
-- (void)setCompletionBlock:(OSNotificationDisplayTypeResponse)completion {
+- (void)setCompletionBlock:(OSNotificationDisplayResponse)completion {
     _completion = completion;
 }
 
- - (OSNotificationDisplayTypeResponse)getCompletionBlock {
-     OSNotificationDisplayTypeResponse block = ^(OSNotificationDisplayType displayType){
-         [self complete:displayType];
+ - (OSNotificationDisplayResponse)getCompletionBlock {
+     OSNotificationDisplayResponse block = ^(OSNotification *notification){
+         [self complete:notification];
      };
      return block;
  }
 
- - (void)complete:(OSNotificationDisplayType)displayType {
+ - (void)complete:(OSNotification *)notification {
      [_timeoutTimer invalidate];
      if (_completion) {
-         _completion(displayType);
+         _completion(notification);
          _completion = nil;
      }
  }
@@ -269,7 +269,7 @@
  - (void)timeoutTimerFired:(NSTimer *)timer {
      [OneSignal onesignal_Log:ONE_S_LL_ERROR
      message:[NSString stringWithFormat:@"Notification willShowInForeground completion timed out. Completion was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
-     [self complete:OSNotificationDisplayTypeNotification];
+     [self complete:self];
  }
 
  - (void)dealloc {

@@ -44,8 +44,8 @@
 
 + (void)setNotificationOpenedBlock:(OSNotificationOpenedBlock)block;
 + (void)setNotificationWillShowInForegroundBlock:(OSNotificationWillShowInForegroundBlock)block;
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification displayType:(OSNotificationDisplayType)displayType completion:(OSNotificationDisplayTypeResponse)completion;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
++ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion;
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID;
 + (BOOL)handleIAMPreview:(OSNotification *)notification;
 
 // - iOS 10
