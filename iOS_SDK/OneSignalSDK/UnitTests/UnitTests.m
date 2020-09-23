@@ -1052,6 +1052,8 @@
     let notifCenter = UNUserNotificationCenter.currentNotificationCenter;
     let notifCenterDelegate = notifCenter.delegate;
     
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
+    
     // UNUserNotificationCenterDelegate method iOS 10 calls directly when a notification is opened.
     [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -1083,8 +1085,8 @@
     [UnitTestCommonMethods initOneSignalWithHanders_andThreadWait:^(OSNotification *notif, OSNotificationDisplayResponse completion) {
         receivedWasFire = true;
         // TODO: Fix this unit test since generation jobs do not have action buttons
-        //let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
-        //XCTAssertEqualObjects(notifJob.actionButtons, actionButons);
+        let actionButons = @[ @{@"id": @"id1", @"text": @"text1"} ];
+        XCTAssertEqualObjects(notif.actionButtons, actionButons);
     } notificationOpenedHandler:nil];
     
     let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];

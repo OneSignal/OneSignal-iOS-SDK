@@ -1933,18 +1933,19 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     
     BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
-    if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"])
+    if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"]) {
         return;
-
-    // Prevent duplicate calls
-    let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
-    if ([@"dup" isEqualToString:newId])
-        return;
-    if (newId)
-        _lastnonActiveMessageId = newId;
-
-
+    }
+    
     if (opened) {
+        // Prevent duplicate calls
+        let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
+        if ([@"dup" isEqualToString:newId]) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Duplicate notif received. Not calling opened handler."];
+            return;
+        }
+        if (newId)
+            _lastnonActiveMessageId = newId;
         //app was in background / not running and opened due to a tap on a notification or an action check what type
         OSNotificationActionType type = OSNotificationActionTypeOpened;
 

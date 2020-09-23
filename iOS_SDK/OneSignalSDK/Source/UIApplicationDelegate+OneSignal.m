@@ -171,7 +171,7 @@ static NSArray* delegateSubclasses = nil;
 
     if ([OneSignal appId]) {
         let isActive = [application applicationState] == UIApplicationStateActive;
-        [OneSignal notificationReceived:userInfo foreground:isActive isActive:isActive wasOpened:true];
+        [OneSignal notificationReceived:userInfo foreground:isActive isActive:isActive wasOpened:YES];
     }
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
