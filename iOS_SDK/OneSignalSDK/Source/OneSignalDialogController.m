@@ -46,8 +46,7 @@
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
                       foreground:(BOOL)foreground
                         isActive:(BOOL)isActive
-                      actionType:(OSNotificationActionType)actionType
-                     displayType:(OSNotificationDisplayType)displayType;
+                      actionType:(OSNotificationActionType)actionType;
 
 @end
 

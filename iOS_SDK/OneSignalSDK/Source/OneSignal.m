@@ -1952,7 +1952,7 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OSNotificationDisplayTypeNotification];
+        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type];
     }
 }
 
@@ -1966,31 +1966,30 @@ static NSString *_lastnonActiveMessageId;
     return nil;
 }
 
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayTypeResponse)completion {
++ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion {
     // check to make sure the app is in focus and it's a OneSignal notification
     if (![OneSignalHelper isOneSignalPayload:payload]
         || UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-        completion(OSNotificationDisplayTypeNotification);
+        completion([OSNotification new]);
         return;
     }
     //Only call the willShowInForegroundHandler for notifications not preview IAMs
     
     OSNotification *osNotification = [OSNotification parseWithApns:payload];
     if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
-        completion(OSNotificationDisplayTypeSilent);
+        completion(nil);
         return;
     }
-    [OneSignalHelper handleWillShowInForegroundHandlerForNotification:osNotification displayType:OSNotificationDisplayTypeNotification completion:completion];
+    [OneSignalHelper handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion];
 }
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
                        foreground:(BOOL)foreground
                         isActive:(BOOL)isActive
-                      actionType:(OSNotificationActionType)actionType
-                     displayType:(OSNotificationDisplayType)displayType {
+                      actionType:(OSNotificationActionType)actionType {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:foreground:isActive:actionType:displayType:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:foreground:isActive:actionType:"])
         return;
 
     OSNotification *notification = [OSNotification parseWithApns:messageDict];
@@ -2002,8 +2001,8 @@ static NSString *_lastnonActiveMessageId;
     NSString* messageId = [customDict objectForKey:@"i"];
     [OneSignal submitNotificationOpened:messageId];
     
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! foreground: %@ notificationId: %@ displayType: %lu",
-                                     foreground ? @"YES" : @"NO", messageId, (unsigned long)displayType]);
+    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! foreground: %@ notificationId: %@",
+                                     foreground ? @"YES" : @"NO", messageId]);
 
     // Try to fetch the open url to launch
     [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
@@ -2024,10 +2023,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignal.sessionManager onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
     }
 
-    // Ensures that if the app is open and display type == none, the handleNotificationAction block does not get called
-    if (displayType != OSNotificationDisplayTypeSilent || (displayType == OSNotificationDisplayTypeSilent && !isActive)) {
-        [OneSignalHelper handleNotificationAction:actionType actionID:actionID displayType:displayType];
-    }
+    [OneSignalHelper handleNotificationAction:actionType actionID:actionID];
 }
 
 + (void)launchWebURL:(NSString*)openUrl {
@@ -2224,8 +2220,7 @@ static NSString *_lastnonActiveMessageId;
         [self handleNotificationOpened:userInfo
                             foreground:isActive
                               isActive:isActive
-                            actionType:OSNotificationActionTypeActionTaken
-                           displayType:OSNotificationDisplayTypeNotification];
+                            actionType:OSNotificationActionTypeActionTaken];
 }
 
 // Called from the app's Notification Service Extension
