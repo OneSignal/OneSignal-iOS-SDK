@@ -54,16 +54,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
     OSNotificationActionTypeActionTaken
 };
 
-/* The way a notification was displayed to the user */
-typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
-    
-    /* Notification is silent */
-    OSNotificationDisplayTypeSilent,
-    
-    /* iOS native notification display */
-    OSNotificationDisplayTypeNotification
-};
-
 @interface OSNotificationAction : NSObject
 
 /* The type of the notification action */
@@ -214,7 +204,8 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
 @end
 
-typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
+// Pass in nil means a notification will not display
+typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
 typedef NS_ENUM(NSUInteger, Session) {
     DIRECT,
@@ -462,7 +453,7 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 #pragma mark Public Handlers
 
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayTypeResponse _Nonnull completion);
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
 
