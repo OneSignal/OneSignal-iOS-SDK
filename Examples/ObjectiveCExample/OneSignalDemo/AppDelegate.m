@@ -39,12 +39,12 @@
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_WARN];
     
     // (Optional) - Create block the will fire when a notification is recieved while the app is in focus.
-    id notifWillShowInForegroundHandler = ^(OSNotification *notification, OSNotificationDisplayTypeResponse completion) {
+    id notifWillShowInForegroundHandler = ^(OSNotification *notification, OSNotificationDisplayResponse completion) {
         NSLog(@"Received Notification - %@", notification.notificationId);
         if ([notification.notificationId isEqualToString:@"silent_notif"]) {
-            completion(OSNotificationDisplayTypeSilent);
+            completion(nil);
         } else {
-            completion(OSNotificationDisplayTypeNotification);
+            completion(notification);
         }
     };
     
