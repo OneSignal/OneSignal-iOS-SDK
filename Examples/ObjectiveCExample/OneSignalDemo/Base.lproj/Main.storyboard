@@ -164,7 +164,7 @@
                                 </constraints>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="fsm-CS-h1i">
-                                <rect key="frame" x="40" y="484" width="218.5" height="31"/>
+                                <rect key="frame" x="40" y="484" width="260" height="31"/>
                                 <subviews>
                                     <switch opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="NBb-Ft-ae3">
                                         <rect key="frame" x="0.0" y="0.0" width="51" height="31"/>
@@ -172,8 +172,8 @@
                                             <action selector="subscriptionSwitchValueChanged:" destination="AXT-p6-7qm" eventType="valueChanged" id="tzO-h5-RPO"/>
                                         </connections>
                                     </switch>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow Notifications?" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4rT-9H-8AV">
-                                        <rect key="frame" x="69" y="0.0" width="149.5" height="31"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OneSignal Push Disabled" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4rT-9H-8AV">
+                                        <rect key="frame" x="69" y="0.0" width="191" height="31"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>

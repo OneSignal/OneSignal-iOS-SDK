@@ -300,11 +300,11 @@
 -(void)onOSSubscriptionChanged:(OSSubscriptionStateChanges *)stateChanges {
     if (stateChanges.from.subscribed &&  !stateChanges.to.subscribed) {
         self.subscriptionStatusSwitch.on = false;
-        self.subscriptionStatusLabel.text = @"Set Subscription OFF";
+        self.subscriptionStatusLabel.text = @"OneSignal Push Disabled";
         self.registerButton.backgroundColor = [UIColor redColor];
     } else if (!stateChanges.from.subscribed && stateChanges.to.subscribed) {
         self.subscriptionStatusSwitch.on = true;
-        self.subscriptionStatusLabel.text = @"Set Subscription ON";
+        self.subscriptionStatusLabel.text = @"OneSignal Push Enabled";
         self.registerButton.backgroundColor = [UIColor greenColor];
     }
 }
