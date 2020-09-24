@@ -76,7 +76,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     // OneSignal Init with app settings, app id, and lauch options
     [OneSignal setAppSettings:@{
-        kOSSettingsKeyAutoPrompt: @false,
         kOSSettingsKeyInAppLaunchURL: @true
     }];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];

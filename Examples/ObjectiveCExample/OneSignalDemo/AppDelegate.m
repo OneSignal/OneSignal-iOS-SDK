@@ -90,7 +90,7 @@
     };
     
     // (Optional) - Configuration options for OneSignal settings.
-    id oneSignalSettings = @{kOSSettingsKeyInAppLaunchURL : @NO, kOSSettingsKeyAutoPrompt : @YES};
+    id oneSignalSettings = @{kOSSettingsKeyInAppLaunchURL : @NO};
     
     // (REQUIRED) - Initializes OneSignal
     [OneSignal initWithLaunchOptions:launchOptions];

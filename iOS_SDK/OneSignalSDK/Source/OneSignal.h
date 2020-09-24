@@ -385,9 +385,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
 /*Dictionary of keys to pass alongside the init settings*/
-    
-/*Let OneSignal directly prompt for push notifications on init*/
-extern NSString * const kOSSettingsKeyAutoPrompt;
 
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
