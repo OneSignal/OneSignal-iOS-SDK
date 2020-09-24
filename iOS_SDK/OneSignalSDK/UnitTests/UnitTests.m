@@ -698,6 +698,7 @@
 
 - (void)testPromptedButNeveranswerNotificationPrompt {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
+    [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // Don't make a network call right away
@@ -739,6 +740,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [self backgroundModesDisabledInXcode];
     [UnitTestCommonMethods initOneSignal];
+    [OneSignal promptForPushNotificationsWithUserResponse:nil];
 
     // Testing network call is not being made from the main thread.
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);

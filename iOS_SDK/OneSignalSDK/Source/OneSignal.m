@@ -702,7 +702,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [self enableInAppLaunchURL:true];
     }
     
-    usesAutoPrompt = YES;
+    usesAutoPrompt = NO;
     if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
         usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
     
