@@ -290,9 +290,9 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         // turn off notifications
         // IMPORTANT: user must have already accepted notifications for this to be called
         if !allowNotificationsSwitch.isOn {
-            OneSignal.setSubscription(false)
+            OneSignal.disablePush(true)
         } else {
-            OneSignal.setSubscription(true)
+            OneSignal.disablePush(false)
         }
     }
     

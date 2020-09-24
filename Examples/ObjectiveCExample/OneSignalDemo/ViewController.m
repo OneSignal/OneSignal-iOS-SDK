@@ -237,9 +237,9 @@
 
 - (IBAction)subscriptionSwitchValueChanged:(UISwitch *)sender {
     if (sender.isOn) {
-        [OneSignal setSubscription:true];
+        [OneSignal disablePush:false];
     } else {
-        [OneSignal setSubscription:false];
+        [OneSignal disablePush:true];
     }
 }
 
