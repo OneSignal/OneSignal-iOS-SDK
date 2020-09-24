@@ -200,40 +200,39 @@
 
 - (NSString*)stringify {
     NSMutableDictionary *obj = [NSMutableDictionary new];
-    [obj setObject:[NSMutableDictionary new] forKeyedSubscript:@"payload"];
     
     if (self.notificationId)
-        [obj[@"payload"] setObject:self.notificationId forKeyedSubscript: @"notificationId"];
+        [obj setObject:self.notificationId forKeyedSubscript: @"notificationId"];
     
     if (self.sound)
-        [obj[@"payload"] setObject:self.sound forKeyedSubscript: @"sound"];
+        [obj setObject:self.sound forKeyedSubscript: @"sound"];
     
     if (self.title)
-        [obj[@"payload"] setObject:self.title forKeyedSubscript: @"title"];
+        [obj setObject:self.title forKeyedSubscript: @"title"];
     
     if (self.body)
-        [obj[@"payload"] setObject:self.body forKeyedSubscript: @"body"];
+        [obj setObject:self.body forKeyedSubscript: @"body"];
     
     if (self.subtitle)
-        [obj[@"payload"] setObject:self.subtitle forKeyedSubscript: @"subtitle"];
+        [obj setObject:self.subtitle forKeyedSubscript: @"subtitle"];
     
     if (self.additionalData)
-        [obj[@"payload"] setObject:self.additionalData forKeyedSubscript: @"additionalData"];
+        [obj setObject:self.additionalData forKeyedSubscript: @"additionalData"];
     
     if (self.actionButtons)
-        [obj[@"payload"] setObject:self.actionButtons forKeyedSubscript: @"actionButtons"];
+        [obj setObject:self.actionButtons forKeyedSubscript: @"actionButtons"];
     
     if (self.rawPayload)
-        [obj[@"payload"] setObject:self.rawPayload forKeyedSubscript: @"rawPayload"];
+        [obj setObject:self.rawPayload forKeyedSubscript: @"rawPayload"];
     
     if (self.launchURL)
-        [obj[@"payload"] setObject:self.launchURL forKeyedSubscript: @"launchURL"];
+        [obj setObject:self.launchURL forKeyedSubscript: @"launchURL"];
     
     if (self.contentAvailable)
-        [obj[@"payload"] setObject:@(self.contentAvailable) forKeyedSubscript: @"contentAvailable"];
+        [obj setObject:@(self.contentAvailable) forKeyedSubscript: @"contentAvailable"];
     
     if (self.badge)
-        [obj[@"payload"] setObject:@(self.badge) forKeyedSubscript: @"badge"];
+        [obj setObject:@(self.badge) forKeyedSubscript: @"badge"];
     
     //Convert obj into a serialized
     NSError *err;
