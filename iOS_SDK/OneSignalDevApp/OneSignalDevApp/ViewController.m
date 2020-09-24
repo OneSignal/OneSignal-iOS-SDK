@@ -153,7 +153,7 @@
 
 - (IBAction)subscriptionSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller subscription status: %i", (int) sender.selectedSegmentIndex);
-    [OneSignal setSubscription:(bool) sender.selectedSegmentIndex];
+    [OneSignal disablePush:(bool) !sender.selectedSegmentIndex];
 }
 
 - (IBAction)locationSharedSegmentedControlValueChanged:(UISegmentedControl *)sender {
