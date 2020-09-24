@@ -92,8 +92,6 @@
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
-NSString* const kOSSettingsKeyAutoPrompt = @"kOSSettingsKeyAutoPrompt";
-
 /* Enable the default in-app launch urls*/
 NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
@@ -702,9 +700,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [self enableInAppLaunchURL:true];
     }
     
+    // Always NO, can be cleaned up in a future commit
     usesAutoPrompt = NO;
-    if (settings[kOSSettingsKeyAutoPrompt] && [settings[kOSSettingsKeyAutoPrompt] isKindOfClass:[NSNumber class]])
-        usesAutoPrompt = [settings[kOSSettingsKeyAutoPrompt] boolValue];
     
     if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
         providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
