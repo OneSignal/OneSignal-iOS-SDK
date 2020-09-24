@@ -96,7 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, OSPermissionObserver, OSS
             }
         }
 
-        let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: true,]
+        let onesignalInitSettings = [kOSSettingsKeyInAppLaunchURL: true,]
         
         OneSignal.setAppId("3beb3078-e0f1-4629-af17-fde833b9f716")
         OneSignal.initWithLaunchOptions(launchOptions)

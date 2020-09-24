@@ -144,7 +144,6 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
         let hasPrompted = status.permissionStatus.hasPrompted
         if hasPrompted == false {
             // Call when you want to prompt the user to accept push notifications.
-            // Only call once and only if you set kOSSettingsKeyAutoPrompt in AppDelegate to false.
             OneSignal.promptForPushNotifications(userResponse: { accepted in
                 if accepted == true {
                     print("User accepted notifications: \(accepted)")
