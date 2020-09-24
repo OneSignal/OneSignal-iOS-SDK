@@ -51,6 +51,7 @@
         self.subscriptionStatusSwitch.userInteractionEnabled = true;
         self.registerButton.backgroundColor = [UIColor greenColor];
         self.registerButton.userInteractionEnabled = false;
+        self.subscriptionStatusLabel.text = @"OneSignal Push Enabled";
     }
     
     [OneSignal addPermissionObserver:self];
@@ -237,9 +238,9 @@
 
 - (IBAction)subscriptionSwitchValueChanged:(UISwitch *)sender {
     if (sender.isOn) {
-        [OneSignal setSubscription:true];
+        [OneSignal disablePush:false];
     } else {
-        [OneSignal setSubscription:false];
+        [OneSignal disablePush:true];
     }
 }
 
@@ -300,11 +301,11 @@
 -(void)onOSSubscriptionChanged:(OSSubscriptionStateChanges *)stateChanges {
     if (stateChanges.from.subscribed &&  !stateChanges.to.subscribed) {
         self.subscriptionStatusSwitch.on = false;
-        self.subscriptionStatusLabel.text = @"Set Subscription OFF";
+        self.subscriptionStatusLabel.text = @"OneSignal Push Disabled";
         self.registerButton.backgroundColor = [UIColor redColor];
     } else if (!stateChanges.from.subscribed && stateChanges.to.subscribed) {
         self.subscriptionStatusSwitch.on = true;
-        self.subscriptionStatusLabel.text = @"Set Subscription ON";
+        self.subscriptionStatusLabel.text = @"OneSignal Push Enabled";
         self.registerButton.backgroundColor = [UIColor greenColor];
     }
 }
