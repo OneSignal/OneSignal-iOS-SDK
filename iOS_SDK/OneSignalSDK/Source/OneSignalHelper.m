@@ -808,7 +808,7 @@ static OneSignal* singleInstance = nil;
 
 + (void)displayWebView:(NSURL*)url {
     // Check if in-app or safari
-    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:true];
+    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false];
     
     // If the URL contains itunes.apple.com, it's an app store link
     // that should be opened using sharedApplication openURL
