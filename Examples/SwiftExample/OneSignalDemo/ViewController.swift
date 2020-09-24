@@ -54,6 +54,7 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
             allowNotificationsSwitch.isUserInteractionEnabled = true
             registerForPushNotificationsButton.backgroundColor = UIColor.green
             registerForPushNotificationsButton.isUserInteractionEnabled = false
+            setSubscriptionLabel.text = "OneSignal Push Enabled"
         }
         OneSignal.add(self as OSPermissionObserver)
         OneSignal.add(self as OSSubscriptionObserver)

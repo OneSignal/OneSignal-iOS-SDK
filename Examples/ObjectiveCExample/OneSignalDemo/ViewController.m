@@ -51,6 +51,7 @@
         self.subscriptionStatusSwitch.userInteractionEnabled = true;
         self.registerButton.backgroundColor = [UIColor greenColor];
         self.registerButton.userInteractionEnabled = false;
+        self.subscriptionStatusLabel.text = @"OneSignal Push Enabled";
     }
     
     [OneSignal addPermissionObserver:self];
