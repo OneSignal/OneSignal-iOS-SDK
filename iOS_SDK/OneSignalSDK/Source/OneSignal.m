@@ -1377,20 +1377,20 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
 
-+ (void)setSubscription:(BOOL)enable {
++ (void)disablePush:(BOOL)disable {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSubscription:"])
         return;
 
     NSString* value = nil;
-    if (!enable)
+    if (disable)
         value = @"no";
     
     [OneSignalUserDefaults.initStandard saveObjectForKey:OSUD_USER_SUBSCRIPTION_TO withValue:value];
     
     shouldDelaySubscriptionUpdate = true;
     
-    self.currentSubscriptionState.userSubscriptionSetting = enable;
+    self.currentSubscriptionState.userSubscriptionSetting = !disable;
     
     if (appId)
         [OneSignal sendNotificationTypesUpdate];

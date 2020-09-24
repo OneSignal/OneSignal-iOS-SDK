@@ -266,7 +266,7 @@
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
     
     [OneSignal sendTag:@"key" value:@"value"];
-    [OneSignal setSubscription:true];
+    [OneSignal disablePush:false];
     [OneSignal promptLocation];
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -284,7 +284,7 @@
     [UnitTestCommonMethods clearStateForAppRestart:self];
     
     [OneSignal sendTag:@"key" value:@"value"];
-    [OneSignal setSubscription:true];
+    [OneSignal disablePush:false];
     [OneSignal promptLocation];
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -591,7 +591,7 @@
     XCTAssertEqual(observer->last.from.subscribed, false);
     XCTAssertEqual(observer->last.to.subscribed, true);
     
-    [OneSignal setSubscription:false];
+    [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(observer->last.from.subscribed, true);
@@ -614,7 +614,7 @@
     XCTAssertEqualObjects(observer->last.to.userId, @"1234");
     XCTAssertFalse(observer->last.to.subscribed);
     
-    [OneSignal setSubscription:false];
+    [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue(observer->last.from.userSubscriptionSetting);
@@ -635,7 +635,7 @@
     XCTAssertFalse(observer->last.to.subscribed);
     
     // Device should be reported a subscribed now as all conditions are true.
-    [OneSignal setSubscription:true];
+    [OneSignal disablePush:false];
     [UnitTestCommonMethods runBackgroundThreads];
     XCTAssertFalse(observer->last.from.subscribed);
     XCTAssertTrue(observer->last.to.subscribed);
@@ -1759,7 +1759,7 @@ didReceiveRemoteNotification:userInfo
     [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    [OneSignal setSubscription:false];
+    [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Prompt and accept notifications
@@ -1773,7 +1773,7 @@ didReceiveRemoteNotification:userInfo
     
     // Device should be reported a subscribed now as all condiditions are true.
     [OneSignalClientOverrider setShouldExecuteInstantaneously:false];
-    [OneSignal setSubscription:true];
+    [OneSignal disablePush:false];
     
     [OneSignalClientOverrider setShouldExecuteInstantaneously:true];
     XCTAssertFalse(observer->last.to.subscribed);
@@ -1815,7 +1815,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil(observer->last.to.userId);
     XCTAssertFalse(observer->last.to.subscribed);
     
-    [OneSignal setSubscription:true];
+    [OneSignal disablePush:false];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertFalse(observer->last.from.userSubscriptionSetting);

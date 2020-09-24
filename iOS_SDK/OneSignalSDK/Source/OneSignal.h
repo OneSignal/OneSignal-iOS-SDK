@@ -406,7 +406,7 @@ extern NSString* const ONESIGNAL_VERSION;
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
 
-+ (void)setSubscription:(BOOL)enable;
++ (void)disablePush:(BOOL)disable;
 
 + (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
 
