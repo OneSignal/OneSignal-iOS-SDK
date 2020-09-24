@@ -118,12 +118,12 @@ class ViewController: UIViewController, OSPermissionObserver, OSSubscriptionObse
     func onOSSubscriptionChanged(_ stateChanges: OSSubscriptionStateChanges) {
         if stateChanges.from.subscribed && !stateChanges.to.subscribed { // NOT SUBSCRIBED != DENIED
             allowNotificationsSwitch.isOn = false
-            setSubscriptionLabel.text = "Set Subscription OFF"
+            setSubscriptionLabel.text = "OneSignal Push Disabled"
             registerForPushNotificationsButton.backgroundColor = UIColor.red
         } else if !stateChanges.from.subscribed && stateChanges.to.subscribed {
             allowNotificationsSwitch.isOn = true
             allowNotificationsSwitch.isUserInteractionEnabled = true
-            setSubscriptionLabel.text = "Set Subscription ON"
+            setSubscriptionLabel.text = "OneSignal Push Enabled"
             registerForPushNotificationsButton.backgroundColor = UIColor.green
             registerForPushNotificationsButton.isUserInteractionEnabled = false
         }
