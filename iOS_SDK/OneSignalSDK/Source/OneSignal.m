@@ -663,7 +663,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
-        
+
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
         
         [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:appId];
@@ -707,9 +707,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-    if (usesAutoPrompt || registeredWithApple)
+    if (usesAutoPrompt || registeredWithApple) {
+        onesignal_Log(ONE_S_LL_VERBOSE, @"uses auto prompt or registered with apple");
+        if (usesAutoPrompt)
+            onesignal_Log(ONE_S_LL_VERBOSE, @"uses auto prompt");
+        if (registeredWithApple)
+            onesignal_Log(ONE_S_LL_VERBOSE, @"registered with apple");
         [self registerForPushNotifications];
-    else {
+    } else {
         [self checkProvisionalAuthorizationStatus];
         [self registerForAPNsToken];
     }
@@ -769,12 +774,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // Already set by remote params
     if ([remoteParamController hasPrivacyConsentKey])
         return;
-    
+
     if ([self requiresUserPrivacyConsent] && !required) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
         return;
     }
-    
+
     [remoteParamController savePrivacyConsentRequired:required];
 }
 
@@ -837,8 +842,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
             [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
-        
-    
+
+
         //TODO: move all remote param logic to new OSRemoteParamController
         [[self getRemoteParamController] saveRemoteParams:result];
 
@@ -1402,13 +1407,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // Already set by remote params
     if ([remoteController hasLocationKey])
         return;
-    
+
     [self startLocationSharedWithFlag:enable];
 }
 
 + (void)startLocationSharedWithFlag:(BOOL)enable {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startLocationSharedWithFlag called with status: %d", (int) enable]];
-   
+
     let remoteController = [self getRemoteParamController];
     [remoteController saveLocationShared:enable];
 
@@ -1768,7 +1773,7 @@ static dispatch_queue_t serialQueue;
                 [OneSignal setEmail:emailToSet];
                 emailToSet = nil;
             }
-            
+
             [self sendNotificationTypesUpdate];
             
             if (pendingGetTagsSuccessBlock) {
@@ -1862,7 +1867,7 @@ static dispatch_queue_t serialQueue;
                 [self.currentSubscriptionState setAccepted:[self getNotificationTypes] > 0];
             
         } onFailure:nil];
-        
+
         return true;
     }
     
@@ -1933,7 +1938,7 @@ static NSString *_lastnonActiveMessageId;
     if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"]) {
         return;
     }
-    
+
     if (opened) {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1972,7 +1977,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     //Only call the willShowInForegroundHandler for notifications not preview IAMs
-    
+
     OSNotification *osNotification = [OSNotification parseWithApns:payload];
     if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
         completion(nil);

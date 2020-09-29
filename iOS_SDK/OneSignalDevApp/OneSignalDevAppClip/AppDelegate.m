@@ -31,7 +31,19 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
+@interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
+@end
+@implementation OneSignalNotificationCenterDelegate
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSLog(@"Appdelegatewillpresentdelegate");
+}
+
+@end
+
 @implementation AppDelegate
+
+OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
@@ -40,15 +52,17 @@
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
-    
-    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
+    _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        NSLog(@"OSNotificationOpenedResult: %@", result);
+        NSLog(@"OSNotificationOpenedResult: %@", result.action);
+        
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
+        [alert show];
     };
-
-    id notificationReceiverBlock = ^(OSNotification *notification) {
-        NSLog(@"Received Notification - %@", notification.payload.notificationID);
+    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
+        NSLog(@"Will Receive Notification - %@", notif.notificationId);
+        completion(notif);
     };
     
     // Example block for IAM action click handler
@@ -59,23 +73,22 @@
 
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
-
-    [OneSignal initWithLaunchOptions:launchOptions
-                               appId:[AppDelegate getOneSignalAppId]
-          handleNotificationReceived:notificationReceiverBlock
-            handleNotificationAction:openNotificationHandler
-                            settings:@{kOSSettingsKeyAutoPrompt: @false,
-                                       kOSSettingsKeyInAppLaunchURL: @true}];
     
-//    [OneSignal setLocationShared:false];
-    
-    [OneSignal sendTag:@"someKey1122" value:@"03222017"];
+    // OneSignal Init with app settings, app id, and lauch options
+    [OneSignal setAppSettings:@{
+        kOSSettingsKeyInAppLaunchURL: @true
+    }];
+    [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
+    [OneSignal initWithLaunchOptions:launchOptions];
 
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
+    
+    [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
+    [OneSignal setNotificationOpenedHandler:openNotificationHandler];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -85,9 +98,13 @@
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"8e04addd-be31-43dc-8c7a-0618eb781972"
 
 + (NSString*)getOneSignalAppId {
+    NSString* newAppId = @"8e04addd-be31-43dc-8c7a-0618eb781972";
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
-    if (!onesignalAppId)
-        onesignalAppId = @"8e04addd-be31-43dc-8c7a-0618eb781972";
+
+    if (![newAppId isEqualToString:onesignalAppId]) {
+        [self setOneSignalAppId:newAppId];
+        onesignalAppId = newAppId;
+    }
 
     return onesignalAppId;
 }
