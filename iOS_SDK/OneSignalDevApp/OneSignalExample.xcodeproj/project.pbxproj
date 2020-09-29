@@ -17,18 +17,19 @@
 		9112E8901E724C320022A1CB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9112E88E1E724C320022A1CB /* Main.storyboard */; };
 		9112E8921E724C320022A1CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9112E8911E724C320022A1CB /* Assets.xcassets */; };
 		9112E8951E724C320022A1CB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9112E8931E724C320022A1CB /* LaunchScreen.storyboard */; };
-		9112E8A51E724ECC0022A1CB /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A31E724DCB0022A1CB /* libOneSignal.a */; };
 		9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		9150E7761E73BEDD00C5D46A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 9150E7751E73BEDD00C5D46A /* NotificationService.m */; };
 		9150E77A1E73BEDD00C5D46A /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9150E7721E73BEDC00C5D46A /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9150E7821E73BFB600C5D46A /* UIKit.framework */; };
-		91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A31E724DCB0022A1CB /* libOneSignal.a */; };
 		91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
 		91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 91B6EA091E834B1700B5CF01 /* sentImage.jpg */; };
 		CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
 		CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
+		DE138BFE2523CFA300AB46A3 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE138BFD2523CFA300AB46A3 /* libOneSignal.a */; };
+		DE138C002523CFA700AB46A3 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE138BFF2523CFA700AB46A3 /* libOneSignal.a */; };
+		DE138C022523CFAD00AB46A3 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE138C012523CFAD00AB46A3 /* libOneSignal.a */; };
 		DE68DA5B24C7695900FC95A8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA5A24C7695900FC95A8 /* AppDelegate.m */; };
 		DE68DA5E24C7695900FC95A8 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA5D24C7695900FC95A8 /* SceneDelegate.m */; };
 		DE68DA6124C7695900FC95A8 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA6024C7695900FC95A8 /* ViewController.m */; };
@@ -37,7 +38,6 @@
 		DE68DA6924C7695A00FC95A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE68DA6724C7695A00FC95A8 /* LaunchScreen.storyboard */; };
 		DE68DA6C24C7695A00FC95A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA6B24C7695A00FC95A8 /* main.m */; };
 		DE68DA7024C7695A00FC95A8 /* OneSignalExampleClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		DE68DA7624C769E300FC95A8 /* libOneSignal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE68DA7524C769E300FC95A8 /* libOneSignal.a */; };
 		DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
@@ -112,6 +112,9 @@
 		91B6EA051E83215000B5CF01 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		91B6EA091E834B1700B5CF01 /* sentImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sentImage.jpg; sourceTree = "<group>"; };
 		CACBAAB5218A7136000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		DE138BFD2523CFA300AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE138BFF2523CFA700AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE138C012523CFAD00AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExampleClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE68DA5924C7695900FC95A8 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE68DA5A24C7695900FC95A8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -134,8 +137,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
-				9112E8A51E724ECC0022A1CB /* libOneSignal.a in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
+				DE138BFE2523CFA300AB46A3 /* libOneSignal.a in Frameworks */,
 				9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
 			);
@@ -146,8 +149,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */,
-				91B6EA081E8321B400B5CF01 /* libOneSignal.a in Frameworks */,
 				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,
+				DE138C002523CFA700AB46A3 /* libOneSignal.a in Frameworks */,
 				91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */,
 				91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */,
 			);
@@ -159,9 +162,9 @@
 			files = (
 				DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */,
 				DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */,
+				DE138C022523CFAD00AB46A3 /* libOneSignal.a in Frameworks */,
 				DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */,
 				DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */,
-				DE68DA7624C769E300FC95A8 /* libOneSignal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +222,9 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DE138C012523CFAD00AB46A3 /* libOneSignal.a */,
+				DE138BFF2523CFA700AB46A3 /* libOneSignal.a */,
+				DE138BFD2523CFA300AB46A3 /* libOneSignal.a */,
 				DE68DA7524C769E300FC95A8 /* libOneSignal.a */,
 				CACBAAB5218A7136000ACAA5 /* WebKit.framework */,
 				03432CDB1EBD426A0071FC48 /* CoreLocation.framework */,
@@ -281,6 +287,8 @@
 				DE68DA6F24C7695A00FC95A8 /* PBXTargetDependency */,
 			);
 			name = OneSignalExample;
+			packageProductDependencies = (
+			);
 			productName = OneSignalDevApp;
 			productReference = 9112E8821E724C320022A1CB /* OneSignalExample.app */;
 			productType = "com.apple.product-type.application";
@@ -298,6 +306,8 @@
 			dependencies = (
 			);
 			name = OneSignalNotificationServiceExtension;
+			packageProductDependencies = (
+			);
 			productName = OneSignalNotificationServiceExtension;
 			productReference = 9150E7721E73BEDC00C5D46A /* OneSignalNotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -315,6 +325,8 @@
 			dependencies = (
 			);
 			name = OneSignalExampleClip;
+			packageProductDependencies = (
+			);
 			productName = OneSignalDevAppClip;
 			productReference = DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */;
 			productType = "com.apple.product-type.application.on-demand-install-capable";
@@ -369,6 +381,8 @@
 				Base,
 			);
 			mainGroup = 9112E8791E724C320022A1CB;
+			packageReferences = (
+			);
 			productRefGroup = 9112E8831E724C320022A1CB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -592,7 +606,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
-				CURRENT_PROJECT_VERSION = 1.3;
+				CURRENT_PROJECT_VERSION = 1.4.1;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -605,7 +619,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = OneSignalExample;
@@ -618,7 +632,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevApp/OneSignalDevApp.entitlements;
-				CURRENT_PROJECT_VERSION = 1.3;
+				CURRENT_PROJECT_VERSION = 1.4.1;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -631,7 +645,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
 				PRODUCT_NAME = OneSignalExample;
@@ -643,7 +657,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 1.3;
+				CURRENT_PROJECT_VERSION = 1.4.1;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -656,7 +670,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -669,7 +683,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CURRENT_PROJECT_VERSION = 1.3;
+				CURRENT_PROJECT_VERSION = 1.4.1;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -683,7 +697,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -712,16 +726,21 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevAppClip/OneSignalDevAppClip.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3;
+				CURRENT_PROJECT_VERSION = 1.4.1;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					OS_APP_CLIP,
+				);
 				INFOPLIST_FILE = OneSignalDevAppClip/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
@@ -750,16 +769,17 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = OneSignalDevAppClip/OneSignalDevAppClip.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.3;
+				CURRENT_PROJECT_VERSION = 1.4.1;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = OS_APP_CLIP;
 				INFOPLIST_FILE = OneSignalDevAppClip/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4.1;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
 				PRODUCT_NAME = OneSignalExampleClip;
