@@ -2648,4 +2648,26 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(json[@"notificationPermissionStatus"], @2);
 }
 
+- (void)testNotificationJson {
+    NSDictionary *aps = @{
+                        @"aps": @{
+                            @"content-available": @1,
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body",
+                        },
+                        @"os_data": @{
+                            @"i": @"notif id",
+                            @"ti": @"templateId123",
+                            @"tn": @"Template name"
+                        }};
+    OSNotification *notification = [OSNotification parseWithApns:aps];
+    NSDictionary *json = [notification jsonRepresentation];
+    XCTAssertEqualObjects(json[@"notificationId"], @"notif id");
+    XCTAssertEqualObjects(json[@"contentAvailable"], @1);
+    XCTAssertEqualObjects(json[@"mutableContent"], @1);
+    XCTAssertEqualObjects(json[@"body"], @"Message Body");
+    XCTAssertEqualObjects(json[@"templateId"], @"templateId123");
+    XCTAssertEqualObjects(json[@"templateName"], @"Template name");
+}
+
 @end
