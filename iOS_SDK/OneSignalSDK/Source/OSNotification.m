@@ -197,8 +197,7 @@
     return [NSString stringWithFormat: @"notificationId=%@ templateId=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
 }
 
-
-- (NSString*)stringify {
+- (NSDictionary *)jsonRepresentation {
     NSMutableDictionary *obj = [NSMutableDictionary new];
     
     if (self.notificationId)
@@ -222,6 +221,12 @@
     if (self.actionButtons)
         [obj setObject:self.actionButtons forKeyedSubscript: @"actionButtons"];
     
+    if (self.attachments)
+        [obj setObject:self.attachments forKeyedSubscript: @"attachments"];
+    
+    if (self.threadId)
+        [obj setObject:self.threadId forKeyedSubscript: @"threadId"];
+    
     if (self.rawPayload)
         [obj setObject:self.rawPayload forKeyedSubscript: @"rawPayload"];
     
@@ -231,8 +236,29 @@
     if (self.contentAvailable)
         [obj setObject:@(self.contentAvailable) forKeyedSubscript: @"contentAvailable"];
     
+    if (self.mutableContent)
+        [obj setObject:@(self.mutableContent) forKeyedSubscript: @"mutableContent"];
+    
+    if (self.templateName)
+        [obj setObject:self.templateName forKeyedSubscript: @"templateName"];
+    
+    if (self.templateId)
+        [obj setObject:self.templateId forKeyedSubscript: @"templateId"];
+    
     if (self.badge)
         [obj setObject:@(self.badge) forKeyedSubscript: @"badge"];
+    
+    if (self.badgeIncrement)
+        [obj setObject:@(self.badgeIncrement) forKeyedSubscript: @"badgeIncrement"];
+    
+    if (self.category)
+        [obj setObject:self.category forKeyedSubscript: @"category"];
+
+    return obj;
+}
+
+- (NSString *)stringify {
+    NSDictionary *obj = [self jsonRepresentation];
     
     //Convert obj into a serialized
     NSError *err;
