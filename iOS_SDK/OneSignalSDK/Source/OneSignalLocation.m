@@ -240,7 +240,7 @@ static OneSignalLocation* singleInstance = nil;
     NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
     // use background location updates if always permission granted or prompt allowed
     if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
-        [locationManager performSelector:@selector(requestAlwaysAuthorization)];
+        [locationManager performSelector:NSSelectorFromString(@"requestAlwaysAuthorization")];
         if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
             [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
     }
