@@ -85,7 +85,9 @@
     for (NSString *triggerKey in newTriggersKeys) {
         for (NSArray <OSTrigger *> *andConditions in message.triggers) {
             for (OSTrigger *trigger in andConditions) {
-                if ([triggerKey isEqual:trigger.property]) {
+                // Dynamic triggers depends on triggerId
+                // Common triggers changed by user depends on property
+                if ([triggerKey isEqual:trigger.property] || [triggerKey isEqualToString:trigger.triggerId]) {
                     // At least one trigger has changed
                     return YES;
                 }
@@ -261,6 +263,10 @@
 
 - (void)dynamicTriggerFired {
     [self.delegate triggerConditionChanged];
+}
+
+- (void)dynamicTriggerCompleted:(NSString *)triggerId {
+    [self.delegate dynamicTriggerCompleted:triggerId];
 }
 
 @end

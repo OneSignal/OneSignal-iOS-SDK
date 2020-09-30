@@ -1737,6 +1737,7 @@ static dispatch_queue_t serialQueue;
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
+    sessionLaunchTime = [NSDate date];
     
     
     if (mShareLocation && [OneSignalLocation lastLocation]) {
@@ -2826,7 +2827,6 @@ static NSString *_lastnonActiveMessageId;
 + (void)onSessionEnding:(NSArray<OSInfluence *> *)lastInfluences {
     if (_outcomeEventsController)
         [_outcomeEventsController clearOutcomes];
-    
     [OneSignalTracker onSessionEnded:lastInfluences];
 }
 
@@ -2875,7 +2875,6 @@ static NSString *_lastnonActiveMessageId;
     injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     [self setupUNUserNotificationCenterDelegate];
-
     sessionLaunchTime = [NSDate date];
 }
 

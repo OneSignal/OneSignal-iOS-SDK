@@ -111,7 +111,9 @@
 }
 
 - (BOOL)shouldDisplayAgain {
-    return _displayQuantity < _displayLimit;
+    BOOL result = _displayQuantity < _displayLimit;
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"In app message shouldDisplayAgain: %hhu", result]];
+    return result;
 }
 
 - (void)incrementDisplayQuantity {
@@ -131,6 +133,7 @@
     [encoder encodeInteger:_displayQuantity forKey:@"displayQuantity"];
     [encoder encodeDouble:_displayDelay forKey:@"displayDelay"];
     [encoder encodeDouble:_lastDisplayTime forKey:@"lastDisplayTime"];
+    [encoder encodeBool:_redisplayEnabled forKey:@"redisplayEnabled"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -139,6 +142,7 @@
         _displayQuantity = [decoder decodeIntegerForKey:@"displayQuantity"];
         _displayDelay = [decoder decodeDoubleForKey:@"displayDelay"];
         _lastDisplayTime = [decoder decodeDoubleForKey:@"lastDisplayTime"];
+        _redisplayEnabled = [decoder decodeBoolForKey:@"redisplayEnabled"];
     }
     return self;
 }
