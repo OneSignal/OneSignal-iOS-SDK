@@ -708,11 +708,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
     if (usesAutoPrompt || (registeredWithApple && !self.currentPermissionState.ephemeral)) {
-        onesignal_Log(ONE_S_LL_VERBOSE, @"uses auto prompt or registered with apple");
-        if (usesAutoPrompt)
-            onesignal_Log(ONE_S_LL_VERBOSE, @"uses auto prompt");
-        if (registeredWithApple)
-            onesignal_Log(ONE_S_LL_VERBOSE, @"registered with apple");
         [self registerForPushNotifications];
     } else {
         [self checkProvisionalAuthorizationStatus];
