@@ -135,6 +135,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
       didReceiveNotificationRequest:withContentHandler: method fires. */
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message;
 
+/* Convert object into a custom Dictionary / JSON Object */
+- (NSDictionary* _Nonnull)jsonRepresentation;
+
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
 
