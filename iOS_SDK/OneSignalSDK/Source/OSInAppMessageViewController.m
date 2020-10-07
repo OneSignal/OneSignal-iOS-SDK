@@ -622,10 +622,7 @@
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventMessage];
     NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occured with Event Type: %lu", (unsigned long)event.type];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventTypeMessage];
-    /*
-     type: 'page_change',
-     pageIndex: nextPage,
-     */
+
     if (event) {
         switch (event.type) {
             case OSInAppMessageBridgeEventTypePageRenderingComplete: {
@@ -653,7 +650,7 @@
                    [self.delegate messageViewDidSelectAction:self.message withAction:event.userAction];
                 if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
                    [self.messageView loadReplacementURL:event.userAction.clickUrl];
-               if (event.userAction.closesMessage)
+                if (event.userAction.closesMessage)
                    [self dismissCurrentInAppMessage];
                 break;
             }

@@ -103,10 +103,8 @@ NSInteger const DELAY = 60;
     
     testPageChangeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
         @"type" : @"page_change",
-        @"body" : @{
-            @"pageIndex" : @"1",
-            @"pageId" : @"test_id",
-        }
+        @"pageIndex" : @"1",
+        @"pageId" : @"test_id",
     }];
     
     testAction = testBridgeEvent.userAction;

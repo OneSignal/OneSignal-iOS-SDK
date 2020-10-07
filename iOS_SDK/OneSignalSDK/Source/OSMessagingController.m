@@ -285,6 +285,11 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Not sending page impression for preview message. ID: %@",pageId]];
         return;
     }
+    
+    if (!pageId) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempting to send page impression for nil page id"]];
+        return;
+    }
         
     if ([[message getViewedPageIds] containsObject:pageId]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression already sent. id: %@",pageId]];
@@ -671,7 +676,6 @@ static BOOL _isInAppMessagingPaused = false;
     let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
                                                     withPlayerId:OneSignal.currentSubscriptionState.userId
                                                    withMessageId:message.messageId
-                                                      withPageId:action.pageId
                                                     forVariantId:message.variantId
                                                       withAction:action];
 

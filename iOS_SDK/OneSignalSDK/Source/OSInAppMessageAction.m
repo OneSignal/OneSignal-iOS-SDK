@@ -76,7 +76,7 @@
     else
         action.closesMessage = true; // Default behavior
     
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:json];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"%@",json]];
 
     NSMutableArray *outcomes = [NSMutableArray new];
     //TODO: when backend is ready check that key matches

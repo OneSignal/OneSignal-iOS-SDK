@@ -447,7 +447,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId
                      withMessageId:(NSString * _Nonnull)messageId
-                        withPageId:(NSString * _Nullable)pageId
                       forVariantId:(NSString * _Nonnull)variantId
                      withAction:(OSInAppMessageAction * _Nonnull)action {
     let request = [OSRequestInAppMessageClicked new];
@@ -457,7 +456,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
        @"device_type": @0,
        @"player_id": playerId,
        @"click_id": action.clickId ?: @"",
-       @"page_id": pageId ?: @"",
        @"variant_id": variantId,
        @"first_click": @(action.firstClick)
     };

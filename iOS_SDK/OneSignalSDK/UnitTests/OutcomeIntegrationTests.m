@@ -868,7 +868,7 @@
 
 - (void)testUnattributedSession_cachedUniqueOutcomeCleanedOnNewSession {
     // 1. Open app
-    //Fixing bug where a previous tests registerUser would get called
+    //Fixing bug where a previous tests registerUser would get called 
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     [self setUp];
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];

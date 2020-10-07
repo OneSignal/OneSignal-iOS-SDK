@@ -31,14 +31,9 @@
 
 @implementation OSInAppMessageBridgeEvent
 
-+ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
-    return nil;
-}
-
 + (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
-    
     if (error || !json) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Unable to decode JS-bridge event with error: %@", error.description ?: @"Unknown Error"]];
         return nil;
@@ -80,7 +75,6 @@
             break;
         }
         case OSInAppMessageBridgeEventTypePageChange: {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ECM page change!"]];
             instance.pageChange = [OSInAppMessageBridgeEventPageChange instanceWithJson:json];
             break;
         }
@@ -101,10 +95,6 @@
 
 @implementation OSInAppMessageBridgeEventRenderingComplete
 + (instancetype _Nullable)instanceWithData:(NSData *)data {
-    return nil;
-}
-
-+ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
     return nil;
 }
 
@@ -141,10 +131,6 @@
     return nil;
 }
 
-+ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
-    return nil;
-}
-
 + (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventResize new];
     
@@ -168,14 +154,14 @@
     return nil;
 }
 
-+ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
-    return nil;
-}
-
 + (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventPageChange new];
-    instance.page = [OSInAppMessagePage instanceWithJson:json[@"body"]];
+    instance.page = [OSInAppMessagePage instanceWithJson:json];
     return instance;
+}
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
 }
 
 - (NSString *)description {
@@ -183,3 +169,4 @@
 }
 
 @end
+

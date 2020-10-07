@@ -29,16 +29,12 @@
 
 @implementation OSInAppMessagePage
 
-+ (instancetype _Nullable)instancePreviewFromPayload:(OSNotificationPayload * _Nonnull)payload {
-    return nil;
-}
-
 + (instancetype _Nullable)instanceWithData:(NSData * _Nonnull)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     
     if (error || !json) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app message JSON: %@", error.description ?: @"No Data"]];
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app message JSON: %@", error.description ?: @"No Data"]];
         return nil;
     }
     
@@ -55,6 +51,10 @@
         page.pageIndex = json[@"pageIndex"];
     
     return page;
+}
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
 }
 
 @end

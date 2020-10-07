@@ -699,7 +699,6 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
                    withAppId:testAppId
                    withPlayerId:testUserId
                    withMessageId:testInAppMessageId
-                   withPageId:testInAppMessagePageId
                    forVariantId:testInAppMessageVariantId
                    withAction:testAction];
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"in_app_messages/%@/click", testInAppMessageId]);
@@ -710,7 +709,6 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
        @"device_type": @0,
        @"player_id": testUserId,
        @"click_id": testAction.clickId ?: @"",
-       @"page_id": testInAppMessagePageId,
        @"variant_id": testInAppMessageVariantId,
        @"first_click": @(testAction.firstClick)
    }));
