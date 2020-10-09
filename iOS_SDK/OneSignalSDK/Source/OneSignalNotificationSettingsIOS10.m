@@ -75,7 +75,7 @@ static dispatch_queue_t serialQueue;
             status.provisional = (settings.authorizationStatus == 3);
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized && !status.provisional;
             if (@available(iOS 14.0, *)) {
-                status.ephemeral = (settings.authorizationStatus == UNAuthorizationStatusEphemeral);
+                status.ephemeral = (settings.authorizationStatus == AUTH_STATUS_EPHEMERAL);
                 status.accepted = status.accepted || status.ephemeral;
             } else {
                 status.ephemeral = false;
