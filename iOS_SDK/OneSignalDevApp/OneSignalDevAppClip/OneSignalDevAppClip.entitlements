@@ -9,9 +9,9 @@
 		<string>appclips:onesignal.com</string>
 		<string>applinks:onesignal.com</string>
 	</array>
-	<key>com.apple.security.application-groups</key>
+	<key>com.apple.developer.parent-application-identifiers</key>
 	<array>
-		<string>group.com.onesignal.example.onesignal</string>
+		<string>$(AppIdentifierPrefix)com.onesignal.example</string>
 	</array>
 </dict>
 </plist>

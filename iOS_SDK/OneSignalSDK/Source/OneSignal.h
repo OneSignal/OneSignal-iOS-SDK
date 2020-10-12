@@ -255,7 +255,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionAuthorized,
     
     // the application is only authorized to post Provisional notifications (direct to history)
-    OSNotificationPermissionProvisional
+    OSNotificationPermissionProvisional,
+    
+    // the application is authorized to send notifications for 8 hours. Only used by App Clips.
+    OSNotificationPermissionEphemeral
 };
 
 // Permission Classes

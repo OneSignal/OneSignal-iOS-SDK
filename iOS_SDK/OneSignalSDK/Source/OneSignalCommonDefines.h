@@ -34,7 +34,6 @@
 #define OS_API_VERSION @"1"
 #define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
 #define OS_API_SERVER_URL @"https://api.onesignal.com/"
-
 #define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
 
 // OneSignalUserDefault keys
@@ -59,6 +58,8 @@
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO                              @"OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO"                           // OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM                            @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"                         // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM
 #define OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION                            @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"                    // * OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION
+#define OSUD_PERMISSION_EPHEMERAL_TO                                        @"OSUD_PERMISSION_EPHEMERAL_TO"                                     // * OSUD_PERMISSION_EPHEMERAL_TO
+#define OSUD_PERMISSION_EPHEMERAL_FROM                                      @"OSUD_PERMISSION_EPHEMERAL_FROM"                                   // * OSUD_PERMISSION_EPHEMERAL_FROM
 // Player
 #define OSUD_EXTERNAL_USER_ID                                               @"OS_EXTERNAL_USER_ID"                                              // * OSUD_EXTERNAL_USER_ID
 #define OSUD_PLAYER_ID_TO                                                   @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID_TO
@@ -197,6 +198,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define ERROR_PUSH_OTHER_3000_ERROR        -17
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
+
+#define AUTH_STATUS_EPHEMERAL 4 //UNAuthorizationStatusEphemeral
 
 // 1 week in seconds
 #define WEEK_IN_SECONDS 604800.0
