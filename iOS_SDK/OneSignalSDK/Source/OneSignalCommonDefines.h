@@ -199,7 +199,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
 
-#define AUTH_STATUS_EPHEMERAL 4
+#define AUTH_STATUS_EPHEMERAL 4 //UNAuthorizationStatusEphemeral
 
 // 1 week in seconds
 #define WEEK_IN_SECONDS 604800.0
