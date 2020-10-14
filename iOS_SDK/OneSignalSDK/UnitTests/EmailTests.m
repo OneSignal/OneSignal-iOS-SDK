@@ -44,6 +44,7 @@
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
+#import "OneSignalInternal.h"
 
 @interface OneSignalTracker ()
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened;

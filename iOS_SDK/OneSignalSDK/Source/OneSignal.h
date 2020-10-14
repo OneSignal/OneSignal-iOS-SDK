@@ -498,7 +498,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 
 #pragma mark Permission, Subscription, and Email Observers
 NS_ASSUME_NONNULL_BEGIN
-+ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;

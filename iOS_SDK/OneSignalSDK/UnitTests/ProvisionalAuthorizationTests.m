@@ -33,15 +33,12 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalHelperOverrider.h"
 #import "OneSignalHelper.h"
+#import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalClientOverrider.h"
 
 @interface ProvisionalAuthorizationTests : XCTestCase
 
-@end
-
-@interface OSPermissionState ()
-@property (nonatomic) BOOL provisional;
 @end
 
 @implementation ProvisionalAuthorizationTests
