@@ -27,6 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignal.h"
+#import "OneSignalInternal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
 

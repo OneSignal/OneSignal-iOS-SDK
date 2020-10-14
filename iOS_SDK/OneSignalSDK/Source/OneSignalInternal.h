@@ -83,6 +83,8 @@
 @property (class) OSSessionManager* sessionManager;
 @property (class) OneSignalOutcomeEventsController* outcomeEventsController;
 
++ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
+
 @end
 
 
