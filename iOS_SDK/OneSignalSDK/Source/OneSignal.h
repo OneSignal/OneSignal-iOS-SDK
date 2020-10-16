@@ -210,7 +210,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // Pass in nil means a notification will not display
 typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, Session) {
+typedef NS_ENUM(NSUInteger, OSSession) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -225,7 +225,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) Session session;
+@property (nonatomic) OSSession session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
