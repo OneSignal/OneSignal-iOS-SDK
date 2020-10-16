@@ -48,6 +48,27 @@ Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFin
     return searchClass;
 }
 
+BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
+    Method newMeth = class_getClassMethod(newClass, newSel);
+    IMP imp = method_getImplementation(newMeth);
+    
+    const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
+   
+    BOOL existing = class_getClassMethod(addToClass, makeLikeSel) != NULL;
+    
+    if (existing) {
+        class_addMethod(addToClass, newSel, imp, methodTypeEncoding);
+        newMeth = class_getClassMethod(addToClass, newSel);
+       // Method orgMeth = class_getClassMethod(addToClass, makeLikeSel);
+        class_replaceMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
+        //method_exchangeImplementations(orgMeth, newMeth);
+    }
+    else
+        class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
+    
+    return existing;
+}
+
 BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getInstanceMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
