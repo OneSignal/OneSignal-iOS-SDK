@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/elliotmawby/Documents/GitHub/OneSignal-iOS-SDK/iOS_SDK/OneSignalDevApp/OneSignalExample.xcodeproj">
+      location = "group:OneSignalDevApp/OneSignalDevApp.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:OneSignalSDK/OneSignal.xcodeproj">
