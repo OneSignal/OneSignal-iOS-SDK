@@ -1951,6 +1951,9 @@ static NSString *_lastnonActiveMessageId;
 
         // Call Action Block
         [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type];
+    } else if (isPreview) {
+        let notification = [OSNotification parseWithApns:messageDict];
+        [OneSignalHelper handleIAMPreview:notification];
     }
 }
 
