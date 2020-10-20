@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:OneSignalDevApp/OneSignalDevApp.xcodeproj">
+      location = "group:OneSignalDevApp/OneSignalExample.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:OneSignalSDK/OneSignal.xcodeproj">
