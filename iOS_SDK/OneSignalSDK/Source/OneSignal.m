@@ -1930,10 +1930,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     
     BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
-    if (isPreview && [OneSignalHelper isIOSVersionLessThan:@"10.0"]) {
-        return;
-    }
-
+    
     if (opened) {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -1951,7 +1948,7 @@ static NSString *_lastnonActiveMessageId;
 
         // Call Action Block
         [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type];
-    } else if (isPreview) {
+    } else if (isPreview && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"]) {
         let notification = [OSNotification parseWithApns:messageDict];
         [OneSignalHelper handleIAMPreview:notification];
     }
