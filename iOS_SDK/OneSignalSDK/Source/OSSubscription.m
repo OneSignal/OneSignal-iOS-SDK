@@ -64,7 +64,7 @@
     _accpeted = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM defaultValue:false];
     _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_FROM defaultValue:nil];
     _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_FROM defaultValue:nil];
-    _isPushDisabled = [standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_FROM];
+    _isPushDisabled = ![standardUserDefaults getSavedBoolForKey:OSUD_USER_SUBSCRIPTION_FROM defaultValue:NO];
     
     return self;
 }
@@ -146,7 +146,7 @@
 }
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d>";
+    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, isPushDisabled: %d, isSubscribed: %d>";
     return [NSString stringWithFormat:format, self.userId, self.pushToken, self.isPushDisabled, self.isSubscribed];
 }
 

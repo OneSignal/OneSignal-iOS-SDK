@@ -438,7 +438,9 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
-
+    [UnitTestCommonMethods runBackgroundThreads];
+    XCTAssertEqual(observer->last.to.isSubscribed, true);
+    
     // User kills app, turns off notifications, then opnes it agian.
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [UnitTestCommonMethods setCurrentNotificationPermission:false];
@@ -449,7 +451,7 @@
     [OneSignal addSubscriptionObserver:observer];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(observer->last.from.isSubscribed, true);
+
     XCTAssertEqual(observer->last.to.isSubscribed, false);
 }
 
@@ -574,7 +576,8 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertNil(permissionObserver->last);
-    XCTAssertNil(subscriptionObserver->last);
+    XCTAssertTrue([[OneSignal getDeviceState] isSubscribed]);
+    XCTAssertFalse(subscriptionObserver->last.to.isSubscribed);
 }
 
 - (void)testSubscriptionChangeObserverBasic {
@@ -1815,11 +1818,11 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil(observer->last.to.userId);
     XCTAssertFalse(observer->last.to.isSubscribed);
     
-    [OneSignal disablePush:false];
+    [OneSignal disablePush:true]; //This should not result in a a change in state because we are waiting on privacy
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertFalse(observer->last.from.isPushDisabled);
-    XCTAssertFalse(observer->last.to.isPushDisabled);
+    XCTAssertTrue(observer->last.from.isPushDisabled); //Initial from is that push is disabled
+    XCTAssertFalse(observer->last.to.isPushDisabled); //Default value after adding an observer is that push is not disabled
     // Device registered with OneSignal so now make pushToken available.
     XCTAssertNil(observer->last.to.pushToken);
     
