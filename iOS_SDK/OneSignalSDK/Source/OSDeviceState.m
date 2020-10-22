@@ -44,7 +44,7 @@
         
         _isPushDisabled = ![[state subscriptionStatus] userSubscriptionSetting];
         
-        _isSubscribed = [[state subscriptionStatus] subscribed];
+        _isSubscribed = [[state subscriptionStatus] isSubscribed];
         
         _notificationPermissionStatus = [[state permissionStatus] status];
         

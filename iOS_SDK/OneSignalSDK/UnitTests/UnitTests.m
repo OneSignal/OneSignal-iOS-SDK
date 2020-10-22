@@ -183,13 +183,13 @@
     
     NSLog(@"CURRENT USER ID: %@", status.subscriptionStatus);
     
-    XCTAssertEqual(status.subscriptionStatus.subscribed, true);
+    XCTAssertEqual(status.subscriptionStatus.isSubscribed, true);
     XCTAssertEqual(status.subscriptionStatus.userSubscriptionSetting, true);
     XCTAssertEqual(status.subscriptionStatus.userId, @"1234");
     XCTAssertEqualObjects(status.subscriptionStatus.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
     //email has not been set so the email properties should be nil
-    XCTAssertFalse(status.emailSubscriptionStatus.subscribed);
+    XCTAssertFalse(status.emailSubscriptionStatus.isSubscribed);
     XCTAssertNil(status.emailSubscriptionStatus.emailUserId);
     XCTAssertNil(status.emailSubscriptionStatus.emailAddress);
     
@@ -428,8 +428,8 @@
     [OneSignal addSubscriptionObserver:observer];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(observer->last.from.subscribed, false);
-    XCTAssertEqual(observer->last.to.subscribed, true);
+    XCTAssertEqual(observer->last.from.isSubscribed, false);
+    XCTAssertEqual(observer->last.to.isSubscribed, true);
     XCTAssertEqual(observer->fireCount, 1);
 }
 
@@ -449,8 +449,8 @@
     [OneSignal addSubscriptionObserver:observer];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(observer->last.from.subscribed, true);
-    XCTAssertEqual(observer->last.to.subscribed, false);
+    XCTAssertEqual(observer->last.from.isSubscribed, true);
+    XCTAssertEqual(observer->last.to.isSubscribed, false);
 }
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
@@ -588,14 +588,14 @@
     [UnitTestCommonMethods answerNotificationPrompt:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(observer->last.from.subscribed, false);
-    XCTAssertEqual(observer->last.to.subscribed, true);
+    XCTAssertEqual(observer->last.from.isSubscribed, false);
+    XCTAssertEqual(observer->last.to.isSubscribed, true);
     
     [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertEqual(observer->last.from.subscribed, true);
-    XCTAssertEqual(observer->last.to.subscribed, false);
+    XCTAssertEqual(observer->last.from.isSubscribed, true);
+    XCTAssertEqual(observer->last.to.isSubscribed, false);
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
@@ -612,7 +612,7 @@
     
     XCTAssertNil(observer->last.from.userId);
     XCTAssertEqualObjects(observer->last.to.userId, @"1234");
-    XCTAssertFalse(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.to.isSubscribed);
     
     [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -622,8 +622,8 @@
     // Device registered with OneSignal so now make pushToken available.
     XCTAssertEqualObjects(observer->last.to.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
-    XCTAssertFalse(observer->last.from.subscribed);
-    XCTAssertFalse(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.from.isSubscribed);
+    XCTAssertFalse(observer->last.to.isSubscribed);
     
     // Prompt and accept notifications
     [self registerForPushNotifications];
@@ -631,14 +631,14 @@
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Shouldn't be subscribed yet as we called setSubscription:false before
-    XCTAssertFalse(observer->last.from.subscribed);
-    XCTAssertFalse(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.from.isSubscribed);
+    XCTAssertFalse(observer->last.to.isSubscribed);
     
     // Device should be reported a subscribed now as all conditions are true.
     [OneSignal disablePush:false];
     [UnitTestCommonMethods runBackgroundThreads];
-    XCTAssertFalse(observer->last.from.subscribed);
-    XCTAssertTrue(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.from.isSubscribed);
+    XCTAssertTrue(observer->last.to.isSubscribed);
 }
 
 - (void)testInitAcceptingNotificationsWithoutCapabilitesSet {
@@ -1768,19 +1768,19 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Shouldn't be subscribed yet as we called setSubscription:false before
-    XCTAssertFalse(observer->last.from.subscribed);
-    XCTAssertFalse(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.from.isSubscribed);
+    XCTAssertFalse(observer->last.to.isSubscribed);
     
     // Device should be reported a subscribed now as all condiditions are true.
     [OneSignalClientOverrider setShouldExecuteInstantaneously:false];
     [OneSignal disablePush:false];
     
     [OneSignalClientOverrider setShouldExecuteInstantaneously:true];
-    XCTAssertFalse(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.to.isSubscribed);
     
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertTrue(observer->last.to.subscribed);
+    XCTAssertTrue(observer->last.to.isSubscribed);
 }
 
 // Checks to make sure that media URL's will not fail the extension-type check if they have query parameters
@@ -1813,7 +1813,7 @@ didReceiveRemoteNotification:userInfo
     
     XCTAssertNil(observer->last.from.userId);
     XCTAssertNil(observer->last.to.userId);
-    XCTAssertFalse(observer->last.to.subscribed);
+    XCTAssertFalse(observer->last.to.isSubscribed);
     
     [OneSignal disablePush:false];
     [UnitTestCommonMethods runBackgroundThreads];

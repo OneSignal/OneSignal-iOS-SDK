@@ -125,7 +125,7 @@
 
 
 - (void)setAccepted:(BOOL)inAccpeted {
-    BOOL lastSubscribed = self.subscribed;
+    BOOL lastSubscribed = self.isSubscribed;
     
     // checks to see if we should delay the observer update
     // This is to prevent a problem where the observer gets updated
@@ -137,17 +137,17 @@
     }
     
     _accpeted = inAccpeted;
-    if (lastSubscribed != self.subscribed)
+    if (lastSubscribed != self.isSubscribed)
         [self.observable notifyChange:self];
 }
 
-- (BOOL)subscribed {
+- (BOOL)isSubscribed {
     return _userId && _pushToken && _userSubscriptionSetting && _accpeted;
 }
 
 - (NSString*)description {
     static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d>";
-    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed];
+    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.isSubscribed];
 }
 
 - (NSDictionary*)toDictionary {
@@ -155,7 +155,7 @@
          @"userId": _userId ?: [NSNull null],
          @"pushToken": _pushToken ?: [NSNull null],
          @"userSubscriptionSetting": @(_userSubscriptionSetting),
-         @"subscribed": @(self.subscribed)
+         @"subscribed": @(self.isSubscribed)
      };
 }
 

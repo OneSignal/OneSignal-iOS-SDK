@@ -287,7 +287,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
-@property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (readonly, nonatomic) BOOL isSubscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
 @property (readonly, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
 @property (readonly, nonatomic, nullable) NSString* userId;    // AKA OneSignal PlayerId
 @property (readonly, nonatomic, nullable) NSString* pushToken; // AKA Apple Device Token
@@ -298,7 +298,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @interface OSEmailSubscriptionState : NSObject
 @property (readonly, nonatomic, nullable) NSString* emailUserId; // The new Email user ID
 @property (readonly, nonatomic, nullable) NSString *emailAddress;
-@property (readonly, nonatomic) BOOL subscribed;
+@property (readonly, nonatomic) BOOL isSubscribed;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
