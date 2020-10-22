@@ -374,6 +374,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
  */
 @property (readonly, nullable) NSString* emailAddress;
 
+@property (readonly) BOOL isEmailSubscribed;
+
 - (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
 
 // Convert the class into a NSDictionary

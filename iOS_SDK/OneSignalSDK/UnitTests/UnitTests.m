@@ -2646,6 +2646,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(json[@"emailUserId"], @"1234");
     XCTAssertEqualObjects(json[@"emailAddress"], @"test@gmail.com");
     XCTAssertEqualObjects(json[@"notificationPermissionStatus"], @2);
+    XCTAssertEqualObjects(json[@"isEmailSubscribed"], @1);
 }
 
 - (void)testNotificationJson {
