@@ -1379,7 +1379,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)disablePush:(BOOL)disable {
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSubscription:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"disablePush:"])
         return;
 
     NSString* value = nil;
@@ -1390,7 +1390,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     shouldDelaySubscriptionUpdate = true;
     
-    self.currentSubscriptionState.userSubscriptionSetting = !disable;
+    self.currentSubscriptionState.isPushDisabled = disable;
     
     if (appId)
         [OneSignal sendNotificationTypesUpdate];
@@ -2096,7 +2096,7 @@ static NSString *_lastnonActiveMessageId;
     if (!permissionStatus.provisional && !permissionStatus.answeredPrompt)
         return ERROR_PUSH_PROMPT_NEVER_ANSWERED;
     
-    if (!self.currentSubscriptionState.userSubscriptionSetting)
+    if (self.currentSubscriptionState.isPushDisabled)
         return -2;
 
     return permissionStatus.notificationTypes;

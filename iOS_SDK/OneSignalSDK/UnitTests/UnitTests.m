@@ -184,7 +184,7 @@
     NSLog(@"CURRENT USER ID: %@", status.subscriptionStatus);
     
     XCTAssertEqual(status.subscriptionStatus.isSubscribed, true);
-    XCTAssertEqual(status.subscriptionStatus.userSubscriptionSetting, true);
+    XCTAssertEqual(status.subscriptionStatus.isPushDisabled, false);
     XCTAssertEqual(status.subscriptionStatus.userId, @"1234");
     XCTAssertEqualObjects(status.subscriptionStatus.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
@@ -617,8 +617,8 @@
     [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertTrue(observer->last.from.userSubscriptionSetting);
-    XCTAssertFalse(observer->last.to.userSubscriptionSetting);
+    XCTAssertFalse(observer->last.from.isPushDisabled);
+    XCTAssertTrue(observer->last.to.isPushDisabled);
     // Device registered with OneSignal so now make pushToken available.
     XCTAssertEqualObjects(observer->last.to.pushToken, @"0000000000000000000000000000000000000000000000000000000000000000");
     
@@ -1818,8 +1818,8 @@ didReceiveRemoteNotification:userInfo
     [OneSignal disablePush:false];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertFalse(observer->last.from.userSubscriptionSetting);
-    XCTAssertFalse(observer->last.to.userSubscriptionSetting);
+    XCTAssertFalse(observer->last.from.isPushDisabled);
+    XCTAssertFalse(observer->last.to.isPushDisabled);
     // Device registered with OneSignal so now make pushToken available.
     XCTAssertNil(observer->last.to.pushToken);
     

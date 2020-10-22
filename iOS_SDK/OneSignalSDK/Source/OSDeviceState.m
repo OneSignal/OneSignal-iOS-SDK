@@ -42,7 +42,7 @@
     if (self) {
         _hasNotificationPermission = [[state permissionStatus] reachable];
         
-        _isPushDisabled = ![[state subscriptionStatus] userSubscriptionSetting];
+        _isPushDisabled = [[state subscriptionStatus] isPushDisabled];
         
         _isSubscribed = [[state subscriptionStatus] isSubscribed];
         
