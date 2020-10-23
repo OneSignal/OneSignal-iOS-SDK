@@ -118,7 +118,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 - (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
     NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
-    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.subscribed;
+    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
 }
 
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {

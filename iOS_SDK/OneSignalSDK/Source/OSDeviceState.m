@@ -42,9 +42,9 @@
     if (self) {
         _hasNotificationPermission = [[state permissionStatus] reachable];
         
-        _isPushDisabled = ![[state subscriptionStatus] userSubscriptionSetting];
+        _isPushDisabled = [[state subscriptionStatus] isPushDisabled];
         
-        _isSubscribed = [[state subscriptionStatus] subscribed];
+        _isSubscribed = [[state subscriptionStatus] isSubscribed];
         
         _notificationPermissionStatus = [[state permissionStatus] status];
         
@@ -55,6 +55,8 @@
         _emailUserId = [[state emailSubscriptionStatus] emailUserId];
         
         _emailAddress = [[state emailSubscriptionStatus] emailAddress];
+        
+        _isEmailSubscribed = [[state emailSubscriptionStatus] isSubscribed];
     }
     return self;
 }
@@ -70,6 +72,7 @@
     json[@"pushToken"] = _pushToken;
     json[@"emailUserId"] = _emailUserId;
     json[@"emailAddress"] = _emailAddress;
+    json[@"isEmailSubscribed"] = @(_isEmailSubscribed);
     json[@"notificationPermissionStatus"] = @(_notificationPermissionStatus);
 
     return json;

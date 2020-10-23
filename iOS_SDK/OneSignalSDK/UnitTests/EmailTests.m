@@ -296,7 +296,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertNil(unsubscribedSubscriptionStatus.emailAuthCode);
     XCTAssertNil(unsubscribedSubscriptionStatus.emailAddress);
     XCTAssertNil(unsubscribedSubscriptionStatus.emailUserId);
-    XCTAssertFalse(unsubscribedSubscriptionStatus.subscribed);
+    XCTAssertFalse(unsubscribedSubscriptionStatus.isSubscribed);
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 2;
@@ -312,7 +312,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(loggedInSubscriptionStatus.emailUserId, @"1234");
     XCTAssertEqual(loggedInSubscriptionStatus.emailAddress, @"test@test.com");
     XCTAssertEqual(loggedInSubscriptionStatus.emailAuthCode, @"test-hash-token");
-    XCTAssertEqual(loggedInSubscriptionStatus.subscribed, true);
+    XCTAssertEqual(loggedInSubscriptionStatus.isSubscribed, true);
     
     [OneSignal logoutEmailWithSuccess:^{
         [expectation fulfill];
@@ -327,7 +327,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertNil(loggedOutSubscriptionStatus.emailAuthCode);
     XCTAssertNil(loggedOutSubscriptionStatus.emailAddress);
     XCTAssertNil(loggedOutSubscriptionStatus.emailUserId);
-    XCTAssertFalse(loggedOutSubscriptionStatus.subscribed);
+    XCTAssertFalse(loggedOutSubscriptionStatus.isSubscribed);
 }
 
 - (void)testEmailSubscriptionObserver {

@@ -48,7 +48,7 @@
     return self;
 }
 
--(BOOL)subscribed {
+-(BOOL)isSubscribed {
     return self.emailUserId != nil;
 }
 
