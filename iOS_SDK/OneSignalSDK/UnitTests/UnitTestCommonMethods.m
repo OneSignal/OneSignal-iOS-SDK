@@ -226,9 +226,6 @@ static XCTestCase* _currentXCTestCase;
     // Force swizzle in all methods for tests.
     OneSignalHelperOverrider.mockIOSVersion = 9;
     
-    // Normally this just loops internally, overwrote _run to work around this.
-    //UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
-    
     setupUIApplicationDelegate = true;
     
     // InstallUncaughtExceptionHandler();

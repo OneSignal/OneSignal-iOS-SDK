@@ -58,9 +58,6 @@ static UIApplication *sharedApplication;
 
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
-    //injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
-    //injectClassSelector([UIApplicationOverrider class], @selector(override_shared), [UIApplication class], @selector(sharedApplication));
-    //injectToProperClass(@selector(override_shared), @selector(sharedApplication), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideCurrentUserNotificationSettings), @selector(currentUserNotificationSettings), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterForRemoteNotificationTypes:), @selector(registerForRemoteNotificationTypes:), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterUserNotificationSettings:), @selector(registerUserNotificationSettings:), @[], [UIApplicationOverrider class], [UIApplication class]);
