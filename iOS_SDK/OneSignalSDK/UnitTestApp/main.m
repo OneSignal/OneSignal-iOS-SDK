@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2020 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalSelectorHelpers_h
-#define OneSignalSelectorHelpers_h
+#import <UIKit/UIKit.h>
+#import "AppDelegate.h"
 
-// Functions to help sizzle methods.
-
-BOOL checkIfInstanceOverridesSelector(Class instance, SEL selector);
-Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind);
-NSArray* ClassGetSubclasses(Class parentClass);
-void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass);
-BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
-BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
-
-#endif /* OneSignalSelectorHelpers_h */
+int main(int argc, char * argv[]) {
+    NSString * appDelegateClassName;
+    @autoreleasepool {
+        // Setup code that might create autoreleased objects goes here.
+        appDelegateClassName = NSStringFromClass([AppDelegate class]);
+    }
+    return UIApplicationMain(argc, argv, nil, appDelegateClassName);
+}
