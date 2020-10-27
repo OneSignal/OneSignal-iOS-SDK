@@ -41,6 +41,7 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
 @interface OSInAppMessageBridgeEventRenderingComplete : NSObject <OSJSONDecodable>
 @property (nonatomic) OSInAppMessageDisplayPosition displayLocation;
 @property (nonatomic) NSNumber *height;
+@property (nonatomic) BOOL dragToDismissDisabled;
 @end
 
 @interface OSInAppMessageBridgeEventResize : NSObject <OSJSONDecodable>

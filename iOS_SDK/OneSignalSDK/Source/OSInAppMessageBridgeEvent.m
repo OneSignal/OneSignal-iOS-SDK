@@ -97,6 +97,10 @@
     if (json[@"pageMetaData"][@"rect"][@"height"])
         instance.height = json[@"pageMetaData"][@"rect"][@"height"];
     
+    if (json[@"dragToDismissDisabled"]) {
+        instance.dragToDismissDisabled = [json[@"dragToDismissDisabled"] boolValue];
+    }
+    
     return instance;
 }
 
