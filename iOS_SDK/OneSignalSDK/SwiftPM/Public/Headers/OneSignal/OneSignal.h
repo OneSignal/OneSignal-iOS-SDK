@@ -135,6 +135,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
       didReceiveNotificationRequest:withContentHandler: method fires. */
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message;
 
+/* Convert object into a custom Dictionary / JSON Object */
+- (NSDictionary* _Nonnull)jsonRepresentation;
+
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
 
@@ -207,7 +210,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // Pass in nil means a notification will not display
 typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, Session) {
+typedef NS_ENUM(NSUInteger, OSSession) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -222,7 +225,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) Session session;
+@property (nonatomic) OSSession session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -252,7 +255,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionAuthorized,
     
     // the application is only authorized to post Provisional notifications (direct to history)
-    OSNotificationPermissionProvisional
+    OSNotificationPermissionProvisional,
+    
+    // the application is authorized to send notifications for 8 hours. Only used by App Clips.
+    OSNotificationPermissionEphemeral
 };
 
 // Permission Classes
@@ -281,8 +287,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
-@property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (readonly, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (readonly, nonatomic) BOOL isSubscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (readonly, nonatomic) BOOL isPushDisabled; // returns value of disablePush.
 @property (readonly, nonatomic, nullable) NSString* userId;    // AKA OneSignal PlayerId
 @property (readonly, nonatomic, nullable) NSString* pushToken; // AKA Apple Device Token
 - (NSDictionary* _Nonnull)toDictionary;
@@ -292,7 +298,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @interface OSEmailSubscriptionState : NSObject
 @property (readonly, nonatomic, nullable) NSString* emailUserId; // The new Email user ID
 @property (readonly, nonatomic, nullable) NSString *emailAddress;
-@property (readonly, nonatomic) BOOL subscribed;
+@property (readonly, nonatomic) BOOL isSubscribed;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
@@ -367,6 +373,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
  * @return email address if set, otherwise null
  */
 @property (readonly, nullable) NSString* emailAddress;
+
+@property (readonly) BOOL isEmailSubscribed;
 
 - (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
 
@@ -492,7 +500,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 
 #pragma mark Permission, Subscription, and Email Observers
 NS_ASSUME_NONNULL_BEGIN
-+ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
