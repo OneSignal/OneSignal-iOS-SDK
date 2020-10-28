@@ -46,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL isPreview;
 @property (nonatomic) BOOL isDisplayedInSession;
 @property (nonatomic) BOOL isTriggerChanged;
+@property (nonatomic) BOOL dragToDismissDisabled;
 @property (nonatomic) NSNumber *height;
 
 - (BOOL)isBanner;

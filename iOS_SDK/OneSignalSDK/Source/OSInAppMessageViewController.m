@@ -487,15 +487,16 @@
  Adds the pan recognizer (for swiping up and down) and the tap recognizer (for dismissing)
  */
 - (void)setupGestureRecognizers {
-    // Pan gesture recognizer for swiping
-    let recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerDidMove:)];
     
-    [self.messageView addGestureRecognizer:recognizer];
-    
-    recognizer.maximumNumberOfTouches = 1;
-    recognizer.minimumNumberOfTouches = 1;
-    
-    self.panGestureRecognizer = recognizer;
+    if (!self.message.dragToDismissDisabled) {
+        // Pan gesture recognizer for swiping
+        let recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerDidMove:)];
+        [self.messageView addGestureRecognizer:recognizer];
+        recognizer.maximumNumberOfTouches = 1;
+        recognizer.minimumNumberOfTouches = 1;
+        
+        self.panGestureRecognizer = recognizer;
+    }
     
     // Only center modal and full screen should dismiss on background click
     // Banners will allow interacting with the view behind it still
@@ -632,6 +633,7 @@
             
             self.message.position = event.renderingComplete.displayLocation;
             self.message.height = event.renderingComplete.height;
+            self.message.dragToDismissDisabled = event.renderingComplete.dragToDismissDisabled;
 
             // The page is fully loaded and should now be displayed
             // This is only fired once the javascript on the page sends the "rendering_complete" type event
