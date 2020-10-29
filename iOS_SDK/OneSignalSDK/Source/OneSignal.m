@@ -1641,15 +1641,6 @@ static dispatch_queue_t serialQueue;
     mLastNotificationTypes = notificationTypes;
     dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
     
-    let ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-    if (ASIdentifierManagerClass) {
-        id asIdManager = [ASIdentifierManagerClass valueForKey:@"sharedManager"];
-        if ([[asIdManager valueForKey:@"advertisingTrackingEnabled"] isEqual:[NSNumber numberWithInt:1]])
-            dataDic[@"as_id"] = [[asIdManager valueForKey:@"advertisingIdentifier"] UUIDString];
-        else
-            dataDic[@"as_id"] = @"OptedOut";
-    }
-    
     let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
     if (CTTelephonyNetworkInfoClass) {
         id instance = [[CTTelephonyNetworkInfoClass alloc] init];
