@@ -589,6 +589,7 @@ typedef void (^OSUpdateExternalUserIdBlock)(NSDictionary* results);
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
 + (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withExternalIdAuthHashToken:(NSString * _Nullable)hashToken withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
 + (void)removeExternalUserId;
 + (void)removeExternalUserId:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
 

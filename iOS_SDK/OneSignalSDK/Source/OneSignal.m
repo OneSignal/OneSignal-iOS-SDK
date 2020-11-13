@@ -210,6 +210,7 @@ static BOOL providesAppNotificationSettings = false;
 
 static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
+static NSString *pendingExternalUserIdHashToken;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -493,6 +494,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
+    pendingExternalUserIdHashToken = nil;
     
     _trackerFactory = nil;
     _sessionManager = nil;
@@ -1676,7 +1678,11 @@ static dispatch_queue_t serialQueue;
     if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
         dataDic[@"external_user_id"] = pendingExternalUserId;
 
+    if (pendingExternalUserIdHashToken)
+        dataDic[@"external_user_id_auth_hash"] = pendingExternalUserIdHashToken;
+    
     pendingExternalUserId = nil;
+    pendingExternalUserIdHashToken = nil;
 
     let deviceModel = [OneSignalHelper getDeviceVariant];
     if (deviceModel)
@@ -2613,28 +2619,40 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withCompletion:"])
+        return;
+    
+    [self setExternalUserId:externalId withExternalIdAuthHashToken:nil withCompletion:completionBlock];
+}
+
++ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withCompletion:(OSUpdateExternalUserIdBlock)completionBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withCompletion:"])
         return;
 
     // Can't set the external id if init is not done or the app id or user id has not ben set yet
     if (!performedOnSessionRequest) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
+        pendingExternalUserIdHashToken = hashToken;
         return;
     } else if (!self.currentSubscriptionState.userId || !self.app_id) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]];
+        return;
+    } else if (self.currentEmailSubscriptionState.requiresEmailAuth && !hashToken) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"External Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."];
         return;
     }
     
     // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
+    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
     
     // Check if the email has been set, this will decide on updtaing the external id for the email channel
     if ([self isEmailSetup])
-        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
+        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
     
     // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
     if (![self shouldUpdateExternalUserId:externalId withRequests:requests]) {
