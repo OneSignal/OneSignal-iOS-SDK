@@ -445,7 +445,7 @@
         animationOption = UIViewAnimationOptionCurveEaseIn;
         dismissAnimationDuration = MIN_DISMISSAL_ANIMATION_DURATION;
     }
-    
+
     [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
         self.view.backgroundColor = [UIColor clearColor];
         self.view.alpha = 0.0f;
@@ -453,9 +453,7 @@
     } completion:^(BOOL finished) {
         if (!finished)
             return;
-        
-        [self dismissViewControllerAnimated:false completion:nil];
-    
+
         self.didPageRenderingComplete = false;
         [self.delegate messageViewControllerWasDismissed];
     }];
