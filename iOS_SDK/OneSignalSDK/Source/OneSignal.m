@@ -862,6 +862,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     onesignal_Log(logLevel, message);
 }
 
++ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
+    onesignal_Log(logLevel, message);
+}
+
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSString* levelString;
     switch (logLevel) {
