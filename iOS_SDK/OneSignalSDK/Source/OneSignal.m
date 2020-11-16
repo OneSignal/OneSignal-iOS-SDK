@@ -2063,6 +2063,10 @@ static NSString *_lastnonActiveMessageId;
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
+    
+    if (fromNotifOpened || wasBadgeSet) {
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    }
 
     return wasBadgeSet;
 }
