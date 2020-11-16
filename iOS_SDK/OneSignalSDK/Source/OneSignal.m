@@ -559,7 +559,15 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self init];
 }
 
-+ (void)setAppSettings:(NSDictionary *)newSettings {
++ (void)setLaunchURLsInApp:(BOOL)launchInApp {
+    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
+    newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
+    appSettings = newSettings;
+}
+
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView {
+    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
+    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
     appSettings = newSettings;
 }
 
