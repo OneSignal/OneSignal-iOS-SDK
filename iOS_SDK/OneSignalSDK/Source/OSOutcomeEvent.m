@@ -31,7 +31,7 @@
 
 @implementation OSOutcomeEvent
 
-- (id _Nonnull)initWithSession:(OSSession)influenceType
+- (id _Nonnull)initWithSession:(OSInfluenceType)influenceType
                notificationIds:(NSArray * _Nullable)notificationIds
                           name:(NSString * _Nonnull)name
                      timestamp:(NSNumber * _Nonnull)timestamp
@@ -50,7 +50,7 @@
 - (id)initFromOutcomeEventParams:(OSOutcomeEventParams *)outcomeEventParams {
     if (self = [super init]) {
         OSOutcomeSource *source = outcomeEventParams.outcomeSource;
-        OSSession influenceType = UNATTRIBUTED;
+        OSInfluenceType influenceType = UNATTRIBUTED;
         NSArray *notificationId = nil;
 
         if (source) {
