@@ -46,11 +46,12 @@
 
 
 // Permission + Subscription - Redefine OSPermissionSubscriptionState
-@interface OSPermissionSubscriptionState ()
+@interface OSPermissionSubscriptionState : NSObject
 
 @property (readwrite) OSPermissionState* permissionStatus;
 @property (readwrite) OSSubscriptionState* subscriptionStatus;
 @property (readwrite) OSEmailSubscriptionState *emailSubscriptionStatus;
+- (NSDictionary* _Nonnull)toDictionary;
 
 @end
 
@@ -71,6 +72,8 @@
 // To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
 + (BOOL)providesAppNotificationSettings;
 
++ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
+
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
 
@@ -85,7 +88,12 @@
 
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
++ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
+
 @end
 
+@interface OSDeviceState (OSDeviceStateInternal)
+- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
+@end
 
 #endif /* OneSignalInternal_h */

@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSInfluence.h"
 #import "OSNotificationTracker.h"
+#import "OneSignalInternal.h"
 
 @interface OSChannelTracker ()
 

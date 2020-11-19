@@ -292,7 +292,7 @@
  }
 
  - (void)timeoutTimerFired:(NSTimer *)timer {
-     [OneSignal onesignal_Log:ONE_S_LL_ERROR
+     [OneSignal onesignalLog:ONE_S_LL_ERROR
      message:[NSString stringWithFormat:@"Notification willShowInForeground completion timed out. Completion was not called within %f seconds.", CUSTOM_DISPLAY_TYPE_TIMEOUT]];
      [self complete:self];
  }
@@ -300,7 +300,7 @@
  - (void)dealloc {
      if (_timeoutTimer && _completion) {
          [_timeoutTimer invalidate];
-         [OneSignal onesignal_Log:ONE_S_LL_WARN
+         [OneSignal onesignalLog:ONE_S_LL_WARN
                           message:[NSString stringWithFormat:@"Notification: %@ was deallocated before calling completion block.", self.notificationId]];
      }
  }

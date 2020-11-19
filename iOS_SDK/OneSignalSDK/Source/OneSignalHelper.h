@@ -26,6 +26,7 @@
  */
 
 #import "OneSignal.h"
+#import "OneSignalInternal.h"
 #import "OneSignalWebView.h"
 #import "UIApplication+OneSignal.h"
 

@@ -322,16 +322,6 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 - (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
-// Permission+Subscription Classes
-@interface OSPermissionSubscriptionState : NSObject
-
-@property (readonly, nonnull) OSPermissionState* permissionStatus;
-@property (readonly, nonnull) OSSubscriptionState* subscriptionStatus;
-@property (readonly, nonnull) OSEmailSubscriptionState *emailSubscriptionStatus;
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
-
 @interface OSDeviceState : NSObject
 /**
  * Get the app's notification permission
@@ -376,8 +366,6 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @property (readonly) BOOL isEmailSubscribed;
 
-- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
-
 // Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;
 
@@ -403,8 +391,6 @@ extern NSString* const ONESIGNAL_VERSION;
 
 + (void)disablePush:(BOOL)disable;
 
-+ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
-
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
@@ -426,7 +412,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 };
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
-+ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
++ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
 #pragma mark Prompt For Push
 typedef void(^OSUserResponseBlock)(BOOL accepted);
