@@ -206,6 +206,7 @@ BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
 
+static BOOL requiresUserIdAuth = false;
 static BOOL providesAppNotificationSettings = false;
 
 static BOOL performedOnSessionRequest = false;
@@ -845,6 +846,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                 [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
                 delayedEmailParameters = nil;
             }
+        }
+        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+            requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
         }
 
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
@@ -2643,7 +2647,7 @@ static NSString *_lastnonActiveMessageId;
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"%@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]}]);
         return;
-    } else if (self.currentEmailSubscriptionState.requiresEmailAuth && !hashToken) {
+    } else if (requiresUserIdAuth && (!hashToken || hashToken.length == 0)) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"External Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."];
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal.externalUserId" code:0 userInfo:@{@"error" : @"External User Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
