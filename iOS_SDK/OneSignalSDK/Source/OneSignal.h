@@ -210,7 +210,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // Pass in nil means a notification will not display
 typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, OSSession) {
+typedef NS_ENUM(NSUInteger, OSInfluenceType) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -225,7 +225,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) OSSession session;
+@property (nonatomic) OSInfluenceType session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -280,10 +280,6 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
-@end
-
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
@@ -320,6 +316,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @protocol OSEmailSubscriptionObserver <NSObject>
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges* _Nonnull)stateChanges;
+@end
+
+@protocol OSPermissionObserver <NSObject>
+- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
 // Permission+Subscription Classes
