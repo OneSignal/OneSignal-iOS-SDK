@@ -2476,12 +2476,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // 2. Call setExternalUserId with callbacks
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2499,12 +2500,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 3. Call setExternalUserId with callbacks
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2522,12 +2524,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 3. Call setExternalUserId with completion callback
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2544,12 +2547,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 7. Call setExternalUserId with completion callback
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2571,12 +2575,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Call setExternalUserId with callbacks
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2598,12 +2603,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Call setExternalUserId with callbacks
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2625,12 +2631,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Call setExternalUserId with callbacks
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2652,12 +2659,13 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Call setExternalUserId with callbacks
-    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
@@ -2731,6 +2739,7 @@ didReceiveRemoteNotification:userInfo
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = @"";
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
 
@@ -2766,6 +2775,7 @@ didReceiveRemoteNotification:userInfo
         
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = @"";
+    } withFailure:^(NSError *error) {
     }];
     [UnitTestCommonMethods runBackgroundThreads];
 

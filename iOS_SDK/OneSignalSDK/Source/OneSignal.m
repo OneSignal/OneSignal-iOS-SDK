@@ -2615,21 +2615,21 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
         return;
     
-    [self setExternalUserId:externalId withCompletion:nil];
+    [self setExternalUserId:externalId withSuccess:nil withFailure:nil];
 }
 
-+ (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withCompletion:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withSuccess:withFailure:"])
         return;
     
-    [self setExternalUserId:externalId withExternalIdAuthHashToken:nil withCompletion:completionBlock];
+    [self setExternalUserId:externalId withExternalIdAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
 
-+ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withCompletion:(OSUpdateExternalUserIdBlock)completionBlock {
++ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withCompletion:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withSuccess:withFailure:"])
         return;
 
     // Can't set the external id if init is not done or the app id or user id has not ben set yet
@@ -2640,9 +2640,13 @@ static NSString *_lastnonActiveMessageId;
         return;
     } else if (!self.currentSubscriptionState.userId || !self.app_id) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]];
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"%@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]}]);
         return;
     } else if (self.currentEmailSubscriptionState.requiresEmailAuth && !hashToken) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"External Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."];
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.externalUserId" code:0 userInfo:@{@"error" : @"External User Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
         return;
     }
     
@@ -2659,9 +2663,8 @@ static NSString *_lastnonActiveMessageId;
         // Use callback to return success for both cases here, since push and
         //  email (if email is not setup, email is not included) have been set already
         let results = [self getDuplicateExternalUserIdResponse:externalId withRequests:requests];
-        if (completionBlock)
-            completionBlock(results);
-        
+        if (successBlock)
+            successBlock(results);
         return;
     }
     
@@ -2672,8 +2675,8 @@ static NSString *_lastnonActiveMessageId;
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
 
-        if (completionBlock)
-            completionBlock(results);
+        if (successBlock)
+            successBlock(results);
     }];
 }
 
@@ -2682,15 +2685,15 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
         return;
 
-    [self setExternalUserId:@"" withCompletion:nil];
+    [self setExternalUserId:@""];
 }
 
-+ (void)removeExternalUserId:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
++ (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId:"])
         return;
 
-    [self setExternalUserId:@"" withCompletion:completionBlock];
+    [self setExternalUserId:@"" withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (NSString*)existingPushExternalUserId {
