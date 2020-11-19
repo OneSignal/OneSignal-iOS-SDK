@@ -33,7 +33,7 @@ THE SOFTWARE.
 @interface OSInfluenceBuilder : NSObject
 
 @property (nonatomic) OSInfluenceChannel influenceChannel;
-@property (nonatomic) OSSession influenceType;
+@property (nonatomic) OSInfluenceType influenceType;
 @property (nonatomic, copy) NSArray * _Nullable ids;
 
 @end
@@ -41,7 +41,7 @@ THE SOFTWARE.
 @interface OSInfluence : NSObject
 
 @property (nonatomic, readonly) OSInfluenceChannel influenceChannel;
-@property (nonatomic, readonly) OSSession influenceType;
+@property (nonatomic, readonly) OSInfluenceType influenceType;
 @property (nonatomic, readwrite) NSArray * _Nullable ids;
 
 - (id _Nonnull)initWithBuilder:(OSInfluenceBuilder * _Nonnull)builder;

@@ -559,7 +559,15 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self init];
 }
 
-+ (void)setAppSettings:(NSDictionary *)newSettings {
++ (void)setLaunchURLsInApp:(BOOL)launchInApp {
+    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
+    newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
+    appSettings = newSettings;
+}
+
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView {
+    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
+    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
     appSettings = newSettings;
 }
 
@@ -963,9 +971,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
         
-        if (block)
-            block(false);
-        
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
         let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
         let localizedCancelActionTitle = NSLocalizedString(@"Cancel", @"A button allowing the user to close the Settings prompt");
@@ -978,7 +983,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         
         
         [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
-            
+            if (block)
+                block(false);
             //completion is called on the main thread
             if (tappedActionIndex > -1)
                 [self presentAppSettings];
@@ -2069,6 +2075,10 @@ static NSString *_lastnonActiveMessageId;
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
+    
+    if (fromNotifOpened || wasBadgeSet) {
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    }
 
     return wasBadgeSet;
 }

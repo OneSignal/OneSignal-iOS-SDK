@@ -210,7 +210,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // Pass in nil means a notification will not display
 typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, OSSession) {
+typedef NS_ENUM(NSUInteger, OSInfluenceType) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -225,7 +225,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) OSSession session;
+@property (nonatomic) OSInfluenceType session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -280,10 +280,6 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
-@end
-
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
@@ -320,6 +316,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @protocol OSEmailSubscriptionObserver <NSObject>
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges* _Nonnull)stateChanges;
+@end
+
+@protocol OSPermissionObserver <NSObject>
+- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
 @interface OSDeviceState : NSObject
@@ -380,19 +380,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 /*Block for handling outcome event being sent successfully*/
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
-/*Dictionary of keys to pass alongside the init settings*/
-
-/*Enable In-App display of Launch URLs*/
-extern NSString * const kOSSettingsKeyInAppLaunchURL;
-
-/* iOS 12 +
- Used to determine if the app is able to present it's
- own customized Notification Settings view
-*/
-extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
-
-
-
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
@@ -410,8 +397,8 @@ extern NSString* const ONESIGNAL_VERSION;
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
 + (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
-// TODO: Remove before releasing major release 3.0.0
-+ (void)setAppSettings:(NSDictionary* _Nonnull)settings;
++ (void)setLaunchURLsInApp:(BOOL)launchInApp;
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
