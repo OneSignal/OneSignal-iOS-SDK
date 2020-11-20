@@ -177,14 +177,16 @@
 
 - (IBAction)setExternalUserId:(UIButton *)sender {
     NSString* externalUserId = self.externalUserIdTextField.text;
-    [OneSignal setExternalUserId:externalUserId withCompletion:^(NSDictionary *results) {
+    [OneSignal setExternalUserId:externalUserId withSuccess:^(NSDictionary *results) {
         NSLog(@"External user id update complete with results: %@", results.description);
+    } withFailure:^(NSError *error) {
     }];
 }
 
 - (IBAction)removeExternalUserId:(UIButton *)sender {
     [OneSignal removeExternalUserId:^(NSDictionary *results) {
         NSLog(@"External user id update complete with results: %@", results.description);
+    } withFailure:^(NSError *error) {
     }];
 }
 

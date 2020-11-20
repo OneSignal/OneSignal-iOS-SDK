@@ -206,10 +206,12 @@ BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
 
+static BOOL requiresUserIdAuth = false;
 static BOOL providesAppNotificationSettings = false;
 
 static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
+static NSString *pendingExternalUserIdHashToken;
 
 static OSNotificationDisplayType _inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
 + (void)setInFocusDisplayType:(OSNotificationDisplayType)value {
@@ -493,6 +495,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
+    pendingExternalUserIdHashToken = nil;
     
     _trackerFactory = nil;
     _sessionManager = nil;
@@ -843,6 +846,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                 [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
                 delayedEmailParameters = nil;
             }
+        }
+        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+            requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
         }
 
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
@@ -1676,7 +1682,11 @@ static dispatch_queue_t serialQueue;
     if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
         dataDic[@"external_user_id"] = pendingExternalUserId;
 
+    if (pendingExternalUserIdHashToken)
+        dataDic[@"external_user_id_auth_hash"] = pendingExternalUserIdHashToken;
+    
     pendingExternalUserId = nil;
+    pendingExternalUserIdHashToken = nil;
 
     let deviceModel = [OneSignalHelper getDeviceVariant];
     if (deviceModel)
@@ -2609,41 +2619,56 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:"])
         return;
     
-    [self setExternalUserId:externalId withCompletion:nil];
+    [self setExternalUserId:externalId withSuccess:nil withFailure:nil];
 }
 
-+ (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withSuccess:withFailure:"])
+        return;
+    
+    [self setExternalUserId:externalId withExternalIdAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
+}
+
++ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withCompletion:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withSuccess:withFailure:"])
         return;
 
     // Can't set the external id if init is not done or the app id or user id has not ben set yet
     if (!performedOnSessionRequest) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
+        pendingExternalUserIdHashToken = hashToken;
         return;
     } else if (!self.currentSubscriptionState.userId || !self.app_id) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]];
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"%@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]}]);
+        return;
+    } else if (requiresUserIdAuth && (!hashToken || hashToken.length == 0)) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"External Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."];
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.externalUserId" code:0 userInfo:@{@"error" : @"External User Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
         return;
     }
     
     // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
+    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:self.currentSubscriptionState.userId appId:self.app_id];
     
     // Check if the email has been set, this will decide on updtaing the external id for the email channel
     if ([self isEmailSetup])
-        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
+        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:self.app_id];
     
     // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
     if (![self shouldUpdateExternalUserId:externalId withRequests:requests]) {
         // Use callback to return success for both cases here, since push and
         //  email (if email is not setup, email is not included) have been set already
         let results = [self getDuplicateExternalUserIdResponse:externalId withRequests:requests];
-        if (completionBlock)
-            completionBlock(results);
-        
+        if (successBlock)
+            successBlock(results);
         return;
     }
     
@@ -2654,8 +2679,8 @@ static NSString *_lastnonActiveMessageId;
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
 
-        if (completionBlock)
-            completionBlock(results);
+        if (successBlock)
+            successBlock(results);
     }];
 }
 
@@ -2664,15 +2689,15 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
         return;
 
-    [self setExternalUserId:@"" withCompletion:nil];
+    [self setExternalUserId:@""];
 }
 
-+ (void)removeExternalUserId:(OSUpdateExternalUserIdBlock _Nullable)completionBlock {
++ (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId:"])
         return;
 
-    [self setExternalUserId:@"" withCompletion:completionBlock];
+    [self setExternalUserId:@"" withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (NSString*)existingPushExternalUserId {

@@ -50,6 +50,7 @@ static BOOL executeInstantaneously = true;
 static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
+static BOOL requiresExternalIdAuth = false;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
 static BOOL disableOverride = false;
 static NSMutableArray<OneSignalRequest *> *executedRequests;
@@ -76,6 +77,7 @@ static NSDictionary* iOSParamsOutcomes;
     return @{
         @"fba": @true,
         IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
+        IOS_REQUIRES_USER_ID_AUTHENTICATION : @(requiresExternalIdAuth),
         IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
         OUTCOMES_PARAM : iOSParamsOutcomes
     };
@@ -258,6 +260,8 @@ static NSDictionary* iOSParamsOutcomes;
     [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
     iOSParamsOutcomes = @{};
+    requiresEmailAuth = false;
+    requiresExternalIdAuth = false;
 }
 
 + (void)setLastHTTPRequest:(NSDictionary*)value {
@@ -285,6 +289,10 @@ static NSDictionary* iOSParamsOutcomes;
 
 + (void)setRequiresEmailAuth:(BOOL)required {
     requiresEmailAuth = required;
+}
+
++ (void)setRequiresExternalIdAuth:(BOOL)required {
+    requiresExternalIdAuth = required;
 }
 
 + (void)setShouldUseProvisionalAuth:(BOOL)provisional {
