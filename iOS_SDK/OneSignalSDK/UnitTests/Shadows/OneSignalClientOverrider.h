@@ -43,6 +43,7 @@
 +(void)runBackgroundThreads;
 +(NSString *)lastHTTPRequestType;
 +(void)setRequiresEmailAuth:(BOOL)required;
++(void)setRequiresExternalIdAuth:(BOOL)required;
 +(BOOL)hasExecutedRequestOfType:(Class)type;
 +(void)setShouldUseProvisionalAuth:(BOOL)provisional;
 +(void)disableExecuteRequestOverride:(BOOL)disable;
