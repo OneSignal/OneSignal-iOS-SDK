@@ -447,12 +447,17 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 @end
 
 @implementation OSRequestUpdateExternalUserId
-+ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withOneSignalUserId:(NSString *)userId appId:(NSString *)appId {
++ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString *)userId appId:(NSString *)appId {
     NSString *msg = [NSString stringWithFormat:@"App ID: %@, external ID: %@", appId, externalId];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:msg];
 
     let request = [OSRequestUpdateExternalUserId new];
-    request.parameters = @{@"app_id" : appId, @"external_user_id" : externalId ?: @""};
+    NSMutableDictionary *parametres = [NSMutableDictionary new];
+    [parametres setObject:appId forKey:@"app_id"];
+    [parametres setObject:externalId ?: @"" forKey:@"external_user_id"];
+    if (hashToken && [hashToken length] > 0)
+        [parametres setObject:hashToken forKey:@"external_user_id_auth_hash"];
+    request.parameters = parametres;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
 

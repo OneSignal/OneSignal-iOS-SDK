@@ -45,6 +45,7 @@
     NSString *testAppId;
     NSString *testUserId;
     NSString *testExternalUserId;
+    NSString *testExternalUserIdHashToken;
     NSString *testEmailUserId;
     NSString *testMessageId;
     NSString *testEmailAddress;
@@ -71,6 +72,7 @@
     testUserId = @"test_user_id";
     testEmailUserId = @"test_email_user_id";
     testExternalUserId = @"test_external_id";
+    testExternalUserIdHashToken = @"testExternalUserIdHashToken";
     testEmailAddress = @"test@test.com";
     testMessageId = @"test_message_id";
     testInAppMessageId = @"test_in_app_message_id";
@@ -684,13 +686,23 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
 }
 
 - (void)testSendExternalUserId {
-    let request = [OSRequestUpdateExternalUserId withUserId:testExternalUserId withOneSignalUserId:testUserId appId:testAppId];
+    let request = [OSRequestUpdateExternalUserId withUserId:testExternalUserId withUserIdHashToken:nil withOneSignalUserId:testUserId appId:testAppId];
 
     let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
 
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
 
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : testExternalUserId}));
+}
+
+- (void)testSendExternalWithAuthUserId {
+    let request = [OSRequestUpdateExternalUserId withUserId:testExternalUserId withUserIdHashToken:testExternalUserIdHashToken withOneSignalUserId:testUserId appId:testAppId];
+
+    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
+
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : testExternalUserId, @"external_user_id_auth_hash" : testExternalUserIdHashToken}));
 }
 
 @end
