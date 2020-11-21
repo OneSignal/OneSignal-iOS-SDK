@@ -2622,6 +2622,10 @@ static NSString *_lastnonActiveMessageId;
     [self setExternalUserId:externalId withSuccess:nil withFailure:nil];
 }
 
++ (void)setExternalUserId:(NSString *)externalId withCompletion:(OSUpdateExternalUserIdBlock)completionBlock {
+    [self setExternalUserId:externalId withSuccess:completionBlock withFailure:nil];
+}
+
 + (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withSuccess:withFailure:"])
@@ -2690,6 +2694,10 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     [self setExternalUserId:@""];
+}
+
++ (void)removeExternalUserId:(OSUpdateExternalUserIdBlock)completionBlock {
+    [self removeExternalUserId:completionBlock withFailure:nil];
 }
 
 + (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
