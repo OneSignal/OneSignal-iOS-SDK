@@ -585,14 +585,12 @@ typedef void (^OSEmailSuccessBlock)();
 
 // External user id
 // Typedefs defining completion blocks for updating the external user id
-typedef void (^OSUpdateExternalUserIdFailureBlock)(NSError *error);
-typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
+typedef void (^OSUpdateExternalUserIdBlock)(NSDictionary* results);
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
-+ (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
-+ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
 + (void)removeExternalUserId;
-+ (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
++ (void)removeExternalUserId:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
 
 // In-App Messaging triggers
 + (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
