@@ -1660,7 +1660,7 @@ static dispatch_queue_t serialQueue;
     let notificationTypes = [self getNotificationTypes];
     mLastNotificationTypes = notificationTypes;
     dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
-
+    
     let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
     if (CTTelephonyNetworkInfoClass) {
         id instance = [[CTTelephonyNetworkInfoClass alloc] init];
