@@ -477,7 +477,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
     pendingExternalUserIdHashToken = nil;
-
+    
     _trackerFactory = nil;
     _sessionManager = nil;
     _outcomeEventsCache = nil;
@@ -1631,7 +1631,7 @@ static dispatch_queue_t serialQueue;
 
     if (pendingExternalUserIdHashToken)
         dataDic[@"external_user_id_auth_hash"] = pendingExternalUserIdHashToken;
-
+    
     pendingExternalUserId = nil;
     pendingExternalUserIdHashToken = nil;
 

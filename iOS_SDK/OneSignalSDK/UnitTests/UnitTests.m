@@ -2292,6 +2292,31 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id_auth_hash"], TEST_EXTERNAL_USER_ID_HASH_TOKEN);
 }
 
+- (void)testSetExternalUserId_WithAuthToken_forPush_withCompletion {
+    // 1. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withExternalIdAuthHashToken:TEST_EXTERNAL_USER_ID_HASH_TOKEN withSuccess:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 3. Make sure only push external id was attempted to be set since no email was set yet
+    XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);
+    
+    // 3. Make sure last request was external id and had the correct external id being used in the request payload
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id_auth_hash"], TEST_EXTERNAL_USER_ID_HASH_TOKEN);
+}
+
 - (void)testSetExternalUserId_forPushAndEmail_withCompletion {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignal_andThreadWait];
@@ -2314,6 +2339,44 @@ didReceiveRemoteNotification:userInfo
     // 4. Make sure push and email external id were updated in completion callback
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
+    
+    let requestsSize = [OneSignalClientOverrider.executedRequests count];
+    let penultimateRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:requestsSize - 2];
+
+    // 3. Make sure last request was external id and had the correct external id being used in the request payload
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id_auth_hash"], TEST_EXTERNAL_USER_ID_HASH_TOKEN);
+    
+    XCTAssertEqualObjects(penultimateRequest.parameters[@"external_user_id"], TEST_EXTERNAL_USER_ID);
+    XCTAssertEqualObjects(penultimateRequest.parameters[@"external_user_id_auth_hash"], TEST_EXTERNAL_USER_ID_HASH_TOKEN);
+}
+
+- (void)testSetExternalUserId_WithAuthToken_forPushAndEmail_withFailCompletion {
+    [OneSignalClientOverrider setRequiresExternalIdAuth:true];
+    // 1. Init OneSignal
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // 2. Set email
+    [OneSignal setEmail:TEST_EMAIL];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 3. Call setExternalUserId with callbacks
+    [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
+        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
+            self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+        
+        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
+            self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_EXTERNAL_USER_ID_FAIL_RESPONSE = error;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 4. Make sure push and email external id were updated in completion callback
+    XCTAssertNil(self.CALLBACK_EXTERNAL_USER_ID);
+    XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);
+    XCTAssertNotNil(self.CALLBACK_EXTERNAL_USER_ID_FAIL_RESPONSE);
 }
 
 - (void)testSetExternalUserId_WithAuthToken_forPushAndEmail_withCompletion {
