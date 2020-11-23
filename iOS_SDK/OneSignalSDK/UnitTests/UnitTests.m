@@ -2314,17 +2314,6 @@ didReceiveRemoteNotification:userInfo
     // 4. Make sure push and email external id were updated in completion callback
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
     XCTAssertEqual(self.CALLBACK_EMAIL_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
-    
-    let requestsSize = [OneSignalClientOverrider.executedRequests count];
-    let penultimateRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:requestsSize - 2];
-
-    // 3. Make sure last request was external id and had the correct external id being used in the request payload
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestUpdateExternalUserId class]));
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"external_user_id_auth_hash"], TEST_EXTERNAL_USER_ID_HASH_TOKEN);
-    
-    XCTAssertEqualObjects(penultimateRequest.parameters[@"external_user_id"], TEST_EXTERNAL_USER_ID);
-    XCTAssertEqualObjects(penultimateRequest.parameters[@"external_user_id_auth_hash"], TEST_EXTERNAL_USER_ID_HASH_TOKEN);
 }
 
 - (void)testSetExternalUserId_WithAuthToken_forPushAndEmail_withCompletion {
