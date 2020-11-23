@@ -85,7 +85,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal addEmailSubscriptionObserver:self];
     
     [OneSignal pauseInAppMessages:true];
-    
+
     [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal setNotificationOpenedHandler:openNotificationHandler];
 

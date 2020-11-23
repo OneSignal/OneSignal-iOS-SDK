@@ -322,11 +322,13 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)evaluateMessages {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating in app messages"];
     for (OSInAppMessage *message in self.messages) {
-        // Make changes to IAM if redisplay available
-        [self setDataForRedisplay:message];
-        // Should we show the in app message
-        if ([self shouldShowInAppMessage:message]) {
-            [self presentInAppMessage:message];
+        if ([self.triggerController messageMatchesTriggers:message]) {
+            // Make changes to IAM if redisplay available
+            [self setDataForRedisplay:message];
+            // Should we show the in app message
+            if ([self shouldShowInAppMessage:message]) {
+                [self presentInAppMessage:message];
+            }
         }
     }
 }
@@ -491,8 +493,11 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
     // If the IAM doesn't have the re display prop or is a preview IAM there is no need to save it
-    if (![message.displayStats isRedisplayEnabled] || message.isPreview)
-      return;
+    if (![message.displayStats isRedisplayEnabled] || message.isPreview) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"not persisting %@",message.displayStats]];
+        return;
+    }
+
 
     let displayTimeSeconds = self.dateGenerator();
     message.displayStats.lastDisplayTime = displayTimeSeconds;
@@ -697,9 +702,25 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
+- (void)dynamicTriggerCompleted:(NSString *)triggerId {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"messageDynamicTriggerCompleted called with triggerId: %@", triggerId]];
+    [self makeRedisplayMessagesAvailableWithTriggers:@[triggerId]];
+}
+
+- (void)makeRedisplayMessagesAvailableWithTriggers:(NSArray<NSString *> *)triggerIds {
+    for (OSInAppMessage *message in self.messages) {
+        if ([self.redisplayedInAppMessages objectForKey:message.messageId]
+            && [_triggerController hasSharedTriggers:message newTriggersKeys:triggerIds]) {
+            message.isTriggerChanged = YES;
+        }
+    }
+}
+
 #pragma mark OSTriggerControllerDelegate Methods
+
 - (void)triggerConditionChanged {
     // We should re-evaluate all in-app messages
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Trigger condition changed"];
     [self evaluateMessages];
 }
 
@@ -741,5 +762,6 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)webViewContentFinishedLoading {}
 #pragma mark OSTriggerControllerDelegate Methods
 - (void)triggerConditionChanged {}
+- (void)dynamicTriggerCompleted:(NSString *)triggerId {}
 
 @end

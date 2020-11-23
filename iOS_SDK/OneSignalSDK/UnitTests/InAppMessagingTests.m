@@ -548,7 +548,7 @@ NSInteger const DELAY = 60;
     
     XCTAssertFalse(triggered);
     XCTAssertTrue(NSTimerOverrider.hasScheduledTimer);
-    XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 0.1f);
+    XCTAssertTrue(fabs(NSTimerOverrider.mostRecentTimerInterval - 30.0f) < 1.1f);
 }
 
 
