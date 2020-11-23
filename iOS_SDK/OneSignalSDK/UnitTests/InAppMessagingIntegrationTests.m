@@ -1499,7 +1499,7 @@
     [self initOneSignalWithRegistrationJSON:registrationJson];
 
     [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
-        return firstInterval;
+        return secondInterval;
     }];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
