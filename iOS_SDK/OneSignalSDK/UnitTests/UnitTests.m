@@ -2355,23 +2355,23 @@ didReceiveRemoteNotification:userInfo
     [OneSignalClientOverrider setRequiresExternalIdAuth:true];
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
+
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 3. Call setExternalUserId with callbacks
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withSuccess:^(NSDictionary *results) {
         if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue])
             self.CALLBACK_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
-        
+
         if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
             self.CALLBACK_EMAIL_EXTERNAL_USER_ID = TEST_EXTERNAL_USER_ID;
     } withFailure:^(NSError *error) {
         self.CALLBACK_EXTERNAL_USER_ID_FAIL_RESPONSE = error;
     }];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+
     // 4. Make sure push and email external id were updated in completion callback
     XCTAssertNil(self.CALLBACK_EXTERNAL_USER_ID);
     XCTAssertNil(self.CALLBACK_EMAIL_EXTERNAL_USER_ID);

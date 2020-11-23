@@ -1443,6 +1443,79 @@
     XCTAssertTrue([url containsString:OS_TEST_MESSAGE_ID]);
 }
 
+- (void)testInAppMessageDisplayMultipleTimesSessionDurationTrigger {
+    [OneSignal pauseInAppMessages:NO];
+    let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:5 delay:@30];
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+
+    //Time interval mock
+    NSDateComponents* comps = [[NSDateComponents alloc]init];
+    comps.year = 2020;
+    comps.month = 9;
+    comps.day = 10;
+    comps.hour = 10;
+    comps.minute = 1;
+
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDate* date = [calendar dateFromComponents:comps];
+    NSTimeInterval firstInterval = [date timeIntervalSince1970];
+
+    // Init OneSignal IAM with redisplay
+    [self initOneSignalWithRegistrationJSON:registrationJson];
+
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return firstInterval;
+    }];
+
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
+
+    // Dismiss IAM will make display quantity increase and last display time to change
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    // Check IAMs was removed from queue
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
+    // Check if data after dismiss is set correctly
+    XCTAssertEqual(OSMessagingControllerOverrider.messagesForRedisplay.count, 1);
+    let displayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
+    let displayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
+    XCTAssertEqual(displayQuantity, 1);
+    XCTAssertTrue(displayTime > 0);
+
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // 3. Kill the app and wait 31 seconds
+    [UnitTestCommonMethods backgroundApp];
+    [NSDateOverrider advanceSystemTimeBy:31];
+    [UnitTestCommonMethods runBackgroundThreads];
+    //Time interval mock
+    comps.minute = 32;
+    NSDate* secondDate = [calendar dateFromComponents:comps];
+    NSTimeInterval secondInterval = [secondDate timeIntervalSince1970];
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return secondInterval;
+    }];
+
+    // Init OneSignal IAM with redisplay
+    [self initOneSignalWithRegistrationJSON:registrationJson];
+
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return secondInterval;
+    }];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
+
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    // Check IAMs was removed from queue
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
+    // Check if data after dismiss is set correctly
+    XCTAssertEqual(OSMessagingControllerOverrider.messagesForRedisplay.count, 1);
+    let secondDisplayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
+    let secondDisplayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
+    XCTAssertEqual(secondDisplayQuantity, 2);
+}
+
 /*
  Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
  Mock response JSON and initializes the OneSignal SDK

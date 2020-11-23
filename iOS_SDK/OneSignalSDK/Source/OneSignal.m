@@ -477,7 +477,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
     pendingExternalUserIdHashToken = nil;
-
+    
     _trackerFactory = nil;
     _sessionManager = nil;
     _outcomeEventsCache = nil;
@@ -976,7 +976,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
-        
+
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
         let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
         let localizedCancelActionTitle = NSLocalizedString(@"Cancel", @"A button allowing the user to close the Settings prompt");
@@ -1539,7 +1539,7 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
     // Don't make a 2nd on_session if have in inflight one
     if (waitingForOneSReg)
         return false;
-    
+
     if ([self isImmediatePlayerCreateOrOnSession])
         return true;
 
@@ -1585,10 +1585,10 @@ static dispatch_queue_t serialQueue;
         [self registerUserAfterDelay];
         return;
     }
-    
+
     if (!serialQueue)
         serialQueue = dispatch_queue_create("com.onesignal.regiseruser", DISPATCH_QUEUE_SERIAL);
-   
+
    dispatch_async(serialQueue, ^{
         [self registerUserInternal];
     });
@@ -1686,7 +1686,8 @@ static dispatch_queue_t serialQueue;
     }
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
-    
+    sessionLaunchTime = [NSDate date];
+
     
     if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
@@ -1941,7 +1942,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     
     BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
-    
+
     if (opened) {
         // Prevent duplicate calls
         let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
@@ -2197,7 +2198,7 @@ static NSString *_lastnonActiveMessageId;
     // Method was called due to a tap on a notification - Fire open notification
     else if (application.applicationState == UIApplicationStateActive) {
         [OneSignalHelper lastMessageReceived:userInfo];
-        
+
         if (![OneSignalHelper isRemoteSilentNotification:userInfo]) {
              [OneSignal notificationReceived:userInfo foreground:YES isActive:NO wasOpened:YES];
         }
@@ -2513,12 +2514,12 @@ static NSString *_lastnonActiveMessageId;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withSuccess:withFailure:"])
         return;
-    
+
     [self setExternalUserId:externalId withExternalIdAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
-    
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withSuccess:withFailure:"])
         return;
@@ -2776,7 +2777,6 @@ static NSString *_lastnonActiveMessageId;
     injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     [self setupUNUserNotificationCenterDelegate];
-
     sessionLaunchTime = [NSDate date];
 }
 
