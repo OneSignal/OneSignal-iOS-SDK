@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2019 OneSignal
+ * Copyright 2020 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,28 +25,16 @@
  * THE SOFTWARE.
  */
 
-#import "OSFocusInfluenceParam.h"
+#import <Foundation/Foundation.h>
+#import "OneSignal.h"
 
-@interface OSFocusCallParams : NSObject
+@interface OneSignalSetExternalIdParameters : NSObject
 
-@property (nonatomic, readonly) NSString *appId;
-@property (nonatomic, readonly) NSString *userId;
-@property (nonatomic, readonly) NSString *emailUserId;
-@property (nonatomic, readonly) NSString *emailAuthToken;
-@property (nonatomic, readonly) NSString *externalIdAuthToken;
-@property (nonatomic, readonly) NSNumber *netType;
-@property (nonatomic, readonly) NSArray<OSFocusInfluenceParam *> *influenceParams;
-@property (nonatomic, readonly) NSTimeInterval timeElapsed;
-@property (nonatomic, readonly) BOOL onSessionEnded;
++ (instancetype)withExternalId:(NSString *)externalId withAuthToken:(NSString *)authToken withSuccess:(OSResultSuccessBlock)success withFailure:(OSFailureBlock)failure;
 
-- (id)initWithParamsAppId:(NSString *)appId
-                   userId:(NSString *)userId
-              emailUserId:(NSString *)emailUserId
-           emailAuthToken:(NSString *)emailAuthToken
-      externalIdAuthToken:(NSString *)externalIdAuthToken
-                  netType:(NSNumber *)netType
-              timeElapsed:(NSTimeInterval)timeElapsed
-          influenceParams:(NSArray<OSFocusInfluenceParam *> *)influenceParams
-           onSessionEnded:(BOOL)onSessionEnded;
+@property (strong, nonatomic) NSString *externalId;
+@property (strong, nonatomic) NSString *authToken;
+@property (nonatomic) OSResultSuccessBlock successBlock;
+@property (nonatomic) OSFailureBlock failureBlock;
 
 @end
