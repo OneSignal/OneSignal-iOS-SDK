@@ -33,6 +33,7 @@
 
 #define TEST_EXTERNAL_USER_ID_HASH_TOKEN @"i_am_a_test_external_user_id_hash_token"
 #define TEST_EXTERNAL_USER_ID @"i_am_a_test_external_user_id"
+#define TEST_EMAIL_HASH_TOKEN @"i_am_a_test_email_hash_token"
 #define TEST_EMAIL @"test@onesignal.com"
 
 NSString * serverUrlWithPath(NSString *path);

@@ -123,6 +123,9 @@
 		7ABAF9D62457D3FF0074DFA0 /* ChannelTrackersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ABAF9D52457D3FF0074DFA0 /* ChannelTrackersTests.m */; };
 		7ABAF9D82457DD620074DFA0 /* SessionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ABAF9D72457DD620074DFA0 /* SessionManagerTests.m */; };
 		7ABAF9E324606E940074DFA0 /* OutcomeV2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ABAF9E224606E940074DFA0 /* OutcomeV2Tests.m */; };
+		7AC0D2182576944F00E29448 /* OneSignalSetExternalIdParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AC0D2172576944F00E29448 /* OneSignalSetExternalIdParameters.m */; };
+		7AC0D2192576944F00E29448 /* OneSignalSetExternalIdParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AC0D2172576944F00E29448 /* OneSignalSetExternalIdParameters.m */; };
+		7AC0D21A2576944F00E29448 /* OneSignalSetExternalIdParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AC0D2172576944F00E29448 /* OneSignalSetExternalIdParameters.m */; };
 		7AC8D3A824993A0E0023EDE8 /* OSDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A676BE424981CEC003957CC /* OSDevice.m */; };
 		7AC8D3A924993A0F0023EDE8 /* OSDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A676BE424981CEC003957CC /* OSDevice.m */; };
 		7AD172382416D53B00A78B19 /* OSInAppMessageLocationPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AD172372416D53B00A78B19 /* OSInAppMessageLocationPrompt.m */; };
@@ -531,6 +534,8 @@
 		7ABAF9D52457D3FF0074DFA0 /* ChannelTrackersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChannelTrackersTests.m; sourceTree = "<group>"; };
 		7ABAF9D72457DD620074DFA0 /* SessionManagerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SessionManagerTests.m; sourceTree = "<group>"; };
 		7ABAF9E224606E940074DFA0 /* OutcomeV2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeV2Tests.m; sourceTree = "<group>"; };
+		7AC0D2162576940100E29448 /* OneSignalSetExternalIdParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalSetExternalIdParameters.h; sourceTree = "<group>"; };
+		7AC0D2172576944F00E29448 /* OneSignalSetExternalIdParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalSetExternalIdParameters.m; sourceTree = "<group>"; };
 		7AD172362416D52D00A78B19 /* OSInAppMessageLocationPrompt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageLocationPrompt.h; sourceTree = "<group>"; };
 		7AD172372416D53B00A78B19 /* OSInAppMessageLocationPrompt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageLocationPrompt.m; sourceTree = "<group>"; };
 		7AD8DDE6234BD3BE00747A8A /* OneSignalUserDefaults.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalUserDefaults.m; sourceTree = "<group>"; };
@@ -1050,6 +1055,8 @@
 				CAB4112820852E48005A70D1 /* DelayedInitializationParameters.m */,
 				CA70E3332023D51000019273 /* OneSignalSetEmailParameters.h */,
 				CA70E3342023D51000019273 /* OneSignalSetEmailParameters.m */,
+				7AC0D2162576940100E29448 /* OneSignalSetExternalIdParameters.h */,
+				7AC0D2172576944F00E29448 /* OneSignalSetExternalIdParameters.m */,
 				9D1BD96B237B57B400A064F7 /* OneSignalCacheCleaner.h */,
 				9D1BD96C237B57CA00A064F7 /* OneSignalCacheCleaner.m */,
 				912411F41E73342200E41FD7 /* OneSignalHelper.h */,
@@ -1611,6 +1618,7 @@
 				7AF986492444C65300C36EAE /* OSTrackerFactory.m in Sources */,
 				CA08FC7F1FE99B25004C445F /* Requests.m in Sources */,
 				CAB269DA21B0B6F000F8A43C /* OSInAppMessageAction.m in Sources */,
+				7AC0D2182576944F00E29448 /* OneSignalSetExternalIdParameters.m in Sources */,
 				CA1A6E6A20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1702,6 +1710,7 @@
 				7AF9864A2444C65300C36EAE /* OSTrackerFactory.m in Sources */,
 				CAB269DB21B0B6F000F8A43C /* OSInAppMessageAction.m in Sources */,
 				CA1A6E6B20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */,
+				7AC0D2192576944F00E29448 /* OneSignalSetExternalIdParameters.m in Sources */,
 				9D1BD9612379F41B00A064F7 /* OSOutcomeEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1733,6 +1742,7 @@
 				912412381E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				7AF98672244975ED00C36EAE /* OSOutcomeEventParams.m in Sources */,
 				7AF9864B2444C65300C36EAE /* OSTrackerFactory.m in Sources */,
+				7AC0D21A2576944F00E29448 /* OneSignalSetExternalIdParameters.m in Sources */,
 				7ABAF9D22457C3650074DFA0 /* CommonAsserts.m in Sources */,
 				03217239238278EB004F0E85 /* DelayedSelectors.m in Sources */,
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
