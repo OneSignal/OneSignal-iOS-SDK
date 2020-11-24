@@ -113,12 +113,12 @@ static let DELAY_TIME = 30;
         
         let requests = [NSMutableDictionary new];
     
-        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:nil deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
+        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:nil externalIdAuthToken:params.externalIdAuthToken deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
         
         // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
         //   outcome fields which would double report the influence time
         if (params.emailUserId)
-            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:params.emailAuthToken deviceType:@(DEVICE_TYPE_EMAIL)];
+            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:params.emailAuthToken externalIdAuthToken:nil deviceType:@(DEVICE_TYPE_EMAIL)];
 
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
