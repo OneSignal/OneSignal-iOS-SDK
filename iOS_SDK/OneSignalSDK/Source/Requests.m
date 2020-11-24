@@ -77,7 +77,7 @@
 @end
 
 @implementation OSRequestSendTagsToServer
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken {
     let request = [OSRequestSendTagsToServer new];
     
     let params = [NSMutableDictionary new];
@@ -87,6 +87,9 @@
     
     if (emailAuthToken && emailAuthToken.length > 0)
         params[@"email_auth_hash"] = emailAuthToken;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
     
     request.parameters = params;
     request.method = PUT;
@@ -112,7 +115,7 @@
 @end
 
 @implementation OSRequestUpdateDeviceToken
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash email:(NSString * _Nullable)email {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash email:(NSString * _Nullable)email externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
     
     let request = [OSRequestUpdateDeviceToken new];
     
@@ -134,6 +137,9 @@
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
     
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
+    
     request.parameters = params;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
@@ -143,7 +149,7 @@
 @end
 
 @implementation OSRequestCreateDevice
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withEmail:(NSString * _Nullable)email withPlayerId:(NSString * _Nullable)playerId withEmailAuthHash:(NSString * _Nullable)emailAuthHash {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withEmail:(NSString * _Nullable)email withPlayerId:(NSString * _Nullable)playerId withEmailAuthHash:(NSString * _Nullable)emailAuthHash withExternalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
     let request = [OSRequestCreateDevice new];
     
     request.parameters = @{
@@ -151,6 +157,7 @@
        @"device_type" : deviceType,
        @"identifier" : email ?: [NSNull null],
        @"email_auth_hash" : emailAuthHash ?: [NSNull null],
+       @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
        @"device_player_id" : playerId ?: [NSNull null]
     };
     
@@ -193,10 +200,13 @@
 @end
 
 @implementation OSRequestSendPurchases
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId withPurchases:(NSArray *)purchases {
++ (instancetype)withUserId:(NSString *)userId externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken appId:(NSString *)appId withPurchases:(NSArray *)purchases {
     let request = [OSRequestSendPurchases new];
     
-    request.parameters = @{@"app_id" : appId, @"purchases" : purchases};
+    request.parameters = @{@"app_id" : appId,
+                           @"purchases" : purchases,
+                           @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null]
+    };
     request.method = POST;
     request.path = [NSString stringWithFormat:@"players/%@/on_purchase", userId];
     
@@ -206,7 +216,11 @@
 + (instancetype)withUserId:(NSString *)userId emailAuthToken:(NSString *)emailAuthToken appId:(NSString *)appId withPurchases:(NSArray *)purchases {
     let request = [OSRequestSendPurchases new];
     
-    request.parameters = @{@"app_id" : appId, @"purchases" : purchases, @"email_auth_hash" : emailAuthToken ?: [NSNull null]};
+    request.parameters = @{
+        @"app_id" : appId,
+        @"purchases" : purchases,
+        @"email_auth_hash" : emailAuthToken ?: [NSNull null]
+    };
     request.method = POST;
     request.path = [NSString stringWithFormat:@"players/%@/on_purchase", userId];
     
@@ -258,7 +272,7 @@
 @end
 
 @implementation OSRequestSendLocation
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
     let request = [OSRequestSendLocation new];
     
     let params = [NSMutableDictionary new];
@@ -273,6 +287,9 @@
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
     
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
+    
     request.parameters = params;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
@@ -286,7 +303,8 @@
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
                          badgeCount:(NSNumber * _Nonnull)badgeCount
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash {
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash
+                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
     let request = [OSRequestBadgeCount new];
     
     let params = [NSMutableDictionary new];
@@ -295,6 +313,9 @@
     
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
     
     request.parameters = params;
     request.method = PUT;
@@ -315,6 +336,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
+       externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
                 deviceType:(NSNumber * _Nonnull)deviceType {
     let request = [OSRequestOnFocus new];
 
@@ -328,6 +350,9 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
 
     request.parameters = params;
     request.method = POST;
@@ -341,6 +366,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
             emailAuthToken:(NSString *)emailAuthHash
+       externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
                 deviceType:(NSNumber *)deviceType
            influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
     let request = [OSRequestOnFocus new];
@@ -360,6 +386,9 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
     if (emailAuthHash && emailAuthHash.length > 0)
         params[@"email_auth_hash"] = emailAuthHash;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
     
     request.parameters = params;
     request.method = POST;

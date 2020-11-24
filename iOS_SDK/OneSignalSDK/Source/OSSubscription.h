@@ -54,10 +54,12 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @property (readwrite, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
 @property (readwrite, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
 @property (readwrite, nonatomic) NSString* pushToken; // AKA Apple Device Token
+@property (strong, nonatomic) NSString *externalIdAuthCode;
 @property (nonatomic) ObservableSubscriptionStateType* observable;
 
 - (instancetype)initAsToWithPermision:(BOOL)permission;
 - (instancetype)initAsFrom;
+- (void)persist;
 
 @end
 
