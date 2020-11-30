@@ -158,7 +158,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
     
     NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
-    completionHandler(nil);
+    completionHandler(UIBackgroundFetchResultNoData);
 }
 
 @end

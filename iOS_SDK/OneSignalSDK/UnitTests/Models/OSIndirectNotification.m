@@ -53,4 +53,20 @@
     return [NSString stringWithFormat:@"Notification Id: %@ Timestamp: %f", _notificationId, _timestamp];
 }
 
+- (NSDictionary * _Nonnull)jsonRepresentation {
+    return [NSDictionary new];
+}
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
+}
+
++ (instancetype _Nullable)instanceWithData:(NSData * _Nonnull)data {
+    return nil;
+}
+
++ (instancetype _Nullable)instanceWithJson:(NSDictionary * _Nonnull)json {
+    return nil;
+}
+
 @end

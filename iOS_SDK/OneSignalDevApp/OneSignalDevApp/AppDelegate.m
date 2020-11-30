@@ -56,9 +56,11 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
         NSLog(@"OSNotificationOpenedResult: %@", result.action);
-        
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated"
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
         [alert show];
+        #pragma clang diagnostic pop
     };
     id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
         NSLog(@"Will Receive Notification - %@", notif.notificationId);
@@ -161,7 +163,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
     
     NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
-    completionHandler(nil);
+    completionHandler(UIBackgroundFetchResultNoData);
 }
 
 @end

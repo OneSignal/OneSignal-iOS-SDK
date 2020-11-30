@@ -109,10 +109,12 @@
     
     [rootViewController presentViewController:controller animated:true completion:nil];
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     [self delayResult:(int)buttonIndex-1];
 }
+#pragma clang diagnostic pop
 
 - (void)delayResult:(int)result {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

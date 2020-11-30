@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 @property (strong, nonatomic, readonly, nonnull) NSDictionary *remoteParams;
 
-- (void)saveRemoteParams:(NSDictionary *)params;
+- (void)saveRemoteParams:(NSDictionary *_Nonnull)params;
 - (BOOL)hasLocationKey;
 - (BOOL)hasPrivacyConsentKey;
 

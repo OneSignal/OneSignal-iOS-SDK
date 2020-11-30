@@ -39,7 +39,10 @@
 #import "NSDateOverrider.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackFirebaseAnalyticsOverrider.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 #import "UIAlertViewOverrider.h"
+#pragma clang diagnostic pop
 #import "NSObjectOverrider.h"
 #import "OneSignalCommonDefines.h"
 #import "NSBundleOverrider.h"
@@ -355,7 +358,10 @@ static XCTestCase* _currentXCTestCase;
         [UNUserNotificationCenterOverrider fireLastRequestAuthorizationWithGranted:accept];
     } else {
         UIApplication *sharedApp = [UIApplication sharedApplication];
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated"
         [sharedApp.delegate application:sharedApp didRegisterUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UNUserNotificationCenterOverrider.notifTypesOverride categories:nil]];
+        #pragma clang diagnostic pop
     }
 }
 

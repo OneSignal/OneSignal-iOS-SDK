@@ -65,7 +65,7 @@
 
 int messageIdIncrementer = 0;
 
-+ (NSDictionary *)testActionJson {
++ (NSDictionary * _Nonnull)testActionJson {
     return @{
         @"click_type" : @"button",
         @"id" : @"test_action_id",
@@ -75,7 +75,7 @@ int messageIdIncrementer = 0;
     };
 }
 
-+ (NSDictionary *)testMessageJson {
++ (NSDictionary * _Nonnull)testMessageJson {
     return @{
         @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
         @"id" : [NSString stringWithFormat:@"%@_%i", OS_TEST_MESSAGE_ID, ++messageIdIncrementer],
@@ -92,7 +92,7 @@ int messageIdIncrementer = 0;
     };
 }
 
-+ (NSDictionary *)testMessageJsonRedisplay {
++ (NSDictionary * _Nonnull)testMessageJsonRedisplay {
     return @{
         @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
         @"id" : [NSString stringWithFormat:@"%@_%i", OS_TEST_MESSAGE_ID, ++messageIdIncrementer],
@@ -116,7 +116,7 @@ int messageIdIncrementer = 0;
     };
 }
 
-+ (NSDictionary *)testMessagePreviewJson {
++ (NSDictionary * _Nonnull)testMessagePreviewJson {
     return @{
         @"aps" : @{
             @"alert" : @"Tap to see In-App Message preview",
@@ -253,13 +253,13 @@ int messageIdIncrementer = 0;
 
 // This category lets us access the messaging controller's trigger controller
 // which is normally private
-@interface OSMessagingController (Test)
+@interface OSMessagingController (Testing)
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
 @end
 
-@implementation OSMessagingController (Test)
+@implementation OSMessagingController (Testing)
 
 @dynamic messages;
 @dynamic messageDisplayQueue;

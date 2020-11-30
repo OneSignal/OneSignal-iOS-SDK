@@ -45,7 +45,10 @@
 + (NSString*) appId;
 + (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 + (BOOL) receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
+#pragma clang diagnostic pop
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
 
@@ -152,19 +155,19 @@ static NSArray* delegateSubclasses = nil;
     if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
         [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 // iOS 9 Only
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterUserNotifications:settings:"];
     
     if ([OneSignal appId])
-        [OneSignal updateNotificationTypes:notificationSettings.types];
+        [OneSignal updateNotificationTypes:(int)notificationSettings.types];
     
     if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
         [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
 }
-
-
+#pragma clang diagnostic pop
 // Fallback method - Normally this would not fire as oneSignalReceiveRemoteNotification below will fire instead. Was needed for iOS 6 support in the past.
 - (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalReceivedRemoteNotification:userInfo:"];
@@ -209,7 +212,10 @@ static NSArray* delegateSubclasses = nil;
         completionHandler(UIBackgroundFetchResultNewData);
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
+#pragma clang diagnostic pop
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
     
     if ([OneSignal appId])
@@ -220,8 +226,10 @@ static NSArray* delegateSubclasses = nil;
     
     completionHandler();
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 - (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
+#pragma clang diagnostic pop
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:notification:"];
     
     if ([OneSignal appId])

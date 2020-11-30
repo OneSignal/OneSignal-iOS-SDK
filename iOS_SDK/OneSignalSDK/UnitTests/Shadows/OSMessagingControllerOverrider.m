@@ -48,8 +48,11 @@
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
 @end
 
-@implementation OSMessagingController (Tests)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincomplete-implementation"
+@implementation OSMessagingController (Tests)
+#pragma clang diagnostic pop
 - (void)resetState {
     self.messages = @[];
     self.redisplayedInAppMessages = [NSMutableDictionary new];
@@ -82,7 +85,10 @@
 @implementation OSMessagingControllerOverrider
 
 + (void)load {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wundeclared-selector"
     injectToProperClass(@selector(overrideShowAndImpressMessage:), @selector(showAndImpressMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
+    #pragma clang diagnostic pop
 }
 
 - (void)overrideShowAndImpressMessage:(OSInAppMessage *)message {

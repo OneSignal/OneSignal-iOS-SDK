@@ -32,9 +32,12 @@
 
 - (void)runPendingSelectors {
     @synchronized(selectorsToRun) {
-        for(SelectorToRun* selectorToRun in selectorsToRun)
+        for(SelectorToRun* selectorToRun in selectorsToRun) {
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
             [selectorToRun.runOn performSelector:selectorToRun.selector withObject:selectorToRun.withObject];
-        
+            #pragma clang diagnostic pop
+        }
         [selectorsToRun removeAllObjects];
     }
 }

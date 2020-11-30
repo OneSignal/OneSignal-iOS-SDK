@@ -65,7 +65,6 @@
     let dataLength = data.length;
     if (dataLength == 0)
         return nil;
-    
     let dataBtyes = (unsigned char *)data.bytes;
     let hexString  = [NSMutableString stringWithCapacity:dataLength * 2];
     for (var i = 0; i < dataLength; i++)

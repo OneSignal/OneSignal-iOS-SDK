@@ -11,11 +11,11 @@
 #define NSString_OneSignal_h
 @interface NSString (OneSignal)
 
-- (NSString*)one_getVersionForRange:(NSRange)range;
-- (NSString*)one_substringAfter:(NSString *)needle;
-- (NSString*)one_getSemanticVersion;
-- (NSString *)fileExtensionForMimeType;
-- (NSString *)supportedFileExtension;
+- (NSString *_Nonnull)one_getVersionForRange:(NSRange)range;
+- (NSString *_Nonnull)one_substringAfter:(NSString *_Nonnull)needle;
+- (NSString *_Nonnull)one_getSemanticVersion;
+- (NSString *_Nullable)fileExtensionForMimeType;
+- (NSString *_Nullable)supportedFileExtension;
 
 // returns a lower case hex representation of the data
 + (nullable NSString *)hexStringFromData:(nonnull NSData *)data;

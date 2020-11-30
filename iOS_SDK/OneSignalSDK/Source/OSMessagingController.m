@@ -81,7 +81,7 @@
 @end
 
 @implementation OSMessagingController
-
+@dynamic isInAppMessagingPaused;
 // Maximum time decided to save IAM with redisplay on cache - current value: six months in seconds
 static long OS_IAM_MAX_CACHE_TIME = 6 * 30 * 24 * 60 * 60;
 static OSMessagingController *sharedInstance = nil;
@@ -99,7 +99,7 @@ static dispatch_once_t once;
 
 + (void)removeInstance {
     sharedInstance = nil;
-    once = NULL;
+    once = 0;
 }
 
 static BOOL _isInAppMessagingPaused = false;
