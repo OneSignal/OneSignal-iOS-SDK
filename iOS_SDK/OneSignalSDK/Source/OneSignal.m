@@ -2679,11 +2679,16 @@ static NSString *_lastnonActiveMessageId;
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"%@ is not set", self.app_id == nil ? @"app_id" : @"user_id"]}]);
         return;
-    } else if (requiresUserIdAuth && (!hashToken || hashToken.length == 0)) {
+    } else if (externalId.length > 0 && requiresUserIdAuth && (!hashToken || hashToken.length == 0)) {
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"External Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."];
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal.externalUserId" code:0 userInfo:@{@"error" : @"External User Id authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
         return;
+    }
+    
+    // Remove external id case
+    if (externalId.length == 0) {
+        hashToken = self.currentSubscriptionState.externalIdAuthCode;
     }
     
     // Begin constructing the request for the external id update
