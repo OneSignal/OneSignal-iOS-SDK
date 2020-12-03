@@ -61,7 +61,7 @@ NSString * serverUrlWithPath(NSString *path) {
 
 @interface OneSignal ()
 
-+ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
++ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 
 @end
 
@@ -367,10 +367,7 @@ static XCTestCase* _currentXCTestCase;
 }
 
 + (void)handleNotificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
-    BOOL foreground = UIApplication.sharedApplication.applicationState != UIApplicationStateBackground;
-    BOOL isActive = UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
-    
-    [OneSignal notificationReceived:messageDict foreground:foreground isActive:isActive wasOpened:opened];
+    [OneSignal notificationReceived:messageDict wasOpened:opened];
 }
 
 + (NSDictionary*)createNotificationUserInfo:(NSString *)notificationId {
