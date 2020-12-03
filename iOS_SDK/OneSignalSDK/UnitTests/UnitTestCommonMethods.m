@@ -244,6 +244,17 @@ static XCTestCase* _currentXCTestCase;
     }
 }
 
++ (void)setAppInactive {
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateInactive;
+}
+
++ (void)pullDownNotificationCenter {
+    [self backgroundApp];
+    [self foregroundApp];
+    [self backgroundApp];
+    [self setAppInactive];
+}
+
 //Call this method before init OneSignal. Make sure not to overwrite the NSBundleDictionary in later calls.
 + (void)useSceneLifecycle:(BOOL)useSceneLifecycle {
     NSMutableDictionary *currentBundleDictionary = [[NSMutableDictionary alloc] initWithDictionary:NSBundleOverrider.nsbundleDictionary];

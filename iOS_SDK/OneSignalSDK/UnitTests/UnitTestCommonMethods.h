@@ -51,6 +51,9 @@ NSString * serverUrlWithPath(NSString *path);
 + (void)beforeAllTest:(XCTestCase *)testCase;
 + (void)beforeEachTest:(XCTestCase *)testCase;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
++ (void)setAppInactive;
++ (void)pullDownNotificationCenter;
+
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
 + (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo;
 + (void)answerNotificationPrompt:(BOOL)accept;
