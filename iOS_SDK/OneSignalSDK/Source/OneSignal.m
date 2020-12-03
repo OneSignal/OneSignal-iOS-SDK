@@ -1922,7 +1922,7 @@ static NSString *_lastnonActiveMessageId;
 //    - 2B. iOS 10 - Notification received/displayed while app is in focus.
 // isActive is not always true for when the application is on foreground, we need differentiation
 // between foreground and isActive
-+ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened {
++ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
@@ -1933,8 +1933,7 @@ static NSString *_lastnonActiveMessageId;
     if (![OneSignalHelper isOneSignalPayload:messageDict])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"notificationReceived called! foreground: %@ isActive: %@ opened: %@",
-                                     foreground ? @"YES" : @"NO", isActive ? @"YES" : @"NO", opened ? @"YES" : @"NO"]);
+    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"notificationReceived called! opened: %@", opened ? @"YES" : @"NO"]);
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
@@ -1959,7 +1958,7 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type];
+        [OneSignal handleNotificationOpened:messageDict actionType:type];
     } else if (isPreview && [OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"]) {
         let notification = [OSNotification parseWithApns:messageDict];
         [OneSignalHelper handleIAMPreview:notification];
@@ -1994,12 +1993,10 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
-                       foreground:(BOOL)foreground
-                        isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:foreground:isActive:actionType:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:actionType:"])
         return;
 
     OSNotification *notification = [OSNotification parseWithApns:messageDict];
@@ -2011,8 +2008,10 @@ static NSString *_lastnonActiveMessageId;
     NSString* messageId = [customDict objectForKey:@"i"];
     [OneSignal submitNotificationOpened:messageId];
     
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! foreground: %@ notificationId: %@",
-                                     foreground ? @"YES" : @"NO", messageId]);
+    let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
+    
+    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
+                                     isActive ? @"YES" : @"NO", messageId]);
 
     // Try to fetch the open url to launch
     [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
@@ -2028,7 +2027,7 @@ static NSString *_lastnonActiveMessageId;
     
     // Call Action Block
     [OneSignalHelper lastMessageReceived:messageDict];
-    if (!foreground) {
+    if (!isActive) {
         OneSignal.appEntryState = NOTIFICATION_CLICK;
         [OneSignal.sessionManager onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
     }
@@ -2200,7 +2199,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignalHelper lastMessageReceived:userInfo];
 
         if (![OneSignalHelper isRemoteSilentNotification:userInfo]) {
-             [OneSignal notificationReceived:userInfo foreground:YES isActive:NO wasOpened:YES];
+             [OneSignal notificationReceived:userInfo wasOpened:YES];
         }
         return startedBackgroundJob;
     }
@@ -2227,13 +2226,11 @@ static NSString *_lastnonActiveMessageId;
     
     let isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 
-    [OneSignal notificationReceived:userInfo foreground:isActive isActive:isActive wasOpened:YES];
+    [OneSignal notificationReceived:userInfo wasOpened:YES];
     
     // Notification Tapped or notification Action Tapped
     if (!isActive)
         [self handleNotificationOpened:userInfo
-                            foreground:isActive
-                              isActive:isActive
                             actionType:OSNotificationActionTypeActionTaken];
 }
 
