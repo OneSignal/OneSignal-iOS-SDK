@@ -64,6 +64,8 @@ withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundB
 + (void)beforeEachTest:(XCTestCase *)testCase;
 + (void)foregroundApp;
 + (void)backgroundApp;
++ (void)setAppInactive;
++ (void)pullDownNotificationCenter;
 + (void)useSceneLifecycle:(BOOL)useSceneLifecycle;
 + (void)setCurrentNotificationPermissionAsUnanswered;
 
