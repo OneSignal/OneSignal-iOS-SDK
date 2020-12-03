@@ -46,7 +46,7 @@
 typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentationOptions options);
 
 @interface OneSignal (UN_extra)
-+ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
++ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
 @end
@@ -193,7 +193,7 @@ void finishProcessingNotification(UNNotification *notification,
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
     
     if ([OneSignal appId])
-        [OneSignal notificationReceived:notification.request.content.userInfo foreground:YES isActive:YES wasOpened:NO];
+        [OneSignal notificationReceived:notification.request.content.userInfo wasOpened:NO];
 
     
     // Call orginal selector if one was set.
@@ -267,13 +267,10 @@ void finishProcessingNotification(UNNotification *notification,
     if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo])
         return;
     
-    let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
-    
     let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
-    let isAppForeground = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
 
-    [OneSignal notificationReceived:userInfo foreground:isAppForeground isActive:isActive wasOpened:YES];
+    [OneSignal notificationReceived:userInfo wasOpened:YES];
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.

@@ -44,8 +44,6 @@
 @interface OneSignal ()
 
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
-                      foreground:(BOOL)foreground
-                        isActive:(BOOL)isActive
                       actionType:(OSNotificationActionType)actionType;
 
 @end
