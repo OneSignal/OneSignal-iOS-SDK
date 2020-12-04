@@ -43,7 +43,7 @@
 + (void) handleDidFailRegisterForRemoteNotification:(NSError*)error;
 + (void) updateNotificationTypes:(int)notificationTypes;
 + (NSString*) appId;
-+ (void)notificationReceived:(NSDictionary*)messageDict foreground:(BOOL)foreground isActive:(BOOL)isActive wasOpened:(BOOL)opened;
++ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 + (BOOL) receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
@@ -170,8 +170,7 @@ static NSArray* delegateSubclasses = nil;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalReceivedRemoteNotification:userInfo:"];
 
     if ([OneSignal appId]) {
-        let isActive = [application applicationState] == UIApplicationStateActive;
-        [OneSignal notificationReceived:userInfo foreground:isActive isActive:isActive wasOpened:YES];
+        [OneSignal notificationReceived:userInfo wasOpened:YES];
     }
     
     if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
@@ -191,7 +190,7 @@ static NSArray* delegateSubclasses = nil;
     
     if ([OneSignal appId]) {
         if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
-            [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:NO];
+            [OneSignal notificationReceived:userInfo wasOpened:NO];
         else
             startedBackgroundJob = [OneSignal receiveRemoteNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
     }
