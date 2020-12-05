@@ -48,6 +48,7 @@
     _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
     _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_TO defaultValue:nil];
     _isPushDisabled = [standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_TO];
+    _externalIdAuthCode = [standardUserDefaults getSavedStringForKey:OSUD_EXTERNAL_ID_AUTH_CODE defaultValue:nil];
     
     return self;
 }
@@ -65,8 +66,14 @@
     _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_FROM defaultValue:nil];
     _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_FROM defaultValue:nil];
     _isPushDisabled = ![standardUserDefaults getSavedBoolForKey:OSUD_USER_SUBSCRIPTION_FROM defaultValue:NO];
+    _externalIdAuthCode = [standardUserDefaults getSavedStringForKey:OSUD_EXTERNAL_ID_AUTH_CODE defaultValue:nil];
     
     return self;
+}
+
+- (void)persist {
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    [standardUserDefaults saveObjectForKey:OSUD_EXTERNAL_ID_AUTH_CODE withValue:_externalIdAuthCode];
 }
 
 - (void)persistAsFrom {
@@ -79,6 +86,7 @@
     [standardUserDefaults saveStringForKey:OSUD_PLAYER_ID_FROM withValue:_userId];
     [standardUserDefaults saveObjectForKey:OSUD_PUSH_TOKEN_FROM withValue:_pushToken];
     [standardUserDefaults saveObjectForKey:OSUD_USER_SUBSCRIPTION_FROM withValue:strUserSubscriptionSetting];
+    [standardUserDefaults saveObjectForKey:OSUD_EXTERNAL_ID_AUTH_CODE withValue:_externalIdAuthCode];
 }
 
 - (instancetype)copyWithZone:(NSZone*)zone {
