@@ -2304,7 +2304,7 @@ didReceiveRemoteNotification:userInfo
     }];
     
     // 2. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 3. Make sure only push external id was attempted to be set since no email was set yet
     XCTAssertEqual(self.CALLBACK_EXTERNAL_USER_ID, TEST_EXTERNAL_USER_ID);
@@ -2377,7 +2377,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testAlwaysSetExternalUserId_WithAuthToken_forPushAndEmail_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL withEmailAuthHashToken:TEST_EMAIL_HASH_TOKEN];
@@ -2413,7 +2413,7 @@ didReceiveRemoteNotification:userInfo
     [NSDateOverrider advanceSystemTimeBy:31];
     
     // 3. Open app
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let requestsSizeAfterColdStart = [OneSignalClientOverrider.executedRequests count];
     let penultimateRequestAfterColdStart = [OneSignalClientOverrider.executedRequests objectAtIndex:requestsSizeAfterColdStart - 2];
@@ -2635,7 +2635,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPush_withAuthHash {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withExternalIdAuthHashToken:TEST_EXTERNAL_USER_ID_HASH_TOKEN withSuccess:nil withFailure:nil];
@@ -2683,7 +2683,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPushAndEmail_withAuthHash {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL withEmailAuthHashToken:TEST_EMAIL_HASH_TOKEN];
@@ -2742,7 +2742,7 @@ didReceiveRemoteNotification:userInfo
 
 - (void)testRemoveExternalUserId_forPush_withAuthHash_withCompletion {
     // 1. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     // 2. Set external user id
     [OneSignal setExternalUserId:TEST_EXTERNAL_USER_ID withExternalIdAuthHashToken:TEST_EXTERNAL_USER_ID_HASH_TOKEN withSuccess:nil withFailure:nil];
