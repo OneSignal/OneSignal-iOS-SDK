@@ -96,10 +96,10 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
         let deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
         let requests = [NSMutableDictionary new];
     
-        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:@(totalTimeActive) netType:params.netType emailAuthToken:nil deviceType:deviceType];
+        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:@(totalTimeActive) netType:params.netType emailAuthToken:nil externalIdAuthToken:params.externalIdAuthToken deviceType:deviceType];
         
         if (params.emailUserId)
-            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:@(totalTimeActive) netType:params.netType emailAuthToken:params.emailAuthToken deviceType:deviceType];
+            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:@(totalTimeActive) netType:params.netType emailAuthToken:params.emailAuthToken externalIdAuthToken:params.externalIdAuthToken deviceType:deviceType];
 
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];

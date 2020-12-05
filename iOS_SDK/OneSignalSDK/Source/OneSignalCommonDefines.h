@@ -68,6 +68,7 @@
 #define OSUD_PUSH_TOKEN_FROM                                                @"GT_DEVICE_TOKEN_LAST"                                             // * OSUD_PUSH_TOKEN_FROM
 #define OSUD_USER_SUBSCRIPTION_TO                                           @"ONESIGNAL_SUBSCRIPTION"                                           // * OSUD_USER_SUBSCRIPTION_TO
 #define OSUD_USER_SUBSCRIPTION_FROM                                         @"ONESIGNAL_SUBSCRIPTION_SETTING"                                   // * OSUD_USER_SUBSCRIPTION_FROM
+#define OSUD_EXTERNAL_ID_AUTH_CODE                                          @"OSUD_EXTERNAL_ID_AUTH_CODE"                                       
 // Email
 #define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
 #define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID
