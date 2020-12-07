@@ -790,6 +790,33 @@
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
+/**
+ Ensures that if a developer calls OneSignal.setNotificationOpenedHandler late (after didFinishLaunchingWithOptionst)
+and the app was cold started from opening a notficiation open that the developer's handler will still fire.
+ This is particularly helpful for the OneSignal wrapper SDKs so special logic isn't needed in each one.
+ */
+- (void)testNotificationOpenedHandler_setAfter_didFinishLaunchingWithOptions {
+    // 1. Init OneSignal with app start
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 2. Simulate a notification being opened
+    let notifResponse = [self createBasiciOSNotificationResponse];
+    let notifCenter = UNUserNotificationCenter.currentNotificationCenter;
+    let notifCenterDelegate = notifCenter.delegate;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+    
+    // 3. Setup OneSignal.setNotificationOpenedHandler
+    __block BOOL openedWasFire = false;
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult * _Nonnull result) {
+        openedWasFire = true;
+    }];
+    // 4. Wait for open event to fire
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // 5. Ensure the OneSignal public callback fired
+    XCTAssertTrue(openedWasFire);
+}
 
 - (UNNotificationResponse*)createNotificationResponseForAnalyticsTests {
     id userInfo = @{@"custom":
