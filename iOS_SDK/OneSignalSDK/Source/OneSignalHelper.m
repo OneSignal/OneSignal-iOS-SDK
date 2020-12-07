@@ -214,6 +214,8 @@ static NSString *_lastMessageIdFromAction;
 NSDictionary* lastMessageReceived;
 UIBackgroundTaskIdentifier mediaBackgroundTask;
 
+static NSMutableArray<OSNotificationOpenedResult*> *unprocessedOpenedNotifis;
+
 + (void)resetLocals {
     [OneSignalHelper lastMessageReceived:nil];
     _lastMessageIdFromAction = nil;
@@ -221,6 +223,8 @@ UIBackgroundTaskIdentifier mediaBackgroundTask;
 
     notificationWillShowInForegroundHandler = nil;
     notificationOpenedHandler = nil;
+    
+    unprocessedOpenedNotifis = nil;
 }
 
 OSNotificationWillShowInForegroundBlock notificationWillShowInForegroundHandler;
@@ -231,6 +235,27 @@ OSNotificationWillShowInForegroundBlock notificationWillShowInForegroundHandler;
 OSNotificationOpenedBlock notificationOpenedHandler;
 + (void)setNotificationOpenedBlock:(OSNotificationOpenedBlock)block {
     notificationOpenedHandler = block;
+    [self fireNotificationOpenedHandlerForUnprocessedEvents];
+}
+
++ (NSMutableArray<OSNotificationOpenedResult*>*)getUnprocessedOpenedNotifis {
+    if (!unprocessedOpenedNotifis)
+        unprocessedOpenedNotifis = [NSMutableArray new];
+    return unprocessedOpenedNotifis;
+}
+
++ (void)addUnprocessedOpenedNotifi:(OSNotificationOpenedResult*)result {
+    [[self getUnprocessedOpenedNotifis] addObject:result];
+}
+
++ (void)fireNotificationOpenedHandlerForUnprocessedEvents {
+    if (!notificationOpenedHandler)
+        return;
+    
+    for (OSNotificationOpenedResult* notification in [self getUnprocessedOpenedNotifis]) {
+        notificationOpenedHandler(notification);
+    }
+    unprocessedOpenedNotifis = [NSMutableArray new];
 }
 
 //Passed to the OnFocus to make sure dismissed when coming back into app
@@ -358,8 +383,10 @@ OneSignalWebView *webVC;
     
     [OneSignalTrackFirebaseAnalytics trackOpenEvent:result];
     
-    if (!notificationOpenedHandler)
+    if (!notificationOpenedHandler) {
+        [self addUnprocessedOpenedNotifi:result];
         return;
+    }
     notificationOpenedHandler(result);
 }
 
