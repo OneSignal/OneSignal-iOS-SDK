@@ -56,12 +56,9 @@
 + (void)addNotificationRequest:(OSNotification*)notification completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 // - Notifications
-+ (BOOL)canGetNotificationTypes;
 + (UILocalNotification*)prepareUILocalNotification:(OSNotification*)notification;
 + (BOOL)verifyURL:(NSString*)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
-+ (BOOL)isInAppPreviewNotification:(NSDictionary*)msg;
-+ (NSMutableSet<UNNotificationCategory*>*)existingCategories;
 + (void)addAttachments:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
 + (void)addActionButtons:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
 + (BOOL)isOneSignalPayload:(NSDictionary *)payload;

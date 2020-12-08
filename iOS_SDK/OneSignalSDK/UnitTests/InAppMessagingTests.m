@@ -557,8 +557,10 @@ NSInteger const DELAY = 60;
 - (void)testHandlesMultipleMixedTriggers {
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withId:@"test_id_1" withOperator:OSTriggerOperatorTypeGreaterThan withValue:@3];
     let secondTrigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id_2" withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@3.0];
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wnonnull"
     let thirdTrigger = [OSTrigger customTriggerWithProperty:@"prop2" withId:@"test_id_3" withOperator:OSTriggerOperatorTypeNotExists withValue:nil];
-    
+    #pragma clang diagnostic pop
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger, secondTrigger, thirdTrigger]]];
     
     [self.triggerController addTriggers:@{@"prop1" : @4}];

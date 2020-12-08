@@ -35,8 +35,11 @@
 @implementation NSURLSessionOverrider
 
 + (void)load {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wundeclared-selector"
     // Swizzle an injected method defined in OneSignalHelper
     injectStaticSelector([NSURLSessionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLSession class], @selector(downloadItemAtURL:toFile:error:));
+    #pragma clang diagnostic pop
     injectToProperClass(@selector(overrideDataTaskWithRequest:completionHandler:), @selector(dataTaskWithRequest:completionHandler:), @[], [NSURLSessionOverrider class], [NSURLSession class]);
 }
 

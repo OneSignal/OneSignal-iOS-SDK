@@ -75,6 +75,10 @@
     return newTrigger;
 }
 
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
+}
+
 - (NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     

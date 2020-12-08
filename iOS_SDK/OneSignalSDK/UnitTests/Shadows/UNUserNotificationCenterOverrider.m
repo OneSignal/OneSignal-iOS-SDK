@@ -55,10 +55,12 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     getNotificationSettingsWithCompletionHandlerStackCount =  0;
     
     unNotifiserialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wundeclared-selector"
     injectToProperClass(@selector(overrideInitWithBundleProxy:),
                         @selector(initWithBundleProxy:), @[],
                         [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    #pragma clang diagnostic pop
     
     injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
                         @selector(initWithBundleIdentifier:), @[],

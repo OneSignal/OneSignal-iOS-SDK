@@ -99,7 +99,10 @@ const NSInteger UncaughtExceptionHandlerReportAddressCount = 5;
 
 void HandleException(NSException *exception)
 {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated"
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
+    #pragma clang diagnostic pop
     if (exceptionCount > UncaughtExceptionMaximum)
     {
         return;
@@ -122,9 +125,11 @@ void HandleException(NSException *exception)
      waitUntilDone:YES];
 }
 
-void SignalHandler(int signal)
-{
+void SignalHandler(int signal) {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated"
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
+    #pragma clang diagnostic pop
     if (exceptionCount > UncaughtExceptionMaximum)
     {
         return;

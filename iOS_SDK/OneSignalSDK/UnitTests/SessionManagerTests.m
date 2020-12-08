@@ -253,10 +253,11 @@ NSArray<OSInfluence *> *lastInfluencesBySessionEnding;
 
 - (void)testDirectWithnilNotification {
     [self setOutcomesParamsEnabled];
-
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wnonnull"
     [sessionManager onNotificationReceived:nil];
     [sessionManager onDirectInfluenceFromNotificationOpen:NOTIFICATION_CLICK withNotificationId:nil];
-
+    #pragma clang diagnostic pop
     OSInfluence *influence = [[trackerFactory notificationChannelTracker] currentSessionInfluence];
 
     XCTAssertEqual(UNATTRIBUTED, influence.influenceType);

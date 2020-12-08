@@ -32,7 +32,8 @@
 @implementation UIAlertViewOverrider
 static NSMutableArray* uiAlertButtonArray;
 static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
 + (void)load {
     injectToProperClass(@selector(overrideAddButtonWithTitle:), @selector(addButtonWithTitle:), @[], [UIAlertViewOverrider class], [UIAlertView class]);
     
@@ -40,13 +41,14 @@ static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
                         @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:), @[],
                         [UIAlertViewOverrider class], [UIAlertView class]);
 }
+#pragma GCC diagnostic pop
 
 +(void)reset {
     uiAlertButtonArray = [NSMutableArray new];
 }
 
 +(int)uiAlertButtonArrayCount {
-    return uiAlertButtonArray.count;
+    return (int)uiAlertButtonArray.count;
 }
 +(NSObject<UIAlertViewDelegate>*)lastUIAlertViewDelegate {
     return lastUIAlertViewDelegate;
@@ -57,7 +59,7 @@ static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
     return 0;
 }
 
-- (instancetype)overrideInitWithTitle:(nullable NSString *)title message:(nullable NSString *)message delegate:(nullable id /*<UIAlertViewDelegate>*/)delegate cancelButtonTitle:(nullable NSString *)cancelButtonTitle otherButtonTitles:(nullable NSString *)otherButtonTitles, ... {
+- (instancetype)overrideInitWithTitle:(nullable NSString *)title message:(nullable NSString *)message delegate:(nullable id)delegate cancelButtonTitle:(nullable NSString *)cancelButtonTitle otherButtonTitles:(nullable NSString *)otherButtonTitles, ... {
     lastUIAlertViewDelegate = delegate;
     return self;
 }

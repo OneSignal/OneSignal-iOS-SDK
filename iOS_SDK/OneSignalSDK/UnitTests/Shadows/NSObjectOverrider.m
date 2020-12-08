@@ -61,7 +61,10 @@ static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
     
     if (instantRunPerformSelectorAfterDelay || [selectorNamesForInstantOnlyForFirstRun containsObject:NSStringFromSelector(aSelector)]) {
         [selectorNamesForInstantOnlyForFirstRun removeObject:NSStringFromSelector(aSelector)];
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [self performSelector:aSelector withObject:anArgument];
+        #pragma clang diagnostic pop
     }
     else
         [delayedSelectors addSelector:aSelector onObject:self withObject:anArgument];

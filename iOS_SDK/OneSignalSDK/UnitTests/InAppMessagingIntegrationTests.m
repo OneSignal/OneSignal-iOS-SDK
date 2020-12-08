@@ -1512,7 +1512,6 @@
     // Check if data after dismiss is set correctly
     XCTAssertEqual(OSMessagingControllerOverrider.messagesForRedisplay.count, 1);
     let secondDisplayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
-    let secondDisplayTime = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.lastDisplayTime;
     XCTAssertEqual(secondDisplayQuantity, 2);
 }
 

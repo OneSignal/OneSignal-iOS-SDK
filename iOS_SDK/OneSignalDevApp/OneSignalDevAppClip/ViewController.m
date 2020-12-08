@@ -196,7 +196,7 @@
 - (IBAction)sendTestOutcomeEvent:(UIButton *)sender {
     [OneSignal sendOutcome:[_outcomeName text] onSuccess:^(OSOutcomeEvent *outcome) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            _result.text = [NSString stringWithFormat:@"sendTestOutcomeEvent success %@", outcome];
+            self->_result.text = [NSString stringWithFormat:@"sendTestOutcomeEvent success %@", outcome];
             [self.view endEditing:YES];
         });
     }];
@@ -209,7 +209,7 @@
         
         [OneSignal sendOutcomeWithValue:[_outcomeValueName text] value:value onSuccess:^(OSOutcomeEvent *outcome) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _result.text = [NSString stringWithFormat:@"sendValueOutcomeEvent success %@", outcome];
+                self->_result.text = [NSString stringWithFormat:@"sendValueOutcomeEvent success %@", outcome];
                 [self.view endEditing:YES];
             });
         }];
@@ -219,7 +219,7 @@
 - (IBAction)sendUniqueOutcomeEvent:(id)sender {
     [OneSignal sendUniqueOutcome:[_outcomeUniqueName text] onSuccess:^(OSOutcomeEvent *outcome) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            _result.text = [NSString stringWithFormat:@"sendUniqueOutcomeEvent success %@", outcome];
+            self->_result.text = [NSString stringWithFormat:@"sendUniqueOutcomeEvent success %@", outcome];
             [self.view endEditing:YES];
         });
     }];

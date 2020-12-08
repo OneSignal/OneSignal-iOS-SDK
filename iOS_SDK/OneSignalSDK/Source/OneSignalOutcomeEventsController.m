@@ -79,7 +79,7 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
 
         if (outcome.unique)
             [self sendUniqueOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
-        else if (outcome.weight > 0)
+        else if (outcome.weight.intValue > 0)
             [self sendOutcomeEventWithValue:name value:outcome.weight appId:appId deviceType:deviceType successBlock:nil];
         else
             [self sendOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
