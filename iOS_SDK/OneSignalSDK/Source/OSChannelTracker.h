@@ -33,7 +33,7 @@ THE SOFTWARE.
 
 @interface OSChannelTracker : NSObject
 
-@property (nonatomic, readwrite) Session influenceType;
+@property (nonatomic, readwrite) OSInfluenceType influenceType;
 @property (strong, nonatomic, readwrite, nullable) NSString *directId;
 @property (strong, nonatomic, readwrite, nullable) NSArray *indirectIds;
 @property (strong, nonatomic, readonly, nonnull) OSInfluenceDataRepository *dataRepository;

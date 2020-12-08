@@ -196,7 +196,7 @@
 /*
  Called when the session for the app changes, caches the state, and broadcasts the session that just ended
  */
-- (BOOL)setSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(Session)influenceType directId:(NSString *)directId indirectIds:(NSArray *)indirectIds {
+- (BOOL)setSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(OSInfluenceType)influenceType directId:(NSString *)directId indirectIds:(NSArray *)indirectIds {
     if (![self willChangeSessionForChannel:channelTracker withInfluenceType:influenceType directId:directId indirectIds:indirectIds])
         return NO;
     
@@ -226,7 +226,7 @@
     2. Is DIRECT session data different from incoming DIRECT session data?
     3. Is INDIRECT session data different from incoming INDIRECT session data?
  */
-- (BOOL)willChangeSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(Session)influenceType directId:(NSString *)directId indirectIds:(NSArray *)indirectIds {
+- (BOOL)willChangeSessionForChannel:(OSChannelTracker *)channelTracker withInfluenceType:(OSInfluenceType)influenceType directId:(NSString *)directId indirectIds:(NSArray *)indirectIds {
     if (channelTracker.influenceType != influenceType)
         return true;
 

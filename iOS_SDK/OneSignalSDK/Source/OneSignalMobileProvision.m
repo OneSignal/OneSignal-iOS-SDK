@@ -11,6 +11,7 @@
 #import "OneSignalMobileProvision.h"
 #import "TargetConditionals.h"
 #import "OneSignal.h"
+#import "OneSignalInternal.h"
 
 @implementation OneSignalMobileProvision
 

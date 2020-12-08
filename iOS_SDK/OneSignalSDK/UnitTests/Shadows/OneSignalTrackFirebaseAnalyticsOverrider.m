@@ -51,8 +51,10 @@ static BOOL hasFIRAnalytics = false;
 
 +(void)load {
     [self reset];
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wundeclared-selector"
     injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideLogEventWithName:parameters:), [OneSignalTrackFirebaseAnalytics class], @selector(logEventWithName:parameters:));
+    #pragma clang diagnostic pop
     injectStaticSelector([OneSignalTrackFirebaseAnalyticsOverrider class], @selector(overrideNeedsRemoteParams), [OneSignalTrackFirebaseAnalytics class], @selector(libraryExists));
 }
 

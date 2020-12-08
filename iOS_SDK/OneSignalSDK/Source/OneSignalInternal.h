@@ -46,11 +46,12 @@
 
 
 // Permission + Subscription - Redefine OSPermissionSubscriptionState
-@interface OSPermissionSubscriptionState ()
+@interface OSPermissionSubscriptionState : NSObject
 
-@property (readwrite) OSPermissionState* permissionStatus;
-@property (readwrite) OSSubscriptionState* subscriptionStatus;
-@property (readwrite) OSEmailSubscriptionState *emailSubscriptionStatus;
+@property (readwrite) OSPermissionState* _Nonnull permissionStatus;
+@property (readwrite) OSSubscriptionState* _Nonnull subscriptionStatus;
+@property (readwrite) OSEmailSubscriptionState* _Nonnull emailSubscriptionStatus;
+- (NSDictionary* _Nonnull)toDictionary;
 
 @end
 
@@ -63,27 +64,36 @@
 + (BOOL)shouldPromptToShowURL;
 + (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value;
 + (BOOL)shouldRegisterNow;
-+ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson;
++ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *_Nullable)messagesJson;
 
-+ (NSDate *)sessionLaunchTime;
++ (NSDate *_Nonnull)sessionLaunchTime;
 
 // Indicates if the app provides its own custom Notification customization settings UI
 // To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
 + (BOOL)providesAppNotificationSettings;
 
++ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
+
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
 
-@property (class) NSObject<OneSignalNotificationSettings>* osNotificationSettings;
-@property (class) OSPermissionState* currentPermissionState;
+@property (class) NSObject<OneSignalNotificationSettings>* _Nonnull osNotificationSettings;
+@property (class) OSPermissionState* _Nonnull currentPermissionState;
 
-@property (class) OneSignalReceiveReceiptsController* receiveReceiptsController;
+@property (class) OneSignalReceiveReceiptsController* _Nonnull receiveReceiptsController;
 
 @property (class) AppEntryAction appEntryState;
-@property (class) OSSessionManager* sessionManager;
-@property (class) OneSignalOutcomeEventsController* outcomeEventsController;
+@property (class) OSSessionManager* _Nonnull sessionManager;
+@property (class) OneSignalOutcomeEventsController* _Nonnull outcomeEventsController;
+
++ (OSPermissionSubscriptionState*_Nonnull)getPermissionSubscriptionState;
+
++ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
 @end
 
+@interface OSDeviceState (OSDeviceStateInternal)
+- (instancetype _Nonnull)initWithSubscriptionState:(OSPermissionSubscriptionState *_Nonnull)state;
+@end
 
 #endif /* OneSignalInternal_h */

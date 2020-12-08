@@ -34,7 +34,6 @@
 #define OS_API_VERSION @"1"
 #define OS_API_ACCEPT_HEADER @"application/vnd.onesignal.v" OS_API_VERSION @"+json"
 #define OS_API_SERVER_URL @"https://api.onesignal.com/"
-
 #define OS_IAM_WEBVIEW_BASE_URL @"https://onesignal.com/"
 
 // OneSignalUserDefault keys
@@ -59,6 +58,8 @@
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO                              @"OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO"                           // OSUD_PROVISIONAL_PUSH_AUTHORIZATION_TO
 #define OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM                            @"ONESIGNAL_PROVISIONAL_AUTHORIZATION_LAST"                         // * OSUD_PROVISIONAL_PUSH_AUTHORIZATION_FROM
 #define OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION                            @"ONESIGNAL_USES_PROVISIONAL_PUSH_AUTHORIZATION"                    // * OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION
+#define OSUD_PERMISSION_EPHEMERAL_TO                                        @"OSUD_PERMISSION_EPHEMERAL_TO"                                     // * OSUD_PERMISSION_EPHEMERAL_TO
+#define OSUD_PERMISSION_EPHEMERAL_FROM                                      @"OSUD_PERMISSION_EPHEMERAL_FROM"                                   // * OSUD_PERMISSION_EPHEMERAL_FROM
 // Player
 #define OSUD_EXTERNAL_USER_ID                                               @"OS_EXTERNAL_USER_ID"                                              // * OSUD_EXTERNAL_USER_ID
 #define OSUD_PLAYER_ID_TO                                                   @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID_TO
@@ -78,7 +79,10 @@
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
 #define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
 #define OSUD_TEMP_CACHED_NOTIFICATION_MEDIA                                 @"OSUD_TEMP_CACHED_NOTIFICATION_MEDIA"                              // OSUD_TEMP_CACHED_NOTIFICATION_MEDIA
-// Receive Receipts
+// Remote Params
+#define OSUD_LOCATION_ENABLED                                               @"OSUD_LOCATION_ENABLED"
+#define OSUD_REQUIRES_USER_PRIVACY_CONSENT                                  @"OSUD_REQUIRES_USER_PRIVACY_CONSENT"
+// Remote Params - Receive Receipts
 #define OSUD_RECEIVE_RECEIPTS_ENABLED                                       @"OS_ENABLE_RECEIVE_RECEIPTS"                                       // * OSUD_RECEIVE_RECEIPTS_ENABLED
 // Outcomes
 #define OSUD_OUTCOMES_V2                                                    @"OSUD_OUTCOMES_V2"
@@ -120,11 +124,14 @@
 #define DEFAULT_UNAUTHORIZATIONOPTIONS (UNAuthorizationOptionSound + UNAuthorizationOptionBadge + UNAuthorizationOptionAlert)
 
 // iOS Parameter Names
+#define IOS_FBA @"fba"
 #define IOS_USES_PROVISIONAL_AUTHORIZATION @"uses_provisional_auth"
 #define IOS_REQUIRES_EMAIL_AUTHENTICATION @"require_email_auth"
 #define IOS_REQUIRES_USER_ID_AUTHENTICATION @"require_user_id_auth"
 #define IOS_RECEIVE_RECEIPTS_ENABLE @"receive_receipts_enable"
 #define IOS_OUTCOMES_V2_SERVICE_ENABLE @"v2_enabled"
+#define IOS_LOCATION_SHARED @"location_shared"
+#define IOS_REQUIRES_USER_PRIVACY_CONSENT @"requires_user_privacy_consent"
 
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
@@ -194,6 +201,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
 
+#define AUTH_STATUS_EPHEMERAL 4 //UNAuthorizationStatusEphemeral
+
 // 1 week in seconds
 #define WEEK_IN_SECONDS 604800.0
 
@@ -225,9 +234,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 128
 
-    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
-    // the callback to set the display type for a given notification
-    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
+    // Defines how long the SDK will wait for a OSPredisplayNotification's complete method to execute
+#define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -241,9 +249,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
     // the max number of UNNotificationCategory ID's the SDK will register
     #define MAX_CATEGORIES_SIZE 5
 
-    // Defines how long the SDK will wait for OSNotificationDisplayTypeDelegate to execute
-    // the callback to set the display type for a given notification
-    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
+    // Unit testing value for how long the SDK will wait for a
+    // OSPredisplayNotification's complete method to execute
+#define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

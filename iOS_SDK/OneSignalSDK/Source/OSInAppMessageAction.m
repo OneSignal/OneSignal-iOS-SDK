@@ -36,7 +36,7 @@
 #define OS_IS_VALID_URL_ACTION(string) [OS_URL_ACTION_TYPES containsObject:string]
 #define OS_URL_ACTION_TYPE_FROM_STRING(string) (OSInAppMessageActionUrlType)[OS_URL_ACTION_TYPES indexOfObject:string]
 
-+ (instancetype)instanceWithData:(NSData *)data {
++ (instancetype _Nullable)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     
@@ -48,7 +48,7 @@
     return [self instanceWithJson:json];
 }
 
-+ (instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype _Nullable)instanceWithJson:(NSDictionary *)json {
     OSInAppMessageAction *action = [OSInAppMessageAction new];
     
     if ([json[@"click_type"] isKindOfClass:[NSString class]])
@@ -108,6 +108,10 @@
     action.promptActions = promptActions;
 
     return action;
+}
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
 }
 
 - (NSDictionary *)jsonRepresentation {

@@ -35,6 +35,6 @@
 +(void)updateFromDownloadParams:(NSDictionary*)params;
 
 +(void)trackOpenEvent:(OSNotificationOpenedResult*)results;
-+(void)trackReceivedEvent:(OSNotificationPayload*)notification;
++(void)trackReceivedEvent:(OSNotification*)notification;
 +(void)trackInfluenceOpenEvent;
 @end

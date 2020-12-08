@@ -26,4 +26,4 @@ For account issues and support please contact OneSignal support from the [OneSig
 
 #### Supports:
 * Swift and Objective-C Projects
-* Supports iOS 7 to iOS 13
+* Supports iOS 9 to iOS 13

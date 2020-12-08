@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSInfluence.h"
 #import "OSNotificationTracker.h"
+#import "OneSignalInternal.h"
 
 @interface OSChannelTracker ()
 
@@ -66,7 +67,7 @@ THE SOFTWARE.
 }
 
 - (void)initInfluencedTypeFromCache {
-    Session influenceType = [self.dataRepository notificationCachedInfluenceType];
+    OSInfluenceType influenceType = [self.dataRepository notificationCachedInfluenceType];
     self.influenceType = influenceType;
 
     if (influenceType == INDIRECT)

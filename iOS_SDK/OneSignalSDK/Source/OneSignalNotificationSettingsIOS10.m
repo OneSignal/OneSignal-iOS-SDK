@@ -74,6 +74,12 @@ static dispatch_queue_t serialQueue;
             status.answeredPrompt = settings.authorizationStatus != UNAuthorizationStatusNotDetermined && settings.authorizationStatus != provisionalStatus;
             status.provisional = (settings.authorizationStatus == 3);
             status.accepted = settings.authorizationStatus == UNAuthorizationStatusAuthorized && !status.provisional;
+            if (@available(iOS 14.0, *)) {
+                status.ephemeral = (settings.authorizationStatus == AUTH_STATUS_EPHEMERAL);
+                status.accepted = status.accepted || status.ephemeral;
+            } else {
+                status.ephemeral = false;
+            }
             
             status.notificationTypes = (settings.badgeSetting == UNNotificationSettingEnabled ? 1 : 0)
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
@@ -159,7 +165,7 @@ static dispatch_queue_t serialQueue;
     [OneSignal registerForAPNsToken];
 }
 
-- (void)registerForProvisionalAuthorization:(void(^)(BOOL accepted))completionHandler {
+- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
     
     if ([OneSignalHelper isIOSVersionLessThan:@"12.0"]) {
         return;
@@ -169,8 +175,8 @@ static dispatch_queue_t serialQueue;
     
     //don't register for provisional if the user has already accepted the prompt
     if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt) {
-        if (completionHandler)
-            completionHandler(true);
+        if (block)
+            block(true);
         return;
     }
     
@@ -182,8 +188,8 @@ static dispatch_queue_t serialQueue;
         [OneSignalHelper dispatch_async_on_main_queue:^{
             OneSignal.currentPermissionState.provisional = true;
             [OneSignal updateNotificationTypes: options];
-            if (completionHandler)
-                completionHandler(granted);
+            if (block)
+                block(granted);
         }];
     };
     
@@ -191,9 +197,7 @@ static dispatch_queue_t serialQueue;
 }
 
 // Ignore these 2 events, promptForNotifications: already takes care of these.
-// Only iOS 8 & 9
+// Only iOS 9
 - (void)onNotificationPromptResponse:(int)notificationTypes { }
-// Only iOS 7
-- (void)onAPNsResponse:(BOOL)success {}
 
 @end

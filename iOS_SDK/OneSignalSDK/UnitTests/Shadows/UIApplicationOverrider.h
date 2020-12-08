@@ -38,9 +38,10 @@
 + (void)setAPNSTokenLength:(int)tokenLength;
 
 + (NSString *)mockAPNSToken;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 +(UILocalNotification*)lastUILocalNotification;
-
+#pragma clang diagnostic pop
 +(void)runBackgroundThreads;
 
 +(BOOL)calledRegisterForRemoteNotifications;

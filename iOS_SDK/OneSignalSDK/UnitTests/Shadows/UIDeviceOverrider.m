@@ -2,9 +2,10 @@
 #import "TestHelperFunctions.h"
 #import "OneSignalSelectorHelpers.h"
 
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIDeviceOverrider
-
+#pragma clang diagnostic pop
 static NSString *_systemName; // e.g. @"Mac OS X" @"iOS"
 static NSString *_model; // e.g. @"iPhone", @"iPod touch"
 

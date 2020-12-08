@@ -30,7 +30,7 @@
 #import "OneSignalHelper.h"
 #import "OSInfluenceDataDefines.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
-#import "OSNotificationPayload+Internal.h"
+#import "OSNotification+Internal.h"
 #import "OSSubscription.h"
 #import "OneSignalInternal.h"
 #import "OneSignalReceiveReceiptsController.h"
@@ -47,25 +47,25 @@
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
+    let notification = [OSNotification parseWithApns:request.content.userInfo];
 
     // Handle badge count
-    [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotificationPayload:payload withMutableNotificationContent:replacementContent];
+    [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotification:notification withMutableNotificationContent:replacementContent];
     
     // Track receieved
-    [OneSignalTrackFirebaseAnalytics trackReceivedEvent:payload];
+    [OneSignalTrackFirebaseAnalytics trackReceivedEvent:notification];
     
     // Get and check the received notification id
-    let receivedNotificationId = payload.notificationID;
+    let receivedNotificationId = notification.notificationId;
     [self onNotificationReceived:receivedNotificationId];
 
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request
-                                 withPayload:payload
+                                 withNotification:notification
               withMutableNotificationContent:replacementContent];
     
     // Media Attachments
-    [OneSignalHelper addAttachments:payload toNotificationContent:replacementContent];
+    [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
     
     return replacementContent;
 }
@@ -75,24 +75,24 @@
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    let payload = [OSNotificationPayload parseWithApns:request.content.userInfo];
+    let notification = [OSNotification parseWithApns:request.content.userInfo];
     
     [self addActionButtonsToExtentionRequest:request
-                                 withPayload:payload
+                                 withNotification:notification
               withMutableNotificationContent:replacementContent];
     
     return replacementContent;
 }
 
 + (void)addActionButtonsToExtentionRequest:(UNNotificationRequest*)request
-                               withPayload:(OSNotificationPayload*)payload
+                               withNotification:(OSNotification*)notification
             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     
     // If the developer already set a category don't replace it with our generated one.
     if (request.content.categoryIdentifier && ![request.content.categoryIdentifier isEqualToString:@""])
         return;
     
-    [OneSignalHelper addActionButtons:payload toNotificationContent:replacementContent];
+    [OneSignalHelper addActionButtons:notification toNotificationContent:replacementContent];
 }
 
 + (void)onNotificationReceived:(NSString *)receivedNotificationId {

@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_END
 @end
 
 @interface OSRequestUpdateExternalUserId : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString *)userId appId:(NSString *)appId;
++ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId;
 @end
 
 @interface OSRequestSendOutcomesV1ToServer : OneSignalRequest

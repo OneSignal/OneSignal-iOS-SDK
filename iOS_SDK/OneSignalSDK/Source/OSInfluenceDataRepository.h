@@ -32,11 +32,11 @@ THE SOFTWARE.
 
 @interface OSInfluenceDataRepository : NSObject
 
-- (void)cacheNotificationInfluenceType:(Session) influenceType;
-- (Session)notificationCachedInfluenceType;
+- (void)cacheNotificationInfluenceType:(OSInfluenceType) influenceType;
+- (OSInfluenceType)notificationCachedInfluenceType;
 
-- (void)cacheIAMInfluenceType:(Session) influenceType;
-- (Session)iamCachedInfluenceType;
+- (void)cacheIAMInfluenceType:(OSInfluenceType) influenceType;
+- (OSInfluenceType)iamCachedInfluenceType;
 
 - (void)cacheNotificationOpenId:(NSString * _Nullable)notificationId;
 - (NSString * _Nullable)cachedNotificationOpenId;

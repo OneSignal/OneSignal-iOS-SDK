@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 @implementation OSInfluence
 
-- (id)initWithInfluenceType:(Session)influenceType
+- (id)initWithInfluenceType:(OSInfluenceType)influenceType
         forInfluenceChannel:(OSInfluenceChannel)influenceChannel
                     withIds:(NSArray *)ids {
     if (self = [super init]) {

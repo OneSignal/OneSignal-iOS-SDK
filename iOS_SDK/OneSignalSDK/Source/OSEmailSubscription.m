@@ -48,7 +48,7 @@
     return self;
 }
 
--(BOOL)subscribed {
+-(BOOL)isSubscribed {
     return self.emailUserId != nil;
 }
 
@@ -95,7 +95,8 @@
 - (NSDictionary *)toDictionary {
     return @{
        @"emailUserId": _emailUserId ?: [NSNull null],
-       @"emailAddress": _emailAddress ?: [NSNull null]
+       @"emailAddress": _emailAddress ?: [NSNull null],
+       @"isSubscribed": @(self.isSubscribed)
     };
 }
 

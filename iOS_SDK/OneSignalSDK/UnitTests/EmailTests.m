@@ -1,28 +1,28 @@
-/**
- * Modified MIT License
- *
- * Copyright 2017 OneSignal
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * 1. The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * 2. All copies of substantial portions of the Software may only be used in connection
- * with services provided by OneSignal.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+/*
+ Modified MIT License
+ 
+ Copyright 2017 OneSignal
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ 1. The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ 2. All copies of substantial portions of the Software may only be used in connection
+ with services provided by OneSignal.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 #import <XCTest/XCTest.h>
@@ -44,6 +44,7 @@
 #import "NSUserDefaultsOverrider.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
+#import "OneSignalInternal.h"
 
 @interface OneSignalTracker ()
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened;
@@ -63,21 +64,26 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 
 @implementation EmailTests
 
+/*
+ Put setup code here
+ This method is called before the invocation of each test method in the class
+ */
 - (void)setUp {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-    
-    OneSignalHelperOverrider.mockIOSVersion = 10;
+    [UnitTestCommonMethods beforeEachTest:self];
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];
     
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
     
-    [UnitTestCommonMethods beforeEachTest:self];
+    [OneSignalClientOverrider setRequiresEmailAuth:false];
 }
 
+/*
+ Put teardown code here
+ This method is called after the invocation of each test method in the class
+ */
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
 
@@ -90,11 +96,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testSetAuthenticatedEmail {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    [self setupEmailTest];
-    
-    [OneSignal setEmail:@"test@test.com" withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c" withSuccess:nil withFailure:nil];
-    
+    [OneSignal setEmail:@"test@test.com"
+ withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c"
+            withSuccess:nil
+            withFailure:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     //check to make sure that the push token & auth were saved to NSUserDefaults
@@ -109,8 +116,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], @"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c");
     
     //we will change the email and make sure the HTTP call to update the device token is made
-    [OneSignal setEmail:@"test2@test.com" withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c" withSuccess:nil withFailure:nil];
-    
+    [OneSignal setEmail:@"test2@test.com"
+ withEmailAuthHashToken:@"c7e76fb9579df964fa9dffd418619aa30767b864b1c025f5df22458cae65033c"
+             withSuccess:nil
+            withFailure:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     //check to make sure the server gets updated with the new email
@@ -129,11 +138,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testUnauthenticatedEmail {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
-    [self setupEmailTest];
-    
-    [OneSignal setEmail:@"test@test.com" withSuccess:nil withFailure:nil];
-    
+    [OneSignal setEmail:@"test@test.com"
+            withSuccess:nil
+            withFailure:nil];
     [UnitTestCommonMethods runBackgroundThreads];
     
     //check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
@@ -173,7 +182,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 }
 
 - (void)testInvalidEmail {
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 1;
@@ -205,13 +214,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [self waitForExpectations:@[expectation] timeout:0.1];
 }
 
-
-// tests to make sure the SDK correctly rejects setEmail when authToken == nil if
-// the auth token is required (via iOS params file) for this application
+/*
+ Tests to make sure the SDK correctly rejects setEmail when authToken == nil if
+ The auth token is required (via iOS params file) for this application
+ */
 - (void)testRequiresEmailAuth {
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 3;
@@ -240,18 +250,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     }];
     
     [self waitForExpectations:@[expectation] timeout:0.1];
-    
-    //reset so we don't interfere with other tests
-    [OneSignalClientOverrider setRequiresEmailAuth:false];
 }
 
 - (void)testDoesNotRequireEmailAuth {
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [OneSignalClientOverrider setRequiresEmailAuth:false];
-    
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 1;
@@ -261,32 +263,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     } withFailure:^(NSError *error) {
         XCTFail(@"Encountered error: %@", error);
     }];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     [self waitForExpectations:@[expectation] timeout:0.1];
-    
-    // Triggers the 30 fallback to register device right away.
-    [UnitTestCommonMethods runBackgroundThreads];
-    [NSObjectOverrider runPendingSelectors];
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    
-    
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-}
-
-- (void)setupEmailTest {
-    // Restart App
-    [UnitTestCommonMethods clearStateForAppRestart:self];
-    
-    [OneSignal initWithLaunchOptions:nil appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"
-            handleNotificationAction:nil
-                            settings:@{kOSSettingsKeyAutoPrompt: @false}];
-    
-    // Triggers the 30 fallback to register device right away.
-    [UnitTestCommonMethods runBackgroundThreads];
-    [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
 }
 
@@ -310,15 +289,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 - (void)testSubscriptionState {
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let unsubscribedSubscriptionStatus = [OneSignal getPermissionSubscriptionState].emailSubscriptionStatus;
     
     XCTAssertNil(unsubscribedSubscriptionStatus.emailAuthCode);
     XCTAssertNil(unsubscribedSubscriptionStatus.emailAddress);
     XCTAssertNil(unsubscribedSubscriptionStatus.emailUserId);
-    XCTAssertFalse(unsubscribedSubscriptionStatus.subscribed);
-    
+    XCTAssertFalse(unsubscribedSubscriptionStatus.isSubscribed);
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 2;
@@ -334,7 +312,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(loggedInSubscriptionStatus.emailUserId, @"1234");
     XCTAssertEqual(loggedInSubscriptionStatus.emailAddress, @"test@test.com");
     XCTAssertEqual(loggedInSubscriptionStatus.emailAuthCode, @"test-hash-token");
-    XCTAssertEqual(loggedInSubscriptionStatus.subscribed, true);
+    XCTAssertEqual(loggedInSubscriptionStatus.isSubscribed, true);
     
     [OneSignal logoutEmailWithSuccess:^{
         [expectation fulfill];
@@ -349,21 +327,16 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertNil(loggedOutSubscriptionStatus.emailAuthCode);
     XCTAssertNil(loggedOutSubscriptionStatus.emailAddress);
     XCTAssertNil(loggedOutSubscriptionStatus.emailUserId);
-    XCTAssertFalse(loggedOutSubscriptionStatus.subscribed);
-    
-    //reset so we don't interfere with other tests
-    [OneSignalClientOverrider setRequiresEmailAuth:false];
+    XCTAssertFalse(loggedOutSubscriptionStatus.isSubscribed);
 }
 
 - (void)testEmailSubscriptionObserver {
-    [UnitTestCommonMethods runBackgroundThreads];
-    
     let observer = [OSEmailSubscriptionStateTestObserver new];
     [OneSignal addEmailSubscriptionObserver:observer];
     
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 1;
@@ -400,39 +373,30 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertNil(observer->last.to.emailAddress);
     XCTAssertNil(observer->last.to.emailAuthCode);
     XCTAssertNil(observer->last.to.emailUserId);
-    
-    //reset so we don't interfere with other tests
-    [OneSignalClientOverrider setRequiresEmailAuth:false];
 }
 
-//when the user is logged in with email, on_focus requests should be duplicated for the email player id as well
+/*
+ When the user is logged in with email, on_focus requests should be duplicated for the email player id as well
+ */
 - (void)testOnFocusEmailRequest {
-    [UnitTestCommonMethods runBackgroundThreads];
-    
-    [self setupEmailTest];
-    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [OneSignalClientOverrider reset:self];
     
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     
     //if we don't artificially set lastOpenedTime back at least 30 seconds, the on_focus request will not execute
     [OneSignalTracker setLastOpenedTime:now - 4000];
-    
     [OneSignalTracker onFocus:false];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     [OneSignalTracker setLastOpenedTime:now - 4000];
-    
     [OneSignalTracker onFocus:true];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertTrue([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestOnFocus class]]);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
     
     [OneSignalClientOverrider reset:self];
-    
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
     let expectation = [self expectationWithDescription:@"email"];
@@ -445,36 +409,26 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     }];
     
     [self waitForExpectations:@[expectation] timeout:0.1];
-    
     [OneSignalClientOverrider reset:self];
     
     //check to make sure request count gets reset to 0
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
     
     [OneSignalTracker setLastOpenedTime:now - 4000];
-    
     [OneSignalTracker onFocus:false];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     [OneSignalTracker setLastOpenedTime:now - 4000];
-    
     [OneSignalTracker onFocus:true];
-    
     [UnitTestCommonMethods runBackgroundThreads];
     
     // on_focus should fire off two requests, one for the email player ID and one for push player ID
     XCTAssertTrue([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestOnFocus class]]);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
-    
-    [OneSignalClientOverrider setRequiresEmailAuth:false];
-    
-    [OneSignalClientOverrider reset:self];
 }
 
 - (void)testRegistration {
-    // Restart App
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignalClientOverrider setRequiresEmailAuth:true];
     
@@ -503,19 +457,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"email_auth_hash"], @"test-hash-token");
-    
-    [OneSignalClientOverrider setRequiresEmailAuth:false];
-    
-    [OneSignalClientOverrider reset:self];
 }
 
--(void)testEmailSubscriptionDescription {
-    [UnitTestCommonMethods runBackgroundThreads];
-    
+- (void)testEmailSubscriptionDescription {
     let observer = [OSEmailSubscriptionStateTestObserver new];
     [OneSignal addEmailSubscriptionObserver:observer];
     
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     let expectation = [self expectationWithDescription:@"email"];
     expectation.expectedFulfillmentCount = 1;
@@ -533,13 +481,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([observer->last.to.description isEqualToString: @"<OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234>"]);
     XCTAssertTrue([observer->last.from.description isEqualToString:@"<OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null)>"]);
     XCTAssertTrue([observer->last.description isEqualToString:@"<OSEmailSubscriptionStateChanges:\nfrom: <OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null)>,\nto:   <OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234>\n>"]);
-    
-    [OneSignalClientOverrider reset:self];
 }
 
 - (void)testSetExternalIdForEmailPlayer {
-    [UnitTestCommonMethods runBackgroundThreads];
-    [self setupEmailTest];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [OneSignal setEmail:@"test@test.com"];
     [UnitTestCommonMethods runBackgroundThreads];

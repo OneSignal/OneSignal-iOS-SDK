@@ -47,7 +47,7 @@
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
     _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_TO defaultValue:nil];
-    _userSubscriptionSetting = ![standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_TO];
+    _isPushDisabled = [standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_TO];
     _externalIdAuthCode = [standardUserDefaults getSavedStringForKey:OSUD_EXTERNAL_ID_AUTH_CODE defaultValue:nil];
     
     return self;
@@ -56,7 +56,7 @@
 - (BOOL)compare:(OSSubscriptionState*)from {
     return ![self.userId ?: @"" isEqualToString:from.userId ?: @""] ||
            ![self.pushToken ?: @"" isEqualToString:from.pushToken ?: @""] ||
-           self.userSubscriptionSetting != from.userSubscriptionSetting ||
+           self.isPushDisabled != from.isPushDisabled ||
            self.accpeted != from.accpeted;
 }
 
@@ -65,7 +65,7 @@
     _accpeted = [standardUserDefaults getSavedBoolForKey:OSUD_PERMISSION_ACCEPTED_FROM defaultValue:false];
     _userId = [standardUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_FROM defaultValue:nil];
     _pushToken = [standardUserDefaults getSavedStringForKey:OSUD_PUSH_TOKEN_FROM defaultValue:nil];
-    _userSubscriptionSetting = ![standardUserDefaults keyExists:OSUD_USER_SUBSCRIPTION_FROM];
+    _isPushDisabled = ![standardUserDefaults getSavedBoolForKey:OSUD_USER_SUBSCRIPTION_FROM defaultValue:NO];
     _externalIdAuthCode = [standardUserDefaults getSavedStringForKey:OSUD_EXTERNAL_ID_AUTH_CODE defaultValue:nil];
     
     return self;
@@ -78,7 +78,7 @@
 
 - (void)persistAsFrom {
     NSString* strUserSubscriptionSetting = nil;
-    if (!_userSubscriptionSetting)
+    if (_isPushDisabled)
         strUserSubscriptionSetting = @"no";
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
@@ -95,7 +95,7 @@
     if (copy) {
         copy->_userId = [_userId copy];
         copy->_pushToken = [_pushToken copy];
-        copy->_userSubscriptionSetting = _userSubscriptionSetting;
+        copy->_isPushDisabled = _isPushDisabled;
         copy->_accpeted = _accpeted;
     }
     
@@ -124,16 +124,16 @@
     }
 }
 
-- (void)setUserSubscriptionSetting:(BOOL)userSubscriptionSetting {
-    BOOL changed = userSubscriptionSetting != _userSubscriptionSetting;
-    _userSubscriptionSetting = userSubscriptionSetting;
+- (void)setIsPushDisabled:(BOOL)isPushDisabled {
+    BOOL changed = isPushDisabled != _isPushDisabled;
+    _isPushDisabled = isPushDisabled;
     if (self.observable && changed)
         [self.observable notifyChange:self];
 }
 
 
 - (void)setAccepted:(BOOL)inAccpeted {
-    BOOL lastSubscribed = self.subscribed;
+    BOOL lastSubscribed = self.isSubscribed;
     
     // checks to see if we should delay the observer update
     // This is to prevent a problem where the observer gets updated
@@ -145,25 +145,25 @@
     }
     
     _accpeted = inAccpeted;
-    if (lastSubscribed != self.subscribed)
+    if (lastSubscribed != self.isSubscribed)
         [self.observable notifyChange:self];
 }
 
-- (BOOL)subscribed {
-    return _userId && _pushToken && _userSubscriptionSetting && _accpeted;
+- (BOOL)isSubscribed {
+    return _userId && _pushToken && !_isPushDisabled && _accpeted;
 }
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, userSubscriptionSetting: %d, subscribed: %d>";
-    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.userSubscriptionSetting, self.subscribed];
+    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, isPushDisabled: %d, isSubscribed: %d>";
+    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.isPushDisabled, self.isSubscribed];
 }
 
 - (NSDictionary*)toDictionary {
     return @{
          @"userId": _userId ?: [NSNull null],
          @"pushToken": _pushToken ?: [NSNull null],
-         @"userSubscriptionSetting": @(_userSubscriptionSetting),
-         @"subscribed": @(self.subscribed)
+         @"isPushDisabled": @(_isPushDisabled),
+         @"isSubscribed": @(self.isSubscribed)
      };
 }
 

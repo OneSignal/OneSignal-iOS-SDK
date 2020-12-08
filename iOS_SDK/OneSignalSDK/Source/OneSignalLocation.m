@@ -188,7 +188,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)sendCurrentAuthStatusToListeners {
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
-    CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
     if (permissionStatus == kCLAuthorizationStatusNotDetermined)
         return;
 
@@ -205,7 +205,7 @@ static OneSignalLocation* singleInstance = nil;
     // If location permissions was not asked "started" will never be true
     if ([self started]) {
         // We evaluate the following cases after permissions were asked (denied or given)
-        CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+        CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
         // Fallback to settings alert view when the following condition are true:
         //   - On a prompt flow
         //   - Fallback to settings is enabled
@@ -224,7 +224,7 @@ static OneSignalLocation* singleInstance = nil;
         return;
     }
     
-    CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
     // return if permission not determined and should not prompt
     if (permissionStatus == kCLAuthorizationStatusNotDetermined && !prompt)
         return;
@@ -232,34 +232,34 @@ static OneSignalLocation* singleInstance = nil;
     [self sendCurrentAuthStatusToListeners];
     locationManager = [[clLocationManagerClass alloc] init];
     [locationManager setValue:[self sharedInstance] forKey:@"delegate"];
-    
-    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"8.0"]) {
+
         
-        //Check info plist for request descriptions
-        //LocationAlways > LocationWhenInUse > No entry (Log error)
-        //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
-        NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
-        NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
-        // use background location updates if always permission granted or prompt allowed
-        if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
-            [locationManager performSelector:@selector(requestAlwaysAuthorization)];
-            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
-                [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
-        }
+    //Check info plist for request descriptions
+    //LocationAlways > LocationWhenInUse > No entry (Log error)
+    //Location Always requires: Location Background Mode + NSLocationAlwaysUsageDescription
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
+    // use background location updates if always permission granted or prompt allowed
+    if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [locationManager performSelector:NSSelectorFromString(@"requestAlwaysAuthorization")];
+        #pragma clang diagnostic pop
+        if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
+            [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
+    }
 
-        else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
-            if (permissionStatus == kCLAuthorizationStatusNotDetermined)
-                [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
-        }
+    else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"]) {
+        if (permissionStatus == kCLAuthorizationStatusNotDetermined)
+            [locationManager performSelector:@selector(requestWhenInUseAuthorization)];
+    }
 
-        else {
-            onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
-            [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
-        }
+    else {
+        onesignal_Log(ONE_S_LL_ERROR, @"Include a privacy NSLocationAlwaysUsageDescription or NSLocationWhenInUseUsageDescription in your info.plist to request location permissions.");
+        [self sendAndClearLocationListener:LOCATION_PERMISSIONS_MISSING_INFO_PLIST];
     }
         
-    // For iOS 6 and 7, location services are prompted here
-    // This method is also used for getting the location manager to obtain an initial location fix
+    // This method is used for getting the location manager to obtain an initial location fix
     // and will notify your delegate by calling its locationManager:didUpdateLocations: method
     [locationManager performSelector:@selector(startUpdatingLocation)];
     
@@ -271,7 +271,10 @@ static OneSignalLocation* singleInstance = nil;
     [[OneSignalDialogController sharedInstance] presentDialogWithTitle:@"Location Not Available" withMessage:@"You have previously denied sharing your device location. Please go to settings to enable." withActions:@[@"Open Settings"] cancelTitle:@"Cancel" withActionCompletion:^(int tappedActionIndex) {
         if (tappedActionIndex > -1) {
             onesignal_Log(ONE_S_LL_DEBUG, @"CLLocationManage open settings option click");
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wdeprecated"
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+            #pragma clang diagnostic pop
         }
         [OneSignalLocation sendAndClearLocationListener:false];
         return;
@@ -348,9 +351,9 @@ static OneSignalLocation* singleInstance = nil;
         NSMutableDictionary *requests = [NSMutableDictionary new];
         
         if ([OneSignal mEmailUserId])
-            requests[@"email"] = [OSRequestSendLocation withUserId:[OneSignal mEmailUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:[OneSignal mEmailAuthToken] externalIdAuthToken:nil];
+            requests[@"email"] = [OSRequestSendLocation withUserId:[OneSignal mEmailUserId] appId:[OneSignal appId] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:[OneSignal mEmailAuthToken] externalIdAuthToken:nil];
         
-        requests[@"push"] = [OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal app_id] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:nil externalIdAuthToken:[OneSignal mExternalIdAuthToken]];
+        requests[@"push"] = [OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal appId] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:nil externalIdAuthToken:[OneSignal mExternalIdAuthToken]];
         
         [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
     }

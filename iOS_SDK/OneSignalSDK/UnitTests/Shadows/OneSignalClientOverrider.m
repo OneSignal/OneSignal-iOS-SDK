@@ -41,13 +41,15 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation OneSignalClientOverrider
+
 static dispatch_queue_t serialMockMainLooper;
+static dispatch_queue_t executionQueue;
+
 static NSString* lastUrl;
 static int networkRequestCount;
 static NSDictionary* lastHTTPRequest;
 static XCTestCase* currentTestInstance;
 static BOOL executeInstantaneously = true;
-static dispatch_queue_t executionQueue;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
 static BOOL requiresExternalIdAuth = false;
@@ -55,7 +57,8 @@ static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Dire
 static BOOL disableOverride = false;
 static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
-static NSDictionary* iOSParamsOutcomes;
+static NSDictionary* remoteParamsOutcomes;
+static NSDictionary* remoteParams;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -65,26 +68,26 @@ static NSDictionary* iOSParamsOutcomes;
     injectToProperClass(@selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:), @selector(executeSimultaneousRequests:withSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
     injectToProperClass(@selector(overrideExecuteDataRequest:onSuccess:onFailure:), @selector(executeDataRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
 
-
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
-    
     executedRequests = [NSMutableArray new];
-
     mockResponses = [NSMutableDictionary new];
 }
 
-+ (NSDictionary*)iosParamsResponse {
-    return @{
-        @"fba": @true,
-        IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
-        IOS_REQUIRES_USER_ID_AUTHENTICATION : @(requiresExternalIdAuth),
-        IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
-        OUTCOMES_PARAM : iOSParamsOutcomes
-    };
++ (NSDictionary*)remoteParamsResponse {
+    return remoteParams ? remoteParams :
+        @{
+            IOS_FBA: @true,
+            IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
+            IOS_REQUIRES_USER_ID_AUTHENTICATION : @(requiresExternalIdAuth),
+            IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
+            OUTCOMES_PARAM : remoteParamsOutcomes,
+            IOS_LOCATION_SHARED : @true,
+            IOS_REQUIRES_USER_PRIVACY_CONSENT : @false
+        };
 }
 
 + (void)enableOutcomes {
-    iOSParamsOutcomes = @{
+    remoteParamsOutcomes = @{
         DIRECT_PARAM: @{
             ENABLED_PARAM: @YES
         },
@@ -99,6 +102,10 @@ static NSDictionary* iOSParamsOutcomes;
             ENABLED_PARAM: @YES
         }
     };
+}
+
++ (void)setRemoteParamsResponse:(NSDictionary *)params {
+    remoteParams = params;
 }
 
 // Calling this function twice results in reversing the swizzle
@@ -192,7 +199,7 @@ static NSDictionary* iOSParamsOutcomes;
 
         if (successBlock) {
             if ([request isKindOfClass:[OSRequestGetIosParams class]]) {
-                successBlock(self.iosParamsResponse);
+                successBlock(self.remoteParamsResponse);
             }
             else if (mockResponses[NSStringFromClass([request class])]) {
                 successBlock(mockResponses[NSStringFromClass([request class])]);
@@ -259,7 +266,8 @@ static NSDictionary* iOSParamsOutcomes;
     lastHTTPRequestType = nil;
     [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
-    iOSParamsOutcomes = @{};
+    remoteParamsOutcomes = @{};
+    remoteParams = nil;
     requiresEmailAuth = false;
     requiresExternalIdAuth = false;
 }

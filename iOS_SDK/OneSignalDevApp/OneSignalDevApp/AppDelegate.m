@@ -31,7 +31,19 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
+@interface OneSignalNotificationCenterDelegate: NSObject<UNUserNotificationCenterDelegate>
+@end
+@implementation OneSignalNotificationCenterDelegate
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    NSLog(@"Appdelegatewillpresentdelegate");
+}
+
+@end
+
 @implementation AppDelegate
+
+OneSignalNotificationCenterDelegate *_notificationDelegate;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
@@ -40,57 +52,60 @@
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
     [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
-    
-    OneSignal.inFocusDisplayType = OSNotificationDisplayTypeInAppAlert;
+    _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
-        NSLog(@"OSNotificationOpenedResult: %@", result);
-        
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened" message:@"Notification Opened" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
+        NSLog(@"OSNotificationOpenedResult: %@", result.action);
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated"
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notifiation Opened In App Delegate" message:@"Notification Opened In App Delegate" delegate:self cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
         [alert show];
+        #pragma clang diagnostic pop
     };
-
-    id notificationReceiverBlock = ^(OSNotification *notification) {
-        NSLog(@"Received Notification - %@", notification.payload.notificationID);
+    id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
+        NSLog(@"Will Receive Notification - %@", notif.notificationId);
+        completion(notif);
     };
     
     // Example block for IAM action click handler
     id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
         NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
+        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:message];
     };
 
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
-
-    [OneSignal initWithLaunchOptions:launchOptions
-                               appId:[AppDelegate getOneSignalAppId]
-          handleNotificationReceived:notificationReceiverBlock
-            handleNotificationAction:openNotificationHandler
-                            settings:@{kOSSettingsKeyAutoPrompt: @false,
-                                       kOSSettingsKeyInAppLaunchURL: @true}];
     
-//    [OneSignal setLocationShared:false];
-    
-    [OneSignal sendTag:@"someKey1122" value:@"03222017"];
+    // OneSignal Init with app id and lauch options
+    [OneSignal setLaunchURLsInApp:YES];
+    [OneSignal setProvidesNotificationSettingsView:NO];
+    [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
+    [OneSignal initWithLaunchOptions:launchOptions];
 
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
+
+    [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
+    [OneSignal setNotificationOpenedHandler:openNotificationHandler];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
+#define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
 
 + (NSString*)getOneSignalAppId {
+    NSString* newAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
     NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
-    if (!onesignalAppId)
-        onesignalAppId = @"77e32082-ea27-42e3-a898-c72e141824ef";
+
+    if (![newAppId isEqualToString:onesignalAppId]) {
+        [self setOneSignalAppId:newAppId];
+        onesignalAppId = newAppId;
+    }
 
     return onesignalAppId;
 }
@@ -107,7 +122,7 @@
 - (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
     NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
-    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.subscribed;
+    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
 }
 
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
@@ -148,7 +163,7 @@ didReceiveRemoteNotification:(NSDictionary *)userInfo
 fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
     
     NSLog(@"application:didReceiveRemoteNotification:fetchCompletionHandler: %@", userInfo);
-    completionHandler(nil);
+    completionHandler(UIBackgroundFetchResultNoData);
 }
 
 @end

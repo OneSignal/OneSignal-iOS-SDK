@@ -51,6 +51,7 @@
         self.subscriptionStatusSwitch.userInteractionEnabled = true;
         self.registerButton.backgroundColor = [UIColor greenColor];
         self.registerButton.userInteractionEnabled = false;
+        self.subscriptionStatusLabel.text = @"OneSignal Push Enabled";
     }
     
     [OneSignal addPermissionObserver:self];
@@ -149,22 +150,15 @@
     
 }
 
-- (IBAction)getIdsAvailableButtonPressed:(UIButton *)sender {
-    [OneSignal IdsAvailable:^(NSString* userId, NSString* pushToken) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (pushToken)
-            self.textView.text = [NSString stringWithFormat:@"PlayerId:\n%@\n\nPushToken:\n%@\n", userId, pushToken];
-            else
-            self.textView.text = @"ERROR: Could not get a pushToken from Apple! Make sure your provisioning profile has 'Push Notifications' enabled and rebuild your app.";
-            
-            NSLog(@"\n%@", self.textMultiLine1.text);
-        });
-    }];
-}
-
-- (IBAction)syncEmailButtonPressed:(UIButton *)sender {
-    [OneSignal syncHashedEmail:@"test@email.com"];
-    NSLog(@"Sync hashed email successful");
+- (IBAction)getSubscriptionState:(id)sender {
+    OSPermissionSubscriptionState *state = [OneSignal getPermissionSubscriptionState];
+    if (state.subscriptionStatus.pushToken) {
+        self.textView.text = [NSString stringWithFormat:@"PlayerId:\n%@\n\nPushToken:\n%@\n", state.subscriptionStatus.userId, state.subscriptionStatus.pushToken];
+    } else {
+        self.textView.text = @"ERROR: Could not get a pushToken from Apple! Make sure your provisioning profile has 'Push Notifications' enabled and rebuild your app.";
+    }
+    
+    NSLog(@"\n%@", self.textMultiLine1.text);
 }
 
 - (IBAction)promptLocationButtonPressed:(UIButton *)sender {
@@ -244,9 +238,9 @@
 
 - (IBAction)subscriptionSwitchValueChanged:(UISwitch *)sender {
     if (sender.isOn) {
-        [OneSignal setSubscription:true];
+        [OneSignal disablePush:false];
     } else {
-        [OneSignal setSubscription:false];
+        [OneSignal disablePush:true];
     }
 }
 
@@ -307,11 +301,11 @@
 -(void)onOSSubscriptionChanged:(OSSubscriptionStateChanges *)stateChanges {
     if (stateChanges.from.subscribed &&  !stateChanges.to.subscribed) {
         self.subscriptionStatusSwitch.on = false;
-        self.subscriptionStatusLabel.text = @"Set Subscription OFF";
+        self.subscriptionStatusLabel.text = @"OneSignal Push Disabled";
         self.registerButton.backgroundColor = [UIColor redColor];
     } else if (!stateChanges.from.subscribed && stateChanges.to.subscribed) {
         self.subscriptionStatusSwitch.on = true;
-        self.subscriptionStatusLabel.text = @"Set Subscription ON";
+        self.subscriptionStatusLabel.text = @"OneSignal Push Enabled";
         self.registerButton.backgroundColor = [UIColor greenColor];
     }
 }

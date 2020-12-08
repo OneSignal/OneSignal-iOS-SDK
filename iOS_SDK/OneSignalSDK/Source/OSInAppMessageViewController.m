@@ -94,7 +94,7 @@
 
 @implementation OSInAppMessageViewController
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage delegate:(Class<OSInAppMessageViewControllerDelegate>)delegate {
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate {
     if (self = [super init]) {
         self.message = inAppMessage;
         self.delegate = delegate;
@@ -445,7 +445,7 @@
         animationOption = UIViewAnimationOptionCurveEaseIn;
         dismissAnimationDuration = MIN_DISMISSAL_ANIMATION_DURATION;
     }
-    
+
     [UIView animateWithDuration:dismissAnimationDuration delay:0.0f options:animationOption animations:^{
         self.view.backgroundColor = [UIColor clearColor];
         self.view.alpha = 0.0f;
@@ -453,9 +453,7 @@
     } completion:^(BOOL finished) {
         if (!finished)
             return;
-        
-        [self dismissViewControllerAnimated:false completion:nil];
-    
+
         self.didPageRenderingComplete = false;
         [self.delegate messageViewControllerWasDismissed];
     }];
@@ -487,15 +485,16 @@
  Adds the pan recognizer (for swiping up and down) and the tap recognizer (for dismissing)
  */
 - (void)setupGestureRecognizers {
-    // Pan gesture recognizer for swiping
-    let recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerDidMove:)];
     
-    [self.messageView addGestureRecognizer:recognizer];
-    
-    recognizer.maximumNumberOfTouches = 1;
-    recognizer.minimumNumberOfTouches = 1;
-    
-    self.panGestureRecognizer = recognizer;
+    if (!self.message.dragToDismissDisabled) {
+        // Pan gesture recognizer for swiping
+        let recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerDidMove:)];
+        [self.messageView addGestureRecognizer:recognizer];
+        recognizer.maximumNumberOfTouches = 1;
+        recognizer.minimumNumberOfTouches = 1;
+        
+        self.panGestureRecognizer = recognizer;
+    }
     
     // Only center modal and full screen should dismiss on background click
     // Banners will allow interacting with the view behind it still
@@ -632,6 +631,7 @@
             
             self.message.position = event.renderingComplete.displayLocation;
             self.message.height = event.renderingComplete.height;
+            self.message.dragToDismissDisabled = event.renderingComplete.dragToDismissDisabled;
 
             // The page is fully loaded and should now be displayed
             // This is only fired once the javascript on the page sends the "rendering_complete" type event

@@ -45,13 +45,13 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 
 // Redefine OSSubscriptionState
 @interface OSSubscriptionState () {
-@protected BOOL _userSubscriptionSetting;
+@protected BOOL _isPushDisabled;
 @protected NSString* _userId;
 @protected NSString* _pushToken;
 }
 
 // @property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (readwrite, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (readwrite, nonatomic) BOOL isPushDisabled; // returns value of disablePush.
 @property (readwrite, nonatomic) NSString* userId;    // AKA OneSignal PlayerId
 @property (readwrite, nonatomic) NSString* pushToken; // AKA Apple Device Token
 @property (strong, nonatomic) NSString *externalIdAuthCode;

@@ -76,17 +76,17 @@ static var trackingEnabled = false;
                             withObject:params];
 }
 
-+ (NSString*)getCampaignNameFromPayload:(OSNotificationPayload*)payload {
-    if (payload.templateName && payload.templateID)
-        return [NSString stringWithFormat:@"%@ - %@", payload.templateName, payload.templateID];
-    if (!payload.title)
++ (NSString*)getCampaignNameFromNotification:(OSNotification *)notification {
+    if (notification.templateName && notification.templateId)
+        return [NSString stringWithFormat:@"%@ - %@", notification.templateName, notification.templateId];
+    if (!notification.title)
         return @"";
     
-    var titleLength = payload.title.length;
+    var titleLength = notification.title.length;
     if (titleLength > 10)
         titleLength = 10;
     
-    return [payload.title substringToIndex:titleLength];
+    return [notification.title substringToIndex:titleLength];
 }
 
 + (void)trackOpenEvent:(OSNotificationOpenedResult*)results {
@@ -99,18 +99,18 @@ static var trackingEnabled = false;
                 parameters:@{
                     @"source": @"OneSignal",
                     @"medium": @"notification",
-                    @"notification_id": results.notification.payload.notificationID,
-                    @"campaign": [self getCampaignNameFromPayload:results.notification.payload]
+                    @"notification_id": results.notification.notificationId,
+                    @"campaign": [self getCampaignNameFromNotification:results.notification]
                 }];
 }
 
-+ (void)trackReceivedEvent:(OSNotificationPayload*)payload {
++ (void)trackReceivedEvent:(OSNotification*)notification {
     if (!trackingEnabled)
         return;
     
-    let campaign = [self getCampaignNameFromPayload:payload];
+    let campaign = [self getCampaignNameFromNotification:notification];
     let sharedUserDefaults = OneSignalUserDefaults.initShared;
-    [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED withValue:payload.notificationID];
+    [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED withValue:notification.notificationId];
     [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED withValue:campaign];
     [sharedUserDefaults saveDoubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED withValue:[[NSDate date] timeIntervalSince1970]];
     
@@ -118,7 +118,7 @@ static var trackingEnabled = false;
                 parameters:@{
                     @"source": @"OneSignal",
                     @"medium": @"notification",
-                    @"notification_id": payload.notificationID,
+                    @"notification_id": notification.notificationId,
                     @"campaign": campaign
                 }];
 }

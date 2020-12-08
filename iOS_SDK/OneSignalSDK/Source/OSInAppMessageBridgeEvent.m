@@ -31,7 +31,7 @@
 
 @implementation OSInAppMessageBridgeEvent
 
-+ (instancetype)instanceWithData:(NSData *)data {
++ (instancetype _Nullable)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
     
@@ -43,7 +43,7 @@
     return [OSInAppMessageBridgeEvent instanceWithJson:json];
 }
 
-+ (instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype _Nullable)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEvent new];
     
     if ([json[@"type"] isKindOfClass:[NSString class]] && OS_IS_VALID_BRIDGE_EVENT_TYPE(json[@"type"]))
@@ -74,6 +74,10 @@
     return instance;
 }
 
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
+}
+
 - (NSString *)description{
     return [NSString stringWithFormat:@"OSInAppMessageBridgeEvent type: %lu\nrenderingComplete: %@\nresize: %@\nuserAction: %@", (unsigned long)_type, _renderingComplete, _resize, _userAction];
 }
@@ -82,11 +86,11 @@
 
 
 @implementation OSInAppMessageBridgeEventRenderingComplete
-+ (instancetype)instanceWithData:(NSData *)data {
++ (instancetype _Nullable)instanceWithData:(NSData *)data {
     return nil;
 }
 
-+ (instancetype)instanceWithJson:(NSDictionary *)json {
++ (instancetype _Nullable)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventRenderingComplete new];
     
     if (json[@"displayLocation"])
@@ -97,8 +101,17 @@
     if (json[@"pageMetaData"][@"rect"][@"height"])
         instance.height = json[@"pageMetaData"][@"rect"][@"height"];
     
+    if (json[@"dragToDismissDisabled"]) {
+        instance.dragToDismissDisabled = [json[@"dragToDismissDisabled"] boolValue];
+    }
+    
     return instance;
 }
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
+}
+
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"OSInAppMessageBridgeEventRenderingComplete height: %@\ndisplayLocation: %lu", _height, (unsigned long)_displayLocation];
@@ -117,6 +130,10 @@
         instance.height = json[@"pageMetaData"][@"rect"][@"height"];
     
     return instance;
+}
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
 }
 
 - (NSString *)description {

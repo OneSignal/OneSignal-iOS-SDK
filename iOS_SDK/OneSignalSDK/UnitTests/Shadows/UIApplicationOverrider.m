@@ -38,13 +38,14 @@ static BOOL calledCurrentUserNotificationSettings;
 
 static NSInteger didFailRegistarationErrorCode;
 static BOOL shouldFireDeviceToken;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 static UIApplicationState currentUIApplicationState;
 
 static UILocalNotification* lastUILocalNotification;
 
 static UIUserNotificationSettings* lastUIUserNotificationSettings;
-
+#pragma clang diagnostic pop
 static BOOL pendingRegisterBlock;
 
 //mimics no response from APNS
@@ -54,9 +55,10 @@ static NSURL* lastOpenedUrl;
 
 static int apnsTokenLength = 32;
 
+static UIApplication *sharedApplication;
+
 + (void)load {
     injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(override_run), @selector(_run), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideCurrentUserNotificationSettings), @selector(currentUserNotificationSettings), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterForRemoteNotificationTypes:), @selector(registerForRemoteNotificationTypes:), @[], [UIApplicationOverrider class], [UIApplication class]);
     injectToProperClass(@selector(overrideRegisterUserNotificationSettings:), @selector(registerUserNotificationSettings:), @[], [UIApplicationOverrider class], [UIApplication class]);
@@ -65,7 +67,7 @@ static int apnsTokenLength = 32;
     injectToProperClass(@selector(overrideOpenURL:options:completionHandler:), @selector(openURL:options:completionHandler:), @[], [UIApplicationOverrider class], [UIApplication class]);
 }
 
-+(void)reset {
++ (void)reset {
     blockApnsResponse = false;
     lastUILocalNotification = nil;
     pendingRegisterBlock = false;
@@ -78,34 +80,35 @@ static int apnsTokenLength = 32;
     apnsTokenLength = 32;
 }
 
-+(void)setCurrentUIApplicationState:(UIApplicationState)value {
++ (void)setCurrentUIApplicationState:(UIApplicationState)value {
     currentUIApplicationState = value;
 }
-
-+(UILocalNotification*)lastUILocalNotification {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
++ (UILocalNotification*)lastUILocalNotification {
     return lastUILocalNotification;
 }
-
-+(BOOL)calledRegisterForRemoteNotifications {
+#pragma clang diagnostic pop
++ (BOOL)calledRegisterForRemoteNotifications {
     return calledRegisterForRemoteNotifications;
 }
-+(BOOL)calledCurrentUserNotificationSettings {
++ (BOOL)calledCurrentUserNotificationSettings {
     return calledCurrentUserNotificationSettings;
 }
 
-+(void) setDidFailRegistarationErrorCode:(NSInteger)value {
++ (void)setDidFailRegistarationErrorCode:(NSInteger)value {
     didFailRegistarationErrorCode = value;
 }
 
-+(void)setBlockApnsResponse:(BOOL)block {
-    blockApnsResponse = block;
++ (void)setBlockApnsResponse:(BOOL)block {
+    blockApnsResponse = true;
 }
 
 + (void)setAPNSTokenLength:(int)tokenLength {
     apnsTokenLength = tokenLength;
 }
 
-+ (NSString *)mockAPNSToken {
++ (NSString*)mockAPNSToken {
     NSMutableString *token = [NSMutableString new];
 
     for (int i = 0; i < apnsTokenLength * 2; i++)
@@ -115,7 +118,7 @@ static int apnsTokenLength = 32;
 }
 
 // Keeps UIApplicationMain(...) from looping to continue to the next line.
-- (void) override_run {
+- (void)override_run {
     NSLog(@"override_run!!!!!!");
 }
 
@@ -137,6 +140,13 @@ static int apnsTokenLength = 32;
     });
 }
 
++ (UIApplication *)override_shared {
+    if (!sharedApplication) {
+        sharedApplication = [UIApplication new];
+    }
+    return sharedApplication;
+}
+
 // callPendingApplicationDidRegisterForRemoteNotificaitonsWithDeviceToken
 + (void)runBackgroundThreads {
     if (!pendingRegisterBlock || currentUIApplicationState != UIApplicationStateActive || blockApnsResponse)
@@ -152,21 +162,17 @@ static int apnsTokenLength = 32;
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
-// Called on iOS 8+
-- (void) overrideRegisterForRemoteNotifications {
+- (void)overrideRegisterForRemoteNotifications {
     calledRegisterForRemoteNotifications = true;
     [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
-
-// iOS 7
-- (void)overrideRegisterForRemoteNotificationTypes:(UIRemoteNotificationType)types {
-    // Just using this flag to mimic the non-prompted behavoir
-    if (UNUserNotificationCenterOverrider.authorizationStatus != [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined])
-        [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
+- (void)overrideRegisterForRemoteNotificationTypes: (UIUserNotificationType) types {
+    //empty
 }
 
-
-// iOS 8 & 9 Only
+// iOS 9 Only
 - (UIUserNotificationSettings*) overrideCurrentUserNotificationSettings {
     calledCurrentUserNotificationSettings = true;
     
@@ -183,19 +189,19 @@ static int apnsTokenLength = 32;
     lastUIUserNotificationSettings = notificationSettings;
 }
 
-- (UIApplicationState) overrideApplicationState {
+- (UIApplicationState)overrideApplicationState {
     return currentUIApplicationState;
 }
 
 - (void)overrideScheduleLocalNotification:(UILocalNotification*)notification {
     lastUILocalNotification = notification;
 }
-
+#pragma clang diagnostic pop
 - (void)overrideOpenURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options completionHandler:(void (^ __nullable)(BOOL success))completion {
     lastOpenedUrl = url;
 }
 
-+ (NSURL* )lastOpenedUrl {
++ (NSURL*)lastOpenedUrl {
     return lastOpenedUrl;
 }
 
