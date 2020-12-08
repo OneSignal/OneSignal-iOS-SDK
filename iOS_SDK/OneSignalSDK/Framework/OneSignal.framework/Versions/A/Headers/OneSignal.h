@@ -135,6 +135,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
       didReceiveNotificationRequest:withContentHandler: method fires. */
 + (instancetype)parseWithApns:(nonnull NSDictionary*)message;
 
+/* Convert object into a custom Dictionary / JSON Object */
+- (NSDictionary* _Nonnull)jsonRepresentation;
+
 /* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
 - (NSString* _Nonnull)stringify;
 
@@ -207,7 +210,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // Pass in nil means a notification will not display
 typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, Session) {
+typedef NS_ENUM(NSUInteger, OSInfluenceType) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -222,7 +225,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) Session session;
+@property (nonatomic) OSInfluenceType session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -252,7 +255,10 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     OSNotificationPermissionAuthorized,
     
     // the application is only authorized to post Provisional notifications (direct to history)
-    OSNotificationPermissionProvisional
+    OSNotificationPermissionProvisional,
+    
+    // the application is authorized to send notifications for 8 hours. Only used by App Clips.
+    OSNotificationPermissionEphemeral
 };
 
 // Permission Classes
@@ -274,15 +280,11 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
-@end
-
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
-@property (readonly, nonatomic) BOOL subscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (readonly, nonatomic) BOOL userSubscriptionSetting; // returns setSubscription state.
+@property (readonly, nonatomic) BOOL isSubscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
+@property (readonly, nonatomic) BOOL isPushDisabled; // returns value of disablePush.
 @property (readonly, nonatomic, nullable) NSString* userId;    // AKA OneSignal PlayerId
 @property (readonly, nonatomic, nullable) NSString* pushToken; // AKA Apple Device Token
 - (NSDictionary* _Nonnull)toDictionary;
@@ -292,7 +294,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @interface OSEmailSubscriptionState : NSObject
 @property (readonly, nonatomic, nullable) NSString* emailUserId; // The new Email user ID
 @property (readonly, nonatomic, nullable) NSString *emailAddress;
-@property (readonly, nonatomic) BOOL subscribed;
+@property (readonly, nonatomic) BOOL isSubscribed;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
@@ -316,14 +318,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges* _Nonnull)stateChanges;
 @end
 
-// Permission+Subscription Classes
-@interface OSPermissionSubscriptionState : NSObject
-
-@property (readonly, nonnull) OSPermissionState* permissionStatus;
-@property (readonly, nonnull) OSSubscriptionState* subscriptionStatus;
-@property (readonly, nonnull) OSEmailSubscriptionState *emailSubscriptionStatus;
-- (NSDictionary* _Nonnull)toDictionary;
-
+@protocol OSPermissionObserver <NSObject>
+- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
 @interface OSDeviceState : NSObject
@@ -368,7 +364,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
  */
 @property (readonly, nullable) NSString* emailAddress;
 
-- (instancetype)initWithSubscriptionState:(OSPermissionSubscriptionState *)state;
+@property (readonly) BOOL isEmailSubscribed;
 
 // Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;
@@ -384,19 +380,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 /*Block for handling outcome event being sent successfully*/
 typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
-/*Dictionary of keys to pass alongside the init settings*/
-
-/*Enable In-App display of Launch URLs*/
-extern NSString * const kOSSettingsKeyInAppLaunchURL;
-
-/* iOS 12 +
- Used to determine if the app is able to present it's
- own customized Notification Settings view
-*/
-extern NSString * const kOSSettingsKeyProvidesAppNotificationSettings;
-
-
-
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
@@ -408,16 +391,14 @@ extern NSString* const ONESIGNAL_VERSION;
 
 + (void)disablePush:(BOOL)disable;
 
-+ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
-
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
 + (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
-// TODO: Remove before releasing major release 3.0.0
-+ (void)setAppSettings:(NSDictionary* _Nonnull)settings;
++ (void)setLaunchURLsInApp:(BOOL)launchInApp;
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
@@ -431,7 +412,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 };
 
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
-+ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
++ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
 #pragma mark Prompt For Push
 typedef void(^OSUserResponseBlock)(BOOL accepted);
@@ -492,7 +473,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 
 #pragma mark Permission, Subscription, and Email Observers
 NS_ASSUME_NONNULL_BEGIN
-+ (OSPermissionSubscriptionState*)getPermissionSubscriptionState;
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
@@ -527,11 +507,14 @@ typedef void (^OSEmailSuccessBlock)();
 
 #pragma mark External User Id
 // Typedefs defining completion blocks for updating the external user id
-typedef void (^OSUpdateExternalUserIdBlock)(NSDictionary* results);
+typedef void (^OSUpdateExternalUserIdFailureBlock)(NSError *error);
+typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
+
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
-+ (void)setExternalUserId:(NSString * _Nonnull)externalId withCompletion:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
++ (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
++ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
 + (void)removeExternalUserId;
-+ (void)removeExternalUserId:(OSUpdateExternalUserIdBlock _Nullable)completionBlock;
++ (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
 
 #pragma mark In-App Messaging
 + (BOOL)isInAppMessagingPaused;
