@@ -97,6 +97,26 @@
     return NO;
 }
 
+/*
+ * Part of redisplay logic
+ *
+ * If message has only dynamic trigger return true, otherwise false
+ */
+- (BOOL)messageHasOnlyDynamicTriggers:(OSInAppMessage *)message {
+    if (message.triggers == nil || message.triggers.count == 0)
+        return false;
+
+    for (NSArray <OSTrigger *> *andConditions in message.triggers) {
+        for (OSTrigger *trigger in andConditions) {
+            if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_CUSTOM])
+                // At least one trigger is not dynamic
+                return false;
+         }
+    }
+
+    return true;
+}
+
 #pragma mark Private Methods
 
 - (void)timeSinceLastMessage:(NSDate *)date {

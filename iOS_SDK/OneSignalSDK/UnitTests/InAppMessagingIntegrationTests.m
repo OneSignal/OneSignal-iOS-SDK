@@ -267,15 +267,21 @@
     (all the triggers for the message evaluate to true), the SDK should display the message. This
     test verifies that the message actually gets displayed.
 */
-- (void)testIAMIsDisplayed {
+- (void)testIAMIsDisplayedOncePerSession {
+    [OneSignal pauseInAppMessages:false];
+    
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
 
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]]];
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:@10 delay:@0];
 
     [self initOneSignalWithInAppMessage:message];
     
     XCTAssertFalse(NSTimerOverrider.hasScheduledTimer);
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
+    
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    
+    XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
 }
 
 // if we have two messages that are both valid to displayed add them to the queue (triggers are all true),
