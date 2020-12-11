@@ -361,8 +361,8 @@ static BOOL _isInAppMessagingPaused = false;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
         
         // Message that don't have triggers should display only once per session
-        BOOL triggerHasChanged = message.isTriggerChanged || (!redisplayMessageSavedData.isDisplayedInSession && [message.triggers count] == 0);
-        
+        BOOL triggerHasChanged = [self hasMessageTriggerChanged:message];
+
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@ \ntriggerHasChanged: %@ \nno triggers: %@ \ndisplayed in session saved: %@", message, message.isTriggerChanged ? @"YES" : @"NO", [message.triggers count] == 0 ? @"YES" : @"NO", redisplayMessageSavedData.isDisplayedInSession  ? @"YES" : @"NO"]];
         // Check if conditions are correct for redisplay
         if (triggerHasChanged &&
@@ -376,6 +376,18 @@ static BOOL _isInAppMessagingPaused = false;
             return;
         }
     }
+}
+
+- (BOOL)hasMessageTriggerChanged:(OSInAppMessage *)message {
+    // Message that only have dynamic trigger should display only once per session
+    BOOL messageHasOnlyDynamicTrigger = [self.triggerController messageHasOnlyDynamicTriggers:message];
+    if (messageHasOnlyDynamicTrigger)
+        return !message.isDisplayedInSession;
+
+    // Message that don't have triggers should display only once per session
+    BOOL shouldMessageDisplayInSession = !message.isDisplayedInSession && [message.triggers count] == 0;
+
+    return message.isTriggerChanged || shouldMessageDisplayInSession;
 }
 
 /*
@@ -497,7 +509,6 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"not persisting %@",message.displayStats]];
         return;
     }
-
 
     let displayTimeSeconds = self.dateGenerator();
     message.displayStats.lastDisplayTime = displayTimeSeconds;
