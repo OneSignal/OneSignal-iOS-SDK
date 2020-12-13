@@ -192,7 +192,18 @@ static NSArray* delegateSubclasses = nil;
     BOOL startedBackgroundJob = false;
     
     if ([OneSignal appId]) {
-        if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive && userInfo[@"aps"][@"alert"])
+        let appState = [UIApplication sharedApplication].applicationState;
+        let isVisibleNotification = userInfo[@"aps"][@"alert"] != nil;
+        
+        // iOS 9 - Notification was tapped on
+        // https://medium.com/posts-from-emmerge/ios-push-notification-background-fetch-demystified-7090358bb66e
+        //   - NOTE: We do not have the extra logic for the notifiation center or double tap home button cases
+        //           of "inactive" on notification received the link above describes.
+        //           Omiting that complex logic as iOS 9 usage stats are very low (12/11/2020) and these are rare cases.
+        if ([OneSignalHelper isIOSVersionLessThan:@"10.0"] && appState == UIApplicationStateInactive && isVisibleNotification) {
+            [OneSignal notificationReceived:userInfo wasOpened:YES];
+        }
+        else if (appState == UIApplicationStateActive && isVisibleNotification)
             [OneSignal notificationReceived:userInfo wasOpened:NO];
         else
             startedBackgroundJob = [OneSignal receiveRemoteNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
