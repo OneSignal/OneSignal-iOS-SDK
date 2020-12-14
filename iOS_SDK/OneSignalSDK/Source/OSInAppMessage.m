@@ -85,6 +85,13 @@
     [_viewedPageIds addObject:pageId];
 }
 
+- (void)removePageId:(NSString *)pageId {
+    if (!_viewedPageIds) {
+        return;
+    }
+    [_viewedPageIds removeObject:pageId];
+}
+
 - (NSSet<NSString *> *)getViewedPageIds {
     return _viewedPageIds;
 }

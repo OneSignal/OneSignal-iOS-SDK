@@ -61,6 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSSet<NSString *> *)getViewedPageIds;
 - (void)clearPageIds;
 - (void)addPageId:(NSString *)pageId;
+- (void)removePageId:(NSString *)pageId;
 
 @end
 

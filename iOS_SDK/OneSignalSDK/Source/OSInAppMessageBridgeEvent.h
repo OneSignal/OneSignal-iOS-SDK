@@ -62,7 +62,4 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
 @property (strong, nonatomic, nullable) OSInAppMessageAction *userAction;
 @end
 
-
-
-
 NS_ASSUME_NONNULL_END
