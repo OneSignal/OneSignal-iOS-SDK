@@ -305,33 +305,6 @@ NSInteger const DELAY = 60;
     XCTAssertEqualObjects(testPageChangeEvent.pageChange.page.pageId, @"test_id");
 }
 
-- (void)testCachePageChangeIds {
-    NSString *pageId1 = @"page_id_1";
-    NSString *pageId2 = @"page_id_2";
-    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId1]);
-    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId2]);
-
-    [testMessageRedisplay addPageId:pageId1];
-    XCTAssertTrue([[testMessageRedisplay getViewedPageIds] containsObject:pageId1]);
-    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId2]);
-
-    [testMessageRedisplay clearPageIds];
-    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId1]);
-    XCTAssertFalse([[testMessageRedisplay getViewedPageIds] containsObject:pageId2]);
-
-    // Test on a IAM without redisplay
-    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId1]);
-    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId2]);
-
-    [testMessage addPageId:pageId1];
-    XCTAssertTrue([[testMessage getViewedPageIds] containsObject:pageId1]);
-    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId2]);
-
-    [testMessage clearPageIds];
-    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId1]);
-    XCTAssertFalse([[testMessage getViewedPageIds] containsObject:pageId2]);
-}
-
 - (void)testCorrectlyParsedRenderingCompleteBridgeEvent {
     let type = [OSInAppMessageBridgeEvent instanceWithJson:@{@"type" : @"rendering_complete"}].type;
     XCTAssertEqual(type, OSInAppMessageBridgeEventTypePageRenderingComplete);

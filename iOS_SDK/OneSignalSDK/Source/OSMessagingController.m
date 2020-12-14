@@ -296,13 +296,12 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     NSString *messagePrefixedPageId = [message.messageId stringByAppendingString:pageId];
-        
-    if ([[message getViewedPageIds] containsObject:pageId] || [self.viewedPageIDs containsObject:messagePrefixedPageId]) {
+    
+    if ([self.viewedPageIDs containsObject:messagePrefixedPageId]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression already sent. id: %@",pageId]];
         return;
     }
 
-    [message addPageId:pageId];
     [self.viewedPageIDs addObject:messagePrefixedPageId];
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
@@ -324,7 +323,6 @@ static BOOL _isInAppMessagingPaused = false;
         NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error];
                                             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
                                             if (message) {
-                                                [message removePageId:pageId];
                                                 [self.viewedPageIDs removeObject:messagePrefixedPageId];
                                             }
                                        }];
@@ -429,7 +427,6 @@ static BOOL _isInAppMessagingPaused = false;
             [self.viewedPageIDs removeAllObjects];
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY withValue:self.viewedPageIDs];
             [message clearClickIds];
-            [message clearPageIds];
             return;
         }
     }

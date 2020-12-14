@@ -74,28 +74,6 @@
     return _clickedClickIds;
 }
 
-- (void)clearPageIds {
-    _viewedPageIds = [NSMutableSet new];
-}
-
-- (void)addPageId:(NSString *)pageId {
-    if (!_viewedPageIds) {
-        _viewedPageIds = [NSMutableSet new];
-    }
-    [_viewedPageIds addObject:pageId];
-}
-
-- (void)removePageId:(NSString *)pageId {
-    if (!_viewedPageIds) {
-        return;
-    }
-    [_viewedPageIds removeObject:pageId];
-}
-
-- (NSSet<NSString *> *)getViewedPageIds {
-    return _viewedPageIds;
-}
-
 + (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
