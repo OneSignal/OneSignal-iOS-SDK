@@ -396,7 +396,8 @@ static BOOL _isInAppMessagingPaused = false;
  */
 - (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
-           [self.triggerController messageMatchesTriggers:message];
+           [self.triggerController messageMatchesTriggers:message] &&
+           ![message isFinished];
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
