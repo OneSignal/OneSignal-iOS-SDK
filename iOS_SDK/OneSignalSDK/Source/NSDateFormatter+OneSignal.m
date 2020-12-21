@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2020 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,41 +25,17 @@
  * THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
-#import "OSInAppMessagingDefines.h"
-#import "OSInAppMessageDisplayStats.h"
-#import "OSJSONHandling.h"
-#import "OneSignal.h"
-#import "OSTrigger.h"
+#import "NSDateFormatter+OneSignal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation NSDateFormatter (OneSignal)
 
-@interface OSInAppMessage : NSObject <NSCoding, OSJSONDecodable, OSJSONEncodable>
-
-@property (strong, nonatomic, nonnull) NSString *messageId;
-@property (strong, nonatomic, nonnull) NSDictionary<NSString *, NSDictionary <NSString *, NSString *> *> *variants;
-@property (strong, nonatomic, nonnull) NSArray<NSArray <OSTrigger *> *> *triggers;
-
-@property (nonatomic) OSInAppMessageDisplayPosition position;
-@property (nonatomic) OSInAppMessageDisplayStats *displayStats;
-@property (nonatomic) BOOL actionTaken;
-@property (nonatomic) BOOL isPreview;
-@property (nonatomic) BOOL isDisplayedInSession;
-@property (nonatomic) BOOL isTriggerChanged;
-@property (nonatomic) NSNumber *height;
-@property (nonatomic, nullable) NSDate *endTime;
-
-- (BOOL)isBanner;
-- (BOOL)takeActionAsUnique;
-
-- (NSSet<NSString *> *)getClickedClickIds;
-- (BOOL)isClickAvailable:(NSString *)clickId;
-
-- (void)clearClickIds;
-- (void)addClickId:(NSString *)clickId;
-
-- (BOOL)isFinished;
++ (instancetype)iso8601DateFormatter {
+    NSDateFormatter *dateFormatter = [NSDateFormatter new];
+    [dateFormatter setCalendar:[NSCalendar calendarWithIdentifier:NSCalendarIdentifierISO8601]];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+    [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"];
+    return dateFormatter;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
