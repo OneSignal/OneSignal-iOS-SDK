@@ -167,11 +167,17 @@ int messageIdIncrementer = 0;
     return [OSInAppMessage instanceWithData:data];
 }
 
-+ (OSInAppMessage *)testMessagePreview {
-    let messageJson = self.testMessagePreviewJson;
-
-    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
++ (OSInAppMessage *)testMessageWithPastEndTime:(BOOL)pastEndTime {
+    let messageJson = self.testMessageJson;
     
+    NSMutableDictionary *messageJsonWithEndTime = [[NSMutableDictionary alloc] initWithDictionary:messageJson];
+    if (pastEndTime) {
+        messageJsonWithEndTime[@"end_time"] = @"1960-01-01T00:00:00.000Z";
+    } else {
+        messageJsonWithEndTime[@"end_time"] = @"2200-01-01T00:00:00.000Z";
+    }
+    let data = [NSJSONSerialization dataWithJSONObject:messageJsonWithEndTime options:0 error:nil];
+
     return [OSInAppMessage instanceWithData:data];
 }
 

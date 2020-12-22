@@ -284,6 +284,27 @@
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 0);
 }
 
+- (void)testIAMsDontDisplayPastEndTime {
+    [OneSignal pauseInAppMessages:false];
+
+    let message = [OSInAppMessageTestHelper testMessageWithPastEndTime:YES];
+
+    [self initOneSignalWithInAppMessage:message];
+    
+    XCTAssertEqual(OSMessagingControllerOverrider.isInAppMessageShowing, false);
+}
+
+- (void)testIAMsDoDisplayWithFutureEndTime {
+    [OneSignal pauseInAppMessages:false];
+
+    let message = [OSInAppMessageTestHelper testMessageWithPastEndTime:NO];
+
+    [self initOneSignalWithInAppMessage:message];
+    
+    XCTAssertEqual(OSMessagingControllerOverrider.isInAppMessageShowing, true);
+}
+
+
 // if we have two messages that are both valid to displayed add them to the queue (triggers are all true),
 - (void)testIAMsDontOverlap {
     [OSMessagingController.sharedInstance setTriggerWithName:@"prop1" withValue:@2];
