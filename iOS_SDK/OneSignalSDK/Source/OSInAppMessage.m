@@ -101,6 +101,13 @@
         message.displayStats = [OSInAppMessageDisplayStats instanceWithJson:json[@"redisplay"]];
     else
         message.displayStats = [[OSInAppMessageDisplayStats alloc] init];
+    
+    if (json[@"end_time"] && [json[@"end_time"] isKindOfClass:[NSString class]]) {
+        NSString *stringEndTime = json[@"end_time"];
+        NSDateFormatter *dateFormatter = [NSDateFormatter iso8601DateFormatter];
+        NSDate *endTime = [dateFormatter dateFromString:stringEndTime];
+        message.endTime = endTime;
+    }
 
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
@@ -160,11 +167,13 @@
         json[@"redisplay"] = [_displayStats jsonRepresentation];
     }
     
+    json[@"end_time"] = [[NSDateFormatter iso8601DateFormatter] stringFromDate:self.endTime];
+    
     return json;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayed_in_session: %@ \ndisplayStats: %@", self.messageId, self.triggers, self.isDisplayedInSession ? @"YES" : @"NO", self.displayStats];
+    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayed_in_session: %@ \ndisplayStats: %@ \nendTime: %@", self.messageId, self.triggers, self.isDisplayedInSession ? @"YES" : @"NO", self.displayStats, self.endTime];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -192,6 +201,7 @@
     [encoder encodeObject:_displayStats forKey:@"displayStats"];
     //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
     [encoder encodeBool:_isDisplayedInSession forKey:@"displayed_in_session"];
+    [encoder encodeObject:_endTime forKey:@"endTime"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -202,8 +212,16 @@
         _displayStats = [decoder decodeObjectForKey:@"displayStats"];
         //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
         _isDisplayedInSession = [decoder decodeBoolForKey:@"displayed_in_session"];
+        _endTime = [decoder decodeObjectForKey:@"endTime"];
     }
     return self;
+}
+
+- (BOOL)isFinished {
+    if (!self.endTime) {
+        return NO;
+    }
+    return [self.endTime compare:[NSDate date]] == NSOrderedAscending;
 }
 
 @end
