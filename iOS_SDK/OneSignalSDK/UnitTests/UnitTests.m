@@ -1547,10 +1547,14 @@ didReceiveRemoteNotification:userInfo
     __block BOOL receivedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHandlers:^(OSNotification *notif, OSNotificationDisplayResponse completion) {
         receivedWasFire = true;
-    } notificationOpenedHandler:nil];
+    } notificationOpenedHandler:^(OSNotificationOpenedResult * _Nonnull result) {
+        receivedWasFire = true;
+    }];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    id userInfo = @{@"aps": @{@"content_available": @1},
+    id userInfo = @{@"aps": @{@"content_available": @1,
+                              @"badge" : @54
+                    },
                     @"custom": @{
                             @"i": @"b2f7f966-d8cc-11e4-1111-df8f05be55bb"
                             }
@@ -1570,10 +1574,14 @@ didReceiveRemoteNotification:userInfo
     __block BOOL receivedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHandlers:^(OSNotification *notif, OSNotificationDisplayResponse completion) {
         receivedWasFire = true;
-    } notificationOpenedHandler:nil];
+    } notificationOpenedHandler:^(OSNotificationOpenedResult * _Nonnull result) {
+        receivedWasFire = true;
+    }];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    id userInfo = @{@"aps": @{@"content_available": @1},
+    id userInfo = @{@"aps": @{@"content_available": @1,
+                              @"badge" : @54
+                            },
                     @"custom": @{
                             @"i": @"b2f7f966-d8cc-11e4-1111-df8f05be55bb"
                             }
@@ -1583,7 +1591,6 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqual(receivedWasFire, false);
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
 - (UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
