@@ -63,6 +63,9 @@
     if ([json[@"name"] isKindOfClass:[NSString class]])
         action.clickName = json[@"name"];
     
+    if ([json[@"pageId"] isKindOfClass:[NSString class]])
+        action.pageId = json[@"pageId"];
+    
     if ([json[@"url_target"] isKindOfClass:[NSString class]] && OS_IS_VALID_URL_ACTION(json[@"url_target"]))
         action.urlActionType = OS_URL_ACTION_TYPE_FROM_STRING(json[@"url_target"]);
     else
@@ -72,6 +75,8 @@
         action.closesMessage = [json[@"close"] boolValue];
     else
         action.closesMessage = true; // Default behavior
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSInAppMessageAction %@", json]];
 
     NSMutableArray *outcomes = [NSMutableArray new];
     //TODO: when backend is ready check that key matches

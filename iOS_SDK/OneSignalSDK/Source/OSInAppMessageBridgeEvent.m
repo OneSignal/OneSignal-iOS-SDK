@@ -31,10 +31,9 @@
 
 @implementation OSInAppMessageBridgeEvent
 
-+ (instancetype _Nullable)instanceWithData:(NSData *)data {
++ (instancetype)instanceWithData:(NSData *)data {
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
-    
     if (error || !json) {
         [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Unable to decode JS-bridge event with error: %@", error.description ?: @"Unknown Error"]];
         return nil;
@@ -51,26 +50,35 @@
     else
         return nil;
     
-    if (instance.type == OSInAppMessageBridgeEventTypeActionTaken) {
-        // deserialize the action JSON
-        if ([json[@"body"] isKindOfClass:[NSDictionary class]]) {
-            
-            let action = [OSInAppMessageAction instanceWithJson:json[@"body"]];
-            
-            if (!action)
+    switch (instance.type) {
+        case OSInAppMessageBridgeEventTypeActionTaken: {
+            // deserialize the action JSON
+            if ([json[@"body"] isKindOfClass:[NSDictionary class]]) {
+                
+                let action = [OSInAppMessageAction instanceWithJson:json[@"body"]];
+                
+                if (!action)
+                    return nil;
+                
+                instance.userAction = action;
+            }
+            else
                 return nil;
-            
-            instance.userAction = action;
+            break;
         }
-        else
-            return nil;
+        case OSInAppMessageBridgeEventTypePageRenderingComplete: {
+            instance.renderingComplete = [OSInAppMessageBridgeEventRenderingComplete instanceWithJson:json];
+            break;
+        }
+        case OSInAppMessageBridgeEventTypePageResize: {
+            instance.resize = [OSInAppMessageBridgeEventResize instanceWithJson:json];
+            break;
+        }
+        case OSInAppMessageBridgeEventTypePageChange: {
+            instance.pageChange = [OSInAppMessageBridgeEventPageChange instanceWithJson:json];
+            break;
+        }
     }
-    else if (instance.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
-        instance.renderingComplete = [OSInAppMessageBridgeEventRenderingComplete instanceWithJson:json];
-    } else if (instance.type == OSInAppMessageBridgeEventTypePageResize) {
-        instance.resize = [OSInAppMessageBridgeEventResize instanceWithJson:json];
-    }
-    
     return instance;
 }
 
@@ -90,7 +98,7 @@
     return nil;
 }
 
-+ (instancetype _Nullable)instanceWithJson:(NSDictionary *)json {
++ (instancetype)instanceWithJson:(NSDictionary *)json {
     let instance = [OSInAppMessageBridgeEventRenderingComplete new];
     
     if (json[@"displayLocation"])
@@ -140,3 +148,25 @@
     return [NSString stringWithFormat:@"OSInAppMessageBridgeEventResize height: %@", _height];
 }
 @end
+
+@implementation OSInAppMessageBridgeEventPageChange
++ (instancetype)instanceWithData:(NSData *)data {
+    return nil;
+}
+
++ (instancetype)instanceWithJson:(NSDictionary *)json {
+    let instance = [OSInAppMessageBridgeEventPageChange new];
+    instance.page = [OSInAppMessagePage instanceWithJson:json];
+    return instance;
+}
+
++ (instancetype _Nullable)instancePreviewFromNotification:(OSNotification * _Nonnull)notification {
+    return nil;
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSInAppMessageBridgeEventPageChange pageId: %@ pageIndex: %@", _page.pageId, _page.pageIndex];
+}
+
+@end
+

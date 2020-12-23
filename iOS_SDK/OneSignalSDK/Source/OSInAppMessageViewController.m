@@ -622,35 +622,44 @@
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventMessage];
     NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occured with Event Type: %lu", (unsigned long)event.type];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventTypeMessage];
-    
-    if (event) {
-        if (event.type == OSInAppMessageBridgeEventTypePageRenderingComplete) {
-            
-            // BOOL set to true since the JS event fired, meaning the WebView was populated properly with the IAM code
-            self.didPageRenderingComplete = true;
-            
-            self.message.position = event.renderingComplete.displayLocation;
-            self.message.height = event.renderingComplete.height;
-            self.message.dragToDismissDisabled = event.renderingComplete.dragToDismissDisabled;
 
-            // The page is fully loaded and should now be displayed
-            // This is only fired once the javascript on the page sends the "rendering_complete" type event
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.delegate webViewContentFinishedLoading];
-                [OneSignalHelper performSelector:@selector(displayMessage) onMainThreadOnObject:self withObject:nil afterDelay:0.0f];
-            });
-        }
-        else if (event.type == OSInAppMessageBridgeEventTypePageResize) {
-            // Unused resize event for IAM during actions like orientation changes and displaying an IAM
-//            self.message.height = event.resize.height;
-        }
-        else if (event.type == OSInAppMessageBridgeEventTypeActionTaken) {
-            if (event.userAction.clickType)
-                [self.delegate messageViewDidSelectAction:self.message withAction:event.userAction];
-            if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
-                [self.messageView loadReplacementURL:event.userAction.clickUrl];
-            if (event.userAction.closesMessage)
-                [self dismissCurrentInAppMessage];
+    if (event) {
+        switch (event.type) {
+            case OSInAppMessageBridgeEventTypePageRenderingComplete: {
+                // BOOL set to true since the JS event fired, meaning the WebView was populated properly with the IAM code
+                self.didPageRenderingComplete = true;
+               
+                self.message.position = event.renderingComplete.displayLocation;
+                self.message.height = event.renderingComplete.height;
+
+                // The page is fully loaded and should now be displayed
+                // This is only fired once the javascript on the page sends the "rendering_complete" type event
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.delegate webViewContentFinishedLoading];
+                    [OneSignalHelper performSelector:@selector(displayMessage) onMainThreadOnObject:self withObject:nil afterDelay:0.0f];
+                });
+                break;
+            }
+            case OSInAppMessageBridgeEventTypePageResize: {
+                // Unused resize event for IAM during actions like orientation changes and displaying an IAM
+                // self.message.height = event.resize.height;
+                break;
+            }
+            case OSInAppMessageBridgeEventTypeActionTaken: {
+                if (event.userAction.clickType)
+                   [self.delegate messageViewDidSelectAction:self.message withAction:event.userAction];
+                if (event.userAction.urlActionType == OSInAppMessageActionUrlTypeReplaceContent)
+                   [self.messageView loadReplacementURL:event.userAction.clickUrl];
+                if (event.userAction.closesMessage)
+                   [self dismissCurrentInAppMessage];
+                break;
+            }
+            case OSInAppMessageBridgeEventTypePageChange: {
+                [self.delegate messageViewDidDisplayPage:self.message withPageId: event.pageChange.page.pageId];
+                break;
+            }
+            default:
+                break;
         }
     }
 }

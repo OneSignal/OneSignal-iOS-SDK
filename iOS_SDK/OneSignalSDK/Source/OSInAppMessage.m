@@ -32,6 +32,7 @@
 @interface OSInAppMessage ()
 
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
+@property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *viewedPageIds;
 
 @end
 
@@ -40,6 +41,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.clickedClickIds = [[NSMutableSet alloc] init];
+        self.viewedPageIds = [NSMutableSet new];
         self.isTriggerChanged = false;
     }
     
@@ -61,7 +63,7 @@
 }
 
 - (void)clearClickIds {
-    _clickedClickIds = [[NSMutableSet alloc] init];
+    _clickedClickIds = [NSMutableSet new];
 }
 
 - (void)addClickId:(NSString *)clickId {

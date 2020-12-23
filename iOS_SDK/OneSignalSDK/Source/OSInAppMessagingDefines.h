@@ -73,6 +73,7 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 #define OS_IAM_SEEN_SET_KEY @"OS_IAM_SEEN_SET"
 #define OS_IAM_CLICKED_SET_KEY @"OS_IAM_CLICKED_SET"
 #define OS_IAM_IMPRESSIONED_SET_KEY @"OS_IAM_IMPRESSIONED_SET"
+#define OS_IAM_PAGE_IMPRESSIONED_SET_KEY @"OS_IAM_PAGE_IMPRESSIONED_SET"
 #define OS_IAM_MESSAGES_ARRAY @"OS_IAM_MESSAGES_ARRAY"
 #define OS_IAM_REDISPLAY_DICTIONARY @"OS_IAM_REDISPLAY_DICTIONARY"
 
@@ -96,7 +97,7 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
 
-#define OS_BRIDGE_EVENT_TYPES @[@"rendering_complete", @"action_taken", @"resize"]
+#define OS_BRIDGE_EVENT_TYPES @[@"rendering_complete", @"action_taken", @"resize", @"page_change"]
 #define OS_IS_VALID_BRIDGE_EVENT_TYPE(string) [OS_BRIDGE_EVENT_TYPES containsObject:string]
 #define OS_BRIDGE_EVENT_TYPE_FROM_STRING(string) (OSInAppMessageBridgeEventType)[OS_BRIDGE_EVENT_TYPES indexOfObject:string]
 

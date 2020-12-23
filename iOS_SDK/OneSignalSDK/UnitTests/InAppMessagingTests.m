@@ -58,6 +58,7 @@
     OSInAppMessage *testMessageRedisplay;
     OSInAppMessageAction *testAction;
     OSInAppMessageBridgeEvent *testBridgeEvent;
+    OSInAppMessageBridgeEvent *testPageChangeEvent;
 }
 
 NSInteger const LIMIT = 5;
@@ -95,8 +96,15 @@ NSInteger const DELAY = 60;
             @"id" : @"test_id",
             @"url" : @"https://www.onesignal.com",
             @"url_target" : @"browser",
-            @"close" : @false
+            @"close" : @false,
+            @"pageId": @"test_page_id",
         }
+    }];
+    
+    testPageChangeEvent = [OSInAppMessageBridgeEvent instanceWithJson:@{
+        @"type" : @"page_change",
+        @"pageIndex" : @"1",
+        @"pageId" : @"test_id",
     }];
     
     testAction = testBridgeEvent.userAction;
@@ -289,6 +297,12 @@ NSInteger const DELAY = 60;
 
 - (void)testCorrectlyParsedActionBridgeEvent {
     XCTAssertEqual(testBridgeEvent.type, OSInAppMessageBridgeEventTypeActionTaken);
+    XCTAssertEqualObjects(testBridgeEvent.userAction.pageId, @"test_page_id");
+}
+
+- (void)testCorrectlyParsedPageChangeBridgeEvent {
+    XCTAssertEqual(testPageChangeEvent.type, OSInAppMessageBridgeEventTypePageChange);
+    XCTAssertEqualObjects(testPageChangeEvent.pageChange.page.pageId, @"test_id");
 }
 
 - (void)testCorrectlyParsedRenderingCompleteBridgeEvent {

@@ -63,6 +63,9 @@
 // Tracking for impessions so that an IAM is only tracked once and not several times if it is reshown
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *impressionedInAppMessages;
 
+// Tracking for impessions so that an IAM is only tracked once and not several times if it is reshown
+@property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *viewedPageIDs;
+
 // Click action block to allow overridden behavior when clicking an IAM
 @property (strong, nonatomic, nullable) OSInAppMessageClickBlock actionClickBlock;
 
@@ -143,6 +146,7 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"init redisplayedInAppMessages with: %@", [_redisplayedInAppMessages description]]];
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
+        self.viewedPageIDs = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY defaultValue:nil]];
         self.currentPromptAction = nil;
         self.isAppInactive = NO;
         // BOOL that controls if in-app messaging is paused or not (false by default)
@@ -280,6 +284,54 @@ static BOOL _isInAppMessagingPaused = false;
     });
 }
 
+- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId {
+    if (message.isPreview) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Not sending page impression for preview message. ID: %@",pageId]];
+        return;
+    }
+    
+    if (!pageId) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempting to send page impression for nil page id"]];
+        return;
+    }
+    
+    NSString *messagePrefixedPageId = [message.messageId stringByAppendingString:pageId];
+    
+    if ([self.viewedPageIDs containsObject:messagePrefixedPageId]) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression already sent. id: %@",pageId]];
+        return;
+    }
+
+    [self.viewedPageIDs addObject:messagePrefixedPageId];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
+    // Create the request and attach a payload to it
+    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
+                                                       withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                      withMessageId:message.messageId
+                                                         withPageId:pageId
+                                                       forVariantId:message.variantId];
+    
+    [OneSignalClient.sharedClient executeRequest:metricsRequest
+                                       onSuccess:^(NSDictionary *result) {
+        NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, pageId, result];
+                                           [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
+                                            // If the post was successful, save the updated viewedPageIds set
+                                            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY withValue:self.viewedPageIDs];
+                                       }
+                                       onFailure:^(NSError *error) {
+        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error];
+                                            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+                                            if (message) {
+                                                [self.viewedPageIDs removeObject:messagePrefixedPageId];
+                                            }
+                                       }];
+}
+
+- (BOOL)shouldSendImpression:(OSInAppMessage *)message {
+    return !(message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId]);
+}
+
 /*
  Make an impression POST to track that the IAM has been
  Request should only be made for IAMs that are not previews and have not been impressioned yet
@@ -287,7 +339,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)messageViewImpressionRequest:(OSInAppMessage *)message {
     // Make sure no tracking is performed for previewed IAMs
     // If the messageId exists in cached impressionedInAppMessages return early so the impression is not tracked again
-    if (message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId])
+    if (![self shouldSendImpression:message])
         return;
     
     // Add messageId to impressionedInAppMessages
@@ -372,6 +424,8 @@ static BOOL _isInAppMessagingPaused = false;
 
             [self.seenInAppMessages removeObject:message.messageId];
             [self.impressionedInAppMessages removeObject:message.messageId];
+            [self.viewedPageIDs removeAllObjects];
+            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY withValue:self.viewedPageIDs];
             [message clearClickIds];
             return;
         }
@@ -601,6 +655,12 @@ static BOOL _isInAppMessagingPaused = false;
     [self sendClickRESTCall:message withAction:action];
     [self sendTagCallWithAction:action];
     [self sendOutcomes:action.outcomes forMessageId:message.messageId];
+}
+
+- (void)messageViewDidDisplayPage:(OSInAppMessage *)message withPageId:(NSString *)pageId {
+    dispatch_async(dispatch_get_main_queue(), ^{
+           [self messageViewPageImpressionRequest:message withPageId:pageId];
+    });
 }
 
 /*

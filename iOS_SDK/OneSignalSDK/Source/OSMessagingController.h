@@ -54,6 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateInAppMessagesFromCache;
 - (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages;
 - (void)messageViewImpressionRequest:(OSInAppMessage *)message;
+- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId;
 
 - (BOOL)isInAppMessagingPaused;
 - (void)setInAppMessagingPaused:(BOOL)pause;

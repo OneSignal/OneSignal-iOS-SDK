@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OSJSONHandling.h"
 #import "OSInAppMessageAction.h"
+#import "OSInAppMessagePage.h"
 #import "OSInAppMessagingDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
     OSInAppMessageBridgeEventTypePageRenderingComplete,
     OSInAppMessageBridgeEventTypeActionTaken,
-    OSInAppMessageBridgeEventTypePageResize
+    OSInAppMessageBridgeEventTypePageResize,
+    OSInAppMessageBridgeEventTypePageChange,
 };
 
 @interface OSInAppMessageBridgeEventRenderingComplete : NSObject <OSJSONDecodable>
@@ -48,12 +50,16 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageBridgeEventType) {
 @property (nonatomic) NSNumber *height;
 @end
 
+@interface OSInAppMessageBridgeEventPageChange : NSObject <OSJSONDecodable>
+@property (nonatomic) OSInAppMessagePage *page;
+@end
+
 @interface OSInAppMessageBridgeEvent : NSObject <OSJSONDecodable>
 @property (nonatomic) OSInAppMessageBridgeEventType type;
 @property (nonatomic) OSInAppMessageBridgeEventRenderingComplete *renderingComplete;
 @property (nonatomic) OSInAppMessageBridgeEventResize *resize;
+@property (nonatomic, nullable) OSInAppMessageBridgeEventPageChange *pageChange;
 @property (strong, nonatomic, nullable) OSInAppMessageAction *userAction;
 @end
-
 
 NS_ASSUME_NONNULL_END

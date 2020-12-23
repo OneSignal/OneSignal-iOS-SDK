@@ -52,6 +52,7 @@
     NSString *testInAppMessageId;
     NSString *testInAppMessageAppId;
     NSString *testInAppMessageVariantId;
+    NSString *testInAppMessagePageId;
     NSString *testNotificationId;
     OSOutcomeEvent *testOutcome;
     NSNumber *testDeviceType;
@@ -78,6 +79,7 @@
     testInAppMessageId = @"test_in_app_message_id";
     testInAppMessageAppId = @"test_in_app_message_app_id";
     testInAppMessageVariantId = @"test_in_app_message_variant_id";
+    testInAppMessagePageId = @"test_in_app_message_page_id";
     testNotificationId = @"test_notification_id";
     
     testOutcome = [[OSOutcomeEvent new] initWithSession:UNATTRIBUTED
