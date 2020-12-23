@@ -1563,6 +1563,29 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
 }
 
+// Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
+- (void)testContentAvailableDoesNotTriggerOpenWhenInForeground  {
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
+    
+    __block BOOL receivedWasFire = false;
+    [UnitTestCommonMethods initOneSignalWithHandlers:^(OSNotification *notif, OSNotificationDisplayResponse completion) {
+        receivedWasFire = true;
+    } notificationOpenedHandler:nil];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1},
+                    @"custom": @{
+                            @"i": @"b2f7f966-d8cc-11e4-1111-df8f05be55bb"
+                            }
+                    };
+    
+    [self fireDidReceiveRemoteNotification:userInfo];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(receivedWasFire, false);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+}
+
 - (UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {
     return [UNNotificationCategory
             categoryWithIdentifier:identifier
