@@ -185,6 +185,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // The URL (if any) that should be opened when the action occurs
 @property (strong, nonatomic, nullable) NSURL *clickUrl;
 
+//UUID for the page in an IAM Carousel
+@property (strong, nonatomic, nullable) NSString *pageId;
+
 // Whether or not the click action is first click on the IAM
 @property (nonatomic) BOOL firstClick;
 
