@@ -1624,7 +1624,6 @@ static dispatch_queue_t serialQueue;
                    [[UIDevice currentDevice] systemVersion], @"device_os",
                    [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
                    [NSNumber numberWithInt:DEVICE_TYPE_PUSH], @"device_type",
-                   [[[UIDevice currentDevice] identifierForVendor] UUIDString], @"ad_id",
                    ONESIGNAL_VERSION, @"sdk",
                    nil];
     
