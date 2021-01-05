@@ -282,6 +282,13 @@ OneSignalWebView *webVC;
     return true;
 }
 
++ (BOOL)isDisplayableNotification:(NSDictionary*)msg {
+    if ([self isRemoteSilentNotification:msg]) {
+        return false;
+    }
+    return msg[@"aps"][@"alert"] != nil;
+}
+
 + (void)lastMessageReceived:(NSDictionary*)message {
     lastMessageReceived = message;
 }
