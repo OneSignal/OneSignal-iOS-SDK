@@ -1547,10 +1547,14 @@ didReceiveRemoteNotification:userInfo
     __block BOOL receivedWasFire = false;
     [UnitTestCommonMethods initOneSignalWithHandlers:^(OSNotification *notif, OSNotificationDisplayResponse completion) {
         receivedWasFire = true;
-    } notificationOpenedHandler:nil];
+    } notificationOpenedHandler:^(OSNotificationOpenedResult * _Nonnull result) {
+        receivedWasFire = true;
+    }];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    id userInfo = @{@"aps": @{@"content_available": @1},
+    id userInfo = @{@"aps": @{@"content_available": @1,
+                              @"badge" : @54
+                    },
                     @"custom": @{
                             @"i": @"b2f7f966-d8cc-11e4-1111-df8f05be55bb"
                             }
@@ -1561,6 +1565,32 @@ didReceiveRemoteNotification:userInfo
     
     XCTAssertEqual(receivedWasFire, false);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+}
+
+// Tests that a slient content-available 1 notification doesn't trigger an on_session or count it has opened.
+- (void)testContentAvailableDoesNotTriggerOpenWhenInForeground  {
+    UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
+    
+    __block BOOL receivedWasFire = false;
+    [UnitTestCommonMethods initOneSignalWithHandlers:^(OSNotification *notif, OSNotificationDisplayResponse completion) {
+        receivedWasFire = true;
+    } notificationOpenedHandler:^(OSNotificationOpenedResult * _Nonnull result) {
+        receivedWasFire = true;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    id userInfo = @{@"aps": @{@"content_available": @1,
+                              @"badge" : @54
+                            },
+                    @"custom": @{
+                            @"i": @"b2f7f966-d8cc-11e4-1111-df8f05be55bb"
+                            }
+                    };
+    
+    [self fireDidReceiveRemoteNotification:userInfo];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(receivedWasFire, false);
 }
 
 - (UNNotificationCategory*)unNotificagionCategoryWithId:(NSString*)identifier {

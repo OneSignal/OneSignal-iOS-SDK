@@ -2216,7 +2216,7 @@ static NSString *_lastnonActiveMessageId;
     else if (application.applicationState == UIApplicationStateActive) {
         [OneSignalHelper lastMessageReceived:userInfo];
 
-        if (![OneSignalHelper isRemoteSilentNotification:userInfo]) {
+        if ([OneSignalHelper isDisplayableNotification:userInfo]) {
              [OneSignal notificationReceived:userInfo wasOpened:YES];
         }
         return startedBackgroundJob;
