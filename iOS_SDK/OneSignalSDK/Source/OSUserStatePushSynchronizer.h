@@ -28,7 +28,11 @@ THE SOFTWARE.
 #ifndef OSUserStatePushSynchronizer_h
 #define OSUserStatePushSynchronizer_h
 
-@interface OSUserStatePushSynchronizer : NSObject
+#import "OSUserStateSynchronizer.h"
+
+@interface OSUserStatePushSynchronizer : OSUserStateSynchronizer
+
+
 
 @end
 
