@@ -845,15 +845,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                 delayedEmailParameters = nil;
             }
         }
-        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+        
+        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION])
             requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-            
-            // checks if a call to setExternalUserId: was delayed due to missing 'require_user_id_auth' parameter
-            if (delayedExternalIdParameters) {
-                [self setExternalUserId:delayedExternalIdParameters.externalId withExternalIdAuthHashToken:delayedExternalIdParameters.authToken withSuccess:delayedExternalIdParameters.successBlock withFailure:delayedExternalIdParameters.failureBlock];
-                delayedExternalIdParameters = nil;
-            }
-        }
 
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
@@ -863,7 +857,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
             [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
-
 
         //TODO: move all remote param logic to new OSRemoteParamController
         [[self getRemoteParamController] saveRemoteParams:result];
@@ -875,6 +868,13 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
+        
+        // Checks if a call to setExternalUserId: was delayed due to missing 'require_user_id_auth' parameter
+        // If at this point we don't have user Id, then under register user the delayedExternalIdParameters will be used
+        if (delayedExternalIdParameters && self.currentSubscriptionState.userId) {
+            [self setExternalUserId:delayedExternalIdParameters.externalId withExternalIdAuthHashToken:delayedExternalIdParameters.authToken withSuccess:delayedExternalIdParameters.successBlock withFailure:delayedExternalIdParameters.failureBlock];
+            delayedExternalIdParameters = nil;
+        }
     } onFailure:^(NSError *error) {
         _didCallDownloadParameters = false;
     }];
@@ -2541,14 +2541,14 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     // Can't set the external id if init is not done or the app id or user id has not ben set yet
-    if (!_didCallDownloadParameters) {
+    if (!_downloadedParameters || !self.currentSubscriptionState.userId ) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
         pendingExternalUserIdHashToken = hashToken;
         delayedExternalIdParameters = [OneSignalSetExternalIdParameters withExternalId:externalId withAuthToken:hashToken withSuccess:successBlock withFailure:failureBlock];
         return;
-    } else if (!self.currentSubscriptionState.userId || !appId) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is not set", appId == nil ? @"app_id" : @"user_id"]];
+    } else if (!appId) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Attempted to set external user id, butapp_id is not set"];
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"%@ is not set", appId == nil ? @"app_id" : @"user_id"]}]);
         return;
