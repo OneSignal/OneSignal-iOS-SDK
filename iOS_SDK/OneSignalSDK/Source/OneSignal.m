@@ -82,6 +82,7 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessage.h"
 
+#import "OSStateSynchronizer.h"
 #import "OneSignalLifecycleObserver.h"
 
 #pragma clang diagnostic push
@@ -285,6 +286,12 @@ static OSSubscriptionState* _lastSubscriptionState;
     _lastSubscriptionState = lastSubscriptionState;
 }
 
+static OSStateSynchronizer *_stateSynchronizer;
++ (OSStateSynchronizer*)stateSynchronizer {
+    if (!_stateSynchronizer)
+        _stateSynchronizer = [[OSStateSynchronizer alloc] initWithSubscriptionState:OneSignal.currentSubscriptionState withEmailSubscriptionState:OneSignal.currentEmailSubscriptionState];
+    return _stateSynchronizer;
+}
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -1696,7 +1703,6 @@ static dispatch_queue_t serialQueue;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
     sessionLaunchTime = [NSDate date];
-
     
     if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
@@ -2570,40 +2576,8 @@ static NSString *_lastnonActiveMessageId;
     if (externalId.length == 0) {
         hashToken = self.currentSubscriptionState.externalIdAuthCode;
     }
-    
-    // Begin constructing the request for the external id update
-    let requests = [NSMutableDictionary new];
-    requests[@"push"] = [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:self.currentSubscriptionState.userId appId:appId];
-    
-    // Check if the email has been set, this will decide on updtaing the external id for the email channel
-    if ([self isEmailSetup])
-        requests[@"email"] = [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:self.currentEmailSubscriptionState.emailUserId appId:appId];
 
-    // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
-    if (![self shouldUpdateExternalUserId:externalId withRequests:requests]) {
-        // Use callback to return success for both cases here, since push and
-        //  email (if email is not setup, email is not included) have been set already
-        let results = [self getDuplicateExternalUserIdResponse:externalId withRequests:requests];
-        if (successBlock)
-            successBlock(results);
-        return;
-    }
-
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
-        if (results[@"push"] && results[@"push"][@"success"] && [results[@"push"][@"success"] boolValue]) {
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
-            self.currentSubscriptionState.externalIdAuthCode = hashToken;
-            
-            //call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
-            [self.currentSubscriptionState persist];
-        }
-        
-        if (results[@"email"] && results[@"email"][@"success"] && [results[@"email"][@"success"] boolValue])
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
-
-        if (successBlock)
-            successBlock(results);
-    }];
+    [[self stateSynchronizer] setExternalUserId:externalId withExternalIdAuthHashToken:hashToken withAppId:appId withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (void)removeExternalUserId {

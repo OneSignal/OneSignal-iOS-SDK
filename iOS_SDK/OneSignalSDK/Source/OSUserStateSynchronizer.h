@@ -30,7 +30,11 @@ THE SOFTWARE.
 #ifndef OSUserStateSynchronizer_h
 #define OSUserStateSynchronizer_h
 
+#import "Requests.h"
+
 @interface OSUserStateSynchronizer : NSObject
+
+- (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withUserId:(NSString *)userId withAppId:(NSString *)appId;
 
 @end
 

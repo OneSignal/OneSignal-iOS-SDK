@@ -181,6 +181,11 @@ typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOT_ATTRIBUTED"] objectAtIndex:enum]
 
+// OneSignal constants
+#define OS_PUSH @"push"
+#define OS_EMAIL @"email"
+#define OS_SUCCESS @"success"
+
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define OS_API_CLIENT_STRINGS @[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"]

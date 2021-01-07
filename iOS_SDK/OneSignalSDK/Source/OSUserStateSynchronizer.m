@@ -28,6 +28,16 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSUserStateSynchronizer.h"
 
+#define mustOverride() @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"%s must be overridden in a subclass/category", __PRETTY_FUNCTION__] userInfo:nil]
+#define methodNotImplemented() mustOverride()
+
 @implementation OSUserStateSynchronizer
+
+- (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId
+                         withExternalIdAuthHashToken:(NSString *)hashToken
+                                          withUserId:(NSString *)userId
+                                           withAppId:(NSString *)appId {
+    return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:userId appId:appId];
+}
 
 @end
