@@ -595,6 +595,7 @@
     
     XCTAssertEqual(observer->last.from.isSubscribed, false);
     XCTAssertEqual(observer->last.to.isSubscribed, true);
+    XCTAssertEqual(observer->fireCount, 1);
     
     [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -614,14 +615,14 @@
     [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+    XCTAssertEqual(observer->fireCount, 1);
     XCTAssertNil(observer->last.from.userId);
     XCTAssertEqualObjects(observer->last.to.userId, @"1234");
     XCTAssertFalse(observer->last.to.isSubscribed);
     
     [OneSignal disablePush:true];
     [UnitTestCommonMethods runBackgroundThreads];
-    
+    XCTAssertEqual(observer->fireCount, 2);
     XCTAssertFalse(observer->last.from.isPushDisabled);
     XCTAssertTrue(observer->last.to.isPushDisabled);
     // Device registered with OneSignal so now make pushToken available.
@@ -642,6 +643,7 @@
     // Device should be reported a subscribed now as all conditions are true.
     [OneSignal disablePush:false];
     [UnitTestCommonMethods runBackgroundThreads];
+    XCTAssertEqual(observer->fireCount, 4);
     XCTAssertFalse(observer->last.from.isSubscribed);
     XCTAssertTrue(observer->last.to.isSubscribed);
 }
