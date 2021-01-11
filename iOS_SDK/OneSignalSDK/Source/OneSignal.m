@@ -82,6 +82,8 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessage.h"
 
+#import "OSUserState.h"
+#import "OSLocationState.h"
 #import "OSStateSynchronizer.h"
 #import "OneSignalLifecycleObserver.h"
 
@@ -1632,6 +1634,14 @@ static dispatch_queue_t serialQueue;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     
     let infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    let userState = [OSUserState new];
+    userState.appId = appId;
+    userState.deviceOs = [[UIDevice currentDevice] systemVersion];
+    userState.deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
+    userState.timezone = [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]];
+    userState.adId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    userState.sdk = ONESIGNAL_VERSION;
+    
     let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                    appId, @"app_id",
                    [[UIDevice currentDevice] systemVersion], @"device_os",
@@ -1643,39 +1653,56 @@ static dispatch_queue_t serialQueue;
     // should be set to true even before the API request is finished
     performedOnSessionRequest = true;
 
-    if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
+    if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId]) {
         dataDic[@"external_user_id"] = pendingExternalUserId;
+        userState.externalUserId = pendingExternalUserId;
+    }
 
-    if (pendingExternalUserIdHashToken)
+    if (pendingExternalUserIdHashToken) {
         dataDic[@"external_user_id_auth_hash"] = pendingExternalUserIdHashToken;
-    else if ([self mEmailAuthToken])
+        userState.externalUserIdHash = pendingExternalUserIdHashToken;
+    } else if ([self mEmailAuthToken]) {
         dataDic[@"external_user_id_auth_hash"] = [self mExternalIdAuthToken];
+        userState.externalUserIdHash = [self mExternalIdAuthToken];
+    }
 
     let deviceModel = [OneSignalHelper getDeviceVariant];
-    if (deviceModel)
+    if (deviceModel) {
         dataDic[@"device_model"] = deviceModel;
+        userState.deviceModel = deviceModel;
+    }
     
     NSString *version = infoDictionary[@"CFBundleShortVersionString"];
-    if (version)
+    if (version) {
         dataDic[@"game_version"] = version;
+        userState.gameVersion = version;
+    }
     
-    if ([OneSignalJailbreakDetection isJailbroken])
+    if ([OneSignalJailbreakDetection isJailbroken]) {
         dataDic[@"rooted"] = @YES;
+        userState.isRooted = @YES;
+    }
     
     dataDic[@"net_type"] = [OneSignalHelper getNetType];
+    userState.netType = [OneSignalHelper getNetType];
     
     if (!self.currentSubscriptionState.userId) {
         dataDic[@"sdk_type"] = mSDKType;
         dataDic[@"ios_bundle"] = [[NSBundle mainBundle] bundleIdentifier];
+        userState.sdkType = mSDKType;
+        userState.iOSBundle = [[NSBundle mainBundle] bundleIdentifier];
     }
 
     let preferredLanguages = [NSLocale preferredLanguages];
-    if (preferredLanguages && preferredLanguages.count > 0)
+    if (preferredLanguages && preferredLanguages.count > 0) {
         dataDic[@"language"] = [preferredLanguages objectAtIndex:0];
+        userState.language = [preferredLanguages objectAtIndex:0];
+    }
     
     let notificationTypes = [self getNotificationTypes];
     mLastNotificationTypes = notificationTypes;
     dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
+    userState.notificationTypes = [NSNumber numberWithInt:notificationTypes];
     
     let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
     if (CTTelephonyNetworkInfoClass) {
@@ -1684,17 +1711,21 @@ static dispatch_queue_t serialQueue;
         
         if (carrierName) {
             dataDic[@"carrier"] = carrierName;
+            userState.carrier = carrierName;
         }
     }
     
     let releaseMode = [OneSignalMobileProvision releaseMode];
-    if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
+    if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard) {
         dataDic[@"test_type"] = [NSNumber numberWithInt:(int)releaseMode];
+        userState.testType = [NSNumber numberWithInt:(int)releaseMode];
+    }
     
     NSArray* nowProcessingCallbacks;
     
     if (tagsToSend) {
         dataDic[@"tags"] = tagsToSend;
+        userState.tags = tagsToSend;
         tagsToSend = nil;
         
         nowProcessingCallbacks = pendingSendTagCallbacks;
@@ -1706,6 +1737,13 @@ static dispatch_queue_t serialQueue;
     
     if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
+        let locationState = [OSLocationState new];
+        locationState.latitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
+        locationState.longitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
+        locationState.verticalAccuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
+        locationState.accuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
+        userState.locationState = locationState;
+        
         dataDic[@"lat"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
         dataDic[@"long"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
         dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];

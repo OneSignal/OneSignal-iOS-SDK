@@ -25,18 +25,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef OSStateSynchronizer_h
-#define OSStateSynchronizer_h
+#ifndef OSLocationState_h
+#define OSLocationState_h
 
-#import "OneSignal.h"
+@interface OSLocationState : NSObject
 
-@interface OSStateSynchronizer : NSObject
-
-- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState;
-
-- (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
-
+@property (strong, nonatomic, readwrite, nullable) NSNumber *latitude;
+@property (strong, nonatomic, readwrite, nullable) NSNumber *longitude;
+@property (strong, nonatomic, readwrite, nullable) NSNumber *verticalAccuracy;
+@property (strong, nonatomic, readwrite, nullable) NSNumber *accuracy;
 
 @end
 
-#endif /* OSStateSynchronizer_h */
+#endif /* OSLocationState_h */
