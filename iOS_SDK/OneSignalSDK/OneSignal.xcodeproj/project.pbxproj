@@ -127,6 +127,14 @@
 		7A880F322404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A880F332404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A9173A2231971E5007848FA /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
+		7A93264825A8DD3600BBEC27 /* OSUserState.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A93264725A8DD3600BBEC27 /* OSUserState.h */; };
+		7A93265125A8DD4300BBEC27 /* OSUserState.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A93265025A8DD4300BBEC27 /* OSUserState.m */; };
+		7A93265225A8DD4300BBEC27 /* OSUserState.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A93265025A8DD4300BBEC27 /* OSUserState.m */; };
+		7A93265325A8DD4300BBEC27 /* OSUserState.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A93265025A8DD4300BBEC27 /* OSUserState.m */; };
+		7A93266A25AC985500BBEC27 /* OSLocationState.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A93266925AC985500BBEC27 /* OSLocationState.h */; };
+		7A93267325AC986400BBEC27 /* OSLocationState.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A93267225AC986400BBEC27 /* OSLocationState.m */; };
+		7A93267425AC986400BBEC27 /* OSLocationState.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A93267225AC986400BBEC27 /* OSLocationState.m */; };
+		7A93267525AC986400BBEC27 /* OSLocationState.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A93267225AC986400BBEC27 /* OSLocationState.m */; };
 		7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */; };
 		7AA2848A2406FC6400C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7AA2848B2406FC6500C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
@@ -573,6 +581,10 @@
 		7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessagePushPrompt.m; sourceTree = "<group>"; };
 		7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalReceiveReceiptsController.m; sourceTree = "<group>"; };
 		7A9173A3231971F8007848FA /* OneSignalReceiveReceiptsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalReceiveReceiptsController.h; sourceTree = "<group>"; };
+		7A93264725A8DD3600BBEC27 /* OSUserState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSUserState.h; sourceTree = "<group>"; };
+		7A93265025A8DD4300BBEC27 /* OSUserState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUserState.m; sourceTree = "<group>"; };
+		7A93266925AC985500BBEC27 /* OSLocationState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSLocationState.h; sourceTree = "<group>"; };
+		7A93267225AC986400BBEC27 /* OSLocationState.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSLocationState.m; sourceTree = "<group>"; };
 		7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUniqueOutcomeNotification.m; sourceTree = "<group>"; };
 		7A94D8E2249ABF0C00E90B40 /* OSUniqueOutcomeNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSUniqueOutcomeNotification.h; sourceTree = "<group>"; };
 		7AAA60652485D0090004FADE /* OSMigrationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSMigrationController.h; sourceTree = "<group>"; };
@@ -1230,6 +1242,10 @@
 				7A5E722325A66E3300CB5605 /* OSUserStateEmailSynchronizer.m */,
 				7A5E725825A66E9800CB5605 /* OSStateSynchronizer.h */,
 				7A5E726125A66EA400CB5605 /* OSStateSynchronizer.m */,
+				7A93264725A8DD3600BBEC27 /* OSUserState.h */,
+				7A93265025A8DD4300BBEC27 /* OSUserState.m */,
+				7A93266925AC985500BBEC27 /* OSLocationState.h */,
+				7A93267225AC986400BBEC27 /* OSLocationState.m */,
 			);
 			name = State;
 			sourceTree = "<group>";
@@ -1403,6 +1419,7 @@
 				CACBAAA8218A6280000ACAA5 /* OSJSONHandling.h in Headers */,
 				7A5E720725A66E0A00CB5605 /* OSUserStatePushSynchronizer.h in Headers */,
 				912412211E73342200E41FD7 /* OneSignalLocation.h in Headers */,
+				7A93266A25AC985500BBEC27 /* OSLocationState.h in Headers */,
 				912412291E73342200E41FD7 /* OneSignalReachability.h in Headers */,
 				912412251E73342200E41FD7 /* OneSignalMobileProvision.h in Headers */,
 				7AF98668244975C200C36EAE /* OSOutcomeSource.h in Headers */,
@@ -1458,6 +1475,7 @@
 				7AF9863F2444C44300C36EAE /* OSInAppMessageTracker.h in Headers */,
 				9124121D1E73342200E41FD7 /* OneSignalJailbreakDetection.h in Headers */,
 				7A5E725925A66E9800CB5605 /* OSStateSynchronizer.h in Headers */,
+				7A93264825A8DD3600BBEC27 /* OSUserState.h in Headers */,
 				9129C6B71E89E59B009CB6A0 /* OSPermission.h in Headers */,
 				7A72EB1223E252DD00B4D50F /* OSInAppMessageDisplayStats.h in Headers */,
 				912412151E73342200E41FD7 /* OneSignalHelper.h in Headers */,
@@ -1712,6 +1730,7 @@
 				9124121E1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				CA08FC791FE99B13004C445F /* OneSignalRequest.m in Sources */,
 				912412471E73369600E41FD7 /* OneSignalHelper.m in Sources */,
+				7A93267325AC986400BBEC27 /* OSLocationState.m in Sources */,
 				7A5E722425A66E3300CB5605 /* OSUserStateEmailSynchronizer.m in Sources */,
 				7A880F312404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */,
 				9124122E1E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
@@ -1767,6 +1786,7 @@
 				7AECE59623674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				1AF75EAE1E8567FD0097B315 /* NSString+OneSignal.m in Sources */,
 				454F94F51FAD2E5A00D74CCF /* OSNotification.m in Sources */,
+				7A93265125A8DD4300BBEC27 /* OSUserState.m in Sources */,
 				9129C6BE1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				7AECE59023674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
 				7ADE379422E8B69C00263048 /* OneSignalOutcomeEventsController.m in Sources */,
@@ -1809,6 +1829,7 @@
 				9124122F1E73342200E41FD7 /* OneSignalSelectorHelpers.m in Sources */,
 				9124122B1E73342200E41FD7 /* OneSignalReachability.m in Sources */,
 				7A880F322404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */,
+				7A93267425AC986400BBEC27 /* OSLocationState.m in Sources */,
 				7A5E722525A66E3300CB5605 /* OSUserStateEmailSynchronizer.m in Sources */,
 				0338566D1FBBDB190002F7C1 /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				7AECE59723674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
@@ -1864,6 +1885,7 @@
 				1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				912412371E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
+				7A93265225A8DD4300BBEC27 /* OSUserState.m in Sources */,
 				CAABF34C205B157B0042F8E5 /* OneSignalExtensionBadgeHandler.m in Sources */,
 				038C63822387450300CA4310 /* OneSignalReceiveReceiptsController.m in Sources */,
 				7AECE59123674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
@@ -1985,6 +2007,7 @@
 				7AF9868224497BE100C36EAE /* OSOutcomeEventsV1Repository.m in Sources */,
 				7A600B462453790700514A53 /* OSFocusInfluenceParam.m in Sources */,
 				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
+				7A93265325A8DD4300BBEC27 /* OSUserState.m in Sources */,
 				CA8E18FF2193A1A5009DA223 /* NSTimerOverrider.m in Sources */,
 				7AF9868E244A556F00C36EAE /* OSOutcomeEventsFactory.m in Sources */,
 				7AF986452444C47400C36EAE /* OSNotificationTracker.m in Sources */,
@@ -1997,6 +2020,7 @@
 				7AECE59823674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				7A5A818224897693002E07C8 /* MigrationTests.m in Sources */,
 				7AECE5A023675F6300537907 /* OSFocusTimeProcessorFactory.m in Sources */,
+				7A93267525AC986400BBEC27 /* OSLocationState.m in Sources */,
 				DE367CC924EEF2BE00165207 /* OSInAppMessagePage.m in Sources */,
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				7AC8D3A824993A0E0023EDE8 /* OSDeviceState.m in Sources */,

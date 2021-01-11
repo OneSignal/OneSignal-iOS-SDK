@@ -25,18 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef OSStateSynchronizer_h
-#define OSStateSynchronizer_h
 
-#import "OneSignal.h"
+#import <Foundation/Foundation.h>
+#import "OSUserState.h"
 
-@interface OSStateSynchronizer : NSObject
-
-- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState;
-
-- (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
-
+@implementation OSUserState
 
 @end
-
-#endif /* OSStateSynchronizer_h */
