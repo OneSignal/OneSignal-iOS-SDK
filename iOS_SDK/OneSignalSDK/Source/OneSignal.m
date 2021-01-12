@@ -1614,8 +1614,86 @@ static dispatch_queue_t serialQueue;
     });
 }
 
++ (OSUserState *)createUserState {
+    let userState = [OSUserState new];
+    userState.appId = appId;
+    userState.deviceOs = [[UIDevice currentDevice] systemVersion];
+    userState.deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
+    userState.timezone = [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]];
+    userState.adId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    userState.sdk = ONESIGNAL_VERSION;
+
+    // should be set to true even before the API request is finished
+    performedOnSessionRequest = true;
+
+    if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId])
+        userState.externalUserId = pendingExternalUserId;
+
+    if (pendingExternalUserIdHashToken)
+        userState.externalUserIdHash = pendingExternalUserIdHashToken;
+    else if ([self mEmailAuthToken])
+        userState.externalUserIdHash = [self mExternalIdAuthToken];
+    
+    let deviceModel = [OneSignalHelper getDeviceVariant];
+    if (deviceModel)
+        userState.deviceModel = deviceModel;
+    
+    let infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    NSString *version = infoDictionary[@"CFBundleShortVersionString"];
+    if (version)
+        userState.gameVersion = version;
+    
+    if ([OneSignalJailbreakDetection isJailbroken])
+        userState.isRooted = YES;
+    
+    userState.netType = [OneSignalHelper getNetType];
+    
+    if (!self.currentSubscriptionState.userId) {
+        userState.sdkType = mSDKType;
+        userState.iOSBundle = [[NSBundle mainBundle] bundleIdentifier];
+    }
+
+    let preferredLanguages = [NSLocale preferredLanguages];
+    if (preferredLanguages && preferredLanguages.count > 0)
+        userState.language = [preferredLanguages objectAtIndex:0];
+    
+    let notificationTypes = [self getNotificationTypes];
+    mLastNotificationTypes = notificationTypes;
+    userState.notificationTypes = [NSNumber numberWithInt:notificationTypes];
+    
+    let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
+    if (CTTelephonyNetworkInfoClass) {
+        id instance = [[CTTelephonyNetworkInfoClass alloc] init];
+        let carrierName = (NSString *)[[instance valueForKey:@"subscriberCellularProvider"] valueForKey:@"carrierName"];
+        
+        if (carrierName)
+            userState.carrier = carrierName;
+    }
+    
+    let releaseMode = [OneSignalMobileProvision releaseMode];
+    if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
+        userState.testType = [NSNumber numberWithInt:(int)releaseMode];
+    
+    if (tagsToSend)
+        userState.tags = tagsToSend;
+    
+    if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
+        let locationState = [OSLocationState new];
+        locationState.latitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
+        locationState.longitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
+        locationState.verticalAccuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
+        locationState.accuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
+        userState.locationState = locationState;
+    } else
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Not sending location with 'on_session' request payload, setLocationShared is false or lastLocation is null"];
+    
+    return userState;
+}
+
 + (void)registerUserInternal {
     _registerUserFinished = false;
+
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
@@ -1630,225 +1708,55 @@ static dispatch_queue_t serialQueue;
     [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     
     waitingForOneSReg = true;
-    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     
-    let infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    let userState = [OSUserState new];
-    userState.appId = appId;
-    userState.deviceOs = [[UIDevice currentDevice] systemVersion];
-    userState.deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
-    userState.timezone = [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]];
-    userState.adId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    userState.sdk = ONESIGNAL_VERSION;
-    
-    let dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                   appId, @"app_id",
-                   [[UIDevice currentDevice] systemVersion], @"device_os",
-                   [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]], @"timezone",
-                   [NSNumber numberWithInt:DEVICE_TYPE_PUSH], @"device_type",
-                   ONESIGNAL_VERSION, @"sdk",
-                   nil];
-    
-    // should be set to true even before the API request is finished
-    performedOnSessionRequest = true;
-
-    if (pendingExternalUserId && ![self.existingPushExternalUserId isEqualToString:pendingExternalUserId]) {
-        dataDic[@"external_user_id"] = pendingExternalUserId;
-        userState.externalUserId = pendingExternalUserId;
-    }
-
-    if (pendingExternalUserIdHashToken) {
-        dataDic[@"external_user_id_auth_hash"] = pendingExternalUserIdHashToken;
-        userState.externalUserIdHash = pendingExternalUserIdHashToken;
-    } else if ([self mEmailAuthToken]) {
-        dataDic[@"external_user_id_auth_hash"] = [self mExternalIdAuthToken];
-        userState.externalUserIdHash = [self mExternalIdAuthToken];
-    }
-
-    let deviceModel = [OneSignalHelper getDeviceVariant];
-    if (deviceModel) {
-        dataDic[@"device_model"] = deviceModel;
-        userState.deviceModel = deviceModel;
-    }
-    
-    NSString *version = infoDictionary[@"CFBundleShortVersionString"];
-    if (version) {
-        dataDic[@"game_version"] = version;
-        userState.gameVersion = version;
-    }
-    
-    if ([OneSignalJailbreakDetection isJailbroken]) {
-        dataDic[@"rooted"] = @YES;
-        userState.isRooted = @YES;
-    }
-    
-    dataDic[@"net_type"] = [OneSignalHelper getNetType];
-    userState.netType = [OneSignalHelper getNetType];
-    
-    if (!self.currentSubscriptionState.userId) {
-        dataDic[@"sdk_type"] = mSDKType;
-        dataDic[@"ios_bundle"] = [[NSBundle mainBundle] bundleIdentifier];
-        userState.sdkType = mSDKType;
-        userState.iOSBundle = [[NSBundle mainBundle] bundleIdentifier];
-    }
-
-    let preferredLanguages = [NSLocale preferredLanguages];
-    if (preferredLanguages && preferredLanguages.count > 0) {
-        dataDic[@"language"] = [preferredLanguages objectAtIndex:0];
-        userState.language = [preferredLanguages objectAtIndex:0];
-    }
-    
-    let notificationTypes = [self getNotificationTypes];
-    mLastNotificationTypes = notificationTypes;
-    dataDic[@"notification_types"] = [NSNumber numberWithInt:notificationTypes];
-    userState.notificationTypes = [NSNumber numberWithInt:notificationTypes];
-    
-    let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
-    if (CTTelephonyNetworkInfoClass) {
-        id instance = [[CTTelephonyNetworkInfoClass alloc] init];
-        let carrierName = (NSString *)[[instance valueForKey:@"subscriberCellularProvider"] valueForKey:@"carrierName"];
-        
-        if (carrierName) {
-            dataDic[@"carrier"] = carrierName;
-            userState.carrier = carrierName;
-        }
-    }
-    
-    let releaseMode = [OneSignalMobileProvision releaseMode];
-    if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard) {
-        dataDic[@"test_type"] = [NSNumber numberWithInt:(int)releaseMode];
-        userState.testType = [NSNumber numberWithInt:(int)releaseMode];
-    }
-    
     NSArray* nowProcessingCallbacks;
-    
-    if (tagsToSend) {
-        dataDic[@"tags"] = tagsToSend;
-        userState.tags = tagsToSend;
+    let userState = [self createUserState];
+    if (userState.tags) {
         tagsToSend = nil;
         
         nowProcessingCallbacks = pendingSendTagCallbacks;
         pendingSendTagCallbacks = nil;
     }
-    
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
+
+    // Clear last location after attaching data to user state or not
+    [OneSignalLocation clearLastLocation];
     sessionLaunchTime = [NSDate date];
     
-    if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
-        let locationState = [OSLocationState new];
-        locationState.latitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
-        locationState.longitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
-        locationState.verticalAccuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
-        locationState.accuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
-        userState.locationState = locationState;
-        
-        dataDic[@"lat"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
-        dataDic[@"long"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
-        dataDic[@"loc_acc_vert"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->verticalAccuracy];
-        dataDic[@"loc_acc"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
-    } else
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Not sending location with 'on_session' request payload, setLocationShared is false or lastLocation is null"];
-        
-    // Clear last location after attaching data to payload or not
-    [OneSignalLocation clearLastLocation];
-
-    let pushDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
-    pushDataDic[@"identifier"] = self.currentSubscriptionState.pushToken;
-    
-    let requests = [NSMutableDictionary new];
-    requests[@"push"] = [OSRequestRegisterUser withData:pushDataDic userId:self.currentSubscriptionState.userId];
-    
-    if ([self isEmailSetup]) {
-        let emailDataDic = (NSMutableDictionary *)[dataDic mutableCopy];
-        emailDataDic[@"device_type"] = [NSNumber numberWithInt:DEVICE_TYPE_EMAIL];
-        emailDataDic[@"email_auth_hash"] = self.currentEmailSubscriptionState.emailAuthCode;
-        
-        // If push device has external id we want to add it to the email device also
-        if (dataDic[@"external_user_id"])
-            emailDataDic[@"external_user_id"] = dataDic[@"external_user_id"];
-
-        requests[@"email"] = [OSRequestRegisterUser withData:emailDataDic userId:self.currentEmailSubscriptionState.emailUserId];
-    } else {
-        // If no email is setup clear the email external user id
-        [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
-    }
-    
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
+    [self.stateSynchronizer registerUserWithState:userState withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         _registerUserFinished = true;
         immediateOnSessionRetry = NO;
         waitingForOneSReg = false;
         isOnSessionSuccessfulForCurrentState = true;
         pendingExternalUserId = nil;
         pendingExternalUserIdHashToken = nil;
-
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
-
-        // If the external user ID was sent as part of this request, we need to save it
-        // Cache the external id if it exists within the registration payload
-        if (dataDic[@"external_user_id"]) {
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:dataDic[@"external_user_id"]];
-        }
-        
-        if (dataDic[@"external_user_id_auth_hash"]) {
-            self.currentSubscriptionState.externalIdAuthCode = dataDic[@"external_user_id_auth_hash"];
-            
-            //call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
-            [self.currentSubscriptionState persist];
-        }
-
-        //update email player ID
-        if (results[@"email"] && results[@"email"][@"id"]) {
-            
-            // check to see if the email player_id or email_auth_token are different from what were previously saved
-            // if so, we should update the server with this change
-            
-            if (self.currentEmailSubscriptionState.emailUserId && ![self.currentEmailSubscriptionState.emailUserId isEqualToString:results[@"email"][@"id"]] && self.currentEmailSubscriptionState.emailAuthCode) {
-                [self emailChangedWithNewEmailPlayerId:results[@"email"][@"id"]];
-                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
-            }
-            
-            self.currentEmailSubscriptionState.emailUserId = results[@"email"][@"id"];
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_PLAYER_ID withValue:self.currentEmailSubscriptionState.emailUserId];
-
-            // Email successfully updated, so if there was an external user id we should cache it for email now
-            if (dataDic[@"external_user_id"]) {
-                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:dataDic[@"external_user_id"]];
-            }
-        }
         
         //update push player id
         if (results.count > 0 && results[@"push"][@"id"]) {
-            self.currentSubscriptionState.userId = results[@"push"][@"id"];
-            
             if (delayedEmailParameters) {
-                //a call to setEmail: was delayed because the push player_id did not exist yet
+                // Call to setEmail: was delayed because the push player_id did not exist yet
                 [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
                 delayedEmailParameters = nil;
             }
             
             if (delayedExternalIdParameters) {
-                //a call to setExternalUserId: was delayed because the push player_id did not exist yet
+                // Call to setExternalUserId: was delayed because the push player_id did not exist yet
                 [self setExternalUserId:delayedExternalIdParameters.externalId withExternalIdAuthHashToken:delayedExternalIdParameters.authToken withSuccess:delayedExternalIdParameters.successBlock withFailure:delayedExternalIdParameters.failureBlock];
                 delayedExternalIdParameters = nil;
             }
             
-            // Save player_id to both standard and shared NSUserDefaults
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
-            [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
-            
             if (nowProcessingCallbacks) {
                 for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
                     if (callbackSet.successBlock)
-                        callbackSet.successBlock(dataDic[@"tags"]);
+                        callbackSet.successBlock(userState.tags);
                 }
             }
 
             if (tagsToSend)
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             
-            // try to send location
+            // Try to send location
             [OneSignalLocation sendLocation];
             
             if (emailToSet) {
@@ -1873,10 +1781,7 @@ static dispatch_queue_t serialQueue;
         _registerUserFinished = true;
         waitingForOneSReg = false;
         
-        for (NSString *key in @[@"push", @"email"])
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Encountered error during %@ registration with OneSignal: %@", key, errors[key]]];
-        
-        //If the failed registration is priority, force the next one to be a high priority
+        // If the failed registration is priority, force the next one to be a high priority
         immediateOnSessionRetry = YES;
         
         let error = (NSError *)(errors[@"push"] ?: errors[@"email"]);

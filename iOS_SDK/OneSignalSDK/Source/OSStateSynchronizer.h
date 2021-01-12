@@ -29,11 +29,14 @@ THE SOFTWARE.
 #define OSStateSynchronizer_h
 
 #import "OneSignal.h"
+#import "OSUserState.h"
+#import "OneSignalClient.h"
 
 @interface OSStateSynchronizer : NSObject
 
 - (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState;
 
+- (void)registerUserWithState:(OSUserState * _Nonnull)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock;
 - (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
 
 

@@ -27,3 +27,18 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSLocationState.h"
+
+@implementation OSLocationState
+
+- (NSDictionary *)toDictionary {
+    NSDictionary *dataDic = [NSDictionary dictionaryWithObjectsAndKeys:
+                   _latitude, @"lat",
+                   _longitude, @"long",
+                   _verticalAccuracy, @"loc_acc_vert",
+                   _accuracy, @"loc_acc",
+                   nil];
+    
+    return dataDic;
+}
+
+@end

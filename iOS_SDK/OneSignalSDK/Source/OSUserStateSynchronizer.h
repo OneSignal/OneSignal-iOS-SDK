@@ -34,6 +34,7 @@ THE SOFTWARE.
 
 @interface OSUserStateSynchronizer : NSObject
 
+- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary * _Nonnull)registrationData userId:(NSString * _Nullable)userId;
 - (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withUserId:(NSString *)userId withAppId:(NSString *)appId;
 
 @end

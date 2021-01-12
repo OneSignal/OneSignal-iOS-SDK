@@ -43,7 +43,7 @@ THE SOFTWARE.
 @property (strong, nonatomic, readwrite, nullable) NSString *externalUserIdHash;
 @property (strong, nonatomic, readwrite, nullable) NSString *deviceModel;
 @property (strong, nonatomic, readwrite, nullable) NSString *gameVersion;
-@property (strong, nonatomic, readwrite, nullable) BOOL isRooted;
+@property (nonatomic, readwrite) BOOL isRooted;
 @property (strong, nonatomic, readwrite, nullable) NSNumber *netType;
 @property (strong, nonatomic, readwrite, nullable) NSString *iOSBundle;
 @property (strong, nonatomic, readwrite, nullable) NSString *language;
@@ -52,6 +52,8 @@ THE SOFTWARE.
 @property (strong, nonatomic, readwrite, nullable) NSNumber *testType;
 @property (strong, nonatomic, readwrite, nullable) NSDictionary* tags;
 @property (strong, nonatomic, readwrite, nullable) OSLocationState *locationState;
+
+- (NSDictionary *_Nonnull)toDictionary;
 
 @end
 
