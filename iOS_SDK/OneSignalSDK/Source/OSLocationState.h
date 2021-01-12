@@ -35,6 +35,8 @@ THE SOFTWARE.
 @property (strong, nonatomic, readwrite, nullable) NSNumber *verticalAccuracy;
 @property (strong, nonatomic, readwrite, nullable) NSNumber *accuracy;
 
+- (NSDictionary*)toDictionary;
+
 @end
 
 #endif /* OSLocationState_h */

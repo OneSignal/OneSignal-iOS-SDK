@@ -33,6 +33,10 @@ THE SOFTWARE.
 
 @implementation OSUserStateSynchronizer
 
+- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData userId:(NSString *)userId {
+    return [OSRequestRegisterUser withData:registrationData userId:userId];
+}
+
 - (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId
                          withExternalIdAuthHashToken:(NSString *)hashToken
                                           withUserId:(NSString *)userId

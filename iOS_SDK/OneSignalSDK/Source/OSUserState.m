@@ -31,4 +31,48 @@ THE SOFTWARE.
 
 @implementation OSUserState
 
+- (NSDictionary*)toDictionary {
+    NSMutableDictionary *dataDic = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                   _appId, @"app_id",
+                   _deviceOs, @"device_os",
+                   _timezone, @"timezone",
+                   _deviceType, @"device_type",
+                   _adId, @"ad_id",
+                   _sdk, @"sdk",
+                   nil];
+    
+    if (_externalUserId)
+        dataDic[@"external_user_id"] = _externalUserId;
+    if (_externalUserIdHash)
+        dataDic[@"external_user_id_auth_hash"] = _externalUserIdHash;
+    if (_deviceModel)
+        dataDic[@"device_model"] = _deviceModel;
+    if (_gameVersion)
+        dataDic[@"game_version"] = _gameVersion;
+    if (self.isRooted)
+        dataDic[@"rooted"] = @YES;
+    
+    dataDic[@"net_type"] = _netType;
+    
+    if (_sdk)
+        dataDic[@"sdk_type"] = _sdk;
+    if (_iOSBundle)
+        dataDic[@"ios_bundle"] = _iOSBundle;
+    if (_language)
+        dataDic[@"language"] = _language;
+    
+    dataDic[@"notification_types"] = _notificationTypes;
+    
+    if (_carrier)
+        dataDic[@"carrier"] = _carrier;
+    if (_testType)
+        dataDic[@"test_type"] = _testType;
+    if (_tags)
+        dataDic[@"tags"] = _tags;
+    if (_locationState)
+        [dataDic addEntriesFromDictionary:_locationState.toDictionary];
+    
+    return dataDic;
+}
+
 @end
