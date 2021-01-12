@@ -40,6 +40,9 @@ THE SOFTWARE.
 + (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests;
 + (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests;
 + (void)emailChangedWithNewEmailPlayerId:(NSString * _Nullable)emailPlayerId;
++ (void)setUserId:(NSString *)userId;
++ (void)setEmailUserId:(NSString *)emailUserId;
++ (void)saveExternalIdAuthToken:(NSString *)hashToken;
 
 @end
 
@@ -78,20 +81,20 @@ THE SOFTWARE.
 - (void)registerUserWithState:(OSUserState *)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
     let requests = [NSMutableDictionary new];
     let pushDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
-    pushDataDic[@"identifier"] = self.currentSubscriptionState.pushToken;
+    pushDataDic[@"identifier"] = _currentSubscriptionState.pushToken;
     
     requests[OS_PUSH] = [[self getPushStateSynchronizer] registerUserWithData:pushDataDic userId:self.currentSubscriptionState.userId];
     
     if ([OneSignal isEmailSetup]) {
         let emailDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
         emailDataDic[@"device_type"] = [NSNumber numberWithInt:DEVICE_TYPE_EMAIL];
-        emailDataDic[@"email_auth_hash"] = self.currentEmailSubscriptionState.emailAuthCode;
+        emailDataDic[@"email_auth_hash"] = _currentEmailSubscriptionState.emailAuthCode;
         
         // If push device has external id we want to add it to the email device also
         if (registrationState.externalUserId)
             emailDataDic[@"external_user_id"] = registrationState.externalUserId;
 
-        requests[OS_EMAIL] = [[self getEmailStateSynchronizer] registerUserWithData:emailDataDic userId:self.currentEmailSubscriptionState.emailUserId];
+        requests[OS_EMAIL] = [[self getEmailStateSynchronizer] registerUserWithData:emailDataDic userId:_currentEmailSubscriptionState.emailUserId];
     } else {
         // If no email is setup clear the email external user id
         [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
@@ -105,42 +108,38 @@ THE SOFTWARE.
         if (registrationState.externalUserId)
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:registrationState.externalUserId];
         
-        if (registrationState.externalUserIdHash) {
-            self.currentSubscriptionState.externalIdAuthCode = registrationState.externalUserIdHash;
-            
-            //call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
-            [self.currentSubscriptionState persist];
-        }
+        if (registrationState.externalUserIdHash)
+            [OneSignal saveExternalIdAuthToken:registrationState.externalUserIdHash];
 
         // Update email player ID
         if (results[OS_EMAIL] && results[OS_EMAIL][@"id"]) {
+            NSString *emailUserId = results[OS_EMAIL][@"id"];
             
             // Check to see if the email player_id or email_auth_token are different from what were previously saved
             // if so, we should update the server with this change
-            
-            if (self.currentEmailSubscriptionState.emailUserId && ![self.currentEmailSubscriptionState.emailUserId isEqualToString:results[OS_EMAIL][@"id"]] && self.currentEmailSubscriptionState.emailAuthCode) {
-                [OneSignal emailChangedWithNewEmailPlayerId:results[OS_EMAIL][@"id"]];
+            if (_currentEmailSubscriptionState.emailUserId && ![_currentEmailSubscriptionState.emailUserId isEqualToString:emailUserId] && _currentEmailSubscriptionState.emailAuthCode) {
+                [OneSignal emailChangedWithNewEmailPlayerId:emailUserId];
                 [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
             }
             
-            self.currentEmailSubscriptionState.emailUserId = results[OS_EMAIL][@"id"];
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_PLAYER_ID withValue:self.currentEmailSubscriptionState.emailUserId];
+            [OneSignal setEmailUserId:emailUserId];
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_PLAYER_ID withValue:emailUserId];
 
             // Email successfully updated, so if there was an external user id we should cache it for email now
             if (registrationState.externalUserId)
                 [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:registrationState.externalUserId];
-
         }
         
         //update push player id
         if (results.count > 0 && results[OS_PUSH][@"id"]) {
-            self.currentSubscriptionState.userId = results[OS_PUSH][@"id"];
+            NSString *userId = results[OS_PUSH][@"id"];
+            [OneSignal setUserId:userId];
             
             // Save player_id to both standard and shared NSUserDefaults
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
-            [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PLAYER_ID_TO withValue:userId];
+            [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:userId];
         }
-        
+
         if (successBlock)
             successBlock(results);
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
@@ -180,10 +179,8 @@ THE SOFTWARE.
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
         if (results[OS_PUSH] && results[OS_PUSH][OS_SUCCESS] && [results[OS_PUSH][OS_SUCCESS] boolValue]) {
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
-            _currentSubscriptionState.externalIdAuthCode = hashToken;
-            
-            // Call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
-            [_currentSubscriptionState persist];
+
+            [OneSignal saveExternalIdAuthToken:hashToken];
         }
         
         if (results[OS_EMAIL] && results[OS_EMAIL][OS_SUCCESS] && [results[OS_EMAIL][OS_SUCCESS] boolValue])
