@@ -76,6 +76,7 @@
 
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
+@property (class, readonly) BOOL isRegisterUserFinished;
 
 @property (class) NSObject<OneSignalNotificationSettings>* _Nonnull osNotificationSettings;
 @property (class) OSPermissionState* _Nonnull currentPermissionState;
