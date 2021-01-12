@@ -428,6 +428,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return self.currentSubscriptionState.userId;
 }
 
++ (void)setUserId:(NSString *)userId {
+    self.currentSubscriptionState.userId = userId;
+}
+
 + (NSString *)mEmailAuthToken {
     return self.currentEmailSubscriptionState.emailAuthCode;
 }
@@ -436,8 +440,29 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return self.currentEmailSubscriptionState.emailUserId;
 }
 
++ (void)setEmailUserId:(NSString *)emailUserId {
+    self.currentEmailSubscriptionState.emailUserId = emailUserId;
+}
+
 + (NSString *)mExternalIdAuthToken {
     return self.currentSubscriptionState.externalIdAuthCode;
+}
+
++ (void)saveEmailAddress:(NSString *)email withAuthToken:(NSString *)emailAuthToken userId:(NSString *)emailPlayerId {
+    self.currentEmailSubscriptionState.emailAddress = email;
+    self.currentEmailSubscriptionState.emailAuthCode = emailAuthToken;
+    self.currentEmailSubscriptionState.emailUserId = emailPlayerId;
+    
+    //call persistAsFrom in order to save the emailAuthToken & playerId to NSUserDefaults
+    [self.currentEmailSubscriptionState persist];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentEmailSubscriptionState after saveEmailAddress: %@", self.currentEmailSubscriptionState.description]];
+}
+
++ (void)saveExternalIdAuthToken:(NSString *)hashToken {
+    self.currentSubscriptionState.externalIdAuthCode = hashToken;
+    // Call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
+    [self.currentSubscriptionState persist];
 }
 
 + (void)setMSDKType:(NSString*)type {
@@ -472,6 +497,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     isOnSessionSuccessfulForCurrentState = false;
     mLastNotificationTypes = -1;
     
+    _stateSynchronizer = nil;
+
     _lastPermissionState = nil;
     _currentPermissionState = nil;
     
@@ -1589,7 +1616,7 @@ static BOOL _registerUserFinished = false;
 
 static dispatch_queue_t serialQueue;
 
-+ (dispatch_queue_t) getRegisterQueue {
++ (dispatch_queue_t)getRegisterQueue {
     return serialQueue;
 }
 
@@ -2326,13 +2353,8 @@ static NSString *_lastnonActiveMessageId;
             let emailPlayerId = (NSString*)result[@"id"];
             
             if (emailPlayerId) {
-                self.currentEmailSubscriptionState.emailAddress = email;
-                self.currentEmailSubscriptionState.emailAuthCode = emailAuthToken;
-                self.currentEmailSubscriptionState.emailUserId = emailPlayerId;
-                
-                //call persistAsFrom in order to save the emailAuthToken & playerId to NSUserDefaults
-                [self.currentEmailSubscriptionState persist];
-                
+                [OneSignal saveEmailAddress:email withAuthToken:emailAuthToken userId:emailPlayerId];
+
                 [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil notificationTypes:@([self getNotificationTypes]) withParentId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:hashToken email:email externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
                     [self callSuccessBlockOnMainThread:successBlock];
                 } onFailure:^(NSError *error) {
@@ -2373,13 +2395,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.appId emailPlayerId:self.currentEmailSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentEmailSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
         
         [OneSignalUserDefaults.initStandard removeValueForKey:OSUD_EMAIL_PLAYER_ID];
-        
-        self.currentEmailSubscriptionState.emailAddress = nil;
-        self.currentEmailSubscriptionState.emailAuthCode = nil;
-        self.currentEmailSubscriptionState.emailUserId = nil;
-        
-        //call persistAsFrom in order to save the hashToken & playerId to NSUserDefaults
-        [self.currentEmailSubscriptionState persist];
+        [OneSignal saveEmailAddress:nil withAuthToken:nil userId:nil];
         
         [self callSuccessBlockOnMainThread:successBlock];
     } onFailure:^(NSError *error) {
@@ -2491,13 +2507,12 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
-
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withSuccess:withFailure:"])
         return;
 
     // Can't set the external id if init is not done or the app id or user id has not ben set yet
-    if (!_downloadedParameters || !self.currentSubscriptionState.userId ) {
+    if (!_downloadedParameters || !self.currentSubscriptionState.userId) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
         pendingExternalUserIdHashToken = hashToken;

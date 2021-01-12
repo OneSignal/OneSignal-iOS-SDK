@@ -478,9 +478,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertTrue([observer->last.to.description isEqualToString: @"<OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234>"]);
-    XCTAssertTrue([observer->last.from.description isEqualToString:@"<OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null)>"]);
-    XCTAssertTrue([observer->last.description isEqualToString:@"<OSEmailSubscriptionStateChanges:\nfrom: <OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null)>,\nto:   <OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234>\n>"]);
+    XCTAssertTrue([observer->last.to.description isEqualToString: @"<OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234, emailAuthCode: (null)>"]);
+    XCTAssertTrue([observer->last.from.description isEqualToString:@"<OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null), emailAuthCode: (null)>"]);
+    XCTAssertTrue([observer->last.description isEqualToString:@"<OSEmailSubscriptionStateChanges:\nfrom: <OSEmailSubscriptionState: emailAddress: (null), emailUserId: (null), emailAuthCode: (null)>,\nto:   <OSEmailSubscriptionState: emailAddress: test@test.com, emailUserId: 1234, emailAuthCode: (null)>\n>"]);
 }
 
 - (void)testSetExternalIdForEmailPlayer {
