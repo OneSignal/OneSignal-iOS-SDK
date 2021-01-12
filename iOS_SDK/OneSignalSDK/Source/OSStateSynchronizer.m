@@ -36,7 +36,6 @@ THE SOFTWARE.
 
 @interface OneSignal ()
 
-+ (BOOL)isEmailSetup;
 + (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests;
 + (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests;
 + (void)emailChangedWithNewEmailPlayerId:(NSString * _Nullable)emailPlayerId;
@@ -75,17 +74,23 @@ THE SOFTWARE.
 }
 
 - (OSUserStateSynchronizer *)getEmailStateSynchronizer {
-    return [_userStateSynchronizers objectForKey:OS_EMAIL];
+    if ([self.currentEmailSubscriptionState isEmailSetup])
+        return [_userStateSynchronizers objectForKey:OS_EMAIL];
+    else
+        return nil;
 }
 
 - (void)registerUserWithState:(OSUserState *)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
-    let requests = [NSMutableDictionary new];
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    
     let pushDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
     pushDataDic[@"identifier"] = _currentSubscriptionState.pushToken;
     
-    requests[OS_PUSH] = [[self getPushStateSynchronizer] registerUserWithData:pushDataDic userId:self.currentSubscriptionState.userId];
+    let requests = [NSMutableDictionary new];
+    requests[OS_PUSH] = [pushStateSyncronizer registerUserWithData:pushDataDic userId:self.currentSubscriptionState.userId];
     
-    if ([OneSignal isEmailSetup]) {
+    if (emailStateSyncronizer) {
         let emailDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
         emailDataDic[@"device_type"] = [NSNumber numberWithInt:DEVICE_TYPE_EMAIL];
         emailDataDic[@"email_auth_hash"] = _currentEmailSubscriptionState.emailAuthCode;
@@ -94,7 +99,7 @@ THE SOFTWARE.
         if (registrationState.externalUserId)
             emailDataDic[@"external_user_id"] = registrationState.externalUserId;
 
-        requests[OS_EMAIL] = [[self getEmailStateSynchronizer] registerUserWithData:emailDataDic userId:_currentEmailSubscriptionState.emailUserId];
+        requests[OS_EMAIL] = [emailStateSyncronizer registerUserWithData:emailDataDic userId:_currentEmailSubscriptionState.emailUserId];
     } else {
         // If no email is setup clear the email external user id
         [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
@@ -152,16 +157,19 @@ THE SOFTWARE.
 }
 
 - (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    
     // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [[self getPushStateSynchronizer] setExternalUserId:externalId
+    requests[OS_PUSH] = [pushStateSyncronizer setExternalUserId:externalId
                                                withExternalIdAuthHashToken:hashToken
                                                                 withUserId:_currentSubscriptionState.userId
                                                                  withAppId:appId];
     
     // Check if the email has been set, this will decide on updtaing the external id for the email channel
-    if ([OneSignal isEmailSetup])
-        requests[OS_EMAIL] =  [[self getEmailStateSynchronizer] setExternalUserId:externalId
+    if (emailStateSyncronizer)
+        requests[OS_EMAIL] =  [emailStateSyncronizer setExternalUserId:externalId
                                                       withExternalIdAuthHashToken:hashToken
                                                                        withUserId:_currentEmailSubscriptionState.emailUserId
                                                                         withAppId:appId];
