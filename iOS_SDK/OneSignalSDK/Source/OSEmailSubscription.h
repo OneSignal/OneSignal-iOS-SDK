@@ -51,6 +51,7 @@ typedef OSObservable<NSObject<OSEmailSubscriptionObserver>*, OSEmailSubscription
 - (void)persist;
 - (void)setEmailUserId:(NSString *)emailUserId;
 - (void)setEmailAddress:(NSString *)emailAddress;
+- (BOOL)isEmailSetup;
 - (BOOL)compare:(OSEmailSubscriptionState *)from;
 @end
 

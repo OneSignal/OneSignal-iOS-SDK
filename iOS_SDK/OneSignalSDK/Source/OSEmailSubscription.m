@@ -79,7 +79,6 @@
     return copy;
 }
 
-
 - (void)setEmailUserId:(NSString *)emailUserId {
     BOOL changed = emailUserId != _emailUserId;
     _emailUserId = emailUserId;
@@ -90,6 +89,10 @@
 
 - (void)setEmailAddress:(NSString *)emailAddress {
     _emailAddress = emailAddress;
+}
+
+- (BOOL)isEmailSetup {
+    return _emailUserId && (!_requiresEmailAuth || _emailAuthCode);
 }
 
 - (NSDictionary *)toDictionary {
