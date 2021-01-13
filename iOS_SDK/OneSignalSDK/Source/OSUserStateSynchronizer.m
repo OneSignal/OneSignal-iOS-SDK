@@ -33,7 +33,8 @@ THE SOFTWARE.
 
 @implementation OSUserStateSynchronizer
 
-- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData userId:(NSString *)userId {
+- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData
+                                         userId:(NSString *)userId {
     return [OSRequestRegisterUser withData:registrationData userId:userId];
 }
 
@@ -42,6 +43,15 @@ THE SOFTWARE.
                                           withUserId:(NSString *)userId
                                            withAppId:(NSString *)appId {
     return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:userId appId:appId];
+}
+
+- (OSRequestSendTagsToServer *)sendTagsWithUserId:(NSString *)userId
+                                            appId:(NSString *)appId
+                                      sendingTags:(NSDictionary *)tags
+                                      networkType:(NSNumber *)networkType
+                               emailAuthHashToken:(NSString *)emailAuthHashToken
+                          externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
+    return [OSRequestSendTagsToServer withUserId:userId appId:appId tags:tags networkType:networkType withEmailAuthHashToken:emailAuthHashToken withExternalIdAuthHashToken:externalIdAuthHashToken];
 }
 
 @end

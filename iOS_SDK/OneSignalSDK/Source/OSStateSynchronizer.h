@@ -25,20 +25,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef OSStateSynchronizer_h
-#define OSStateSynchronizer_h
-
 #import "OneSignal.h"
 #import "OSUserState.h"
 #import "OneSignalClient.h"
 
+#ifndef OSStateSynchronizer_h
+#define OSStateSynchronizer_h
+
 @interface OSStateSynchronizer : NSObject
 
-- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState;
+- (instancetype _Nonnull)initWithSubscriptionState:(OSSubscriptionState * _Nonnull)subscriptionState
+                        withEmailSubscriptionState:(OSEmailSubscriptionState * _Nonnull)emailSubscriptionState;
 
-- (void)registerUserWithState:(OSUserState * _Nonnull)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock;
-- (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
+- (void)registerUserWithState:(OSUserState * _Nonnull)registrationState
+                  withSuccess:(OSMultipleSuccessBlock _Nullable)successBlock
+                    onFailure:(OSMultipleFailureBlock _Nullable)failureBlock;
 
+- (void)setExternalUserId:(NSString * _Nonnull)externalId
+withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
+                withAppId:(NSString * _Nonnull)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock
+              withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
+
+- (void)sendTagsWithAppId:(NSString * _Nonnull)appId
+               sendingTags:(NSDictionary * _Nonnull)tag
+               networkType:(NSNumber * _Nonnull)networkType
+      processingCallbacks:(NSArray * _Nullable)nowProcessingCallbacks;
 
 @end
 

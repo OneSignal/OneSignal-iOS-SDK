@@ -54,6 +54,7 @@
 #import "OneSignalNotificationSettingsIOS9.h"
 
 #import "OSObservable.h"
+#import "OSPendingCallbacks.h"
 
 #import "OneSignalExtensionBadgeHandler.h"
 
@@ -116,14 +117,6 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
              @"emailSubscriptionStatus" : [_emailSubscriptionStatus toDictionary]
              };
 }
-@end
-
-@interface OSPendingCallbacks : NSObject
- @property OSResultSuccessBlock successBlock;
- @property OSFailureBlock failureBlock;
-@end
-
-@implementation OSPendingCallbacks
 @end
 
 @interface OneSignal (SessionStatusDelegate)
@@ -1173,7 +1166,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (successBlock || failureBlock) {
         if (!pendingSendTagCallbacks)
             pendingSendTagCallbacks = [[NSMutableArray alloc] init];
-        OSPendingCallbacks* pendingCallbacks = [OSPendingCallbacks alloc];
+        OSPendingCallbacks *pendingCallbacks = [OSPendingCallbacks new];
         pendingCallbacks.successBlock = successBlock;
         pendingCallbacks.failureBlock = failureBlock;
         [pendingSendTagCallbacks addObject:pendingCallbacks];
@@ -1203,35 +1196,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
     
-    NSMutableDictionary *requests = [NSMutableDictionary new];
-    
-    requests[@"push"] = [OSRequestSendTagsToServer withUserId:self.currentSubscriptionState.userId appId:self.appId tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:[self mExternalIdAuthToken]];
-    
-    if ([self.currentEmailSubscriptionState isEmailSetup])
-        requests[@"email"] = [OSRequestSendTagsToServer withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.appId tags:nowSendingTags networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:self.currentEmailSubscriptionState.emailAuthCode withExternalIdAuthHashToken:nil];
-    
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
-        //the tags for email & push are identical so it doesn't matter what we return in the success block
-        
-        NSDictionary *resultTags = results[@"push"];
-        
-        if (!resultTags)
-            resultTags = results[@"email"];
-        
-        if (nowProcessingCallbacks)
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
-                if (callbackSet.successBlock)
-                    callbackSet.successBlock(resultTags);
-        
-    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-        if (nowProcessingCallbacks) {
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                if (callbackSet.failureBlock) {
-                    callbackSet.failureBlock((NSError *)(errors[@"push"] ?: errors[@"email"]));
-                }
-            }
-        }
-    }];
+    [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OneSignalHelper getNetType] processingCallbacks:nowProcessingCallbacks];
 }
 
 + (void)sendTag:(NSString*)key value:(NSString*)value {
