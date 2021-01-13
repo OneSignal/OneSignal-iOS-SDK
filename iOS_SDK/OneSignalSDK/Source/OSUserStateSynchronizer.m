@@ -54,4 +54,11 @@ THE SOFTWARE.
     return [OSRequestSendTagsToServer withUserId:userId appId:appId tags:tags networkType:networkType withEmailAuthHashToken:emailAuthHashToken withExternalIdAuthHashToken:externalIdAuthHashToken];
 }
 
+- (OSRequestSendPurchases *)sendPurchases:(NSArray *)purchases
+                                    appId:(NSString *)appId
+                                   userId:(NSString *)userId
+                      externalIdAuthToken:(NSString *)externalIdAuthToken {
+    return [OSRequestSendPurchases withUserId:userId externalIdAuthToken:externalIdAuthToken appId:appId withPurchases:purchases];
+}
+
 @end

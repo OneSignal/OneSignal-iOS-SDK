@@ -51,6 +51,8 @@ withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
                networkType:(NSNumber * _Nonnull)networkType
       processingCallbacks:(NSArray * _Nullable)nowProcessingCallbacks;
 
+- (void)sendPurchases:(NSArray * _Nonnull)purchases appId:(NSString * _Nonnull)appId;
+
 @end
 
 #endif /* OSStateSynchronizer_h */

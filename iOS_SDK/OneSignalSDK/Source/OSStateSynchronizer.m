@@ -233,4 +233,20 @@ THE SOFTWARE.
     }];
 }
 
+- (void)sendPurchases:(NSArray *)purchases appId:(NSString *)appId {
+    if (!_currentSubscriptionState.userId)
+        return;
+    
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    
+    let requests = [NSMutableDictionary new];
+    requests[OS_PUSH] = [pushStateSyncronizer sendPurchases:purchases appId:appId userId:_currentSubscriptionState.userId externalIdAuthToken:_currentSubscriptionState.externalIdAuthCode];
+    
+    if (emailStateSyncronizer)
+        requests[OS_EMAIL] = [emailStateSyncronizer sendPurchases:purchases appId:appId userId:_currentEmailSubscriptionState.emailUserId externalIdAuthToken:_currentEmailSubscriptionState.emailAuthCode];
+
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
+}
+
 @end
