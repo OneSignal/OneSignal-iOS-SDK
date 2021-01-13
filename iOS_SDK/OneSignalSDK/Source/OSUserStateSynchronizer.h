@@ -53,6 +53,12 @@ THE SOFTWARE.
                                             userId:(NSString * _Nonnull)userId
                                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 
+- (OSRequestBadgeCount * _Nonnull)sendBadgeCount:(NSNumber *)badgeCount
+                                           appId:(NSString * _Nonnull)appId
+                                          userId:(NSString * _Nonnull)userId
+                              emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
+                         externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+
 @end
 
 #endif /* OSUserStateSynchronizer_h */
