@@ -262,4 +262,20 @@ THE SOFTWARE.
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
 
+- (void)sendLocation:(os_last_location *)lastLocation
+               appId:(NSString *)appId
+         networkType:(NSNumber *)networkType
+     backgroundState:(BOOL)background {
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    
+    let requests = [NSMutableDictionary new];
+    requests[OS_PUSH] = [pushStateSyncronizer sendLocation:lastLocation appId:appId userId:_currentSubscriptionState.userId networkType:networkType backgroundState:background emailAuthHashToken:nil externalIdAuthHashToken:_currentSubscriptionState.externalIdAuthCode];
+    
+    if (emailStateSyncronizer)
+        requests[OS_EMAIL] = [emailStateSyncronizer sendLocation:lastLocation appId:appId userId:_currentEmailSubscriptionState.emailUserId networkType:networkType backgroundState:background emailAuthHashToken:_currentEmailSubscriptionState.emailAuthCode externalIdAuthHashToken:nil];
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
+}
+
 @end

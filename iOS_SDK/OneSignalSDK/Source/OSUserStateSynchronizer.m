@@ -61,8 +61,22 @@ THE SOFTWARE.
     return [OSRequestSendPurchases withUserId:userId externalIdAuthToken:externalIdAuthToken appId:appId withPurchases:purchases];
 }
 
-- (OSRequestBadgeCount *)sendBadgeCount:(NSNumber *)badgeCount appId:(NSString *)appId userId:(NSString *)userId emailAuthHashToken:(NSString *)emailAuthHashToken externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
+- (OSRequestBadgeCount *)sendBadgeCount:(NSNumber *)badgeCount
+                                  appId:(NSString *)appId
+                                 userId:(NSString *)userId
+                     emailAuthHashToken:(NSString *)emailAuthHashToken
+                externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
     return [OSRequestBadgeCount withUserId:userId appId:appId badgeCount:badgeCount emailAuthToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
+}
+
+- (OSRequestSendLocation *)sendLocation:(os_last_location *)lastLocation
+                                  appId:(NSString *)appId
+                                 userId:(NSString *)userId
+                            networkType:(NSNumber *)networkType
+                        backgroundState:(BOOL)background
+                     emailAuthHashToken:(NSString *)emailAuthHashToken
+                externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
+    return [OSRequestSendLocation withUserId:userId appId:appId location:lastLocation networkType:networkType backgroundState:background emailAuthHashToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
 }
 
 @end

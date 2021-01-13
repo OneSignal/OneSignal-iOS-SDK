@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #import "OneSignal.h"
 #import "Requests.h"
+#import "OneSignalLocation.h"
 
 #ifndef OSUserStateSynchronizer_h
 #define OSUserStateSynchronizer_h
@@ -56,6 +57,14 @@ THE SOFTWARE.
 - (OSRequestBadgeCount * _Nonnull)sendBadgeCount:(NSNumber *)badgeCount
                                            appId:(NSString * _Nonnull)appId
                                           userId:(NSString * _Nonnull)userId
+                              emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
+                         externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+
+- (OSRequestSendLocation * _Nonnull)sendLocation:(os_last_location * _Nonnull)lastLocation
+                                           appId:(NSString * _Nonnull)appId
+                                          userId:(NSString * _Nonnull)userId
+                                     networkType:(NSNumber * _Nonnull)networkType
+                                 backgroundState:(BOOL)background
                               emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
                          externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
 
