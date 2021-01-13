@@ -409,7 +409,7 @@ OneSignalWebView *webVC;
     return NO;
 }
 
-+ (NSNumber*)getNetType {
++ (NSNumber *)getNetType {
     OneSignalReachability* reachability = [OneSignalReachability reachabilityForInternetConnection];
     NetworkStatus status = [reachability currentReachabilityStatus];
     if (status == ReachableViaWiFi)

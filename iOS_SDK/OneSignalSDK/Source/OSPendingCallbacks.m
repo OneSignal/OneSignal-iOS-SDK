@@ -25,13 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#import "OSUserStateSynchronizer.h"
+#import <Foundation/Foundation.h>
+#import "OSPendingCallbacks.h"
 
-#ifndef OSUserStateEmailSynchronizer_h
-#define OSUserStateEmailSynchronizer_h
-
-@interface OSUserStateEmailSynchronizer : OSUserStateSynchronizer
-
+@implementation OSPendingCallbacks
 @end
-
-#endif /* OSUserStateEmailSynchronizer_h */

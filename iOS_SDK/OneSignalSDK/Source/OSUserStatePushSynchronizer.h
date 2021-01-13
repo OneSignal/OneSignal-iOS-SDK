@@ -25,10 +25,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+#import "OSUserStateSynchronizer.h"
+
 #ifndef OSUserStatePushSynchronizer_h
 #define OSUserStatePushSynchronizer_h
-
-#import "OSUserStateSynchronizer.h"
 
 @interface OSUserStatePushSynchronizer : OSUserStateSynchronizer
 

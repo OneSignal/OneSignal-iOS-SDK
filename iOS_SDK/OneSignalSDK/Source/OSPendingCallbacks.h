@@ -25,13 +25,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#import "OSUserStateSynchronizer.h"
+#import "OneSignal.h"
 
-#ifndef OSUserStateEmailSynchronizer_h
-#define OSUserStateEmailSynchronizer_h
+#ifndef OSPendingCallbacks_h
+#define OSPendingCallbacks_h
 
-@interface OSUserStateEmailSynchronizer : OSUserStateSynchronizer
+@interface OSPendingCallbacks : NSObject
+
+ @property OSResultSuccessBlock successBlock;
+ @property OSFailureBlock failureBlock;
 
 @end
 
-#endif /* OSUserStateEmailSynchronizer_h */
+#endif /* OSPendingCallbacks_h */

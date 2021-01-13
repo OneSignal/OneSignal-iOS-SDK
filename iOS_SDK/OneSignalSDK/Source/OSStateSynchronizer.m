@@ -33,6 +33,7 @@ THE SOFTWARE.
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalUserDefaults.h"
+#import "OSPendingCallbacks.h"
 
 @interface OneSignal ()
 
@@ -196,6 +197,39 @@ THE SOFTWARE.
 
         if (successBlock)
             successBlock(results);
+    }];
+}
+
+- (void)sendTagsWithAppId:(NSString *)appId
+              sendingTags:(NSDictionary *)tags
+              networkType:(NSNumber *)networkType
+      processingCallbacks:(NSArray *)nowProcessingCallbacks {
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    
+    let requests = [NSMutableDictionary new];
+    requests[OS_PUSH] = [pushStateSyncronizer sendTagsWithUserId:_currentSubscriptionState.userId appId:appId sendingTags:tags networkType:networkType emailAuthHashToken:nil externalIdAuthHashToken:_currentSubscriptionState.externalIdAuthCode];
+    
+    if (emailStateSyncronizer)
+        requests[OS_EMAIL] = [emailStateSyncronizer sendTagsWithUserId:_currentEmailSubscriptionState.emailUserId appId:appId sendingTags:tags networkType:networkType emailAuthHashToken:_currentEmailSubscriptionState.emailAuthCode externalIdAuthHashToken:nil];
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
+        // The tags for email & push are identical so it doesn't matter what we return in the success block
+        if (nowProcessingCallbacks) {
+            NSDictionary *resultTags = results[OS_PUSH] ?: results[OS_EMAIL];
+            
+            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
+                if (callbackSet.successBlock)
+                    callbackSet.successBlock(resultTags);
+        }
+    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+        if (nowProcessingCallbacks) {
+            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
+                if (callbackSet.failureBlock) {
+                    callbackSet.failureBlock((NSError *)(errors[OS_PUSH] ?: errors[OS_EMAIL]));
+                }
+            }
+        }
     }];
 }
 

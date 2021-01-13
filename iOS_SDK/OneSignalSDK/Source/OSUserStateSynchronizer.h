@@ -26,16 +26,27 @@ THE SOFTWARE.
 */
 
 #import "OneSignal.h"
+#import "Requests.h"
 
 #ifndef OSUserStateSynchronizer_h
 #define OSUserStateSynchronizer_h
 
-#import "Requests.h"
-
 @interface OSUserStateSynchronizer : NSObject
 
-- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary * _Nonnull)registrationData userId:(NSString * _Nullable)userId;
-- (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withUserId:(NSString *)userId withAppId:(NSString *)appId;
+- (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationData
+                                                  userId:(NSString * _Nullable)userId;
+
+- (OSRequestUpdateExternalUserId * _Nonnull)setExternalUserId:(NSString *_Nonnull)externalId
+                                  withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
+                                                   withUserId:(NSString * _Nonnull)userId
+                                                    withAppId:(NSString * _Nonnull)appId;
+
+- (OSRequestSendTagsToServer * _Nonnull)sendTagsWithUserId:(NSString * _Nonnull)userId
+                                                     appId:(NSString * _Nonnull)appId
+                                               sendingTags:(NSDictionary * _Nonnull)tags
+                                               networkType:(NSNumber * _Nonnull)networkType
+                                        emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
+                                   externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
 
 @end
 
