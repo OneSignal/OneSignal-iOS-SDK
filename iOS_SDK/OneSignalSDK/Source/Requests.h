@@ -107,14 +107,6 @@ NS_ASSUME_NONNULL_END
                             netType:(NSNumber * _Nonnull)netType
                      emailAuthToken:(NSString * _Nullable)emailAuthHash
                 externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
-                         deviceType:(NSNumber * _Nonnull)deviceType;
-
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         activeTime:(NSNumber * _Nonnull)activeTime
-                            netType:(NSNumber * _Nonnull)netType
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash
-                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
                          deviceType:(NSNumber * _Nonnull)deviceType
                     influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams;
 @end

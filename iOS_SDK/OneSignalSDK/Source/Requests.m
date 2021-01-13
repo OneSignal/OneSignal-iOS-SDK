@@ -379,9 +379,11 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     params[@"net_type"] = netType;
     params[@"device_type"] = deviceType;
     
-    for (OSFocusInfluenceParam *influenceParam in influenceParams) {
-        params[influenceParam.influenceKey] = influenceParam.influenceIds;
-        params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
+    if (influenceParams) {
+        for (OSFocusInfluenceParam *influenceParam in influenceParams) {
+            params[influenceParam.influenceKey] = influenceParam.influenceIds;
+            params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
+        }
     }
 
     if (emailAuthHash && emailAuthHash.length > 0)

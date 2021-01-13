@@ -28,6 +28,11 @@
 #import "Requests.h"
 #import "OneSignalClient.h"
 #import "OSAttributedFocusTimeProcessor.h"
+#import "OSStateSynchronizer.h"
+
+@interface OneSignal ()
++ (OSStateSynchronizer *)stateSynchronizer;
+@end
 
 @implementation OSAttributedFocusTimeProcessor {
     UIBackgroundTaskIdentifier delayBackgroundTask;
@@ -107,20 +112,11 @@ static let DELAY_TIME = 30;
     [self sendBackgroundAttributedFocusPingWithParams:params withTotalTimeActive:totalTimeActive];
 }
 
-- (void)sendBackgroundAttributedFocusPingWithParams:(OSFocusCallParams*)params withTotalTimeActive:(NSNumber*)totalTimeActive {
+- (void)sendBackgroundAttributedFocusPingWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"beginBackgroundAttributedFocusTask start"];
-        
-        let requests = [NSMutableDictionary new];
-    
-        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:nil externalIdAuthToken:params.externalIdAuthToken deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
-        
-        // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
-        //   outcome fields which would double report the influence time
-        if (params.emailUserId)
-            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:totalTimeActive netType:params.netType emailAuthToken:params.emailAuthToken externalIdAuthToken:nil deviceType:@(DEVICE_TYPE_EMAIL)];
 
-        [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
+        [OneSignal.stateSynchronizer sendOnFocusTime:totalTimeActive params:params withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
             [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
             [self endDelayBackgroundTask];

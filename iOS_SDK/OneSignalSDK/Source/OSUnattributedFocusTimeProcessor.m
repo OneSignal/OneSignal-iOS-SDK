@@ -28,6 +28,11 @@
 #import "Requests.h"
 #import "OneSignalClient.h"
 #import "OSUnattributedFocusTimeProcessor.h"
+#import "OSStateSynchronizer.h"
+
+@interface OneSignal ()
++ (OSStateSynchronizer *)stateSynchronizer;
+@end
 
 @implementation OSUnattributedFocusTimeProcessor {
     UIBackgroundTaskIdentifier focusBackgroundTask;
@@ -93,19 +98,11 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
         [self beginBackgroundFocusTask];
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"beginBackgroundFocusTask start"];
        
-        let deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
-        let requests = [NSMutableDictionary new];
-    
-        requests[@"push"] = [OSRequestOnFocus withUserId:params.userId appId:params.appId activeTime:@(totalTimeActive) netType:params.netType emailAuthToken:nil externalIdAuthToken:params.externalIdAuthToken deviceType:deviceType];
-        
-        if (params.emailUserId)
-            requests[@"email"] = [OSRequestOnFocus withUserId:params.emailUserId appId:params.appId activeTime:@(totalTimeActive) netType:params.netType emailAuthToken:params.emailAuthToken externalIdAuthToken:params.externalIdAuthToken deviceType:deviceType];
-
-        [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
+        [OneSignal.stateSynchronizer sendOnFocusTime:@(totalTimeActive) params:params withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
             [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
             [self endBackgroundFocusTask];
-        } onFailure:^(NSDictionary<NSString *,NSError *> *errors) {
+        } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
             [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
             [self endBackgroundFocusTask];
         }];

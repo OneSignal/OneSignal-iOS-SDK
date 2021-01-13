@@ -54,7 +54,7 @@ THE SOFTWARE.
                                             userId:(NSString * _Nonnull)userId
                                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 
-- (OSRequestBadgeCount * _Nonnull)sendBadgeCount:(NSNumber *)badgeCount
+- (OSRequestBadgeCount * _Nonnull)sendBadgeCount:(NSNumber * _Nonnull)badgeCount
                                            appId:(NSString * _Nonnull)appId
                                           userId:(NSString * _Nonnull)userId
                               emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
@@ -67,6 +67,15 @@ THE SOFTWARE.
                                  backgroundState:(BOOL)background
                               emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
                          externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+
+- (OSRequestOnFocus * _Nonnull)sendOnFocusTime:(NSNumber * _Nonnull)activeTime
+                                        userId:(NSString * _Nonnull)userId
+                                         appId:(NSString * _Nonnull)appId
+                                       netType:(NSNumber * _Nonnull)netType
+                                emailAuthToken:(NSString * _Nullable)emailAuthHash
+                           externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
+                                    deviceType:(NSNumber * _Nonnull)deviceType
+                               influenceParams:(NSArray <OSFocusInfluenceParam *> * _Nullable)influenceParams;
 
 @end
 

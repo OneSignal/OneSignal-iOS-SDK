@@ -79,4 +79,15 @@ THE SOFTWARE.
     return [OSRequestSendLocation withUserId:userId appId:appId location:lastLocation networkType:networkType backgroundState:background emailAuthHashToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
 }
 
+- (OSRequestOnFocus *)sendOnFocusTime:(NSNumber *)activeTime
+                               userId:(NSString *)userId
+                                appId:(NSString *)appId
+                              netType:(NSNumber *)netType
+                       emailAuthToken:(NSString *)emailAuthHash
+                  externalIdAuthToken:(NSString *)externalIdAuthToken
+                           deviceType:(NSNumber *)deviceType
+                      influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
+    return [OSRequestOnFocus withUserId:userId appId:appId activeTime:activeTime netType:netType emailAuthToken:emailAuthHash externalIdAuthToken:externalIdAuthToken deviceType:deviceType influenceParams:influenceParams];
+}
+
 @end
