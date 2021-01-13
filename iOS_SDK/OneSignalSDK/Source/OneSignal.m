@@ -462,7 +462,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     mSDKType = type;
 }
 
-+ (void) setWaitingForApnsResponse:(BOOL)value {
++ (void)setWaitingForApnsResponse:(BOOL)value {
     waitingForApnsResponse = value;
 }
 
@@ -1861,19 +1861,8 @@ static dispatch_queue_t serialQueue;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (!self.currentSubscriptionState.userId)
-        return;
-    
-    let requests = [NSMutableDictionary new];
-    
-    requests[@"push"] = [OSRequestSendPurchases withUserId:self.currentSubscriptionState.userId externalIdAuthToken:[self mExternalIdAuthToken] appId:self.appId withPurchases:purchases];
-    
-    if (self.currentEmailSubscriptionState.emailUserId)
-        requests[@"email"] = [OSRequestSendPurchases withUserId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:self.currentEmailSubscriptionState.emailAuthCode appId:self.appId withPurchases:purchases];
-    
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
+    [OneSignal.stateSynchronizer sendPurchases:purchases appId:self.appId];
 }
-
 
 static NSString *_lastAppActiveMessageId;
 + (void)setLastAppActiveMessageId:(NSString*)value { _lastAppActiveMessageId = value; }

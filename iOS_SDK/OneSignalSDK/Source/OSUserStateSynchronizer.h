@@ -48,6 +48,11 @@ THE SOFTWARE.
                                         emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
                                    externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
 
+- (OSRequestSendPurchases * _Nonnull)sendPurchases:(NSArray * _Nonnull)purchases
+                                             appId:(NSString * _Nonnull)appId
+                                            userId:(NSString * _Nonnull)userId
+                               externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+
 @end
 
 #endif /* OSUserStateSynchronizer_h */
