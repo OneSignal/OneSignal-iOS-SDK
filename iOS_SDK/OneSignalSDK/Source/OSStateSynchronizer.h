@@ -53,6 +53,8 @@ withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
 
 - (void)sendPurchases:(NSArray * _Nonnull)purchases appId:(NSString * _Nonnull)appId;
 
+- (void)sendBadgeCount:(NSNumber * _Nonnull)badgeCount appId:(NSString * _Nonnull)appId;
+
 @end
 
 #endif /* OSStateSynchronizer_h */

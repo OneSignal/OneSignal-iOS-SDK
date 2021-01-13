@@ -41,6 +41,7 @@
 #import "OSFocusCallParams.h"
 #import "OSFocusInfluenceParam.h"
 #import "OSMessagingController.h"
+#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
 
@@ -51,6 +52,7 @@
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (NSString *)mExternalIdAuthToken;
++ (OSStateSynchronizer *)stateSynchronizer;
 
 @end
 
@@ -125,16 +127,8 @@ static BOOL lastOnFocusWasToBackground = YES;
         return;
     
     // If badge was set, clear it on the server as well.
-    if (wasBadgeSet) {
-        NSMutableDictionary *requests = [NSMutableDictionary new];
-        
-        requests[@"push"] = [OSRequestBadgeCount withUserId:[OneSignal mUserId] appId:[OneSignal appId] badgeCount:@0 emailAuthToken:nil externalIdAuthToken:[OneSignal mExternalIdAuthToken]];
-        
-        if ([OneSignal mEmailUserId])
-            requests[@"email"] = [OSRequestBadgeCount withUserId:[OneSignal mEmailUserId] appId:[OneSignal appId] badgeCount:@0 emailAuthToken:[OneSignal mEmailAuthToken] externalIdAuthToken:nil];
-        
-        [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
-    }
+    if (wasBadgeSet)
+        [OneSignal.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
 }
 
 + (void)applicationBackgrounded {
