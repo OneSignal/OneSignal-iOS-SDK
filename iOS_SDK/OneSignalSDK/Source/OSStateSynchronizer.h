@@ -29,6 +29,7 @@ THE SOFTWARE.
 #import "OSUserState.h"
 #import "OneSignalClient.h"
 #import "OneSignalLocation.h"
+#import "OSFocusCallParams.h"
 
 #ifndef OSStateSynchronizer_h
 #define OSStateSynchronizer_h
@@ -56,7 +57,15 @@ withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
 
 - (void)sendBadgeCount:(NSNumber * _Nonnull)badgeCount appId:(NSString * _Nonnull)appId;
 
-- (void)sendLocation:(os_last_location *)lastLocation appId:(NSString *)appId networkType:(NSNumber *)networkType backgroundState:(BOOL)background;
+- (void)sendLocation:(os_last_location * _Nonnull)lastLocation
+               appId:(NSString * _Nonnull)appId
+         networkType:(NSNumber * _Nonnull)networkType
+     backgroundState:(BOOL)background;
+
+- (void)sendOnFocusTime:(NSNumber * _Nonnull)totalTimeActive
+                 params:(OSFocusCallParams * _Nonnull)params
+            withSuccess:(OSMultipleSuccessBlock _Nullable)successBlock
+              onFailure:(OSMultipleFailureBlock _Nullable)failureBlock;
 
 @end
 

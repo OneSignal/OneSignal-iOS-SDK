@@ -278,4 +278,28 @@ THE SOFTWARE.
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
 
+- (void)sendOnFocusTime:(NSNumber*)totalTimeActive
+                 params:(OSFocusCallParams *)params
+            withSuccess:(OSMultipleSuccessBlock)successBlock
+              onFailure:(OSMultipleFailureBlock)failureBlock {
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    
+    let requests = [NSMutableDictionary new];
+    requests[OS_PUSH] = [pushStateSyncronizer sendOnFocusTime:totalTimeActive userId:params.userId appId:params.appId netType:params.netType emailAuthToken:nil externalIdAuthToken:params.externalIdAuthToken deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
+    
+    // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
+    //   outcome fields which would double report the influence time
+    if (emailStateSyncronizer && params.emailUserId)
+        requests[OS_EMAIL] = [emailStateSyncronizer sendOnFocusTime:totalTimeActive userId:params.emailUserId appId:params.appId netType:params.netType emailAuthToken:params.emailAuthToken externalIdAuthToken:nil deviceType:@(DEVICE_TYPE_EMAIL) influenceParams:nil];
+
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
+        if (successBlock)
+           successBlock(result);
+    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+        if (failureBlock)
+            failureBlock(errors);
+    }];
+}
+
 @end
