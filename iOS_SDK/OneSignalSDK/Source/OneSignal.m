@@ -849,12 +849,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         }
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
             requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-            
-            // checks if a call to setExternalUserId: was delayed due to missing 'require_user_id_auth' parameter
-            if (delayedExternalIdParameters) {
-                [self setExternalUserId:delayedExternalIdParameters.externalId withExternalIdAuthHashToken:delayedExternalIdParameters.authToken withSuccess:delayedExternalIdParameters.successBlock withFailure:delayedExternalIdParameters.failureBlock];
-                delayedExternalIdParameters = nil;
-            }
         }
 
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
@@ -2647,7 +2641,7 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     // Can't set the external id if init is not done or the app id or user id has not ben set yet
-    if (!_didCallDownloadParameters) {
+    if (!performedOnSessionRequest) {
         // will be sent as part of the registration/on_session request
         pendingExternalUserId = externalId;
         pendingExternalUserIdHashToken = hashToken;
