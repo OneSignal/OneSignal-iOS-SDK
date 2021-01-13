@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import "OneSignal.h"
 #import "OSUserState.h"
 #import "OneSignalClient.h"
+#import "OneSignalLocation.h"
 
 #ifndef OSStateSynchronizer_h
 #define OSStateSynchronizer_h
@@ -54,6 +55,8 @@ withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
 - (void)sendPurchases:(NSArray * _Nonnull)purchases appId:(NSString * _Nonnull)appId;
 
 - (void)sendBadgeCount:(NSNumber * _Nonnull)badgeCount appId:(NSString * _Nonnull)appId;
+
+- (void)sendLocation:(os_last_location *)lastLocation appId:(NSString *)appId networkType:(NSNumber *)networkType backgroundState:(BOOL)background;
 
 @end
 

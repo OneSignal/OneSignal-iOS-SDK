@@ -34,6 +34,7 @@
 #import "OneSignalClient.h"
 #import "Requests.h"
 #import "OneSignalDialogController.h"
+#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
@@ -41,6 +42,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString*)mUserId;
 + (NSString *)mEmailAuthToken;
 + (NSString *)mExternalIdAuthToken;
++ (OSStateSynchronizer *)stateSynchronizer;
 @end
 
 @implementation OneSignalLocation
@@ -368,14 +370,7 @@ static OneSignalLocation* singleInstance = nil;
         
         initialLocationSent = YES;
         
-        NSMutableDictionary *requests = [NSMutableDictionary new];
-        
-        if ([OneSignal mEmailUserId])
-            requests[@"email"] = [OSRequestSendLocation withUserId:[OneSignal mEmailUserId] appId:[OneSignal appId] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:[OneSignal mEmailAuthToken] externalIdAuthToken:nil];
-        
-        requests[@"push"] = [OSRequestSendLocation withUserId:[OneSignal mUserId] appId:[OneSignal appId] location:lastLocation networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:nil externalIdAuthToken:[OneSignal mExternalIdAuthToken]];
-        
-        [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
+        [OneSignal.stateSynchronizer sendLocation:lastLocation appId:[OneSignal appId] networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)];
     }
     
 }
