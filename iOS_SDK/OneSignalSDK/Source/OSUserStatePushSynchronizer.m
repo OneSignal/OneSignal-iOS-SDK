@@ -60,4 +60,8 @@ THE SOFTWARE.
     return nil;
 }
 
+- (NSNumber *)getDeviceType {
+    return @(DEVICE_TYPE_PUSH);
+}
+
 @end

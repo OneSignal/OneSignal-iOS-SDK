@@ -60,4 +60,8 @@ THE SOFTWARE.
     return [self getIdAuthHashToken];
 }
 
+- (NSNumber *)getDeviceType {
+    return @(DEVICE_TYPE_EMAIL);
+}
+
 @end

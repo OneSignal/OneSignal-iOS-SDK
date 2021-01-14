@@ -290,12 +290,12 @@ THE SOFTWARE.
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
     
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
+    requests[OS_PUSH] = [pushStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType influenceParams:params.influenceParams];
     
     // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
     //   outcome fields which would double report the influence time
     if (emailStateSyncronizer && params.emailUserId)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType deviceType:@(DEVICE_TYPE_EMAIL) influenceParams:nil];
+        requests[OS_EMAIL] = [emailStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType influenceParams:nil];
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
         if (successBlock)

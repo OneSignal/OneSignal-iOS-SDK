@@ -39,6 +39,8 @@ THE SOFTWARE.
 
 - (NSString * _Nullable)getEmailAuthHashToken;
 
+- (NSNumber * _Nonnull)getDeviceType;
+
 - (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationDatad;
 
 - (OSRequestUpdateExternalUserId * _Nonnull)setExternalUserId:(NSString *_Nonnull)externalId
@@ -63,7 +65,6 @@ THE SOFTWARE.
 - (OSRequestOnFocus * _Nonnull)sendOnFocusTime:(NSNumber * _Nonnull)activeTime
                                          appId:(NSString * _Nonnull)appId
                                        netType:(NSNumber * _Nonnull)netType
-                                    deviceType:(NSNumber * _Nonnull)deviceType
                                influenceParams:(NSArray <OSFocusInfluenceParam *> * _Nullable)influenceParams;
 
 @end
