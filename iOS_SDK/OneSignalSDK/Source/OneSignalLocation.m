@@ -283,7 +283,11 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)requestLocation {
     onesignal_Log(ONE_S_LL_DEBUG, @"OneSignalLocation Requesting Updated Location");
-    [locationManager performSelector:@selector(requestLocation)];
+    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+        [locationManager performSelector:@selector(startUpdatingLocation)];
+    } else {
+        [locationManager performSelector:@selector(requestLocation)];
+    }
 }
 
 #pragma mark CLLocationManagerDelegate
@@ -295,8 +299,9 @@ static OneSignalLocation* singleInstance = nil;
         [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
         return;
     }
-    
-    [manager performSelector:@selector(stopUpdatingLocation)];
+    if ([UIApplication sharedApplication].applicationState != UIApplicationStateBackground) {
+        [manager performSelector:@selector(stopUpdatingLocation)];
+    }
     
     id location = locations.lastObject;
     
