@@ -33,7 +33,11 @@ THE SOFTWARE.
 
 - (NSString * _Nonnull)getId;
 
-- (NSString * _Nonnull)getAuthHashToken;
+- (NSString * _Nullable)getIdAuthHashToken;
+
+- (NSString * _Nullable)getExternalIdAuthHashToken;
+
+- (NSString * _Nullable)getEmailAuthHashToken;
 
 - (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationDatad;
 
@@ -43,31 +47,22 @@ THE SOFTWARE.
 
 - (OSRequestSendTagsToServer * _Nonnull)sendTagsWithAppId:(NSString * _Nonnull)appId
                                                sendingTags:(NSDictionary * _Nonnull)tags
-                                               networkType:(NSNumber * _Nonnull)networkType
-                                        emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
-                                   externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+                                               networkType:(NSNumber * _Nonnull)networkType;
 
 - (OSRequestSendPurchases * _Nonnull)sendPurchases:(NSArray * _Nonnull)purchases
-                                             appId:(NSString * _Nonnull)appId
-                               externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+                                             appId:(NSString * _Nonnull)appId;
 
 - (OSRequestBadgeCount * _Nonnull)sendBadgeCount:(NSNumber * _Nonnull)badgeCount
-                                           appId:(NSString * _Nonnull)appId
-                              emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
-                         externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+                                           appId:(NSString * _Nonnull)appId;
 
 - (OSRequestSendLocation * _Nonnull)sendLocation:(os_last_location * _Nonnull)lastLocation
                                            appId:(NSString * _Nonnull)appId
                                      networkType:(NSNumber * _Nonnull)networkType
-                                 backgroundState:(BOOL)background
-                              emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
-                         externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+                                 backgroundState:(BOOL)background;
 
 - (OSRequestOnFocus * _Nonnull)sendOnFocusTime:(NSNumber * _Nonnull)activeTime
                                          appId:(NSString * _Nonnull)appId
                                        netType:(NSNumber * _Nonnull)netType
-                                emailAuthToken:(NSString * _Nullable)emailAuthHash
-                           externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
                                     deviceType:(NSNumber * _Nonnull)deviceType
                                influenceParams:(NSArray <OSFocusInfluenceParam *> * _Nullable)influenceParams;
 

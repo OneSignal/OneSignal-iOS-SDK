@@ -212,10 +212,10 @@ THE SOFTWARE.
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
     
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType emailAuthHashToken:nil externalIdAuthHashToken:_currentSubscriptionState.externalIdAuthCode];
+    requests[OS_PUSH] = [pushStateSyncronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType];
     
     if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType emailAuthHashToken:_currentEmailSubscriptionState.emailAuthCode externalIdAuthHashToken:nil];
+        requests[OS_EMAIL] = [emailStateSyncronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         // The tags for email & push are identical so it doesn't matter what we return in the success block
@@ -245,10 +245,10 @@ THE SOFTWARE.
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
     
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendPurchases:purchases appId:appId externalIdAuthToken:_currentSubscriptionState.externalIdAuthCode];
+    requests[OS_PUSH] = [pushStateSyncronizer sendPurchases:purchases appId:appId];
     
     if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendPurchases:purchases appId:appId externalIdAuthToken:_currentEmailSubscriptionState.emailAuthCode];
+        requests[OS_EMAIL] = [emailStateSyncronizer sendPurchases:purchases appId:appId];
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
@@ -258,10 +258,10 @@ THE SOFTWARE.
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
     
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendBadgeCount:badgeCount appId:appId emailAuthHashToken:nil externalIdAuthHashToken:_currentSubscriptionState.externalIdAuthCode];
+    requests[OS_PUSH] = [pushStateSyncronizer sendBadgeCount:badgeCount appId:appId];
     
     if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [pushStateSyncronizer sendBadgeCount:badgeCount appId:appId emailAuthHashToken:_currentEmailSubscriptionState.emailAuthCode externalIdAuthHashToken:nil];
+        requests[OS_EMAIL] = [pushStateSyncronizer sendBadgeCount:badgeCount appId:appId];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
@@ -274,10 +274,10 @@ THE SOFTWARE.
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
     
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background emailAuthHashToken:nil externalIdAuthHashToken:_currentSubscriptionState.externalIdAuthCode];
+    requests[OS_PUSH] = [pushStateSyncronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background];
     
     if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background emailAuthHashToken:_currentEmailSubscriptionState.emailAuthCode externalIdAuthHashToken:nil];
+        requests[OS_EMAIL] = [emailStateSyncronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background];
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
@@ -290,12 +290,12 @@ THE SOFTWARE.
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
     
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType emailAuthToken:nil externalIdAuthToken:params.externalIdAuthToken deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
+    requests[OS_PUSH] = [pushStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType deviceType:@(DEVICE_TYPE_PUSH) influenceParams:params.influenceParams];
     
     // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
     //   outcome fields which would double report the influence time
     if (emailStateSyncronizer && params.emailUserId)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType emailAuthToken:params.emailAuthToken externalIdAuthToken:nil deviceType:@(DEVICE_TYPE_EMAIL) influenceParams:nil];
+        requests[OS_EMAIL] = [emailStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType deviceType:@(DEVICE_TYPE_EMAIL) influenceParams:nil];
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
         if (successBlock)

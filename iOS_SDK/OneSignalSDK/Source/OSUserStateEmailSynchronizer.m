@@ -48,8 +48,16 @@ THE SOFTWARE.
     return _currentEmailSubscriptionState.emailUserId;
 }
 
-- (NSString *)getAuthHashToken {
+- (NSString *)getIdAuthHashToken {
     return _currentEmailSubscriptionState.emailAuthCode;
+}
+
+- (NSString *)getExternalIdAuthHashToken {
+    return nil;
+}
+
+- (NSString *)getEmailAuthHashToken {
+    return [self getIdAuthHashToken];
 }
 
 @end
