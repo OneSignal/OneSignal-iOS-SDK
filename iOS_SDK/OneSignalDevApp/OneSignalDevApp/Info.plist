@@ -33,12 +33,15 @@
 	<string>Test Location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Test Location2</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>test always and when in use</string>
 	<key>OneSignal_disable_badge_clearing</key>
 	<false/>
 	<key>OneSignal_require_privacy_consent</key>
 	<false/>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>location</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

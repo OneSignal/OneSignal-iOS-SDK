@@ -281,6 +281,11 @@ static OneSignalLocation* singleInstance = nil;
     }];
 }
 
++ (void)requestLocation {
+    onesignal_Log(ONE_S_LL_DEBUG, @"OneSignalLocation Requesting Updated Location");
+    [locationManager performSelector:@selector(requestLocation)];
+}
+
 #pragma mark CLLocationManagerDelegate
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
@@ -316,8 +321,7 @@ static OneSignalLocation* singleInstance = nil;
     if (!sendLocationTimer)
         [OneSignalLocation resetSendTimer];
     
-    if (!initialLocationSent)
-        [OneSignalLocation sendLocation];
+    [OneSignalLocation sendLocation];
     
     [OneSignalLocation sendAndClearLocationListener:PERMISSION_GRANTED];
 }
@@ -329,11 +333,10 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)resetSendTimer {
     NSTimeInterval requiredWaitTime = [UIApplication sharedApplication].applicationState == UIApplicationStateActive ? foregroundSendLocationWaitTime : backgroundSendLocationWaitTime;
-    sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:requiredWaitTime target:self selector:@selector(sendLocation) userInfo:nil repeats:NO];
+    sendLocationTimer = [NSTimer scheduledTimerWithTimeInterval:requiredWaitTime target:self selector:@selector(requestLocation) userInfo:nil repeats:NO];
 }
 
 + (void)sendLocation {
-    
     // return if the user has not granted privacy permissions
     if ([OneSignal requiresUserPrivacyConsent])
         return;
