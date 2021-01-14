@@ -68,4 +68,11 @@ THE SOFTWARE.
     return @(DEVICE_TYPE_PUSH);
 }
 
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState {
+    NSMutableDictionary *pushDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
+    pushDataDic[@"identifier"] = _currentSubscriptionState.pushToken;
+    
+    return pushDataDic;
+}
+
 @end

@@ -68,4 +68,16 @@ THE SOFTWARE.
     return @(DEVICE_TYPE_EMAIL);
 }
 
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState {
+    NSMutableDictionary *emailDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
+    emailDataDic[@"device_type"] = self.getDeviceType;
+    emailDataDic[@"email_auth_hash"] = self.getEmailAuthHashToken;
+    
+    // If push device has external id we want to add it to the email device also
+    if (registrationState.externalUserId)
+        emailDataDic[@"external_user_id"] = registrationState.externalUserId;
+    
+    return emailDataDic;
+}
+
 @end

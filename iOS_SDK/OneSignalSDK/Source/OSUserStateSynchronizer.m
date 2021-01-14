@@ -41,6 +41,8 @@ THE SOFTWARE.
 
 - (NSString *)getChannelId { mustOverride(); }
 
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState { mustOverride(); }
+
 - (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData {
     return [OSRequestRegisterUser withData:registrationData userId:[self getId]];
 }

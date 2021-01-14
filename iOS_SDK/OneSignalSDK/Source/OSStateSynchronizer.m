@@ -97,26 +97,15 @@ THE SOFTWARE.
 }
 
 - (void)registerUserWithState:(OSUserState *)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
-    let pushDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
-    pushDataDic[@"identifier"] = _currentSubscriptionState.pushToken;
-
+    let stateSyncronizer = [self getStateSynchronizers];
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer registerUserWithData:pushDataDic];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        let registrationData = [userStateSynchronizer getRegistrationData:registrationState];
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer registerUserWithData:registrationData];
+    }
 
-    if (emailStateSyncronizer) {
-        let emailDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
-        emailDataDic[@"device_type"] = [NSNumber numberWithInt:DEVICE_TYPE_EMAIL];
-        emailDataDic[@"email_auth_hash"] = _currentEmailSubscriptionState.emailAuthCode;
-        
-        // If push device has external id we want to add it to the email device also
-        if (registrationState.externalUserId)
-            emailDataDic[@"external_user_id"] = registrationState.externalUserId;
-
-        requests[OS_EMAIL] = [emailStateSyncronizer registerUserWithData:emailDataDic];
-    } else {
+    if (![self getEmailStateSynchronizer]) {
         // If no email is setup clear the email external user id
         [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
     }

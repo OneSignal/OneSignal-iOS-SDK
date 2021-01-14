@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import "OneSignal.h"
 #import "Requests.h"
 #import "OneSignalLocation.h"
+#import "OSUserState.h"
 
 @interface OSUserStateSynchronizer : NSObject
 
@@ -42,6 +43,8 @@ THE SOFTWARE.
 - (NSString * _Nonnull)getChannelId;
 
 - (NSNumber * _Nonnull)getDeviceType;
+
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState;
 
 - (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationDatad;
 
