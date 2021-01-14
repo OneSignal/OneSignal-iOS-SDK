@@ -83,6 +83,19 @@ THE SOFTWARE.
         return nil;
 }
 
+- (NSArray<OSUserStateSynchronizer *> * _Nonnull)getStateSynchronizers {
+    NSMutableArray *stateSynchronizers = [NSMutableArray new];
+    
+    let pushStateSyncronizer = [self getPushStateSynchronizer];
+    let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    [stateSynchronizers addObject:pushStateSyncronizer];
+    
+    if (emailStateSyncronizer)
+        [stateSynchronizers addObject:emailStateSyncronizer];
+    
+    return stateSynchronizers;
+}
+
 - (void)registerUserWithState:(OSUserState *)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
     let pushStateSyncronizer = [self getPushStateSynchronizer];
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
@@ -164,20 +177,14 @@ THE SOFTWARE.
 }
 
 - (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
+    let stateSyncronizer = [self getStateSynchronizers];
     // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer setExternalUserId:externalId
-                                               withExternalIdAuthHashToken:hashToken
-                                                                 withAppId:appId];
-    
-    // Check if the email has been set, this will decide on updtaing the external id for the email channel
-    if (emailStateSyncronizer)
-        requests[OS_EMAIL] =  [emailStateSyncronizer setExternalUserId:externalId
-                                                      withExternalIdAuthHashToken:hashToken
-                                                                        withAppId:appId];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer setExternalUserId:externalId
+                                                                    withExternalIdAuthHashToken:hashToken
+                                                                                      withAppId:appId];
+    }
 
     // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
     if (![OneSignal shouldUpdateExternalUserId:externalId withRequests:requests]) {
@@ -208,15 +215,13 @@ THE SOFTWARE.
               sendingTags:(NSDictionary *)tags
               networkType:(NSNumber *)networkType
       processingCallbacks:(NSArray *)nowProcessingCallbacks {
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
+    let stateSyncronizer = [self getStateSynchronizers];
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType];
-    
-    if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType];
-    
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType];
+    }
+
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         // The tags for email & push are identical so it doesn't matter what we return in the success block
         if (nowProcessingCallbacks) {
@@ -241,27 +246,23 @@ THE SOFTWARE.
     if (!_currentSubscriptionState.userId)
         return;
     
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
+    let stateSyncronizer = [self getStateSynchronizers];
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendPurchases:purchases appId:appId];
-    
-    if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendPurchases:purchases appId:appId];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendPurchases:purchases appId:appId];
+    }
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
 
 - (void)sendBadgeCount:(NSNumber *)badgeCount appId:(NSString *)appId {
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
+    let stateSyncronizer = [self getStateSynchronizers];
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendBadgeCount:badgeCount appId:appId];
-    
-    if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [pushStateSyncronizer sendBadgeCount:badgeCount appId:appId];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendBadgeCount:badgeCount appId:appId];
+    }
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
@@ -270,14 +271,12 @@ THE SOFTWARE.
                appId:(NSString *)appId
          networkType:(NSNumber *)networkType
      backgroundState:(BOOL)background {
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
+    let stateSyncronizer = [self getStateSynchronizers];
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background];
-    
-    if (emailStateSyncronizer)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background];
+    }
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
@@ -286,16 +285,18 @@ THE SOFTWARE.
                  params:(OSFocusCallParams *)params
             withSuccess:(OSMultipleSuccessBlock)successBlock
               onFailure:(OSMultipleFailureBlock)failureBlock {
-    let pushStateSyncronizer = [self getPushStateSynchronizer];
-    let emailStateSyncronizer = [self getEmailStateSynchronizer];
-    
+    let stateSyncronizer = [self getStateSynchronizers];
+    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
-    requests[OS_PUSH] = [pushStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType influenceParams:params.influenceParams];
-    
-    // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
-    //   outcome fields which would double report the influence time
-    if (emailStateSyncronizer && params.emailUserId)
-        requests[OS_EMAIL] = [emailStateSyncronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType influenceParams:nil];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
+        //   outcome fields which would double report the influence time
+        NSArray<OSFocusInfluenceParam *> *influenceParams = nil;
+        if ([userStateSynchronizer.getChannelId isEqual:OS_PUSH])
+            influenceParams = params.influenceParams;
+
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendOnFocusTime:totalTimeActive appId:params.appId netType:params.netType influenceParams:influenceParams];
+    }
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary *result) {
         if (successBlock)

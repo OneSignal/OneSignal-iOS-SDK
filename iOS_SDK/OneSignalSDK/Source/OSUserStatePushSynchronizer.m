@@ -60,6 +60,10 @@ THE SOFTWARE.
     return nil;
 }
 
+- (NSString *)getChannelId {
+    return OS_PUSH;
+}
+
 - (NSNumber *)getDeviceType {
     return @(DEVICE_TYPE_PUSH);
 }

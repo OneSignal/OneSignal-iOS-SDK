@@ -39,6 +39,8 @@ THE SOFTWARE.
 
 - (NSString * _Nullable)getEmailAuthHashToken;
 
+- (NSString * _Nonnull)getChannelId;
+
 - (NSNumber * _Nonnull)getDeviceType;
 
 - (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationDatad;

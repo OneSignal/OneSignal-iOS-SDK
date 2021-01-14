@@ -39,6 +39,8 @@ THE SOFTWARE.
 
 - (NSNumber *)getDeviceType { mustOverride(); }
 
+- (NSString *)getChannelId { mustOverride(); }
+
 - (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData {
     return [OSRequestRegisterUser withData:registrationData userId:[self getId]];
 }

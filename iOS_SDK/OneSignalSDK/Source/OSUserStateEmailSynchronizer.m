@@ -60,6 +60,10 @@ THE SOFTWARE.
     return [self getIdAuthHashToken];
 }
 
+- (NSString *)getChannelId {
+    return OS_EMAIL;
+}
+
 - (NSNumber *)getDeviceType {
     return @(DEVICE_TYPE_EMAIL);
 }
