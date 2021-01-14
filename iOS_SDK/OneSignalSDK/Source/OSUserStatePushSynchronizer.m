@@ -27,8 +27,29 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSUserStatePushSynchronizer.h"
+#import "OSSubscription.h"
+
+@interface OSUserStatePushSynchronizer ()
+
+@property (strong, nonatomic, readwrite, nonnull) OSSubscriptionState *currentSubscriptionState;
+
+@end
 
 @implementation OSUserStatePushSynchronizer
 
+- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState {
+    self = [super init];
+    if (self)
+        _currentSubscriptionState = subscriptionState;
+    return self;
+}
+
+- (NSString *)getId {
+    return _currentSubscriptionState.userId;
+}
+
+- (NSString *)getAuthHashToken {
+    return _currentSubscriptionState.externalIdAuthCode;
+}
 
 @end

@@ -29,6 +29,6 @@ THE SOFTWARE.
 
 @interface OSUserStatePushSynchronizer : OSUserStateSynchronizer
 
-
+- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState;
 
 @end

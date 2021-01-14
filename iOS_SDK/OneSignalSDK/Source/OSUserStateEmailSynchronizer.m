@@ -27,9 +27,29 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSUserStateEmailSynchronizer.h"
+#import "OSEmailSubscription.h"
+
+@interface OSUserStateEmailSynchronizer ()
+
+@property (strong, nonatomic, readwrite, nonnull) OSEmailSubscriptionState *currentEmailSubscriptionState;
+
+@end
 
 @implementation OSUserStateEmailSynchronizer
 
+- (instancetype)initWithEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState {
+    self = [super init];
+    if (self)
+        _currentEmailSubscriptionState = emailSubscriptionState;
+    return self;
+}
 
+- (NSString *)getId {
+    return _currentEmailSubscriptionState.emailUserId;
+}
+
+- (NSString *)getAuthHashToken {
+    return _currentEmailSubscriptionState.emailAuthCode;
+}
 
 @end

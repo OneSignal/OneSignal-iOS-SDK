@@ -27,65 +27,60 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSUserStateSynchronizer.h"
-
+#import "OSMacros.h"
 
 @implementation OSUserStateSynchronizer
 
-- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData
-                                         userId:(NSString *)userId {
-    return [OSRequestRegisterUser withData:registrationData userId:userId];
+- (NSString *)getId  { mustOverride(); }
+
+- (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData {
+    return [OSRequestRegisterUser withData:registrationData userId:[self getId]];
 }
 
 - (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId
                          withExternalIdAuthHashToken:(NSString *)hashToken
-                                          withUserId:(NSString *)userId
                                            withAppId:(NSString *)appId {
-    return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:userId appId:appId];
+    return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:[self getId] appId:appId];
 }
 
-- (OSRequestSendTagsToServer *)sendTagsWithUserId:(NSString *)userId
-                                            appId:(NSString *)appId
+- (OSRequestSendTagsToServer *)sendTagsWithAppId:(NSString *)appId
                                       sendingTags:(NSDictionary *)tags
                                       networkType:(NSNumber *)networkType
                                emailAuthHashToken:(NSString *)emailAuthHashToken
                           externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
-    return [OSRequestSendTagsToServer withUserId:userId appId:appId tags:tags networkType:networkType withEmailAuthHashToken:emailAuthHashToken withExternalIdAuthHashToken:externalIdAuthHashToken];
+    return [OSRequestSendTagsToServer withUserId:[self getId] appId:appId tags:tags networkType:networkType withEmailAuthHashToken:emailAuthHashToken withExternalIdAuthHashToken:externalIdAuthHashToken];
 }
 
 - (OSRequestSendPurchases *)sendPurchases:(NSArray *)purchases
                                     appId:(NSString *)appId
-                                   userId:(NSString *)userId
                       externalIdAuthToken:(NSString *)externalIdAuthToken {
-    return [OSRequestSendPurchases withUserId:userId externalIdAuthToken:externalIdAuthToken appId:appId withPurchases:purchases];
+    return [OSRequestSendPurchases withUserId:[self getId] externalIdAuthToken:externalIdAuthToken appId:appId withPurchases:purchases];
 }
 
 - (OSRequestBadgeCount *)sendBadgeCount:(NSNumber *)badgeCount
                                   appId:(NSString *)appId
-                                 userId:(NSString *)userId
                      emailAuthHashToken:(NSString *)emailAuthHashToken
                 externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
-    return [OSRequestBadgeCount withUserId:userId appId:appId badgeCount:badgeCount emailAuthToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
+    return [OSRequestBadgeCount withUserId:[self getId] appId:appId badgeCount:badgeCount emailAuthToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
 }
 
 - (OSRequestSendLocation *)sendLocation:(os_last_location *)lastLocation
                                   appId:(NSString *)appId
-                                 userId:(NSString *)userId
                             networkType:(NSNumber *)networkType
                         backgroundState:(BOOL)background
                      emailAuthHashToken:(NSString *)emailAuthHashToken
                 externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
-    return [OSRequestSendLocation withUserId:userId appId:appId location:lastLocation networkType:networkType backgroundState:background emailAuthHashToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
+    return [OSRequestSendLocation withUserId:[self getId] appId:appId location:lastLocation networkType:networkType backgroundState:background emailAuthHashToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
 }
 
 - (OSRequestOnFocus *)sendOnFocusTime:(NSNumber *)activeTime
-                               userId:(NSString *)userId
                                 appId:(NSString *)appId
                               netType:(NSNumber *)netType
                        emailAuthToken:(NSString *)emailAuthHash
                   externalIdAuthToken:(NSString *)externalIdAuthToken
                            deviceType:(NSNumber *)deviceType
                       influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
-    return [OSRequestOnFocus withUserId:userId appId:appId activeTime:activeTime netType:netType emailAuthToken:emailAuthHash externalIdAuthToken:externalIdAuthToken deviceType:deviceType influenceParams:influenceParams];
+    return [OSRequestOnFocus withUserId:[self getId] appId:appId activeTime:activeTime netType:netType emailAuthToken:emailAuthHash externalIdAuthToken:externalIdAuthToken deviceType:deviceType influenceParams:influenceParams];
 }
 
 @end
