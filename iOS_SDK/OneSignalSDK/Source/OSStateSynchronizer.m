@@ -98,7 +98,6 @@ THE SOFTWARE.
 
 - (void)registerUserWithState:(OSUserState *)registrationState withSuccess:(OSMultipleSuccessBlock)successBlock onFailure:(OSMultipleFailureBlock)failureBlock {
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         let registrationData = [userStateSynchronizer getRegistrationData:registrationState];
@@ -112,6 +111,7 @@ THE SOFTWARE.
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
+        [OneSignal registerUserFinished];
 
         // If the external user ID was sent as part of this request, we need to save it
         // Cache the external id if it exists within the registration payload
@@ -167,7 +167,6 @@ THE SOFTWARE.
 
 - (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withAppId:(NSString *)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer setExternalUserId:externalId
@@ -205,7 +204,6 @@ THE SOFTWARE.
               networkType:(NSNumber *)networkType
       processingCallbacks:(NSArray *)nowProcessingCallbacks {
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendTagsWithAppId:appId sendingTags:tags networkType:networkType];
@@ -236,7 +234,6 @@ THE SOFTWARE.
         return;
     
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendPurchases:purchases appId:appId];
@@ -247,7 +244,6 @@ THE SOFTWARE.
 
 - (void)sendBadgeCount:(NSNumber *)badgeCount appId:(NSString *)appId {
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendBadgeCount:badgeCount appId:appId];
@@ -261,7 +257,6 @@ THE SOFTWARE.
          networkType:(NSNumber *)networkType
      backgroundState:(BOOL)background {
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer sendLocation:lastLocation appId:appId networkType:networkType backgroundState:background];
@@ -275,7 +270,6 @@ THE SOFTWARE.
             withSuccess:(OSMultipleSuccessBlock)successBlock
               onFailure:(OSMultipleFailureBlock)failureBlock {
     let stateSyncronizer = [self getStateSynchronizers];
-    // Begin constructing the request for the external id update
     let requests = [NSMutableDictionary new];
     for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
         // For email we omit additionalFieldsToAddToOnFocusPayload as we don't want to add
