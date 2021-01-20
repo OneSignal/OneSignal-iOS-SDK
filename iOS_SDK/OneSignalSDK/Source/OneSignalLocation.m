@@ -46,7 +46,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 @implementation OneSignalLocation
 
 //Track time until next location fire event
-const NSTimeInterval foregroundSendLocationWaitTime = 0.5 * 60.0;
+const NSTimeInterval foregroundSendLocationWaitTime = 5 * 60.0;
 NSTimer* requestLocationTimer = nil;
 os_last_location *lastLocation;
 bool initialLocationSent = false;
@@ -281,7 +281,9 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)requestLocation {
     onesignal_Log(ONE_S_LL_DEBUG, @"OneSignalLocation Requesting Updated Location");
-    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+    id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
+    if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground
+        && [clLocationManagerClass performSelector:@selector(significantLocationChangeMonitoringAvailable)]) {
         [locationManager performSelector:@selector(startMonitoringSignificantLocationChanges)];
     } else {
         [locationManager performSelector:@selector(requestLocation)];
