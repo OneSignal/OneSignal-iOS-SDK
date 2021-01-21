@@ -163,6 +163,7 @@
 		7ADE379422E8B69C00263048 /* OneSignalOutcomeEventsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ADE379322E8B69C00263048 /* OneSignalOutcomeEventsController.m */; };
 		7ADE37AD22F2554400263048 /* OneSignalOutcomeEventsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ADE379322E8B69C00263048 /* OneSignalOutcomeEventsController.m */; };
 		7ADF891C230DB5BD0054E0D6 /* UnitTestAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEF51FA8460C00CEAB1D /* UnitTestAppDelegate.m */; };
+		7AE28B8825B8ADF400529100 /* OSMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AE28B8725B8ADF400529100 /* OSMacros.h */; };
 		7AECE59023674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AECE58F23674A9700537907 /* OSAttributedFocusTimeProcessor.m */; };
 		7AECE59123674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AECE58F23674A9700537907 /* OSAttributedFocusTimeProcessor.m */; };
 		7AECE59223674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AECE58F23674A9700537907 /* OSAttributedFocusTimeProcessor.m */; };
@@ -608,6 +609,7 @@
 		7AD8DDE8234BD3CF00747A8A /* OneSignalUserDefaults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalUserDefaults.h; sourceTree = "<group>"; };
 		7ADE379322E8B69C00263048 /* OneSignalOutcomeEventsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalOutcomeEventsController.m; sourceTree = "<group>"; };
 		7ADE379522E8B70700263048 /* OneSignalOutcomeEventsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalOutcomeEventsController.h; sourceTree = "<group>"; };
+		7AE28B8725B8ADF400529100 /* OSMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSMacros.h; sourceTree = "<group>"; };
 		7AECE58F23674A9700537907 /* OSAttributedFocusTimeProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSAttributedFocusTimeProcessor.m; sourceTree = "<group>"; };
 		7AECE59323674AA700537907 /* OSAttributedFocusTimeProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSAttributedFocusTimeProcessor.h; sourceTree = "<group>"; };
 		7AECE59523674AB700537907 /* OSUnattributedFocusTimeProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUnattributedFocusTimeProcessor.m; sourceTree = "<group>"; };
@@ -1192,6 +1194,7 @@
 				CAAEA68521ED68A30049CF15 /* OneSignalNotificationCategoryController.m */,
 				7A93269225AF4E6700BBEC27 /* OSPendingCallbacks.h */,
 				7A93269B25AF4F0200BBEC27 /* OSPendingCallbacks.m */,
+				7AE28B8725B8ADF400529100 /* OSMacros.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1435,6 +1438,7 @@
 				91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */,
 				CA4742E4218B8FF30020DC8C /* OSTriggerController.h in Headers */,
 				7A1232AA235E17B4002B6CE3 /* OSSessionManager.h in Headers */,
+				7AE28B8825B8ADF400529100 /* OSMacros.h in Headers */,
 				DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */,
 				9D1BD9642379F42700A064F7 /* OSInfluenceDataDefines.h in Headers */,
 				7A674F192360D813001F9ACD /* OSBaseFocusTimeProcessor.h in Headers */,
