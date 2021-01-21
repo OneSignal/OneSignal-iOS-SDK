@@ -25,9 +25,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef OSLocationState_h
-#define OSLocationState_h
-
 @interface OSLocationState : NSObject
 
 @property (strong, nonatomic, readwrite, nullable) NSNumber *latitude;
@@ -38,5 +35,3 @@ THE SOFTWARE.
 - (NSDictionary*)toDictionary;
 
 @end
-
-#endif /* OSLocationState_h */

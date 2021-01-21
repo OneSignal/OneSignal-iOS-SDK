@@ -29,9 +29,6 @@ THE SOFTWARE.
 #import "Requests.h"
 #import "OneSignalLocation.h"
 
-#ifndef OSUserStateSynchronizer_h
-#define OSUserStateSynchronizer_h
-
 @interface OSUserStateSynchronizer : NSObject
 
 - (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationData
@@ -78,5 +75,3 @@ THE SOFTWARE.
                                influenceParams:(NSArray <OSFocusInfluenceParam *> * _Nullable)influenceParams;
 
 @end
-
-#endif /* OSUserStateSynchronizer_h */

@@ -27,11 +27,6 @@ THE SOFTWARE.
 
 #import "OSUserStateSynchronizer.h"
 
-#ifndef OSUserStateEmailSynchronizer_h
-#define OSUserStateEmailSynchronizer_h
-
 @interface OSUserStateEmailSynchronizer : OSUserStateSynchronizer
 
 @end
-
-#endif /* OSUserStateEmailSynchronizer_h */

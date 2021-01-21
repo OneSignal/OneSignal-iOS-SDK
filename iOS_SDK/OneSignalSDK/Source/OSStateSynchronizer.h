@@ -31,9 +31,6 @@ THE SOFTWARE.
 #import "OneSignalLocation.h"
 #import "OSFocusCallParams.h"
 
-#ifndef OSStateSynchronizer_h
-#define OSStateSynchronizer_h
-
 @interface OSStateSynchronizer : NSObject
 
 - (instancetype _Nonnull)initWithSubscriptionState:(OSSubscriptionState * _Nonnull)subscriptionState
@@ -68,5 +65,3 @@ withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
               onFailure:(OSMultipleFailureBlock _Nullable)failureBlock;
 
 @end
-
-#endif /* OSStateSynchronizer_h */
