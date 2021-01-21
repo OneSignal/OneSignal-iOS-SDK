@@ -32,9 +32,7 @@ THE SOFTWARE.
 #import "OSInfluence.h"
 #import "OSChannelTracker.h"
 #import "OSIndirectInfluence.h"
-
-#define mustOverride() @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"%s must be overridden in a subclass/category", __PRETTY_FUNCTION__] userInfo:nil]
-#define methodNotImplemented() mustOverride()
+#import "OSMacros.h"
 
 @implementation OSChannelTracker
 

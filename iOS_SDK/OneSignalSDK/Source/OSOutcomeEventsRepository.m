@@ -29,9 +29,7 @@ THE SOFTWARE.
 #import "OSCachedUniqueOutcome.h"
 #import "OSOutcomeEventsRepository.h"
 #import "OneSignalInternal.h"
-
-#define mustOverride() @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"%s must be overridden in a subclass/category", __PRETTY_FUNCTION__] userInfo:nil]
-#define methodNotImplemented() mustOverride()
+#import "OSMacros.h"
 
 @implementation OSOutcomeEventsRepository
 
