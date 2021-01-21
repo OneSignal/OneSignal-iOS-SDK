@@ -602,6 +602,7 @@
     
     XCTAssertEqual(observer->last.from.isSubscribed, true);
     XCTAssertEqual(observer->last.to.isSubscribed, false);
+    XCTAssertEqual(observer->fireCount, 2);
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
