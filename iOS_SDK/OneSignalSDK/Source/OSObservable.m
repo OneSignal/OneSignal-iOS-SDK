@@ -69,7 +69,6 @@ SEL changeSelector;
     
     @synchronized(observers) {
         NSArray *obs = [observers copy];
-        
         for (id observer in obs) {
             fired = true;
             if (changeSelector) {

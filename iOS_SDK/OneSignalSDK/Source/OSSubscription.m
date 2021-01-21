@@ -127,6 +127,7 @@
 - (void)setIsPushDisabled:(BOOL)isPushDisabled {
     BOOL changed = isPushDisabled != _isPushDisabled;
     _isPushDisabled = isPushDisabled;
+
     if (self.observable && changed)
         [self.observable notifyChange:self];
 }
