@@ -27,13 +27,8 @@ THE SOFTWARE.
 
 #import "OSUserStateSynchronizer.h"
 
-#ifndef OSUserStatePushSynchronizer_h
-#define OSUserStatePushSynchronizer_h
-
 @interface OSUserStatePushSynchronizer : OSUserStateSynchronizer
 
 
 
 @end
-
-#endif /* OSUserStatePushSynchronizer_h */

@@ -25,9 +25,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef OSUserState_h
-#define OSUserState_h
-
 #import "OSLocationState.h"
 
 @interface OSUserState : NSObject
@@ -56,5 +53,3 @@ THE SOFTWARE.
 - (NSDictionary *_Nonnull)toDictionary;
 
 @end
-
-#endif /* OSUserState_h */
