@@ -30,6 +30,7 @@
 
 @interface OneSignalLocationOverrider : NSObject
 
++ (void)reset;
 + (bool)overrideStarted;
 + (void)grantLocationServices;
 + (int)overrideAuthorizationStatus;

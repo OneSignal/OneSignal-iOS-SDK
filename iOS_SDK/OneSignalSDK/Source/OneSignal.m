@@ -489,6 +489,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _outcomeEventsCache = nil;
     _outcomeEventFactory = nil;
     _outcomeEventsController = nil;
+    
+    _registerUserFinished = false;
 }
 
 // Set to false as soon as it's read.
