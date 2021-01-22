@@ -73,6 +73,12 @@ NSArray *locations;
     locations = @[location];
 }
 
++ (void)reset {
+    // Reset request flags
+    calledRequestAlwaysAuthorization = false;
+    calledRequestWhenInUseAuthorization = false;
+}
+
 + (bool)overrideStarted {
     return startedMock;
 }

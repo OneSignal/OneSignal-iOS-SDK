@@ -1870,6 +1870,7 @@ didReceiveRemoteNotification:userInfo
     [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
     [OneSignal initWithLaunchOptions:nil];
     
+    // Subscription observer won't be trigger since it needs for register user to fire, register user won't fire due to privacy consent needed
     OSSubscriptionStateTestObserver* observer = [OSSubscriptionStateTestObserver new];
     [OneSignal addSubscriptionObserver:observer];
     
@@ -1878,17 +1879,16 @@ didReceiveRemoteNotification:userInfo
     [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertNil(observer->last.from.userId);
-    XCTAssertNil(observer->last.to.userId);
-    XCTAssertFalse(observer->last.to.isSubscribed);
+    // Chack that observer data is nil
+    XCTAssertNil(observer->last);
+    XCTAssertEqual(0, observer->fireCount);
     
     [OneSignal disablePush:true]; //This should not result in a a change in state because we are waiting on privacy
     [UnitTestCommonMethods runBackgroundThreads];
     
-    XCTAssertTrue(observer->last.from.isPushDisabled); //Initial from is that push is disabled
-    XCTAssertFalse(observer->last.to.isPushDisabled); //Default value after adding an observer is that push is not disabled
-    // Device registered with OneSignal so now make pushToken available.
-    XCTAssertNil(observer->last.to.pushToken);
+    // Chack that observer data is still nil
+    XCTAssertNil(observer->last);
+    XCTAssertEqual(0, observer->fireCount);
     
     [NSBundleOverrider setPrivacyState:false];
 }

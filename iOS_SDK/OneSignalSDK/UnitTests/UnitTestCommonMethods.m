@@ -57,6 +57,7 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OneSignalLifecycleObserver.h"
+#import "OneSignalLocationOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [OS_API_SERVER_URL stringByAppendingString:path];
@@ -208,6 +209,7 @@ static XCTestCase* _currentXCTestCase;
     [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
 
     [NSTimerOverrider reset];
+    [OneSignalLocationOverrider reset];
 
     [OSMessagingController.sharedInstance resetState];
 
@@ -419,6 +421,11 @@ static XCTestCase* _currentXCTestCase;
     last = stateChanges;
     fireCount++;
 }
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"OSSubscriptionStateTestObserver last: %@ fireCount: %d", last, fireCount];
+}
+
 @end
 
 @implementation OSEmailSubscriptionStateTestObserver
