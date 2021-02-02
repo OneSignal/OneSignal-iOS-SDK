@@ -27,9 +27,57 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSUserStateEmailSynchronizer.h"
+#import "OSEmailSubscription.h"
+
+@interface OSUserStateEmailSynchronizer ()
+
+@property (strong, nonatomic, readwrite, nonnull) OSEmailSubscriptionState *currentEmailSubscriptionState;
+
+@end
 
 @implementation OSUserStateEmailSynchronizer
 
+- (instancetype)initWithEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState {
+    self = [super init];
+    if (self)
+        _currentEmailSubscriptionState = emailSubscriptionState;
+    return self;
+}
 
+- (NSString *)getId {
+    return _currentEmailSubscriptionState.emailUserId;
+}
+
+- (NSString *)getIdAuthHashToken {
+    return _currentEmailSubscriptionState.emailAuthCode;
+}
+
+- (NSString *)getExternalIdAuthHashToken {
+    return nil;
+}
+
+- (NSString *)getEmailAuthHashToken {
+    return [self getIdAuthHashToken];
+}
+
+- (NSString *)getChannelId {
+    return OS_EMAIL;
+}
+
+- (NSNumber *)getDeviceType {
+    return @(DEVICE_TYPE_EMAIL);
+}
+
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState {
+    NSMutableDictionary *emailDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
+    emailDataDic[@"device_type"] = self.getDeviceType;
+    emailDataDic[@"email_auth_hash"] = self.getEmailAuthHashToken;
+    
+    // If push device has external id we want to add it to the email device also
+    if (registrationState.externalUserId)
+        emailDataDic[@"external_user_id"] = registrationState.externalUserId;
+    
+    return emailDataDic;
+}
 
 @end

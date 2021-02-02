@@ -28,50 +28,48 @@ THE SOFTWARE.
 #import "OneSignal.h"
 #import "Requests.h"
 #import "OneSignalLocation.h"
+#import "OSUserState.h"
 
 @interface OSUserStateSynchronizer : NSObject
 
-- (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationData
-                                                  userId:(NSString * _Nullable)userId;
+- (NSString * _Nonnull)getId;
+
+- (NSString * _Nullable)getIdAuthHashToken;
+
+- (NSString * _Nullable)getExternalIdAuthHashToken;
+
+- (NSString * _Nullable)getEmailAuthHashToken;
+
+- (NSString * _Nonnull)getChannelId;
+
+- (NSNumber * _Nonnull)getDeviceType;
+
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState;
+
+- (OSRequestRegisterUser * _Nonnull)registerUserWithData:(NSDictionary * _Nonnull)registrationDatad;
 
 - (OSRequestUpdateExternalUserId * _Nonnull)setExternalUserId:(NSString *_Nonnull)externalId
                                   withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
-                                                   withUserId:(NSString * _Nonnull)userId
                                                     withAppId:(NSString * _Nonnull)appId;
 
-- (OSRequestSendTagsToServer * _Nonnull)sendTagsWithUserId:(NSString * _Nonnull)userId
-                                                     appId:(NSString * _Nonnull)appId
+- (OSRequestSendTagsToServer * _Nonnull)sendTagsWithAppId:(NSString * _Nonnull)appId
                                                sendingTags:(NSDictionary * _Nonnull)tags
-                                               networkType:(NSNumber * _Nonnull)networkType
-                                        emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
-                                   externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+                                               networkType:(NSNumber * _Nonnull)networkType;
 
 - (OSRequestSendPurchases * _Nonnull)sendPurchases:(NSArray * _Nonnull)purchases
-                                             appId:(NSString * _Nonnull)appId
-                                            userId:(NSString * _Nonnull)userId
-                               externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+                                             appId:(NSString * _Nonnull)appId;
 
 - (OSRequestBadgeCount * _Nonnull)sendBadgeCount:(NSNumber * _Nonnull)badgeCount
-                                           appId:(NSString * _Nonnull)appId
-                                          userId:(NSString * _Nonnull)userId
-                              emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
-                         externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+                                           appId:(NSString * _Nonnull)appId;
 
 - (OSRequestSendLocation * _Nonnull)sendLocation:(os_last_location * _Nonnull)lastLocation
                                            appId:(NSString * _Nonnull)appId
-                                          userId:(NSString * _Nonnull)userId
                                      networkType:(NSNumber * _Nonnull)networkType
-                                 backgroundState:(BOOL)background
-                              emailAuthHashToken:(NSString * _Nullable)emailAuthHashToken
-                         externalIdAuthHashToken:(NSString * _Nullable)externalIdAuthHashToken;
+                                 backgroundState:(BOOL)background;
 
 - (OSRequestOnFocus * _Nonnull)sendOnFocusTime:(NSNumber * _Nonnull)activeTime
-                                        userId:(NSString * _Nonnull)userId
                                          appId:(NSString * _Nonnull)appId
                                        netType:(NSNumber * _Nonnull)netType
-                                emailAuthToken:(NSString * _Nullable)emailAuthHash
-                           externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
-                                    deviceType:(NSNumber * _Nonnull)deviceType
                                influenceParams:(NSArray <OSFocusInfluenceParam *> * _Nullable)influenceParams;
 
 @end
