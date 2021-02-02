@@ -1697,7 +1697,7 @@ static dispatch_queue_t serialQueue;
     // Make sure we only call create or on_session once per open of the app.
     if (![self shouldRegisterNow])
         return;
-    
+
     [_outcomeEventsController clearOutcomes];
     [_sessionManager restartSessionIfNeeded:_appEntryState];
 

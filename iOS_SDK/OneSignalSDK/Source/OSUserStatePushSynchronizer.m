@@ -27,8 +27,52 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSUserStatePushSynchronizer.h"
+#import "OSSubscription.h"
+
+@interface OSUserStatePushSynchronizer ()
+
+@property (strong, nonatomic, readwrite, nonnull) OSSubscriptionState *currentSubscriptionState;
+
+@end
 
 @implementation OSUserStatePushSynchronizer
 
+- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState {
+    self = [super init];
+    if (self)
+        _currentSubscriptionState = subscriptionState;
+    return self;
+}
+
+- (NSString *)getId {
+    return _currentSubscriptionState.userId;
+}
+
+- (NSString *)getIdAuthHashToken {
+    return _currentSubscriptionState.externalIdAuthCode;
+}
+
+- (NSString *)getExternalIdAuthHashToken {
+    return [self getIdAuthHashToken];
+}
+
+- (NSString *)getEmailAuthHashToken {
+    return nil;
+}
+
+- (NSString *)getChannelId {
+    return OS_PUSH;
+}
+
+- (NSNumber *)getDeviceType {
+    return @(DEVICE_TYPE_PUSH);
+}
+
+- (NSDictionary *)getRegistrationData:(OSUserState *)registrationState {
+    NSMutableDictionary *pushDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
+    pushDataDic[@"identifier"] = _currentSubscriptionState.pushToken;
+    
+    return pushDataDic;
+}
 
 @end

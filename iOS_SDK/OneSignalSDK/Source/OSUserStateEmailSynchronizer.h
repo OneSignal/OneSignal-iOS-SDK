@@ -29,4 +29,6 @@ THE SOFTWARE.
 
 @interface OSUserStateEmailSynchronizer : OSUserStateSynchronizer
 
+- (instancetype)initWithEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState;
+
 @end
