@@ -52,13 +52,38 @@
     
     return self;
 }
-
+/*const template = document.querySelector('[type=\"text/template\"]') \n\*/
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
+    NSString *removeEndHTML = [html substringToIndex:html.length - 8];
+    NSString *testHTML = [NSString stringWithFormat:@"%@ \n\
+<body>testing</body>        \n\
+<script> \n\
+     const engine = new liquidjs.Liquid() \n\
+\n\
+     engine \n\
+        .parseAndRender(document.documentElement.innerHTML) \n\
+        .then(html => document.documentElement.innerHTML = html) \n\
+</script> \n\
+</html>", removeEndHTML];
+    NSString *newTest = @"<html><div id=\"result\"></div> \n\
+    <script> \n\
+       const result = document.querySelector('#result') \n\
+       const engine = new liquidjs.Liquid() \n\
+  \n\
+       engine \n\
+          .parseAndRender(\"<h1>{{ 'person' | capitalize }}</h1>\") \n\
+          .then(html => result.innerHTML = html) \n\
+    </script> \n\
+    </html>";
+    NSString *newTest2 = @"<html> \
+     <body>testing</body>\
+    </html>";
+    NSLog(@"ECM HTML /n%@",testHTML);
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
     dispatch_sync(dispatch_get_main_queue(), ^{
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
-        [self.webView loadHTMLString:html baseURL:url];
+        [self.webView loadHTMLString:testHTML baseURL:url];
     });
 }
 
