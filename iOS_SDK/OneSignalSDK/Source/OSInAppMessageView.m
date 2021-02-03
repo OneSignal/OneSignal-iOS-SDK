@@ -55,10 +55,36 @@
 
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
+    NSString *testHTML = @"<script src=\"https://cdn.jsdelivr.net/npm/liquidjs/dist/liquid.browser.umd.js\"></script> \n\
+    <script type=\"text/template\"> \n\
+    {% assign people = \"alice, bob, carol\" | split: \", \" -%} \n\
+    \n\
+    <ul> \n\
+    {%- for person in people %} \n\
+      <li> \n\
+        <a href=\"{{person | prepend: \"http://example.com/\"}}\"> \n\
+          {{ person | capitalize }} \n\
+        </a> \n\
+      </li> \n\
+    {%- endfor%} \n\
+    </ul> \n\
+    <h1 id=\"text-521c8ecc-f288-49c5-a435-87d66fffb7b6\">{{ 'person' | capitalize }}</h1> \n\
+    </script> \n\
+    <div id=\"result\"></div> \n\
+    <script> \n\
+    const template = document.querySelector('[type=\"text/template\"]') \n\
+    const result = document.querySelector('#result') \n\
+    const engine = new liquidjs.Liquid() \n\
+    \n\
+    engine \n\
+        .parseAndRender(template.innerHTML, {name: 'liquid'}) \n\
+        .then(html => result.innerHTML = html) \n\
+    </script>";
+    NSLog(@"ECM HTML /n%@",testHTML);
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
     dispatch_sync(dispatch_get_main_queue(), ^{
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
-        [self.webView loadHTMLString:html baseURL:url];
+        [self.webView loadHTMLString:testHTML baseURL:url];
     });
 }
 
