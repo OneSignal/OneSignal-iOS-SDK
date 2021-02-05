@@ -294,6 +294,12 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
+@interface OSSubscriptionStateChanges : NSObject
+@property (readonly, nonnull) OSSubscriptionState* to;
+@property (readonly, nonnull) OSSubscriptionState* from;
+- (NSDictionary* _Nonnull)toDictionary;
+@end
+
 @interface OSEmailSubscriptionState : NSObject
 @property (readonly, nonatomic, nullable) NSString* emailUserId; // The new Email user ID
 @property (readonly, nonatomic, nullable) NSString *emailAddress;
@@ -301,16 +307,27 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
-@interface OSSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSSubscriptionState* to;
-@property (readonly, nonnull) OSSubscriptionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
 @interface OSEmailSubscriptionStateChanges : NSObject
 @property (readonly, nonnull) OSEmailSubscriptionState* to;
 @property (readonly, nonnull) OSEmailSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
+@end
+
+@interface OSSMSSubscriptionState : NSObject
+@property (readonly, nonatomic, nullable) NSString* smsUserId;
+@property (readonly, nonatomic, nullable) NSString *smsNumber;
+@property (readonly, nonatomic) BOOL isSubscribed;
+- (NSDictionary* _Nonnull)toDictionary;
+@end
+
+@interface OSSMSSubscriptionStateChanges : NSObject
+@property (readonly, nonnull) OSSMSSubscriptionState* to;
+@property (readonly, nonnull) OSSMSSubscriptionState* from;
+- (NSDictionary* _Nonnull)toDictionary;
+@end
+
+@protocol OSPermissionObserver <NSObject>
+- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
 @protocol OSSubscriptionObserver <NSObject>
@@ -321,8 +338,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges* _Nonnull)stateChanges;
 @end
 
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
+@protocol OSSMSSubscriptionObserver <NSObject>
+- (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges* _Nonnull)stateChanges;
 @end
 
 @interface OSDeviceState : NSObject

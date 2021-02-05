@@ -75,6 +75,12 @@
 #define OSUD_EMAIL_EXTERNAL_USER_ID                                         @"OSUD_EMAIL_EXTERNAL_USER_ID"                                      // OSUD_EMAIL_EXTERNAL_USER_ID
 #define OSUD_REQUIRE_EMAIL_AUTH                                             @"GT_REQUIRE_EMAIL_AUTH"                                            // * OSUD_REQUIRE_EMAIL_AUTH
 #define OSUD_EMAIL_AUTH_CODE                                                @"GT_EMAIL_AUTH_CODE"                                               // * OSUD_EMAIL_AUTH_CODE
+// SMS
+#define OSUD_SMS_NUMBER                                                     @"OSUD_SMS_NUMBER"
+#define OSUD_SMS_PLAYER_ID                                                  @"OSUD_SMS_PLAYER_ID"
+#define OSUD_SMS_EXTERNAL_USER_ID                                           @"OSUD_SMS_EXTERNAL_USER_ID"
+#define OSUD_REQUIRE_SMS_AUTH                                               @"OSUD_REQUIRE_SMS_AUTH"
+#define OSUD_SMS_AUTH_CODE                                                  @"OSUD_SMS_AUTH_CODE"
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
 #define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
@@ -184,6 +190,7 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 // OneSignal constants
 #define OS_PUSH @"push"
 #define OS_EMAIL @"email"
+#define OS_SMS @"sms"
 #define OS_SUCCESS @"success"
 
 #define OS_CHANNELS @[OS_PUSH, OS_EMAIL]
@@ -227,6 +234,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 // Device types
 #define DEVICE_TYPE_PUSH 0
 #define DEVICE_TYPE_EMAIL 11
+#define DEVICE_TYPE_SMS 14
 
 #ifndef OS_TEST
     // OneSignal API Client Defines
