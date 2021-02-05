@@ -108,8 +108,8 @@
 }
 
 - (IBAction)sendTagButton:(id)sender {
-    [OneSignal sendTag:@"key1"
-                 value:@"value1"
+    [OneSignal sendTag:@"player_name"
+                 value:@"it works!"
              onSuccess:^(NSDictionary *result) {
                  static int successes = 0;
                  NSLog(@"successes: %d", ++successes);

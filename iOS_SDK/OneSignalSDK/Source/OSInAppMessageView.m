@@ -57,7 +57,10 @@
 
 - (NSString *)getTagsString {
     NSError *error;
-    NSDictionary *tags = @{@"player_name" : @"Zea"};
+    if (![OneSignal getPlayerTags]) {
+        return nil;
+    }
+    NSDictionary *tags = [OneSignal getPlayerTags];//@{@"player_name" : @"Zea"};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags
                                                        options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
                                                          error:&error];
