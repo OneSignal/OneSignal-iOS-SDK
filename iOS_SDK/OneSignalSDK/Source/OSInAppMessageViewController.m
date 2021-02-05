@@ -626,6 +626,7 @@
     if (event) {
         switch (event.type) {
             case OSInAppMessageBridgeEventTypePageRenderingComplete: {
+                [self.messageView setTagsAndReRender];
                 // BOOL set to true since the JS event fired, meaning the WebView was populated properly with the IAM code
                 self.didPageRenderingComplete = true;
                
