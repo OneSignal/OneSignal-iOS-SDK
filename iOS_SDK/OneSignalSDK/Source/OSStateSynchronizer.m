@@ -30,6 +30,7 @@ THE SOFTWARE.
 #import "OSUserStateSynchronizer.h"
 #import "OSUserStatePushSynchronizer.h"
 #import "OSUserStateEmailSynchronizer.h"
+#import "OSUserStateSMSSynchronizer.h"
 #import "Requests.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalUserDefaults.h"
@@ -53,21 +54,25 @@ THE SOFTWARE.
 @property (strong, nonatomic, readwrite, nonnull) NSDictionary<NSString *, OSUserStateSynchronizer *> *userStateSynchronizers;
 @property (strong, nonatomic, readwrite, nonnull) OSSubscriptionState *currentSubscriptionState;
 @property (strong, nonatomic, readwrite, nonnull) OSEmailSubscriptionState *currentEmailSubscriptionState;
+@property (strong, nonatomic, readwrite, nonnull) OSSMSSubscriptionState *currentSMSSubscriptionState;
 
 @end
 
 @implementation OSStateSynchronizer
 
 - (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState
-               withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState {
+               withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState
+               withSMSSubscriptionState:(OSSMSSubscriptionState * _Nonnull)smsSubscriptionState {
     self = [super init];
     if (self) {
         _userStateSynchronizers = @{
             OS_PUSH  : [[OSUserStatePushSynchronizer alloc] initWithSubscriptionState:subscriptionState],
-            OS_EMAIL : [[OSUserStateEmailSynchronizer alloc] initWithEmailSubscriptionState:emailSubscriptionState]
+            OS_EMAIL : [[OSUserStateEmailSynchronizer alloc] initWithEmailSubscriptionState:emailSubscriptionState],
+            OS_SMS   : [[OSUserStateSMSSynchronizer alloc] initWithSMSSubscriptionState:smsSubscriptionState]
         };
         _currentSubscriptionState = subscriptionState;
         _currentEmailSubscriptionState = emailSubscriptionState;
+        _currentSMSSubscriptionState = smsSubscriptionState;
     }
     return self;
 }
@@ -83,15 +88,26 @@ THE SOFTWARE.
         return nil;
 }
 
+- (OSUserStateSynchronizer *)getSMSStateSynchronizer {
+    if ([self.currentSMSSubscriptionState isSMSSetup])
+        return [_userStateSynchronizers objectForKey:OS_SMS];
+    else
+        return nil;
+}
+
 - (NSArray<OSUserStateSynchronizer *> * _Nonnull)getStateSynchronizers {
     NSMutableArray *stateSynchronizers = [NSMutableArray new];
     
     let pushStateSyncronizer = [self getPushStateSynchronizer];
     let emailStateSyncronizer = [self getEmailStateSynchronizer];
+    let smsStateSyncronizer = [self getSMSStateSynchronizer];
     [stateSynchronizers addObject:pushStateSyncronizer];
     
     if (emailStateSyncronizer)
         [stateSynchronizers addObject:emailStateSyncronizer];
+    
+    if (smsStateSyncronizer)
+        [stateSynchronizers addObject:smsStateSyncronizer];
     
     return stateSynchronizers;
 }
