@@ -256,6 +256,28 @@ static OSEmailSubscriptionState *_lastEmailSubscriptionState;
     _lastEmailSubscriptionState = lastEmailSubscriptionState;
 }
 
+static OSSMSSubscriptionState* _currentSMSSubscriptionState;
++ (OSSMSSubscriptionState *)currentSMSSubscriptionState {
+    if (!_currentSMSSubscriptionState) {
+        _currentSMSSubscriptionState = [[OSSMSSubscriptionState alloc] init];
+        
+        [_currentSMSSubscriptionState.observable addObserver:[OSSMSSubscriptionChangedInternalObserver alloc]];
+    }
+    return _currentSMSSubscriptionState;
+}
+
+static OSSMSSubscriptionState *_lastSMSSubscriptionState;
++ (OSSMSSubscriptionState *)lastSMSSubscriptionState {
+    if (!_lastSMSSubscriptionState) {
+        _lastSMSSubscriptionState = [[OSSMSSubscriptionState alloc] init];
+    }
+    return _lastSMSSubscriptionState;
+}
+
++ (void)setLastSMSSubscriptionState:(OSSMSSubscriptionState *)lastSMSSubscriptionState {
+    _lastSMSSubscriptionState = lastSMSSubscriptionState;
+}
+
 // static property def for current OSSubscriptionState
 static OSSubscriptionState* _currentSubscriptionState;
 + (OSSubscriptionState*)currentSubscriptionState {
@@ -284,7 +306,8 @@ static OSSubscriptionState* _lastSubscriptionState;
 static OSStateSynchronizer *_stateSynchronizer;
 + (OSStateSynchronizer*)stateSynchronizer {
     if (!_stateSynchronizer)
-        _stateSynchronizer = [[OSStateSynchronizer alloc] initWithSubscriptionState:OneSignal.currentSubscriptionState withEmailSubscriptionState:OneSignal.currentEmailSubscriptionState];
+        _stateSynchronizer = [[OSStateSynchronizer alloc] initWithSubscriptionState:OneSignal.currentSubscriptionState withEmailSubscriptionState:OneSignal.currentEmailSubscriptionState
+            withSMSSubscriptionState:OneSignal.currentSMSSubscriptionState];
     return _stateSynchronizer;
 }
 
