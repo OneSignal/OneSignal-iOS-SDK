@@ -194,7 +194,7 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define OS_SMS @"sms"
 #define OS_SUCCESS @"success"
 
-#define OS_CHANNELS @[OS_PUSH, OS_EMAIL]
+#define OS_CHANNELS @[OS_PUSH, OS_EMAIL, OS_SMS]
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;

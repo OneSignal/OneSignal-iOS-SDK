@@ -34,7 +34,8 @@ THE SOFTWARE.
 @interface OSStateSynchronizer : NSObject
 
 - (instancetype _Nonnull)initWithSubscriptionState:(OSSubscriptionState * _Nonnull)subscriptionState
-                        withEmailSubscriptionState:(OSEmailSubscriptionState * _Nonnull)emailSubscriptionState;
+                        withEmailSubscriptionState:(OSEmailSubscriptionState * _Nonnull)emailSubscriptionState
+                        withSMSSubscriptionState:(OSSMSSubscriptionState * _Nonnull)smsSubscriptionState;
 
 - (void)registerUserWithState:(OSUserState * _Nonnull)registrationState
                   withSuccess:(OSMultipleSuccessBlock _Nullable)successBlock
