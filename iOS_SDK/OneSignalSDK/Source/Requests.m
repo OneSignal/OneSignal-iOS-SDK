@@ -146,6 +146,34 @@
     
     return request;
 }
+
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId deviceToken:(NSString *)identifier notificationTypes:(NSNumber *)notificationTypes smsAuthToken:(NSString *)smsAuthToken smsNumber:(NSString *)smsNumber externalIdAuthToken:(NSString *)externalIdAuthToken {
+    let request = [OSRequestUpdateDeviceToken new];
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    
+    if (smsNumber)
+        params[@"sms_number"] = smsNumber;
+    
+    if (notificationTypes)
+        params[@"notification_types"] = notificationTypes;
+    
+    if (identifier)
+        params[@"identifier"] = identifier;
+    
+    if (smsAuthToken && smsAuthToken.length > 0)
+        params[@"sms_auth_hash"] = smsAuthToken;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
+    
+    request.parameters = params;
+    request.method = PUT;
+    request.path = [NSString stringWithFormat:@"players/%@", userId];
+    
+    return request;
+}
 @end
 
 @implementation OSRequestCreateDevice
@@ -159,6 +187,23 @@
        @"email_auth_hash" : emailAuthHash ?: [NSNull null],
        @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
        @"device_player_id" : playerId ?: [NSNull null]
+    };
+    
+    request.method = POST;
+    request.path = @"players";
+    
+    return request;
+}
+
++ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType withSMSNumber:(NSString *)smsNumber withSMSAuthHash:(NSString *)smsAuthHash withExternalIdAuthToken:(NSString *)externalIdAuthToken {
+    let request = [OSRequestCreateDevice new];
+    
+    request.parameters = @{
+       @"app_id" : appId,
+       @"device_type" : deviceType,
+       @"identifier" : smsNumber ?: [NSNull null],
+       @"sms_auth_hash" : smsAuthHash ?: [NSNull null],
+       @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
     };
     
     request.method = POST;
