@@ -72,6 +72,7 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import "OneSignalSetEmailParameters.h"
+#import "OneSignalSetSMSParameters.h"
 #import "OneSignalSetExternalIdParameters.h"
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
@@ -136,6 +137,7 @@ static BOOL shouldDelaySubscriptionUpdate = false;
     we can finish setEmail:
 */
 static OneSignalSetEmailParameters *delayedEmailParameters;
+static OneSignalSetSMSParameters *delayedSMSParameters;
 static OneSignalSetExternalIdParameters *delayedExternalIdParameters;
 
 static NSMutableArray* pendingSendTagCallbacks;
@@ -484,6 +486,26 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self.currentEmailSubscriptionState persist];
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentEmailSubscriptionState after saveEmailAddress: %@", self.currentEmailSubscriptionState.description]];
+}
+
+
++ (NSString *)getSMSAuthToken {
+    return self.currentSMSSubscriptionState.smsAuthCode;
+}
+
++ (NSString *)getSMSUserId {
+    return self.currentSMSSubscriptionState.smsUserId;
+}
+
++ (void)saveSMSNumber:(NSString *)smsNumber withAuthToken:(NSString *)smsAuthToken userId:(NSString *)smsPlayerId {
+    [self.currentSMSSubscriptionState setSMSNumber:smsNumber];
+    self.currentSMSSubscriptionState.smsAuthCode = smsAuthToken;
+    [self.currentSMSSubscriptionState setSMSUserId:smsPlayerId];
+    
+    //call persistAsFrom in order to save the smsNumber & playerId to NSUserDefaults
+    [self.currentSMSSubscriptionState persist];
+    
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentSMSSubscriptionState after saveSMSNumber: %@", self.currentSMSSubscriptionState.description]];
 }
 
 + (void)saveExternalIdAuthToken:(NSString *)hashToken {
@@ -2421,6 +2443,118 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:^(NSError *error) {
         [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];
     }];
+}
+
++ (void)setSMSNumber:(NSString *)smsNumber {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:"])
+        return;
+
+    [self setSMSNumber:smsNumber withSMSAuthHashToken:nil withSuccess:nil withFailure:nil];
+}
+
++ (void)setSMSNumber:(NSString *)smsNumber withSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSuccess:withFailure:"])
+        return;
+
+    [self setSMSNumber:smsNumber withSMSAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
+}
+
++ (void)setSMSNumber:(NSString *)smsNumber withSMSAuthHashToken:(NSString *)hashToken {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSMSAuthHashToken:"])
+        return;
+
+    [self setSMSNumber:smsNumber withSMSAuthHashToken:hashToken withSuccess:nil withFailure:nil];
+}
+
++ (void)setSMSNumber:(NSString *)smsNumber withSMSAuthHashToken:(NSString *)hashToken withSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSMSAuthHashToken:withSuccess:withFailure:"])
+        return;
+    
+    // Some clients/wrappers may send NSNull instead of nil as the auth token
+    NSString *smsAuthToken = hashToken;
+    if (hashToken == (id)[NSNull null])
+        smsAuthToken = nil;
+    
+    // Checks to ensure it is a valid smsNumber
+    if (!smsNumber || [smsNumber length] == 0) {
+        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid sms number (%@) passed to setSMSNumber", smsNumber]];
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"SMS number is invalid"}]);
+        return;
+    }
+    
+    // Checks to make sure that if email_auth is required, the user has passed in a hash token
+    if (self.currentSMSSubscriptionState.requiresSMSAuth && (!hashToken || hashToken.length == 0)) {
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.sms" code:0 userInfo:@{@"error" : @"SMS authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
+        return;
+    }
+    
+    let response = [NSMutableDictionary new];
+    // TODO: test this case
+    // If both the sms number & hash token are the same, there's no need to make a network call here.
+    if ([self.currentSMSSubscriptionState.smsNumber isEqualToString:smsNumber] && ([self.currentSMSSubscriptionState.smsAuthCode isEqualToString:hashToken] || (self.currentSMSSubscriptionState.smsAuthCode == nil && hashToken == nil))) {
+        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"SMS number already exists, there is no need to call setSMSNumber again"];
+        if (successBlock) {
+            [response setValue:smsNumber forKey:@"sms_number"];
+            successBlock(response);
+        }
+        return;
+    }
+    
+    // If the iOS params (with the require_sms_auth setting) has not been downloaded yet, we should delay the request
+    // however, if this method was called with an sms auth code passed in, then there is no need to check this setting
+    // and we do not need to delay the request
+    if (!self.currentSubscriptionState.userId || (_downloadedParameters == false && hashToken == nil)) {
+        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setSMSNumber: until the parameters have been downloaded."];
+        delayedSMSParameters = [OneSignalSetSMSParameters withSMSNumber:smsNumber withAuthToken:hashToken withSuccess:successBlock withFailure:failureBlock];
+        return;
+    }
+    
+    // If the user already has a onesignal sms player_id, then we should call update the device token
+    // otherwise, we should call Create Device
+    // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
+    if (self.currentSMSSubscriptionState.smsNumber) {
+        let userId = self.currentSMSSubscriptionState.smsUserId;
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:userId appId:self.appId deviceToken:smsNumber notificationTypes:nil smsAuthToken:hashToken smsNumber:nil externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (successBlock) {
+                    [response setValue:smsNumber forKey:@"sms_number"];
+                    successBlock(response);
+                }
+            });
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
+        }];
+    } else {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.appId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_SMS] withSMSNumber:smsNumber withSMSAuthHash:hashToken withExternalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
+            let smsPlayerId = (NSString*)result[@"id"];
+            
+            if (smsPlayerId) {
+                [OneSignal saveSMSNumber:smsNumber withAuthToken:hashToken userId:smsPlayerId];
+
+                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil notificationTypes:@([self getNotificationTypes]) smsAuthToken:hashToken smsNumber:smsNumber externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (successBlock) {
+                            [response setValue:smsNumber forKey:@"sms_number"];
+                            successBlock(response);
+                        }
+                    });
+                } onFailure:^(NSError *error) {
+                    [self callFailureBlockOnMainThread:failureBlock withError:error];
+                }];
+            } else {
+                [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal SMS Player ID"];
+            }
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
+        }];
+    }
 }
 
 + (NSDate *)sessionLaunchTime {
