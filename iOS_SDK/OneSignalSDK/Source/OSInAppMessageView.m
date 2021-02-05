@@ -46,44 +46,78 @@
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler {
     if (self = [super init]) {
         self.message = inAppMessage;
+        NSLog(@"ECM navigation delegate to self");
+        self.webView.navigationDelegate = self;
         self.translatesAutoresizingMaskIntoConstraints = false;
         [self setupWebviewWithMessageHandler:messageHandler];
     }
     
     return self;
 }
+
+- (NSString *)getTagsString {
+    NSError *error;
+    NSDictionary *tags = @{@"player_name" : @"Zea"};
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags
+                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                         error:&error];
+
+    NSString *jsonString;
+    if (! jsonData) {
+        NSLog(@"Got an error: %@", error);
+    } else {
+         jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    return jsonString;
+}
+
+- (void)setTagsAndReRender {
+//    NSString *tags = [self getTagsString];
+//    NSLog(@"ECM tags %@",tags);
+    //NSString *tagsStringJS = [NSString stringWithFormat:@"setTags(%@)", tags];
+//    [self.webView evaluateJavaScript:OS_JS_SET_TAGS_METHOD completionHandler:^(id _Nullable result, NSError * _Nullable error) {
+//        if (error) {
+//         NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_SET_TAGS_METHOD, error];
+//         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+//         return;
+//        }
+//        NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success", OS_JS_SET_TAGS_METHOD];
+//        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:successMessage];
+//    }];
+//    NSLog(@"ECM done setting tags");
+}
+
+- (NSString *)addTagsToHTML:(NSString *)html {
+    NSString *tags = [self getTagsString];
+    NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
+                         <script> \
+                             iamInfo.tags = %@; \
+                         </script>",html, tags];
+    return newHtml;
+}
+
 /*const template = document.querySelector('[type=\"text/template\"]') \n\*/
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
-    NSString *removeEndHTML = [html substringToIndex:html.length - 8];
-    NSString *testHTML = [NSString stringWithFormat:@"%@ \n\
-<body>testing</body>        \n\
-<script> \n\
-     const engine = new liquidjs.Liquid() \n\
-\n\
-     engine \n\
-        .parseAndRender(document.documentElement.innerHTML) \n\
-        .then(html => document.documentElement.innerHTML = html) \n\
-</script> \n\
-</html>", removeEndHTML];
-    NSString *newTest = @"<html><div id=\"result\"></div> \n\
-    <script> \n\
-       const result = document.querySelector('#result') \n\
-       const engine = new liquidjs.Liquid() \n\
-  \n\
-       engine \n\
-          .parseAndRender(\"<h1>{{ 'person' | capitalize }}</h1>\") \n\
-          .then(html => result.innerHTML = html) \n\
-    </script> \n\
-    </html>";
-    NSString *newTest2 = @"<html> \
-     <body>testing</body>\
-    </html>";
-    NSLog(@"ECM HTML /n%@",testHTML);
+    NSLog(@"ECM HTML /n%@",html);
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
+
     dispatch_sync(dispatch_get_main_queue(), ^{
+        if (self.webView.navigationDelegate != self) {
+            NSLog(@"ECM navigation delegate nil");
+            self.webView.navigationDelegate = self;
+        }
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
-        [self.webView loadHTMLString:testHTML baseURL:url];
+        NSString *taggedHTML = [self addTagsToHTML:html];
+        /*
+         <script>
+             iamInfo.tags = {player_name : "Elliot"};
+         </script>
+         */
+        [self.webView loadHTMLString:taggedHTML baseURL:url];
+         //[OneSignal getTags:^(NSDictionary *result) {
+     
+         //}];
     });
 }
 
@@ -150,7 +184,6 @@
     
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
     self.webView.UIDelegate = self;
-    self.webView.navigationDelegate = self;
     self.webView.scrollView.delegate = self;
     self.webView.scrollView.scrollEnabled = false;
     
@@ -183,10 +216,25 @@
 #pragma mark WKWebViewNavigationDelegate Methods
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     // WebView finished loading
-    if (self.loaded)
-        return;
+    NSLog(@"ECM navigation finished");
     
+    if (self.loaded) {
+        return;
+    }
+    [self setTagsAndReRender];
     self.loaded = true;
+}
+
+-(void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation {
+    NSLog(@"ECM navigation committed");
+}
+
+-(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    NSLog(@"ECM navigation failed");
+}
+
+-(void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
+    NSLog(@"ECM provisional nav started");
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
