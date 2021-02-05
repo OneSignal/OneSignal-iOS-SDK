@@ -1805,26 +1805,43 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     NSLog(@"ECM received IAM JSON: %@", messagesJson);
-    [OneSignal getTags:^(NSDictionary *result) {
-        NSLog(@"ECM received get tags: %@", result);
-        playerTags = @{@"player_name" : @"It Works!"};
-        let messages = [NSMutableArray new];
+    playerTags = @{@"player_name" : @"It Works!"};
+    let messages = [NSMutableArray new];
 
-        if (messagesJson) {
-            for (NSDictionary *messageJson in messagesJson) {
-                let message = [OSInAppMessage instanceWithJson:messageJson];
+    if (messagesJson) {
+        for (NSDictionary *messageJson in messagesJson) {
+            let message = [OSInAppMessage instanceWithJson:messageJson];
 
-                if (message)
-                    [messages addObject:message];
-            }
-
-            [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
-            return;
+            if (message)
+                [messages addObject:message];
         }
 
-        // Default is using cached IAMs in the messaging controller
-        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
-    }];
+        [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
+        return;
+    }
+
+    // Default is using cached IAMs in the messaging controller
+    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+//    [OneSignal getTags:^(NSDictionary *result) {
+//        NSLog(@"ECM received get tags: %@", result);
+//        playerTags = @{@"player_name" : @"It Works!"};
+//        let messages = [NSMutableArray new];
+//
+//        if (messagesJson) {
+//            for (NSDictionary *messageJson in messagesJson) {
+//                let message = [OSInAppMessage instanceWithJson:messageJson];
+//
+//                if (message)
+//                    [messages addObject:message];
+//            }
+//
+//            [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
+//            return;
+//        }
+//
+//        // Default is using cached IAMs in the messaging controller
+//        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+//    }];
 }
 
 + (NSString*)getUsableDeviceToken {
