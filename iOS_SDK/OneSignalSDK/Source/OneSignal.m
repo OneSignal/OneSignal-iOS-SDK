@@ -310,6 +310,13 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return _emailSubscriptionStateChangesObserver;
 }
 
+static ObservableSMSSubscriptionStateChangesType* _smsSubscriptionStateChangesObserver;
++ (ObservableSMSSubscriptionStateChangesType *)smsSubscriptionStateChangesObserver {
+    if (!_smsSubscriptionStateChangesObserver)
+        _smsSubscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSSMSSubscriptionChanged:)];
+    return _smsSubscriptionStateChangesObserver;
+}
+
 + (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
@@ -1123,6 +1130,17 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer {
     [self.emailSubscriptionStateChangesObserver removeObserver:observer];
+}
+
++ (void)addSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer {
+    [self.smsSubscriptionStateChangesObserver addObserver:observer];
+    
+    if ([self.currentSMSSubscriptionState compare:self.lastSMSSubscriptionState])
+        [OSSMSSubscriptionChangedInternalObserver fireChangesObserver:self.currentSMSSubscriptionState];
+}
+
++ (void)removeSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer {
+    [self.smsSubscriptionStateChangesObserver removeObserver:observer];
 }
 
 + (void)sendTagsWithJsonString:(NSString*)jsonString {
