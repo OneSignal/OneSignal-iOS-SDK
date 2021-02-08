@@ -97,13 +97,15 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 // This is a swizzled implementation of requestAuthorizationWithOptions:
 // in case developers call it directly instead of using our prompt method
 - (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler {
-    
+    NSLog(@"ECM test");
     // check options for UNAuthorizationOptionProvisional membership
     BOOL notProvisionalRequest = (options & PROVISIONAL_UNAUTHORIZATIONOPTION) == 0;
     
     //we don't want to modify these settings if the authorization is provisional (iOS 12 'Direct to History')
-    if (notProvisionalRequest)
+    if (notProvisionalRequest) {
+        NSLog(@"ECM not provisional...");
         OneSignal.currentPermissionState.hasPrompted = true;
+    }
     
     useCachedUNNotificationSettings = true;
     id wrapperBlock = ^(BOOL granted, NSError* error) {

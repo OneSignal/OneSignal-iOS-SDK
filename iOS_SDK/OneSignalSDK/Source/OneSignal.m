@@ -1670,6 +1670,7 @@ static dispatch_queue_t serialQueue;
     let notificationTypes = [self getNotificationTypes];
     mLastNotificationTypes = notificationTypes;
     userState.notificationTypes = [NSNumber numberWithInt:notificationTypes];
+    NSLog(@"ECM user state notification types %@", userState.notificationTypes);
     
     let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
     if (CTTelephonyNetworkInfoClass) {
@@ -1784,6 +1785,7 @@ static dispatch_queue_t serialQueue;
         }
         
         if (results[@"push"][@"in_app_messages"]) {
+            NSLog(@"ECM received in app");
             [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
         }
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
@@ -2090,7 +2092,6 @@ static NSString *_lastnonActiveMessageId;
 
 + (int)getNotificationTypes {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"getNotificationTypes:mSubscriptionStatus: %d", mSubscriptionStatus]];
-    
     if (mSubscriptionStatus < -9)
         return mSubscriptionStatus;
     
@@ -2098,6 +2099,8 @@ static NSString *_lastnonActiveMessageId;
         return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
     OSPermissionState* permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
+    
+    NSLog(@"ECM getnotiftypes %i", permissionStatus.notificationTypes);
     
     //only return the error statuses if not provisional
     if (!permissionStatus.provisional && !permissionStatus.hasPrompted)

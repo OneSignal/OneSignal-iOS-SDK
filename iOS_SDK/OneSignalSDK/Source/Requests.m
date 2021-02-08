@@ -190,7 +190,7 @@
 @implementation OSRequestUpdateNotificationTypes
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId notificationTypes:(NSNumber *)notificationTypes {
     let request = [OSRequestUpdateNotificationTypes new];
-    
+    NSLog(@"ECM update types %@", notificationTypes);
     request.parameters = @{@"app_id" : appId, @"notification_types" : notificationTypes};
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
