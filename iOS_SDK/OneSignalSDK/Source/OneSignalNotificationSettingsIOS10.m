@@ -85,13 +85,15 @@ static dispatch_queue_t serialQueue;
                                      + (settings.soundSetting == UNNotificationSettingEnabled ? 2 : 0)
                                      + (settings.alertSetting == UNNotificationSettingEnabled ? 4 : 0)
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
-
+            
             // check if using provisional notifications
             if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
                 status.notificationTypes += PROVISIONAL_UNAUTHORIZATIONOPTION;
+            
             // also check if 'deliver quietly' is enabled.
             if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
                 status.notificationTypes += 16;
+            
             self.useCachedStatus = true;
             completionHandler(status);
             self.useCachedStatus = false;
@@ -132,7 +134,6 @@ static dispatch_queue_t serialQueue;
 }
 
 - (int)getNotificationTypes {
-    NSLog(@"ECM types %i", [self getNotificationPermissionState].notificationTypes);
     return [self getNotificationPermissionState].notificationTypes;
 }
 

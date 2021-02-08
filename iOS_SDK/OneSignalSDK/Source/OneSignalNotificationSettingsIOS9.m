@@ -60,7 +60,6 @@
 }
 
 - (int)getNotificationTypes {
-    NSLog(@"ECM types 9 %i", [self getNotificationPermissionState].notificationTypes);
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated"
     return (int)UIApplication.sharedApplication.currentUserNotificationSettings.types;
