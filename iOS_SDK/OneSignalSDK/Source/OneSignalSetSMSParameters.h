@@ -32,7 +32,7 @@
 
 + (instancetype)withSMSNumber:(NSString *)smsNumber withAuthToken:(NSString *)authToken withSuccess:(OSResultSuccessBlock)success withFailure:(OSFailureBlock)failure;
 
-@property (strong, nonatomic) NSString *smsNumer;
+@property (strong, nonatomic) NSString *smsNumber;
 @property (strong, nonatomic) NSString *authToken;
 @property (nonatomic) OSResultSuccessBlock successBlock;
 @property (nonatomic) OSFailureBlock failureBlock;
