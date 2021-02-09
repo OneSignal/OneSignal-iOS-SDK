@@ -2509,7 +2509,6 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setSMSNumber:(NSString *)smsNumber withSMSAuthHashToken:(NSString *)hashToken withSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
-    
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSMSAuthHashToken:withSuccess:withFailure:"])
         return;
@@ -2534,12 +2533,12 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    let response = [NSMutableDictionary new];
     // TODO: test this case
     // If both the sms number & hash token are the same, there's no need to make a network call here.
     if ([self.currentSMSSubscriptionState.smsNumber isEqualToString:smsNumber] && ([self.currentSMSSubscriptionState.smsAuthCode isEqualToString:hashToken] || (self.currentSMSSubscriptionState.smsAuthCode == nil && hashToken == nil))) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"SMS number already exists, there is no need to call setSMSNumber again"];
         if (successBlock) {
+            let response = [NSMutableDictionary new];
             [response setValue:smsNumber forKey:@"sms_number"];
             successBlock(response);
         }
@@ -2555,45 +2554,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    // If the user already has a onesignal sms player_id, then we should call update the device token
-    // otherwise, we should call Create Device
-    // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
-    if (self.currentSMSSubscriptionState.smsNumber) {
-        let userId = self.currentSMSSubscriptionState.smsUserId;
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:userId appId:self.appId deviceToken:smsNumber notificationTypes:nil smsAuthToken:hashToken smsNumber:nil externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (successBlock) {
-                    [response setValue:smsNumber forKey:@"sms_number"];
-                    successBlock(response);
-                }
-            });
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.appId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_SMS] withSMSNumber:smsNumber withSMSAuthHash:hashToken withExternalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
-            let smsPlayerId = (NSString*)result[@"id"];
-            
-            if (smsPlayerId) {
-                [OneSignal saveSMSNumber:smsNumber withAuthToken:hashToken userId:smsPlayerId];
-
-                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil notificationTypes:@([self getNotificationTypes]) smsAuthToken:hashToken smsNumber:smsNumber externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (successBlock) {
-                            [response setValue:smsNumber forKey:@"sms_number"];
-                            successBlock(response);
-                        }
-                    });
-                } onFailure:^(NSError *error) {
-                    [self callFailureBlockOnMainThread:failureBlock withError:error];
-                }];
-            } else {
-                [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal SMS Player ID"];
-            }
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    }
+    [self.stateSynchronizer setSMSNumber:smsNumber withSMSAuthHashToken:hashToken withAppId:self.appId withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (NSDate *)sessionLaunchTime {

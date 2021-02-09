@@ -100,6 +100,9 @@
 		7A42748925D18F4400EE75FC /* OneSignalSetSMSParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */; };
 		7A42748A25D18F4400EE75FC /* OneSignalSetSMSParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */; };
 		7A42748B25D18F4400EE75FC /* OneSignalSetSMSParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */; };
+		7A4274A225D1C99600EE75FC /* SMSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A4274A125D1C99600EE75FC /* SMSTests.m */; };
+		7A4274A325D1C99600EE75FC /* SMSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A4274A125D1C99600EE75FC /* SMSTests.m */; };
+		7A4274A425D1C99600EE75FC /* SMSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A4274A125D1C99600EE75FC /* SMSTests.m */; };
 		7A5A818224897693002E07C8 /* MigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5A818124897693002E07C8 /* MigrationTests.m */; };
 		7A5A8185248990CD002E07C8 /* OSIndirectNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */; };
 		7A5E71F325A66DDB00CB5605 /* OSUserStateSynchronizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A5E71F225A66DDB00CB5605 /* OSUserStateSynchronizer.h */; };
@@ -577,6 +580,7 @@
 		7A42746325CDF06800EE75FC /* OSUserStateSMSSynchronizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUserStateSMSSynchronizer.m; sourceTree = "<group>"; };
 		7A42747F25D18F2C00EE75FC /* OneSignalSetSMSParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalSetSMSParameters.h; sourceTree = "<group>"; };
 		7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalSetSMSParameters.m; sourceTree = "<group>"; };
+		7A4274A125D1C99600EE75FC /* SMSTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SMSTests.m; sourceTree = "<group>"; };
 		7A5A818124897693002E07C8 /* MigrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MigrationTests.m; sourceTree = "<group>"; };
 		7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSIndirectNotification.m; sourceTree = "<group>"; };
 		7A5A8186248990DA002E07C8 /* OSIndirectNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSIndirectNotification.h; sourceTree = "<group>"; };
@@ -1128,6 +1132,7 @@
 				CA85C15220604AEA003AB529 /* RequestTests.m */,
 				CAA4ED0020646762005BD59B /* BadgeTests.m */,
 				CA63AF8320211F7400E340FB /* EmailTests.m */,
+				7A4274A125D1C99600EE75FC /* SMSTests.m */,
 				CA42CAC220D99CB90001F2F2 /* ProvisionalAuthorizationTests.m */,
 				CA63AF8520211FF800E340FB /* UnitTestCommonMethods.h */,
 				CA63AF8620211FF800E340FB /* UnitTestCommonMethods.m */,
@@ -1795,6 +1800,7 @@
 				7A42746425CDF06800EE75FC /* OSUserStateSMSSynchronizer.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CA47439E2190FEA80020DC8C /* OSTrigger.m in Sources */,
+				7A4274A225D1C99600EE75FC /* SMSTests.m in Sources */,
 				7AF9865824452A9600C36EAE /* OSInfluence.m in Sources */,
 				7AF98692244A567B00C36EAE /* OSOutcomeEventsCache.m in Sources */,
 				912412261E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
@@ -1898,6 +1904,7 @@
 				7A42746525CDF06800EE75FC /* OSUserStateSMSSynchronizer.m in Sources */,
 				7A1232A6235E17A1002B6CE3 /* OSIndirectInfluence.m in Sources */,
 				7AF9865924452A9600C36EAE /* OSInfluence.m in Sources */,
+				7A4274A325D1C99600EE75FC /* SMSTests.m in Sources */,
 				7AF98693244A567B00C36EAE /* OSOutcomeEventsCache.m in Sources */,
 				CAB4112A20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
 				9124123F1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
@@ -1998,6 +2005,7 @@
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CA8E190B2194FE0B009DA223 /* OSMessagingControllerOverrider.m in Sources */,
 				7A123295235DFE3B002B6CE3 /* OutcomeTests.m in Sources */,
+				7A4274A425D1C99600EE75FC /* SMSTests.m in Sources */,
 				CAB269E221B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */,
 				9D1BD96A237A28FC00A064F7 /* OSCachedUniqueOutcome.m in Sources */,
 				CAA4ED0120646762005BD59B /* BadgeTests.m in Sources */,

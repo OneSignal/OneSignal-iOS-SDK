@@ -38,6 +38,7 @@ THE SOFTWARE.
 
 @interface OneSignal ()
 
++ (int)getNotificationTypes;
 + (BOOL)isEmailSetup;
 + (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests;
 + (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests;
@@ -45,6 +46,7 @@ THE SOFTWARE.
 + (void)setUserId:(NSString *)userId;
 + (void)setEmailUserId:(NSString *)emailUserId;
 + (void)saveExternalIdAuthToken:(NSString *)hashToken;
++ (void)saveSMSNumber:(NSString *)smsNumber withAuthToken:(NSString *)smsAuthToken userId:(NSString *)smsPlayerId;
 + (void)registerUserFinished;
 
 @end
@@ -215,6 +217,45 @@ THE SOFTWARE.
     }];
 }
 
+- (void)setSMSNumber:(NSString *)smsNumber
+withSMSAuthHashToken:(NSString *)hashToken
+           withAppId:(NSString *)appId
+         withSuccess:(OSSMSSuccessBlock)successBlock
+         withFailure:(OSSMSFailureBlock)failureBlock {
+    let response = [NSMutableDictionary new];
+    // If the user already has a onesignal sms player_id, then we should call update the device token
+    // otherwise, we should call Create Device
+    // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
+    if (_currentSMSSubscriptionState.smsNumber) {
+        let userId = _currentSMSSubscriptionState.smsUserId;
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:userId appId:appId deviceToken:smsNumber notificationTypes:nil smsAuthToken:hashToken smsNumber:nil externalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+            [OneSignal saveSMSNumber:smsNumber withAuthToken:hashToken userId:userId];
+            [self callSMSSuccessBlockOnMainThread:successBlock withSMSNumber:smsNumber];
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
+        }];
+    } else {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:appId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_SMS] withSMSNumber:smsNumber withSMSAuthHash:hashToken withExternalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+            let smsPlayerId = (NSString*)result[@"id"];
+            
+            if (smsPlayerId) {
+                [OneSignal saveSMSNumber:smsNumber withAuthToken:hashToken userId:smsPlayerId];
+
+                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:appId deviceToken:nil notificationTypes:@([OneSignal getNotificationTypes]) smsAuthToken:hashToken smsNumber:smsNumber externalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+                    [self callSMSSuccessBlockOnMainThread:successBlock withSMSNumber:smsNumber];
+                } onFailure:^(NSError *error) {
+                    [self callFailureBlockOnMainThread:failureBlock withError:error];
+                }];
+            } else {
+                NSError *error = [NSError errorWithDomain:@"com.onesignal.sms" code:0 userInfo:@{@"error" : @"Missing OneSignal SMS Player ID"}];
+                [self callFailureBlockOnMainThread:failureBlock withError:error];
+            }
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
+        }];
+    }
+}
+
 - (void)sendTagsWithAppId:(NSString *)appId
               sendingTags:(NSDictionary *)tags
               networkType:(NSNumber *)networkType
@@ -316,5 +357,23 @@ THE SOFTWARE.
     }
     
     return nil;
+}
+
+- (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
+    if (failureBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failureBlock(error);
+        });
+    }
+}
+
+- (void)callSMSSuccessBlockOnMainThread:(OSSMSSuccessBlock)successBlock withSMSNumber:(NSString *)smsNumber {
+    if (successBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            let response = [NSMutableDictionary new];
+            [response setValue:smsNumber forKey:@"sms_number"];
+            successBlock(response);
+        });
+    }
 }
 @end
