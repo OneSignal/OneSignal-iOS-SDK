@@ -30,6 +30,7 @@
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageAction.h"
 #import "OneSignalViewHelper.h"
+#import "OSPlayerTags.h"
 
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
@@ -57,17 +58,17 @@
 
 - (NSString *)getTagsString {
     NSError *error;
-    if (![OneSignal getPlayerTags]) {
+    OSPlayerTags *tags = [OneSignal getPlayerTags];
+    if (!tags.allTags) {
+        NSLog(@"ECM OSPlayerTags nil");
         return nil;
     }
-    NSDictionary *tags = [OneSignal getPlayerTags];//@{@"player_name" : @"Zea"};
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags
-                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
+                                                       options:NSJSONWritingPrettyPrinted
                                                          error:&error];
-
     NSString *jsonString;
     if (! jsonData) {
-        NSLog(@"Got an error: %@", error);
+        NSLog(@"ECM Got an error: %@", error);
     } else {
          jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
@@ -92,6 +93,7 @@
 
 - (NSString *)addTagsToHTML:(NSString *)html {
     NSString *tags = [self getTagsString];
+    NSLog(@"ECM tags string %@", tags);
     NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
                          <script> \
                              iamInfo.tags = %@; \
@@ -99,7 +101,6 @@
     return newHtml;
 }
 
-/*const template = document.querySelector('[type=\"text/template\"]') \n\*/
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
     NSLog(@"ECM HTML /n%@",html);

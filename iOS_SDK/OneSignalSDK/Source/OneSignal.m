@@ -87,6 +87,7 @@
 #import "OSLocationState.h"
 #import "OSStateSynchronizer.h"
 #import "OneSignalLifecycleObserver.h"
+#import "OSPlayerTags.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -164,7 +165,6 @@ DelayedConsentInitializationParameters *_delayedInitParameters;
 static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
-static NSDictionary* playerTags;
 // Make sure launchOptions have been set
 // We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
@@ -311,6 +311,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return _emailSubscriptionStateChangesObserver;
 }
 
+static OSPlayerTags *_playerTags;
++ (OSPlayerTags *)playerTags {
+    if (!_playerTags) {
+        _playerTags = [OSPlayerTags new];
+    }
+    return _playerTags;
+}
+
 + (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
@@ -418,9 +426,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 	return [ONESIGNAL_VERSION one_getSemanticVersion];
 }
 
-+ (NSDictionary *)getPlayerTags {
-    NSLog(@"ECM player tags: %@", playerTags);
-    return playerTags;
++ (OSPlayerTags *)getPlayerTags {
+    NSLog(@"ECM player tags: %@", self.playerTags);
+    return self.playerTags;
 }
 
 + (NSString*)mUserId {
@@ -1194,6 +1202,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // Can't send tags yet as their isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
+    [self.playerTags addTags:tagsToSend];
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
@@ -1207,13 +1216,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if (!tagsToSend)
         return;
-    
+
+    [self.playerTags saveTagsToUserDefaults];
     NSDictionary* nowSendingTags = tagsToSend;
     tagsToSend = nil;
     
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
-    
     [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OneSignalHelper getNetType] processingCallbacks:nowProcessingCallbacks];
 }
 
@@ -1761,10 +1770,12 @@ static dispatch_queue_t serialQueue;
                         callbackSet.successBlock(userState.tags);
                 }
             }
-
-            if (tagsToSend)
-                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             
+            if (tagsToSend) {
+                [self.playerTags addTags:tagsToSend];
+                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
+            }
+                
             // Try to send location
             [OneSignalLocation sendLocation];
             
@@ -1805,7 +1816,7 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     NSLog(@"ECM received IAM JSON: %@", messagesJson);
-    playerTags = @{@"player_name" : @"It Works!"};
+    //[self.playerTags addTagValue:@"It Works!" forKey:@"player_name"];
     let messages = [NSMutableArray new];
 
     if (messagesJson) {
