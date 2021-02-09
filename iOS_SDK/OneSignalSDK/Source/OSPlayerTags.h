@@ -31,11 +31,15 @@ THE SOFTWARE.
 
 - (void)setTags:(NSDictionary *)tags;
 
+- (void)addTags:(NSDictionary *)tags;
+
 - (void)addTagValue:(NSString *)value forKey:(NSString *)key;
 
 - (void)deleteTags:(NSArray *)keys;
 
 - (NSString *)tagValueForKey:(NSString *)key;
+
+- (void)saveTagsToUserDefaults;
 
 - (NSDictionary *_Nonnull)toDictionary;
 @end

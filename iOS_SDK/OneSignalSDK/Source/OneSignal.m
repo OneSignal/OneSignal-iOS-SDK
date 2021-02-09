@@ -165,7 +165,6 @@ DelayedConsentInitializationParameters *_delayedInitParameters;
 static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
-static NSDictionary* playerTags;
 // Make sure launchOptions have been set
 // We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
@@ -427,9 +426,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 	return [ONESIGNAL_VERSION one_getSemanticVersion];
 }
 
-+ (NSDictionary *)getPlayerTags {
-    NSLog(@"ECM player tags: %@", playerTags);
-    return playerTags;
++ (OSPlayerTags *)getPlayerTags {
+    NSLog(@"ECM player tags: %@", _playerTags.allTags);
+    return _playerTags;
 }
 
 + (NSString*)mUserId {
@@ -1217,12 +1216,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (!tagsToSend)
         return;
     
+    [_playerTags addTags: tagsToSend];
+    [_playerTags saveTagsToUserDefaults];
     NSDictionary* nowSendingTags = tagsToSend;
     tagsToSend = nil;
     
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
-    
     [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OneSignalHelper getNetType] processingCallbacks:nowProcessingCallbacks];
 }
 
@@ -1814,7 +1814,7 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     NSLog(@"ECM received IAM JSON: %@", messagesJson);
-    playerTags = @{@"player_name" : @"It Works!"};
+    [_playerTags addTagValue:@"It Works!" forKey:@"player_name"];
     let messages = [NSMutableArray new];
 
     if (messagesJson) {

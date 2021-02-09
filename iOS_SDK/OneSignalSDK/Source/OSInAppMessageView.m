@@ -30,6 +30,7 @@
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageAction.h"
 #import "OneSignalViewHelper.h"
+#import "OSPlayerTags.h"
 
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
@@ -57,10 +58,11 @@
 
 - (NSString *)getTagsString {
     NSError *error;
-    if (![OneSignal getPlayerTags]) {
+    OSPlayerTags *tags = [OneSignal getPlayerTags];
+    if (!tags) {
         return nil;
     }
-    NSDictionary *tags = [OneSignal getPlayerTags];//@{@"player_name" : @"Zea"};
+    //@{@"player_name" : @"Zea"};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags
                                                        options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
                                                          error:&error];

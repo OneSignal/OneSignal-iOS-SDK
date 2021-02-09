@@ -63,6 +63,14 @@ NSDictionary<NSString *, NSString *> *_tags;
     _tags = tags;
 }
 
+- (void)addTags:(NSDictionary *)tags {
+    NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithDictionary:_tags];
+    for (NSString *key in tags.allKeys) {
+        [newDict setValue:tags[key] forKey:key];
+    }
+    [self setTags:newDict];
+}
+
 - (void)deleteTags:(NSArray *)keys {
     NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithDictionary:_tags];
     for (NSString *key in keys) {
@@ -85,10 +93,6 @@ NSDictionary<NSString *, NSString *> *_tags;
 - (void)saveTagsToUserDefaults {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     [standardUserDefaults saveDictionaryForKey:OSUD_PLAYER_TAGS withValue:_tags];
-}
-
-- (void)dealloc {
-    [self saveTagsToUserDefaults];
 }
 
 @end

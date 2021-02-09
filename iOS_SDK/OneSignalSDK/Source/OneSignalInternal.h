@@ -38,7 +38,7 @@
 #import "OSPermission.h"
 #import "OSSubscription.h"
 #import "OSEmailSubscription.h"
-
+#import "OSPlayerTags.h"
 #import "OneSignalCommonDefines.h"
 #import "OSSessionManager.h"
 #import "OneSignalOutcomeEventsController.h"
@@ -91,7 +91,7 @@
 
 + (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
-+ (NSDictionary *)getPlayerTags;
++ (OSPlayerTags *)getPlayerTags;
 
 @end
 
