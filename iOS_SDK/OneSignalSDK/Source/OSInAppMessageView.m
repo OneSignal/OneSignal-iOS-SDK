@@ -60,16 +60,18 @@
     NSError *error;
     OSPlayerTags *tags = [OneSignal getPlayerTags];
     if (!tags) {
+        NSLog(@"ECM OSPlayerTags nil");
         return nil;
     }
+    NSLog(@"ECM 1 %@", tags.allTags);
     //@{@"player_name" : @"Zea"};
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
                                                        options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
                                                          error:&error];
 
     NSString *jsonString;
     if (! jsonData) {
-        NSLog(@"Got an error: %@", error);
+        NSLog(@"ECM Got an error: %@", error);
     } else {
          jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
@@ -94,6 +96,7 @@
 
 - (NSString *)addTagsToHTML:(NSString *)html {
     NSString *tags = [self getTagsString];
+    NSLog(@"ECM tags string %@", tags);
     NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
                          <script> \
                              iamInfo.tags = %@; \

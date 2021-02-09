@@ -427,8 +427,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (OSPlayerTags *)getPlayerTags {
-    NSLog(@"ECM player tags: %@", _playerTags.allTags);
-    return _playerTags;
+    NSLog(@"ECM player tags: %@", self.playerTags);
+    return self.playerTags;
 }
 
 + (NSString*)mUserId {
@@ -1216,8 +1216,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (!tagsToSend)
         return;
     
-    [_playerTags addTags: tagsToSend];
-    [_playerTags saveTagsToUserDefaults];
+    [self.playerTags addTags: tagsToSend];
+    [self.playerTags saveTagsToUserDefaults];
     NSDictionary* nowSendingTags = tagsToSend;
     tagsToSend = nil;
     
@@ -1814,7 +1814,7 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     NSLog(@"ECM received IAM JSON: %@", messagesJson);
-    [_playerTags addTagValue:@"It Works!" forKey:@"player_name"];
+    [self.playerTags addTagValue:@"It Works!" forKey:@"player_name"];
     let messages = [NSMutableArray new];
 
     if (messagesJson) {
