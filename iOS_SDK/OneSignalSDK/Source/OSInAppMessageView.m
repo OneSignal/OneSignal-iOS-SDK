@@ -59,7 +59,7 @@
 - (NSString *)getTagsString {
     NSError *error;
     OSPlayerTags *tags = [OneSignal getPlayerTags];
-    if (!tags) {
+    if (!tags.allTags) {
         NSLog(@"ECM OSPlayerTags nil");
         return nil;
     }

@@ -1202,6 +1202,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // Can't send tags yet as their isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
+    [self.playerTags addTags:tagsToSend];
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
@@ -1215,8 +1216,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     if (!tagsToSend)
         return;
-    
-    [self.playerTags addTags: tagsToSend];
+
     [self.playerTags saveTagsToUserDefaults];
     NSDictionary* nowSendingTags = tagsToSend;
     tagsToSend = nil;
@@ -1770,10 +1770,12 @@ static dispatch_queue_t serialQueue;
                         callbackSet.successBlock(userState.tags);
                 }
             }
-
-            if (tagsToSend)
-                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             
+            if (tagsToSend) {
+                [self.playerTags addTags:tagsToSend];
+                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
+            }
+                
             // Try to send location
             [OneSignalLocation sendLocation];
             
@@ -1814,7 +1816,7 @@ static dispatch_queue_t serialQueue;
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
     NSLog(@"ECM received IAM JSON: %@", messagesJson);
-    [self.playerTags addTagValue:@"It Works!" forKey:@"player_name"];
+    //[self.playerTags addTagValue:@"It Works!" forKey:@"player_name"];
     let messages = [NSMutableArray new];
 
     if (messagesJson) {
