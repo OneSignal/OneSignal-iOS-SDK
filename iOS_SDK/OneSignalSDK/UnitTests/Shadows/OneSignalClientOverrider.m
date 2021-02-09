@@ -52,6 +52,7 @@ static XCTestCase* currentTestInstance;
 static BOOL executeInstantaneously = true;
 static NSString *lastHTTPRequestType;
 static BOOL requiresEmailAuth = false;
+static BOOL requiresSMSAuth = false;
 static BOOL requiresExternalIdAuth = false;
 static BOOL shouldUseProvisionalAuthorization = false; //new in iOS 12 (aka Direct to History)
 static BOOL disableOverride = false;
@@ -78,6 +79,7 @@ static NSDictionary* remoteParams;
         @{
             IOS_FBA: @true,
             IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
+            IOS_REQUIRES_SMS_AUTHENTICATION : @(requiresSMSAuth),
             IOS_REQUIRES_USER_ID_AUTHENTICATION : @(requiresExternalIdAuth),
             IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
             OUTCOMES_PARAM : remoteParamsOutcomes,
@@ -269,6 +271,7 @@ static NSDictionary* remoteParams;
     remoteParamsOutcomes = @{};
     remoteParams = nil;
     requiresEmailAuth = false;
+    requiresSMSAuth = false;
     requiresExternalIdAuth = false;
 }
 
@@ -297,6 +300,10 @@ static NSDictionary* remoteParams;
 
 + (void)setRequiresEmailAuth:(BOOL)required {
     requiresEmailAuth = required;
+}
+
++ (void)setRequiresSMSAuth:(BOOL)required {
+    requiresSMSAuth = required;
 }
 
 + (void)setRequiresExternalIdAuth:(BOOL)required {

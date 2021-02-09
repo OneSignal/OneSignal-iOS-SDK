@@ -43,8 +43,15 @@ THE SOFTWARE.
 
 - (void)setExternalUserId:(NSString * _Nonnull)externalId
 withExternalIdAuthHashToken:(NSString * _Nullable)hashToken
-                withAppId:(NSString * _Nonnull)appId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock
+                withAppId:(NSString * _Nonnull)appId
+              withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock
               withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
+
+- (void)setSMSNumber:(NSString * _Nonnull)smsNumber
+withSMSAuthHashToken:(NSString * _Nullable)hashToken
+           withAppId:(NSString * _Nonnull)appId
+         withSuccess:(OSSMSSuccessBlock _Nullable)successBlock
+         withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
 
 - (void)sendTagsWithAppId:(NSString * _Nonnull)appId
                sendingTags:(NSDictionary * _Nonnull)tag
