@@ -107,6 +107,8 @@
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
+#define OSUD_PLAYER_TAGS                                                    @"OSUD_PLAYER_TAGS"
+    // * OSUD_PLAYER_TAGS
 
 // Deprecated Selectors
 #define DEPRECATED_SELECTORS @[ @"application:didReceiveLocalNotification:", \

@@ -27,6 +27,9 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSPlayerTags.h"
+#import "OneSignalHelper.h"
+#import "OneSignalUserDefaults.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation OSPlayerTags
 - (NSDictionary *)toDictionary {
@@ -34,5 +37,15 @@ THE SOFTWARE.
                                     _tags, @"tags",
                                     nil];
     return dataDict;
+}
+
+- (void)loadTags {
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    _tags = [standardUserDefaults getSavedDictionaryForKey:OSUD_PLAYER_TAGS defaultValue:nil];
+}
+
+- (void)saveTags {
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    [standardUserDefaults saveDictionaryForKey:OSUD_PLAYER_TAGS withValue:_tags];
 }
 @end
