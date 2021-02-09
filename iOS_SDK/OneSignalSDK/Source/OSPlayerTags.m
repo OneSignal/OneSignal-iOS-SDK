@@ -32,6 +32,18 @@ THE SOFTWARE.
 #import "OneSignalCommonDefines.h"
 
 @implementation OSPlayerTags
+
+NSDictionary<NSString *, NSString *> *_tags;
+
+-(id)init {
+    self = [super init];
+    if (self) {
+        _tags = [NSMutableDictionary new];
+        [self loadTagsFromUserDefaults];
+    }
+    return self;
+}
+
 - (NSDictionary *)toDictionary {
     NSMutableDictionary *dataDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                     _tags, @"tags",
@@ -39,13 +51,44 @@ THE SOFTWARE.
     return dataDict;
 }
 
-- (void)loadTags {
+- (NSDictionary *)allTags {
+    return _tags;
+}
+
+- (NSString *)tagValueForKey:(NSString *)key {
+    return _tags[key];
+}
+
+- (void)setTags:(NSDictionary *)tags {
+    _tags = tags;
+}
+
+- (void)deleteTags:(NSArray *)keys {
+    NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithDictionary:_tags];
+    for (NSString *key in keys) {
+        [newDict removeObjectForKey:key];
+    }
+    _tags = newDict;
+}
+
+- (void)addTagValue:(NSString *)value forKey:(NSString *)key {
+    NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithDictionary:_tags];
+    newDict[key] = value;
+    _tags = newDict;
+}
+
+- (void)loadTagsFromUserDefaults {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     _tags = [standardUserDefaults getSavedDictionaryForKey:OSUD_PLAYER_TAGS defaultValue:nil];
 }
 
-- (void)saveTags {
+- (void)saveTagsToUserDefaults {
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     [standardUserDefaults saveDictionaryForKey:OSUD_PLAYER_TAGS withValue:_tags];
 }
+
+- (void)dealloc {
+    [self saveTagsToUserDefaults];
+}
+
 @end

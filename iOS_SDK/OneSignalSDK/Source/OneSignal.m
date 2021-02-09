@@ -87,6 +87,7 @@
 #import "OSLocationState.h"
 #import "OSStateSynchronizer.h"
 #import "OneSignalLifecycleObserver.h"
+#import "OSPlayerTags.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -309,6 +310,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     if (!_emailSubscriptionStateChangesObserver)
         _emailSubscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSEmailSubscriptionChanged:)];
     return _emailSubscriptionStateChangesObserver;
+}
+
+static OSPlayerTags *_playerTags;
++ (OSPlayerTags *)playerTags {
+    if (!_playerTags) {
+        _playerTags = [OSPlayerTags new];
+    }
+    return _playerTags;
 }
 
 + (void)setMSubscriptionStatus:(NSNumber*)status {
