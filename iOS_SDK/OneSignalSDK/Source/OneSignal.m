@@ -555,6 +555,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _lastEmailSubscriptionState = nil;
     _lastSubscriptionState = nil;
     _currentSubscriptionState = nil;
+    _currentSMSSubscriptionState = nil;
+    _lastSMSSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
     
@@ -929,6 +931,16 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
             if (delayedEmailParameters && self.currentSubscriptionState.userId) {
                 [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
                 delayedEmailParameters = nil;
+            }
+        }
+        
+        if (result[IOS_REQUIRES_SMS_AUTHENTICATION]) {
+            self.currentSMSSubscriptionState.requiresSMSAuth = [result[IOS_REQUIRES_SMS_AUTHENTICATION] boolValue];
+            
+            // checks if a call to setSMSNumber: was delayed due to missing 'requiresSMSAuth' parameter
+            if (delayedSMSParameters && self.currentSubscriptionState.userId) {
+                [self setSMSNumber:delayedSMSParameters.smsNumber withSMSAuthHashToken:delayedSMSParameters.authToken withSuccess:delayedSMSParameters.successBlock withFailure:delayedSMSParameters.failureBlock];
+                delayedSMSParameters = nil;
             }
         }
         

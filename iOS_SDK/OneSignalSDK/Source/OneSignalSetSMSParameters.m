@@ -32,7 +32,7 @@
 + (instancetype)withSMSNumber:(NSString *)smsNumber withAuthToken:(NSString *)authToken withSuccess:(OSResultSuccessBlock)success withFailure:(OSFailureBlock)failure {
     OneSignalSetSMSParameters *parameters = [OneSignalSetSMSParameters new];
     
-    parameters.smsNumer = smsNumber;
+    parameters.smsNumber = smsNumber;
     parameters.authToken = authToken;
     parameters.successBlock = success;
     parameters.failureBlock = failure;
