@@ -378,7 +378,7 @@ withSMSAuthHashToken:(NSString *)hashToken
     if (successBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
             let response = [NSMutableDictionary new];
-            [response setValue:smsNumber forKey:@"sms_number"];
+            [response setValue:smsNumber forKey:SMS_NUMBER_KEY];
             successBlock(response);
         });
     }

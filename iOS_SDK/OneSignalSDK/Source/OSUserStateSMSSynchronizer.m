@@ -71,7 +71,7 @@ THE SOFTWARE.
 - (NSDictionary *)getRegistrationData:(OSUserState *)registrationState {
     NSMutableDictionary *smsDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
     smsDataDic[@"device_type"] = self.getDeviceType;
-    smsDataDic[@"sms_auth_hash"] = self.getSMSAuthHashToken;
+    smsDataDic[SMS_NUMBER_AUTH_HASH_KEY] = self.getSMSAuthHashToken;
     
     // If push device has external id we want to add it to the SMS device also
     if (registrationState.externalUserId)
