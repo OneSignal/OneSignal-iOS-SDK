@@ -32,15 +32,19 @@ THE SOFTWARE.
 @interface OSUserStateSMSSynchronizer ()
 
 @property (strong, nonatomic, readwrite, nonnull) OSSMSSubscriptionState *currentSMSSubscriptionState;
+@property (strong, nonatomic, readwrite, nonnull) OSSubscriptionState *currentSubscriptionState;
 
 @end
 
 @implementation OSUserStateSMSSynchronizer
 
-- (instancetype)initWithSMSSubscriptionState:(OSSMSSubscriptionState *)SMSSubscriptionState {
+- (instancetype)initWithSMSSubscriptionState:(OSSMSSubscriptionState *)smsSubscriptionState
+                        withSubcriptionState:(OSSubscriptionState *)subscriptionState {
     self = [super init];
-    if (self)
-        _currentSMSSubscriptionState = SMSSubscriptionState;
+    if (self) {
+        _currentSMSSubscriptionState = smsSubscriptionState;
+        _currentSubscriptionState = subscriptionState;
+    }
     return self;
 }
 
@@ -72,7 +76,9 @@ THE SOFTWARE.
     NSMutableDictionary *smsDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
     smsDataDic[@"device_type"] = self.getDeviceType;
     smsDataDic[SMS_NUMBER_AUTH_HASH_KEY] = self.getSMSAuthHashToken;
-    
+    smsDataDic[SMS_NUMBER_KEY] = _currentSMSSubscriptionState.smsNumber;
+    smsDataDic[@"device_player_id"] = _currentSubscriptionState.userId;
+
     // If push device has external id we want to add it to the SMS device also
     if (registrationState.externalUserId)
         smsDataDic[@"external_user_id"] = registrationState.externalUserId;

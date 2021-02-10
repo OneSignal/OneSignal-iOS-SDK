@@ -33,6 +33,8 @@ THE SOFTWARE.
 
 - (NSString *)getId { mustOverride(); }
 
+- (NSString *)getIdAuthHashToken{ mustOverride(); };
+
 - (NSString *)getExternalIdAuthHashToken { mustOverride(); }
 
 - (NSString *)getEmailAuthHashToken { mustOverride(); }

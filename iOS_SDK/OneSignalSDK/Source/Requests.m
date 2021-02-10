@@ -195,7 +195,7 @@
     return request;
 }
 
-+ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType withSMSNumber:(NSString *)smsNumber withSMSAuthHash:(NSString *)smsAuthHash withExternalIdAuthToken:(NSString *)externalIdAuthToken {
++ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType withSMSNumber:(NSString *)smsNumber withPlayerId:(NSString *)playerId withSMSAuthHash:(NSString *)smsAuthHash withExternalIdAuthToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestCreateDevice new];
     
     request.parameters = @{
@@ -204,6 +204,7 @@
        @"identifier" : smsNumber ?: [NSNull null],
        SMS_NUMBER_AUTH_HASH_KEY : smsAuthHash ?: [NSNull null],
        @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
+       @"device_player_id" : playerId ?: [NSNull null]
     };
     
     request.method = POST;
