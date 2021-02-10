@@ -60,6 +60,10 @@ THE SOFTWARE.
     return nil;
 }
 
+- (NSString *)getEmailAuthHashToken {
+    return nil;
+}
+
 - (NSString *)getSMSAuthHashToken {
     return [self getIdAuthHashToken];
 }
@@ -84,6 +88,12 @@ THE SOFTWARE.
         smsDataDic[@"external_user_id"] = registrationState.externalUserId;
     
     return smsDataDic;
+}
+
+- (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId
+                         withExternalIdAuthHashToken:(NSString *)hashToken
+                                           withAppId:(NSString *)appId {
+    return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:[self getId] withSMSHashToken:[self getSMSAuthHashToken] appId:appId];
 }
 
 @end
