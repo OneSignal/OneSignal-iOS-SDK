@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_END
 @interface OSRequestUpdateDeviceToken : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash email:(NSString * _Nullable)email externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes smsAuthToken:(NSString * _Nullable)smsAuthToken smsNumber:(NSString * _Nullable)smsNumber externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier smsAuthToken:(NSString * _Nullable)smsAuthToken smsNumber:(NSString * _Nullable)smsNumber externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 @end
 
 @interface OSRequestRegisterUser : OneSignalRequest
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_END
 @interface OSRequestCreateDevice : OneSignalRequest
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withEmail:(NSString * _Nullable)email withPlayerId:(NSString * _Nullable)playerId withEmailAuthHash:(NSString * _Nullable)emailAuthHash withExternalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withSMSNumber:(NSString * _Nullable)smsNumber withPlayerId:(NSString * _Nullable)playerId withSMSAuthHash:(NSString * _Nullable)smsAuthHash withExternalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType notificationTypes:(NSNumber * _Nonnull)notificationTypes withSMSNumber:(NSString * _Nullable)smsNumber withPlayerId:(NSString * _Nullable)playerId withSMSAuthHash:(NSString * _Nullable)smsAuthHash withExternalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 @end
 
 @interface OSRequestLogoutEmail : OneSignalRequest
@@ -141,6 +141,10 @@ NS_ASSUME_NONNULL_END
 
 @interface OSRequestUpdateExternalUserId : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId;
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId  withEmailHashToken:(NSString * _Nullable)emailHashToken appId:(NSString * _Nonnull)appId;
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId withSMSHashToken:(NSString * _Nullable)smsHashToken appId:(NSString * _Nonnull)appId;
 @end
 
 @interface OSRequestSendOutcomesV1ToServer : OneSignalRequest
