@@ -90,6 +90,8 @@ NS_ASSUME_NONNULL_END
 
 @interface OSRequestSendTagsToServer : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken;
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withSMSAuthHashToken:(NSString * _Nullable)smsAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken;
 @end
 
 @interface OSRequestSendLocation : OneSignalRequest
