@@ -140,6 +140,10 @@
 #define IOS_LOCATION_SHARED @"location_shared"
 #define IOS_REQUIRES_USER_PRIVACY_CONSENT @"requires_user_privacy_consent"
 
+// SMS Parameter Names
+#define SMS_NUMBER_KEY @"sms_number"
+#define SMS_NUMBER_AUTH_HASH_KEY @"sms_auth_hash"
+
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
 
