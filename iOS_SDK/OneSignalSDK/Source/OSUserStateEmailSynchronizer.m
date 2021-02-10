@@ -86,4 +86,10 @@ THE SOFTWARE.
     return emailDataDic;
 }
 
+- (OSRequestUpdateExternalUserId *)setExternalUserId:(NSString *)externalId
+                         withExternalIdAuthHashToken:(NSString *)hashToken
+                                           withAppId:(NSString *)appId {
+    return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:[self getId] withEmailHashToken:[self getEmailAuthHashToken] appId:appId];
+}
+
 @end
