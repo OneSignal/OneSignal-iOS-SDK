@@ -154,7 +154,7 @@
     params[@"app_id"] = appId;
     
     if (smsNumber)
-        params[@"sms_number"] = smsNumber;
+        params[SMS_NUMBER_KEY] = smsNumber;
     
     if (notificationTypes)
         params[@"notification_types"] = notificationTypes;
@@ -163,7 +163,7 @@
         params[@"identifier"] = identifier;
     
     if (smsAuthToken && smsAuthToken.length > 0)
-        params[@"sms_auth_hash"] = smsAuthToken;
+        params[SMS_NUMBER_AUTH_HASH_KEY] = smsAuthToken;
     
     if (externalIdAuthToken && externalIdAuthToken.length > 0)
         params[@"external_user_id_auth_hash"] = externalIdAuthToken;
@@ -202,7 +202,7 @@
        @"app_id" : appId,
        @"device_type" : deviceType,
        @"identifier" : smsNumber ?: [NSNull null],
-       @"sms_auth_hash" : smsAuthHash ?: [NSNull null],
+       SMS_NUMBER_AUTH_HASH_KEY : smsAuthHash ?: [NSNull null],
        @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
     };
     
