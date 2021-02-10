@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSUserStateSMSSynchronizer.h"
 #import "OSSMSSubscription.h"
+#import "OSSubscription.h"
 
 @interface OSUserStateSMSSynchronizer ()
 
@@ -57,7 +58,7 @@ THE SOFTWARE.
 }
 
 - (NSString *)getExternalIdAuthHashToken {
-    return nil;
+    return _currentSubscriptionState.externalIdAuthCode;
 }
 
 - (NSString *)getEmailAuthHashToken {
@@ -94,6 +95,12 @@ THE SOFTWARE.
                          withExternalIdAuthHashToken:(NSString *)hashToken
                                            withAppId:(NSString *)appId {
     return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:[self getId] withSMSHashToken:[self getSMSAuthHashToken] appId:appId];
+}
+
+- (OSRequestSendTagsToServer *)sendTagsWithAppId:(NSString *)appId
+                                      sendingTags:(NSDictionary *)tags
+                                      networkType:(NSNumber *)networkType{
+    return [OSRequestSendTagsToServer withUserId:[self getId] appId:appId tags:tags networkType:networkType withSMSAuthHashToken:[self getSMSAuthHashToken] withExternalIdAuthHashToken:[self getExternalIdAuthHashToken]];
 }
 
 @end

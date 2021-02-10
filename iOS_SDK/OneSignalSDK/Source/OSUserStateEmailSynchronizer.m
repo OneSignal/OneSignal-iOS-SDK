@@ -28,6 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSUserStateEmailSynchronizer.h"
 #import "OSEmailSubscription.h"
+#import "OSSubscription.h"
 
 @interface OSUserStateEmailSynchronizer ()
 
@@ -57,7 +58,7 @@ THE SOFTWARE.
 }
 
 - (NSString *)getExternalIdAuthHashToken {
-    return nil;
+    return _currentSubscriptionState.externalIdAuthCode;
 }
 
 - (NSString *)getEmailAuthHashToken {
