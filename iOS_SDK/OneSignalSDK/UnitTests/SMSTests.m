@@ -104,8 +104,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"parent_player_id"]);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"sms_number"], self.ONESIGNAL_SMS_NUMBER);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"sms_auth_hash"], self.ONESIGNAL_SMS_HASH_TOKEN);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY], self.ONESIGNAL_SMS_NUMBER);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY], self.ONESIGNAL_SMS_HASH_TOKEN);
     
     // Check to make sure that the push token & auth were saved to NSUserDefaults
     XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
@@ -114,7 +114,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
-    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:@"sms_number"]);
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 
     // Reset Callbacks
@@ -133,13 +133,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], newSMSNumber);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"sms_auth_hash"], self.ONESIGNAL_SMS_HASH_TOKEN );
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY], self.ONESIGNAL_SMS_HASH_TOKEN );
     
     XCTAssertEqual(newSMSNumber, [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
 
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
-    XCTAssertEqual(newSMSNumber, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:@"sms_number"]);
+    XCTAssertEqual(newSMSNumber, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 
     XCTAssertEqual([OneSignal getSMSUserId], @"1234");
@@ -160,8 +160,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"parent_player_id"]);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"sms_number"], self.ONESIGNAL_SMS_NUMBER);
-    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"sms_auth_hash"]);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY], self.ONESIGNAL_SMS_NUMBER);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY]);
     
     // Check to make sure that the push token & auth were saved to NSUserDefaults
     XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
@@ -170,7 +170,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
-    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:@"sms_number"]);
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 
     // Reset Callbacks
@@ -189,13 +189,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], newSMSNumber);
-    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"sms_auth_hash"]);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY]);
     
     XCTAssertEqual(newSMSNumber, [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
 
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
-    XCTAssertEqual(newSMSNumber, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:@"sms_number"]);
+    XCTAssertEqual(newSMSNumber, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 
     XCTAssertEqual([OneSignal getSMSUserId], @"1234");
@@ -222,8 +222,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"parent_player_id"]);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"sms_number"], self.ONESIGNAL_SMS_NUMBER);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"sms_auth_hash"], self.ONESIGNAL_SMS_HASH_TOKEN);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY], self.ONESIGNAL_SMS_NUMBER);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY], self.ONESIGNAL_SMS_HASH_TOKEN);
     
     // Check to make sure that the push token & auth were saved to NSUserDefaults
     XCTAssertNotNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
@@ -232,7 +232,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
-    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:@"sms_number"]);
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 }
 
