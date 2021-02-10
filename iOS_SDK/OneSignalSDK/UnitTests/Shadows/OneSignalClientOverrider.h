@@ -37,7 +37,9 @@
 + (NSDictionary*)lastHTTPRequest;
 + (int)networkRequestCount;
 + (void)setLastUrl:(NSString*)value;
-+ (NSString*)lastUrl;
++ (NSString *)lastUrl;
++ (NSString *)smsUserId;
++ (NSString *)pushUserId;
 + (void)setShouldExecuteInstantaneously:(BOOL)instant;
 + (dispatch_queue_t)getHTTPQueue;
 + (void)runBackgroundThreads;

@@ -35,6 +35,9 @@
 #import "NSBundleOverrider.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalSetSMSParameters.h"
+#import "OneSignalHelper.h"
+#import "NSDateOverrider.h"
+#import "OneSignalTracker.h"
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
@@ -142,8 +145,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(newSMSNumber, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 
-    XCTAssertEqual([OneSignal getSMSUserId], @"1234");
-    XCTAssertEqual([OneSignal getSMSAuthToken], self.ONESIGNAL_SMS_HASH_TOKEN);
+    XCTAssertEqual(OneSignalClientOverrider.smsUserId, [OneSignal getSMSUserId]);
+    XCTAssertEqual( self.ONESIGNAL_SMS_HASH_TOKEN, [OneSignal getSMSAuthToken]);
 }
 
 - (void)testUnauthenticatedSMS {
@@ -198,7 +201,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(newSMSNumber, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
 
-    XCTAssertEqual([OneSignal getSMSUserId], @"1234");
+    XCTAssertEqual(OneSignalClientOverrider.smsUserId, [OneSignal getSMSUserId]);
     XCTAssertNil([OneSignal getSMSAuthToken]);
 }
 
@@ -338,6 +341,64 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(self.ONESIGNAL_SMS_HASH_TOKEN, [OneSignal delayedSMSParameters].authToken);
     XCTAssertNotNil([OneSignal delayedSMSParameters].successBlock);
     XCTAssertNotNil([OneSignal delayedSMSParameters].failureBlock);
+}
+
+- (void)testOnSessionRequest {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Reset network request count back to zero
+    [OneSignalClientOverrider reset:self];
+    
+    [NSDateOverrider advanceSystemTimeBy:30];
+    
+    // After foreground on_session call for both sms and push should happen
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    NSString *expectedUrl = [NSString stringWithFormat:@"https://api.onesignal.com/players/%@/on_session", OneSignalClientOverrider.smsUserId];
+    // Should make two requests (one for sms player Id, one for push)
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(expectedUrl, OneSignalClientOverrider.lastUrl);
+    XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), OneSignalClientOverrider.lastHTTPRequest[@"device_type"]);
+    XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, OneSignalClientOverrider.lastHTTPRequest[@"device_player_id"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY]);
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY]);
+}
+
+- (void)testOnSessionRequestWithAuthToken {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Reset network request count back to zero
+    [OneSignalClientOverrider reset:self];
+    
+    [NSDateOverrider advanceSystemTimeBy:30];
+    
+    // After foreground on_session call for both sms and push should happen
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    NSString *expectedUrl = [NSString stringWithFormat:@"https://api.onesignal.com/players/%@/on_session", OneSignalClientOverrider.smsUserId];
+    // Should make two requests (one for sms player Id, one for push)
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTAssertEqualObjects(expectedUrl, OneSignalClientOverrider.lastUrl);
+    XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), OneSignalClientOverrider.lastHTTPRequest[@"device_type"]);
+    XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, OneSignalClientOverrider.lastHTTPRequest[@"device_player_id"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY]);
 }
 
 @end
