@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 @interface OSUserStateSMSSynchronizer : OSUserStateSynchronizer
 
-- (instancetype)initWithSMSSubscriptionState:(OSSMSSubscriptionState *)smsSubscriptionState;
+- (instancetype)initWithSMSSubscriptionState:(OSSMSSubscriptionState *)smsSubscriptionState
+                        withSubcriptionState:(OSSubscriptionState *)subscriptionState;
 
 @end

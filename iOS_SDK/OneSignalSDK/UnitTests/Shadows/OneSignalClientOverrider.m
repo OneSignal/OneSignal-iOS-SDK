@@ -45,6 +45,8 @@
 static dispatch_queue_t serialMockMainLooper;
 static dispatch_queue_t executionQueue;
 
+static NSString* pushUserId;
+static NSString* smsUserId;
 static NSString* lastUrl;
 static int networkRequestCount;
 static NSDictionary* lastHTTPRequest;
@@ -72,6 +74,9 @@ static NSDictionary* remoteParams;
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     executedRequests = [NSMutableArray new];
     mockResponses = [NSMutableDictionary new];
+    
+    pushUserId = @"1234";
+    smsUserId = @"d007f967-98cc-11e4-bed1-118f05be4522";
 }
 
 + (NSDictionary*)remoteParamsResponse {
@@ -207,9 +212,16 @@ static NSDictionary* remoteParams;
                 successBlock(mockResponses[NSStringFromClass([request class])]);
             }
             else {
+                NSString *userId = pushUserId;
+                if ([request.parameters objectForKey:@"device_type"]) {
+                    NSNumber *deviceType = request.parameters[@"device_type"];
+                    if ([deviceType isEqualToNumber:@(DEVICE_TYPE_SMS)])
+                        userId = smsUserId;
+                }
+                
                 successBlock(@{
                 @"success" : @(true),
-                @"id" : @"1234",
+                @"id" : userId,
                 @"in_app_messages" : @[
                      @{
                          @"id" : @"728dc571-e277-4bef-96ab-9dd1003744cb",
@@ -275,9 +287,18 @@ static NSDictionary* remoteParams;
     requiresExternalIdAuth = false;
 }
 
++ (NSString *)smsUserId {
+    return smsUserId;
+}
+
++ (NSString *)pushUserId {
+    return pushUserId;
+}
+
 + (void)setLastHTTPRequest:(NSDictionary*)value {
     lastHTTPRequest = value;
 }
+
 + (NSDictionary*)lastHTTPRequest {
     return lastHTTPRequest;
 }
@@ -290,7 +311,7 @@ static NSDictionary* remoteParams;
     lastUrl = value;
 }
 
-+ (NSString*)lastUrl {
++ (NSString *)lastUrl {
     return lastUrl;
 }
 
