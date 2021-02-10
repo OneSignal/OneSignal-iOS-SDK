@@ -103,4 +103,9 @@ THE SOFTWARE.
     return [OSRequestSendTagsToServer withUserId:[self getId] appId:appId tags:tags networkType:networkType withSMSAuthHashToken:[self getSMSAuthHashToken] withExternalIdAuthHashToken:[self getExternalIdAuthHashToken]];
 }
 
+- (OSRequestBadgeCount *)sendBadgeCount:(NSNumber *)badgeCount
+                                  appId:(NSString *)appId{
+    return [OSRequestBadgeCount withUserId:[self getId] appId:appId badgeCount:badgeCount smsAuthToken:[self getSMSAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken]];
+}
+
 @end
