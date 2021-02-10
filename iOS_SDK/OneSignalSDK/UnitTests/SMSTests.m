@@ -27,33 +27,20 @@
 
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
-#import "OneSignalHelper.h"
 #import "Requests.h"
-#import "OneSignalClient.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"
-#import "OSSubscription.h"
-#import "OSEmailSubscription.h"
-#import "UIApplicationOverrider.h"
-#import "NSObjectOverrider.h"
-#import "OneSignalHelperOverrider.h"
-#import "UNUserNotificationCenterOverrider.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "NSBundleOverrider.h"
-#import "NSUserDefaultsOverrider.h"
 #import "OneSignalCommonDefines.h"
-#import "OneSignalTracker.h"
-#import "OneSignalInternal.h"
-
-@interface OneSignalTracker ()
-+ (void)setLastOpenedTime:(NSTimeInterval)lastOpened;
-@end
+#import "OneSignalSetSMSParameters.h"
 
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)getSMSAuthToken;
 + (NSString *)getSMSUserId;
++ (OneSignalSetSMSParameters *)delayedSMSParameters;
 + (void)registerUserInternal;
 + (void)setImmediateOnSessionRetry:(BOOL)retry;
 @end
@@ -274,6 +261,83 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
     XCTAssertEqual(0, self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.code);
     XCTAssertEqual(@"SMS authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard.", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
+}
+
+- (void)testInvalidNilSMSNumber {
+    [OneSignalClientOverrider setRequiresSMSAuth:true];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    [OneSignal setSMSNumber:nil withSuccess:^(NSDictionary *results) {
+        self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE = results;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE = error;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
+    XCTAssertFalse([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    
+    // Check to make sure that the push token & auth were saved to NSUserDefaults
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_AUTH_CODE defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
+    
+    XCTAssertNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
+    XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
+    XCTAssertEqual(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
+    XCTAssertEqual(0, self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.code);
+    XCTAssertEqual(@"SMS number is invalid", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
+}
+
+- (void)testInvalidEmptySMSNumber {
+    [OneSignalClientOverrider setRequiresSMSAuth:true];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    [OneSignal setSMSNumber:@"" withSuccess:^(NSDictionary *results) {
+        self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE = results;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE = error;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
+    XCTAssertFalse([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    
+    // Check to make sure that the push token & auth were saved to NSUserDefaults
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_AUTH_CODE defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
+    
+    XCTAssertNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
+    XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
+    XCTAssertEqual(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
+    XCTAssertEqual(0, self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.code);
+    XCTAssertEqual(@"SMS number is invalid", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
+}
+
+- (void)testPopulatedDelayedSMSParams {
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN withSuccess:^(NSDictionary *results) {
+        self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE = results;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE = error;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // Check to make sure the OSRequestCreateDevice HTTP call was made, and was formatted correctly
+    XCTAssertFalse([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    
+    // Check to make sure that the push token & auth were saved to NSUserDefaults
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_AUTH_CODE defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
+    
+    XCTAssertNotNil([OneSignal delayedSMSParameters]);
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [OneSignal delayedSMSParameters].smsNumber);
+    XCTAssertEqual(self.ONESIGNAL_SMS_HASH_TOKEN, [OneSignal delayedSMSParameters].authToken);
+    XCTAssertNotNil([OneSignal delayedSMSParameters].successBlock);
+    XCTAssertNotNil([OneSignal delayedSMSParameters].failureBlock);
 }
 
 @end
