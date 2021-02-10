@@ -137,7 +137,10 @@ static BOOL shouldDelaySubscriptionUpdate = false;
     we can finish setEmail:
 */
 static OneSignalSetEmailParameters *delayedEmailParameters;
-static OneSignalSetSMSParameters *delayedSMSParameters;
+static OneSignalSetSMSParameters *_delayedSMSParameters;
++ (OneSignalSetSMSParameters *)delayedSMSParameters {
+    return _delayedSMSParameters;
+}
 static OneSignalSetExternalIdParameters *delayedExternalIdParameters;
 
 static NSMutableArray* pendingSendTagCallbacks;
@@ -578,6 +581,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _outcomeEventsController = nil;
     
     _registerUserFinished = false;
+    
+    _delayedSMSParameters = nil;
 }
 
 // Set to false as soon as it's read.
@@ -938,9 +943,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
             self.currentSMSSubscriptionState.requiresSMSAuth = [result[IOS_REQUIRES_SMS_AUTHENTICATION] boolValue];
             
             // checks if a call to setSMSNumber: was delayed due to missing 'requiresSMSAuth' parameter
-            if (delayedSMSParameters && self.currentSubscriptionState.userId) {
-                [self setSMSNumber:delayedSMSParameters.smsNumber withSMSAuthHashToken:delayedSMSParameters.authToken withSuccess:delayedSMSParameters.successBlock withFailure:delayedSMSParameters.failureBlock];
-                delayedSMSParameters = nil;
+            if (_delayedSMSParameters && self.currentSubscriptionState.userId) {
+                [self setSMSNumber:_delayedSMSParameters.smsNumber withSMSAuthHashToken:_delayedSMSParameters.authToken withSuccess:_delayedSMSParameters.successBlock withFailure:_delayedSMSParameters.failureBlock];
+                _delayedSMSParameters = nil;
             }
         }
         
@@ -2495,7 +2500,7 @@ static NSString *_lastnonActiveMessageId;
     if (!smsNumber || [smsNumber length] == 0) {
         [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid sms number (%@) passed to setSMSNumber", smsNumber]];
         if (failureBlock)
-            failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"SMS number is invalid"}]);
+            failureBlock([NSError errorWithDomain:@"com.onesignal.sms" code:0 userInfo:@{@"error" : @"SMS number is invalid"}]);
         return;
     }
     
@@ -2512,7 +2517,7 @@ static NSString *_lastnonActiveMessageId;
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"SMS number already exists, there is no need to call setSMSNumber again"];
         if (successBlock) {
             let response = [NSMutableDictionary new];
-            [response setValue:smsNumber forKey:@"sms_number"];
+            [response setValue:smsNumber forKey:SMS_NUMBER_KEY];
             successBlock(response);
         }
         return;
@@ -2523,7 +2528,7 @@ static NSString *_lastnonActiveMessageId;
     // and we do not need to delay the request
     if (!self.currentSubscriptionState.userId || (_downloadedParameters == false && hashToken == nil)) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setSMSNumber: until the parameters have been downloaded."];
-        delayedSMSParameters = [OneSignalSetSMSParameters withSMSNumber:smsNumber withAuthToken:hashToken withSuccess:successBlock withFailure:failureBlock];
+        _delayedSMSParameters = [OneSignalSetSMSParameters withSMSNumber:smsNumber withAuthToken:hashToken withSuccess:successBlock withFailure:failureBlock];
         return;
     }
     
