@@ -82,7 +82,7 @@ THE SOFTWARE.
                                 appId:(NSString *)appId
                               netType:(NSNumber *)netType
                       influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
-    return [OSRequestOnFocus withUserId:[self getId] appId:appId activeTime:activeTime netType:netType emailAuthToken:[self getEmailAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken] deviceType:[self getDeviceType] influenceParams:influenceParams];
+    return [OSRequestOnFocus withUserId:[self getId] appId:appId activeTime:activeTime netType:netType deviceType:[self getDeviceType] influenceParams:influenceParams];
 }
 
 @end
