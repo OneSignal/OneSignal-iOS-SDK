@@ -69,8 +69,8 @@ THE SOFTWARE.
     if (self) {
         _userStateSynchronizers = @{
             OS_PUSH  : [[OSUserStatePushSynchronizer alloc] initWithSubscriptionState:subscriptionState],
-            OS_EMAIL : [[OSUserStateEmailSynchronizer alloc] initWithEmailSubscriptionState:emailSubscriptionState],
-            OS_SMS   : [[OSUserStateSMSSynchronizer alloc] initWithSMSSubscriptionState:smsSubscriptionState]
+            OS_EMAIL : [[OSUserStateEmailSynchronizer alloc] initWithEmailSubscriptionState:emailSubscriptionState withSubcriptionState:subscriptionState],
+            OS_SMS   : [[OSUserStateSMSSynchronizer alloc] initWithSMSSubscriptionState:smsSubscriptionState withSubcriptionState:subscriptionState]
         };
         _currentSubscriptionState = subscriptionState;
         _currentEmailSubscriptionState = emailSubscriptionState;
@@ -139,7 +139,7 @@ THE SOFTWARE.
         if (registrationState.externalUserIdHash) {
             self.currentSubscriptionState.externalIdAuthCode = registrationState.externalUserIdHash;
 
-            //call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
+            // Call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
             [self.currentSubscriptionState persist];
         }
 
@@ -148,8 +148,9 @@ THE SOFTWARE.
 
             // Check to see if the email player_id or email_auth_token are different from what were previously saved
             // if so, we should update the server with this change
-
-            if (self.currentEmailSubscriptionState.emailUserId && ![self.currentEmailSubscriptionState.emailUserId isEqualToString:results[OS_EMAIL][@"id"]] && self.currentEmailSubscriptionState.emailAuthCode) {
+            if (self.currentEmailSubscriptionState.emailUserId &&
+                ![self.currentEmailSubscriptionState.emailUserId isEqualToString:results[OS_EMAIL][@"id"]] &&
+                self.currentEmailSubscriptionState.emailAuthCode) {
                 [OneSignal emailChangedWithNewEmailPlayerId:results[OS_EMAIL][@"id"]];
                 [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:nil];
             }
@@ -163,7 +164,7 @@ THE SOFTWARE.
 
         }
 
-        //update push player id
+        // Update push player id
         if (results.count > 0 && results[OS_PUSH][@"id"]) {
             self.currentSubscriptionState.userId = results[OS_PUSH][@"id"];
 
@@ -222,7 +223,6 @@ withSMSAuthHashToken:(NSString *)hashToken
            withAppId:(NSString *)appId
          withSuccess:(OSSMSSuccessBlock)successBlock
          withFailure:(OSSMSFailureBlock)failureBlock {
-    let response = [NSMutableDictionary new];
     // If the user already has a onesignal sms player_id, then we should call update the device token
     // otherwise, we should call Create Device
     // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
@@ -235,7 +235,7 @@ withSMSAuthHashToken:(NSString *)hashToken
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:appId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_SMS] withSMSNumber:smsNumber withSMSAuthHash:hashToken withExternalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:appId withDeviceType:@(DEVICE_TYPE_SMS) withSMSNumber:smsNumber withPlayerId:_currentSubscriptionState.userId withSMSAuthHash:hashToken withExternalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
             let smsPlayerId = (NSString*)result[@"id"];
             
             if (smsPlayerId) {

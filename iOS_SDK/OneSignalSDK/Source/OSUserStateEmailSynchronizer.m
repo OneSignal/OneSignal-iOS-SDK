@@ -32,15 +32,19 @@ THE SOFTWARE.
 @interface OSUserStateEmailSynchronizer ()
 
 @property (strong, nonatomic, readwrite, nonnull) OSEmailSubscriptionState *currentEmailSubscriptionState;
+@property (strong, nonatomic, readwrite, nonnull) OSSubscriptionState *currentSubscriptionState;
 
 @end
 
 @implementation OSUserStateEmailSynchronizer
 
-- (instancetype)initWithEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState {
+- (instancetype)initWithEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState
+                          withSubcriptionState:(OSSubscriptionState *)subscriptionState {
     self = [super init];
-    if (self)
+    if (self){
         _currentEmailSubscriptionState = emailSubscriptionState;
+        _currentSubscriptionState = subscriptionState;
+    }
     return self;
 }
 
@@ -72,6 +76,8 @@ THE SOFTWARE.
     NSMutableDictionary *emailDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
     emailDataDic[@"device_type"] = self.getDeviceType;
     emailDataDic[@"email_auth_hash"] = self.getEmailAuthHashToken;
+    emailDataDic[@"identifier"] = _currentEmailSubscriptionState.emailAddress;
+    emailDataDic[@"device_player_id"] = _currentSubscriptionState.userId;
     
     // If push device has external id we want to add it to the email device also
     if (registrationState.externalUserId)
