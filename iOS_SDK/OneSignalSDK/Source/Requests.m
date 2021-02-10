@@ -414,38 +414,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
                      appId:(NSString *)appId
                 activeTime:(NSNumber *)activeTime
                    netType:(NSNumber *)netType
-            emailAuthToken:(NSString *)emailAuthHash
-       externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
-                deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestOnFocus new];
-
-    let params = [NSMutableDictionary new];
-    params[@"app_id"] = appId;
-    params[@"state"] = @"ping";
-    params[@"type"] = @1;
-    params[@"active_time"] = activeTime;
-    params[@"net_type"] = netType;
-    params[@"device_type"] = deviceType;
-
-    if (emailAuthHash && emailAuthHash.length > 0)
-        params[@"email_auth_hash"] = emailAuthHash;
-    
-    if (externalIdAuthToken && externalIdAuthToken.length > 0)
-        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
-
-    request.parameters = params;
-    request.method = POST;
-    request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
-
-    return request;
-}
-
-+ (instancetype)withUserId:(NSString *)userId
-                     appId:(NSString *)appId
-                activeTime:(NSNumber *)activeTime
-                   netType:(NSNumber *)netType
-            emailAuthToken:(NSString *)emailAuthHash
-       externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken
                 deviceType:(NSNumber *)deviceType
            influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
     let request = [OSRequestOnFocus new];
@@ -464,12 +432,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
             params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
         }
     }
-
-    if (emailAuthHash && emailAuthHash.length > 0)
-        params[@"email_auth_hash"] = emailAuthHash;
-    
-    if (externalIdAuthToken && externalIdAuthToken.length > 0)
-        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
     
     request.parameters = params;
     request.method = POST;

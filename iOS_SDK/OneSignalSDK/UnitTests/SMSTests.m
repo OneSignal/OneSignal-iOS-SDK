@@ -40,6 +40,10 @@
 #import "NSObjectOverrider.h"
 #import "OneSignalTracker.h"
 
+@interface OneSignalTracker ()
++ (void)setLastOpenedTime:(NSTimeInterval)lastOpened;
+@end
+
 @interface OneSignal ()
 void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)getSMSAuthToken;
@@ -622,6 +626,47 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [smsTagsRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
     XCTAssertEqualObjects(self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN, [smsTagsRequest.parameters objectForKey:@"external_user_id_auth_hash"]);
     XCTAssertEqualObjects(@"test_value", smsTagsRequest.parameters[@"tags"][@"tag_1"]);
+}
+
+- (void)testOnFocusSMSRequest {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [OneSignalClientOverrider reset:self];
+    
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    
+    //if we don't artificially set lastOpenedTime back at least 30 seconds, the on_focus request will not execute
+    [OneSignalTracker setLastOpenedTime:now - 4000];
+    [OneSignalTracker onFocus:false];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignalTracker setLastOpenedTime:now - 4000];
+    [OneSignalTracker onFocus:true];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertTrue([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestOnFocus class]]);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    
+    [OneSignalClientOverrider reset:self];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignalClientOverrider reset:self];
+    
+    // Check to make sure request count gets reset to 0
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
+    
+    [OneSignalTracker setLastOpenedTime:now - 4000];
+    [OneSignalTracker onFocus:false];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignalTracker setLastOpenedTime:now - 4000];
+    [OneSignalTracker onFocus:true];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // on_focus should fire off two requests, one for the SMS player ID and one for push player ID
+    XCTAssertTrue([OneSignalClientOverrider hasExecutedRequestOfType:[OSRequestOnFocus class]]);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
 @end

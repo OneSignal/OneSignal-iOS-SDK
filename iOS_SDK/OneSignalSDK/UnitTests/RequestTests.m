@@ -650,7 +650,7 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
     
     OSFocusInfluenceParam *influenceParams = [[OSFocusInfluenceParam alloc] initWithParamsInfluenceIds:[NSArray arrayWithObject:testNotificationId] influenceKey:@"notification_ids" directInfluence:NO influenceDirectKey:@"direct"];
-    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId activeTime:@2 netType:@3 emailAuthToken:nil externalIdAuthToken:nil deviceType:testDeviceType influenceParams:[NSArray arrayWithObject:influenceParams]];
+    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId activeTime:@2 netType:@3 deviceType:testDeviceType influenceParams:[NSArray arrayWithObject:influenceParams]];
 
     let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
     
@@ -659,26 +659,6 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(firstRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0}));
     
     XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"ping", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_ids": testNotificationIds}));
-}
-
-- (void)testOnFocusWithAuthToken {
-    let firstRequest = [OSRequestBadgeCount withUserId:testUserId appId:testAppId badgeCount:@0 emailAuthToken:nil externalIdAuthToken:@"external_id_auth_token"];
-    
-    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@", testUserId]);
-    NSArray * testNotificationIds = [NSArray arrayWithObject:testNotificationId];
-    
-    XCTAssertTrue([correctUrl isEqualToString:firstRequest.urlRequest.URL.absoluteString]);
-    
-    OSFocusInfluenceParam *influenceParams = [[OSFocusInfluenceParam alloc] initWithParamsInfluenceIds:[NSArray arrayWithObject:testNotificationId] influenceKey:@"notification_ids" directInfluence:NO influenceDirectKey:@"direct"];
-    let secondRequest = [OSRequestOnFocus withUserId:testUserId appId:testAppId activeTime:@2 netType:@3 emailAuthToken:nil externalIdAuthToken:@"external_id_auth_token" deviceType:testDeviceType influenceParams:[NSArray arrayWithObject:influenceParams]];
-
-    let secondCorrectUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/on_focus", testUserId]);
-    
-    XCTAssertTrue([secondCorrectUrl isEqualToString:secondRequest.urlRequest.URL.absoluteString]);
-    
-    XCTAssertTrue(checkHttpBody(firstRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"badgeCount" : @0, @"external_user_id_auth_hash" : @"external_id_auth_token"}));
-    
-    XCTAssertTrue(checkHttpBody(secondRequest.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"state" : @"ping", @"type" : @1, @"active_time" : @2, @"net_type" : @3, @"device_type" : testDeviceType, @"direct" : @NO, @"notification_ids": testNotificationIds, @"external_user_id_auth_hash" : @"external_id_auth_token"}));
 }
 
 - (void)testInAppMessageViewed {
