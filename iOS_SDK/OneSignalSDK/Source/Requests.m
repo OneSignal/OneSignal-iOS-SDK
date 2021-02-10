@@ -78,6 +78,14 @@
 
 @implementation OSRequestSendTagsToServer
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken {
+    return [self withUserId:userId appId:appId tags:tags networkType:netType withAuthHashToken:emailAuthToken withAuthTokenKey:@"email_auth_hash" withExternalIdAuthHashToken:externalIdAuthToken];
+}
+
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId tags:(NSDictionary *)tags networkType:(NSNumber *)netType withSMSAuthHashToken:(NSString *)smsAuthToken withExternalIdAuthHashToken:(NSString *)externalIdAuthToken {
+    return [self withUserId:userId appId:appId tags:tags networkType:netType withAuthHashToken:smsAuthToken withAuthTokenKey:@"sms_auth_hash" withExternalIdAuthHashToken:externalIdAuthToken];
+}
+
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId tags:(NSDictionary *)tags networkType:(NSNumber *)netType withAuthHashToken:(NSString *)authToken withAuthTokenKey:(NSString *)authTokenKey withExternalIdAuthHashToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestSendTagsToServer new];
     
     let params = [NSMutableDictionary new];
@@ -85,8 +93,8 @@
     params[@"tags"] = tags;
     params[@"net_type"] = netType;
     
-    if (emailAuthToken && emailAuthToken.length > 0)
-        params[@"email_auth_hash"] = emailAuthToken;
+    if (authToken && authToken.length > 0)
+        params[authTokenKey] = authToken;
     
     if (externalIdAuthToken && externalIdAuthToken.length > 0)
         params[@"external_user_id_auth_hash"] = externalIdAuthToken;
@@ -97,6 +105,7 @@
     
     return request;
 }
+
 
 @end
 

@@ -526,4 +526,102 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY]);
 }
 
+- (void)testSendTags {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // At this point we have 4 requests
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+    
+    [OneSignal sendTags:@{@"tag_1" : @"test_value"}];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    // Increse in 2 the quantity of requests, 1 per avialable channel (PUSH, SMS)
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 6);
+    
+    OneSignalRequest *pushTagsRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:4];
+    OneSignalRequest *smsTagsRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:5];
+    NSString *pushExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.pushUserId];
+    NSString *smsExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.smsUserId];
+    XCTAssertEqualObjects(pushExpectedUrl, pushTagsRequest.path);
+    XCTAssertEqualObjects(smsExpectedUrl, smsTagsRequest.path);
+    
+    XCTAssertEqual(3, smsTagsRequest.parameters.count);
+    XCTAssertTrue([smsTagsRequest.parameters objectForKey:@"app_id"]);
+    XCTAssertTrue([smsTagsRequest.parameters objectForKey:@"net_type"]);
+    XCTAssertEqualObjects(@"test_value", smsTagsRequest.parameters[@"tags"][@"tag_1"]);
+}
+
+- (void)testSendTagsWithAuthToken {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // At this point we have 4 requests
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+    
+    [OneSignal sendTags:@{@"tag_1" : @"test_value"}];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    // Increse in 2 the quantity of requests, 1 per avialable channel (PUSH, SMS)
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 6);
+    
+    OneSignalRequest *pushTagsRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:4];
+    OneSignalRequest *smsTagsRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:5];
+    NSString *pushExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.pushUserId];
+    NSString *smsExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.smsUserId];
+    XCTAssertEqualObjects(pushExpectedUrl, pushTagsRequest.path);
+    XCTAssertEqualObjects(smsExpectedUrl, smsTagsRequest.path);
+    
+    XCTAssertEqual(4, smsTagsRequest.parameters.count);
+    XCTAssertTrue([smsTagsRequest.parameters objectForKey:@"app_id"]);
+    XCTAssertTrue([smsTagsRequest.parameters objectForKey:@"net_type"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [smsTagsRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
+    XCTAssertEqualObjects(@"test_value", smsTagsRequest.parameters[@"tags"][@"tag_1"]);
+}
+
+- (void)testSendTagsWithAuthTokenAndExternalId {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OneSignal setExternalUserId:self.ONESIGNAL_EXTERNAL_USER_ID withExternalIdAuthHashToken:self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN withSuccess:nil withFailure:nil];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 6);
+    
+    [OneSignal sendTags:@{@"tag_1" : @"test_value"}];
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    // Increse in 2 the quantity of requests, 1 per avialable channel (PUSH, SMS)
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 8);
+    
+    OneSignalRequest *pushTagsRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:6];
+    OneSignalRequest *smsTagsRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:7];
+    NSString *pushExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.pushUserId];
+    NSString *smsExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.smsUserId];
+    XCTAssertEqualObjects(pushExpectedUrl, pushTagsRequest.path);
+    XCTAssertEqualObjects(smsExpectedUrl, smsTagsRequest.path);
+    
+    XCTAssertEqual(5, smsTagsRequest.parameters.count);
+    XCTAssertTrue([smsTagsRequest.parameters objectForKey:@"app_id"]);
+    XCTAssertTrue([smsTagsRequest.parameters objectForKey:@"net_type"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [smsTagsRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
+    XCTAssertEqualObjects(self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN, [smsTagsRequest.parameters objectForKey:@"external_user_id_auth_hash"]);
+    XCTAssertEqualObjects(@"test_value", smsTagsRequest.parameters[@"tags"][@"tag_1"]);
+}
+
 @end
