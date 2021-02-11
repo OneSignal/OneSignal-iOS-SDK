@@ -2490,7 +2490,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
 
-    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId: self.appId emailPlayerId:self.currentEmailSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentEmailSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutEmail withAppId:self.appId emailPlayerId:self.currentEmailSubscriptionState.emailUserId devicePlayerId:self.currentSubscriptionState.userId emailAuthHash:self.currentEmailSubscriptionState.emailAuthCode] onSuccess:^(NSDictionary *result) {
         
         [OneSignalUserDefaults.initStandard removeValueForKey:OSUD_EMAIL_PLAYER_ID];
         [OneSignal saveEmailAddress:nil withAuthToken:nil userId:nil];
@@ -2596,6 +2596,30 @@ static NSString *_lastnonActiveMessageId;
     }
     
     [self.stateSynchronizer setSMSNumber:smsNumber withSMSAuthHashToken:hashToken withAppId:self.appId withSuccess:successBlock withFailure:failureBlock];
+}
+
++ (void)logoutSMSNumber {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutSMSNumber"])
+        return;
+    
+    [self logoutSMSNumberWithSuccess:nil withFailure:nil];
+}
+
++ (void)logoutSMSNumberWithSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutSMSNumberWithSuccess:withFailure:"])
+        return;
+    
+    if (!self.currentSMSSubscriptionState.smsUserId) {
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"SMS Player ID does not exist, cannot logout"];
+        
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.sms" code:0 userInfo:@{@"error" : @"Attempted to log out of the user's sms number with OneSignal. The user does not currently have an sms player ID and is not logged in, so it is not possible to log out of the sms number for this device"}]);
+        return;
+    }
+    
+    [self.stateSynchronizer logoutSMSWithAppId:self.appId withSuccess:successBlock withFailure:failureBlock];
 }
 
 + (NSDate *)sessionLaunchTime {
