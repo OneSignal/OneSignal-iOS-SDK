@@ -115,4 +115,11 @@ withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundB
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges;
 @end
 
+@interface OSSMSSubscriptionStateTestObserver : NSObject<OSSMSSubscriptionObserver> {
+    @package OSSMSSubscriptionStateChanges *last;
+    @package int fireCount;
+}
+- (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges *)stateChanges;
+@end
+
 // END - Observers
