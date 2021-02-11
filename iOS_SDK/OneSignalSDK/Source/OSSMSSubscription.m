@@ -63,7 +63,7 @@
 - (NSString *)description {
     @synchronized (self) {
         return [NSString stringWithFormat:@"<OSSMSSubscriptionState: smsNumber: %@, smsUserId: %@, smsAuthCode: %@, requireAuthCode: %@>",
-                self.smsUserId, self.smsUserId, self.smsAuthCode, self.requiresSMSAuth ? @"YES" : @"NO"];
+                self.smsNumber, self.smsUserId, self.smsAuthCode, self.requiresSMSAuth ? @"YES" : @"NO"];
     }
 }
 
@@ -134,7 +134,7 @@
 
 @implementation OSSMSSubscriptionStateChanges
 - (NSString*)description {
-    static NSString* format = @"<OSSMSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
+    static NSString* format = @"<OSSMSSubscriptionStateChanges:\nfrom: %@,\nto: %@\n>";
     return [NSString stringWithFormat:format, _from, _to];
 }
 

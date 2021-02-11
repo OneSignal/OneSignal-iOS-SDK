@@ -1168,7 +1168,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     status.subscriptionStatus = self.currentSubscriptionState;
     status.permissionStatus = self.currentPermissionState;
     status.emailSubscriptionStatus = self.currentEmailSubscriptionState;
-    
+    status.smsSubscriptionStatus = self.currentSMSSubscriptionState;
+
     return status;
 }
 
