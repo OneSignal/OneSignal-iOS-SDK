@@ -502,6 +502,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
+
++ (void)addSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer;
++ (void)removeSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer;
 NS_ASSUME_NONNULL_END
 
 #pragma mark Email

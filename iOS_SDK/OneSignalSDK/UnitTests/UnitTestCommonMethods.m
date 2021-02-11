@@ -435,3 +435,11 @@ static XCTestCase* _currentXCTestCase;
     fireCount++;
 }
 @end
+
+@implementation OSSMSSubscriptionStateTestObserver
+- (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges *)stateChanges {
+    NSLog(@"UnitTest:onOSSMSSubscriptionChanged: \n%@", stateChanges);
+    last = stateChanges;
+    fireCount++;
+}
+@end
