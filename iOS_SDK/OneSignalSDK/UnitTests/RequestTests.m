@@ -537,16 +537,6 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"device_type" : @0, @"identifier" : testEmailAddress, @"email_auth_hash" : [NSNull null], @"device_player_id" : testUserId, @"external_user_id_auth_hash" : @"external_id_auth_token"}));
 }
 
-- (void)testLogoutEmail {
-    let request = [OSRequestLogoutEmail withAppId:testAppId emailPlayerId:testEmailUserId devicePlayerId:testUserId emailAuthHash:nil];
-    
-    let correctUrl = correctUrlWithPath([NSString stringWithFormat:@"players/%@/email_logout", testUserId]);
-    
-    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
-    
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"parent_player_id" : testEmailUserId, @"email_auth_hash" : [NSNull null], @"app_id" : testAppId}));
-}
-
 - (void)testUpdateNotificationTypes {
     let request = [OSRequestUpdateNotificationTypes withUserId:testUserId appId:testAppId notificationTypes:@0];
     

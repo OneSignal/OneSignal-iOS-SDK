@@ -162,7 +162,7 @@
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    
+
     if (identifier)
         params[@"identifier"] = identifier;
     
@@ -206,7 +206,6 @@
        @"app_id" : appId,
        @"device_type" : deviceType,
        @"identifier" : smsNumber ?: [NSNull null],
-       @"notification_types" : notificationTypes,
        SMS_NUMBER_AUTH_HASH_KEY : smsAuthHash ?: [NSNull null],
        @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
        @"device_player_id" : playerId ?: [NSNull null]
