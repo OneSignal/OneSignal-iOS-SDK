@@ -214,6 +214,11 @@ NSInteger const DELAY = 60;
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.triggerId, @"test_trigger_id");
 }
 
+- (void)testCorrectlyParsedHasLiquid {
+    XCTAssertFalse(testMessage.hasLiquid);
+    XCTAssertTrue(testMessageRedisplay.hasLiquid);
+}
+
 - (void)testCorrectlyParsedDisplayStats {
     XCTAssertEqual(testMessageRedisplay.displayStats.displayLimit, LIMIT);
     XCTAssertEqual(testMessageRedisplay.displayStats.displayDelay, DELAY);

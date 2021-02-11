@@ -88,7 +88,7 @@ int messageIdIncrementer = 0;
                 @"default" : @"should_never_be_used_by_any_test"
             }
         },
-        @"triggers" : @[]
+        @"triggers" : @[],
     };
 }
 
@@ -146,7 +146,7 @@ int messageIdIncrementer = 0;
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
 
-
+    messageJson[@"has_liquid"] = @"1";
     messageJson[@"triggers"] = triggers;
     messageJson[@"redisplay"] =
         @{
