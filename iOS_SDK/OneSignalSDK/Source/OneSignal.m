@@ -2502,6 +2502,8 @@ static NSString *_lastnonActiveMessageId;
     }];
 }
 
+#pragma mark SMS
+
 + (void)setSMSNumber:(NSString *)smsNumber {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:"])
@@ -2544,14 +2546,13 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
     
-    // Checks to make sure that if email_auth is required, the user has passed in a hash token
+    // Checks to make sure that if sms_auth is required, the user has passed in a hash token
     if (self.currentSMSSubscriptionState.requiresSMSAuth && (!hashToken || hashToken.length == 0)) {
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal.sms" code:0 userInfo:@{@"error" : @"SMS authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard."}]);
         return;
     }
-    
-    // TODO: test this case
+
     // If both the sms number & hash token are the same, there's no need to make a network call here.
     if ([self.currentSMSSubscriptionState.smsNumber isEqualToString:smsNumber] && ([self.currentSMSSubscriptionState.smsAuthCode isEqualToString:hashToken] || (self.currentSMSSubscriptionState.smsAuthCode == nil && hashToken == nil))) {
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"SMS number already exists, there is no need to call setSMSNumber again"];
