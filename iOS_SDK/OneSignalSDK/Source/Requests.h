@@ -88,6 +88,10 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId emailPlayerId:(NSString * _Nonnull)emailPlayerId devicePlayerId:(NSString * _Nonnull)devicePlayerId emailAuthHash:(NSString * _Nullable)emailAuthHash;
 @end
 
+@interface OSRequestLogoutSMS : OneSignalRequest
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId smsPlayerId:(NSString * _Nonnull)smsPlayerId smsAuthHash:(NSString * _Nullable)smsAuthHash devicePlayerId:(NSString * _Nonnull)devicePlayerId;
+@end
+
 @interface OSRequestSendTagsToServer : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withEmailAuthHashToken:(NSString * _Nullable)emailAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken;
 

@@ -558,6 +558,10 @@ typedef void (^OSSMSSuccessBlock)(NSDictionary *results);
 + (void)setSMSNumber:(NSString * _Nonnull)smsNumber;
 + (void)setSMSNumber:(NSString * _Nonnull)smsNumber withSuccess:(OSSMSSuccessBlock _Nullable)successBlock withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
 
+// Logs the device out of the current sms number.
++ (void)logoutSMSNumber;
++ (void)logoutSMSNumberWithSuccess:(OSSMSSuccessBlock _Nullable)successBlock withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
+
 #pragma mark External User Id
 // Typedefs defining completion blocks for updating the external user id
 typedef void (^OSUpdateExternalUserIdFailureBlock)(NSError *error);
