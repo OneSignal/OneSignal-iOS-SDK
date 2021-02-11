@@ -183,7 +183,6 @@ static NSDate *sessionLaunchTime;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
-NSMutableDictionary* tagsToSend;
 
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
@@ -1184,10 +1183,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         }
     }
     
-    if (tagsToSend == nil)
-        tagsToSend = [keyValuePair mutableCopy];
-    else
-        [tagsToSend addEntriesFromDictionary:keyValuePair];
+    if (!self.playerTags.tagsToSend) {
+        self.playerTags.tagsToSend = [keyValuePair mutableCopy];
+    } else {
+        [self.playerTags.tagsToSend addEntriesFromDictionary:keyValuePair];
+    }
     
     if (successBlock || failureBlock) {
         if (!pendingSendTagCallbacks)
@@ -1203,7 +1203,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // Can't send tags yet as their isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
     NSLog(@"ECM add tags but not sending to server");
-    [self.playerTags addTags:tagsToSend];
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
@@ -1215,12 +1214,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (!tagsToSend)
+    if (!self.playerTags.tagsToSend)
         return;
 
     [self.playerTags saveTagsToUserDefaults];
-    NSDictionary* nowSendingTags = tagsToSend;
-    tagsToSend = nil;
+    NSDictionary* nowSendingTags = self.playerTags.tagsToSend;
+    self.playerTags.tagsToSend = nil;
     
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
@@ -1320,11 +1319,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
-    
+    [self.playerTags deleteTags:keys];
     for (NSString* key in keys) {
-        if (tagsToSend && tagsToSend[key]) {
-            if (![tagsToSend[key] isEqual:@""])
-                [tagsToSend removeObjectForKey:key];
+        if (self.playerTags.tagsToSend && self.playerTags.tagsToSend[key]) {
+            if (![self.playerTags.tagsToSend[key] isEqual:@""]) {
+                [self.playerTags.tagsToSend removeObjectForKey:key];
+            }
         }
         else
             tags[key] = @"";
@@ -1694,8 +1694,8 @@ static dispatch_queue_t serialQueue;
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         userState.testType = [NSNumber numberWithInt:(int)releaseMode];
     
-    if (tagsToSend)
-        userState.tags = tagsToSend;
+    if (self.playerTags.tagsToSend)
+        userState.tags = self.playerTags.tagsToSend;
     
     if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
@@ -1734,8 +1734,8 @@ static dispatch_queue_t serialQueue;
     let userState = [self createUserState];
     if (userState.tags) {
         [self.playerTags addTags:userState.tags];
-        [OneSignal.getPlayerTags saveTagsToUserDefaults];
-        tagsToSend = nil;
+        [self.playerTags saveTagsToUserDefaults];
+        self.playerTags.tagsToSend = nil;
         
         nowProcessingCallbacks = pendingSendTagCallbacks;
         pendingSendTagCallbacks = nil;
@@ -1774,7 +1774,7 @@ static dispatch_queue_t serialQueue;
                 }
             }
             
-            if (tagsToSend) {
+            if (self.playerTags.tagsToSend) {
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             }
                 
