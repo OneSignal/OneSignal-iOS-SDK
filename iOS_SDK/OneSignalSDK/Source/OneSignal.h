@@ -386,6 +386,19 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @property (readonly) BOOL isEmailSubscribed;
 
+/**
+ * Get the user sms id
+ * @return sms id if user sms number was registered, otherwise null
+ */
+@property (readonly, nullable) NSString* smsUserId;
+/**
+ * Get the user sms number
+ * @return sms number if set, otherwise null
+ */
+@property (readonly, nullable) NSString* smsNumber;
+
+@property (readonly) BOOL isSMSSubscribed;
+
 // Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;
 
