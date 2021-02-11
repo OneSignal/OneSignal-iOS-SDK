@@ -562,7 +562,6 @@
     XCTAssertEqual(observer->fireCount, 2);
 }
 
-
 - (void)testPermissionAndSubscriptionChangeObserverRemove {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [UnitTestCommonMethods initOneSignal];
@@ -2987,6 +2986,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testDeviceStateJson {
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     [OneSignal setEmail:@"test@gmail.com"];
+    [OneSignal setSMSNumber:@"12345689"];
     [UnitTestCommonMethods runBackgroundThreads];
     let deviceState = [[OSDeviceState alloc] initWithSubscriptionState:[OneSignal getPermissionSubscriptionState]];
     let json = [deviceState jsonRepresentation];
@@ -2999,6 +2999,9 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(json[@"emailAddress"], @"test@gmail.com");
     XCTAssertEqualObjects(json[@"notificationPermissionStatus"], @2);
     XCTAssertEqualObjects(json[@"isEmailSubscribed"], @1);
+    XCTAssertEqualObjects(json[@"smsUserId"], OneSignalClientOverrider.smsUserId);
+    XCTAssertEqualObjects(json[@"smsNumber"], @"12345689");
+    XCTAssertEqualObjects(json[@"isSMSSubscribed"], @1);
 }
 
 - (void)testNotificationJson {
