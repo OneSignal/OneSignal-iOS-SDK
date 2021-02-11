@@ -57,6 +57,12 @@
         _emailAddress = [[state emailSubscriptionStatus] emailAddress];
         
         _isEmailSubscribed = [[state emailSubscriptionStatus] isSubscribed];
+        
+        _smsNumber = [[state smsSubscriptionStatus] smsNumber];
+        
+        _smsUserId = [[state smsSubscriptionStatus] smsUserId];
+        
+        _isSMSSubscribed = [[state smsSubscriptionStatus] isSubscribed];
     }
     return self;
 }
@@ -73,6 +79,9 @@
     json[@"emailUserId"] = _emailUserId;
     json[@"emailAddress"] = _emailAddress;
     json[@"isEmailSubscribed"] = @(_isEmailSubscribed);
+    json[@"smsUserId"] = _smsUserId;
+    json[@"smsNumber"] = _smsNumber;
+    json[@"isSMSSubscribed"] = @(_isSMSSubscribed);
     json[@"notificationPermissionStatus"] = @(_notificationPermissionStatus);
 
     return json;
