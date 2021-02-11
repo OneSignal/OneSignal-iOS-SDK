@@ -243,7 +243,7 @@
 }
 
 - (void)setWaitForTags:(BOOL)waitForTags {
-    self.waitForTags = waitForTags;
+    _waitForTags = waitForTags;
     if (!waitForTags && self.pendingHTMLContent) {
         [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:[NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL]];
         self.pendingHTMLContent = nil;
@@ -640,7 +640,6 @@
     if (event) {
         switch (event.type) {
             case OSInAppMessageBridgeEventTypePageRenderingComplete: {
-                [self.messageView setTagsAndReRender];
                 // BOOL set to true since the JS event fired, meaning the WebView was populated properly with the IAM code
                 self.didPageRenderingComplete = true;
                

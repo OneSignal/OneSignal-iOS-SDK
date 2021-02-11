@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewControllerDelegate> delegate;
 @property (strong, nonatomic, nonnull) OSInAppMessage *message;
-@property (strong, nonatomic) BOOL waitForTags;
+@property (nonatomic) BOOL waitForTags;
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate;
 - (void)dismissCurrentInAppMessage;
