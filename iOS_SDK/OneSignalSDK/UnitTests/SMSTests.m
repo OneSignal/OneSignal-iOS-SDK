@@ -669,4 +669,74 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
 
+- (void)testSMSSubscriptionDescription {
+    [OneSignalClientOverrider setRequiresSMSAuth:true];
+
+    let observer = [OSSMSSubscriptionStateTestObserver new];
+    [OneSignal addSMSSubscriptionObserver:observer];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    NSString *lastToDescription = observer->last.to.description;
+    NSString *lastFromDescription = observer->last.from.description;
+    NSString *lastDescription = observer->last.description;
+    
+    NSString *lastToDescriptionExpected = [NSString stringWithFormat:@"<OSSMSSubscriptionState: smsNumber: %@, smsUserId: %@, smsAuthCode: %@, requireAuthCode: %@>", self.ONESIGNAL_SMS_NUMBER, OneSignalClientOverrider.smsUserId, self.ONESIGNAL_SMS_HASH_TOKEN, @"YES"];
+    NSString *lastFromDescriptionExpected = [NSString stringWithFormat:@"<OSSMSSubscriptionState: smsNumber: %@, smsUserId: %@, smsAuthCode: %@, requireAuthCode: %@>", nil, nil, nil, @"NO"];
+    NSString *lastDescriptionExpected = [NSString stringWithFormat:@"<OSSMSSubscriptionStateChanges:\nfrom: <OSSMSSubscriptionState: smsNumber: %@, smsUserId: %@, smsAuthCode: %@, requireAuthCode: %@>,\nto: <OSSMSSubscriptionState: smsNumber: %@, smsUserId: %@, smsAuthCode: %@, requireAuthCode: %@>\n>", nil, nil, nil, @"NO", self.ONESIGNAL_SMS_NUMBER, OneSignalClientOverrider.smsUserId, self.ONESIGNAL_SMS_HASH_TOKEN, @"YES"];
+    XCTAssertTrue([lastToDescription isEqualToString:lastToDescriptionExpected]);
+    XCTAssertTrue([lastFromDescription isEqualToString:lastFromDescriptionExpected]);
+    XCTAssertTrue([lastDescription isEqualToString:lastDescriptionExpected]);
+}
+
+- (void)testSMSSubscriptionObserver {
+    [OneSignalClientOverrider setRequiresSMSAuth:true];
+
+    let observer = [OSSMSSubscriptionStateTestObserver new];
+    [OneSignal addSMSSubscriptionObserver:observer];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertNil(observer->last.from.smsNumber);
+    XCTAssertNil(observer->last.from.smsAuthCode);
+    XCTAssertNil(observer->last.from.smsUserId);
+    XCTAssertFalse(observer->last.from.requiresSMSAuth);
+    
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, observer->last.to.smsNumber);
+    XCTAssertEqual(self.ONESIGNAL_SMS_HASH_TOKEN, observer->last.to.smsAuthCode);
+    XCTAssertEqual(OneSignalClientOverrider.smsUserId, observer->last.to.smsUserId);
+    XCTAssertTrue(observer->last.to.requiresSMSAuth);
+}
+
+- (void)testSubscriptionState {
+    [OneSignalClientOverrider setRequiresSMSAuth:true];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    let unsubscribedSubscriptionStatus = [OneSignal getPermissionSubscriptionState].smsSubscriptionStatus;
+    
+    XCTAssertNil(unsubscribedSubscriptionStatus.smsNumber);
+    XCTAssertNil(unsubscribedSubscriptionStatus.smsAuthCode);
+    XCTAssertNil(unsubscribedSubscriptionStatus.smsUserId);
+    XCTAssertTrue(unsubscribedSubscriptionStatus.requiresSMSAuth);
+    XCTAssertFalse(unsubscribedSubscriptionStatus.isSubscribed);
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let loggedInSubscriptionStatus = [OneSignal getPermissionSubscriptionState].smsSubscriptionStatus;
+    
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, loggedInSubscriptionStatus.smsNumber);
+    XCTAssertEqual(self.ONESIGNAL_SMS_HASH_TOKEN, loggedInSubscriptionStatus.smsAuthCode);
+    XCTAssertEqual(OneSignalClientOverrider.smsUserId, loggedInSubscriptionStatus.smsUserId);
+    XCTAssertTrue(loggedInSubscriptionStatus.requiresSMSAuth);
+    XCTAssertTrue(loggedInSubscriptionStatus.isSubscribed);
+}
+
 @end
