@@ -94,7 +94,6 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 
 // JavaScript method names
 #define OS_JS_GET_PAGE_META_DATA_METHOD @"getPageMetaData()"
-#define OS_JS_SET_TAGS_METHOD //{player_name : \"Elliot\"}
 
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
 

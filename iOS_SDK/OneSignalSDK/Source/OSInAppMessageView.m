@@ -47,8 +47,6 @@
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler {
     if (self = [super init]) {
         self.message = inAppMessage;
-        NSLog(@"ECM navigation delegate to self");
-        self.webView.navigationDelegate = self;
         self.translatesAutoresizingMaskIntoConstraints = false;
         [self setupWebviewWithMessageHandler:messageHandler];
     }
@@ -60,40 +58,27 @@
     NSError *error;
     OSPlayerTags *tags = [OneSignal getPlayerTags];
     if (!tags.allTags) {
-        NSLog(@"ECM OSPlayerTags nil");
         return nil;
     }
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
     NSString *jsonString;
-    if (! jsonData) {
-        NSLog(@"ECM Got an error: %@", error);
+    if (!jsonData) {
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:
+         [NSString stringWithFormat:@"Error parsing tag dictionary to json :%@",error.localizedDescription]];
     } else {
          jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
     return jsonString;
 }
 
-- (void)setTagsAndReRender {
-//    NSString *tags = [self getTagsString];
-//    NSLog(@"ECM tags %@",tags);
-    //NSString *tagsStringJS = [NSString stringWithFormat:@"setTags(%@)", tags];
-//    [self.webView evaluateJavaScript:OS_JS_SET_TAGS_METHOD completionHandler:^(id _Nullable result, NSError * _Nullable error) {
-//        if (error) {
-//         NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_SET_TAGS_METHOD, error];
-//         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
-//         return;
-//        }
-//        NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success", OS_JS_SET_TAGS_METHOD];
-//        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:successMessage];
-//    }];
-//    NSLog(@"ECM done setting tags");
-}
-
 - (NSString *)addTagsToHTML:(NSString *)html {
     NSString *tags = [self getTagsString];
-    NSLog(@"ECM tags string %@", tags);
+    if (!tags) {
+        return html;
+    }
+    //Script to set the tags for liquid tag substitution
     NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
                          <script> \
                              iamInfo.tags = %@; \
@@ -103,25 +88,12 @@
 
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
-    NSLog(@"ECM HTML /n%@",html);
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
 
     dispatch_sync(dispatch_get_main_queue(), ^{
-        if (self.webView.navigationDelegate != self) {
-            NSLog(@"ECM navigation delegate nil");
-            self.webView.navigationDelegate = self;
-        }
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
         NSString *taggedHTML = [self addTagsToHTML:html];
-        /*
-         <script>
-             iamInfo.tags = {player_name : "Elliot"};
-         </script>
-         */
         [self.webView loadHTMLString:taggedHTML baseURL:url];
-         //[OneSignal getTags:^(NSDictionary *result) {
-     
-         //}];
     });
 }
 
@@ -188,6 +160,7 @@
     
     self.webView.translatesAutoresizingMaskIntoConstraints = false;
     self.webView.UIDelegate = self;
+    self.webView.navigationDelegate = self;
     self.webView.scrollView.delegate = self;
     self.webView.scrollView.scrollEnabled = false;
     
@@ -220,25 +193,9 @@
 #pragma mark WKWebViewNavigationDelegate Methods
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     // WebView finished loading
-    NSLog(@"ECM navigation finished");
-    
-    if (self.loaded) {
+    if (self.loaded)
         return;
-    }
-    [self setTagsAndReRender];
     self.loaded = true;
-}
-
--(void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation {
-    NSLog(@"ECM navigation committed");
-}
-
--(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
-    NSLog(@"ECM navigation failed");
-}
-
--(void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
-    NSLog(@"ECM provisional nav started");
 }
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {

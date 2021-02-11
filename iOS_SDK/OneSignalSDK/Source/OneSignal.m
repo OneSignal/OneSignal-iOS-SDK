@@ -426,7 +426,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (OSPlayerTags *)getPlayerTags {
-    NSLog(@"ECM player tags: %@", self.playerTags);
     return self.playerTags;
 }
 
@@ -1202,7 +1201,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // Can't send tags yet as their isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
-    NSLog(@"ECM add tags but not sending to server");
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
@@ -1817,7 +1815,6 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
-    NSLog(@"ECM received IAM JSON: %@", messagesJson);
     //[self.playerTags addTagValue:@"It Works!" forKey:@"player_name"];
     let messages = [NSMutableArray new];
 
@@ -1835,26 +1832,6 @@ static dispatch_queue_t serialQueue;
 
     // Default is using cached IAMs in the messaging controller
     [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
-//    [OneSignal getTags:^(NSDictionary *result) {
-//        NSLog(@"ECM received get tags: %@", result);
-//        playerTags = @{@"player_name" : @"It Works!"};
-//        let messages = [NSMutableArray new];
-//
-//        if (messagesJson) {
-//            for (NSDictionary *messageJson in messagesJson) {
-//                let message = [OSInAppMessage instanceWithJson:messageJson];
-//
-//                if (message)
-//                    [messages addObject:message];
-//            }
-//
-//            [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
-//            return;
-//        }
-//
-//        // Default is using cached IAMs in the messaging controller
-//        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
-//    }];
 }
 
 + (NSString*)getUsableDeviceToken {
