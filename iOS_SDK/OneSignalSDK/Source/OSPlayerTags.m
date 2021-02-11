@@ -34,11 +34,13 @@ THE SOFTWARE.
 @implementation OSPlayerTags
 
 NSDictionary<NSString *, NSString *> *_tags;
+NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
 
 -(id)init {
     self = [super init];
     if (self) {
-        _tags = [NSMutableDictionary new];
+        _tags = [NSDictionary new];
+        _tagsToSend = [NSMutableDictionary new];
         [self loadTagsFromUserDefaults];
     }
     return self;
@@ -49,6 +51,15 @@ NSDictionary<NSString *, NSString *> *_tags;
                                     _tags, @"tags",
                                     nil];
     return dataDict;
+}
+
+- (NSDictionary *)tagsToSend {
+    return _tagsToSend;
+}
+
+- (void)setTagsToSend:(NSDictionary *)tagsToSend {
+    _tagsToSend = tagsToSend;
+    [self addTags:tagsToSend];
 }
 
 - (NSDictionary *)allTags {
