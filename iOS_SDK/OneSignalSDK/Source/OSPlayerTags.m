@@ -97,13 +97,11 @@ NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
 }
 
 - (void)loadTagsFromUserDefaults {
-    NSLog(@"ECM loading tags from user defaults");
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     _tags = [standardUserDefaults getSavedDictionaryForKey:OSUD_PLAYER_TAGS defaultValue:nil];
 }
 
 - (void)saveTagsToUserDefaults {
-    NSLog(@"ECM saving tags to user defaults");
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     [standardUserDefaults saveDictionaryForKey:OSUD_PLAYER_TAGS withValue:_tags];
 }
