@@ -486,9 +486,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(7, createDeviceRequest.parameters.count);
+    XCTAssertEqual(6, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"notification_types"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, createDeviceRequest.parameters[@"identifier"]);
@@ -516,9 +515,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(7, createDeviceRequest.parameters.count);
+    XCTAssertEqual(6, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"notification_types"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, createDeviceRequest.parameters[@"identifier"]);
@@ -575,9 +573,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(7, createDeviceRequest.parameters.count);
+    XCTAssertEqual(6, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"notification_types"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, createDeviceRequest.parameters[@"identifier"]);
@@ -831,6 +828,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(self.ONESIGNAL_SMS_HASH_TOKEN, observer->last.to.smsAuthCode);
     XCTAssertEqual(OneSignalClientOverrider.smsUserId, observer->last.to.smsUserId);
     XCTAssertTrue(observer->last.to.requiresSMSAuth);
+    
+    [OneSignal logoutSMSNumber];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertNil(observer->last.to.smsNumber);
+    XCTAssertNil(observer->last.to.smsAuthCode);
+    XCTAssertNil(observer->last.to.smsUserId);
+    XCTAssertTrue(observer->last.to.requiresSMSAuth);
 }
 
 - (void)testSubscriptionState {
@@ -856,6 +861,60 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(OneSignalClientOverrider.smsUserId, loggedInSubscriptionStatus.smsUserId);
     XCTAssertTrue(loggedInSubscriptionStatus.requiresSMSAuth);
     XCTAssertTrue(loggedInSubscriptionStatus.isSubscribed);
+    
+    [OneSignal logoutSMSNumber];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    let loggedOutSubscriptionStatus = [OneSignal getPermissionSubscriptionState].smsSubscriptionStatus;
+    
+    // Check to make sure that the push token & auth were not saved to NSUserDefaults
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_AUTH_CODE defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
+
+    XCTAssertNil(loggedOutSubscriptionStatus.smsNumber);
+    XCTAssertNil(loggedOutSubscriptionStatus.smsAuthCode);
+    XCTAssertNil(loggedOutSubscriptionStatus.smsUserId);
+    XCTAssertFalse(loggedOutSubscriptionStatus.isSubscribed);
+}
+
+- (void)testLogout {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    OSDeviceState *deviceState = [OneSignal getDeviceState];
+    XCTAssertNotNil(deviceState.smsNumber);
+    XCTAssertNotNil(deviceState.smsUserId);
+    
+    [OneSignal logoutSMSNumberWithSuccess:^(NSDictionary *results) {
+        self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE = results;
+    } withFailure:^(NSError *error) {
+        self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE = error;
+    }];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+    
+    OneSignalRequest *updateDeviceRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:3];
+    NSString *expectedUpdateUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.pushUserId];
+    XCTAssertEqualObjects(expectedUpdateUrl, updateDeviceRequest.path);
+    
+    // Check to make sure that the push token & auth were not saved to NSUserDefaults
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_AUTH_CODE defaultValue:nil]);
+    XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
+    
+    XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
+    XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
+    XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
+    XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
+    
+    deviceState = [OneSignal getDeviceState];
+    XCTAssertNil(deviceState.smsNumber);
+    XCTAssertNil(deviceState.smsUserId);
 }
 
 @end

@@ -53,6 +53,10 @@ withSMSAuthHashToken:(NSString * _Nullable)hashToken
          withSuccess:(OSSMSSuccessBlock _Nullable)successBlock
          withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
 
+- (void)logoutSMSWithAppId:(NSString * _Nonnull)appId
+               withSuccess:(OSSMSSuccessBlock _Nullable)successBlock
+               withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
+
 - (void)sendTagsWithAppId:(NSString * _Nonnull)appId
                sendingTags:(NSDictionary * _Nonnull)tag
                networkType:(NSNumber * _Nonnull)networkType
