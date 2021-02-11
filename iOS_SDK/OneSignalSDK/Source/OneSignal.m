@@ -1202,6 +1202,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // Can't send tags yet as their isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
+    NSLog(@"ECM add tags but not sending to server");
     [self.playerTags addTags:tagsToSend];
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
@@ -1732,6 +1733,8 @@ static dispatch_queue_t serialQueue;
     NSArray* nowProcessingCallbacks;
     let userState = [self createUserState];
     if (userState.tags) {
+        [self.playerTags addTags:userState.tags];
+        [OneSignal.getPlayerTags saveTagsToUserDefaults];
         tagsToSend = nil;
         
         nowProcessingCallbacks = pendingSendTagCallbacks;
@@ -1772,7 +1775,6 @@ static dispatch_queue_t serialQueue;
             }
             
             if (tagsToSend) {
-                [self.playerTags addTags:tagsToSend];
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             }
                 
@@ -2691,6 +2693,7 @@ static NSString *_lastnonActiveMessageId;
 
     return true;
 }
+
 @end
 
 @implementation OneSignal (SessionStatusDelegate)

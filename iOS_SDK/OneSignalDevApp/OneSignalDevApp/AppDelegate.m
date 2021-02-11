@@ -79,7 +79,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
-    [OneSignal sendTag:@"player_name" value:@"PlayerTag works!"];
+    //[OneSignal sendTag:@"player_name" value:@"cached tag works!"];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
     [OneSignal initWithLaunchOptions:launchOptions];
     [OneSignal addPermissionObserver:self];
