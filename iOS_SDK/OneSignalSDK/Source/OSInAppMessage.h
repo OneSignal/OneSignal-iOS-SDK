@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL dragToDismissDisabled;
 @property (nonatomic) NSNumber *height;
 @property (nonatomic, nullable) NSDate *endTime;
+@property (nonatomic) BOOL hasLiquid;
 
 - (BOOL)isBanner;
 - (BOOL)takeActionAsUnique;

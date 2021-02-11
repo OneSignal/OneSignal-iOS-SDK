@@ -90,6 +90,9 @@
 // This is a fail safe for cases where global contraints are nil and we try to modify them on dismissal of an IAM
 @property (nonatomic) BOOL didPageRenderingComplete;
 
+// BOOL to track if the message content has loaded before tags have finished loading for liquid templating
+@property (nonatomic, nullable) NSString *pendingHTMLContent;
+
 @end
 
 @implementation OSInAppMessageViewController
@@ -229,11 +232,22 @@
             [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
 
         let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
-        NSString* htmlContent = data[@"html"];
-        [self.messageView loadedHtmlContent:htmlContent withBaseURL:baseUrl];
-        
+        self.pendingHTMLContent = data[@"html"];
         self.maxDisplayTime = [data[@"display_duration"] doubleValue];
+        if (self.waitForTags) {
+            return;
+        }
+        [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
+        self.pendingHTMLContent = nil;
     };
+}
+
+- (void)setWaitForTags:(BOOL)waitForTags {
+    self.waitForTags = waitForTags;
+    if (!waitForTags && self.pendingHTMLContent) {
+        [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:[NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL]];
+        self.pendingHTMLContent = nil;
+    }
 }
 
 - (void)loadMessageContent {

@@ -110,6 +110,10 @@
         NSDate *endTime = [dateFormatter dateFromString:stringEndTime];
         message.endTime = endTime;
     }
+    
+    if (json[@"hasLiquid"]) {
+        message.hasLiquid = YES;
+    }
 
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
@@ -171,11 +175,15 @@
     
     json[@"end_time"] = [[NSDateFormatter iso8601DateFormatter] stringFromDate:self.endTime];
     
+    if (self.hasLiquid) {
+        json[@"hasLiquid"] = @"1";
+    }
+    
     return json;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayed_in_session: %@ \ndisplayStats: %@ \nendTime: %@", self.messageId, self.triggers, self.isDisplayedInSession ? @"YES" : @"NO", self.displayStats, self.endTime];
+    return [NSString stringWithFormat:@"OSInAppMessage:  \nmessageId: %@  \ntriggers: %@ \ndisplayed_in_session: %@ \ndisplayStats: %@ \nendTime: %@ \nhasLiquid: %@", self.messageId, self.triggers, self.isDisplayedInSession ? @"YES" : @"NO", self.displayStats, self.endTime, self.hasLiquid ? @"YES" : @"NO"];
 }
 
 - (BOOL)isEqual:(id)object {
@@ -204,6 +212,7 @@
     //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
     [encoder encodeBool:_isDisplayedInSession forKey:@"displayed_in_session"];
     [encoder encodeObject:_endTime forKey:@"endTime"];
+    [encoder encodeBool:_hasLiquid forKey:@"hasLiquid"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
@@ -215,6 +224,7 @@
         //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
         _isDisplayedInSession = [decoder decodeBoolForKey:@"displayed_in_session"];
         _endTime = [decoder decodeObjectForKey:@"endTime"];
+        _hasLiquid = [decoder decodeObjectForKey:@"hasLiquid"];
     }
     return self;
 }

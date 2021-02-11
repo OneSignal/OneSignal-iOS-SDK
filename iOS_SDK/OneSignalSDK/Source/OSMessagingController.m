@@ -81,6 +81,8 @@
 
 @property (nonatomic) BOOL isAppInactive;
 
+@property (nonatomic) BOOL loadedTags;
+
 @end
 
 @implementation OSMessagingController
@@ -171,6 +173,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (self.messages)
         [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
 
+    self.loadedTags = NO;
     [self resetRedisplayMessagesBySession];
     [self evaluateMessages];
     [self deleteOldRedisplayedInAppMessages];
@@ -277,13 +280,24 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)showAndImpressMessage:(OSInAppMessage *)message {
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
-
+    if (message.hasLiquid && !self.loadedTags) {
+        self.viewController.waitForTags = YES;
+        [self loadTags];
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
            [[self.viewController view] setNeedsLayout];
            [self messageViewImpressionRequest:message];
     });
 }
 
+- (void)loadTags {
+    self.loadedTags = YES;
+    [OneSignal getTags:^(NSDictionary *result) {
+        if (self.viewController) {
+            self.viewController.waitForTags = NO;
+        }
+    }];
+}
 - (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId {
     if (message.isPreview) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Not sending page impression for preview message. ID: %@",pageId]];
