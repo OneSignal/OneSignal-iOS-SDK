@@ -40,6 +40,10 @@
 
 @implementation OneSignal (Testing)
 
++ (void)overrideLaunchWebURL:(NSString*)openUrl {
+    OneSignalOverrider.launchWebURLWasCalled = true;
+}
+
 + (NSDate *)overrideSessionLaunchTime {
     if (OneSignalOverrider.shouldOverrideSessionLaunchTime) {
         return [NSDate date];
@@ -53,10 +57,18 @@
 @implementation OneSignalOverrider
 
 static BOOL _overrideLaunchTime = false;
+static BOOL _overrideLaunchURL = false;
+static BOOL _launchWebURLWasCalled = false;
+
 
 + (void)load {
     swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(sessionLaunchTime), @selector(overrideSessionLaunchTime));
+    swizzleClassMethodWithCategoryImplementation([OneSignal class], @selector(launchWebURL:), @selector(overrideLaunchWebURL:));
     _overrideLaunchTime = false;
+}
+
++ (void)reset {
+    _launchWebURLWasCalled = false;
 }
 
 + (BOOL)shouldOverrideSessionLaunchTime {
@@ -65,6 +77,22 @@ static BOOL _overrideLaunchTime = false;
 
 + (void)setShouldOverrideSessionLaunchTime:(BOOL)shouldOverrideSessionLaunchTime {
     _overrideLaunchTime = shouldOverrideSessionLaunchTime;
+}
+
++ (BOOL)shouldOverrideLaunchURL {
+    return _overrideLaunchURL;
+}
+
++ (void)setShouldOverrideLaunchURL:(BOOL)shouldOverrideLaunchURL {
+    _overrideLaunchURL = shouldOverrideLaunchURL;
+}
+
++ (BOOL)launchWebURLWasCalled {
+    return _launchWebURLWasCalled;
+}
+
++ (void)setLaunchWebURLWasCalled:(BOOL)launchWebURLWasCalled {
+    _launchWebURLWasCalled = launchWebURLWasCalled;
 }
 
 @end
