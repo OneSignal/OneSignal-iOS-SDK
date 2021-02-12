@@ -32,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OneSignalOverrider : NSObject
 
 @property (class, nonatomic) BOOL shouldOverrideSessionLaunchTime;
+@property (class, nonatomic) BOOL shouldOverrideLaunchURL;
+@property (class, nonatomic) BOOL launchWebURLWasCalled;
+
++ (void)reset;
 
 @end
 

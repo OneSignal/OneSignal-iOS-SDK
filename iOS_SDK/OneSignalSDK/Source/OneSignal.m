@@ -603,6 +603,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self init];
 }
 
++ (BOOL)shouldSuppressURL {
+    // if the plist key does not exist default to false
+    // the plist value specifies whether the user wants to open an url using default browser or OSWebView
+    NSDictionary *bundleDict = [[NSBundle mainBundle] infoDictionary];
+    BOOL shouldSuppress = [bundleDict[ONESIGNAL_SUPRESS_LAUNCH_URLS] boolValue];
+    return shouldSuppress ?: false;
+}
+
 + (void)setLaunchURLsInApp:(BOOL)launchInApp {
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
@@ -1970,9 +1978,11 @@ static NSString *_lastnonActiveMessageId;
     onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
                                      isActive ? @"YES" : @"NO", messageId]);
 
-    // Try to fetch the open url to launch
-    [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
-    
+    if ([OneSignal shouldSuppressURL]) {
+        // Try to fetch the open url to launch
+        [OneSignal launchWebURL:notification.launchURL];
+    }
+        
     [self clearBadgeCount:true];
     
     NSString* actionID = NULL;
