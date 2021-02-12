@@ -120,10 +120,7 @@
     OSEmailSubscriptionStateChanges* stateChanges = [[OSEmailSubscriptionStateChanges alloc] init];
     stateChanges.from = OneSignal.lastEmailSubscriptionState;
     stateChanges.to = [state copy];
-    
-    // wants OSEmailSubscriptionState
-    
-    
+
     BOOL hasReceiver = [OneSignal.emailSubscriptionStateChangesObserver notifyChange:stateChanges];
     if (hasReceiver) {
         OneSignal.lastEmailSubscriptionState = [state copy];

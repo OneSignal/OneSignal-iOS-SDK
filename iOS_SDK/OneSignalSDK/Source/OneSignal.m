@@ -243,7 +243,7 @@ static OSEmailSubscriptionState* _currentEmailSubscriptionState;
 + (OSEmailSubscriptionState *)currentEmailSubscriptionState {
     if (!_currentEmailSubscriptionState) {
         _currentEmailSubscriptionState = [[OSEmailSubscriptionState alloc] init];
-        
+
         [_currentEmailSubscriptionState.observable addObserver:[OSEmailSubscriptionChangedInternalObserver alloc]];
     }
     return _currentEmailSubscriptionState;
@@ -499,7 +499,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     //call persistAsFrom in order to save the emailAuthToken & playerId to NSUserDefaults
     [self.currentEmailSubscriptionState persist];
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentEmailSubscriptionState after saveEmailAddress: %@", self.currentEmailSubscriptionState.description]];
 }
 
@@ -516,10 +516,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self.currentSMSSubscriptionState setSMSNumber:smsNumber];
     self.currentSMSSubscriptionState.smsAuthCode = smsAuthToken;
     [self.currentSMSSubscriptionState setSMSUserId:smsPlayerId];
-    
+
     //call persistAsFrom in order to save the smsNumber & playerId to NSUserDefaults
     [self.currentSMSSubscriptionState persist];
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentSMSSubscriptionState after saveSMSNumber: %@", self.currentSMSSubscriptionState.description]];
 }
 
@@ -1980,7 +1980,7 @@ static dispatch_queue_t serialQueue;
             
             if (self.currentSubscriptionState.delayedObserverUpdate)
                 [self.currentSubscriptionState setAccepted:[self getNotificationTypes] > 0];
-            
+
         } onFailure:nil];
 
         return true;
@@ -2509,7 +2509,7 @@ static NSString *_lastnonActiveMessageId;
     self.currentEmailSubscriptionState.emailUserId = emailPlayerId;
     
     [self.currentEmailSubscriptionState persist];
-    
+
     let request = [OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId
                                                    appId:self.appId
                                                    deviceToken:nil
