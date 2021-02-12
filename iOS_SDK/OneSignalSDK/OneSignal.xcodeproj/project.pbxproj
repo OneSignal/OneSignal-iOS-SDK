@@ -100,8 +100,6 @@
 		7A42748925D18F4400EE75FC /* OneSignalSetSMSParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */; };
 		7A42748A25D18F4400EE75FC /* OneSignalSetSMSParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */; };
 		7A42748B25D18F4400EE75FC /* OneSignalSetSMSParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A42748825D18F4400EE75FC /* OneSignalSetSMSParameters.m */; };
-		7A4274A225D1C99600EE75FC /* SMSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A4274A125D1C99600EE75FC /* SMSTests.m */; };
-		7A4274A325D1C99600EE75FC /* SMSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A4274A125D1C99600EE75FC /* SMSTests.m */; };
 		7A4274A425D1C99600EE75FC /* SMSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A4274A125D1C99600EE75FC /* SMSTests.m */; };
 		7A5A818224897693002E07C8 /* MigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5A818124897693002E07C8 /* MigrationTests.m */; };
 		7A5A8185248990CD002E07C8 /* OSIndirectNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5A8184248990CD002E07C8 /* OSIndirectNotification.m */; };
@@ -1810,7 +1808,6 @@
 				7A42746425CDF06800EE75FC /* OSUserStateSMSSynchronizer.m in Sources */,
 				9124123E1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,
 				CA47439E2190FEA80020DC8C /* OSTrigger.m in Sources */,
-				7A4274A225D1C99600EE75FC /* SMSTests.m in Sources */,
 				7AF9865824452A9600C36EAE /* OSInfluence.m in Sources */,
 				7AF98692244A567B00C36EAE /* OSOutcomeEventsCache.m in Sources */,
 				912412261E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
@@ -1915,7 +1912,6 @@
 				7A42746525CDF06800EE75FC /* OSUserStateSMSSynchronizer.m in Sources */,
 				7A1232A6235E17A1002B6CE3 /* OSIndirectInfluence.m in Sources */,
 				7AF9865924452A9600C36EAE /* OSInfluence.m in Sources */,
-				7A4274A325D1C99600EE75FC /* SMSTests.m in Sources */,
 				7AF98693244A567B00C36EAE /* OSOutcomeEventsCache.m in Sources */,
 				CAB4112A20852E4C005A70D1 /* DelayedConsentInitializationParameters.m in Sources */,
 				9124123F1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,

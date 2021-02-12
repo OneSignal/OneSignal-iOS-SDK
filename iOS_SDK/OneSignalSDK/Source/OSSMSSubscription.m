@@ -120,9 +120,7 @@
     OSSMSSubscriptionStateChanges* stateChanges = [[OSSMSSubscriptionStateChanges alloc] init];
     stateChanges.from = OneSignal.lastSMSSubscriptionState;
     stateChanges.to = [state copy];
-    
-    // wants OSSMSSubscriptionState
-    
+
     BOOL hasReceiver = [OneSignal.smsSubscriptionStateChangesObserver notifyChange:stateChanges];
     if (hasReceiver) {
         OneSignal.lastSMSSubscriptionState = [state copy];
