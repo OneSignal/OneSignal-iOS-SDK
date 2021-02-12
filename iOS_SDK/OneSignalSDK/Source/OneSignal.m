@@ -1874,6 +1874,12 @@ static dispatch_queue_t serialQueue;
                 delayedExternalIdParameters = nil;
             }
             
+            if (_delayedSMSParameters) {
+                // Call to setSMSNumber: was delayed because the push player_id did not exist yet
+                [self setSMSNumber:_delayedSMSParameters.smsNumber withSMSAuthHashToken:_delayedSMSParameters.authToken withSuccess:_delayedSMSParameters.successBlock withFailure:_delayedSMSParameters.failureBlock];
+                _delayedSMSParameters = nil;
+            }
+            
             if (nowProcessingCallbacks) {
                 for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
                     if (callbackSet.successBlock)
