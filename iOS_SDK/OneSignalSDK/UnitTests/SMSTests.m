@@ -141,7 +141,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // Check to make sure the server gets updated with the new email
+    // Check to make sure the server gets updated with the new sms
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], newSMSNumber);
@@ -197,7 +197,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     }];
     [UnitTestCommonMethods runBackgroundThreads];
     
-    // Check to make sure the server gets updated with the new email
+    // Check to make sure the server gets updated with the new sms
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], newSMSNumber);
