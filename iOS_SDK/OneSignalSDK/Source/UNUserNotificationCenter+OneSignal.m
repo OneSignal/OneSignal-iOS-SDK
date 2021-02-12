@@ -154,6 +154,24 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [self setOneSignalUNDelegate:delegate];
 }
 
++ (void)forwardNotificationWithCenter:(UNUserNotificationCenter *)center
+                         notification:(UNNotification *)notification
+                      OneSignalCenter:(id)instance
+                    completionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+    // Call orginal selector if one was set.
+    if ([instance respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
+        [instance onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
+    // Or call a legacy AppDelegate selector
+    else {
+        [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
+                                                isTextReply:false
+                                           actionIdentifier:nil
+                                                   userText:nil
+                                    fromPresentNotification:true
+                                      withCompletionHandler:^() {}];
+    }
+}
+
 // Apple's docs - Called when a notification is delivered to a foreground app.
 // NOTE: iOS behavior - Calling completionHandler with 0 means userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: does not trigger.
 //  - callLegacyAppDeletegateSelector is called from here due to this case.
@@ -163,10 +181,10 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
-        if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
-            [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
-        else
+        [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
+        if (![self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)]) {
             completionHandler(7);
+        }
         return;
     }
 
@@ -190,18 +208,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     if ([OneSignal app_id])
         [OneSignal notificationReceived:userInfo foreground:YES isActive:YES wasOpened:notShown];
     
-    // Call orginal selector if one was set.
-    if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
-        [self onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
-    // Or call a legacy AppDelegate selector
-    else {
-        [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
-                                                isTextReply:false
-                                           actionIdentifier:nil
-                                                   userText:nil
-                                    fromPresentNotification:true
-                                      withCompletionHandler:^() {}];
-    }
+    [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
     
     // Calling completionHandler for the following reasons:
     //   App dev may have not implented userNotificationCenter:willPresentNotification.
