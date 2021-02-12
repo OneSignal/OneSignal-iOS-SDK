@@ -58,6 +58,7 @@
 #import "OSMessagingControllerOverrider.h"
 #import "OneSignalLifecycleObserver.h"
 #import "OneSignalLocationOverrider.h"
+#import "OneSignalOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [OS_API_SERVER_URL stringByAppendingString:path];
@@ -246,6 +247,7 @@ static XCTestCase* _currentXCTestCase;
     [self clearStateForAppRestart:testCase];
     
     [NSDateOverrider reset];
+    [OneSignalOverrider reset];
     [OneSignalClientOverrider reset:testCase];
     [NSUserDefaultsOverrider clearInternalDictionary];
     UNUserNotificationCenterOverrider.notifTypesOverride = 7;
