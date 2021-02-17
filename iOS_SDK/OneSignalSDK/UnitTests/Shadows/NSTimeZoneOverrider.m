@@ -1,9 +1,23 @@
-//
-//  NSTimeZoneOverrider.m
-//  UnitTests
-//
-//  Created by Gonzalo Narbaiz on 17/02/2021.
-//  Copyright © 2021 Hiptic. All rights reserved.
-//
+#import "NSTimeZoneOverrider.h"
+#import "TestHelperFunctions.h"
 
-#import <Foundation/Foundation.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincomplete-implementation"
+@implementation NSTimeZoneOverrider
+#pragma clang diagnostic pop
+static NSTimeZone *localTimeZone;
+
++ (NSTimeZone *)overrideLocalTimeZone {
+    return localTimeZone;
+}
+
++ (void)setLocalTimeZone:(NSTimeZone *)value {
+    localTimeZone = value;
+}
+
++ (void)load {
+    injectStaticSelector([NSTimeZoneOverrider class], @selector(overrideLocalTimeZone), [NSTimeZone class], @selector(localTimeZone));
+
+}
+
+@end
