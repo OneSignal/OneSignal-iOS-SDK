@@ -36,6 +36,7 @@ THE SOFTWARE.
                    _appId, @"app_id",
                    _deviceOs, @"device_os",
                    _timezone, @"timezone",
+                   _timezoneId, @"timezone_id",
                    _deviceType, @"device_type",
                    _adId, @"ad_id",
                    _sdk, @"sdk",
