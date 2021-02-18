@@ -72,6 +72,7 @@
 #import "OneSignalLocationOverrider.h"
 #import "UIDeviceOverrider.h"
 #import "OneSignalOverrider.h"
+#import "NSTimeZoneOverrider.h"
 
 // Dummies
 #import "DummyNotificationCenterDelegate.h"
@@ -3019,5 +3020,18 @@ didReceiveRemoteNotification:userInfo
     
     // 6. Ensure the launch URL was not opened
     XCTAssertFalse(OneSignalOverrider.launchWebURLWasCalled);
+}
+
+- (void)testTimezoneId {
+       
+    let mockTimezone = [NSTimeZone timeZoneWithName:@"Europe/London"];
+    [NSTimeZoneOverrider setLocalTimeZone:mockTimezone];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    NSLog(@"CHECKING LAST HTTP REQUEST");
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"timezone_id"], mockTimezone.name);
+    
 }
 @end
