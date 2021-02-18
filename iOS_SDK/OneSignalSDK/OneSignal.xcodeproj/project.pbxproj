@@ -52,6 +52,7 @@
 		03866CC12378A67B0009C1D8 /* RestClientAsserts.m in Sources */ = {isa = PBXBuildFile; fileRef = 03866CC02378A67B0009C1D8 /* RestClientAsserts.m */; };
 		038C63822387450300CA4310 /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
 		038C63832387450300CA4310 /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
+		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		1AF75EAE1E8567FD0097B315 /* NSString+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */; };
 		1AF75EAF1E8569710097B315 /* NSString+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */; };
 		1AF75EB01E8569720097B315 /* NSString+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */; };
@@ -509,6 +510,8 @@
 		03866CBC2378A33B0009C1D8 /* OutcomeIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OutcomeIntegrationTests.m; sourceTree = "<group>"; };
 		03866CBF2378A67B0009C1D8 /* RestClientAsserts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RestClientAsserts.h; sourceTree = "<group>"; };
 		03866CC02378A67B0009C1D8 /* RestClientAsserts.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RestClientAsserts.m; sourceTree = "<group>"; };
+		16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSTimeZoneOverrider.m; sourceTree = "<group>"; };
+		16664C5425DDB2CB003B8A14 /* NSTimeZoneOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSTimeZoneOverrider.h; sourceTree = "<group>"; };
 		1AF75EAC1E8567FD0097B315 /* NSString+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OneSignal.h"; sourceTree = "<group>"; };
 		1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OneSignal.m"; sourceTree = "<group>"; };
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -949,6 +952,8 @@
 				9D348539233D2E3600EB81C9 /* OneSignalLocationOverrider.m */,
 				DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */,
 				DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */,
+				16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */,
+				16664C5425DDB2CB003B8A14 /* NSTimeZoneOverrider.h */,
 			);
 			path = Shadows;
 			sourceTree = "<group>";
@@ -2021,6 +2026,7 @@
 				9D3300F623145AF3000F0A83 /* OneSignalViewHelper.m in Sources */,
 				7AF9868224497BE100C36EAE /* OSOutcomeEventsV1Repository.m in Sources */,
 				7A600B462453790700514A53 /* OSFocusInfluenceParam.m in Sources */,
+				16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */,
 				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
 				7A93265325A8DD4300BBEC27 /* OSUserState.m in Sources */,
 				CA8E18FF2193A1A5009DA223 /* NSTimerOverrider.m in Sources */,
