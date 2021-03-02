@@ -1502,18 +1502,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     let isPushTokenDifferent = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken];
     self.currentSubscriptionState.pushToken = deviceToken;
 
-    // iOS 9+ - We get a token right away but give the user 30 sec to respond notification permission prompt.
-    // The goal is to only have 1 server call.
-    [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *status) {
-        if (status.answeredPrompt || status.provisional) {
-            if ([self shouldRegisterNow])
-                [self registerUser];
-            else if (isPushTokenDifferent)
-                [self playerPutForPushTokenAndNotificationTypes];
-        } else {
-            [self registerUserAfterDelay];
-        }
-    }];
+    if ([self shouldRegisterNow])
+        [self registerUser];
+    else if (isPushTokenDifferent)
+        [self playerPutForPushTokenAndNotificationTypes];
 }
 
 + (void)playerPutForPushTokenAndNotificationTypes {

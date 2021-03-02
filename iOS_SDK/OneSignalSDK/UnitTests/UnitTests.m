@@ -745,6 +745,34 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
 }
 
+// We don't want wait for the developer to prompt for notifications, just register as as soon as we have an APNS token
+- (void)testWaitsForAPNSTokenBeforePlayerCreate {
+    // 1. Set that notification permissions to unanwsered
+    UNUserNotificationCenterOverrider.authorizationStatus = [NSNumber numberWithInteger:UNAuthorizationStatusNotDetermined];
+
+    // 2. Setup delay of APNs reaponse
+    [UIApplicationOverrider setBlockApnsResponse:true];
+
+    // 3. Init OneSignal
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [NSObjectOverrider runPendingSelectors];
+
+    // 4. Don't make a network call right away
+    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
+
+    // 5. Simulate APNs now giving us a push token
+    [UIApplicationOverrider setBlockApnsResponse:false];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // 6. Ensure we registered with push token and it has the correct notification_types
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @-18);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
+}
+
+// TODO: Need another test to register even if backgroun modes are NOT check to just register before we have a token.
+// However ONLY if use has NOT accepted notifications.
+//     - The test testNotificationPermissionsAcceptedBeforeAddingOneSiganl_waitsForAPNSTokenBeforePlayerCreate should cover this however part.
+
 - (void)testNotificationTypesWhenAlreadyAcceptedWithAutoPromptOffOnFristStartPreIos10 {
     OneSignalHelperOverrider.mockIOSVersion = 9;
     [UnitTestCommonMethods setCurrentNotificationPermission:true];
