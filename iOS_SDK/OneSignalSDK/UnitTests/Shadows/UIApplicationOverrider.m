@@ -101,7 +101,7 @@ static UIApplication *sharedApplication;
 }
 
 + (void)setBlockApnsResponse:(BOOL)block {
-    blockApnsResponse = true;
+    blockApnsResponse = block;
 }
 
 + (void)setAPNSTokenLength:(int)tokenLength {
