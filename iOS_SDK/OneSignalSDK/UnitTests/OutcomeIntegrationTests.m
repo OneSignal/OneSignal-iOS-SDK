@@ -40,7 +40,6 @@
 #import "UNUserNotificationCenterOverrider.h"
 #import "RestClientAsserts.h"
 #import "CommonAsserts.h"
-#import "NSUserDefaultsOverrider.h"
 #import "OneSignalClientOverrider.h"
 #import "UIApplicationOverrider.h"
 #import "OneSignalNotificationServiceExtensionHandler.h"

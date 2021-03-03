@@ -61,7 +61,6 @@
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
 		4529DED21FA81EA800CEAB1D /* NSObjectOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */; };
 		4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED41FA823B900CEAB1D /* TestHelperFunctions.m */; };
-		4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */; };
 		4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDA1FA8284E00CEAB1D /* NSDataOverrider.m */; };
 		4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEDD1FA828E500CEAB1D /* NSDateOverrider.m */; };
 		4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4529DEE01FA82AB300CEAB1D /* NSBundleOverrider.m */; };
@@ -521,8 +520,6 @@
 		4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSObjectOverrider.m; sourceTree = "<group>"; };
 		4529DED31FA823B900CEAB1D /* TestHelperFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestHelperFunctions.h; sourceTree = "<group>"; };
 		4529DED41FA823B900CEAB1D /* TestHelperFunctions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestHelperFunctions.m; sourceTree = "<group>"; };
-		4529DED61FA8253D00CEAB1D /* NSUserDefaultsOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSUserDefaultsOverrider.h; sourceTree = "<group>"; };
-		4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSUserDefaultsOverrider.m; sourceTree = "<group>"; };
 		4529DED91FA8284E00CEAB1D /* NSDataOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSDataOverrider.h; sourceTree = "<group>"; };
 		4529DEDA1FA8284E00CEAB1D /* NSDataOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSDataOverrider.m; sourceTree = "<group>"; };
 		4529DEDC1FA828E500CEAB1D /* NSDateOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSDateOverrider.h; sourceTree = "<group>"; };
@@ -923,8 +920,6 @@
 				4529DED11FA81EA800CEAB1D /* NSObjectOverrider.m */,
 				4529DEE21FA82C6200CEAB1D /* NSURLSessionOverrider.h */,
 				4529DEE31FA82C6200CEAB1D /* NSURLSessionOverrider.m */,
-				4529DED61FA8253D00CEAB1D /* NSUserDefaultsOverrider.h */,
-				4529DED71FA8253D00CEAB1D /* NSUserDefaultsOverrider.m */,
 				4529DEEB1FA83C5D00CEAB1D /* OneSignalHelperOverrider.h */,
 				4529DEEC1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m */,
 				CA08FC821FE99BB4004C445F /* OneSignalClientOverrider.h */,
@@ -1948,7 +1943,6 @@
 				CA63AF8720211FF800E340FB /* UnitTestCommonMethods.m in Sources */,
 				CA70E3372023D51300019273 /* OneSignalSetEmailParameters.m in Sources */,
 				7A5A8185248990CD002E07C8 /* OSIndirectNotification.m in Sources */,
-				4529DED81FA8253D00CEAB1D /* NSUserDefaultsOverrider.m in Sources */,
 				4529DEED1FA83C5D00CEAB1D /* OneSignalHelperOverrider.m in Sources */,
 				7AF98666244975AD00C36EAE /* OSOutcomeSourceBody.m in Sources */,
 				CA1A6E6C20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */,

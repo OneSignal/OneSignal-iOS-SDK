@@ -69,6 +69,7 @@ withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundB
 + (void)pullDownNotificationCenter;
 + (void)useSceneLifecycle:(BOOL)useSceneLifecycle;
 + (void)setCurrentNotificationPermissionAsUnanswered;
++ (void)clearUserDefaults;
 
 + (UNNotificationResponse*)createBasiciOSNotificationResponseWithPayload:(NSDictionary*)userInfo;
 + (UNNotification *)createBasiciOSNotificationWithPayload:(NSDictionary *)userInfo;
