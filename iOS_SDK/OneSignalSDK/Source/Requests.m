@@ -157,14 +157,11 @@
     return request;
 }
 
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId deviceToken:(NSString *)identifier smsAuthToken:(NSString *)smsAuthToken smsNumber:(NSString *)smsNumber externalIdAuthToken:(NSString *)externalIdAuthToken {
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId deviceToken:(NSString *)identifier smsAuthToken:(NSString *)smsAuthToken externalIdAuthToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestUpdateDeviceToken new];
     
     let params = [NSMutableDictionary new];
     params[@"app_id"] = appId;
-    
-    if (smsNumber)
-        params[SMS_NUMBER_KEY] = smsNumber;
     
     if (identifier)
         params[@"identifier"] = identifier;
