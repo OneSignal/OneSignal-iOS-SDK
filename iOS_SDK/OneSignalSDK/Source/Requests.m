@@ -238,24 +238,6 @@
 
 @end
 
-@implementation OSRequestLogoutSMS
-
-+ (instancetype)withAppId:(NSString *)appId smsPlayerId:(NSString *)smsPlayerId smsAuthHash:(NSString *)smsAuthHash devicePlayerId:(NSString *)devicePlayerId {
-    let request = [OSRequestLogoutSMS new];
-    
-    request.parameters = @{
-       @"sms_auth_hash" : smsAuthHash ?: [NSNull null],
-       @"app_id" : appId
-    };
-    
-    request.method = POST;
-    request.path = [NSString stringWithFormat:@"players/%@/sms_logout", devicePlayerId];
-    
-    return request;
-}
-
-@end
-
 @implementation OSRequestUpdateNotificationTypes
 + (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId notificationTypes:(NSNumber *)notificationTypes {
     let request = [OSRequestUpdateNotificationTypes new];

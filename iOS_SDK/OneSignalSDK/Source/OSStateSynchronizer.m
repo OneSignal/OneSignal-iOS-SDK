@@ -258,13 +258,9 @@ withSMSAuthHashToken:(NSString *)hashToken
 
 - (void)logoutSMSWithAppId:(NSString *)appId withSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
     NSString *smsNumber = self.currentSMSSubscriptionState.smsNumber;
-    [OneSignalClient.sharedClient executeRequest:[OSRequestLogoutSMS withAppId:appId smsPlayerId:self.currentSMSSubscriptionState.smsUserId smsAuthHash:self.currentSMSSubscriptionState.smsAuthCode devicePlayerId:self.currentSubscriptionState.userId] onSuccess:^(NSDictionary *result) {
-        [OneSignal saveSMSNumber:nil withAuthToken:nil userId:nil];
+    [OneSignal saveSMSNumber:nil withAuthToken:nil userId:nil];
         
-        [self callSMSSuccessBlockOnMainThread:successBlock withSMSNumber:smsNumber];
-    } onFailure:^(NSError *error) {
-        [self callFailureBlockOnMainThread:failureBlock withError:error];
-    }];
+    [self callSMSSuccessBlockOnMainThread:successBlock withSMSNumber:smsNumber];
 }
 
 - (void)sendTagsWithAppId:(NSString *)appId

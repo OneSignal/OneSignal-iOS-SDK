@@ -888,6 +888,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    OSDeviceState *deviceState = [OneSignal getDeviceState];
+    XCTAssertNotNil(deviceState.smsNumber);
+    XCTAssertNotNil(deviceState.smsUserId);
+    
     [OneSignal logoutSMSNumberWithSuccess:^(NSDictionary *results) {
         self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE = results;
     } withFailure:^(NSError *error) {
@@ -895,28 +899,25 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     }];
     [UnitTestCommonMethods runBackgroundThreads];
 
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
     
     OneSignalRequest *updateDeviceRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:3];
-    OneSignalRequest *logoutRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:4];
     NSString *expectedUpdateUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.pushUserId];
-    NSString *expectedLogoutUrl = [NSString stringWithFormat:@"players/%@/sms_logout", OneSignalClientOverrider.pushUserId];
     XCTAssertEqualObjects(expectedUpdateUrl, updateDeviceRequest.path);
-    XCTAssertEqualObjects(expectedLogoutUrl, logoutRequest.path);
     
     // Check to make sure that the push token & auth were not saved to NSUserDefaults
     XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_PLAYER_ID defaultValue:nil]);
     XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_AUTH_CODE defaultValue:nil]);
     XCTAssertNil([OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_SMS_NUMBER defaultValue:nil]);
-
-    XCTAssertEqual(2, logoutRequest.parameters.count);
-    XCTAssertTrue([logoutRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertEqualObjects([NSNull null], [logoutRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
     
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertEqual(1, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE count]);
     XCTAssertEqual(self.ONESIGNAL_SMS_NUMBER, [self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE objectForKey:SMS_NUMBER_KEY]);
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
+    
+    deviceState = [OneSignal getDeviceState];
+    XCTAssertNil(deviceState.smsNumber);
+    XCTAssertNil(deviceState.smsUserId);
 }
 
 @end
