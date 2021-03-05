@@ -176,7 +176,7 @@
     json[@"end_time"] = [[NSDateFormatter iso8601DateFormatter] stringFromDate:self.endTime];
     
     if (self.hasLiquid) {
-        json[@"has_liquid"] = @"1";
+        json[@"has_liquid"] = @true;
     }
     
     return json;
