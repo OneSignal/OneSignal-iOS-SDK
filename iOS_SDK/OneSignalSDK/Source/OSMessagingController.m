@@ -81,7 +81,7 @@
 
 @property (nonatomic) BOOL isAppInactive;
 
-@property (nonatomic) BOOL loadedTags;
+@property (nonatomic) BOOL calledLoadTags;
 
 @end
 
@@ -173,7 +173,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (self.messages)
         [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
 
-    self.loadedTags = NO;
+    self.calledLoadTags = NO;
     [self resetRedisplayMessagesBySession];
     [self evaluateMessages];
     [self deleteOldRedisplayedInAppMessages];
@@ -280,7 +280,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)showAndImpressMessage:(OSInAppMessage *)message {
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
-    if (message.hasLiquid && !self.loadedTags) {
+    if (message.hasLiquid && !self.calledLoadTags) {
         self.viewController.waitForTags = YES;
         [self loadTags];
     }
@@ -291,7 +291,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)loadTags {
-    self.loadedTags = YES;
+    self.calledLoadTags = YES;
     [OneSignal getTags:^(NSDictionary *result) {
         if (self.viewController) {
             self.viewController.waitForTags = NO;
