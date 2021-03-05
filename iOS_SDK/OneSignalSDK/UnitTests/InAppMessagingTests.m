@@ -215,8 +215,10 @@ NSInteger const DELAY = 60;
 }
 
 - (void)testCorrectlyParsedHasLiquid {
-    XCTAssertFalse(testMessage.hasLiquid);
-    XCTAssertTrue(testMessageRedisplay.hasLiquid);
+    OSInAppMessage *hasLiquidMessage = [OSInAppMessageTestHelper testMessageWithLiquid];
+    XCTAssertTrue(hasLiquidMessage.hasLiquid);
+    OSInAppMessage *noLiquidMessage = [OSInAppMessageTestHelper testMessage];
+    XCTAssertFalse(noLiquidMessage.hasLiquid);
 }
 
 - (void)testCorrectlyParsedDisplayStats {
