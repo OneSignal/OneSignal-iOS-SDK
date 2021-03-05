@@ -42,7 +42,7 @@ THE SOFTWARE.
 - (instancetype)initWithEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState
                           withSubcriptionState:(OSSubscriptionState *)subscriptionState {
     self = [super init];
-    if (self){
+    if (self) {
         _currentEmailSubscriptionState = emailSubscriptionState;
         _currentSubscriptionState = subscriptionState;
     }
