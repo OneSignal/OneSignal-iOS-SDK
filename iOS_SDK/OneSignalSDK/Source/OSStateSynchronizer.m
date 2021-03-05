@@ -235,7 +235,7 @@ withSMSAuthHashToken:(NSString *)hashToken
     // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
     if (_currentSMSSubscriptionState.smsNumber) {
         let userId = _currentSMSSubscriptionState.smsUserId;
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:userId appId:appId deviceToken:smsNumber smsAuthToken:hashToken smsNumber:nil externalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:userId appId:appId deviceToken:smsNumber smsAuthToken:hashToken externalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
             [OneSignal saveSMSNumber:smsNumber withAuthToken:hashToken userId:userId];
             [self callSMSSuccessBlockOnMainThread:successBlock withSMSNumber:smsNumber];
         } onFailure:^(NSError *error) {
@@ -248,7 +248,7 @@ withSMSAuthHashToken:(NSString *)hashToken
             if (smsPlayerId) {
                 [OneSignal saveSMSNumber:smsNumber withAuthToken:hashToken userId:smsPlayerId];
 
-                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:appId deviceToken:nil smsAuthToken:hashToken smsNumber:smsNumber externalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:appId deviceToken:smsNumber smsAuthToken:hashToken externalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
                     [self callSMSSuccessBlockOnMainThread:successBlock withSMSNumber:smsNumber];
                 } onFailure:^(NSError *error) {
                     [self callFailureBlockOnMainThread:failureBlock withError:error];

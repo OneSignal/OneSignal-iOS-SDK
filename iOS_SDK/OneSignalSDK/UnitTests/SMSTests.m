@@ -116,7 +116,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"parent_player_id"]);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY], self.ONESIGNAL_SMS_NUMBER);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], self.ONESIGNAL_SMS_NUMBER);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY], self.ONESIGNAL_SMS_HASH_TOKEN);
     
     // Check to make sure that the push token & auth were saved to NSUserDefaults
@@ -172,7 +172,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"parent_player_id"]);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY], self.ONESIGNAL_SMS_NUMBER);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], self.ONESIGNAL_SMS_NUMBER);
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY]);
     
     // Check to make sure that the push token & auth were saved to NSUserDefaults
@@ -234,7 +234,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([NSStringFromClass([OSRequestUpdateDeviceToken class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"parent_player_id"]);
-    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_KEY], self.ONESIGNAL_SMS_NUMBER);
+    XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], self.ONESIGNAL_SMS_NUMBER);
     XCTAssertEqual(OneSignalClientOverrider.lastHTTPRequest[SMS_NUMBER_AUTH_HASH_KEY], self.ONESIGNAL_SMS_HASH_TOKEN);
     
     // Check to make sure that the push token & auth were saved to NSUserDefaults
@@ -498,7 +498,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(2, updateDeviceRequest.parameters.count);
     XCTAssertTrue([updateDeviceRequest.parameters objectForKey:@"app_id"]);
     XCTAssertFalse([updateDeviceRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
-    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, updateDeviceRequest.parameters[SMS_NUMBER_KEY]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, updateDeviceRequest.parameters[@"identifier"]);
 }
 
 - (void)testRegisterWithAuthToken {
@@ -528,7 +528,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqual(3, updateDeviceRequest.parameters.count);
     XCTAssertTrue([updateDeviceRequest.parameters objectForKey:@"app_id"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [updateDeviceRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
-    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, updateDeviceRequest.parameters[SMS_NUMBER_KEY]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, updateDeviceRequest.parameters[@"identifier"]);
 }
 
 - (void)testRegisterWithAuthTokenAndExternalId {
@@ -588,7 +588,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertTrue([updateDeviceRequest.parameters objectForKey:@"app_id"]);
     XCTAssertEqualObjects(self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN, [updateDeviceRequest.parameters objectForKey:@"external_user_id_auth_hash"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [updateDeviceRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
-    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, updateDeviceRequest.parameters[SMS_NUMBER_KEY]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, updateDeviceRequest.parameters[@"identifier"]);
 }
 
 - (void)testOnSessionRequest {
