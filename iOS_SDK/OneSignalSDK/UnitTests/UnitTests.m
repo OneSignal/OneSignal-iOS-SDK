@@ -58,7 +58,6 @@
 
 // Shadows
 #import "NSObjectOverrider.h"
-#import "NSUserDefaultsOverrider.h"
 #import "NSDateOverrider.h"
 #import "NSBundleOverrider.h"
 #import "UNUserNotificationCenterOverrider.h"

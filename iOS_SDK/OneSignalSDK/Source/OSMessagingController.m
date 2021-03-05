@@ -204,7 +204,7 @@ static BOOL _isInAppMessagingPaused = false;
             [newRedisplayDictionary removeObjectForKey:messageId];
         }
 
-        [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:newRedisplayDictionary];
+        [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:newRedisplayDictionary];
     }
 }
 

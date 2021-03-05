@@ -28,7 +28,6 @@
 #import <XCTest/XCTest.h>
 #import "UnitTestCommonMethods.h"
 #import "OneSignalExtensionBadgeHandler.h"
-#import "NSUserDefaultsOverrider.h"
 #import "UNUserNotificationCenterOverrider.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalHelperOverrider.h"

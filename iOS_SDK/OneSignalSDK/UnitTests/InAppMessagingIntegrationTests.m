@@ -44,7 +44,6 @@
 #import "UIApplicationOverrider.h"
 #import "OneSignalHelperOverrider.h"
 #import "UNUserNotificationCenterOverrider.h"
-#import "NSUserDefaultsOverrider.h"
 #import "NSBundleOverrider.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "Requests.h"
@@ -544,7 +543,7 @@
 
     message.displayStats.lastDisplayTime = firstInterval - delay;
     // Save IAM for redisplay
-    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
+    [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
     // Set data for redisplay
     [OSMessagingControllerOverrider setMessagesForRedisplay:redisplayedInAppMessages];
     // Save IAM for dismiss
@@ -680,11 +679,11 @@
     [redisplayedInAppMessages setObject:message2 forKey:message2.messageId];
 
     [OSMessagingControllerOverrider setMessagesForRedisplay:redisplayedInAppMessages];
-    [standardUserDefaults saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
+    [standardUserDefaults saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
 
     [self initOneSignalWithInAppMessage:message];
 
-    let redisplayMessagesCache = [standardUserDefaults getSavedDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
+    NSMutableDictionary *redisplayMessagesCache = [standardUserDefaults getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
     XCTAssertTrue([redisplayMessagesCache objectForKey:message1.messageId]);
     XCTAssertFalse([redisplayMessagesCache objectForKey:message2.messageId]);
 }

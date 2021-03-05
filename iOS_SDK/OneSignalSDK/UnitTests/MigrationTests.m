@@ -37,6 +37,10 @@
 #import "UnitTestCommonMethods.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessagingDefines.h"
+#import "OneSignalUserDefaults.h"
+#import "OSInAppMessage.h"
+#import "OSInAppMessagingHelpers.h"
 #import "CommonAsserts.h"
   
 @interface MigrationTests : XCTestCase
@@ -236,5 +240,56 @@
     NSInteger sdkVersionAfterMigration = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     XCTAssertEqual([[OneSignal sdkVersionRaw] intValue], sdkVersionAfterMigration);
 }
+
+- (void)testIAMCachedEmptyDictionaryToCachedCodeableMigration {
+    NSDictionary<NSString *, OSInAppMessage *>*emptyDict = [NSMutableDictionary new];
+    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:emptyDict];
+    
+    [migrationController migrate];
+}
+
+- (void)testIAMCachedDictionaryToCachedCodeableMigration {
+    NSMutableDictionary <NSString *, OSInAppMessage *> *emptyDict = [NSMutableDictionary new];
+    
+    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:emptyDict];
+    
+    [migrationController migrate];
+    
+    NSDictionary<NSString *, OSInAppMessage *>*retrievedDict = [OneSignalUserDefaults.initStandard
+                                                                getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
+    XCTAssertEqualObjects(emptyDict, retrievedDict);
+}
+
+- (void)testIAMCachedCodeableMigration {
+    let limit = 5;
+    let delay = 60;
+    let message = [OSInAppMessageTestHelper testMessageWithRedisplayLimit:limit delay:@(delay)];
+    message.isDisplayedInSession = true;
+    NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages = [NSMutableDictionary new];
+    [redisplayedInAppMessages setObject:message forKey:message.messageId];
+    
+    [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
+    
+    [migrationController migrate];
+    
+    NSDictionary<NSString *, OSInAppMessage *>*retrievedDict = [OneSignalUserDefaults.initStandard
+                                                                getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
+    XCTAssertEqualObjects(redisplayedInAppMessages, retrievedDict);
+}
+
+- (void)testIAMNilCacheToNilMigration {
+    
+    [OneSignalUserDefaults.initStandard saveDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:nil];
+    
+    [migrationController migrate];
+    
+    NSDictionary<NSString *, OSInAppMessage *>*retrievedDict = [OneSignalUserDefaults.initStandard
+                                                                getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
+    XCTAssertNil(retrievedDict);
+}
+
+
+
+
 
 @end
