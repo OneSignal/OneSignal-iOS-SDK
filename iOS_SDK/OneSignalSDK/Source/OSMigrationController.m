@@ -34,6 +34,7 @@ THE SOFTWARE.
 #import "OneSignal.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
+#import "OSInAppMessagingDefines.h"
 #import "OneSignalHelper.h"
 
 @interface OneSignal ()
@@ -45,6 +46,7 @@ THE SOFTWARE.
 
 - (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
+    [self migrateIAMRedisplayCache];
     [self saveCurrentSDKVersion];
 }
 
@@ -74,6 +76,36 @@ THE SOFTWARE.
         if (attributedCacheUniqueOutcomeEvents) {
             [NSKeyedArchiver setClassName:@"OSCachedUniqueOutcome" forClass:[OSCachedUniqueOutcome class]];
             [[OneSignal outcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
+        }
+    }
+}
+
+// Devices could potentially have bad data in the OS_IAM_REDISPLAY_DICTIONARY
+// that was saved as a dictionary and not CodeableData. Try to detect if that is the case
+// and save it is as CodeableData instead.
+- (void)migrateIAMRedisplayCache {
+    let iamRedisplayCacheFixVersion = 21604;
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    if (sdkVersion >= iamRedisplayCacheFixVersion)
+        return;
+    
+    @try {
+        __unused NSMutableDictionary *redisplayDict =[[NSMutableDictionary alloc] initWithDictionary:[OneSignalUserDefaults.initStandard
+                                                        getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY
+                                                        defaultValue:[NSMutableDictionary new]]];
+    } @catch (NSException *exception) {
+        @try {
+            // The redisplay IAMs might have been saved as a dictionary.
+            // Try to read them as a dictionary and then save them as a codeable.
+            NSMutableDictionary *redisplayDict = [[NSMutableDictionary alloc] initWithDictionary:[OneSignalUserDefaults.initStandard
+                                                                    getSavedDictionaryForKey:OS_IAM_REDISPLAY_DICTIONARY
+                                                                    defaultValue:[NSMutableDictionary new]]];
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY
+                                                                    withValue:redisplayDict];
+        } @catch (NSException *exception) {
+            //Clear the cached redisplay dictionary of bad data
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY
+                                                                    withValue:nil];
         }
     }
 }
