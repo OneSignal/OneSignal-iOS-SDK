@@ -84,7 +84,7 @@ THE SOFTWARE.
 // that was saved as a dictionary and not CodeableData. Try to detect if that is the case
 // and save it is as CodeableData instead.
 - (void)migrateIAMRedisplayCache {
-    let iamRedisplayCacheFixVersion = 30203;
+    let iamRedisplayCacheFixVersion = 21604;
     long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     if (sdkVersion >= iamRedisplayCacheFixVersion)
         return;
