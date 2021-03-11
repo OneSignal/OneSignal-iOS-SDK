@@ -1605,9 +1605,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
           appId:self.appId
           deviceToken:self.currentSubscriptionState.pushToken
           notificationTypes:@([self getNotificationTypes])
-          withParentId:nil
-          emailAuthToken:nil
-          email:nil
           externalIdAuthToken:[self mExternalIdAuthToken]
       ];
       [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:nil];
@@ -2424,7 +2421,7 @@ static NSString *_lastnonActiveMessageId;
     //  otherwise, we should call Create Device
     // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
     if (self.currentEmailSubscriptionState.emailUserId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.appId deviceToken:email notificationTypes:nil withParentId:nil emailAuthToken:emailAuthToken email:nil externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.appId deviceToken:email withParentId:nil emailAuthToken:emailAuthToken email:nil externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock];
         } onFailure:^(NSError *error) {
             [self callFailureBlockOnMainThread:failureBlock withError:error];
@@ -2436,8 +2433,7 @@ static NSString *_lastnonActiveMessageId;
             
             if (emailPlayerId) {
                 [OneSignal saveEmailAddress:email withAuthToken:emailAuthToken userId:emailPlayerId];
-
-                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil notificationTypes:@([self getNotificationTypes]) withParentId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:hashToken email:email externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
+                [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil withParentId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:hashToken email:email externalIdAuthToken:[self mExternalIdAuthToken] ] onSuccess:^(NSDictionary *result) {
                     [self callSuccessBlockOnMainThread:successBlock];
                 } onFailure:^(NSError *error) {
                     [self callFailureBlockOnMainThread:failureBlock withError:error];
@@ -2497,7 +2493,6 @@ static NSString *_lastnonActiveMessageId;
     let request = [OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId
                                                    appId:self.appId
                                                    deviceToken:nil
-                                                   notificationTypes: @([self getNotificationTypes])
                                                    withParentId:emailPlayerId
                                                    emailAuthToken:self.currentEmailSubscriptionState.emailAuthCode
                                                    email:self.currentEmailSubscriptionState.emailAddress

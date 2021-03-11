@@ -125,8 +125,30 @@
 @end
 
 @implementation OSRequestUpdateDeviceToken
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash email:(NSString * _Nullable)email externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
     
+    let request = [OSRequestUpdateDeviceToken new];
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+   
+    if (notificationTypes)
+        params[@"notification_types"] = notificationTypes;
+    
+    if (identifier)
+        params[@"identifier"] = identifier;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
+    
+    request.parameters = params;
+    request.method = PUT;
+    request.path = [NSString stringWithFormat:@"players/%@", userId];
+    
+    return request;
+}
+
++ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId deviceToken:(NSString *)identifier withParentId:(NSString *)parentId emailAuthToken:(NSString *)emailAuthHash email:(NSString *)email externalIdAuthToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestUpdateDeviceToken new];
     
     let params = [NSMutableDictionary new];
@@ -134,9 +156,6 @@
     
     if (email)
         params[@"email"] = email;
-    
-    if (notificationTypes)
-        params[@"notification_types"] = notificationTypes;
     
     if (identifier)
         params[@"identifier"] = identifier;
