@@ -218,7 +218,7 @@
     return request;
 }
 
-+ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType notificationTypes:(NSNumber *)notificationTypes withSMSNumber:(NSString *)smsNumber withPlayerId:(NSString *)playerId withSMSAuthHash:(NSString *)smsAuthHash withExternalIdAuthToken:(NSString *)externalIdAuthToken {
++ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType withSMSNumber:(NSString *)smsNumber withPlayerId:(NSString *)playerId withSMSAuthHash:(NSString *)smsAuthHash withExternalIdAuthToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestCreateDevice new];
     
     request.parameters = @{
