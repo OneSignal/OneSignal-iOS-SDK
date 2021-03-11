@@ -81,7 +81,7 @@
     //Script to set the tags for liquid tag substitution
     NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
                          <script> \
-                            liquidPlayerTags = %@; \
+                            setPlayerTags(%@);\
                          </script>",html, tags];
     return newHtml;
 }
@@ -89,7 +89,6 @@
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
-
     dispatch_sync(dispatch_get_main_queue(), ^{
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
         NSString *taggedHTML = [self addTagsToHTML:html];
