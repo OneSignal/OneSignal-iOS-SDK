@@ -81,7 +81,7 @@
     //Script to set the tags for liquid tag substitution
     NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
                          <script> \
-                             iamInfo.tags = %@; \
+                            liquidPlayerTags = %@; \
                          </script>",html, tags];
     return newHtml;
 }
