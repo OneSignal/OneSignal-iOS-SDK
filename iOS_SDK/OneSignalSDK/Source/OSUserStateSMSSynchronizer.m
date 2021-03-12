@@ -83,6 +83,7 @@ THE SOFTWARE.
     smsDataDic[SMS_NUMBER_AUTH_HASH_KEY] = self.getSMSAuthHashToken;
     smsDataDic[SMS_NUMBER_KEY] = _currentSMSSubscriptionState.smsNumber;
     smsDataDic[@"device_player_id"] = _currentSubscriptionState.userId;
+    [smsDataDic removeObjectForKey:@"notification_types"];
 
     // If push device has external id we want to add it to the SMS device also
     if (registrationState.externalUserId)
