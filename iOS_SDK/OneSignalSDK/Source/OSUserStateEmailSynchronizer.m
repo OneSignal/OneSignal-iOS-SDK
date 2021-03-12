@@ -79,6 +79,7 @@ THE SOFTWARE.
     emailDataDic[@"email_auth_hash"] = self.getEmailAuthHashToken;
     emailDataDic[@"identifier"] = _currentEmailSubscriptionState.emailAddress;
     emailDataDic[@"device_player_id"] = _currentSubscriptionState.userId;
+    [emailDataDic removeObjectForKey:@"notification_types"];
     
     // If push device has external id we want to add it to the email device also
     if (registrationState.externalUserId)
