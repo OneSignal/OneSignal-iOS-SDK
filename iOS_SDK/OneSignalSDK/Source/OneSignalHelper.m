@@ -868,19 +868,7 @@ static OneSignal* singleInstance = nil;
             });
         }];
     };
-    
-    if (url) {
-        let message = NSLocalizedString(([NSString stringWithFormat:@"Would you like to open %@://%@", url.scheme, url.host]), @"Asks whether the user wants to open the URL");
-        let title = NSLocalizedString(@"Open Website?", @"A title asking if the user wants to open a URL/website");
-        let openAction = NSLocalizedString(@"Open", @"Allows the user to open the URL/website");
-        let cancelAction = NSLocalizedString(@"Cancel", @"The user won't open the URL/website");
-        
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withActions:@[openAction] cancelTitle:cancelAction withActionCompletion:^(int tappedActionIndex) {
-            openUrlBlock(tappedActionIndex > -1);
-        }];
-    } else {
-        openUrlBlock(true);
-    }
+    openUrlBlock(true);
 }
 
 + (void)runOnMainThread:(void(^)())block {
