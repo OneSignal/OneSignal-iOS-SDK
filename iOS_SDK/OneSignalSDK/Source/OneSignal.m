@@ -2715,6 +2715,11 @@ static NSString *_lastnonActiveMessageId;
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)
 + (void)load {
+    
+    if ([self shouldDisableBasedOnProcessArguments]) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];
+        return;
+    }
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
     // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views
@@ -2760,6 +2765,12 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper registerAsUNNotificationCenterDelegate];
 }
 
++(BOOL) shouldDisableBasedOnProcessArguments {
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"DISABLE_ONESIGNAL_SWIZZLING"]) {
+        return YES;
+    }
+    return NO;
+}
 @end
 
 #pragma clang diagnostic pop
