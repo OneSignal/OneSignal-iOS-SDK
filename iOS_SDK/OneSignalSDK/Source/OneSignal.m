@@ -2766,7 +2766,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 +(BOOL) shouldDisableBasedOnProcessArguments {
-    if ([NSProcessInfo.processInfo.arguments containsObject: @"DISABLE_ONESIGNAL_SWIZZLING"]) {
+    if ([NSProcessInfo.processInfo.arguments containsObject:@"DISABLE_ONESIGNAL_SWIZZLING"]) {
         return YES;
     }
     return NO;
