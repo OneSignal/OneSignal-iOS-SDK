@@ -90,8 +90,8 @@
 }
 
 - (void)displayDialog:(OSDialogRequest * _Nonnull)request {
-    let rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-    
+    let visibleViewController = [OneSignalDialogController visibleViewController];
+
     let controller = [UIAlertController alertControllerWithTitle:request.title message:request.message preferredStyle:UIAlertControllerStyleAlert];
     
     [controller addAction:[UIAlertAction actionWithTitle:request.cancelTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
@@ -106,8 +106,8 @@
             }]];
         }
     }
-    
-    [rootViewController presentViewController:controller animated:true completion:nil];
+
+    [visibleViewController presentViewController:controller animated:true completion:nil];
 }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
@@ -137,6 +137,25 @@
 
 - (void)clearQueue {
     self.queue = [NSMutableArray new];
+}
+
++ (UIViewController *)visibleViewController {
+    let rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+    return [OneSignalDialogController getVisibleViewControllerFrom:rootViewController];
+}
+
++ (UIViewController *) getVisibleViewControllerFrom:(UIViewController *) vc {
+    if ([vc isKindOfClass:[UINavigationController class]]) {
+        return [OneSignalDialogController getVisibleViewControllerFrom:[((UINavigationController *) vc) visibleViewController]];
+    } else if ([vc isKindOfClass:[UITabBarController class]]) {
+        return [OneSignalDialogController getVisibleViewControllerFrom:[((UITabBarController *) vc) selectedViewController]];
+    } else {
+        if (vc.presentedViewController) {
+            return [OneSignalDialogController getVisibleViewControllerFrom:vc.presentedViewController];
+        } else {
+            return vc;
+        }
+    }
 }
 
 @end
