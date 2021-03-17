@@ -31,7 +31,6 @@ THE SOFTWARE.
 
 @property (strong, nonatomic, readwrite, nullable) NSString *appId;
 @property (strong, nonatomic, readwrite, nullable) NSString *deviceOs;
-@property (strong, nonatomic, readwrite, nullable) NSNumber *deviceType;
 @property (strong, nonatomic, readwrite, nullable) NSNumber *timezone;
 @property (strong, nonatomic, readwrite, nullable) NSString *timezoneId;
 @property (strong, nonatomic, readwrite, nullable) NSString *adId;
