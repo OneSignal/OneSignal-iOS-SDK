@@ -81,7 +81,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setProvidesNotificationSettingsView:NO];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
     [OneSignal initWithLaunchOptions:launchOptions];
-
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];

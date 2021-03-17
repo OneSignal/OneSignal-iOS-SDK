@@ -30,6 +30,7 @@
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageAction.h"
 #import "OneSignalViewHelper.h"
+#import "OSPlayerTags.h"
 
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
@@ -53,12 +54,45 @@
     return self;
 }
 
+- (NSString *)getTagsString {
+    NSError *error;
+    OSPlayerTags *tags = [OneSignal getPlayerTags];
+    if (!tags.allTags) {
+        return nil;
+    }
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:&error];
+    NSString *jsonString;
+    if (!jsonData) {
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:
+         [NSString stringWithFormat:@"Error parsing tag dictionary to json :%@",error.localizedDescription]];
+    } else {
+         jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    return jsonString;
+}
+
+- (NSString *)addTagsToHTML:(NSString *)html {
+    NSString *tags = [self getTagsString];
+    if (!tags) {
+        return html;
+    }
+    //Script to set the tags for liquid tag substitution
+    NSString *newHtml = [NSString stringWithFormat:@"%@ \n\n\
+                         <script> \
+                            setPlayerTags(%@);\
+                         </script>",html, tags];
+    return newHtml;
+}
+
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
     dispatch_sync(dispatch_get_main_queue(), ^{
         NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
-        [self.webView loadHTMLString:html baseURL:url];
+        NSString *taggedHTML = [self addTagsToHTML:html];
+        [self.webView loadHTMLString:taggedHTML baseURL:url];
     });
 }
 
@@ -160,7 +194,6 @@
     // WebView finished loading
     if (self.loaded)
         return;
-    
     self.loaded = true;
 }
 

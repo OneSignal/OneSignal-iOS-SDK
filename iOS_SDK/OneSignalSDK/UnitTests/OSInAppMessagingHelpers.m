@@ -88,7 +88,25 @@ int messageIdIncrementer = 0;
                 @"default" : @"should_never_be_used_by_any_test"
             }
         },
-        @"triggers" : @[]
+        @"triggers" : @[],
+    };
+}
+
++ (NSDictionary * _Nonnull)testMessageJsonLiquid {
+    return @{
+        @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
+        @"id" : [NSString stringWithFormat:@"%@_%i", OS_TEST_MESSAGE_ID, ++messageIdIncrementer],
+        @"variants" : @{
+            @"ios" : @{
+                @"default" : OS_TEST_MESSAGE_VARIANT_ID,
+                @"en" : OS_TEST_ENGLISH_VARIANT_ID
+            },
+            @"all" : @{
+                @"default" : @"should_never_be_used_by_any_test"
+            }
+        },
+        @"triggers" : @[],
+        @"has_liquid" : @true,
     };
 }
 
@@ -146,7 +164,6 @@ int messageIdIncrementer = 0;
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
 
-
     messageJson[@"triggers"] = triggers;
     messageJson[@"redisplay"] =
         @{
@@ -161,6 +178,14 @@ int messageIdIncrementer = 0;
 
 + (OSInAppMessage *)testMessage {
     let messageJson = self.testMessageJson;
+    
+    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
+
+    return [OSInAppMessage instanceWithData:data];
+}
+
++ (OSInAppMessage *)testMessageWithLiquid {
+    let messageJson = self.testMessageJsonLiquid;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
