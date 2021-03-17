@@ -2562,9 +2562,7 @@ static NSString *_lastnonActiveMessageId;
     bool updateExternalUserId = ![self.existingPushExternalUserId isEqualToString:externalId]
                                 && !requests[@"email"];
 
-    // If we are making a request to email user, we need validate both external user ids
-    bool updateEmailExternalUserId = (![self.existingPushExternalUserId isEqualToString:externalId]
-                                      && requests[@"email"]
+    bool updateEmailExternalUserId = (requests[@"email"]
                                       && ![self.existingEmailExternalUserId isEqualToString:externalId]);
 
     return updateExternalUserId || updateEmailExternalUserId;
