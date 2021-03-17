@@ -71,6 +71,7 @@ THE SOFTWARE.
 - (NSDictionary *)getRegistrationData:(OSUserState *)registrationState {
     NSMutableDictionary *pushDataDic = (NSMutableDictionary *)[registrationState.toDictionary mutableCopy];
     pushDataDic[@"identifier"] = _currentSubscriptionState.pushToken;
+    pushDataDic[@"device_type"] = self.getDeviceType;
     
     return pushDataDic;
 }

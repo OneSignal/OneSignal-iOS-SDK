@@ -1663,7 +1663,6 @@ static dispatch_queue_t serialQueue;
     let userState = [OSUserState new];
     userState.appId = appId;
     userState.deviceOs = [[UIDevice currentDevice] systemVersion];
-    userState.deviceType = [NSNumber numberWithInt:DEVICE_TYPE_PUSH];
     userState.timezone = [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]];
     userState.timezoneId = [[NSTimeZone localTimeZone] name];
     userState.adId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
