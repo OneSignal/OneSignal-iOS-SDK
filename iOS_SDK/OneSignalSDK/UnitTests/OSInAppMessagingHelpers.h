@@ -56,6 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
 + (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
 + (OSInAppMessage *)testMessage;
++ (OSInAppMessage *)testMessageWithLiquid;
 + (OSInAppMessage *)testMessageWithRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
 + (OSInAppMessage *)testMessagePreview;
 + (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;

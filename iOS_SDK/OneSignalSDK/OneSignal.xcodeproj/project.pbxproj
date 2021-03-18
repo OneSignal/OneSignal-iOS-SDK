@@ -465,6 +465,10 @@
 		DE9877332591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877342591656300DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE98773C2591656A00DE07D5 /* NSDateFormatter+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9877292591654600DE07D5 /* NSDateFormatter+OneSignal.h */; };
+		DE9A5DAA25D1FD6B00FCEC21 /* OSPlayerTags.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9A5DA925D1FD6B00FCEC21 /* OSPlayerTags.h */; };
+		DE9A5DB325D1FD8000FCEC21 /* OSPlayerTags.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */; };
+		DE9A5DB425D1FD8000FCEC21 /* OSPlayerTags.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */; };
+		DE9A5DB525D1FD8000FCEC21 /* OSPlayerTags.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */; };
 		DEE8198D24E21DF000868CBA /* UIApplication+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */; };
 		DEF5CCF52539321A0003E9CC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCF42539321A0003E9CC /* AppDelegate.m */; };
 		DEF5CCFB2539321A0003E9CC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCFA2539321A0003E9CC /* ViewController.m */; };
@@ -783,6 +787,8 @@
 		DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageViewControllerOverrider.h; sourceTree = "<group>"; };
 		DE9877292591654600DE07D5 /* NSDateFormatter+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDateFormatter+OneSignal.h"; sourceTree = "<group>"; };
 		DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDateFormatter+OneSignal.m"; sourceTree = "<group>"; };
+		DE9A5DA925D1FD6B00FCEC21 /* OSPlayerTags.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSPlayerTags.h; sourceTree = "<group>"; };
+		DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSPlayerTags.m; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEF5CCF42539321A0003E9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1256,6 +1262,8 @@
 				7A93265025A8DD4300BBEC27 /* OSUserState.m */,
 				7A93266925AC985500BBEC27 /* OSLocationState.h */,
 				7A93267225AC986400BBEC27 /* OSLocationState.m */,
+				DE9A5DA925D1FD6B00FCEC21 /* OSPlayerTags.h */,
+				DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */,
 			);
 			name = State;
 			sourceTree = "<group>";
@@ -1463,6 +1471,7 @@
 				7A5E721B25A66E2900CB5605 /* OSUserStateEmailSynchronizer.h in Headers */,
 				7AF9865624452A8C00C36EAE /* OSInfluence.h in Headers */,
 				912412411E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.h in Headers */,
+				DE9A5DAA25D1FD6B00FCEC21 /* OSPlayerTags.h in Headers */,
 				7AF98684244A32D900C36EAE /* OSOutcomeEventsV2Repository.h in Headers */,
 				CA8E18FC2193A1A5009DA223 /* NSTimerOverrider.h in Headers */,
 				91B6EA451E86555200B5CF01 /* OSObservable.h in Headers */,
@@ -1722,6 +1731,7 @@
 				DE98772B2591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */,
 				7AD172382416D53B00A78B19 /* OSInAppMessageLocationPrompt.m in Sources */,
 				9124120E1E73342200E41FD7 /* OneSignal.m in Sources */,
+				DE9A5DB325D1FD8000FCEC21 /* OSPlayerTags.m in Sources */,
 				CACBAA97218A6243000ACAA5 /* OSMessagingController.m in Sources */,
 				CA36F35921C33A2500300C77 /* OSInAppMessageController.m in Sources */,
 				CA08FC731FE99AFD004C445F /* OneSignalClient.m in Sources */,
@@ -1822,6 +1832,7 @@
 				DE9877332591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */,
 				7AD172392416D53B00A78B19 /* OSInAppMessageLocationPrompt.m in Sources */,
 				CACBAA98218A6243000ACAA5 /* OSMessagingController.m in Sources */,
+				DE9A5DB425D1FD8000FCEC21 /* OSPlayerTags.m in Sources */,
 				CA36F35A21C33A2500300C77 /* OSInAppMessageController.m in Sources */,
 				CA08FC741FE99AFF004C445F /* OneSignalClient.m in Sources */,
 				91F58D861E7C88250017D24D /* OneSignalNotificationSettingsIOS9.m in Sources */,
@@ -2028,6 +2039,7 @@
 				7AAA606A2485D0420004FADE /* OSMigrationController.m in Sources */,
 				CACBAA9F218A6243000ACAA5 /* OSInAppMessageView.m in Sources */,
 				CA4742E7218B8FF30020DC8C /* OSTriggerController.m in Sources */,
+				DE9A5DB525D1FD8000FCEC21 /* OSPlayerTags.m in Sources */,
 				4529DEEA1FA8360C00CEAB1D /* UIApplicationOverrider.m in Sources */,
 				912412281E73342200E41FD7 /* OneSignalMobileProvision.m in Sources */,
 				7A93269E25AF4F0300BBEC27 /* OSPendingCallbacks.m in Sources */,

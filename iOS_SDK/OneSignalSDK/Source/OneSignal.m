@@ -87,6 +87,7 @@
 #import "OSLocationState.h"
 #import "OSStateSynchronizer.h"
 #import "OneSignalLifecycleObserver.h"
+#import "OSPlayerTags.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -124,7 +125,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"030203";
+NSString* const ONESIGNAL_VERSION = @"030300";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL shouldDelaySubscriptionUpdate = false;
@@ -182,7 +183,6 @@ static NSDate *sessionLaunchTime;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
-NSMutableDictionary* tagsToSend;
 
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
@@ -310,6 +310,14 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     return _emailSubscriptionStateChangesObserver;
 }
 
+static OSPlayerTags *_playerTags;
++ (OSPlayerTags *)playerTags {
+    if (!_playerTags) {
+        _playerTags = [OSPlayerTags new];
+    }
+    return _playerTags;
+}
+
 + (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
@@ -415,6 +423,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 	// c.f. http://semver.org/
 
 	return [ONESIGNAL_VERSION one_getSemanticVersion];
+}
+
++ (OSPlayerTags *)getPlayerTags {
+    return self.playerTags;
 }
 
 + (NSString*)mUserId {
@@ -1170,10 +1182,11 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         }
     }
     
-    if (tagsToSend == nil)
-        tagsToSend = [keyValuePair mutableCopy];
-    else
-        [tagsToSend addEntriesFromDictionary:keyValuePair];
+    if (!self.playerTags.tagsToSend) {
+        self.playerTags.tagsToSend = [keyValuePair mutableCopy];
+    } else {
+        [self.playerTags.tagsToSend addEntriesFromDictionary:keyValuePair];
+    }
     
     if (successBlock || failureBlock) {
         if (!pendingSendTagCallbacks)
@@ -1199,15 +1212,15 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
     
-    if (!tagsToSend)
+    if (!self.playerTags.tagsToSend)
         return;
-    
-    NSDictionary* nowSendingTags = tagsToSend;
-    tagsToSend = nil;
+
+    [self.playerTags saveTagsToUserDefaults];
+    NSDictionary* nowSendingTags = self.playerTags.tagsToSend;
+    self.playerTags.tagsToSend = nil;
     
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
-    
     [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OneSignalHelper getNetType] processingCallbacks:nowProcessingCallbacks];
 }
 
@@ -1304,11 +1317,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
-    
+    [self.playerTags deleteTags:keys];
     for (NSString* key in keys) {
-        if (tagsToSend && tagsToSend[key]) {
-            if (![tagsToSend[key] isEqual:@""])
-                [tagsToSend removeObjectForKey:key];
+        if (self.playerTags.tagsToSend && self.playerTags.tagsToSend[key]) {
+            if (![self.playerTags.tagsToSend[key] isEqual:@""]) {
+                [self.playerTags.tagsToSend removeObjectForKey:key];
+            }
         }
         else
             tags[key] = @"";
@@ -1706,8 +1720,8 @@ static dispatch_queue_t serialQueue;
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
         userState.testType = [NSNumber numberWithInt:(int)releaseMode];
     
-    if (tagsToSend)
-        userState.tags = tagsToSend;
+    if (self.playerTags.tagsToSend)
+        userState.tags = self.playerTags.tagsToSend;
     
     if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
@@ -1746,7 +1760,9 @@ static dispatch_queue_t serialQueue;
     NSArray* nowProcessingCallbacks;
     let userState = [self createUserState];
     if (userState.tags) {
-        tagsToSend = nil;
+        [self.playerTags addTags:userState.tags];
+        [self.playerTags saveTagsToUserDefaults];
+        self.playerTags.tagsToSend = nil;
         
         nowProcessingCallbacks = pendingSendTagCallbacks;
         pendingSendTagCallbacks = nil;
@@ -1784,10 +1800,11 @@ static dispatch_queue_t serialQueue;
                         callbackSet.successBlock(userState.tags);
                 }
             }
-
-            if (tagsToSend)
-                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             
+            if (self.playerTags.tagsToSend) {
+                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
+            }
+                
             // Try to send location
             [OneSignalLocation sendLocation];
             
@@ -1832,9 +1849,9 @@ static dispatch_queue_t serialQueue;
     if (messagesJson) {
         for (NSDictionary *messageJson in messagesJson) {
             let message = [OSInAppMessage instanceWithJson:messageJson];
-
-            if (message)
+            if (message) {
                 [messages addObject:message];
+            }
         }
 
         [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
@@ -2562,9 +2579,7 @@ static NSString *_lastnonActiveMessageId;
     bool updateExternalUserId = ![self.existingPushExternalUserId isEqualToString:externalId]
                                 && !requests[@"email"];
 
-    // If we are making a request to email user, we need validate both external user ids
-    bool updateEmailExternalUserId = (![self.existingPushExternalUserId isEqualToString:externalId]
-                                      && requests[@"email"]
+    bool updateEmailExternalUserId = (requests[@"email"]
                                       && ![self.existingEmailExternalUserId isEqualToString:externalId]);
 
     return updateExternalUserId || updateEmailExternalUserId;
@@ -2681,6 +2696,7 @@ static NSString *_lastnonActiveMessageId;
 
     return true;
 }
+
 @end
 
 @implementation OneSignal (SessionStatusDelegate)

@@ -148,6 +148,13 @@ THE SOFTWARE.
         //update push player id
         if (results.count > 0 && results[OS_PUSH][@"id"]) {
             self.currentSubscriptionState.userId = results[OS_PUSH][@"id"];
+            
+            // Player record was deleted so we should reset external user id
+            let cachedPlayerId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+            if (cachedPlayerId && ![results[OS_PUSH][@"id"] isEqualToString:cachedPlayerId]) {
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat: @"Player id has changed. Clearing cached external user id"]];
+                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:nil];
+            }
 
             // Save player_id to both standard and shared NSUserDefaults
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
