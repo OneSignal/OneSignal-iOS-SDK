@@ -46,8 +46,7 @@
         
         // If embedded.mobileprovision not found, try Mac Catalyst bundle struct and unique filename
         if (!provisioningPath) {
-            NSString *bundleURL = [[NSBundle mainBundle] bundleURL].absoluteString;
-            provisioningPath = [[[bundleURL componentsSeparatedByString:@"file://"] objectAtIndex:1] stringByAppendingString:@"Contents/embedded.provisionprofile"];
+            provisioningPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"Contents/embedded.provisionprofile"];
         }
         
         // NSISOLatin1 keeps the binary wrapper from being parsed as unicode and dropped as invalid
