@@ -409,7 +409,6 @@
 		CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */ = {isa = PBXBuildFile; fileRef = CA810FD0202BA97300A60FED /* OSEmailSubscription.m */; };
 		CA85C15320604AEA003AB529 /* RequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA85C15220604AEA003AB529 /* RequestTests.m */; };
-		CA8E18FC2193A1A5009DA223 /* NSTimerOverrider.h in Headers */ = {isa = PBXBuildFile; fileRef = CA8E18FA2193A1A5009DA223 /* NSTimerOverrider.h */; };
 		CA8E18FF2193A1A5009DA223 /* NSTimerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CA8E18FB2193A1A5009DA223 /* NSTimerOverrider.m */; };
 		CA8E19022193C6B0009DA223 /* InAppMessagingIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA8E19012193C6B0009DA223 /* InAppMessagingIntegrationTests.m */; };
 		CA8E19052193C76D009DA223 /* OSInAppMessagingHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = CA8E19032193C76D009DA223 /* OSInAppMessagingHelpers.h */; };
@@ -1502,7 +1501,6 @@
 				912412411E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.h in Headers */,
 				DE9A5DAA25D1FD6B00FCEC21 /* OSPlayerTags.h in Headers */,
 				7AF98684244A32D900C36EAE /* OSOutcomeEventsV2Repository.h in Headers */,
-				CA8E18FC2193A1A5009DA223 /* NSTimerOverrider.h in Headers */,
 				91B6EA451E86555200B5CF01 /* OSObservable.h in Headers */,
 				DE367CCA24EEF2C800165207 /* OSInAppMessagePage.h in Headers */,
 				CACBAA9C218A6243000ACAA5 /* OSInAppMessageView.h in Headers */,
