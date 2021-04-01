@@ -374,7 +374,6 @@
 		CA1A6E7020DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E6E20DC2E73001C41B9 /* OneSignalDialogRequest.m */; };
 		CA1A6E7120DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E6E20DC2E73001C41B9 /* OneSignalDialogRequest.m */; };
 		CA1A6E7220DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E6E20DC2E73001C41B9 /* OneSignalDialogRequest.m */; };
-		CA1A6E7520DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h in Headers */ = {isa = PBXBuildFile; fileRef = CA1A6E7320DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h */; };
 		CA1A6E7820DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = CA1A6E7420DC2F04001C41B9 /* OneSignalDialogControllerOverrider.m */; };
 		CA36A42C208FDEFB003EFA9A /* NSURL+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CA36A42A208FDEFB003EFA9A /* NSURL+OneSignal.h */; };
 		CA36A42D208FDEFB003EFA9A /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
@@ -1538,7 +1537,6 @@
 				CACBAAA0218A6243000ACAA5 /* OSInAppMessage.h in Headers */,
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
 				CAB269DF21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h in Headers */,
-				CA1A6E7520DC2F04001C41B9 /* OneSignalDialogControllerOverrider.h in Headers */,
 				9129C6BD1E89E7AB009CB6A0 /* OSSubscription.h in Headers */,
 				CA7FC89F21927229002C4FD9 /* OSDynamicTriggerController.h in Headers */,
 				DE98773C2591656A00DE07D5 /* NSDateFormatter+OneSignal.h in Headers */,
