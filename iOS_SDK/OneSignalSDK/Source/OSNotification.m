@@ -300,8 +300,6 @@
  - (void)dealloc {
      if (_timeoutTimer && _completion) {
          [_timeoutTimer invalidate];
-         [OneSignal onesignalLog:ONE_S_LL_WARN
-                          message:[NSString stringWithFormat:@"Notification: %@ was deallocated before calling completion block.", self.notificationId]];
      }
  }
 
