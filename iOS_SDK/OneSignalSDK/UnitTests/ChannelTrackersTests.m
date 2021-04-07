@@ -154,7 +154,7 @@
     
     XCTAssertNil([trackerFactory channelByEntryAction:APP_OPEN]);
     XCTAssertNil([trackerFactory channelByEntryAction:APP_CLOSE]);
-    XCTAssertEqual(@"notification_id", [[trackerFactory channelByEntryAction:NOTIFICATION_CLICK] idTag]);
+    XCTAssertEqualObjects(@"notification_id", [[trackerFactory channelByEntryAction:NOTIFICATION_CLICK] idTag]);
 }
 
 - (void)testGetChannelToResetByEntryAction {
@@ -164,7 +164,7 @@
     XCTAssertEqual(2, [trackerFactory channelsToResetByEntryAction:APP_OPEN].count);
     XCTAssertEqual(0, [trackerFactory channelsToResetByEntryAction:APP_CLOSE].count);
     XCTAssertEqual(1, [trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK].count);
-    XCTAssertEqual(@"iam_id", [[[trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK] objectAtIndex:0] idTag]);
+    XCTAssertEqualObjects(@"iam_id", [[[trackerFactory channelsToResetByEntryAction:NOTIFICATION_CLICK] objectAtIndex:0] idTag]);
 }
 
 @end

@@ -1055,8 +1055,8 @@
     XCTAssertEqual(outcomeWeight, [[OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"] intValue]);
 
     let lenght = OneSignalClientOverrider.executedRequests.count;
-    XCTAssertEqual(@"outcomes/measure", [OneSignalClientOverrider.executedRequests objectAtIndex:lenght - 1].path);
-    XCTAssertEqual(@"outcomes/measure", [OneSignalClientOverrider.executedRequests objectAtIndex:lenght - 2].path);
+    XCTAssertEqualObjects(@"outcomes/measure", [OneSignalClientOverrider.executedRequests objectAtIndex:lenght - 1].path);
+    XCTAssertEqualObjects(@"outcomes/measure", [OneSignalClientOverrider.executedRequests objectAtIndex:lenght - 2].path);
     XCTAssertNotEqual(@"outcomes/measure", [OneSignalClientOverrider.executedRequests objectAtIndex:lenght - 3].path);
 
     XCTAssertEqual(outcomeName, [[OneSignalClientOverrider.executedRequests objectAtIndex:lenght - 2].parameters objectForKey:@"id"]);
