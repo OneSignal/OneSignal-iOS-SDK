@@ -270,9 +270,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
-    XCTAssertEqual(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
+    XCTAssertEqualObjects(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
     XCTAssertEqual(0, self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.code);
-    XCTAssertEqual(@"SMS authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard.", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
+    XCTAssertEqualObjects(@"SMS authentication (auth token) is set to REQUIRED for this application. Please provide an auth token from your backend server or change the setting in the OneSignal dashboard.", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
 }
 
 - (void)testInvalidNilSMSNumber {
@@ -297,9 +297,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
-    XCTAssertEqual(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
+    XCTAssertEqualObjects(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
     XCTAssertEqual(0, self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.code);
-    XCTAssertEqual(@"SMS number is invalid", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
+    XCTAssertEqualObjects(@"SMS number is invalid", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
 }
 
 - (void)testInvalidEmptySMSNumber {
@@ -324,9 +324,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     
     XCTAssertNil(self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE);
     XCTAssertNotNil(self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE);
-    XCTAssertEqual(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
+    XCTAssertEqualObjects(@"com.onesignal.sms", self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.domain);
     XCTAssertEqual(0, self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.code);
-    XCTAssertEqual(@"SMS number is invalid", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
+    XCTAssertEqualObjects(@"SMS number is invalid", [self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE.userInfo objectForKey:@"error"]);
 }
 
 - (void)testReSetSMSAuthWithHashTokenWithSameData {
