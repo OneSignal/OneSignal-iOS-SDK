@@ -270,8 +270,8 @@
     [OneSignal pauseInAppMessages:false];
     
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
-
-    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:@10 delay:@0];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:10 delay:@0];
 
     [self initOneSignalWithInAppMessage:message];
     

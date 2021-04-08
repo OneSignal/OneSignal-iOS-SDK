@@ -224,7 +224,7 @@
         //TODO: This will need to be changed when we add core data or database to iOS, see android implementation for reference
         _isDisplayedInSession = [decoder decodeBoolForKey:@"displayed_in_session"];
         _endTime = [decoder decodeObjectForKey:@"endTime"];
-        _hasLiquid = [decoder decodeObjectForKey:@"hasLiquid"];
+        _hasLiquid = [decoder decodeBoolForKey:@"hasLiquid"];
     }
     return self;
 }

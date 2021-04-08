@@ -29,17 +29,17 @@ THE SOFTWARE.
 
 @property (nonatomic, strong, nullable, readwrite) NSMutableDictionary *tagsToSend;
 
-- (NSDictionary *) allTags;
+- (NSDictionary *_Nullable) allTags;
 
-- (void)setTags:(NSDictionary *)tags;
+- (void)setTags:(NSDictionary *_Nullable)tags;
 
-- (void)addTags:(NSDictionary *)tags;
+- (void)addTags:(NSDictionary *_Nonnull)tags;
 
-- (void)addTagValue:(NSString *)value forKey:(NSString *)key;
+- (void)addTagValue:(NSString *_Nonnull)value forKey:(NSString *_Nullable)key;
 
-- (void)deleteTags:(NSArray *)keys;
+- (void)deleteTags:(NSArray *_Nonnull)keys;
 
-- (NSString *)tagValueForKey:(NSString *)key;
+- (NSString *_Nullable)tagValueForKey:(NSString *_Nonnull)key;
 
 - (void)saveTagsToUserDefaults;
 

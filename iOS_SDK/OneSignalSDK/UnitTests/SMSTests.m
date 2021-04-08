@@ -279,12 +279,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     [OneSignalClientOverrider setRequiresSMSAuth:true];
     
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wnonnull"
     [OneSignal setSMSNumber:nil withSuccess:^(NSDictionary *results) {
         self.CALLBACK_SMS_NUMBER_SUCCESS_RESPONSE = results;
     } withFailure:^(NSError *error) {
         self.CALLBACK_SMS_NUMBER_FAIL_RESPONSE = error;
     }];
+    #pragma clang diagnostic pop
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Check to make sure the OSRequestCreateDevice HTTP call was not made
