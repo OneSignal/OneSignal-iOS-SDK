@@ -37,7 +37,6 @@ THE SOFTWARE.
                    _deviceOs, @"device_os",
                    _timezone, @"timezone",
                    _timezoneId, @"timezone_id",
-                   _adId, @"ad_id",
                    _sdk, @"sdk",
                    nil];
     
