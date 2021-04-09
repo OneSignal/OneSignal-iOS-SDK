@@ -1286,6 +1286,16 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
 
++ (void)sendTagsOnBackground {
+    if (!self.playerTags.tagsToSend || self.playerTags.tagsToSend.count <= 0)
+        return;
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendTagsToServer) object:nil];
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [self sendTagsToServer];
+    }];
+}
+
 // Called only with a delay to batch network calls.
 + (void)sendTagsToServer {
     

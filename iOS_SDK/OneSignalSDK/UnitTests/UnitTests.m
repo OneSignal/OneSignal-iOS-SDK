@@ -1321,6 +1321,49 @@ didReceiveRemoteNotification:userInfo
     
 }
 
+- (void)testSendTagsOnBackground {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    // Simple test with a sendTag and sendTags call.
+    [OneSignal sendTag:@"key" value:@"value"];
+    [OneSignal sendTags:@{@"key1": @"value1", @"key2": @"value2"}];
+    
+    // Immediately background app. SendTagsOnBackground should be called
+    [UnitTestCommonMethods backgroundApp];
+
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key1"], @"value1");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], @"value2");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+    
+    let expectation = [self expectationWithDescription:@"wait_tags"];
+    expectation.expectedFulfillmentCount = 3;
+    
+    [OneSignal sendTag:@"key10" value:@"value10" onSuccess:^(NSDictionary *result) {
+        [expectation fulfill];
+    } onFailure:^(NSError *error) {}];
+    [OneSignal sendTags:@{@"key11": @"value11", @"key12": @"value12"} onSuccess:^(NSDictionary *result) {
+        [expectation fulfill];
+    } onFailure:^(NSError *error) {}];
+    [OneSignal sendTag:@"key13" value:@"value13" onSuccess:^(NSDictionary *result) {
+        [expectation fulfill];
+    } onFailure:^(NSError *error) {}];
+    
+    [UnitTestCommonMethods backgroundApp];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+   
+    [self waitForExpectations:@[expectation] timeout:0.1];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key10"], @"value10");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key11"], @"value11");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key12"], @"value12");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key13"], @"value13");
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
+}
+
 - (void)testDeleteTags {
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
