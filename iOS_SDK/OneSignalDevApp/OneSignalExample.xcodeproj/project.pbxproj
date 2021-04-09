@@ -39,9 +39,12 @@
 		DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
-		DEA22669261E62690092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
-		DEA2266B261E62780092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA2266A261E62780092FF58 /* OneSignal.framework */; };
-		DEA2266D261E627D0092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA2266C261E627D0092FF58 /* OneSignal.framework */; };
+		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
+		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DEA226FB261F740C0092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
+		DEA226FC261F740C0092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DEA226FE261F74110092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
+		DEA226FF261F74110092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +85,39 @@
 				DE68DA7024C7695A00FC95A8 /* OneSignalExampleClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEA226FA261F74060092FF58 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEA226FD261F740C0092FF58 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DEA226FC261F740C0092FF58 /* OneSignal.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEA22700261F74110092FF58 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DEA226FF261F74110092FF58 /* OneSignal.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -139,10 +175,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEA22669261E62690092FF58 /* OneSignal.framework in Frameworks */,
 				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
 				9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */,
+				DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,10 +187,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEA2266B261E62780092FF58 /* OneSignal.framework in Frameworks */,
 				CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */,
 				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,
 				91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */,
+				DEA226FB261F740C0092FF58 /* OneSignal.framework in Frameworks */,
 				91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -163,10 +199,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEA2266D261E627D0092FF58 /* OneSignal.framework in Frameworks */,
 				DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */,
 				DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */,
 				DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */,
+				DEA226FE261F74110092FF58 /* OneSignal.framework in Frameworks */,
 				DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,6 +321,7 @@
 				9112E8801E724C320022A1CB /* Resources */,
 				9150E77E1E73BEDD00C5D46A /* Embed App Extensions */,
 				DE68DA7124C7695A00FC95A8 /* Embed App Clips */,
+				DEA226FA261F74060092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -306,6 +343,7 @@
 				9150E76E1E73BEDC00C5D46A /* Sources */,
 				9150E76F1E73BEDC00C5D46A /* Frameworks */,
 				9150E7701E73BEDC00C5D46A /* Resources */,
+				DEA226FD261F740C0092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -325,6 +363,7 @@
 				DE68DA5324C7695900FC95A8 /* Sources */,
 				DE68DA5424C7695900FC95A8 /* Frameworks */,
 				DE68DA5524C7695900FC95A8 /* Resources */,
+				DEA22700261F74110092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -615,6 +654,7 @@
 				CURRENT_PROJECT_VERSION = 1.4.2;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
+				"DYLIB_INSTALL_NAME_BASE[arch=*]" = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -641,6 +681,7 @@
 				CURRENT_PROJECT_VERSION = 1.4.2;
 				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
+				"DYLIB_INSTALL_NAME_BASE[arch=*]" = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -734,6 +775,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.4.2;
 				DEVELOPMENT_TEAM = 99SW8E36CT;
+				"DYLIB_INSTALL_NAME_BASE[arch=*]" = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",

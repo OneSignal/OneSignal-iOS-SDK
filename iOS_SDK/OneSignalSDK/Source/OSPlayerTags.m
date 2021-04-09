@@ -57,7 +57,7 @@ NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
     return _tagsToSend;
 }
 
-- (void)setTagsToSend:(NSDictionary *)tagsToSend {
+- (void)setTagsToSend:(NSMutableDictionary *)tagsToSend {
     _tagsToSend = tagsToSend;
     [self addTags:tagsToSend];
 }

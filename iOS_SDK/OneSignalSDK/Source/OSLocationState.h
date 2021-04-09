@@ -32,6 +32,6 @@ THE SOFTWARE.
 @property (strong, nonatomic, readwrite, nullable) NSNumber *verticalAccuracy;
 @property (strong, nonatomic, readwrite, nullable) NSNumber *accuracy;
 
-- (NSDictionary*)toDictionary;
+- (NSDictionary*_Nonnull)toDictionary;
 
 @end
