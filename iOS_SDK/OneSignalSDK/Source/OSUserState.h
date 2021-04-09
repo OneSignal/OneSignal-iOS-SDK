@@ -33,6 +33,7 @@ THE SOFTWARE.
 @property (strong, nonatomic, readwrite, nullable) NSString *deviceOs;
 @property (strong, nonatomic, readwrite, nullable) NSNumber *timezone;
 @property (strong, nonatomic, readwrite, nullable) NSString *timezoneId;
+//This property is no longer being populated with vendor id
 @property (strong, nonatomic, readwrite, nullable) NSString *adId;
 @property (strong, nonatomic, readwrite, nullable) NSString *sdk;
 @property (strong, nonatomic, readwrite, nullable) NSString *sdkType;
