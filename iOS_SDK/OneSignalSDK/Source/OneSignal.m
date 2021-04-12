@@ -1753,7 +1753,6 @@ static dispatch_queue_t serialQueue;
     userState.deviceOs = [[UIDevice currentDevice] systemVersion];
     userState.timezone = [NSNumber numberWithInt:(int)[[NSTimeZone localTimeZone] secondsFromGMT]];
     userState.timezoneId = [[NSTimeZone localTimeZone] name];
-    userState.adId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     userState.sdk = ONESIGNAL_VERSION;
 
     // should be set to true even before the API request is finished
