@@ -2773,24 +2773,6 @@ static NSString *_lastnonActiveMessageId;
     return updateExternalUserId || updateEmailExternalUserId;
 }
 
-+ (NSMutableDictionary*)getDuplicateExternalUserIdResponse:(NSString*)externalId withRequests:(NSDictionary*)requests {
-    NSMutableDictionary *results = [NSMutableDictionary new];
-    [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Attempted to set external user id, but %@ is already set", externalId]];
-
-    results[@"push"] = @{
-        @"success" : @(true)
-    };
-
-    // Make sure to only add email if email was attempted
-    if (requests[@"email"]) {
-        results[@"email"] = @{
-            @"success" : @(true)
-        };
-    }
-
-    return results;
-}
-
 /*
  Start of outcome module
  */

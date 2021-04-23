@@ -200,16 +200,6 @@ THE SOFTWARE.
                                                                                       withAppId:appId];
     }
 
-    // Make sure this is not a duplicate request, if the email and push channels are aligned correctly with the same external id
-    if (![OneSignal shouldUpdateExternalUserId:externalId withRequests:requests]) {
-        // Use callback to return success for both cases here, since push and
-        // email (if email is not setup, email is not included) have been set already
-        let results = [OneSignal getDuplicateExternalUserIdResponse:externalId withRequests:requests];
-        if (successBlock)
-            successBlock(results);
-        return;
-    }
-
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
         if (results[OS_PUSH] && results[OS_PUSH][OS_SUCCESS] && [results[OS_PUSH][OS_SUCCESS] boolValue]) {
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
