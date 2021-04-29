@@ -1364,6 +1364,38 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 4);
 }
 
+- (void)testSendNSNullInTags {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    
+    [OneSignal sendTags:@{@"key1": @"value1", @"key2": [NSNull new]}];
+    
+    // Make sure all tags where send in 1 network call.
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key1"], @"value1");
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key2"], [NSNull new]);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
+}
+
+- (void)testSendBadObjectInTags {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    //The OneSignal class is not a valid json object
+    [OneSignal sendTags:@{@"key1": @"value1", @"key2": [OneSignal new]}];
+    
+    // Make sure the tags were not sent.
+    [NSObjectOverrider runPendingSelectors];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [NSObjectOverrider runPendingSelectors];
+    
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+}
+
 - (void)testDeleteTags {
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);

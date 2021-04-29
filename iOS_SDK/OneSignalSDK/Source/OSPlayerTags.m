@@ -101,7 +101,18 @@ NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
     _tags = [standardUserDefaults getSavedDictionaryForKey:OSUD_PLAYER_TAGS defaultValue:nil];
 }
 
+- (void)removeNSNullFromTags {
+    NSMutableDictionary *tagsDict = [NSMutableDictionary dictionaryWithDictionary:_tags];
+    for (id key in tagsDict.allKeys) {
+        if ([tagsDict[key] isKindOfClass:[NSNull class]]) {
+            tagsDict[key] = nil;
+        }
+    }
+    _tags = tagsDict;
+}
+
 - (void)saveTagsToUserDefaults {
+    [self removeNSNullFromTags];
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     [standardUserDefaults saveDictionaryForKey:OSUD_PLAYER_TAGS withValue:_tags];
 }
