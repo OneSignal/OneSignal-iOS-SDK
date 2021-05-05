@@ -91,7 +91,9 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setNotificationOpenedHandler:openNotificationHandler];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
-    
+    /*
+     Its fixed!
+     */
     return YES;
 }
 
