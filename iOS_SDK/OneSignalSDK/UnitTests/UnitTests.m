@@ -1999,32 +1999,32 @@ didReceiveRemoteNotification:userInfo
     [NSBundleOverrider setPrivacyState:false];
 }
   
-//tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
-// TODO: This test causes the UNUserNotificationCenter singleton's Delegate property to get nullified
-// Unfortunately the fix is not as simple as just setting it back to the original when the test is done
-// To avoid breaking other tests, this test should be executed last, and since tests are alphabetical order, adding Z's does this.
-- (void)testZSwizzling {
+// Tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
+// Keep static to keep the reference around otherwise it goes out of scope and breaks other tests.
+//   TODO: Could instead revert the swizzling instead of having a static reference.
+//         However this dummy does not have any side effects.
+static DummyNotificationCenterDelegate *dummyDelegate;
+- (void)testUNUserNotificationCenterDelegateAssigningDoesSwizzle {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    
-    DummyNotificationCenterDelegate *delegate = [[DummyNotificationCenterDelegate alloc] init];
-    
-    IMP original = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
-    
-    center.delegate = delegate;
-    
-    IMP swizzled = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
-    
+
+    dummyDelegate = [[DummyNotificationCenterDelegate alloc] init];
+
+    IMP original = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+
+    // This triggers UNUserNotificationCenter+OneSignal.m setOneSignalUNDelegate which does the implemenation swizzling
+    center.delegate = dummyDelegate;
+
+    IMP swizzled = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+    // Since we swizzled the implemenations should be different.
     XCTAssertNotEqual(original, swizzled);
-    
-    //calling setDelegate: a second time on the same object should not re-exchange method implementations
-    //thus the new method implementation should still be the same, swizzled == newSwizzled should be true
-    center.delegate = delegate;
-    
-    IMP newSwizzled = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
-    
-    XCTAssertNotEqual(original, newSwizzled);
+
+    // Calling setDelegate: a second time on the same object should not re-exchange method implementations
+    // thus the new method implementation should still be the same, swizzled == newSwizzled should be true
+    center.delegate = dummyDelegate;
+
+    IMP newSwizzled = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+
     XCTAssertEqual(swizzled, newSwizzled);
-  
 }
 
 - (NSDictionary *)setUpWillShowInForegroundHandlerTestWithBlock:(OSNotificationWillShowInForegroundBlock)willShowInForegroundBlock withNotificationOpenedBlock:(OSNotificationOpenedBlock)openedBlock withPayload: (NSDictionary *)payload {
