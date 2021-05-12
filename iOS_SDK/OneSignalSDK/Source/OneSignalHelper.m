@@ -618,6 +618,14 @@ static OneSignal* singleInstance = nil;
     
     if (!curNotifCenter.delegate)
         curNotifCenter.delegate = (id)[self sharedInstance];
+    else {
+        /*
+         This handles the existing delegate that exist before the OneSignal delegate is loaded.
+         This line ends up calling the UNUserNotificationCenter+OneSignal.m file method setOneSignalUNDelegate.
+         This swizzles in the OneSignal methods into the existing non-OneSignal delegate.
+         */
+        curNotifCenter.delegate = curNotifCenter.delegate;
+    }
 }
 
 +(UNNotificationRequest*)prepareUNNotificationRequest:(OSNotificationPayload*)payload {
