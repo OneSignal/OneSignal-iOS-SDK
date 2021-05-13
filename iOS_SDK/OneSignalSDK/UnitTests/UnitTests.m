@@ -55,6 +55,7 @@
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalDialogControllerOverrider.h"
 #import "OneSignalNotificationCategoryController.h"
+#import "OneSignalUNUserNotificationCenterHelper.h"
 
 // Shadows
 #import "NSObjectOverrider.h"
@@ -2000,14 +2001,10 @@ didReceiveRemoteNotification:userInfo
 }
   
 // Tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
-// Keep static to keep the reference around otherwise it goes out of scope and breaks other tests.
-//   TODO: Could instead revert the swizzling instead of having a static reference.
-//         However this dummy does not have any side effects.
-static DummyNotificationCenterDelegate *dummyDelegate;
-- (void)testUNUserNotificationCenterDelegateAssigningDoesSwizzle {
+- (void)testAUNUserNotificationCenterDelegateAssigningDoesSwizzle {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
-    dummyDelegate = [[DummyNotificationCenterDelegate alloc] init];
+    let dummyDelegate = [[DummyNotificationCenterDelegate alloc] init];
 
     IMP original = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
 
@@ -2025,6 +2022,8 @@ static DummyNotificationCenterDelegate *dummyDelegate;
     IMP newSwizzled = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
 
     XCTAssertEqual(swizzled, newSwizzled);
+
+    [OneSignalUNUserNotificationCenterHelper restoreDelegateAsOneSignal];
 }
 
 - (NSDictionary *)setUpWillShowInForegroundHandlerTestWithBlock:(OSNotificationWillShowInForegroundBlock)willShowInForegroundBlock withNotificationOpenedBlock:(OSNotificationOpenedBlock)openedBlock withPayload: (NSDictionary *)payload {
