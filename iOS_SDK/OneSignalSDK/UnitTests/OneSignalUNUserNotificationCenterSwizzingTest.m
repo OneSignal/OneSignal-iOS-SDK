@@ -55,4 +55,25 @@
     [OneSignalUNUserNotificationCenterHelper restoreDelegateAsOneSignal];
 }
 
+- (void)testUNUserNotificationCenterDelegateAssignedBeforeOneSignal {
+    [OneSignalUNUserNotificationCenterHelper putIntoPreloadedState];
+
+    // Create and assign a delegate with iOS
+    let dummyDelegate = [DummyNotificationCenterDelegate new];
+    UNUserNotificationCenter.currentNotificationCenter.delegate = dummyDelegate;
+    
+    // Save original implemenation reference, before OneSignal is loaded.
+    IMP originalDummyImp = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+
+    // Setup the OneSignal delegate where it will be loaded into memeory
+    [OneSignalUNUserNotificationCenter setup];
+
+    IMP swizzledDummyImp = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
+    
+    // Since we swizzled the implemenations should be different.
+    XCTAssertNotEqual(originalDummyImp, swizzledDummyImp);
+    
+    [OneSignalUNUserNotificationCenterHelper restoreDelegateAsOneSignal];
+}
+
 @end

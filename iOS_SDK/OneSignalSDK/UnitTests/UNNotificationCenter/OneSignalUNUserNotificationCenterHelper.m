@@ -23,4 +23,15 @@
     // Undo our temp unswizzle by swizzle one more time. Undo our undo :)
     [OneSignalUNUserNotificationCenter swizzleSelectors];
 }
+
+// OneSignal auto swizzles UNUserNotificationCenterDelegate when the class is loaded into memory.
+// This undoes this affect so we can test setup a pre-loaded OneSignal state.
+// Why? This way we can setup a senario where someone else's delegate is assigned before OneSignal get loaded.
++ (void)putIntoPreloadedState {
+    // Swizzle to undo the swizzle. (yes, swizzling a 2nd time reverses the swizzling)
+    [OneSignalUNUserNotificationCenter swizzleSelectors];
+    
+    // Unassign OneSignal as the delegate
+    UNUserNotificationCenter.currentNotificationCenter.delegate = nil;
+}
 @end
