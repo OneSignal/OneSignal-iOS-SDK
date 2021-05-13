@@ -119,6 +119,15 @@ __weak static id previousDelegate;
 
     if (!curNotifCenter.delegate)
         curNotifCenter.delegate = (id)OSUNUserNotificationCenterDelegate.sharedInstance;
+    else {
+        /*
+         This handles the case where a delegate may have already been assigned before
+           OneSignal is loaded into memory.
+         This re-assignment triggers setOneSignalUNDelegate providing it with the
+           existing delegate instance so OneSignal can swizzle in its logic.
+         */
+        curNotifCenter.delegate = curNotifCenter.delegate;
+    }
 }
 
 static BOOL useiOS10_2_workaround = true;
