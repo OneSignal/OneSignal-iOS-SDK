@@ -109,16 +109,17 @@ __weak static id previousDelegate;
 
 + (void)registerDelegate {
     let curNotifCenter = [UNUserNotificationCenter currentNotificationCenter];
-    
-    /*
-        Sets the OneSignal shared instance as a delegate of UNUserNotificationCenter
-        OneSignal does not implement the delegate methods, we simply set it as a delegate
-        in order to swizzle the UNUserNotificationCenter methods in case the developer
-        does not set a UNUserNotificationCenter delegate themselves
-    */
 
-    if (!curNotifCenter.delegate)
+    if (!curNotifCenter.delegate) {
+        /*
+          Set OSUNUserNotificationCenterDelegate.sharedInstance as a
+            UNUserNotificationCenterDelegate.
+          Note that OSUNUserNotificationCenterDelegate does not contain the methods such as
+            "willPresentNotification" as this assigment triggers setOneSignalUNDelegate which
+            will attach the selectors to the class at runtime.
+         */
         curNotifCenter.delegate = (id)OSUNUserNotificationCenterDelegate.sharedInstance;
+    }
     else {
         /*
          This handles the case where a delegate may have already been assigned before
