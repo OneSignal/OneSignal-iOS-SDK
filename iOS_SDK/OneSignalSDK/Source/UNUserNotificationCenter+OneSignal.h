@@ -32,6 +32,7 @@
 
 @interface OneSignalUNUserNotificationCenter : NSObject
 + (void)swizzleSelectors;
++ (void)swizzleSelectorsOnDelegate:(id)delegate;
 + (void)setUseiOS10_2_workaround:(BOOL)enable;
 @end
 

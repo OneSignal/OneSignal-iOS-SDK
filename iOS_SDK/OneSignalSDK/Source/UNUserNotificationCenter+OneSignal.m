@@ -140,11 +140,18 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         [self setOneSignalUNDelegate:delegate];
         return;
     }
-    
+
     previousDelegate = delegate;
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
-    
+
+    [OneSignalUNUserNotificationCenter swizzleSelectorsOnDelegate:delegate];
+
+    // Call orignal iOS implemenation
+    [self setOneSignalUNDelegate:delegate];
+}
+
++ (void)swizzleSelectorsOnDelegate:(id)delegate {
     delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
     delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
     
@@ -153,8 +160,6 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     injectToProperClass(@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
                         @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
-    
-    [self setOneSignalUNDelegate:delegate];
 }
 
 + (void)forwardNotificationWithCenter:(UNUserNotificationCenter *)center
