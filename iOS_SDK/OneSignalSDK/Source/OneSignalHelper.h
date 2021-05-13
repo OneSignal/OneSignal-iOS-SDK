@@ -51,7 +51,6 @@
 + (BOOL)handleIAMPreview:(OSNotification *)notification;
 
 // - iOS 10
-+ (void)registerAsUNNotificationCenterDelegate;
 + (void)clearCachedMedia;
 + (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotification*)notification;
 + (void)addNotificationRequest:(OSNotification*)notification completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;

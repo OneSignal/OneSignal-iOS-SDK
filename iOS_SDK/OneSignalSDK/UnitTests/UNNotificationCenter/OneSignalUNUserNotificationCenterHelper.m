@@ -18,7 +18,7 @@
     // Clear the delegate and call registerAsUNNotificationCenterDelegate so it assigns OneSignal
     //   as the delegate like it does the first time when it is loaded into memory.
     UNUserNotificationCenter.currentNotificationCenter.delegate = nil;
-    [OneSignalHelper registerAsUNNotificationCenterDelegate];
+    [OneSignalUNUserNotificationCenter registerDelegate];
 
     // Undo our temp unswizzle by swizzle one more time. Undo our undo :)
     [OneSignalUNUserNotificationCenter swizzleSelectors];

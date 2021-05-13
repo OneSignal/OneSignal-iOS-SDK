@@ -51,6 +51,21 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
 @end
 
+@interface OSUNUserNotificationCenterDelegate : NSObject
++ (OSUNUserNotificationCenterDelegate*)sharedInstance;
+@end
+
+@implementation OSUNUserNotificationCenterDelegate
+static OSUNUserNotificationCenterDelegate* singleInstance = nil;
++ (OSUNUserNotificationCenterDelegate*)sharedInstance {
+    @synchronized(singleInstance) {
+        if (!singleInstance)
+            singleInstance = [OSUNUserNotificationCenterDelegate new];
+    }
+    return singleInstance;
+}
+@end
+
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
 // - userNotificationCenter:willPresentNotification:withCompletionHandler:
 //   - Reads OneSignal.inFocusDisplayType to respect it's setting.
@@ -63,6 +78,11 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 //       The `callLegacyAppDeletegateSelector` selector below takes care of this backwards compatibility handling.
 
 @implementation OneSignalUNUserNotificationCenter
+
++ (void)setup {
+    [OneSignalUNUserNotificationCenter swizzleSelectors];
+    [OneSignalUNUserNotificationCenter registerDelegate];
+}
 
 static Class delegateUNClass = nil;
 
@@ -85,6 +105,20 @@ __weak static id previousDelegate;
     injectToProperClass(@selector(onesignalGetNotificationSettingsWithCompletionHandler:),
                         @selector(getNotificationSettingsWithCompletionHandler:), @[],
                         [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+}
+
++ (void)registerDelegate {
+    let curNotifCenter = [UNUserNotificationCenter currentNotificationCenter];
+    
+    /*
+        Sets the OneSignal shared instance as a delegate of UNUserNotificationCenter
+        OneSignal does not implement the delegate methods, we simply set it as a delegate
+        in order to swizzle the UNUserNotificationCenter methods in case the developer
+        does not set a UNUserNotificationCenter delegate themselves
+    */
+
+    if (!curNotifCenter.delegate)
+        curNotifCenter.delegate = (id)OSUNUserNotificationCenterDelegate.sharedInstance;
 }
 
 static BOOL useiOS10_2_workaround = true;

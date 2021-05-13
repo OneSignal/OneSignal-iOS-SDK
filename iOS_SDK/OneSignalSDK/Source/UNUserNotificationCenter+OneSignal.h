@@ -31,8 +31,10 @@
 #import "OneSignal.h"
 
 @interface OneSignalUNUserNotificationCenter : NSObject
++ (void)setup;
 + (void)swizzleSelectors;
 + (void)swizzleSelectorsOnDelegate:(id)delegate;
++ (void)registerDelegate;
 + (void)setUseiOS10_2_workaround:(BOOL)enable;
 @end
 
