@@ -45,6 +45,7 @@
     request.parameters = @{@"app_id" : appId};
     request.method = GET;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
+    request.disableLocalCaching = true;
     
     return request;
 }
@@ -533,6 +534,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     request.method = GET;
     request.parameters = @{@"app_id": appId};
     request.path = [NSString stringWithFormat:@"in_app_messages/%@/variants/%@/html", messageId, variantId];
+    request.disableLocalCaching = true;
 
     return request;
 }
@@ -550,7 +552,8 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     };
 
     request.path = @"in_app_messages/device_preview";
-
+    request.disableLocalCaching = true;
+    
     return request;
 }
 @end
