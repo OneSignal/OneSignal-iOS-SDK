@@ -34,13 +34,13 @@ THE SOFTWARE.
 @implementation OSPlayerTags
 
 NSDictionary<NSString *, NSString *> *_tags;
-NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
+NSDictionary<NSString *, NSString *> *_tagsToSend;
 
 -(id)init {
     self = [super init];
     if (self) {
         _tags = [NSDictionary new];
-        _tagsToSend = [NSMutableDictionary new];
+        _tagsToSend = [NSDictionary new];
         [self loadTagsFromUserDefaults];
     }
     return self;
@@ -57,7 +57,13 @@ NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
     return _tagsToSend;
 }
 
-- (void)setTagsToSend:(NSMutableDictionary *)tagsToSend {
+- (void)addTagsToSend:(NSDictionary *)tags {
+    NSMutableDictionary *newTagsToSend = [NSMutableDictionary dictionaryWithDictionary:_tagsToSend];
+    [newTagsToSend addEntriesFromDictionary:tags];
+    [self setTagsToSend:newTagsToSend];
+}
+
+- (void)setTagsToSend:(NSDictionary<NSString *, NSString *> *)tagsToSend {
     _tagsToSend = tagsToSend;
     [self addTags:tagsToSend];
 }
@@ -88,6 +94,12 @@ NSMutableDictionary<NSString *, NSString *> *_tagsToSend;
         [newDict removeObjectForKey:key];
     }
     _tags = newDict;
+    
+    NSMutableDictionary *newToSendDict = [NSMutableDictionary dictionaryWithDictionary:_tagsToSend];
+    for (NSString *key in keys) {
+        [newToSendDict removeObjectForKey:key];
+    }
+    _tagsToSend = newToSendDict;
 }
 
 - (void)addTagValue:(NSString *)value forKey:(NSString *)key {
