@@ -51,6 +51,21 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
 @end
 
+@interface OSUNUserNotificationCenterDelegate : NSObject
++ (OSUNUserNotificationCenterDelegate*)sharedInstance;
+@end
+
+@implementation OSUNUserNotificationCenterDelegate
+static OSUNUserNotificationCenterDelegate* singleInstance = nil;
++ (OSUNUserNotificationCenterDelegate*)sharedInstance {
+    @synchronized(singleInstance) {
+        if (!singleInstance)
+            singleInstance = [OSUNUserNotificationCenterDelegate new];
+    }
+    return singleInstance;
+}
+@end
+
 // This class hooks into the following iSO 10 UNUserNotificationCenterDelegate selectors:
 // - userNotificationCenter:willPresentNotification:withCompletionHandler:
 //   - Reads OneSignal.inFocusDisplayType to respect it's setting.
@@ -63,6 +78,11 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 //       The `callLegacyAppDeletegateSelector` selector below takes care of this backwards compatibility handling.
 
 @implementation OneSignalUNUserNotificationCenter
+
++ (void)setup {
+    [OneSignalUNUserNotificationCenter swizzleSelectors];
+    [OneSignalUNUserNotificationCenter registerDelegate];
+}
 
 static Class delegateUNClass = nil;
 
@@ -85,6 +105,30 @@ __weak static id previousDelegate;
     injectToProperClass(@selector(onesignalGetNotificationSettingsWithCompletionHandler:),
                         @selector(getNotificationSettingsWithCompletionHandler:), @[],
                         [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+}
+
++ (void)registerDelegate {
+    let curNotifCenter = [UNUserNotificationCenter currentNotificationCenter];
+
+    if (!curNotifCenter.delegate) {
+        /*
+          Set OSUNUserNotificationCenterDelegate.sharedInstance as a
+            UNUserNotificationCenterDelegate.
+          Note that OSUNUserNotificationCenterDelegate does not contain the methods such as
+            "willPresentNotification" as this assigment triggers setOneSignalUNDelegate which
+            will attach the selectors to the class at runtime.
+         */
+        curNotifCenter.delegate = (id)OSUNUserNotificationCenterDelegate.sharedInstance;
+    }
+    else {
+        /*
+         This handles the case where a delegate may have already been assigned before
+           OneSignal is loaded into memory.
+         This re-assignment triggers setOneSignalUNDelegate providing it with the
+           existing delegate instance so OneSignal can swizzle in its logic.
+         */
+        curNotifCenter.delegate = curNotifCenter.delegate;
+    }
 }
 
 static BOOL useiOS10_2_workaround = true;
@@ -140,11 +184,18 @@ static UNNotificationSettings* cachedUNNotificationSettings;
         [self setOneSignalUNDelegate:delegate];
         return;
     }
-    
+
     previousDelegate = delegate;
-    
+
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
-    
+
+    [OneSignalUNUserNotificationCenter swizzleSelectorsOnDelegate:delegate];
+
+    // Call orignal iOS implemenation
+    [self setOneSignalUNDelegate:delegate];
+}
+
++ (void)swizzleSelectorsOnDelegate:(id)delegate {
     delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
     delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
     
@@ -153,8 +204,6 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     injectToProperClass(@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
                         @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
-    
-    [self setOneSignalUNDelegate:delegate];
 }
 
 + (void)forwardNotificationWithCenter:(UNUserNotificationCenter *)center

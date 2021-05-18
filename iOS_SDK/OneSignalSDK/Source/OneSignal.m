@@ -2945,10 +2945,7 @@ static NSString *_lastnonActiveMessageId;
     if (!NSClassFromString(@"UNUserNotificationCenter"))
         return;
 
-    [OneSignalUNUserNotificationCenter swizzleSelectors];
-
-    // Set our own delegate if one hasn't been set already from something else.
-    [OneSignalHelper registerAsUNNotificationCenterDelegate];
+    [OneSignalUNUserNotificationCenter setup];
 }
 
 +(BOOL) shouldDisableBasedOnProcessArguments {

@@ -55,6 +55,7 @@
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalDialogControllerOverrider.h"
 #import "OneSignalNotificationCategoryController.h"
+#import "OneSignalUNUserNotificationCenterHelper.h"
 
 // Shadows
 #import "NSObjectOverrider.h"
@@ -1997,34 +1998,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(0, observer->fireCount);
     
     [NSBundleOverrider setPrivacyState:false];
-}
-  
-//tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
-// TODO: This test causes the UNUserNotificationCenter singleton's Delegate property to get nullified
-// Unfortunately the fix is not as simple as just setting it back to the original when the test is done
-// To avoid breaking other tests, this test should be executed last, and since tests are alphabetical order, adding Z's does this.
-- (void)testZSwizzling {
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    
-    DummyNotificationCenterDelegate *delegate = [[DummyNotificationCenterDelegate alloc] init];
-    
-    IMP original = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
-    
-    center.delegate = delegate;
-    
-    IMP swizzled = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
-    
-    XCTAssertNotEqual(original, swizzled);
-    
-    //calling setDelegate: a second time on the same object should not re-exchange method implementations
-    //thus the new method implementation should still be the same, swizzled == newSwizzled should be true
-    center.delegate = delegate;
-    
-    IMP newSwizzled = class_getMethodImplementation([delegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
-    
-    XCTAssertNotEqual(original, newSwizzled);
-    XCTAssertEqual(swizzled, newSwizzled);
-  
 }
 
 - (NSDictionary *)setUpWillShowInForegroundHandlerTestWithBlock:(OSNotificationWillShowInForegroundBlock)willShowInForegroundBlock withNotificationOpenedBlock:(OSNotificationOpenedBlock)openedBlock withPayload: (NSDictionary *)payload {
