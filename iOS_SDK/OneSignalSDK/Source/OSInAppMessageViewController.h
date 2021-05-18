@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)messageViewDidDisplayPage:(OSInAppMessage *)message withPageId:(NSString *)pageId;
 - (void)messageViewControllerWasDismissed;
 - (void)webViewContentFinishedLoading;
+- (void)messageIsNotActive:(OSInAppMessage *)message;
 
 @end
 

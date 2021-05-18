@@ -266,6 +266,9 @@
 
 - (void)encounteredErrorLoadingMessageContent:(NSError * _Nullable)error {
     let message = [NSString stringWithFormat:@"An error occurred while attempting to load message content: %@", error.description ?: @"Unknown Error"];
+    if (error.code == 410 || [error.description containsString:@"In-App Message is not active"]) {
+        [self.delegate messageIsNotActive:self.message];
+    }
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
 }
 

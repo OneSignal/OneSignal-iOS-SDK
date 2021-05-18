@@ -187,6 +187,19 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
+- (void)deleteInactiveMessage:(OSInAppMessage *)message {
+    let deleteMessage = [NSString stringWithFormat:@"Deleting inactive in-app message from cache: %@", message.messageId];
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:deleteMessage];
+    NSMutableArray *newMessagesArray = [NSMutableArray arrayWithArray:self.messages];
+    [newMessagesArray removeObject: message];
+    self.messages = newMessagesArray;
+    if (self.messages) {
+        [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
+    } else {
+        [OneSignalUserDefaults.initStandard removeValueForKey:OS_IAM_MESSAGES_ARRAY];
+    }
+}
+
 /*
  Part of redisplay logic
  Remove IAMs that the last display time was six month ago
@@ -675,6 +688,10 @@ static BOOL _isInAppMessagingPaused = false;
     dispatch_async(dispatch_get_main_queue(), ^{
            [self messageViewPageImpressionRequest:message withPageId:pageId];
     });
+}
+
+- (void)messageIsNotActive:(OSInAppMessage *)message {
+    [self deleteInactiveMessage:message];
 }
 
 /*
