@@ -149,6 +149,42 @@ static XCTestCase* _currentXCTestCase;
 }
 
 /*
+ Runs any blocks passed to dispatch_async() with delays after each call
+ This will allow more time for chained async methods to complete
+ */
++ (void)runLongBackgroundThreads {
+    NSLog(@"START runLongBackgroundThreads");
+    
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
+    
+    // the httpQueue makes sure all HTTP request mocks are sync'ed
+    
+    dispatch_queue_t registerUserQueue, notifSettingsQueue;
+    for(int i = 0; i < 10; i++) {
+        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        [OneSignalHelperOverrider runBackgroundThreads];
+        
+        notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
+        if (notifSettingsQueue)
+            dispatch_sync(notifSettingsQueue, ^{});
+        
+        registerUserQueue = [OneSignal getRegisterQueue];
+        if (registerUserQueue)
+            dispatch_sync(registerUserQueue, ^{});
+        
+        [OneSignalClientOverrider runBackgroundThreads];
+        
+        [UNUserNotificationCenterOverrider runBackgroundThreads];
+        
+        dispatch_barrier_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{});
+        
+        [UIApplicationOverrider runBackgroundThreads];
+    }
+    
+    NSLog(@"END runLongBackgroundThreads");
+}
+
+/*
  Runs any blocks passed to dispatch_async()
  */
 + (void)runBackgroundThreads {

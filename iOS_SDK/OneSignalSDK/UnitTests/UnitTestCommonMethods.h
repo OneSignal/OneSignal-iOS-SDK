@@ -59,6 +59,7 @@ withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundB
  withNotificationOpenedHandler:(OSNotificationOpenedBlock)notificationOpenedDelegate;
 
 + (void)runBackgroundThreads;
++ (void)runLongBackgroundThreads;
 + (void)clearStateForAppRestart:(XCTestCase *)testCase;
 + (void)beforeAllTest;
 + (void)beforeAllTest:(XCTestCase *)testCase;

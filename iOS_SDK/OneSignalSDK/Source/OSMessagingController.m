@@ -288,19 +288,26 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     self.isInAppMessageShowing = true;
-    [self showAndImpressMessage:message];
+    [self showMessage:message];
 }
 
-- (void)showAndImpressMessage:(OSInAppMessage *)message {
+- (void)showMessage:(OSInAppMessage *)message {
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
     if (message.hasLiquid && !self.calledLoadTags) {
         self.viewController.waitForTags = YES;
         [self loadTags];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-           [[self.viewController view] setNeedsLayout];
-           [self messageViewImpressionRequest:message];
+        [[self.viewController view] setNeedsLayout];
     });
+}
+
+- (void)sendMessageImpression:(OSInAppMessage *)message {
+    if ([self shouldSendImpression:message]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self messageViewImpressionRequest:message];
+        });
+    }
 }
 
 - (void)loadTags {
@@ -771,10 +778,14 @@ static BOOL _isInAppMessagingPaused = false;
 /*
  This method must be called on the Main thread
  */
-- (void)webViewContentFinishedLoading {
+- (void)webViewContentFinishedLoading:(OSInAppMessage *)message {
     if (!self.viewController) {
         [self evaluateMessages];
         return;
+    }
+    
+    if (message) {
+        [self sendMessageImpression:message];
     }
     
     if (!self.window) {
@@ -862,7 +873,7 @@ static BOOL _isInAppMessagingPaused = false;
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {}
-- (void)webViewContentFinishedLoading {}
+- (void)webViewContentFinishedLoading:(OSInAppMessage *)message {}
 #pragma mark OSTriggerControllerDelegate Methods
 - (void)triggerConditionChanged {}
 - (void)dynamicTriggerCompleted:(NSString *)triggerId {}

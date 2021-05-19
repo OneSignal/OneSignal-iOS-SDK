@@ -87,16 +87,23 @@
 + (void)load {
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wundeclared-selector"
-    injectToProperClass(@selector(overrideShowAndImpressMessage:), @selector(showAndImpressMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
+    injectToProperClass(@selector(overrideShowMessage:), @selector(showMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
+    injectToProperClass(@selector(overrideWebViewContentFinishedLoading:), @selector(webViewContentFinishedLoading:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
     #pragma clang diagnostic pop
 }
 
-- (void)overrideShowAndImpressMessage:(OSInAppMessage *)message {
+- (void)overrideShowMessage:(OSInAppMessage *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
         let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
         [viewController viewDidLoad];
+        [OSMessagingController.sharedInstance webViewContentFinishedLoading:message];
     });
-    [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
+}
+
+- (void)overrideWebViewContentFinishedLoading:(OSInAppMessage *)message {
+    if (message) {
+        [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
+    }
 }
 
 + (void)dismissCurrentMessage {
