@@ -225,7 +225,7 @@
             return;
         }
         
-        let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"hmtl"]];
+        let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"html"]];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
         
         if (!self.message.isPreview)
