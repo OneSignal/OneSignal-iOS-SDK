@@ -388,6 +388,8 @@
     }];
 
     [OneSignal addTrigger:@"prop1" withValue:@2];
+    
+    [UnitTestCommonMethods runLongBackgroundThreads];
 
     // IAM should be shown instantly and be within the messageDisplayQueue
     XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
@@ -420,7 +422,10 @@
 
     [OneSignal addTrigger:@"prop1" withValue:@2];
 
+    [UnitTestCommonMethods runLongBackgroundThreads];
+    
     XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
+   
     // The display should cause an new "viewed" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
 
@@ -747,9 +752,11 @@
     // the trigger should immediately evaluate to true and should
     // be shown once the SDK is fully initialized.
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
-    
+
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
+    [UnitTestCommonMethods runLongBackgroundThreads];
+
     // the message should now be displayed
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageViewed class]));
 }

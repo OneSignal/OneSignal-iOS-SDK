@@ -266,6 +266,9 @@
 
 - (void)encounteredErrorLoadingMessageContent:(NSError * _Nullable)error {
     let message = [NSString stringWithFormat:@"An error occurred while attempting to load message content: %@", error.description ?: @"Unknown Error"];
+    if (error.code == 410 || error.code == 404) {
+        [self.delegate messageIsNotActive:self.message];
+    }
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
 }
 
@@ -649,7 +652,7 @@
                 // The page is fully loaded and should now be displayed
                 // This is only fired once the javascript on the page sends the "rendering_complete" type event
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.delegate webViewContentFinishedLoading];
+                    [self.delegate webViewContentFinishedLoading:self.message];
                     [OneSignalHelper performSelector:@selector(displayMessage) onMainThreadOnObject:self withObject:nil afterDelay:0.0f];
                 });
                 break;

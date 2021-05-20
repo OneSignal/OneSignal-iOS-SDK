@@ -187,6 +187,19 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
+- (void)deleteInactiveMessage:(OSInAppMessage *)message {
+    let deleteMessage = [NSString stringWithFormat:@"Deleting inactive in-app message from cache: %@", message.messageId];
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:deleteMessage];
+    NSMutableArray *newMessagesArray = [NSMutableArray arrayWithArray:self.messages];
+    [newMessagesArray removeObject: message];
+    self.messages = newMessagesArray;
+    if (self.messages) {
+        [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
+    } else {
+        [OneSignalUserDefaults.initStandard removeValueForKey:OS_IAM_MESSAGES_ARRAY];
+    }
+}
+
 /*
  Part of redisplay logic
  Remove IAMs that the last display time was six month ago
@@ -275,19 +288,26 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     self.isInAppMessageShowing = true;
-    [self showAndImpressMessage:message];
+    [self showMessage:message];
 }
 
-- (void)showAndImpressMessage:(OSInAppMessage *)message {
+- (void)showMessage:(OSInAppMessage *)message {
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
     if (message.hasLiquid && !self.calledLoadTags) {
         self.viewController.waitForTags = YES;
         [self loadTags];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-           [[self.viewController view] setNeedsLayout];
-           [self messageViewImpressionRequest:message];
+        [[self.viewController view] setNeedsLayout];
     });
+}
+
+- (void)sendMessageImpression:(OSInAppMessage *)message {
+    if ([self shouldSendImpression:message]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self messageViewImpressionRequest:message];
+        });
+    }
 }
 
 - (void)loadTags {
@@ -677,6 +697,10 @@ static BOOL _isInAppMessagingPaused = false;
     });
 }
 
+- (void)messageIsNotActive:(OSInAppMessage *)message {
+    [self deleteInactiveMessage:message];
+}
+
 /*
 * Show the developer what will happen with a non IAM preview
  */
@@ -754,10 +778,14 @@ static BOOL _isInAppMessagingPaused = false;
 /*
  This method must be called on the Main thread
  */
-- (void)webViewContentFinishedLoading {
+- (void)webViewContentFinishedLoading:(OSInAppMessage *)message {
     if (!self.viewController) {
         [self evaluateMessages];
         return;
+    }
+    
+    if (message) {
+        [self sendMessageImpression:message];
     }
     
     if (!self.window) {
@@ -845,7 +873,7 @@ static BOOL _isInAppMessagingPaused = false;
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {}
-- (void)webViewContentFinishedLoading {}
+- (void)webViewContentFinishedLoading:(OSInAppMessage *)message {}
 #pragma mark OSTriggerControllerDelegate Methods
 - (void)triggerConditionChanged {}
 - (void)dynamicTriggerCompleted:(NSString *)triggerId {}
