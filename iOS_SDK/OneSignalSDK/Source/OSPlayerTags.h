@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 @interface OSPlayerTags : NSObject
 
-@property (nonatomic, strong, nullable, readwrite) NSMutableDictionary *tagsToSend;
+@property (nonatomic, strong, nullable, readonly) NSDictionary *tagsToSend;
 
 - (NSDictionary *_Nullable) allTags;
 
@@ -38,6 +38,10 @@ THE SOFTWARE.
 - (void)addTagValue:(NSString *_Nonnull)value forKey:(NSString *_Nullable)key;
 
 - (void)deleteTags:(NSArray *_Nonnull)keys;
+
+- (void)setTagsToSend:(NSDictionary * _Nullable)tagsToSend;
+
+- (void)addTagsToSend:(NSDictionary * _Nullable)tags;
 
 - (NSString *_Nullable)tagValueForKey:(NSString *_Nonnull)key;
 

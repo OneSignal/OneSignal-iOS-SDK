@@ -57,7 +57,7 @@
 - (NSString *)getTagsString {
     NSError *error;
     OSPlayerTags *tags = [OneSignal getPlayerTags];
-    if (!tags.allTags) {
+    if (!tags.allTags || tags.allTags.count <= 0 ) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"[getTagsString] no tags found for the player"];
         return nil;
     }

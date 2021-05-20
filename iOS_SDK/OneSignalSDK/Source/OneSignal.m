@@ -1264,9 +1264,9 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
     
     if (!self.playerTags.tagsToSend) {
-        self.playerTags.tagsToSend = [keyValuePair mutableCopy];
+        [self.playerTags setTagsToSend: [keyValuePair mutableCopy]];
     } else {
-        [self.playerTags.tagsToSend addEntriesFromDictionary:keyValuePair];
+        [self.playerTags addTagsToSend:keyValuePair];
     }
     
     if (successBlock || failureBlock) {
@@ -1308,7 +1308,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     [self.playerTags saveTagsToUserDefaults];
     NSDictionary* nowSendingTags = self.playerTags.tagsToSend;
-    self.playerTags.tagsToSend = nil;
+    [self.playerTags setTagsToSend: nil];
     
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
@@ -1346,6 +1346,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     }
     
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetTags withUserId:self.currentSubscriptionState.userId appId:self.appId] onSuccess:^(NSDictionary *result) {
+        [self.playerTags addTags:[result objectForKey:@"tags"]];
         successBlock([result objectForKey:@"tags"]);
     } onFailure:failureBlock];
     
@@ -1408,17 +1409,12 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
 + (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
-    [self.playerTags deleteTags:keys];
     for (NSString* key in keys) {
-        if (self.playerTags.tagsToSend && self.playerTags.tagsToSend[key]) {
-            if (![self.playerTags.tagsToSend[key] isEqual:@""]) {
-                [self.playerTags.tagsToSend removeObjectForKey:key];
-            }
-        }
-        else
+        if (!self.playerTags.tagsToSend || !self.playerTags.tagsToSend[key]) {
             tags[key] = @"";
+        }
     }
-    
+    [self.playerTags deleteTags:keys];
     [self sendTags:tags onSuccess:successBlock onFailure:failureBlock];
 }
 
@@ -1848,7 +1844,7 @@ static dispatch_queue_t serialQueue;
     if (userState.tags) {
         [self.playerTags addTags:userState.tags];
         [self.playerTags saveTagsToUserDefaults];
-        self.playerTags.tagsToSend = nil;
+        [self.playerTags setTagsToSend: nil];
         
         nowProcessingCallbacks = pendingSendTagCallbacks;
         pendingSendTagCallbacks = nil;
