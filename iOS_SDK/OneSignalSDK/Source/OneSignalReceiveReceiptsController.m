@@ -93,17 +93,14 @@
 
     let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
     
-    NSLog(@"ECM conf delivery sending after: %i second(s)", delay);
     dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
     dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
-        NSLog(@"ECM conf delivery now sending after: %i second(s)", delay);
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId now sending confirmed delievery after: %i second delay", delay]];
         [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-            NSLog(@"ECM successfully confirmed delivery");
             if (success) {
                 success(result);
             }
         } onFailure:^(NSError *error) {
-            NSLog(@"ECM failed confirmed delivery");
             if (failure) {
                 failure(error);
             }

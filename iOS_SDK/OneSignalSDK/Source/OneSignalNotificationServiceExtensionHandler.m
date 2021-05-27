@@ -71,17 +71,19 @@
     // Media Attachments
     [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
     
-    // Trigger the notification to be shown with the replacementContent
-    contentHandler(replacementContent);
-    
     // Get and check the received notification id
     let receivedNotificationId = notification.notificationId;
     
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    [self onNotificationReceived:receivedNotificationId withBlockingTask:semaphore];
-    NSLog(@"ECM waiting on semaphore");
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-    NSLog(@"ECM finished waiting on semaphore");
+    // Trigger the notification to be shown with the replacementContent
+    if (contentHandler) {
+        contentHandler(replacementContent);
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        [self onNotificationReceived:receivedNotificationId withBlockingTask:semaphore];
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    } else {
+        [self onNotificationReceived:receivedNotificationId withBlockingTask:nil];
+    }
+
     return replacementContent;
 }
 
@@ -125,12 +127,17 @@
         let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
         // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
         int randomDelay = arc4random_uniform(MAX_CONF_DELIVERY_DELAY);
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt with delay: %i", randomDelay]];
         [OneSignal.receiveReceiptsController sendReceiveReceiptWithPlayerId:playerId notificationId:receivedNotificationId appId:appId delay:randomDelay successBlock:^(NSDictionary *result) {
-            NSLog(@"ECM semaphore signal");
-            dispatch_semaphore_signal(semaphore);
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Success for playerId: %@ result: %@", playerId, result]];
+            if (semaphore) {
+                dispatch_semaphore_signal(semaphore);
+            }
         } failureBlock:^(NSError *error) {
-            NSLog(@"ECM semaphore signal");
-            dispatch_semaphore_signal(semaphore);
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Failed for playerId: %@ error:%@", playerId, error.localizedDescription]];
+            if (semaphore) {
+                dispatch_semaphore_signal(semaphore);
+            }
         }];
    }
 }
