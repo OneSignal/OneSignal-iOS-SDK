@@ -2343,8 +2343,8 @@ static NSString *_lastnonActiveMessageId;
 }
 
 // Called from the app's Notification Service Extension. Calls contentHandler() to display the notification
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
-                                                     withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request                              withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
+                withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
     return [OneSignalNotificationServiceExtensionHandler
             didReceiveNotificationExtensionRequest:request
             withMutableNotificationContent:replacementContent

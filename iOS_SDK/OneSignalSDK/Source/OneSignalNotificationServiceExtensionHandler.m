@@ -49,7 +49,7 @@
 }
 
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
-                                                       withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
+                withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"NSE request received"];
     
     if (!replacementContent)
@@ -68,9 +68,6 @@
                                  withNotification:notification
               withMutableNotificationContent:replacementContent];
     
-    // Media Attachments
-    [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
-    
     // Get and check the received notification id
     let receivedNotificationId = notification.notificationId;
     
@@ -79,9 +76,13 @@
         contentHandler(replacementContent);
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         [self onNotificationReceived:receivedNotificationId withBlockingTask:semaphore];
-        dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC));
+        // Download Media Attachments after kicking off the confirmed delivery task
+        [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
+        dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, MAX_NSE_LIFETIME_SECOUNDS * NSEC_PER_SEC));
     } else {
         [self onNotificationReceived:receivedNotificationId withBlockingTask:nil];
+        // Download Media Attachments
+        [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
     }
 
     return replacementContent;
@@ -126,7 +127,7 @@
         let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
         let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
         // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
-        int randomDelay = arc4random_uniform(MAX_CONF_DELIVERY_DELAY);
+        int randomDelay = semaphore != nil ? arc4random_uniform(MAX_CONF_DELIVERY_DELAY) : 0;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt with delay: %i", randomDelay]];
         [OneSignal.receiveReceiptsController sendReceiveReceiptWithPlayerId:playerId notificationId:receivedNotificationId appId:appId delay:randomDelay successBlock:^(NSDictionary *result) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Success for playerId: %@ result: %@", playerId, result]];

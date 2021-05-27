@@ -244,6 +244,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define DEVICE_TYPE_EMAIL 11
 #define DEVICE_TYPE_SMS 14
 
+#define MAX_NSE_LIFETIME_SECOUNDS 30
+
 #ifndef OS_TEST
     // OneSignal API Client Defines
     #define REATTEMPT_DELAY 30.0
