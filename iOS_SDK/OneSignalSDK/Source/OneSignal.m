@@ -2342,6 +2342,15 @@ static NSString *_lastnonActiveMessageId;
             withMutableNotificationContent:replacementContent];
 }
 
+// Called from the app's Notification Service Extension. Calls contentHandler() to display the notification
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
+                                                     withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
+    return [OneSignalNotificationServiceExtensionHandler
+            didReceiveNotificationExtensionRequest:request
+            withMutableNotificationContent:replacementContent
+            withContentHandler:contentHandler];
+}
+
 
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {

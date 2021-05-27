@@ -41,7 +41,14 @@
 
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
                                          withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
+    return [OneSignalNotificationServiceExtensionHandler
+            didReceiveNotificationExtensionRequest:request
+            withMutableNotificationContent:replacementContent
+            withContentHandler:nil];
+}
 
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
+                                                       withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"NSE request received"];
     
     if (!replacementContent)

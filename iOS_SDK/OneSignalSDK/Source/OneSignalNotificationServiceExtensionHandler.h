@@ -33,6 +33,8 @@
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request
                                          withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent withContentHandler:(void (^)(UNNotificationContent *))contentHandler;
+
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest *)request
                                         withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent;
 
