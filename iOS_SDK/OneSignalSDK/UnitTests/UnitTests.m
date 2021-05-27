@@ -55,7 +55,6 @@
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalDialogControllerOverrider.h"
 #import "OneSignalNotificationCategoryController.h"
-#import "OneSignalUNUserNotificationCenterHelper.h"
 
 // Shadows
 #import "NSObjectOverrider.h"
