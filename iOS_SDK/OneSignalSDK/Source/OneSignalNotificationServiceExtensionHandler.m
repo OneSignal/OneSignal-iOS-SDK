@@ -79,7 +79,7 @@
         contentHandler(replacementContent);
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         [self onNotificationReceived:receivedNotificationId withBlockingTask:semaphore];
-        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC));
     } else {
         [self onNotificationReceived:receivedNotificationId withBlockingTask:nil];
     }

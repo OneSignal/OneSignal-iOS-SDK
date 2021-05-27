@@ -83,11 +83,15 @@
 
     if (!appId) {
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"appId not available from shared UserDefaults!"];
+        if (failure)
+            failure(nil);
         return;
     }
     
     if (![self isReceiveReceiptsEnabled]) {
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Receieve receipts disabled"];
+        if (failure)
+            failure(nil);
         return;
     }
 
