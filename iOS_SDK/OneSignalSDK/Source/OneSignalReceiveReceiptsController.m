@@ -77,15 +77,31 @@
     }
 
     let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
-    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-        if (success)
-            success(result);
-        
-    } onFailure:^(NSError *error) {
-        if (failure)
-            failure(error);
-        
-    }];
+    
+    // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
+    int randomDelay = arc4random_uniform(MAX_CONF_DELIVERY_DELAY);
+    NSLog(@"ECM conf delivery sending after: %i second(s)", randomDelay);
+    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC);
+    dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
+        NSLog(@"ECM conf delivery now sending after: %i second(s)", randomDelay);
+        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+            NSLog(@"ECM successfully confirmed delivery");
+            if (success) {
+                
+                success(result);
+            }
+                
+            
+        } onFailure:^(NSError *error) {
+            NSLog(@"ECM failed confirmed delivery");
+            if (failure) {
+                
+                failure(error);
+
+            }
+                            
+        }];
+    });
 }
 
 @end
