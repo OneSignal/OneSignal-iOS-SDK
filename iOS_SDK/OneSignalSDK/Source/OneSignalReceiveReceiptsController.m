@@ -63,6 +63,21 @@
                           successBlock:(nullable OSResultSuccessBlock)success
                           failureBlock:(nullable OSFailureBlock)failure {
     
+    [self sendReceiveReceiptWithPlayerId:playerId
+                          notificationId:notificationId
+                                   appId:appId
+                                   delay:0
+                            successBlock:nil
+                            failureBlock:nil];
+}
+
+- (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
+                        notificationId:(nonnull NSString *)notificationId
+                                 appId:(nonnull NSString *)appId
+                                 delay:(int)delay
+                          successBlock:(nullable OSResultSuccessBlock)success
+                          failureBlock:(nullable OSFailureBlock)failure {
+    
     let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId playerId:%@ notificationId: %@, appId: %@", playerId, notificationId, appId];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
 
@@ -78,28 +93,20 @@
 
     let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
     
-    // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
-    int randomDelay = arc4random_uniform(MAX_CONF_DELIVERY_DELAY);
-    NSLog(@"ECM conf delivery sending after: %i second(s)", randomDelay);
-    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, randomDelay * NSEC_PER_SEC);
+    NSLog(@"ECM conf delivery sending after: %i second(s)", delay);
+    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
     dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
-        NSLog(@"ECM conf delivery now sending after: %i second(s)", randomDelay);
+        NSLog(@"ECM conf delivery now sending after: %i second(s)", delay);
         [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
             NSLog(@"ECM successfully confirmed delivery");
             if (success) {
-                
                 success(result);
             }
-                
-            
         } onFailure:^(NSError *error) {
             NSLog(@"ECM failed confirmed delivery");
             if (failure) {
-                
                 failure(error);
-
             }
-                            
         }];
     });
 }

@@ -36,6 +36,7 @@
 #import "OneSignalReceiveReceiptsController.h"
 #import "OSSessionManager.h"
 #import "OSMigrationController.h"
+#import "OneSignalUserDefaults.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 
@@ -61,10 +62,6 @@
     
     // Track receieved
     [OneSignalTrackFirebaseAnalytics trackReceivedEvent:notification];
-    
-    // Get and check the received notification id
-    let receivedNotificationId = notification.notificationId;
-    [self onNotificationReceived:receivedNotificationId];
 
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request
@@ -74,6 +71,17 @@
     // Media Attachments
     [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
     
+    // Trigger the notification to be shown with the replacementContent
+    contentHandler(replacementContent);
+    
+    // Get and check the received notification id
+    let receivedNotificationId = notification.notificationId;
+    
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    [self onNotificationReceived:receivedNotificationId withBlockingTask:semaphore];
+    NSLog(@"ECM waiting on semaphore");
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    NSLog(@"ECM finished waiting on semaphore");
     return replacementContent;
 }
 
@@ -102,15 +110,28 @@
     [OneSignalHelper addActionButtons:notification toNotificationContent:replacementContent];
 }
 
-+ (void)onNotificationReceived:(NSString *)receivedNotificationId {
++ (void)onNotificationReceived:(NSString *)receivedNotificationId withBlockingTask:(dispatch_semaphore_t)semaphore {
     if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
-        // Track confirmed delivery
-        [OneSignal.receiveReceiptsController sendReceiveReceiptWithNotificationId:receivedNotificationId];
+        
         // If update was made without app being initialized/launched before -> migrate
         [[OSMigrationController new] migrate];
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OneSignal sessionManager]]];
         // Save received notification id
         [[OneSignal sessionManager] onNotificationReceived:receivedNotificationId];
+        
+        // Track confirmed delivery
+        let sharedUserDefaults = OneSignalUserDefaults.initShared;
+        let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+        let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+        // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
+        int randomDelay = arc4random_uniform(MAX_CONF_DELIVERY_DELAY);
+        [OneSignal.receiveReceiptsController sendReceiveReceiptWithPlayerId:playerId notificationId:receivedNotificationId appId:appId delay:randomDelay successBlock:^(NSDictionary *result) {
+            NSLog(@"ECM semaphore signal");
+            dispatch_semaphore_signal(semaphore);
+        } failureBlock:^(NSError *error) {
+            NSLog(@"ECM semaphore signal");
+            dispatch_semaphore_signal(semaphore);
+        }];
    }
 }
 
