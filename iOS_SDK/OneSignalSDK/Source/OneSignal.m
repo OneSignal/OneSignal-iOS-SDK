@@ -2908,7 +2908,6 @@ static NSString *_lastnonActiveMessageId;
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/935
     NSProcessInfo *processName = [[NSProcessInfo processInfo] processName];
-	
     if ([processName isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [processName isEqualToString:@"IBDesignablesAgent-iOS"] || [processName isEqualToString:@"xctest"])
         return;
 
