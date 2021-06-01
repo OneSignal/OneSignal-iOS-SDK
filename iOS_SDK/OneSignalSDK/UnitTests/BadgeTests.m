@@ -82,9 +82,11 @@
     } mutableCopy];
     
     UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //test that receiving a notification with badge_inc updates the badge icon number
     [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 3);
     
@@ -93,7 +95,10 @@
     
     UNNotificationResponse *newNotifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignal didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 2);
 }
@@ -114,10 +119,11 @@
     } mutableCopy];
     
     UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //test that receiving a notification with badge_inc updates the badge icon number
     [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
-    
+    #pragma clang diagnostic pop
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 54);
     
     [userInfo setObject:@{@"mutable-content" : @1, @"alert" : @"test msg"} forKey:@"aps"];
@@ -126,9 +132,11 @@
     UNNotificationResponse *newNotifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     UNMutableNotificationContent *mutableContent = [newNotifResponse.notification.request.content mutableCopy];
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //tests to make sure the extension is correctly modifying the badge value of the replacement content
     let replacementContent = [OneSignal didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:mutableContent];
+    #pragma clang diagnostic pop
     
     XCTAssert([replacementContent.badge intValue] == 53);
     
@@ -153,9 +161,11 @@
     UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     UNMutableNotificationContent *mutableContent = [notifResponse.notification.request.content mutableCopy];
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //Since the notification is trying to set a negative value, the SDK should keep the badge count == 0
     let replacementContent = [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:mutableContent];
+    #pragma clang diagnostic pop
     
     XCTAssert(replacementContent.badge.intValue == 0);
     

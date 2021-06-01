@@ -63,29 +63,53 @@
                           successBlock:(nullable OSResultSuccessBlock)success
                           failureBlock:(nullable OSFailureBlock)failure {
     
+    [self sendReceiveReceiptWithPlayerId:playerId
+                          notificationId:notificationId
+                                   appId:appId
+                                   delay:0
+                            successBlock:nil
+                            failureBlock:nil];
+}
+
+- (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
+                        notificationId:(nonnull NSString *)notificationId
+                                 appId:(nonnull NSString *)appId
+                                 delay:(int)delay
+                          successBlock:(nullable OSResultSuccessBlock)success
+                          failureBlock:(nullable OSFailureBlock)failure {
+    
     let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId playerId:%@ notificationId: %@, appId: %@", playerId, notificationId, appId];
     [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
 
     if (!appId) {
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"appId not available from shared UserDefaults!"];
+        if (failure)
+            failure(nil);
         return;
     }
     
     if (![self isReceiveReceiptsEnabled]) {
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Receieve receipts disabled"];
+        if (failure)
+            failure(nil);
         return;
     }
 
     let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
-    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-        if (success)
-            success(result);
-        
-    } onFailure:^(NSError *error) {
-        if (failure)
-            failure(error);
-        
-    }];
+    
+    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
+    dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId now sending confirmed delievery after: %i second delay", delay]];
+        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+            if (success) {
+                success(result);
+            }
+        } onFailure:^(NSError *error) {
+            if (failure) {
+                failure(error);
+            }
+        }];
+    });
 }
 
 @end

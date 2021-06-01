@@ -41,4 +41,11 @@
                           successBlock:(nullable OSResultSuccessBlock)success
                           failureBlock:(nullable OSFailureBlock)failure;
 
+- (void)sendReceiveReceiptWithPlayerId:(nonnull NSString *)playerId
+                        notificationId:(nonnull NSString *)notificationId
+                                 appId:(nonnull NSString *)appId
+                                 delay:(int)delay
+                          successBlock:(nullable OSResultSuccessBlock)success
+                          failureBlock:(nullable OSFailureBlock)failure;
+
 @end

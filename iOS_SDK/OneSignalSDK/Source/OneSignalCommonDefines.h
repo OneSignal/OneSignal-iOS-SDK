@@ -244,6 +244,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define DEVICE_TYPE_EMAIL 11
 #define DEVICE_TYPE_SMS 14
 
+#define MAX_NSE_LIFETIME_SECOUNDS 30
+
 #ifndef OS_TEST
     // OneSignal API Client Defines
     #define REATTEMPT_DELAY 30.0
@@ -258,7 +260,10 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
     #define MAX_CATEGORIES_SIZE 128
 
     // Defines how long the SDK will wait for a OSPredisplayNotification's complete method to execute
-#define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 25.0
+
+    // Defines the maximum delay time for confirmed deliveries
+    #define MAX_CONF_DELIVERY_DELAY 25.0
 #else
     // Test defines for API Client
     #define REATTEMPT_DELAY 0.004
@@ -274,7 +279,11 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
     // Unit testing value for how long the SDK will wait for a
     // OSPredisplayNotification's complete method to execute
-#define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
+    #define CUSTOM_DISPLAY_TYPE_TIMEOUT 0.05
+
+    // We don't want to delay confirmed deliveries in unit tests
+    #define MAX_CONF_DELIVERY_DELAY 0
+
 #endif
 
 // A max timeout for a request, which might include multiple reattempts

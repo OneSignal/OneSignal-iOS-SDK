@@ -55,7 +55,6 @@
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalDialogControllerOverrider.h"
 #import "OneSignalNotificationCategoryController.h"
-#import "OneSignalUNUserNotificationCenterHelper.h"
 
 // Shadows
 #import "NSObjectOverrider.h"
@@ -895,8 +894,11 @@ and the app was cold started from opening a notficiation open that the developer
     // The Notification Service Extension runs where the notification received id tracked.
     //   Note: This is normally a separate process but can't emulate that here.
     let response = [self createNotificationResponseForAnalyticsTests];
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [OneSignal didReceiveNotificationExtensionRequest:response.notification.request
                        withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
     
     // Make sure we are tracking the notification received event to firebase.
     XCTAssertEqual(OneSignalTrackFirebaseAnalyticsOverrider.loggedEvents.count, 1);
@@ -1716,7 +1718,11 @@ didReceiveRemoteNotification:userInfo
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
+    
     
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
@@ -1772,8 +1778,10 @@ didReceiveRemoteNotification:userInfo
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
-    
+    #pragma clang diagnostic pop
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
     // Make sure attachments were added.
@@ -1843,7 +1851,10 @@ didReceiveRemoteNotification:userInfo
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
 
     // Make sure attachments were added.
     XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
@@ -1873,6 +1884,38 @@ didReceiveRemoteNotification:userInfo
     XCTAssertNil(content.attachments);
 }
 
+// iOS 10 - Notification Service Extension test
+- (void) testServiceExtensionContentHandlerFired {
+    id userInfo = @{@"aps": @{
+                        @"mutable-content": @1,
+                        @"alert": @"Message Body"
+                        },
+                    @"os_data": @{
+                        @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                        @"buttons": @[@{@"i": @"id1", @"n": @"text1"}],
+                        @"att": @{ @"id": @"http://domain.com/file.jpg" }
+                    }};
+    
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    
+    // create an expectation that is fulfilled when the contentHandler is fired and when didReceiveNotificationExtensionRequest
+    // returns. This indicates that the semaphore waiting on the confirmed delivery has been signaled.
+    XCTestExpectation *contentExpectation = [self expectationWithDescription:@"onesignal_extension_content_handler_fired"];
+    contentExpectation.expectedFulfillmentCount = 2;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil withContentHandler:^(UNNotificationContent * _Nonnull replacementContent) {
+            [contentExpectation fulfill];
+        }];
+        // If didReceiveNotificationExtenionRequest has returned then the semaphore has been signaled or timed out
+        [contentExpectation fulfill];
+        // Make sure butons were added.
+        XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+    });
+    [self waitForExpectations:@[contentExpectation] timeout:1];
+}
+/*
+ (void (^)(UNNotificationContent * _Nonnull))contentHandler
+ */
 -(void)testBuildOSRequest {
     let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
     
@@ -2124,7 +2167,10 @@ didReceiveRemoteNotification:userInfo
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    #pragma clang diagnostic pop
     
     return content.attachments.firstObject;
 }
@@ -2986,8 +3032,11 @@ didReceiveRemoteNotification:userInfo
 
     let notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:notification];
 
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     let content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
-
+    #pragma clang diagnostic pop
+    
     let ids = OneSignalNotificationCategoryController.sharedInstance.existingRegisteredCategoryIds;
 
     XCTAssertEqual(ids.count, 1);

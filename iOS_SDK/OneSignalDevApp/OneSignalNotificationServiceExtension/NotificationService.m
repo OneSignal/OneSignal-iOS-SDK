@@ -28,7 +28,9 @@
     
     NSLog(@"START!!!!!! request.content.userInfo: %@", request.content.userInfo);
     
-    [OneSignal didReceiveNotificationExtensionRequest:self.receivedRequest withMutableNotificationContent:self.bestAttemptContent];
+    [OneSignal didReceiveNotificationExtensionRequest:self.receivedRequest
+                       withMutableNotificationContent:self.bestAttemptContent
+                                   withContentHandler:contentHandler];
     // DEBUGGING: Uncomment the 2 lines below and comment out the one above to ensure this extension is excuting
     //            Note, this extension only runs when mutable-content is set
     //            Setting an attachment or action buttons automatically adds this
@@ -42,7 +44,7 @@
     
     
 //    [NSThread sleepForTimeInterval:25.0f];
-    self.contentHandler(self.bestAttemptContent);
+    //self.contentHandler(self.bestAttemptContent);
     
 //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 //        self.contentHandler(self.bestAttemptContent);
