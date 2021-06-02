@@ -2907,7 +2907,7 @@ static NSString *_lastnonActiveMessageId;
     // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views or from hostless unit tests.
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/935
-    NSProcessInfo *processName = [[NSProcessInfo processInfo] processName];
+    NSString *processName = [[NSProcessInfo processInfo] processName];
     if ([processName isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [processName isEqualToString:@"IBDesignablesAgent-iOS"] || [processName isEqualToString:@"xctest"])
         return;
 
