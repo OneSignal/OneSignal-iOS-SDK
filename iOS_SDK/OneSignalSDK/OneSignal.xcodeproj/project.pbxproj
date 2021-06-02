@@ -29,6 +29,17 @@
 			name = "OneSignal-Dynamic-Framework";
 			productName = "OneSignal-Dynamic-Framework";
 		};
+		DE8C685F2667FBF600DCF307 /* OCLint */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = DE8C68622667FBF600DCF307 /* Build configuration list for PBXAggregateTarget "OCLint" */;
+			buildPhases = (
+				DE8C68632667FC0900DCF307 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = OCLint;
+			productName = OCLint;
+		};
 		DEC2EA8E24B7B63800C1FD34 /* OneSignal-XCFramework */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = DEC2EA9024B7B63800C1FD34 /* Build configuration list for PBXAggregateTarget "OneSignal-XCFramework" */;
@@ -1644,6 +1655,11 @@
 						DevelopmentTeam = 4ZR3G6ZK9T;
 						ProvisioningStyle = Automatic;
 					};
+					DE8C685F2667FBF600DCF307 = {
+						CreatedOnToolsVersion = 12.5;
+						DevelopmentTeam = 99SW8E36CT;
+						ProvisioningStyle = Automatic;
+					};
 					DEC2EA8E24B7B63800C1FD34 = {
 						DevelopmentTeam = 4ZR3G6ZK9T;
 						ProvisioningStyle = Automatic;
@@ -1676,6 +1692,7 @@
 				CA2951BD2167F9860064227A /* OneSignal-Static-Framework */,
 				DEC2EA8E24B7B63800C1FD34 /* OneSignal-XCFramework */,
 				DEF5CCF02539321A0003E9CC /* UnitTestApp */,
+				DE8C685F2667FBF600DCF307 /* OCLint */,
 			);
 		};
 /* End PBXProject section */
@@ -1733,6 +1750,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh ${SRCROOT}/build_dynamic_framework.sh\n";
+		};
+		DE8C68632667FC0900DCF307 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "hash oclint &> /dev/null\nif [ $? -eq 1 ]; then\necho >&2 \"oclint not found, analyzing stopped\"\nexit 1\nfi\n\ncd ${TARGET_TEMP_DIR}\n\nif [ ! -f compile_commands.json ]; then\n    echo \"[*] compile_commands.json not found, possibly clean was performed\"\n    echo \"[*] starting xcodebuild to rebuild the project..\"\n    # clean previous output\n    if [ -f xcodebuild.log ]; then\n    rm xcodebuild.log\n    fi\n\n    cd ${SRCROOT}\n\n    xcodebuild clean\n    #build xcodebuild.log\n    xcodebuild ONLY_ACTIVE_ARCH=YES -project ${PROJECT_NAME}.xcodeproj -scheme \"OneSignalFramework\" -configuration Debug | tee ${TARGET_TEMP_DIR}/xcodebuild.log\n\n    echo \"[*] transforming xcodebuild.log into compile_commands.json...\"\n    \n    echo \"[*] srcroot dir: ${SRCROOT}\"\n    cp .oclint ${TARGET_TEMP_DIR}\n    cd ${TARGET_TEMP_DIR}\n    #transform it into compile_commands.json\n    oclint-xcodebuild\n\nfi\n\n#if [-d report.html]; then\n#rm report.html\n#fi\n\n\n#run static analyzer\n#oclint-json-compilation-database -- -o=./report.html -html\n\necho \"[*] starting analyzing\"\ncd ${TARGET_TEMP_DIR}\noclint-json-compilation-database | sed 's/\\(.*\\.\\m\\{1,2\\}:[0-9]*:[0-9]*:\\)/\\1 warning:/'\n";
 		};
 		DEC2EA8F24B7B63800C1FD34 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2459,6 +2493,24 @@
 			};
 			name = Debug;
 		};
+		DE8C68602667FBF600DCF307 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		DE8C68612667FBF600DCF307 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
 		DEC2EA9124B7B63800C1FD34 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2629,6 +2681,15 @@
 			buildConfigurations = (
 				CA2951BA2167F4120064227A /* Release */,
 				CA2951C62167FB950064227A /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE8C68622667FBF600DCF307 /* Build configuration list for PBXAggregateTarget "OCLint" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE8C68602667FBF600DCF307 /* Release */,
+				DE8C68612667FBF600DCF307 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
