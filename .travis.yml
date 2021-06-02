@@ -2,5 +2,12 @@ language: objective-c
 osx_image: xcode11.1
 before_install:
   - cd iOS_SDK/OneSignalSDK
+  - brew cask uninstall oclint
+  - brew cask uninstall oclint
+  - brew tap oclint/formulae
+  - brew install oclint
 script:
   - xcodebuild -scheme UnitTests -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8 Plus,OS=13.1' test
+  - xcodebuild ONLY_ACTIVE_ARCH=YES -project OneSignal.xcodeproj -scheme "OneSignalFramework" -configuration Debug | tee xcodebuild.log
+  - oclint-xcodebuild
+  - oclint-json-compilation-database
