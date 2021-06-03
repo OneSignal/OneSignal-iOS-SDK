@@ -2181,8 +2181,7 @@ static NSString *_lastnonActiveMessageId;
     else
         disableBadgeClearing = NO;
     
-    if (disableBadgeClearing ||
-        ([self.osNotificationSettings getNotificationPermissionState].notificationTypes & NOTIFICATION_TYPE_BADGE) == 0)
+    if (disableBadgeClearing)
         return false;
     
     bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
