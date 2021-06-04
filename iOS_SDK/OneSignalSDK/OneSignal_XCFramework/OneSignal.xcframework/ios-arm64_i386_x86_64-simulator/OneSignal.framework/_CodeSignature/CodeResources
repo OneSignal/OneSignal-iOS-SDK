@@ -6,7 +6,7 @@
 	<dict>
 		<key>Headers/OneSignal.h</key>
 		<data>
-		BLD4jYD/TpJymJPeuBhvFcyFbgw=
+		W6N0UuUkDLB6qW1ThU2j6hUiUKI=
 		</data>
 		<key>Info.plist</key>
 		<data>
@@ -23,11 +23,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			BLD4jYD/TpJymJPeuBhvFcyFbgw=
+			W6N0UuUkDLB6qW1ThU2j6hUiUKI=
 			</data>
 			<key>hash2</key>
 			<data>
-			ejbMIRRYTnU9t5kqK7YwnDP4rbpTj+sdUflpW0FmvoM=
+			vE2sD0gByvhuMJV7AWhmBTgJinRvSLhNDPPMcS+V3io=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
