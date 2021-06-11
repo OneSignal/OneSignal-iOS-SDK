@@ -73,11 +73,11 @@
     
     // Trigger the notification to be shown with the replacementContent
     if (contentHandler) {
-        contentHandler(replacementContent);
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
         [self onNotificationReceived:receivedNotificationId withBlockingTask:semaphore];
         // Download Media Attachments after kicking off the confirmed delivery task
         [OneSignalHelper addAttachments:notification toNotificationContent:replacementContent];
+        contentHandler(replacementContent);
         dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, MAX_NSE_LIFETIME_SECOUNDS * NSEC_PER_SEC));
     } else {
         [self onNotificationReceived:receivedNotificationId withBlockingTask:nil];

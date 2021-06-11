@@ -1839,7 +1839,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 // iOS 10 - Notification Service Extension test - local file
-- (void) testDidReceiveNotificationExtensionRequestLocalFile {
+- (void)testDidReceiveNotificationExtensionRequestLocalFile {
     id userInfo = @{@"aps": @{
                             @"mutable-content": @1,
                             @"alert": @"Message Body"
@@ -1910,6 +1910,9 @@ didReceiveRemoteNotification:userInfo
         [contentExpectation fulfill];
         // Make sure butons were added.
         XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
+        // Make sure attachments were added.
+        XCTAssertEqualObjects(content.attachments[0].identifier, @"id");
+        XCTAssertEqualObjects(content.attachments[0].URL.scheme, @"file");
     });
     [self waitForExpectations:@[contentExpectation] timeout:1];
 }
