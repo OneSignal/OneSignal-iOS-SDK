@@ -90,6 +90,9 @@
 #import "OneSignalLifecycleObserver.h"
 #import "OSPlayerTags.h"
 
+#import "Language/LanguageProviderAppDefined.h"
+#import "Language/LanguageContext.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -188,6 +191,7 @@ static NSDate *sessionLaunchTime;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
+static LanguageContext* languageContext;
 
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
@@ -722,6 +726,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         appId = nil;
         return;
     }
+    
+    languageContext = [LanguageContext new];
 
     [OneSignalCacheCleaner cleanCachedUserData];
     [OneSignal checkIfApplicationImplementsDeprecatedMethods];
@@ -1781,9 +1787,7 @@ static dispatch_queue_t serialQueue;
         userState.iOSBundle = [[NSBundle mainBundle] bundleIdentifier];
     }
 
-    let preferredLanguages = [NSLocale preferredLanguages];
-    if (preferredLanguages && preferredLanguages.count > 0)
-        userState.language = [preferredLanguages objectAtIndex:0];
+    userState.language = [languageContext language];
     
     let notificationTypes = [self getNotificationTypes];
     mLastNotificationTypes = notificationTypes;
@@ -2694,6 +2698,12 @@ static NSString *_lastnonActiveMessageId;
     return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
 }
 
++ (void)setLanguage:(NSString * _Nonnull)language {
+    let languageProviderAppDefined = [LanguageProviderAppDefined new];
+    [languageProviderAppDefined setLanguage:language];
+    [languageContext setStrategy:languageProviderAppDefined];
+    
+}
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
 
     // return if the user has not granted privacy permissions
