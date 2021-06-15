@@ -109,6 +109,20 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState smsAuthHashToken:(NSString * _Nullable)smsAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 @end
 
+@interface OSRequestUpdateLanguage : OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                           language:(NSString * _Nonnull)language
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash
+                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                           language:(NSString * _Nonnull)language
+                       smsAuthToken:(NSString * _Nullable)smsAuthToken
+                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+@end
+
 @interface OSRequestBadgeCount : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId

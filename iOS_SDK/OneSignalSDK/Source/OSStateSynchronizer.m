@@ -380,4 +380,16 @@ withSMSAuthHashToken:(NSString *)hashToken
         });
     }
 }
+
+- (void)updateLanguage:(NSString * _Nonnull)language
+                 appId:(NSString * _Nonnull)appId {
+    let stateSyncronizer = [self getStateSynchronizers];
+    let requests = [NSMutableDictionary new];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer setLanguage:language withAppId:appId];
+    }
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
+}
+
 @end

@@ -94,4 +94,9 @@ THE SOFTWARE.
     return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:[self getId] withEmailHashToken:[self getEmailAuthHashToken] appId:appId];
 }
 
+- (OSRequestUpdateLanguage *)setLanguage:(NSString *)language
+                               withAppId:(NSString *)appId {
+    return [OSRequestUpdateLanguage withUserId:[self getId] appId:appId language:language emailAuthToken:[self getEmailAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken]];
+}
+
 @end
