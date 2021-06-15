@@ -1928,6 +1928,8 @@ static dispatch_queue_t serialQueue;
                     callbackSet.failureBlock(error);
             }
         }
+        
+        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
     }];
 }
 
