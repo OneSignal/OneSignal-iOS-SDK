@@ -1896,6 +1896,8 @@ static dispatch_queue_t serialQueue;
             if (self.playerTags.tagsToSend) {
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             }
+            
+            //TODO: Check for Pending Language State and add a put call for it
                 
             // Try to send location
             [OneSignalLocation sendLocation];
@@ -2699,11 +2701,32 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setLanguage:(NSString * _Nonnull)language {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
+        return;
+    
     let languageProviderAppDefined = [LanguageProviderAppDefined new];
     [languageProviderAppDefined setLanguage:language];
     [languageContext setStrategy:languageProviderAppDefined];
     
+    //Can't send Language if there exists not LanguageContext or language
+    if (languageContext.language)
+        [self setLanguageOnServer];
 }
+
+// Called only with a delay to batch network calls.
++ (void)setLanguageOnServer {
+    
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
+    if (!languageContext.language) //Add Language null check
+        return;
+    
+    [OneSignal.stateSynchronizer updateLanguage:languageContext.language appId:appId];
+}
+
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
 
     // return if the user has not granted privacy permissions
