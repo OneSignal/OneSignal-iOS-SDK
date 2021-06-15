@@ -79,6 +79,8 @@
 
 @property (nonatomic, nullable) OSInAppMessage *currentInAppMessage;
 
+@property (nonatomic, nullable) OSInAppMessage *pendingDisplayIAM;
+
 @property (nonatomic) BOOL isAppInactive;
 
 @property (nonatomic) BOOL calledLoadTags;
@@ -136,6 +138,7 @@ static BOOL _isInAppMessagingPaused = false;
         };
         self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
                                                                                           defaultValue:[NSArray<OSInAppMessage *> new]];
+        NSLog(@"ECM set self.messages in init");
         self.triggerController = [OSTriggerController new];
         self.triggerController.delegate = self;
         self.messageDisplayQueue = [NSMutableArray new];
@@ -160,13 +163,14 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
-
+    NSLog(@"ECM set self.messages from cache");
     [self evaluateMessages];
 }
 
 - (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
-    self.messages = newMessages;
+//    self.messages = newMessages;
+//    NSLog(@"ECM set self.messages from on session");
     
     // Cache if messages passed in are not null, this method is called from on_session for
     //  new messages and cached when foregrounding app
@@ -183,6 +187,7 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"resetRedisplayMessagesBySession with redisplayedInAppMessages: %@", [_redisplayedInAppMessages description]]];
 
     for (NSString *messageId in _redisplayedInAppMessages) {
+        NSLog(@"reset redisplay ECM displayed in session now false");
         [_redisplayedInAppMessages objectForKey:messageId].isDisplayedInSession = false;
     }
 }
@@ -193,6 +198,7 @@ static BOOL _isInAppMessagingPaused = false;
     NSMutableArray *newMessagesArray = [NSMutableArray arrayWithArray:self.messages];
     [newMessagesArray removeObject: message];
     self.messages = newMessagesArray;
+    NSLog(@"ECM set self.messages in delete inactive");
     if (self.messages) {
         [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:self.messages];
     } else {
@@ -286,7 +292,7 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while paused"];
         return;
     }
-    
+    self.pendingDisplayIAM = message;
     self.isInAppMessageShowing = true;
     [self showMessage:message];
 }
@@ -432,6 +438,7 @@ static BOOL _isInAppMessagingPaused = false;
  For click counting, every message has it click id array
 */
 - (void)setDataForRedisplay:(OSInAppMessage *)message {
+    NSLog(@"ECM message in setDataForRedisplay: %@", message);
     if (!message.displayStats.isRedisplayEnabled) {
         return;
     }
@@ -448,6 +455,7 @@ static BOOL _isInAppMessagingPaused = false;
 
         // Message that don't have triggers should display only once per session
         BOOL triggerHasChanged = [self hasMessageTriggerChanged:message];
+        NSLog(@"ECM trigger has changed: %d",triggerHasChanged);
 
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setDataForRedisplay with message: %@ \ntriggerHasChanged: %@ \nno triggers: %@ \ndisplayed in session saved: %@", message, message.isTriggerChanged ? @"YES" : @"NO", [message.triggers count] == 0 ? @"YES" : @"NO", redisplayMessageSavedData.isDisplayedInSession  ? @"YES" : @"NO"]];
         // Check if conditions are correct for redisplay
@@ -474,6 +482,8 @@ static BOOL _isInAppMessagingPaused = false;
 
     // Message that don't have triggers should display only once per session
     BOOL shouldMessageDisplayInSession = !message.isDisplayedInSession && [message.triggers count] == 0;
+    NSLog(@"ECM isTriggerChanged: %d",message.isTriggerChanged);
+    NSLog(@"ECM isDisplayedInSession: %d",message.isDisplayedInSession);
 
     return message.isTriggerChanged || shouldMessageDisplayInSession;
 }
@@ -485,6 +495,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
+         message.messageId != self.pendingDisplayIAM.messageId &&
            ![message isFinished];
 }
 
@@ -573,10 +584,12 @@ static BOOL _isInAppMessagingPaused = false;
     self.isInAppMessageShowing = false;
 
     if (self.messageDisplayQueue.count > 0) {
+        NSLog(@"ECM displaying next message");
         // Show next IAM in queue
         [self displayMessage:self.messageDisplayQueue.firstObject];
         return;
     } else {
+        NSLog(@"ECM nothing in queue");
         [self hideWindow];
         // Evaulate any IAMs (could be new IAM or added trigger conditions)
         [self evaluateMessages];
@@ -603,7 +616,9 @@ static BOOL _isInAppMessagingPaused = false;
     message.displayStats.lastDisplayTime = displayTimeSeconds;
     [message.displayStats incrementDisplayQuantity];
     message.isTriggerChanged = false;
-    message.isDisplayedInSession = true;
+    message.isDisplayedInSession = YES;
+    NSLog(@"persist ECM displayed in session now true message: %@", message);
+    NSLog(@"ECM self.message: %@", self.messages.firstObject);
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"redisplayedInAppMessages: %@", [_redisplayedInAppMessages description]]];
 
@@ -779,12 +794,15 @@ static BOOL _isInAppMessagingPaused = false;
  This method must be called on the Main thread
  */
 - (void)webViewContentFinishedLoading:(OSInAppMessage *)message {
+    self.pendingDisplayIAM = nil;
     if (!self.viewController) {
         [self evaluateMessages];
         return;
     }
     
     if (message) {
+        message.isDisplayedInSession = true;
+        NSLog(@"content finished ECM displayed in session");
         [self sendMessageImpression:message];
     }
     
