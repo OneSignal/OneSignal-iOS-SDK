@@ -473,7 +473,7 @@
     [OneSignal pauseInAppMessages:false];
 
     // IAM should not be shown since we have not initialized OneSignal
-    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
     XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
     
     [self initOneSignalWithInAppMessage:message];

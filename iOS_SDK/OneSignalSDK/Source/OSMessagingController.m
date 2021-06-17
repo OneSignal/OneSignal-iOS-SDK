@@ -240,7 +240,7 @@ static BOOL _isInAppMessagingPaused = false;
             [self.messageDisplayQueue addObject:message];
         
         // Return early if an IAM is already showing
-        if (self.isInAppMessageShowing || !OneSignal.isRegisterUserFinished) {
+        if (self.isInAppMessageShowing) {
             return;
         }
         // Return early if the app is not active
@@ -484,7 +484,8 @@ static BOOL _isInAppMessagingPaused = false;
 - (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
-           ![message isFinished];
+           ![message isFinished] &&
+           OneSignal.isRegisterUserFinished;
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
