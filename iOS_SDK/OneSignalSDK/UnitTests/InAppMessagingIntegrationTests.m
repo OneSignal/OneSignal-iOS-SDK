@@ -439,6 +439,51 @@
     XCTAssertTrue(secondLastDisplayTime - firstInterval >= delay);
 }
 
+- (void)testCachedIAMsDonotDisplayUntilRegisterUser {
+    let limit = 5;
+    let delay = 30;
+
+    let message = [OSInAppMessageTestHelper testMessageWithRedisplayLimit:limit delay:@(delay)];
+    //Time interval mock
+    NSDateComponents* comps = [[NSDateComponents alloc]init];
+    comps.year = 2019;
+    comps.month = 6;
+    comps.day = 10;
+    comps.hour = 10;
+    comps.minute = 1;
+
+    NSCalendar* calendar = [NSCalendar currentCalendar];
+    NSDate* date = [calendar dateFromComponents:comps];
+    NSTimeInterval firstInterval = [date timeIntervalSince1970];
+    NSMutableSet <NSString *> *seenMessages = [NSMutableSet new];
+    [OSMessagingControllerOverrider setSeenMessages:seenMessages];
+
+    message.displayStats.lastDisplayTime = firstInterval - delay;
+    // Save IAM to messages cache
+    [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:@[message]];
+    
+    [OSMessagingControllerOverrider setMockDateGenerator: ^NSTimeInterval(void) {
+        return firstInterval;
+    }];
+    
+    [OneSignal setAppId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"];
+    
+    [[OSMessagingController sharedInstance] updateInAppMessagesFromCache];
+
+    [OneSignal pauseInAppMessages:false];
+
+    // IAM should not be shown since we have not initialized OneSignal
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
+    XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
+    
+    [self initOneSignalWithInAppMessage:message];
+    XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
+    XCTAssertTrue(OSMessagingControllerOverrider.isInAppMessageShowing);
+    [OSMessagingControllerOverrider dismissCurrentMessage];
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
+    XCTAssertFalse(OSMessagingControllerOverrider.isInAppMessageShowing);
+}
+
 - (void)testIAMClickLaunchesAPIRequestMultipleTimes_Redisplay {
     let limit = 5;
     let delay = 60;
