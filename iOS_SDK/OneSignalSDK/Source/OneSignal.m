@@ -1248,17 +1248,27 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTags:onSuccess:onFailure:"])
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTags:onSuccess:onFailure:"]) {
+        NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called sendTags:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
+        failureBlock(error);
         return;
+    }
+        
    
     if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
-        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair]);
+        NSString *errorMessage = [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair];
+        onesignal_Log(ONE_S_LL_WARN, errorMessage);
+        NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
+        failureBlock(error);
         return;
     }
     
     for (NSString *key in [keyValuePair allKeys]) {
         if ([keyValuePair[key] isKindOfClass:[NSDictionary class]]) {
-            onesignal_Log(ONE_S_LL_WARN, @"sendTags Tags JSON must not contain nested objects");
+            NSString *errorMessage = @"sendTags Tags JSON must not contain nested objects";
+            onesignal_Log(ONE_S_LL_WARN, errorMessage);
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
+            failureBlock(error);
             return;
         }
     }
