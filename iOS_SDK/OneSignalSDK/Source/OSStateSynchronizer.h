@@ -77,6 +77,8 @@ withSMSAuthHashToken:(NSString * _Nullable)hashToken
               onFailure:(OSMultipleFailureBlock _Nullable)failureBlock;
 
 - (void)updateLanguage:(NSString * _Nonnull)language
-                 appId:(NSString * _Nonnull)appId;
+                 appId:(NSString * _Nonnull)appId
+           withSuccess:(OSUpdateLanguageSuccessBlock)successBlock
+           withFailure:(OSUpdateLanguageFailureBlock)failureBlock;
 
 @end

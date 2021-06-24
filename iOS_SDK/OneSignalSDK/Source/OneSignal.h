@@ -564,8 +564,12 @@ typedef void (^OSSMSSuccessBlock)(NSDictionary *results);
 + (void)logoutSMSNumberWithSuccess:(OSSMSSuccessBlock _Nullable)successBlock withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
 
 #pragma mark Language
+// Typedefs defining completion blocks for updating language
+typedef void (^OSUpdateLanguageFailureBlock)(NSError *error);
+typedef void (^OSUpdateLanguageSuccessBlock)(NSDictionary *results);
 
 + (void)setLanguage:(NSString * _Nonnull)language;
++ (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock;
 
 #pragma mark External User Id
 // Typedefs defining completion blocks for updating the external user id

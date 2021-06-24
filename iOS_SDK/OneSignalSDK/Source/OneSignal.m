@@ -90,8 +90,8 @@
 #import "OneSignalLifecycleObserver.h"
 #import "OSPlayerTags.h"
 
-#import "Language/LanguageProviderAppDefined.h"
-#import "Language/LanguageContext.h"
+#import "LanguageProviderAppDefined.h"
+#import "LanguageContext.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -2705,26 +2705,30 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
         return;
     
-    let languageProviderAppDefined = [LanguageProviderAppDefined new];
-    [languageProviderAppDefined setLanguage:language];
-    [languageContext setStrategy:languageProviderAppDefined];
+    //Can't send Language if there exists not LanguageContext or language
+    if (languageContext.language)
+        [self setLanguageOnServer:language WithSuccess:nil withFailure:nil];
+}
+
++ (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
+        return;
     
     //Can't send Language if there exists not LanguageContext or language
     if (languageContext.language)
-        [self setLanguageOnServer];
+        [self setLanguageOnServer:language WithSuccess:successBlock withFailure:failureBlock];
 }
 
-// Called only with a delay to batch network calls.
-+ (void)setLanguageOnServer {
++ (void)setLanguageOnServer:(NSString * _Nonnull)language WithSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
     
-    // return if the user has not granted privacy permissions
-    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
+    [OneSignal.stateSynchronizer updateLanguage:language appId:appId withSuccess:successBlock withFailure:failureBlock];
     
-    if (!languageContext.language) //Add Language null check
-        return;
-    
-    [OneSignal.stateSynchronizer updateLanguage:languageContext.language appId:appId];
+    if(successBlock) {
+        let languageProviderAppDefined = [LanguageProviderAppDefined new];
+        [languageProviderAppDefined setLanguage:language];
+        [languageContext setStrategy:languageProviderAppDefined];
+    }
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
