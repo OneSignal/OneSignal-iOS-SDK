@@ -28,9 +28,6 @@
 #import <Foundation/Foundation.h>
 #import "LanguageProvider.h"
 
-#define OSUD_LANGUAGE                                                       @"OSUD_LANGUAGE"                                                    // * OSUD_LANGUAGE
-#define DEFAULT_LANGUAGE                                                    @"en"                                                               // * OSUD_LANGUAGE
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LanguageContext : NSObject
