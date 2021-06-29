@@ -471,9 +471,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)setUserId:(NSString *)userId {
     self.currentSubscriptionState.userId = userId;
 }
-
+// This is set to true even if register user fails
 + (void)registerUserFinished {
     _registerUserFinished = true;
+}
+// If successful then register user is also finished
++ (void)registerUserSuccessful {
+    _registerUserSuccessful = true;
+    [OneSignal registerUserFinished];
 }
 
 + (NSString *)mEmailAuthToken {
@@ -593,6 +598,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _outcomeEventsController = nil;
     
     _registerUserFinished = false;
+    _registerUserSuccessful = false;
     
     _delayedSMSParameters = nil;
 }
@@ -1653,6 +1659,11 @@ static BOOL _registerUserFinished = false;
     return _registerUserFinished || isOnSessionSuccessfulForCurrentState;
 }
 
+static BOOL _registerUserSuccessful = false;
++ (BOOL)isRegisterUserSuccessful {
+    return _registerUserSuccessful || isOnSessionSuccessfulForCurrentState;
+}
+
 + (BOOL)shouldRegisterNow {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1822,6 +1833,7 @@ static dispatch_queue_t serialQueue;
 + (void)registerUserInternal {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserInternal"];
     _registerUserFinished = false;
+    _registerUserSuccessful = false;
 
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1928,7 +1940,6 @@ static dispatch_queue_t serialQueue;
                     callbackSet.failureBlock(error);
             }
         }
-        
         [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
     }];
 }

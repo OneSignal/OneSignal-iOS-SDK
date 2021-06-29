@@ -181,7 +181,7 @@
     OSSubscriptionStateChanges* stateChanges = [OSSubscriptionStateChanges alloc];
     stateChanges.from = OneSignal.lastSubscriptionState;
     stateChanges.to = [state copy];
-    if (OneSignal.isRegisterUserFinished) {
+    if (OneSignal.isRegisterUserSuccessful) {
         BOOL hasReceiver = [OneSignal.subscriptionStateChangesObserver notifyChange:stateChanges];
         
         if (hasReceiver) {

@@ -48,7 +48,7 @@ THE SOFTWARE.
 + (void)saveExternalIdAuthToken:(NSString *)hashToken;
 + (void)saveSMSNumber:(NSString *)smsNumber withAuthToken:(NSString *)smsAuthToken userId:(NSString *)smsPlayerId;
 + (void)registerUserFinished;
-
++ (void)registerUserSuccessful;
 @end
 
 @interface OSStateSynchronizer ()
@@ -129,7 +129,7 @@ THE SOFTWARE.
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
-        [OneSignal registerUserFinished];
+        [OneSignal registerUserSuccessful];
 
         // If the external user ID was sent as part of this request, we need to save it
         // Cache the external id if it exists within the registration payload
@@ -186,6 +186,7 @@ THE SOFTWARE.
         for (NSString *key in @[OS_PUSH, OS_EMAIL])
             [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Encountered error during %@ registration with OneSignal: %@", key, errors[key]]];
 
+        [OneSignal registerUserFinished];
         if (failureBlock)
             failureBlock(errors);
     }];
