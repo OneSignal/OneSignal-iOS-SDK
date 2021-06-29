@@ -79,7 +79,10 @@
 
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
+//Indicates we have attempted to register the user and it has succeeded or failed
 @property (class, readonly) BOOL isRegisterUserFinished;
+//Indicates that registering the user was successful
+@property (class, readonly) BOOL isRegisterUserSuccessful;
 
 @property (class) NSObject<OneSignalNotificationSettings>* _Nonnull osNotificationSettings;
 @property (class) OSPermissionState* _Nonnull currentPermissionState;

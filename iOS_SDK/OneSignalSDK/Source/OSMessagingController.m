@@ -160,7 +160,6 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)updateInAppMessagesFromCache {
     self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:[NSArray new]];
-
     [self evaluateMessages];
 }
 
@@ -241,8 +240,9 @@ static BOOL _isInAppMessagingPaused = false;
             [self.messageDisplayQueue addObject:message];
         
         // Return early if an IAM is already showing
-        if (self.isInAppMessageShowing)
+        if (self.isInAppMessageShowing) {
             return;
+        }
         // Return early if the app is not active
         if (![UIApplication applicationIsActive]) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Pause IAMs display due to app inactivity"];
@@ -286,7 +286,6 @@ static BOOL _isInAppMessagingPaused = false;
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while paused"];
         return;
     }
-    
     self.isInAppMessageShowing = true;
     [self showMessage:message];
 }
@@ -485,7 +484,8 @@ static BOOL _isInAppMessagingPaused = false;
 - (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
-           ![message isFinished];
+           ![message isFinished] &&
+           OneSignal.isRegisterUserFinished;
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
