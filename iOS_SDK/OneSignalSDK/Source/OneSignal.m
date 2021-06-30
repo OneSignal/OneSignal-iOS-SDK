@@ -2710,7 +2710,7 @@ static NSString *_lastnonActiveMessageId;
         [self setLanguageOnServer:language WithSuccess:nil withFailure:nil];
 }
 
-+ (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
++ (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
         return;
@@ -2722,13 +2722,16 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)setLanguageOnServer:(NSString * _Nonnull)language WithSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
     
-    [OneSignal.stateSynchronizer updateLanguage:language appId:appId withSuccess:successBlock withFailure:failureBlock];
-    
-    if(successBlock) {
+    [OneSignal.stateSynchronizer updateLanguage:language appId:appId withSuccess:^(NSDictionary *results) {
         let languageProviderAppDefined = [LanguageProviderAppDefined new];
         [languageProviderAppDefined setLanguage:language];
         [languageContext setStrategy:languageProviderAppDefined];
-    }
+        if (successBlock)
+            successBlock(results);
+    } withFailure:^(NSError *error) {
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Invalid Language Code"}]);
+    }];
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {

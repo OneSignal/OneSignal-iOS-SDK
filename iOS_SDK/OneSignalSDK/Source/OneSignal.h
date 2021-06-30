@@ -566,7 +566,7 @@ typedef void (^OSSMSSuccessBlock)(NSDictionary *results);
 #pragma mark Language
 // Typedefs defining completion blocks for updating language
 typedef void (^OSUpdateLanguageFailureBlock)(NSError *error);
-typedef void (^OSUpdateLanguageSuccessBlock)(NSDictionary *results);
+typedef void (^OSUpdateLanguageSuccessBlock)();
 
 + (void)setLanguage:(NSString * _Nonnull)language;
 + (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock;
