@@ -9,9 +9,7 @@
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		162A8552268E598900E8DBAA /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; };
-		162A8553268E598900E8DBAA /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		162A8554268E599100E8DBAA /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; };
-		162A8555268E599100E8DBAA /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		162A8556268E599F00E8DBAA /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; };
 		162A8557268E599F00E8DBAA /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
@@ -94,28 +92,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				162A8557268E599F00E8DBAA /* OneSignal.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DEA226FD261F740C0092FF58 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				162A8555268E599100E8DBAA /* OneSignal.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DEA22700261F74110092FF58 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				162A8553268E598900E8DBAA /* OneSignal.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -327,7 +303,6 @@
 				9150E76E1E73BEDC00C5D46A /* Sources */,
 				9150E76F1E73BEDC00C5D46A /* Frameworks */,
 				9150E7701E73BEDC00C5D46A /* Resources */,
-				DEA226FD261F740C0092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -347,7 +322,6 @@
 				DE68DA5324C7695900FC95A8 /* Sources */,
 				DE68DA5424C7695900FC95A8 /* Frameworks */,
 				DE68DA5524C7695900FC95A8 /* Resources */,
-				DEA22700261F74110092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
