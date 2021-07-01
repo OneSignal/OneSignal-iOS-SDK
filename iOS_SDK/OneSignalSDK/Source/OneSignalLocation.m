@@ -26,7 +26,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <CoreLocation/CoreLocation.h>
 
 #import "OneSignalLocation.h"
 #import "OneSignalHelper.h"
@@ -46,6 +45,16 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 @end
 
 @implementation OneSignalLocation
+
+// Re-implementation of CLAuthorizationStatus so we can exclude the CoreLocation import
+typedef NS_ENUM(int, CLAuthorizationStatus) {
+    kCLAuthorizationStatusNotDetermined = 0,
+    kCLAuthorizationStatusRestricted,
+    kCLAuthorizationStatusDenied,
+    kCLAuthorizationStatusAuthorizedAlways API_AVAILABLE(macos(10.12), ios(8.0)),
+    kCLAuthorizationStatusAuthorizedWhenInUse API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(macos),
+    kCLAuthorizationStatusAuthorized API_DEPRECATED("Use kCLAuthorizationStatusAuthorizedAlways", ios(2.0, 8.0)) API_AVAILABLE(macos(10.6)) API_UNAVAILABLE(watchos, tvos) = kCLAuthorizationStatusAuthorizedAlways
+};
 
 //Track time until next location fire event
 const NSTimeInterval foregroundSendLocationWaitTime = 5 * 60.0;
