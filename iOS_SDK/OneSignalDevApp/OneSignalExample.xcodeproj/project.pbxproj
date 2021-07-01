@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
+		162A8552268E598900E8DBAA /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; };
+		162A8553268E598900E8DBAA /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		162A8554268E599100E8DBAA /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; };
+		162A8555268E599100E8DBAA /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		162A8556268E599F00E8DBAA /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; };
+		162A8557268E599F00E8DBAA /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 162A8551268E598900E8DBAA /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
@@ -39,12 +45,6 @@
 		DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
-		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
-		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DEA226FB261F740C0092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
-		DEA226FC261F740C0092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DEA226FE261F74110092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
-		DEA226FF261F74110092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,7 +93,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */,
+				162A8557268E599F00E8DBAA /* OneSignal.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -104,7 +104,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				DEA226FC261F740C0092FF58 /* OneSignal.framework in Embed Frameworks */,
+				162A8555268E599100E8DBAA /* OneSignal.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -115,7 +115,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				DEA226FF261F74110092FF58 /* OneSignal.framework in Embed Frameworks */,
+				162A8553268E598900E8DBAA /* OneSignal.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -124,6 +124,7 @@
 
 /* Begin PBXFileReference section */
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		162A8551268E598900E8DBAA /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		9112E8821E724C320022A1CB /* OneSignalExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,21 +137,16 @@
 		9112E8911E724C320022A1CB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9112E8941E724C320022A1CB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9112E8961E724C320022A1CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9112E8A31E724DCB0022A1CB /* libOneSignal.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOneSignal.a; path = "../../../../../Library/Developer/Xcode/DerivedData/OneSignalSDK-gokrmgmincuokwdzxidzbpukovwj/Build/Products/Debug-iphoneos/libOneSignal.a"; sourceTree = "<group>"; };
 		9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9112E8A81E72506C0022A1CB /* OneSignalDevApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalDevApp.entitlements; sourceTree = "<group>"; };
 		9150E7721E73BEDC00C5D46A /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9150E7741E73BEDD00C5D46A /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		9150E7751E73BEDD00C5D46A /* NotificationService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; };
 		9150E7771E73BEDD00C5D46A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9150E77F1E73BF5B00C5D46A /* OneSignal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OneSignal.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/OneSignalSDK-gokrmgmincuokwdzxidzbpukovwj/Build/Products/Debug-iphoneos/OneSignal.framework"; sourceTree = "<group>"; };
 		9150E7821E73BFB600C5D46A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		91B6EA051E83215000B5CF01 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		91B6EA091E834B1700B5CF01 /* sentImage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sentImage.jpg; sourceTree = "<group>"; };
 		CACBAAB5218A7136000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		DE138BFD2523CFA300AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE138BFF2523CFA700AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE138C012523CFAD00AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExampleClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE68DA5924C7695900FC95A8 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE68DA5A24C7695900FC95A8 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -164,10 +160,6 @@
 		DE68DA6A24C7695A00FC95A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE68DA6B24C7695A00FC95A8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE68DA6D24C7695A00FC95A8 /* OneSignalDevAppClip.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalDevAppClip.entitlements; sourceTree = "<group>"; };
-		DE68DA7524C769E300FC95A8 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEA22668261E62690092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEA2266A261E62780092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEA2266C261E627D0092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,7 +170,7 @@
 				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
 				9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */,
-				DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */,
+				162A8556268E599F00E8DBAA /* OneSignal.framework in Frameworks */,
 				4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -190,7 +182,7 @@
 				CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */,
 				91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */,
 				91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */,
-				DEA226FB261F740C0092FF58 /* OneSignal.framework in Frameworks */,
+				162A8554268E599100E8DBAA /* OneSignal.framework in Frameworks */,
 				91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -202,7 +194,7 @@
 				DE68DA7A24C76A1800FC95A8 /* WebKit.framework in Frameworks */,
 				DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */,
 				DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */,
-				DEA226FE261F74110092FF58 /* OneSignal.framework in Frameworks */,
+				162A8552268E598900E8DBAA /* OneSignal.framework in Frameworks */,
 				DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -261,20 +253,12 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DEA2266C261E627D0092FF58 /* OneSignal.framework */,
-				DEA2266A261E62780092FF58 /* OneSignal.framework */,
-				DEA22668261E62690092FF58 /* OneSignal.framework */,
-				DE138C012523CFAD00AB46A3 /* libOneSignal.a */,
-				DE138BFF2523CFA700AB46A3 /* libOneSignal.a */,
-				DE138BFD2523CFA300AB46A3 /* libOneSignal.a */,
-				DE68DA7524C769E300FC95A8 /* libOneSignal.a */,
 				CACBAAB5218A7136000ACAA5 /* WebKit.framework */,
+				162A8551268E598900E8DBAA /* OneSignal.framework */,
 				03432CDB1EBD426A0071FC48 /* CoreLocation.framework */,
 				91B6EA051E83215000B5CF01 /* UserNotifications.framework */,
 				9150E7821E73BFB600C5D46A /* UIKit.framework */,
-				9150E77F1E73BF5B00C5D46A /* OneSignal.framework */,
 				9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */,
-				9112E8A31E724DCB0022A1CB /* libOneSignal.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
