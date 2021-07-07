@@ -74,6 +74,7 @@
 #import "OneSignalSetEmailParameters.h"
 #import "OneSignalSetSMSParameters.h"
 #import "OneSignalSetExternalIdParameters.h"
+#import "OneSignalSetLanguageParameters.h"
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
@@ -146,6 +147,7 @@ static OneSignalSetSMSParameters *_delayedSMSParameters;
     return _delayedSMSParameters;
 }
 static OneSignalSetExternalIdParameters *delayedExternalIdParameters;
+static OneSignalSetLanguageParameters *delayedLanguageParameters;
 
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
@@ -1886,6 +1888,12 @@ static dispatch_queue_t serialQueue;
                 _delayedSMSParameters = nil;
             }
             
+            if (delayedLanguageParameters) {
+                // Call to setLanguage: was delayed because the push player_id did not exist yet
+                [self setLanguage:delayedLanguageParameters.language withSuccess:delayedLanguageParameters.successBlock withFailure:delayedLanguageParameters.failureBlock];
+                delayedLanguageParameters = nil;
+            }
+            
             if (nowProcessingCallbacks) {
                 for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
                     if (callbackSet.successBlock)
@@ -1896,8 +1904,6 @@ static dispatch_queue_t serialQueue;
             if (self.playerTags.tagsToSend) {
                 [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
             }
-            
-            //TODO: Check for Pending Language State and add a put call for it
                 
             // Try to send location
             [OneSignalLocation sendLocation];
@@ -2725,6 +2731,17 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (void)setLanguageOnServer:(NSString * _Nonnull)language WithSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
+    
+    if ([language isEqualToString:@""]) {
+        failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Empty Language Code"}]);
+        return;
+    }
+    
+    if (!self.currentSubscriptionState.userId || _downloadedParameters == false) {
+        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setLanguage: until the parameters have been downloaded."];
+        delayedLanguageParameters = [OneSignalSetLanguageParameters language:language withSuccess:successBlock withFailure:failureBlock];
+        return;
+    }
     
     [OneSignal.stateSynchronizer updateLanguage:language appId:appId withSuccess:^(NSDictionary *results) {
         if (successBlock)
