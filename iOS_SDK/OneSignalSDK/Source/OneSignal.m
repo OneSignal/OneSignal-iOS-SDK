@@ -2705,8 +2705,8 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
         return;
     
-    //Can't send Language if there exists not LanguageContext or language
-    if (languageContext.language)
+    //Can't send Language if there exists no language
+    if (language)
         [self setLanguageOnServer:language WithSuccess:nil withFailure:nil];
 }
 
@@ -2730,7 +2730,7 @@ static NSString *_lastnonActiveMessageId;
             successBlock(results);
     } withFailure:^(NSError *error) {
         if (failureBlock)
-            failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Invalid Language Code"}]);
+            failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Network Error"}]);
     }];
 }
 
