@@ -391,7 +391,7 @@ withSMSAuthHashToken:(NSString *)hashToken
         requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer setLanguage:language withAppId:appId];
     }
     
-    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
         if (results[OS_PUSH] && results[OS_PUSH][OS_SUCCESS] && [results[OS_PUSH][OS_SUCCESS] boolValue]) {
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_LANGUAGE withValue:language];
         }
@@ -404,6 +404,11 @@ withSMSAuthHashToken:(NSString *)hashToken
         
         if (successBlock)
             successBlock(results);
+    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+        if (failureBlock) {
+            NSError *error = (NSError *)[self getFirstResultByChannelPriority:errors];
+            failureBlock(error);
+        }
     }];
 }
 
