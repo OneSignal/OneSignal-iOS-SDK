@@ -2705,6 +2705,10 @@ static NSString *_lastnonActiveMessageId;
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
         return;
     
+    let languageProviderAppDefined = [LanguageProviderAppDefined new];
+    [languageProviderAppDefined setLanguage:language];
+    [languageContext setStrategy:languageProviderAppDefined];
+    
     //Can't send Language if there exists no language
     if (language)
         [self setLanguageOnServer:language WithSuccess:nil withFailure:nil];
@@ -2723,9 +2727,6 @@ static NSString *_lastnonActiveMessageId;
 + (void)setLanguageOnServer:(NSString * _Nonnull)language WithSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
     
     [OneSignal.stateSynchronizer updateLanguage:language appId:appId withSuccess:^(NSDictionary *results) {
-        let languageProviderAppDefined = [LanguageProviderAppDefined new];
-        [languageProviderAppDefined setLanguage:language];
-        [languageContext setStrategy:languageProviderAppDefined];
         if (successBlock)
             successBlock(results);
     } withFailure:^(NSError *error) {
