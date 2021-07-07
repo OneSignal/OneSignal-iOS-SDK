@@ -568,6 +568,7 @@ typedef void (^OSSMSSuccessBlock)(NSDictionary *results);
 typedef void (^OSUpdateLanguageFailureBlock)(NSError *error);
 typedef void (^OSUpdateLanguageSuccessBlock)();
 
+// Language input ISO 639-1 code representation for user input language
 + (void)setLanguage:(NSString * _Nonnull)language;
 + (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock;
 
