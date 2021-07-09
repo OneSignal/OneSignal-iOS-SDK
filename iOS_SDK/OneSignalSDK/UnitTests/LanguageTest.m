@@ -59,7 +59,6 @@
 
 - (void)testSetLanguageRequest {
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    [UnitTestCommonMethods runBackgroundThreads];
     [OneSignal setLanguage:@"fr"];
     [UnitTestCommonMethods runBackgroundThreads];
 
@@ -67,12 +66,12 @@
 }
 
 -(void)testSetLanguage_afterOnSession {
-    // 2. Open app
+    // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
 
-    // 3. Kill the app and wait 31 seconds
+    // 2. Kill the app and wait 31 seconds
     [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods clearStateForAppRestart:self];
     [NSDateOverrider advanceSystemTimeBy:31];
@@ -83,6 +82,7 @@
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
+    // 5. Set language
     [OneSignal setLanguage:@"fr"];
     [UnitTestCommonMethods runBackgroundThreads];
 
