@@ -89,4 +89,22 @@
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"language"], @"fr");
 }
 
+- (void)testEmptyLanguage {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+
+    let expectation = [self expectationWithDescription:@"language"];
+    expectation.expectedFulfillmentCount = 1;
+
+    [OneSignal setLanguage:@"" withSuccess:^{
+        XCTFail(@"setLanguage: should reject invalid languages");
+
+    } withFailure:^(NSError *error) {
+        XCTAssertNotNil(error);
+
+        [expectation fulfill];
+    }];
+
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
 @end
