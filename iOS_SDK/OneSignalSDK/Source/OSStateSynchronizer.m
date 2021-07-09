@@ -401,6 +401,11 @@ withSMSAuthHashToken:(NSString *)hashToken
         else if (results[OS_SMS] && results[OS_SMS][OS_SUCCESS] && [results[OS_SMS][OS_SUCCESS] boolValue]) {
             [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_LANGUAGE withValue:language];
         }
+        else {
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Network Error"}];
+            failureBlock(error);
+            return;
+        }
         
         if (successBlock)
             successBlock(results);
