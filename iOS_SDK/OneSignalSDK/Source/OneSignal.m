@@ -74,6 +74,7 @@
 #import "OneSignalSetEmailParameters.h"
 #import "OneSignalSetSMSParameters.h"
 #import "OneSignalSetExternalIdParameters.h"
+#import "OneSignalSetLanguageParameters.h"
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
@@ -89,6 +90,9 @@
 #import "OSStateSynchronizer.h"
 #import "OneSignalLifecycleObserver.h"
 #import "OSPlayerTags.h"
+
+#import "LanguageProviderAppDefined.h"
+#import "LanguageContext.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
@@ -143,6 +147,7 @@ static OneSignalSetSMSParameters *_delayedSMSParameters;
     return _delayedSMSParameters;
 }
 static OneSignalSetExternalIdParameters *delayedExternalIdParameters;
+static OneSignalSetLanguageParameters *delayedLanguageParameters;
 
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
@@ -188,6 +193,7 @@ static NSDate *sessionLaunchTime;
 
 static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
+static LanguageContext* languageContext;
 
 int mLastNotificationTypes = -1;
 static int mSubscriptionStatus = -1;
@@ -728,6 +734,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         appId = nil;
         return;
     }
+    
+    languageContext = [LanguageContext new];
 
     [OneSignalCacheCleaner cleanCachedUserData];
     [OneSignal checkIfApplicationImplementsDeprecatedMethods];
@@ -1802,9 +1810,7 @@ static dispatch_queue_t serialQueue;
         userState.iOSBundle = [[NSBundle mainBundle] bundleIdentifier];
     }
 
-    let preferredLanguages = [NSLocale preferredLanguages];
-    if (preferredLanguages && preferredLanguages.count > 0)
-        userState.language = [preferredLanguages objectAtIndex:0];
+    userState.language = [languageContext language];
     
     let notificationTypes = [self getNotificationTypes];
     mLastNotificationTypes = notificationTypes;
@@ -1902,6 +1908,12 @@ static dispatch_queue_t serialQueue;
                 // Call to setSMSNumber: was delayed because the push player_id did not exist yet
                 [self setSMSNumber:_delayedSMSParameters.smsNumber withSMSAuthHashToken:_delayedSMSParameters.authToken withSuccess:_delayedSMSParameters.successBlock withFailure:_delayedSMSParameters.failureBlock];
                 _delayedSMSParameters = nil;
+            }
+            
+            if (delayedLanguageParameters) {
+                // Call to setLanguage: was delayed because the push player_id did not exist yet
+                [self setLanguage:delayedLanguageParameters.language withSuccess:delayedLanguageParameters.successBlock withFailure:delayedLanguageParameters.failureBlock];
+                delayedLanguageParameters = nil;
             }
             
             if (nowProcessingCallbacks) {
@@ -2714,6 +2726,52 @@ static NSString *_lastnonActiveMessageId;
         return nil;
 
     return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
+}
+
++ (void)setLanguage:(NSString * _Nonnull)language {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
+        return;
+    
+    let languageProviderAppDefined = [LanguageProviderAppDefined new];
+    [languageProviderAppDefined setLanguage:language];
+    [languageContext setStrategy:languageProviderAppDefined];
+    
+    //Can't send Language if there exists no language
+    if (language)
+        [self setLanguageOnServer:language WithSuccess:nil withFailure:nil];
+}
+
++ (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock _Nullable)failureBlock {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
+        return;
+    
+    //Can't send Language if there exists not LanguageContext or language
+    if (languageContext.language)
+        [self setLanguageOnServer:language WithSuccess:successBlock withFailure:failureBlock];
+}
+
++ (void)setLanguageOnServer:(NSString * _Nonnull)language WithSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
+    
+    if ([language isEqualToString:@""]) {
+        failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Empty Language Code"}]);
+        return;
+    }
+    
+    if (!self.currentSubscriptionState.userId || _downloadedParameters == false) {
+        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setLanguage: until the parameters have been downloaded."];
+        delayedLanguageParameters = [OneSignalSetLanguageParameters language:language withSuccess:successBlock withFailure:failureBlock];
+        return;
+    }
+    
+    [OneSignal.stateSynchronizer updateLanguage:language appId:appId withSuccess:^(NSDictionary *results) {
+        if (successBlock)
+            successBlock(results);
+    } withFailure:^(NSError *error) {
+        if (failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Network Error"}]);
+    }];
 }
 
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {

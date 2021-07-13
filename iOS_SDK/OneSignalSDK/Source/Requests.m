@@ -376,6 +376,53 @@
 }
 @end
 
+@implementation OSRequestUpdateLanguage
+
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                           language:(NSString * _Nonnull)language
+                     emailAuthToken:(NSString * _Nullable)emailAuthHash
+                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
+    return [self withUserId:userId appId:appId language:language authToken:emailAuthHash authTokenKey:@"email_auth_hash" externalIdAuthToken:externalIdAuthToken];
+}
+
++ (instancetype)withUserId:(NSString *)userId
+                     appId:(NSString *)appId
+                  language:(NSString *)language
+              smsAuthToken:(NSString *)smsAuthToken
+       externalIdAuthToken:(NSString *)externalIdAuthToken {
+    return [self withUserId:userId appId:appId language:language authToken:smsAuthToken authTokenKey:@"sms_auth_hash" externalIdAuthToken:externalIdAuthToken];
+}
+
++ (instancetype)withUserId:(NSString *)userId
+                     appId:(NSString *)appId
+                language:(NSString *)language
+                 authToken:(NSString *)authToken
+              authTokenKey:(NSString *)authTokenKey
+       externalIdAuthToken:(NSString *)externalIdAuthToken {
+    let request = [OSRequestUpdateLanguage new];
+    
+    NSLog(@"Attempting Update to Language");
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"language"] = language;
+    
+    if (authToken && authToken.length > 0 && authTokenKey)
+        params[authTokenKey] = authToken;
+    
+    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
+    
+    request.parameters = params;
+    request.method = PUT;
+    request.path = [NSString stringWithFormat:@"players/%@", userId];
+    
+    return request;
+}
+
+@end
+
 @implementation OSRequestBadgeCount
 
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId

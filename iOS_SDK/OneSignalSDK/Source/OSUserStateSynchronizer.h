@@ -56,6 +56,9 @@ THE SOFTWARE.
                                                sendingTags:(NSDictionary * _Nonnull)tags
                                                networkType:(NSNumber * _Nonnull)networkType;
 
+- (OSRequestUpdateLanguage * _Nonnull)setLanguage:(NSString * _Nonnull)language
+                                        withAppId:(NSString * _Nonnull)appId;
+
 - (OSRequestSendPurchases * _Nonnull)sendPurchases:(NSArray * _Nonnull)purchases
                                              appId:(NSString * _Nonnull)appId;
 

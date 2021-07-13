@@ -98,6 +98,11 @@ THE SOFTWARE.
     return [OSRequestUpdateExternalUserId withUserId:externalId withUserIdHashToken:hashToken withOneSignalUserId:[self getId] withSMSHashToken:[self getSMSAuthHashToken] appId:appId];
 }
 
+- (OSRequestUpdateLanguage *)setLanguage:(NSString *)language
+                               withAppId:(NSString *)appId {
+    return [OSRequestUpdateLanguage withUserId:[self getId] appId:appId language:language smsAuthToken:[self getSMSAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken]];
+}
+
 - (OSRequestSendTagsToServer *)sendTagsWithAppId:(NSString *)appId
                                       sendingTags:(NSDictionary *)tags
                                       networkType:(NSNumber *)networkType{

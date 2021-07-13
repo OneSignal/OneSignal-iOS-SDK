@@ -381,4 +381,41 @@ withSMSAuthHashToken:(NSString *)hashToken
         });
     }
 }
+
+- (void)updateLanguage:(NSString * _Nonnull)language
+                 appId:(NSString * _Nonnull)appId
+           withSuccess:(OSUpdateLanguageSuccessBlock)successBlock
+           withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
+    let stateSyncronizer = [self getStateSynchronizers];
+    let requests = [NSMutableDictionary new];
+    for (OSUserStateSynchronizer* userStateSynchronizer in stateSyncronizer) {
+        requests[userStateSynchronizer.getChannelId] = [userStateSynchronizer setLanguage:language withAppId:appId];
+    }
+    
+    [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *,NSDictionary *> *results) {
+        if (results[OS_PUSH] && results[OS_PUSH][OS_SUCCESS] && [results[OS_PUSH][OS_SUCCESS] boolValue]) {
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_LANGUAGE withValue:language];
+        }
+        else if (results[OS_EMAIL] && results[OS_EMAIL][OS_SUCCESS] && [results[OS_EMAIL][OS_SUCCESS] boolValue]) {
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_LANGUAGE withValue:language];
+        }
+        else if (results[OS_SMS] && results[OS_SMS][OS_SUCCESS] && [results[OS_SMS][OS_SUCCESS] boolValue]) {
+            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_LANGUAGE withValue:language];
+        }
+        else {
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Network Error"}];
+            failureBlock(error);
+            return;
+        }
+        
+        if (successBlock)
+            successBlock(results);
+    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+        if (failureBlock) {
+            NSError *error = (NSError *)[self getFirstResultByChannelPriority:errors];
+            failureBlock(error);
+        }
+    }];
+}
+
 @end
