@@ -364,7 +364,7 @@
 		A63E9E4026742C1600EA273E /* LanguageProviderAppDefined.h in Headers */ = {isa = PBXBuildFile; fileRef = A6B519A82669747B00AED40E /* LanguageProviderAppDefined.h */; };
 		A63E9E4126742C1800EA273E /* LanguageProviderDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = A6B519AB2669749100AED40E /* LanguageProviderDevice.h */; };
 		A662399326850DDE00D52FD8 /* LanguageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A662399026850DDE00D52FD8 /* LanguageTest.m */; };
-		A66239952686612F00D52FD8 /* OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignal.h */; };
+		A66239952686612F00D52FD8 /* OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6B519A62669614A00AED40E /* LanguageContext.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A52669614A00AED40E /* LanguageContext.m */; };
 		A6B519AA2669747B00AED40E /* LanguageProviderAppDefined.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519A92669747B00AED40E /* LanguageProviderAppDefined.m */; };
 		A6B519AD2669749100AED40E /* LanguageProviderDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = A6B519AC2669749100AED40E /* LanguageProviderDevice.m */; };
