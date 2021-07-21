@@ -1263,8 +1263,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendTags:onSuccess:onFailure:"]) {
-        NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called sendTags:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-        failureBlock(error);
+        if (failureBlock) {
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called sendTags:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
+            failureBlock(error);
+        }
         return;
     }
         
@@ -1272,8 +1274,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
         NSString *errorMessage = [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair];
         onesignal_Log(ONE_S_LL_WARN, errorMessage);
-        NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
-        failureBlock(error);
+        if (failureBlock) {
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
+            failureBlock(error);
+        }
         return;
     }
     
@@ -1281,8 +1285,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         if ([keyValuePair[key] isKindOfClass:[NSDictionary class]]) {
             NSString *errorMessage = @"sendTags Tags JSON must not contain nested objects";
             onesignal_Log(ONE_S_LL_WARN, errorMessage);
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
-            failureBlock(error);
+            if (failureBlock) {
+                NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
+                failureBlock(error);
+            }
             return;
         }
     }
