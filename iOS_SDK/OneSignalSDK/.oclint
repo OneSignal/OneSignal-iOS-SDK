@@ -1,0 +1,5 @@
+disable-rules:
+  - LongMethod
+rule-configurations:
+  - key: LONG_LINE
+    value: 200
