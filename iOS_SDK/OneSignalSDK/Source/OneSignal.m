@@ -1603,9 +1603,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     waitingForApnsResponse = false;
     
     if (err.code == 3000) {
-        // User did not enable push notification capability
         [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"ERROR! 'Push Notification' capability not turned on! Enable it in Xcode under 'Project Target' -> Capability."];
+        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:@"ERROR! 'Push Notifications' capability missing! Add the capability in Xcode under 'Target' -> '<MyAppName(MainTarget)>' -> 'Signing & Capabilities' then click the '+ Capability' button."];
     }
     else if (err.code == 3010) {
         [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
