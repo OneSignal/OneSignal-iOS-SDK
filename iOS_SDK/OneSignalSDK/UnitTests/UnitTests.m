@@ -3119,6 +3119,8 @@ didReceiveRemoteNotification:userInfo
                             @"content-available": @1,
                             @"mutable-content": @1,
                             @"alert": @"Message Body",
+                            @"relevance-score": @0.15,
+                            @"interruption-level": @"time-sensitive",
                         },
                         @"os_data": @{
                             @"i": @"notif id",

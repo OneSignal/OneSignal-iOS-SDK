@@ -130,6 +130,12 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 /* iOS 10+ : Groups notifications into threads */
 @property(readonly, nullable)NSString *threadId;
 
+/* iOS 15+ : Relevance Score for notification summary */
+@property(readonly, nullable)NSNumber *relevanceScore;
+
+/* iOS 15+ : Interruption Level */
+@property(readonly)NSString *interruptionLevel;
+
 /* Parses an APNS push payload into a OSNotification object.
    Useful to call from your NotificationServiceExtension when the
       didReceiveNotificationRequest:withContentHandler: method fires. */
