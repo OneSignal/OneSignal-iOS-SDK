@@ -42,9 +42,7 @@
 		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
 		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEA226FB261F740C0092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
-		DEA226FC261F740C0092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEA226FE261F74110092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
-		DEA226FF261F74110092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,28 +92,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DEA226FD261F740C0092FF58 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DEA226FC261F740C0092FF58 /* OneSignal.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DEA22700261F74110092FF58 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DEA226FF261F74110092FF58 /* OneSignal.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -343,7 +319,6 @@
 				9150E76E1E73BEDC00C5D46A /* Sources */,
 				9150E76F1E73BEDC00C5D46A /* Frameworks */,
 				9150E7701E73BEDC00C5D46A /* Resources */,
-				DEA226FD261F740C0092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -363,7 +338,6 @@
 				DE68DA5324C7695900FC95A8 /* Sources */,
 				DE68DA5424C7695900FC95A8 /* Frameworks */,
 				DE68DA5524C7695900FC95A8 /* Resources */,
-				DEA22700261F74110092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
