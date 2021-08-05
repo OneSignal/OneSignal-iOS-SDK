@@ -331,7 +331,10 @@ static OneSignalLocation* singleInstance = nil;
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
         if (!lastLocation)
             lastLocation = (os_last_location*)malloc(sizeof(os_last_location));
-        
+        if (lastLocation == NULL) {
+            onesignal_Log(ONE_S_LL_ERROR, @"OneSignalLocation: unable to allocate memory for os_last_location");
+            return;
+        }
         lastLocation->verticalAccuracy = [[location valueForKey:@"verticalAccuracy"] doubleValue];
         lastLocation->horizontalAccuracy = [[location valueForKey:@"horizontalAccuracy"] doubleValue];
         lastLocation->cords = cords;

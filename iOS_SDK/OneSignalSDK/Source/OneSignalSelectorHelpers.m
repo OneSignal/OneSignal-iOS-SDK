@@ -112,7 +112,11 @@ void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasse
 
 NSArray* ClassGetSubclasses(Class parentClass) {
     int numClasses = objc_getClassList(NULL, 0);
-    Class *classes = (Class*)malloc(sizeof(Class) * numClasses);
+    int memSize = sizeof(Class) * numClasses;
+    Class *classes = (Class*)malloc(memSize);
+    if (classes == NULL && memSize) {
+        return [NSMutableArray array];
+    }
     
     objc_getClassList(classes, numClasses);
     
