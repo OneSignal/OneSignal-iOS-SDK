@@ -95,6 +95,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
+#define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
 
 + (NSString*)getOneSignalAppId {
@@ -102,7 +103,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     if (userDefinedAppId) {
         return userDefinedAppId;
     }
-    return @"1688d8f2-da7f-4815-8ee3-9d13788482c8";
+    return ONESIGNAL_APP_ID_DEFAULT;
 }
 
 + (void) setOneSignalAppId:(NSString*)onesignalAppId {
