@@ -58,6 +58,10 @@
     self.activityIndicatorView.hidden = !animating;
 }
 
+- (IBAction)updateAppId:(id)sender {
+    [AppDelegate setOneSignalAppId:self.appIdTextField.text];
+}
+
 - (IBAction)addTriggerAction:(id)sender {
     NSString *key = [self.addTriggerKey text];
     NSString *value = [self.addTriggerValue text];

@@ -91,23 +91,21 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
+#define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
 
 + (NSString*)getOneSignalAppId {
-    NSString* newAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
-    NSString* onesignalAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
-
-    if (![newAppId isEqualToString:onesignalAppId]) {
-        [self setOneSignalAppId:newAppId];
-        onesignalAppId = newAppId;
+    NSString* userDefinedAppId = [[NSUserDefaults standardUserDefaults] objectForKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
+    if (userDefinedAppId) {
+        return userDefinedAppId;
     }
-
-    return onesignalAppId;
+    return ONESIGNAL_APP_ID_DEFAULT;
 }
 
 + (void) setOneSignalAppId:(NSString*)onesignalAppId {
     [[NSUserDefaults standardUserDefaults] setObject:onesignalAppId forKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
     [[NSUserDefaults standardUserDefaults] synchronize];
+    [OneSignal setAppId:onesignalAppId];
 }
 
 - (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
