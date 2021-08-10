@@ -111,7 +111,7 @@
     }];
 }
 
-- (IBAction)sendTagButton:(id)sender {
+- (IBAction)sendTagsButton:(id)sender {
     [OneSignal sendTag:@"key1"
                  value:@"value1"
              onSuccess:^(NSDictionary *result) {

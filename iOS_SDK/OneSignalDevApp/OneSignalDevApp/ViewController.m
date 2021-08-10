@@ -105,13 +105,29 @@
     }];
 }
 
+- (IBAction)sendTagButton:(id)sender {
+    if (self.tagKey.text && self.tagKey.text.length
+        && self.tagValue.text && self.tagValue.text.length) {
+        [OneSignal sendTag:self.tagKey.text
+                     value:self.tagValue.text
+                 onSuccess:^(NSDictionary *result) {
+                     static int successes = 0;
+                     NSLog(@"successes: %d", ++successes);
+                 }
+                 onFailure:^(NSError *error) {
+                     static int failures = 0;
+                     NSLog(@"failures: %d", ++failures);
+        }];
+    }
+}
+
 - (IBAction)getTagsButton:(id)sender {
     [OneSignal getTags:^(NSDictionary *result) {
         NSLog(@"Tags: %@", result.description);
     }];
 }
 
-- (IBAction)sendTagButton:(id)sender {
+- (IBAction)sendTagsButton:(id)sender {
     [OneSignal sendTag:@"key1"
                  value:@"value1"
              onSuccess:^(NSDictionary *result) {
