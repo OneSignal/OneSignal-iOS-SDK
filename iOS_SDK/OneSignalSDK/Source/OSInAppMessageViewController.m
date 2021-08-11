@@ -237,6 +237,7 @@
         if (self.waitForTags) {
             return;
         }
+        //will display
         [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
         self.pendingHTMLContent = nil;
     };

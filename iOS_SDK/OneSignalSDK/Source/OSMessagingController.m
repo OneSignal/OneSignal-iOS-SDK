@@ -233,6 +233,34 @@ static BOOL _isInAppMessagingPaused = false;
     self.inAppMessageDelegate = delegate;
 }
 
+- (void)onWillDisplayInAppMessage:(OSInAppMessageInternal *)message {
+    if (self.inAppMessageDelegate &&
+        [self.inAppMessageDelegate respondsToSelector:@selector(onWillDisplayInAppMessage:)]) {
+        [self.inAppMessageDelegate onWillDisplayInAppMessage:message];
+    }
+}
+
+- (void)onDidDisplayInAppMessage:(OSInAppMessageInternal *)message {
+    if (self.inAppMessageDelegate &&
+        [self.inAppMessageDelegate respondsToSelector:@selector(onDidDisplayInAppMessage:)]) {
+        [self.inAppMessageDelegate onDidDisplayInAppMessage:message];
+    }
+}
+
+- (void)onWillDismissInAppMessage:(OSInAppMessageInternal *)message {
+    if (self.inAppMessageDelegate &&
+        [self.inAppMessageDelegate respondsToSelector:@selector(onWillDismissInAppMessage:)]) {
+        [self.inAppMessageDelegate onWillDismissInAppMessage:message];
+    }
+}
+
+- (void)onDidDismissInAppMessage:(OSInAppMessageInternal *)message {
+    if (self.inAppMessageDelegate &&
+        [self.inAppMessageDelegate respondsToSelector:@selector(onDidDismissInAppMessage:)]) {
+        [self.inAppMessageDelegate onDidDismissInAppMessage:message];
+    }
+}
+
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {
     if (!message.variantId) {
         let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
