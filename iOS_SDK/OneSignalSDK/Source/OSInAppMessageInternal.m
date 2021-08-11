@@ -29,6 +29,9 @@
 #import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
 
+@implementation OSInAppMessage
+@end
+
 @interface OSInAppMessageInternal ()
 
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;

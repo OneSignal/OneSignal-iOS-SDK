@@ -723,6 +723,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate> *_Nullable)delegate; {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
+    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
 /*

@@ -69,11 +69,13 @@
 // Click action block to allow overridden behavior when clicking an IAM
 @property (strong, nonatomic, nullable) OSInAppMessageClickBlock actionClickBlock;
 
+@property (weak, nonatomic, nullable) NSObject<OSInAppMessageDelegate> *inAppMessageDelegate;
+
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 
-@property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
+@property (nonatomic, nullable) NSObject<OSInAppMessagePrompt> *currentPromptAction;
 
 @property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt> *> *currentPromptActions;
 
@@ -225,6 +227,10 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {
     self.actionClickBlock = actionClickBlock;
+}
+
+- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate>*)delegate {
+    self.inAppMessageDelegate = delegate;
 }
 
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {
@@ -802,6 +808,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self addKeySceneToWindow:self.window];
 
     [self.window makeKeyAndVisible];
+    // Did Display
 }
 
 // Required to display if the app is using a Scene
