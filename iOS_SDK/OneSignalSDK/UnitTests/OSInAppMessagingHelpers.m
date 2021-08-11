@@ -151,17 +151,17 @@ int messageIdIncrementer = 0;
     };
 }
 
-+ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers {
++ (OSInAppMessageInternal *)testMessageWithTriggersJson:(NSArray *)triggers {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
     
     messageJson[@"triggers"] = triggers;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
     
-    return [OSInAppMessage instanceWithData:data];
+    return [OSInAppMessageInternal instanceWithData:data];
 }
 
-+ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
++ (OSInAppMessageInternal *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
     let messageJson = (NSMutableDictionary *)[self.testMessageJson mutableCopy];
 
     messageJson[@"triggers"] = triggers;
@@ -173,26 +173,26 @@ int messageIdIncrementer = 0;
 
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
-    return [OSInAppMessage instanceWithData:data];
+    return [OSInAppMessageInternal instanceWithData:data];
 }
 
-+ (OSInAppMessage *)testMessage {
++ (OSInAppMessageInternal *)testMessage {
     let messageJson = self.testMessageJson;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
-    return [OSInAppMessage instanceWithData:data];
+    return [OSInAppMessageInternal instanceWithData:data];
 }
 
-+ (OSInAppMessage *)testMessageWithLiquid {
++ (OSInAppMessageInternal *)testMessageWithLiquid {
     let messageJson = self.testMessageJsonLiquid;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
-    return [OSInAppMessage instanceWithData:data];
+    return [OSInAppMessageInternal instanceWithData:data];
 }
 
-+ (OSInAppMessage *)testMessageWithPastEndTime:(BOOL)pastEndTime {
++ (OSInAppMessageInternal *)testMessageWithPastEndTime:(BOOL)pastEndTime {
     let messageJson = self.testMessageJson;
     
     NSMutableDictionary *messageJsonWithEndTime = [[NSMutableDictionary alloc] initWithDictionary:messageJson];
@@ -203,15 +203,15 @@ int messageIdIncrementer = 0;
     }
     let data = [NSJSONSerialization dataWithJSONObject:messageJsonWithEndTime options:0 error:nil];
 
-    return [OSInAppMessage instanceWithData:data];
+    return [OSInAppMessageInternal instanceWithData:data];
 }
 
-+ (OSInAppMessage *)testMessageWithRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
++ (OSInAppMessageInternal *)testMessageWithRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
      let messageJson = self.testMessageJsonRedisplay;
 
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
-    let message = [OSInAppMessage instanceWithData:data];
+    let message = [OSInAppMessageInternal instanceWithData:data];
 
     message.displayStats.displayLimit = limit;
     message.displayStats.displayDelay = [delay doubleValue];
@@ -219,24 +219,24 @@ int messageIdIncrementer = 0;
     return message;
 }
 
-+ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers {
++ (OSInAppMessageInternal *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers {
     let messageJson = self.testMessageJson;
     
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
     
-    let message = [OSInAppMessage instanceWithData:data];
+    let message = [OSInAppMessageInternal instanceWithData:data];
     
     message.triggers = triggers;
     
     return message;
 }
 
-+ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers withRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
++ (OSInAppMessageInternal *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers withRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay {
     let messageJson = self.testMessageJsonRedisplay;
 
     let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
-    let message = [OSInAppMessage instanceWithData:data];
+    let message = [OSInAppMessageInternal instanceWithData:data];
 
     message.displayStats.displayLimit = limit;
     message.displayStats.displayDelay = [delay doubleValue];
@@ -286,8 +286,8 @@ int messageIdIncrementer = 0;
 // which is normally private
 @interface OSMessagingController (Testing)
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
-@property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
-@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
+@property (strong, nonatomic, nonnull) NSArray <OSInAppMessageInternal *> *messages;
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageInternal *> *messageDisplayQueue;
 @end
 
 @implementation OSMessagingController (Testing)

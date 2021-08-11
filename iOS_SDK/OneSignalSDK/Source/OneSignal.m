@@ -83,7 +83,7 @@
 #import "OSTrackerFactory.h"
 #import "OSMessagingController.h"
 #import "OSInAppMessageAction.h"
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 
 #import "OSUserState.h"
 #import "OSLocationState.h"
@@ -1974,7 +1974,7 @@ static dispatch_queue_t serialQueue;
 
     if (messagesJson) {
         for (NSDictionary *messageJson in messagesJson) {
-            let message = [OSInAppMessage instanceWithJson:messageJson];
+            let message = [OSInAppMessageInternal instanceWithJson:messageJson];
             if (message) {
                 [messages addObject:message];
             }

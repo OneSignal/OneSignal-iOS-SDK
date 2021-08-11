@@ -35,7 +35,7 @@
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 
-@property (strong, nonatomic, nonnull) OSInAppMessage *message;
+@property (strong, nonatomic, nonnull) OSInAppMessageInternal *message;
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
 
@@ -44,7 +44,7 @@
 
 @implementation OSInAppMessageView
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler {
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler {
     if (self = [super init]) {
         self.message = inAppMessage;
         self.translatesAutoresizingMaskIntoConstraints = false;

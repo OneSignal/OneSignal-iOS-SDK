@@ -34,7 +34,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSInAppMessage : NSObject <NSCoding, OSJSONDecodable, OSJSONEncodable>
+@interface OSInAppMessageInternal : NSObject <NSCoding, OSJSONDecodable, OSJSONEncodable>
 
 @property (strong, nonatomic, nonnull) NSString *messageId;
 @property (strong, nonatomic, nonnull) NSDictionary<NSString *, NSDictionary <NSString *, NSString *> *> *variants;

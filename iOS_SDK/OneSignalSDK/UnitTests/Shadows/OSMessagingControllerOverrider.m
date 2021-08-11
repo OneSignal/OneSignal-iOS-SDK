@@ -38,11 +38,11 @@
 
 // The displayMessage method is private, we'll expose it here
 @interface OSMessagingController ()
-@property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
+@property (strong, nonatomic, nonnull) NSArray <OSInAppMessageInternal *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *seenInAppMessages;
-@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
-@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages;
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageInternal *> *messageDisplayQueue;
+@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
 @property (nonatomic, readwrite) NSTimeInterval (^dateGenerator)(void);
 @property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*currentPromptAction;
@@ -68,15 +68,15 @@
     self.dateGenerator = dateGenerator;
 }
 
-- (NSArray<OSInAppMessage *> *)getInAppMessages {
+- (NSArray<OSInAppMessageInternal *> *)getInAppMessages {
     return self.messages;
 }
 
-- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayedInAppMessages {
+- (NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)getRedisplayedInAppMessages {
     return self.redisplayedInAppMessages;
 }
 
-- (NSMutableArray<OSInAppMessage *> *)getDisplayedMessages {
+- (NSMutableArray<OSInAppMessageInternal *> *)getDisplayedMessages {
     return self.messageDisplayQueue;
 }
 
@@ -92,7 +92,7 @@
     #pragma clang diagnostic pop
 }
 
-- (void)overrideShowMessage:(OSInAppMessage *)message {
+- (void)overrideShowMessage:(OSInAppMessageInternal *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
         let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
         [viewController viewDidLoad];
@@ -100,7 +100,7 @@
     });
 }
 
-- (void)overrideWebViewContentFinishedLoading:(OSInAppMessage *)message {
+- (void)overrideWebViewContentFinishedLoading:(OSInAppMessageInternal *)message {
     if (message) {
         [OSMessagingController.sharedInstance messageViewImpressionRequest:message];
     }
@@ -118,11 +118,11 @@
     return [OSMessagingController.sharedInstance getDisplayedMessages];
 }
 
-+ (NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
++ (NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)messagesForRedisplay {
     return [OSMessagingController.sharedInstance getRedisplayedInAppMessages];
 }
 
-+ (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
++ (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)messagesForRedisplay {
     [OSMessagingController.sharedInstance setRedisplayedInAppMessages:messagesForRedisplay];
 }
 

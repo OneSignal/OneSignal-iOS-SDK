@@ -29,7 +29,7 @@
 #import "OneSignal.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSTrigger.h"
 #import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
@@ -404,7 +404,7 @@
     [OneSignalClientOverrider reset:self];
 
     XCTAssertNotNil([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId]);
-    OSInAppMessage *dismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
+    OSInAppMessageInternal *dismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let lastDisplayTime = dismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(1, dismissedMessage.displayStats.displayQuantity);
     XCTAssertEqual(firstInterval, lastDisplayTime);
@@ -432,7 +432,7 @@
     [OSMessagingControllerOverrider dismissCurrentMessage];
 
     XCTAssertNotNil([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId]);
-    OSInAppMessage *secondDismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
+    OSInAppMessageInternal *secondDismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let secondLastDisplayTime = secondDismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(2, secondDismissedMessage.displayStats.displayQuantity);
     XCTAssertEqual(secondInterval, secondLastDisplayTime);
@@ -586,7 +586,7 @@
     NSCalendar* calendar = [NSCalendar currentCalendar];
     NSDate* date = [calendar dateFromComponents:comps];
     NSTimeInterval firstInterval = [date timeIntervalSince1970];
-    NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages = [NSMutableDictionary new];
+    NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages = [NSMutableDictionary new];
     [redisplayedInAppMessages setObject:message forKey:message.messageId];
     NSMutableSet <NSString *> *seenMessages = [NSMutableSet new];
     [seenMessages addObject:message.messageId];
@@ -664,7 +664,7 @@
 
     XCTAssertEqual(1, OSMessagingControllerOverrider.messagesForRedisplay.count);
 
-    OSInAppMessage *dismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
+    OSInAppMessageInternal *dismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let lastDisplayTime = dismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(1, dismissedMessage.displayStats.displayQuantity);
     XCTAssertEqual(firstInterval, lastDisplayTime);
@@ -686,7 +686,7 @@
     [OSMessagingControllerOverrider dismissCurrentMessage];
 
     XCTAssertNotNil([[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId]);
-    OSInAppMessage *secondDismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
+    OSInAppMessageInternal *secondDismissedMessage = [[OSMessagingControllerOverrider messagesForRedisplay] objectForKey:message.messageId];
     let secondLastDisplayTime = secondDismissedMessage.displayStats.lastDisplayTime;
     XCTAssertEqual(2, secondDismissedMessage.displayStats.displayQuantity);
     XCTAssertEqual(secondInterval, secondLastDisplayTime);
@@ -724,7 +724,7 @@
     let message2 = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
     message2.displayStats.lastDisplayTime = firstInterval - maxCacheTime - 1;
 
-    NSMutableDictionary <NSString *, OSInAppMessage *> * redisplayedInAppMessages = [NSMutableDictionary new];
+    NSMutableDictionary <NSString *, OSInAppMessageInternal *> * redisplayedInAppMessages = [NSMutableDictionary new];
     [redisplayedInAppMessages setObject:message1 forKey:message1.messageId];
     [redisplayedInAppMessages setObject:message2 forKey:message2.messageId];
 
@@ -823,7 +823,7 @@
     action.clickType = @"button";
     action.clickId = @"test_action_id";
     
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "opened" API request
@@ -854,7 +854,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure");
@@ -889,7 +889,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
@@ -929,7 +929,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
@@ -964,7 +964,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
@@ -984,7 +984,7 @@
 
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
 
-    OSInAppMessage * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+    OSInAppMessageInternal * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
 
     [self initOneSignalWithInAppMessage:message];
 
@@ -1027,7 +1027,7 @@
 
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
 
-    OSInAppMessage * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+    OSInAppMessageInternal * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
 
     [self initOneSignalWithInAppMessage:message];
 
@@ -1099,7 +1099,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
@@ -1139,7 +1139,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // With unattributed outcomes disable no outcome request should happen
     XCTAssertNotEqual(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
@@ -1167,7 +1167,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesV1ToServer class]));
@@ -1203,7 +1203,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "outcome" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, @"https://api.onesignal.com/outcomes/measure_sources");
@@ -1246,7 +1246,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
 
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
      // Make sure all 3 sets of tags where send in 1 network call.
@@ -1277,7 +1277,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
      // Make sure all 3 sets of tags where send in 1 network call.
     [NSObjectOverrider runPendingSelectors];
@@ -1312,7 +1312,7 @@
     // the message should now be displayed
     // simulate a button press (action) on the inapp message
     let action = [OSInAppMessageAction instanceWithJson: actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // Make sure all 3 sets of tags where send in 1 network call.
     [NSObjectOverrider runPendingSelectors];
@@ -1337,7 +1337,7 @@
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
     actionJson[@"prompts"] = @[@"push"];
     let action = [OSInAppMessageAction instanceWithJson:actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
 
     XCTAssertEqual(1, action.promptActions.count);
     XCTAssertFalse(action.promptActions[0].hasPrompted);
@@ -1359,7 +1359,7 @@
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
     actionJson[@"prompts"] = @[@"location"];
     let action = [OSInAppMessageAction instanceWithJson:actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
 
     XCTAssertEqual(1, action.promptActions.count);
     XCTAssertFalse(action.promptActions[0].hasPrompted);
@@ -1381,7 +1381,7 @@
     NSMutableDictionary *actionJson = [OSInAppMessageTestHelper.testActionJson mutableCopy];
     actionJson[@"prompts"] = @[@"push", @"location"];
     let action = [OSInAppMessageAction instanceWithJson:actionJson];
-    let testMessage = [OSInAppMessage instanceWithJson:message];
+    let testMessage = [OSInAppMessageInternal instanceWithJson:message];
 
     XCTAssertEqual(2, action.promptActions.count);
     XCTAssertFalse(action.promptActions[0].hasPrompted);
@@ -1452,7 +1452,7 @@
     
     let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
-    let message = [OSInAppMessage instanceWithJson:messageJson];
+    let message = [OSInAppMessageInternal instanceWithJson:messageJson];
     
     [NSLocaleOverrider setPreferredLanguagesArray:@[@"es", @"en"]];
     
@@ -1497,7 +1497,7 @@
     
     let messageJson = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
     
-    let message = [OSInAppMessage instanceWithJson:messageJson];
+    let message = [OSInAppMessageInternal instanceWithJson:messageJson];
     
     [NSLocaleOverrider setPreferredLanguagesArray:@[@"kl"]]; //kl = klingon
 
@@ -1597,7 +1597,7 @@
  Helper method that adds an OSInAppMessage to the IAM messageDisplayQueue
  Mock response JSON and initializes the OneSignal SDK
  */
-- (void)initOneSignalWithInAppMessage:(OSInAppMessage *)message {
+- (void)initOneSignalWithInAppMessage:(OSInAppMessageInternal *)message {
     let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
     [self initOneSignalWithRegistrationJSON:registrationJson];
 }

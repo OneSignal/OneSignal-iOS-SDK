@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSDynamicTriggerController.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -46,9 +46,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (weak, nonatomic) id<OSTriggerControllerDelegate> delegate;
 
-- (BOOL)messageMatchesTriggers:(OSInAppMessage *)message;
-- (BOOL)hasSharedTriggers:(OSInAppMessage *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys;
-- (BOOL)messageHasOnlyDynamicTriggers:(OSInAppMessage *)message;
+- (BOOL)messageMatchesTriggers:(OSInAppMessageInternal *)message;
+- (BOOL)hasSharedTriggers:(OSInAppMessageInternal *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys;
+- (BOOL)messageHasOnlyDynamicTriggers:(OSInAppMessageInternal *)message;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
 - (NSDictionary<NSString *, id> *)getTriggers;

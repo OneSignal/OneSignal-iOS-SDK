@@ -402,7 +402,7 @@ OneSignalWebView *webVC;
     if (uuid) {
 
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
-        OSInAppMessage *message = [OSInAppMessage instancePreviewFromNotification:notification];
+        OSInAppMessageInternal *message = [OSInAppMessageInternal instancePreviewFromNotification:notification];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
         return YES;
     }

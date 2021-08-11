@@ -29,7 +29,7 @@
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSTrigger.h"
 #import "OSTriggerController.h"
 #import "OSInAppMessagingDefines.h"
@@ -54,8 +54,8 @@
 @end
 
 @implementation InAppMessagingTests {
-    OSInAppMessage *testMessage;
-    OSInAppMessage *testMessageRedisplay;
+    OSInAppMessageInternal *testMessage;
+    OSInAppMessageInternal *testMessageRedisplay;
     OSInAppMessageAction *testAction;
     OSInAppMessageBridgeEvent *testBridgeEvent;
     OSInAppMessageBridgeEvent *testPageChangeEvent;
@@ -215,9 +215,9 @@ NSInteger const DELAY = 60;
 }
 
 - (void)testCorrectlyParsedHasLiquid {
-    OSInAppMessage *hasLiquidMessage = [OSInAppMessageTestHelper testMessageWithLiquid];
+    OSInAppMessageInternal *hasLiquidMessage = [OSInAppMessageTestHelper testMessageWithLiquid];
     XCTAssertTrue(hasLiquidMessage.hasLiquid);
-    OSInAppMessage *noLiquidMessage = [OSInAppMessageTestHelper testMessage];
+    OSInAppMessageInternal *noLiquidMessage = [OSInAppMessageTestHelper testMessage];
     XCTAssertFalse(noLiquidMessage.hasLiquid);
 }
 

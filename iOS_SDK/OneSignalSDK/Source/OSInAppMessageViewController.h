@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSInAppMessageView.h"
 #import "OSInAppMessageAction.h"
 #import <WebKit/WebKit.h>
@@ -36,11 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol OSInAppMessageViewControllerDelegate <NSObject>
 
-- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action;
-- (void)messageViewDidDisplayPage:(OSInAppMessage *)message withPageId:(NSString *)pageId;
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action;
+- (void)messageViewDidDisplayPage:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 - (void)messageViewControllerWasDismissed;
-- (void)webViewContentFinishedLoading:(OSInAppMessage *)message;
-- (void)messageIsNotActive:(OSInAppMessage *)message;
+- (void)webViewContentFinishedLoading:(OSInAppMessageInternal *)message;
+- (void)messageIsNotActive:(OSInAppMessageInternal *)message;
 
 @end
 
@@ -48,10 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSInAppMessageViewController : UIViewController <OSInAppMessageViewDelegate, WKScriptMessageHandler>
 
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewControllerDelegate> delegate;
-@property (strong, nonatomic, nonnull) OSInAppMessage *message;
+@property (strong, nonatomic, nonnull) OSInAppMessageInternal *message;
 @property (nonatomic) BOOL waitForTags;
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate;
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate;
 - (void)dismissCurrentInAppMessage;
 
 @end

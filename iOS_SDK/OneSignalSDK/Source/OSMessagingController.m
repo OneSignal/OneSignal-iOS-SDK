@@ -46,15 +46,15 @@
 @interface OSMessagingController ()
 
 @property (strong, nonatomic, nullable) UIWindow *window;
-@property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
+@property (strong, nonatomic, nonnull) NSArray <OSInAppMessageInternal *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
-@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
+@property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessageInternal *> *messageDisplayQueue;
 
 // Tracking already seen IAMs, used to prevent showing an IAM more than once after it has been dismissed
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *seenInAppMessages;
 
 // Tracking IAMs with redisplay, used to enable showing an IAM more than once after it has been dismissed
-@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayedInAppMessages;
+@property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages;
 
 // Tracking for click ids wihtin IAMs so that body, button, and image are only tracked on the dashboard once
 // TODO:We should refactor this to be like redisplay logic, save clickId + IAM or by IAM
@@ -77,7 +77,7 @@
 
 @property (nonatomic, nullable) NSArray<NSObject<OSInAppMessagePrompt> *> *currentPromptActions;
 
-@property (nonatomic, nullable) OSInAppMessage *currentInAppMessage;
+@property (nonatomic, nullable) OSInAppMessageInternal *currentInAppMessage;
 
 @property (nonatomic) BOOL isAppInactive;
 
@@ -135,7 +135,7 @@ static BOOL _isInAppMessagingPaused = false;
             return [[NSDate date] timeIntervalSince1970];
         };
         self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
-                                                                                          defaultValue:[NSArray<OSInAppMessage *> new]];
+                                                                                          defaultValue:[NSArray<OSInAppMessageInternal *> new]];
         self.triggerController = [OSTriggerController new];
         self.triggerController.delegate = self;
         self.messageDisplayQueue = [NSMutableArray new];
@@ -163,7 +163,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self evaluateMessages];
 }
 
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {
+- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
     self.messages = newMessages;
     
@@ -186,7 +186,7 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (void)deleteInactiveMessage:(OSInAppMessage *)message {
+- (void)deleteInactiveMessage:(OSInAppMessageInternal *)message {
     let deleteMessage = [NSString stringWithFormat:@"Deleting inactive in-app message from cache: %@", message.messageId];
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:deleteMessage];
     NSMutableArray *newMessagesArray = [NSMutableArray arrayWithArray:self.messages];
@@ -214,7 +214,7 @@ static BOOL _isInAppMessagingPaused = false;
     }
 
     if ([messagesIdToRemove count] > 0) {
-        NSMutableDictionary <NSString *, OSInAppMessage *> * newRedisplayDictionary = [_redisplayedInAppMessages mutableCopy];
+        NSMutableDictionary <NSString *, OSInAppMessageInternal *> * newRedisplayDictionary = [_redisplayedInAppMessages mutableCopy];
         for (NSString * messageId in messagesIdToRemove) {
             [newRedisplayDictionary removeObjectForKey:messageId];
         }
@@ -227,7 +227,7 @@ static BOOL _isInAppMessagingPaused = false;
     self.actionClickBlock = actionClickBlock;
 }
 
-- (void)presentInAppMessage:(OSInAppMessage *)message {
+- (void)presentInAppMessage:(OSInAppMessageInternal *)message {
     if (!message.variantId) {
         let errorMessage = [NSString stringWithFormat:@"Attempted to display a message with a nil variantId. Current preferred language is %@, supported message variants are %@", NSLocale.preferredLanguages, message.variants];
         [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
@@ -254,7 +254,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (BOOL)isMessageInDisplayQueue:(NSString *)messageId {
-    for (OSInAppMessage *message in self.messageDisplayQueue) {
+    for (OSInAppMessageInternal *message in self.messageDisplayQueue) {
         if ([message.messageId isEqualToString:messageId]) {
             return true;
         }
@@ -266,7 +266,7 @@ static BOOL _isInAppMessagingPaused = false;
  If an IAM is currently showing add the preview right behind it in the messageDisplayQueue and then dismiss the current IAM
  Otherwise, Add it to the front of the messageDisplayQueue and call displayMessage
  */
-- (void)presentInAppPreviewMessage:(OSInAppMessage *)message {
+- (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message {
     @synchronized (self.messageDisplayQueue) {
         if (self.isInAppMessageShowing) {
             // Add preview second in messageDisplayQueue
@@ -280,7 +280,7 @@ static BOOL _isInAppMessagingPaused = false;
     };
 }
 
-- (void)displayMessage:(OSInAppMessage *)message {
+- (void)displayMessage:(OSInAppMessageInternal *)message {
     // Check if the app disabled IAMs for this device before showing an IAM
     if (_isInAppMessagingPaused) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while paused"];
@@ -290,7 +290,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self showMessage:message];
 }
 
-- (void)showMessage:(OSInAppMessage *)message {
+- (void)showMessage:(OSInAppMessageInternal *)message {
     self.viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:self];
     if (message.hasLiquid && !self.calledLoadTags) {
         self.viewController.waitForTags = YES;
@@ -301,7 +301,7 @@ static BOOL _isInAppMessagingPaused = false;
     });
 }
 
-- (void)sendMessageImpression:(OSInAppMessage *)message {
+- (void)sendMessageImpression:(OSInAppMessageInternal *)message {
     if ([self shouldSendImpression:message]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self messageViewImpressionRequest:message];
@@ -317,7 +317,7 @@ static BOOL _isInAppMessagingPaused = false;
         }
     }];
 }
-- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId {
+- (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId {
     if (message.isPreview) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Not sending page impression for preview message. ID: %@",pageId]];
         return;
@@ -361,7 +361,7 @@ static BOOL _isInAppMessagingPaused = false;
                                        }];
 }
 
-- (BOOL)shouldSendImpression:(OSInAppMessage *)message {
+- (BOOL)shouldSendImpression:(OSInAppMessageInternal *)message {
     return !(message.isPreview || [self.impressionedInAppMessages containsObject:message.messageId]);
 }
 
@@ -369,7 +369,7 @@ static BOOL _isInAppMessagingPaused = false;
  Make an impression POST to track that the IAM has been
  Request should only be made for IAMs that are not previews and have not been impressioned yet
  */
-- (void)messageViewImpressionRequest:(OSInAppMessage *)message {
+- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message {
     // Make sure no tracking is performed for previewed IAMs
     // If the messageId exists in cached impressionedInAppMessages return early so the impression is not tracked again
     if (![self shouldSendImpression:message])
@@ -406,7 +406,7 @@ static BOOL _isInAppMessagingPaused = false;
  */
 - (void)evaluateMessages {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Evaluating in app messages"];
-    for (OSInAppMessage *message in self.messages) {
+    for (OSInAppMessageInternal *message in self.messages) {
         if ([self.triggerController messageMatchesTriggers:message]) {
             // Make changes to IAM if redisplay available
             [self setDataForRedisplay:message];
@@ -430,7 +430,7 @@ static BOOL _isInAppMessagingPaused = false;
  For redisplay, the message need to be removed from the arrays that track the display/impression
  For click counting, every message has it click id array
 */
-- (void)setDataForRedisplay:(OSInAppMessage *)message {
+- (void)setDataForRedisplay:(OSInAppMessageInternal *)message {
     if (!message.displayStats.isRedisplayEnabled) {
         return;
     }
@@ -465,7 +465,7 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (BOOL)hasMessageTriggerChanged:(OSInAppMessage *)message {
+- (BOOL)hasMessageTriggerChanged:(OSInAppMessageInternal *)message {
     // Message that only have dynamic trigger should display only once per session
     BOOL messageHasOnlyDynamicTrigger = [self.triggerController messageHasOnlyDynamicTriggers:message];
     if (messageHasOnlyDynamicTrigger)
@@ -481,7 +481,7 @@ static BOOL _isInAppMessagingPaused = false;
  Method to check whether or not to show an IAM
  Checks if the IAM matches any triggers or if it exists in cached seenInAppMessages set
  */
-- (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message {
+- (BOOL)shouldShowInAppMessage:(OSInAppMessageInternal *)message {
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
            ![message isFinished] &&
@@ -510,7 +510,7 @@ static BOOL _isInAppMessagingPaused = false;
  *   - At least one Trigger has changed
  */
 - (void)evaluateRedisplayedInAppMessages:(NSArray<NSString *> *)newTriggersKeys {
-    for (OSInAppMessage *message in _messages) {
+    for (OSInAppMessageInternal *message in _messages) {
         if ([_redisplayedInAppMessages objectForKey:message.messageId] &&
             [self.triggerController hasSharedTriggers:message newTriggersKeys:newTriggersKeys]) {
               message.isTriggerChanged = true;
@@ -546,7 +546,7 @@ static BOOL _isInAppMessagingPaused = false;
 
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
-            OSInAppMessage *showingIAM = self.messageDisplayQueue.firstObject;
+            OSInAppMessageInternal *showingIAM = self.messageDisplayQueue.firstObject;
             [self.seenInAppMessages addObject:showingIAM.messageId];
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Dismissing IAM save seenInAppMessages: %@", _seenInAppMessages]];
@@ -592,7 +592,7 @@ static BOOL _isInAppMessagingPaused = false;
     self.window.hidden = true;
 }
 
-- (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message {
+- (void)persistInAppMessageForRedisplay:(OSInAppMessageInternal *)message {
     // If the IAM doesn't have the re display prop or is a preview IAM there is no need to save it
     if (![message.displayStats isRedisplayEnabled] || message.isPreview) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"not persisting %@",message.displayStats]];
@@ -620,7 +620,7 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay saved redisplayedInAppMessages: %@", [redisplayedInAppMessages description]]];
 }
 
-- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions withMessage:(OSInAppMessage *)inAppMessage {
+- (void)handlePromptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions withMessage:(OSInAppMessageInternal *)inAppMessage {
     _currentPromptAction = nil;
     for (NSObject<OSInAppMessagePrompt> *promptAction in promptActions) {
         // Don't show prompt twice
@@ -649,7 +649,7 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
-- (void)showAlertDialogMessage:(OSInAppMessage *)inAppMessage
+- (void)showAlertDialogMessage:(OSInAppMessageInternal *)inAppMessage
                  promptActions:(NSArray<NSObject<OSInAppMessagePrompt> *> *)promptActions  {
     _currentInAppMessage = inAppMessage;
     _currentPromptActions = promptActions;
@@ -663,7 +663,7 @@ static BOOL _isInAppMessagingPaused = false;
     }];
 }
 
-- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {
     // Assign firstClick BOOL based on message being clicked previously or not
     action.firstClick = [message takeActionAsUnique];
     
@@ -691,20 +691,20 @@ static BOOL _isInAppMessagingPaused = false;
     [self sendOutcomes:action.outcomes forMessageId:message.messageId];
 }
 
-- (void)messageViewDidDisplayPage:(OSInAppMessage *)message withPageId:(NSString *)pageId {
+- (void)messageViewDidDisplayPage:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId {
     dispatch_async(dispatch_get_main_queue(), ^{
            [self messageViewPageImpressionRequest:message withPageId:pageId];
     });
 }
 
-- (void)messageIsNotActive:(OSInAppMessage *)message {
+- (void)messageIsNotActive:(OSInAppMessageInternal *)message {
     [self deleteInactiveMessage:message];
 }
 
 /*
 * Show the developer what will happen with a non IAM preview
  */
-- (void)processPreviewInAppMessage:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+- (void)processPreviewInAppMessage:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {
      if (action.tags)
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Tags detected inside of the action click payload, ignoring because action came from IAM preview\nTags: %@", action.tags.jsonRepresentation]];
 
@@ -718,12 +718,12 @@ static BOOL _isInAppMessagingPaused = false;
 * 1. Redisplay is enabled and click is available within message
 * 2. Click clickId should not be inside of the clickedClickIds set
 */
-- (BOOL)isClickAvailable:(OSInAppMessage *)message withClickId:(NSString *)clickId {
+- (BOOL)isClickAvailable:(OSInAppMessageInternal *)message withClickId:(NSString *)clickId {
     // If IAM has redisplay the clickId may be available
     return ([message.displayStats isRedisplayEnabled] && [message isClickAvailable:clickId]) || ![_clickedClickIds containsObject:clickId];
 }
 
-- (void)sendClickRESTCall:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+- (void)sendClickRESTCall:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {
     let clickId = action.clickId;
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // unless that click is from an IAM with redisplay
@@ -778,7 +778,7 @@ static BOOL _isInAppMessagingPaused = false;
 /*
  This method must be called on the Main thread
  */
-- (void)webViewContentFinishedLoading:(OSInAppMessage *)message {
+- (void)webViewContentFinishedLoading:(OSInAppMessageInternal *)message {
     if (!self.viewController) {
         [self evaluateMessages];
         return;
@@ -822,7 +822,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 - (void)makeRedisplayMessagesAvailableWithTriggers:(NSArray<NSString *> *)triggerIds {
-    for (OSInAppMessage *message in self.messages) {
+    for (OSInAppMessageInternal *message in self.messages) {
         if ([self.redisplayedInAppMessages objectForKey:message.messageId]
             && [_triggerController hasSharedTriggers:message newTriggersKeys:triggerIds]) {
             message.isTriggerChanged = YES;
@@ -856,14 +856,14 @@ static BOOL _isInAppMessagingPaused = false;
 - (instancetype)init { self = [super init]; return self; }
 - (BOOL)isInAppMessagingPaused { return false; }
 - (void)setInAppMessagingPaused:(BOOL)pause {}
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages {}
+- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages {}
 - (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {}
-- (void)presentInAppMessage:(OSInAppMessage *)message {}
-- (void)presentInAppPreviewMessage:(OSInAppMessage *)message {}
-- (void)displayMessage:(OSInAppMessage *)message {}
-- (void)messageViewImpressionRequest:(OSInAppMessage *)message {}
+- (void)presentInAppMessage:(OSInAppMessageInternal *)message {}
+- (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message {}
+- (void)displayMessage:(OSInAppMessageInternal *)message {}
+- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message {}
 - (void)evaluateMessages {}
-- (BOOL)shouldShowInAppMessage:(OSInAppMessage *)message { return false; }
+- (BOOL)shouldShowInAppMessage:(OSInAppMessageInternal *)message { return false; }
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {}
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {}
@@ -872,8 +872,8 @@ static BOOL _isInAppMessagingPaused = false;
 - (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods
 - (void)messageViewControllerWasDismissed {}
-- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {}
-- (void)webViewContentFinishedLoading:(OSInAppMessage *)message {}
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action {}
+- (void)webViewContentFinishedLoading:(OSInAppMessageInternal *)message {}
 #pragma mark OSTriggerControllerDelegate Methods
 - (void)triggerConditionChanged {}
 - (void)dynamicTriggerCompleted:(NSString *)triggerId {}

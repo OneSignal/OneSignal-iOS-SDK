@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSInAppMessageViewController.h"
 #import "OneSignal.h"
 #import "OSTriggerController.h"
@@ -49,12 +49,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (OSMessagingController *)sharedInstance;
 + (void)removeInstance;
-- (void)presentInAppMessage:(OSInAppMessage *)message;
-- (void)presentInAppPreviewMessage:(OSInAppMessage *)message;
+- (void)presentInAppMessage:(OSInAppMessageInternal *)message;
+- (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message;
 - (void)updateInAppMessagesFromCache;
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessage *> *)newMessages;
-- (void)messageViewImpressionRequest:(OSInAppMessage *)message;
-- (void)messageViewPageImpressionRequest:(OSInAppMessage *)message withPageId:(NSString *)pageId;
+- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages;
+- (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
+- (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 
 - (BOOL)isInAppMessagingPaused;
 - (void)setInAppMessagingPaused:(BOOL)pause;

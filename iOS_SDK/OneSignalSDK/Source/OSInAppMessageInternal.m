@@ -25,18 +25,18 @@
  * THE SOFTWARE.
  */
 
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
 
-@interface OSInAppMessage ()
+@interface OSInAppMessageInternal ()
 
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *viewedPageIds;
 
 @end
 
-@implementation OSInAppMessage
+@implementation OSInAppMessageInternal
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -87,7 +87,7 @@
 }
 
 + (instancetype)instanceWithJson:(NSDictionary * _Nonnull)json {
-    let message = [OSInAppMessage new];
+    let message = [OSInAppMessageInternal new];
     
     if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
         message.messageId = json[@"id"];
@@ -144,7 +144,7 @@
 }
 
 + (instancetype)instancePreviewFromNotification:(OSNotification *)notification {
-    let message = [OSInAppMessage new];
+    let message = [OSInAppMessageInternal new];
     message.messageId = [notification additionalData][ONESIGNAL_IAM_PREVIEW];
     message.isPreview = true;
     return message;
@@ -191,11 +191,11 @@
     return YES;
   }
 
-  if (![object isKindOfClass:[OSInAppMessage class]]) {
+  if (![object isKindOfClass:[OSInAppMessageInternal class]]) {
     return NO;
   }
 
-  OSInAppMessage *iam = object;
+  OSInAppMessageInternal *iam = object;
     
   return [self.messageId isEqualToString:iam.messageId];
 }
