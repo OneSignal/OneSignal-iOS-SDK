@@ -84,7 +84,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal addPermissionObserver:self];
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
-    
+    [OneSignal setInAppMessageDelegate:self];
     [OneSignal pauseInAppMessages:true];
 
     [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
@@ -125,6 +125,35 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 - (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
     NSLog(@"onOSEmailSubscriptionChanged: %@", stateChanges);
 }
+
+#pragma mark OSInAppMessageDelegate
+
+- (void)handleMessageAction:(OSInAppMessageAction *)action {
+    NSLog(@"OSInAppMessageDelegate: handling message action: %@",action);
+    return;
+}
+
+- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message {
+    NSLog(@"OSInAppMessageDelegate: onWillDisplay Message: %@",message);
+    return;
+}
+
+- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message {
+    NSLog(@"OSInAppMessageDelegate: onDidDisplay Message: %@",message);
+    return;
+}
+
+- (void)onWillDismissInAppMessage:(OSInAppMessage *)message {
+    NSLog(@"OSInAppMessageDelegate: onWillDismiss Message: %@",message);
+    return;
+}
+
+- (void)onDidDismissInAppMessage:(OSInAppMessage *)message {
+    NSLog(@"OSInAppMessageDelegate: onDidDismiss Message: %@",message);
+    return;
+}
+
+#pragma mark UIApplicationDelegate methods
 
 - (void)applicationWillResignActive:(UIApplication *)application {
 }

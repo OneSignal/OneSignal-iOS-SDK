@@ -229,8 +229,8 @@ static BOOL _isInAppMessagingPaused = false;
     self.actionClickBlock = actionClickBlock;
 }
 
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate>*)delegate {
-    self.inAppMessageDelegate = delegate;
+- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate> *_Nullable)delegate {
+    _inAppMessageDelegate = delegate;
 }
 
 - (void)onWillDisplayInAppMessage:(OSInAppMessageInternal *)message {
