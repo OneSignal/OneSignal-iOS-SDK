@@ -735,6 +735,10 @@ static BOOL _isInAppMessagingPaused = false;
     [self deleteInactiveMessage:message];
 }
 
+- (void)messageWillDisplay:(nonnull OSInAppMessageInternal *)message {
+    [self onWillDisplayInAppMessage:message];
+}
+
 /*
 * Show the developer what will happen with a non IAM preview
  */
@@ -836,7 +840,7 @@ static BOOL _isInAppMessagingPaused = false;
     [self addKeySceneToWindow:self.window];
 
     [self.window makeKeyAndVisible];
-    // Did Display
+    [self onDidDisplayInAppMessage:message];
 }
 
 // Required to display if the app is using a Scene

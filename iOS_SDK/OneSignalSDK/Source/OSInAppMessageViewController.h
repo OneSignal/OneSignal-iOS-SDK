@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)messageViewControllerWasDismissed;
 - (void)webViewContentFinishedLoading:(OSInAppMessageInternal *)message;
 - (void)messageIsNotActive:(OSInAppMessageInternal *)message;
+- (void)messageWillDisplay:(OSInAppMessageInternal *)message;
 
 @end
 
