@@ -156,6 +156,12 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 
 @end;
 
+@interface OSInAppMessage : NSObject
+
+@property (strong, nonatomic, nonnull) NSString *messageId;
+
+@end
+
 @interface OSInAppMessageOutcome : NSObject
 
 @property (strong, nonatomic, nonnull) NSString *name;
@@ -208,10 +214,10 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 @protocol OSInAppMessageDelegate <NSObject>
 @optional
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
-- (void)onWillDisplayInAppMessage:(NSString *)message;
-- (void)onDidDisplayInAppMessage:(NSString *)message;
-- (void)onWillDismissInAppMessage:(NSString *)message;
-- (void)onDidDismissInAppMessage:(NSString *)message;
+- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message;
+- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message;
+- (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
+- (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
 @end
 
 // Pass in nil means a notification will not display

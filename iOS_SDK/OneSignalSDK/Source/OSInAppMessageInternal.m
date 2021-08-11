@@ -205,7 +205,7 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:_messageId forKey:@"messageId"];
+    [encoder encodeObject:self.messageId forKey:@"messageId"];
     [encoder encodeObject:_variants forKey:@"variants"];
     [encoder encodeObject:_triggers forKey:@"triggers"];
     [encoder encodeObject:_displayStats forKey:@"displayStats"];
@@ -217,7 +217,7 @@
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
-        _messageId = [decoder decodeObjectForKey:@"messageId"];
+        self.messageId = [decoder decodeObjectForKey:@"messageId"];
         _variants = [decoder decodeObjectForKey:@"variants"];
         _triggers = [decoder decodeObjectForKey:@"triggers"];
         _displayStats = [decoder decodeObjectForKey:@"displayStats"];
