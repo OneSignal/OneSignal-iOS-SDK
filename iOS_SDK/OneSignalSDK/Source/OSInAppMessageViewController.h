@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action;
 - (void)messageViewDidDisplayPage:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
+- (void)messageViewControllerDidDisplay:(OSInAppMessageInternal *)message;
 - (void)messageViewControllerWillDismiss:(OSInAppMessageInternal *)message;
 - (void)messageViewControllerWasDismissed:(OSInAppMessageInternal *)message displayed:(BOOL)displayed;
 - (void)webViewContentFinishedLoading:(OSInAppMessageInternal *)message;

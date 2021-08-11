@@ -137,9 +137,8 @@
 
 - (void)applicationIsActive:(NSNotification *)notification {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Active"];
-
     // Animate the showing of the IAM when opening the app from background
-    [self animateAppearance];
+    [self animateAppearance:NO];
 }
 
 - (void)applicationIsInBackground:(NSNotification *)notification {
@@ -195,7 +194,7 @@
         if (!finished)
             return;
         
-        [self animateAppearance];
+        [self animateAppearance:YES];
     }];
 }
 
@@ -485,13 +484,17 @@
  For banners the initialYConstraint is set to LOW_CONSTRAINT_PRIORITY
  For center modal and full screen, the transform is set to CGAffineTransformIdentity (original scale)
  */
-- (void)animateAppearance {
+- (void)animateAppearance:(BOOL)firstDisplay {
     self.initialYConstraint.priority = LOW_CONSTRAINT_PRIORITY;
     
     [UIView animateWithDuration:0.3f animations:^{
         self.messageView.hidden = false;
         self.messageView.transform = CGAffineTransformIdentity;
         [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        if (firstDisplay) {
+            [self.delegate messageViewControllerDidDisplay:self.message];
+        }
     }];
 }
 
@@ -749,7 +752,7 @@
             [self addConstraintsForMessage];
             
             // Reanimate and show IAM
-            [self animateAppearance];
+            [self animateAppearance:NO];
         }];
     }];
 }

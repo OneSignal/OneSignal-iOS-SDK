@@ -572,6 +572,14 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
+- (void)messageViewControllerDidDisplay:(OSInAppMessageInternal *)message {
+    [self onDidDisplayInAppMessage:message];
+}
+
+- (void)messageViewControllerWillDismiss:(OSInAppMessageInternal *)message {
+    [self onWillDismissInAppMessage:message];
+}
+
 - (void)messageViewControllerWasDismissed:(OSInAppMessageInternal *)message displayed:(BOOL)displayed {
     @synchronized (self.messageDisplayQueue) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
@@ -602,10 +610,6 @@ static BOOL _isInAppMessagingPaused = false;
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Stop evaluateMessageDisplayQueue because prompt is currently displayed"];
         }
     }
-}
-
-- (void)messageViewControllerWillDismiss:(OSInAppMessageInternal *)message {
-    [self onWillDismissInAppMessage:message];
 }
 
 - (void)evaluateMessageDisplayQueue {
@@ -847,7 +851,6 @@ static BOOL _isInAppMessagingPaused = false;
     [self addKeySceneToWindow:self.window];
 
     [self.window makeKeyAndVisible];
-    [self onDidDisplayInAppMessage:message];
 }
 
 // Required to display if the app is using a Scene
