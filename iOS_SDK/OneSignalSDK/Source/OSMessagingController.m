@@ -572,7 +572,7 @@ static BOOL _isInAppMessagingPaused = false;
 }
 
 #pragma mark OSInAppMessageViewControllerDelegate Methods
-- (void)messageViewControllerWasDismissed {
+- (void)messageViewControllerWasDismissed:(OSInAppMessageInternal *)message displayed:(BOOL)displayed {
     @synchronized (self.messageDisplayQueue) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
         // Remove DIRECT influence due to ClickHandler of ClickAction outcomes
@@ -580,6 +580,9 @@ static BOOL _isInAppMessagingPaused = false;
 
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
+            if (displayed) {
+                [self onDidDismissInAppMessage:message];
+            }
             OSInAppMessageInternal *showingIAM = self.messageDisplayQueue.firstObject;
             [self.seenInAppMessages addObject:showingIAM.messageId];
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
@@ -599,6 +602,10 @@ static BOOL _isInAppMessagingPaused = false;
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Stop evaluateMessageDisplayQueue because prompt is currently displayed"];
         }
     }
+}
+
+- (void)messageViewControllerWillDismiss:(OSInAppMessageInternal *)message {
+    [self onWillDismissInAppMessage:message];
 }
 
 - (void)evaluateMessageDisplayQueue {

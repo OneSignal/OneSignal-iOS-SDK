@@ -431,10 +431,12 @@
     // and we should bypass dismissal adjustments and animations and skip straight to the OSMessagingController callback for dismissing
     if (!self.didPageRenderingComplete) {
         [self dismissViewControllerAnimated:false completion:nil];
-        [self.delegate messageViewControllerWasDismissed];
+        [self.delegate messageViewControllerWasDismissed:self.message displayed:NO];
         return;
     }
         
+    [self.delegate messageViewControllerWillDismiss:self.message];
+    
     // Inactivate the current Y constraints
     self.finalYConstraint.active = false;
     self.initialYConstraint.active = false;
@@ -473,7 +475,7 @@
             return;
 
         self.didPageRenderingComplete = false;
-        [self.delegate messageViewControllerWasDismissed];
+        [self.delegate messageViewControllerWasDismissed:self.message displayed:YES];
     }];
 }
 
@@ -754,7 +756,7 @@
 
 #pragma mark OSInAppMessageViewDelegate Methods
 - (void)messageViewFailedToLoadMessageContent {
-    [self.delegate messageViewControllerWasDismissed];
+    [self.delegate messageViewControllerWasDismissed:self.message displayed:NO];
 }
 
 - (void)messageViewDidFailToProcessAction {
