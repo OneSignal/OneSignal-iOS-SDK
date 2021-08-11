@@ -721,6 +721,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
 }
 
++ (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate> *_Nullable)delegate; {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
+}
+
 /*
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
