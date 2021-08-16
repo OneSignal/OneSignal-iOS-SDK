@@ -3019,6 +3019,7 @@ static NSString *_lastnonActiveMessageId;
     injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     [self setupUNUserNotificationCenterDelegate];
+    [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
 }
 

@@ -48,6 +48,7 @@ THE SOFTWARE.
 - (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
     [self migrateIAMRedisplayCache];
+    [self migrateToOSInAppMessageInternal];
     [self saveCurrentSDKVersion];
 }
 
@@ -124,15 +125,19 @@ THE SOFTWARE.
         // Messages Array
         NSArray<OSInAppMessageInternal *> *messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
                                                                                           defaultValue:[NSArray<OSInAppMessageInternal *> new]];
-        if (messages) {
+        if (messages && messages.count) {
             [NSKeyedArchiver setClassName:@"OSInAppMessageInternal" forClass:[OSInAppMessageInternal class]];
             [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:messages];
+        } else {
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:nil];
         }
         
         // Redisplay Messages Dict
         NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
-        if (redisplayedInAppMessages) {
+        if (redisplayedInAppMessages && redisplayedInAppMessages.count) {
             [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
+        } else {
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:nil];
         }
     }
 }
