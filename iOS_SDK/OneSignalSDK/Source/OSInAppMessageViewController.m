@@ -278,6 +278,11 @@
  Once the HTML content is loaded, we call animateAppearance() to show the message view
  */
 - (void)addConstraintsForMessage {
+    // Adding constraints between two views that aren't in the same hierarchy will crash
+    if (![self.view.subviews containsObject:self.messageView]) {
+        [self.view addSubview: self.messageView];
+    }
+    
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message Constraints"];
     
     // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
