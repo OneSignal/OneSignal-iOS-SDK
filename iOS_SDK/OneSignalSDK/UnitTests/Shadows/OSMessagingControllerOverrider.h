@@ -53,7 +53,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<OSInAppMessageInternal *> *)getInAppMessages;
 - (NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)getRedisplayedInAppMessages;
 - (NSMutableArray<OSInAppMessageInternal *> *)getDisplayedMessages;
-
+- (void)onWillDisplayInAppMessage:(OSInAppMessageInternal *)message;
+- (void)onDidDisplayInAppMessage:(OSInAppMessageInternal *)message;
+- (void)onWillDismissInAppMessage:(OSInAppMessageInternal *)message;
+- (void)onDidDismissInAppMessage:(OSInAppMessageInternal *)message;
 @end
 
 NS_ASSUME_NONNULL_END
