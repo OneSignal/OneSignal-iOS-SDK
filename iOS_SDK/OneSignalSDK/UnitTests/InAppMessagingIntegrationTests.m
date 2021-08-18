@@ -984,7 +984,7 @@
 
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
 
-    OSInAppMessageInternal * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+    OSInAppMessageInternal *message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
 
     [self initOneSignalWithInAppMessage:message];
 
@@ -1027,7 +1027,7 @@
 
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
 
-    OSInAppMessageInternal * message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+    OSInAppMessageInternal *message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
 
     [self initOneSignalWithInAppMessage:message];
 
@@ -1591,6 +1591,50 @@
     XCTAssertEqual(OSMessagingControllerOverrider.messagesForRedisplay.count, 1);
     let secondDisplayQuantity = OSMessagingControllerOverrider.messagesForRedisplay.allValues[0].displayStats.displayQuantity;
     XCTAssertEqual(secondDisplayQuantity, 2);
+}
+
+- (void)testIAMLifecyleEventsFired {
+    let firstTrigger = [OSTrigger customTriggerWithProperty:@"testProp" withOperator:OSTriggerOperatorTypeExists withValue:nil];
+
+    OSInAppMessageInternal *message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]]];
+
+    [self initOneSignalWithInAppMessage:message];
+    
+    OSInAppMessageTestDelegate *iamDelegate = [OSInAppMessageTestDelegate new];
+    [OneSignal setInAppMessageDelegate:iamDelegate];
+
+    XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
+
+    XCTAssertNil(iamDelegate->lastMessageWillDisplay);
+    XCTAssertNil(iamDelegate->lastMessageDidDisplay);
+    XCTAssertNil(iamDelegate->lastMessageWillDismiss);
+    XCTAssertNil(iamDelegate->lastMessageDidDismiss);
+    [OneSignal addTrigger:@"testProp" withValue:@2];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    [OSMessagingController.sharedInstance onWillDisplayInAppMessage:message];
+    XCTAssertNotNil(iamDelegate->lastMessageWillDisplay);
+    XCTAssertNil(iamDelegate->lastMessageDidDisplay);
+    XCTAssertNil(iamDelegate->lastMessageWillDismiss);
+    XCTAssertNil(iamDelegate->lastMessageDidDismiss);
+    
+    [OSMessagingController.sharedInstance onDidDisplayInAppMessage:message];
+    XCTAssertNotNil(iamDelegate->lastMessageWillDisplay);
+    XCTAssertNotNil(iamDelegate->lastMessageDidDisplay);
+    XCTAssertNil(iamDelegate->lastMessageWillDismiss);
+    XCTAssertNil(iamDelegate->lastMessageDidDismiss);
+    
+    [OSMessagingController.sharedInstance onWillDismissInAppMessage:message];
+    XCTAssertNotNil(iamDelegate->lastMessageWillDisplay);
+    XCTAssertNotNil(iamDelegate->lastMessageDidDisplay);
+    XCTAssertNotNil(iamDelegate->lastMessageWillDismiss);
+    XCTAssertNil(iamDelegate->lastMessageDidDismiss);
+    
+    [OSMessagingController.sharedInstance onDidDismissInAppMessage:message];
+    XCTAssertNotNil(iamDelegate->lastMessageWillDisplay);
+    XCTAssertNotNil(iamDelegate->lastMessageDidDisplay);
+    XCTAssertNotNil(iamDelegate->lastMessageWillDismiss);
+    XCTAssertNotNil(iamDelegate->lastMessageDidDismiss);
 }
 
 /*

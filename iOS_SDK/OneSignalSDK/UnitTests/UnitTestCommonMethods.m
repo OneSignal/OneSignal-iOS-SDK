@@ -480,3 +480,21 @@ static XCTestCase* _currentXCTestCase;
     fireCount++;
 }
 @end
+
+@implementation OSInAppMessageTestDelegate
+- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message {
+    lastMessageWillDisplay = message;
+}
+
+- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message {
+    lastMessageDidDisplay = message;
+}
+
+- (void)onWillDismissInAppMessage:(OSInAppMessage *)message {
+    lastMessageWillDismiss = message;
+}
+
+- (void)onDidDismissInAppMessage:(OSInAppMessage *)message {
+    lastMessageDidDismiss = message;
+}
+@end

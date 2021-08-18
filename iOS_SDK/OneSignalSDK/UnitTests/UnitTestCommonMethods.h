@@ -123,4 +123,12 @@ withNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundB
 - (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges *)stateChanges;
 @end
 
+@interface OSInAppMessageTestDelegate : NSObject<OSInAppMessageDelegate> {
+    @package OSInAppMessage *lastMessageWillDisplay;
+    @package OSInAppMessage *lastMessageDidDisplay;
+    @package OSInAppMessage *lastMessageWillDismiss;
+    @package OSInAppMessage *lastMessageDidDismiss;
+}
+@end
+
 // END - Observers
