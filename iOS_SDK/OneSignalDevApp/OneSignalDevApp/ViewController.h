@@ -37,6 +37,7 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *consentSegmentedControl;
 @property (weak, nonatomic) IBOutlet UITextField *appIdTextField;
 @property (weak, nonatomic) IBOutlet UIButton *updateAppIdButton;
+@property (weak, nonatomic) IBOutlet UIButton *sendTagButton;
 @property (weak, nonatomic) IBOutlet UIButton *getTagsButton;
 @property (weak, nonatomic) IBOutlet UIButton *sendTagsButton;
 @property (weak, nonatomic) IBOutlet UIButton *promptPushButton;
@@ -61,6 +62,8 @@
 @property (weak, nonatomic) IBOutlet UITextField *outcomeValue;
 @property (weak, nonatomic) IBOutlet UITextField *outcomeUniqueName;
 @property (weak, nonatomic) IBOutlet UITextView *result;
+@property (weak, nonatomic) IBOutlet UITextField *tagKey;
+@property (weak, nonatomic) IBOutlet UITextField *tagValue;
 
 @end
 
