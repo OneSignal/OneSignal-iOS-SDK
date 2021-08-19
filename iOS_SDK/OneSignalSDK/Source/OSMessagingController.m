@@ -69,7 +69,7 @@
 // Click action block to allow overridden behavior when clicking an IAM
 @property (strong, nonatomic, nullable) OSInAppMessageClickBlock actionClickBlock;
 
-@property (weak, nonatomic, nullable) NSObject<OSInAppMessageDelegate> *inAppMessageDelegate;
+@property (weak, nonatomic, nullable) NSObject<OSInAppMessageLifecycleHandler> *inAppMessageDelegate;
 
 @property (strong, nullable) OSInAppMessageViewController *viewController;
 
@@ -229,7 +229,7 @@ static BOOL _isInAppMessagingPaused = false;
     self.actionClickBlock = actionClickBlock;
 }
 
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate> *_Nullable)delegate {
+- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate {
     _inAppMessageDelegate = delegate;
 }
 
