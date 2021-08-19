@@ -1601,7 +1601,7 @@
     [self initOneSignalWithInAppMessage:message];
     
     OSInAppMessageTestDelegate *iamDelegate = [OSInAppMessageTestDelegate new];
-    [OneSignal setInAppMessageDelegate:iamDelegate];
+    [OneSignal setInAppMessageLifecycleHandler:iamDelegate];
 
     XCTAssertEqual(0, OSMessagingControllerOverrider.messageDisplayQueue.count);
 

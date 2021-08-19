@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)getTriggerValueForKey:(NSString *)key;
 
 - (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock;
-- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate> *_Nullable)delegate;
+- (void)setInAppMessageDelegate:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
 @end
 

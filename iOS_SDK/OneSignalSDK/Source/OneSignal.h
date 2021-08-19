@@ -214,6 +214,10 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 @protocol OSInAppMessageDelegate <NSObject>
 @optional
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
+@end
+
+@protocol OSInAppMessageLifecycleHandler <NSObject>
+@optional
 - (void)onWillDisplayInAppMessage:(OSInAppMessage *)message;
 - (void)onDidDisplayInAppMessage:(OSInAppMessage *)message;
 - (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
@@ -482,7 +486,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
-+ (void)setInAppMessageDelegate:(NSObject<OSInAppMessageDelegate> *_Nullable)delegate;
++ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
 #pragma mark Post Notification
 + (void)postNotification:(NSDictionary* _Nonnull)jsonData;
