@@ -88,10 +88,6 @@ static XCTestCase* _currentXCTestCase;
         if (notifSettingsQueue)
             dispatch_sync(notifSettingsQueue, ^{});
         
-        registerUserQueue = [OneSignal getRegisterQueue];
-        if (registerUserQueue)
-            dispatch_sync(registerUserQueue, ^{});
-        
         [OneSignalClientOverrider runBackgroundThreads];
         
         [UNUserNotificationCenterOverrider runBackgroundThreads];

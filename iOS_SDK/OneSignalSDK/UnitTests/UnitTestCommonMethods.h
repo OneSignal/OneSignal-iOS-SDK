@@ -62,7 +62,6 @@ NSString * serverUrlWithPath(NSString *path);
 
 // Expose OneSignal test methods
 @interface OneSignal (UN_extra)
-+ (dispatch_queue_t) getRegisterQueue;
 + (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay;
 @end
 
