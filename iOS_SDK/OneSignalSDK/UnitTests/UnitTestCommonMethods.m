@@ -182,17 +182,13 @@ static XCTestCase* _currentXCTestCase;
 
 + (void)runThreadsOnEachQueue {
     // the httpQueue makes sure all HTTP request mocks are sync'ed
-    dispatch_queue_t registerUserQueue, notifSettingsQueue;
+    dispatch_queue_t notifSettingsQueue;
     
     [OneSignalHelperOverrider runBackgroundThreads];
     
     notifSettingsQueue = [OneSignalNotificationSettingsIOS10 getQueue];
     if (notifSettingsQueue)
         dispatch_sync(notifSettingsQueue, ^{});
-    
-    registerUserQueue = [OneSignal getRegisterQueue];
-    if (registerUserQueue)
-        dispatch_sync(registerUserQueue, ^{});
     
     [OneSignalClientOverrider runBackgroundThreads];
     
