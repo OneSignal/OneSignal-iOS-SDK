@@ -1610,12 +1610,6 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
     [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
 }
 
-static dispatch_queue_t serialQueue;
-
-+ (dispatch_queue_t) getRegisterQueue {
-    return serialQueue;
-}
-
 + (void)registerUser {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1631,13 +1625,12 @@ static dispatch_queue_t serialQueue;
 
 +(void)registerUserNow {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserNow"];
-
-    if (!serialQueue)
-        serialQueue = dispatch_queue_create("com.onesignal.regiseruser", DISPATCH_QUEUE_SERIAL);
     
-    dispatch_async(serialQueue, ^{
+    // Run on the main queue as it is possible for this to be called from multiple queues.
+    // Also some of the code in the method is not thread safe such as _outcomeEventsController.
+    [OneSignalHelper dispatch_async_on_main_queue:^{
         [self registerUserInternal];
-     });
+    }];
 }
 
 // We should delay registration if we are waiting on APNS
