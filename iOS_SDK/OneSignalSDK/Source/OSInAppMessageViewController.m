@@ -244,14 +244,7 @@
             [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
 
         let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
-        NSMutableDictionary *fakeData = [[NSMutableDictionary alloc] initWithDictionary:data];
-        fakeData[@"styles"] = @{
-            @"top_margin" : @"0",
-            @"bottom_margin" : @"0",
-            @"left_margin" : @"0",
-            @"right_margin" : @"0",
-        };
-        [self parseContentData:fakeData];
+        [self parseContentData:data];
         if (self.waitForTags) {
             return;
         }
@@ -263,20 +256,21 @@
 - (void)parseContentData:(NSDictionary *)data {
     self.pendingHTMLContent = data[@"html"];
     self.maxDisplayTime = [data[@"display_duration"] doubleValue];
-    if (data[@"styles"]) {
+    NSDictionary *styles = data[@"styles"];
+    if (styles) {
         // We are currently only allowing default margin or no margin.
         // If we receive a number that isn't 0 we want to use default margin for now.
-        if (data[@"styles"][@"top_margin"]) {
-            self.topMarginModifier = [data[@"styles"][@"top_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        if (styles[@"top_margin"]) {
+            self.topMarginModifier = [styles[@"top_margin"] doubleValue] ==  0 ? 0 : 1.0;
         }
-        if (data[@"styles"][@"bottom_margin"]) {
-            self.bottomMarginModifier = [data[@"styles"][@"bottom_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        if (styles[@"bottom_margin"]) {
+            self.bottomMarginModifier = [styles[@"bottom_margin"] doubleValue] ==  0 ? 0 : 1.0;
         }
-        if (data[@"styles"][@"left_margin"]) {
-            self.leftMarginModifier = [data[@"styles"][@"left_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        if (styles[@"left_margin"]) {
+            self.leftMarginModifier = [styles[@"left_margin"] doubleValue] ==  0 ? 0 : 1.0;
         }
-        if (data[@"styles"][@"right_margin"]) {
-            self.rightMarginModifier = [data[@"styles"][@"right_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        if (styles[@"right_margin"]) {
+            self.rightMarginModifier = [styles[@"right_margin"] doubleValue] ==  0 ? 0 : 1.0;
         }
     }
 }
@@ -411,10 +405,15 @@
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
             self.view.window.frame = mainBounds;
+            NSLayoutAnchor *centerYanchor = self.view.centerYAnchor;
+            if (@available(iOS 11, *)) {
+                let safeArea = self.view.safeAreaLayoutGuide;
+                centerYanchor = safeArea.centerYAnchor;
+            }
 
-            self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
-            self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
-            self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
+            self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
+            self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
+            self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
             self.messageView.transform = CGAffineTransformMakeScale(0, 0);
             break;
     }
