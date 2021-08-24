@@ -244,14 +244,7 @@
             [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
 
         let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
-        NSMutableDictionary *fakeData = [[NSMutableDictionary alloc] initWithDictionary:data];
-        fakeData[@"styles"] = @{
-            @"top_margin" : @"0",
-            @"bottom_margin" : @"0",
-            @"left_margin" : @"0",
-            @"right_margin" : @"0",
-        };
-        [self parseContentData:fakeData];
+        [self parseContentData:data];
         if (self.waitForTags) {
             return;
         }
@@ -411,10 +404,15 @@
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
             self.view.window.frame = mainBounds;
+            NSLayoutAnchor *centerYanchor = self.view.centerYAnchor;
+            if (@available(iOS 11, *)) {
+                let safeArea = self.view.safeAreaLayoutGuide;
+                centerYanchor = safeArea.centerYAnchor;
+            }
 
-            self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
-            self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
-            self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:self.view.centerYAnchor constant:0.0f];
+            self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
+            self.finalYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
+            self.panVerticalConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
             self.messageView.transform = CGAffineTransformMakeScale(0, 0);
             break;
     }
