@@ -280,6 +280,11 @@
 - (void)addConstraintsForMessage {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message Constraints"];
     
+    if (![self.view.subviews containsObject:self.messageView]) {
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"addConstraintsForMessage: messageView is not a subview of OSInAppMessageViewController"];
+        [self.view addSubview:self.messageView];
+    }
+    
     // Initialize the anchors that describe the edges of the view, such as the top, bottom, etc.
     NSLayoutAnchor *top = self.view.topAnchor,
                    *bottom = self.view.bottomAnchor,
