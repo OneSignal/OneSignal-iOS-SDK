@@ -93,6 +93,14 @@
 // BOOL to track if the message content has loaded before tags have finished loading for liquid templating
 @property (nonatomic, nullable) NSString *pendingHTMLContent;
 
+@property (nonatomic) double leftMarginModifier;
+
+@property (nonatomic) double rightMarginModifier;
+
+@property (nonatomic) double topMarginModifier;
+
+@property (nonatomic) double bottomMarginModifier;
+
 @end
 
 @implementation OSInAppMessageViewController
@@ -101,6 +109,10 @@
     if (self = [super init]) {
         self.message = inAppMessage;
         self.delegate = delegate;
+        self.topMarginModifier = 1.0;
+        self.bottomMarginModifier = 1.0;
+        self.leftMarginModifier = 1.0;
+        self.rightMarginModifier = 1.0;
     }
     
     return self;
@@ -232,14 +244,41 @@
             [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
 
         let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
-        self.pendingHTMLContent = data[@"html"];
-        self.maxDisplayTime = [data[@"display_duration"] doubleValue];
+        NSMutableDictionary *fakeData = [[NSMutableDictionary alloc] initWithDictionary:data];
+        fakeData[@"styles"] = @{
+            @"top_margin" : @"0",
+            @"bottom_margin" : @"0",
+            @"left_margin" : @"0",
+            @"right_margin" : @"0",
+        };
+        [self parseContentData:fakeData];
         if (self.waitForTags) {
             return;
         }
         [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
         self.pendingHTMLContent = nil;
     };
+}
+
+- (void)parseContentData:(NSDictionary *)data {
+    self.pendingHTMLContent = data[@"html"];
+    self.maxDisplayTime = [data[@"display_duration"] doubleValue];
+    if (data[@"styles"]) {
+        // We are currently only allowing default margin or no margin.
+        // If we receive a number that isn't 0 we want to use default margin for now.
+        if (data[@"styles"][@"top_margin"]) {
+            self.topMarginModifier = [data[@"styles"][@"top_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        }
+        if (data[@"styles"][@"bottom_margin"]) {
+            self.bottomMarginModifier = [data[@"styles"][@"bottom_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        }
+        if (data[@"styles"][@"left_margin"]) {
+            self.leftMarginModifier = [data[@"styles"][@"left_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        }
+        if (data[@"styles"][@"right_margin"]) {
+            self.rightMarginModifier = [data[@"styles"][@"right_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        }
+    }
 }
 
 - (void)setWaitForTags:(BOOL)waitForTags {
@@ -316,18 +355,18 @@
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
     if (self.message.position == OSInAppMessageDisplayPositionFullScreen)
-        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing];
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:(self.topMarginModifier * -marginSpacing) + (self.bottomMarginModifier * -marginSpacing)];
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
     
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
     // Makes sure our webview is never taller than our screen.
-    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:-2.0f * marginSpacing].active = true;
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:(self.topMarginModifier * -marginSpacing) + (self.bottomMarginModifier * -marginSpacing)].active = true;
 
     // Pins the message view to the left & right
-    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing];
-    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing];
+    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing * self.leftMarginModifier];
+    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing * self.rightMarginModifier];
     
     // Ensure the message view is always centered horizontally
     [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
@@ -350,8 +389,10 @@
             self.view.window.frame = CGRectMake(0, 0, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
-            self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
-            self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top constant:marginSpacing];
+            self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
+                                                                               constant:marginSpacing * self.topMarginModifier];
+            self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
+                                                                                    constant:marginSpacing * self.topMarginModifier];
             break;
         case OSInAppMessageDisplayPositionBottom:
             if (@available(iOS 11, *)) {
@@ -362,8 +403,10 @@
             self.view.window.frame = CGRectMake(0, bannerMessageY, bannerWidth, bannerHeight);
 
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
-            self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
-            self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom constant:-marginSpacing];
+            self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
+                                                                                  constant:-marginSpacing * self.bottomMarginModifier];
+            self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
+                                                                                       constant:-marginSpacing * self.bottomMarginModifier];
             break;
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
