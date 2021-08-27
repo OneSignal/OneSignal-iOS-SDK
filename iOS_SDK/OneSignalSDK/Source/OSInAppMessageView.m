@@ -111,7 +111,8 @@
     
     // Setup WebView, delegates, and disable scrolling inside of the WebView
     self.webView = [[WKWebView alloc] initWithFrame:mainBounds configuration:configuration];
-    
+    self.webView.backgroundColor = [UIColor clearColor];
+    self.webView.opaque = NO;
     [self addSubview:self.webView];
     
     [self layoutIfNeeded];
