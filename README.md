@@ -7,7 +7,7 @@
 
 ---
 
-[OneSignal](https://www.onesignal.com) is a free push notification service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
+[OneSignal](https://www.onesignal.com) is a free email, sms, push notification, and in-app message service for mobile apps. This plugin makes it easy to integrate your native iOS app with OneSignal.
 
 <p align="center"><img src="https://app.onesignal.com/images/ios_10_notification_image.gif" width="400" alt="iOS Notification"></p>
 
