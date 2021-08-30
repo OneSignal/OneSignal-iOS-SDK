@@ -464,10 +464,10 @@
 		CACBAA9D218A6243000ACAA5 /* OSInAppMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA92218A6242000ACAA5 /* OSInAppMessageView.m */; };
 		CACBAA9E218A6243000ACAA5 /* OSInAppMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA92218A6242000ACAA5 /* OSInAppMessageView.m */; };
 		CACBAA9F218A6243000ACAA5 /* OSInAppMessageView.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA92218A6242000ACAA5 /* OSInAppMessageView.m */; };
-		CACBAAA0218A6243000ACAA5 /* OSInAppMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */; };
-		CACBAAA1218A6243000ACAA5 /* OSInAppMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */; };
-		CACBAAA2218A6243000ACAA5 /* OSInAppMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */; };
-		CACBAAA3218A6243000ACAA5 /* OSInAppMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */; };
+		CACBAAA0218A6243000ACAA5 /* OSInAppMessageInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = CACBAA93218A6243000ACAA5 /* OSInAppMessageInternal.h */; };
+		CACBAAA1218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA94218A6243000ACAA5 /* OSInAppMessageInternal.m */; };
+		CACBAAA2218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA94218A6243000ACAA5 /* OSInAppMessageInternal.m */; };
+		CACBAAA3218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA94218A6243000ACAA5 /* OSInAppMessageInternal.m */; };
 		CACBAAA4218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA95218A6243000ACAA5 /* OSInAppMessageViewController.m */; };
 		CACBAAA5218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA95218A6243000ACAA5 /* OSInAppMessageViewController.m */; };
 		CACBAAA6218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CACBAA95218A6243000ACAA5 /* OSInAppMessageViewController.m */; };
@@ -818,8 +818,8 @@
 		CACBAA90218A6242000ACAA5 /* OSMessagingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSMessagingController.h; sourceTree = "<group>"; };
 		CACBAA91218A6242000ACAA5 /* OSInAppMessageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageView.h; sourceTree = "<group>"; };
 		CACBAA92218A6242000ACAA5 /* OSInAppMessageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageView.m; sourceTree = "<group>"; };
-		CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSInAppMessage.h; sourceTree = "<group>"; };
-		CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessage.m; sourceTree = "<group>"; };
+		CACBAA93218A6243000ACAA5 /* OSInAppMessageInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageInternal.h; sourceTree = "<group>"; };
+		CACBAA94218A6243000ACAA5 /* OSInAppMessageInternal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageInternal.m; sourceTree = "<group>"; };
 		CACBAA95218A6243000ACAA5 /* OSInAppMessageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageViewController.m; sourceTree = "<group>"; };
 		CACBAAA7218A6280000ACAA5 /* OSJSONHandling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSJSONHandling.h; sourceTree = "<group>"; };
 		CACBAAA9218A65AE000ACAA5 /* InAppMessagingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InAppMessagingTests.m; sourceTree = "<group>"; };
@@ -1413,8 +1413,8 @@
 			children = (
 				CA47439B2190FEA80020DC8C /* OSTrigger.h */,
 				CA47439C2190FEA80020DC8C /* OSTrigger.m */,
-				CACBAA93218A6243000ACAA5 /* OSInAppMessage.h */,
-				CACBAA94218A6243000ACAA5 /* OSInAppMessage.m */,
+				CACBAA93218A6243000ACAA5 /* OSInAppMessageInternal.h */,
+				CACBAA94218A6243000ACAA5 /* OSInAppMessageInternal.m */,
 				CAB269D721B0B6F000F8A43C /* OSInAppMessageAction.h */,
 				CAB269D821B0B6F000F8A43C /* OSInAppMessageAction.m */,
 				CAB269DD21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h */,
@@ -1583,7 +1583,7 @@
 				7A1232A5235E179B002B6CE3 /* OSIndirectInfluence.h in Headers */,
 				91F58D7F1E7C7F5F0017D24D /* OneSignalNotificationSettingsIOS10.h in Headers */,
 				912412391E73342200E41FD7 /* OneSignalWebView.h in Headers */,
-				CACBAAA0218A6243000ACAA5 /* OSInAppMessage.h in Headers */,
+				CACBAAA0218A6243000ACAA5 /* OSInAppMessageInternal.h in Headers */,
 				91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */,
 				CAB269DF21B2038B00F8A43C /* OSInAppMessageBridgeEvent.h in Headers */,
 				9129C6BD1E89E7AB009CB6A0 /* OSSubscription.h in Headers */,
@@ -1884,7 +1884,7 @@
 				A6D7093D26962C95007B3347 /* OneSignalSetLanguageParameters.m in Sources */,
 				7AF9865E2447C13C00C36EAE /* OSInfluenceDataRepository.m in Sources */,
 				7AECE59E23675F6300537907 /* OSFocusTimeProcessorFactory.m in Sources */,
-				CACBAAA1218A6243000ACAA5 /* OSInAppMessage.m in Sources */,
+				CACBAAA1218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */,
 				CA63AFC32022670A00E340FB /* ReattemptRequest.m in Sources */,
 				912412221E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CACBAAA4218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */,
@@ -1985,7 +1985,7 @@
 				A63E9E3C26742B5F00EA273E /* LanguageContext.m in Sources */,
 				7AC8D3A924993A0F0023EDE8 /* OSDeviceState.m in Sources */,
 				CA810FD2202BA97600A60FED /* OSEmailSubscription.m in Sources */,
-				CACBAAA2218A6243000ACAA5 /* OSInAppMessage.m in Sources */,
+				CACBAAA2218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */,
 				7A674F1C2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
 				7AF9868124497BE100C36EAE /* OSOutcomeEventsV1Repository.m in Sources */,
 				7AFE856C2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */,
@@ -2112,7 +2112,7 @@
 				CAE2E5AA215D80380036FD32 /* OneSignalNotificationServiceExtensionHandler.m in Sources */,
 				4529DEDE1FA828E500CEAB1D /* NSDateOverrider.m in Sources */,
 				CA08FC871FE99BB4004C445F /* OneSignalClientOverrider.m in Sources */,
-				CACBAAA3218A6243000ACAA5 /* OSInAppMessage.m in Sources */,
+				CACBAAA3218A6243000ACAA5 /* OSInAppMessageInternal.m in Sources */,
 				7AF5174C24FE980400B076BC /* RemoteParamsTests.m in Sources */,
 				CACBAAA6218A6243000ACAA5 /* OSInAppMessageViewController.m in Sources */,
 				912412401E73342200E41FD7 /* UIApplicationDelegate+OneSignal.m in Sources */,

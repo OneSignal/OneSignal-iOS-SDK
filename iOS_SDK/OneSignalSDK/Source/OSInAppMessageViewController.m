@@ -97,7 +97,7 @@
 
 @implementation OSInAppMessageViewController
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate {
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage delegate:(id<OSInAppMessageViewControllerDelegate>)delegate {
     if (self = [super init]) {
         self.message = inAppMessage;
         self.delegate = delegate;
@@ -137,9 +137,8 @@
 
 - (void)applicationIsActive:(NSNotification *)notification {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Active"];
-
     // Animate the showing of the IAM when opening the app from background
-    [self animateAppearance];
+    [self animateAppearance:NO];
 }
 
 - (void)applicationIsInBackground:(NSNotification *)notification {
@@ -195,7 +194,7 @@
         if (!finished)
             return;
         
-        [self animateAppearance];
+        [self animateAppearance:YES];
     }];
 }
 
@@ -237,6 +236,7 @@
         if (self.waitForTags) {
             return;
         }
+        [self.delegate messageWillDisplay:self.message];
         [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
         self.pendingHTMLContent = nil;
     };
@@ -435,10 +435,12 @@
     // and we should bypass dismissal adjustments and animations and skip straight to the OSMessagingController callback for dismissing
     if (!self.didPageRenderingComplete) {
         [self dismissViewControllerAnimated:false completion:nil];
-        [self.delegate messageViewControllerWasDismissed];
+        [self.delegate messageViewControllerWasDismissed:self.message displayed:NO];
         return;
     }
         
+    [self.delegate messageViewControllerWillDismiss:self.message];
+    
     // Inactivate the current Y constraints
     self.finalYConstraint.active = false;
     self.initialYConstraint.active = false;
@@ -477,7 +479,7 @@
             return;
 
         self.didPageRenderingComplete = false;
-        [self.delegate messageViewControllerWasDismissed];
+        [self.delegate messageViewControllerWasDismissed:self.message displayed:YES];
     }];
 }
 
@@ -487,13 +489,17 @@
  For banners the initialYConstraint is set to LOW_CONSTRAINT_PRIORITY
  For center modal and full screen, the transform is set to CGAffineTransformIdentity (original scale)
  */
-- (void)animateAppearance {
+- (void)animateAppearance:(BOOL)firstDisplay {
     self.initialYConstraint.priority = LOW_CONSTRAINT_PRIORITY;
     
     [UIView animateWithDuration:0.3f animations:^{
         self.messageView.hidden = false;
         self.messageView.transform = CGAffineTransformIdentity;
         [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        if (firstDisplay) {
+            [self.delegate messageViewControllerDidDisplay:self.message];
+        }
     }];
 }
 
@@ -751,14 +757,14 @@
             [self addConstraintsForMessage];
             
             // Reanimate and show IAM
-            [self animateAppearance];
+            [self animateAppearance:NO];
         }];
     }];
 }
 
 #pragma mark OSInAppMessageViewDelegate Methods
 - (void)messageViewFailedToLoadMessageContent {
-    [self.delegate messageViewControllerWasDismissed];
+    [self.delegate messageViewControllerWasDismissed:self.message displayed:NO];
 }
 
 - (void)messageViewDidFailToProcessAction {

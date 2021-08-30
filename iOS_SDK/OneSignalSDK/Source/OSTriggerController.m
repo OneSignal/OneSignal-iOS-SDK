@@ -81,7 +81,7 @@
  *
  * If trigger key is part of message triggers, then return true, otherwise false
  */
-- (BOOL)hasSharedTriggers:(OSInAppMessage *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys {
+- (BOOL)hasSharedTriggers:(OSInAppMessageInternal *)message newTriggersKeys:(NSArray<NSString *> *)newTriggersKeys {
     for (NSString *triggerKey in newTriggersKeys) {
         for (NSArray <OSTrigger *> *andConditions in message.triggers) {
             for (OSTrigger *trigger in andConditions) {
@@ -102,7 +102,7 @@
  *
  * If message has only dynamic trigger return true, otherwise false
  */
-- (BOOL)messageHasOnlyDynamicTriggers:(OSInAppMessage *)message {
+- (BOOL)messageHasOnlyDynamicTriggers:(OSInAppMessageInternal *)message {
     if (message.triggers == nil || message.triggers.count == 0)
         return false;
 
@@ -136,7 +136,7 @@
 
  Supports both String and Numeric value types & comparisons
  */
-- (BOOL)messageMatchesTriggers:(OSInAppMessage *)message {
+- (BOOL)messageMatchesTriggers:(OSInAppMessageInternal *)message {
     if (message.triggers.count == 0)
         return true;
     for (NSArray <OSTrigger *> *conditions in message.triggers) {
@@ -181,7 +181,7 @@
     return false;
 }
 
-- (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessage *)message {
+- (BOOL)evaluateTrigger:(OSTrigger *)trigger forMessage:(OSInAppMessageInternal *)message {
     if (!self.triggers[trigger.property] && [trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_CUSTOM]) {
         // The value doesn't exist
         

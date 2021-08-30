@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSTrigger.h"
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSMessagingController.h"
 
 #define OS_TEST_MESSAGE_ID @"a4b3gj7f-d8cc-11e4-bed1-df8f05be55ba"
@@ -53,14 +53,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSInAppMessageTestHelper : NSObject
 + (NSDictionary *)testActionJson;
-+ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
-+ (OSInAppMessage *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
-+ (OSInAppMessage *)testMessage;
-+ (OSInAppMessage *)testMessageWithLiquid;
-+ (OSInAppMessage *)testMessageWithRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
-+ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
-+ (OSInAppMessage *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers withRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
-+ (OSInAppMessage *)testMessageWithPastEndTime:(BOOL)pastEndTime;
++ (OSInAppMessageInternal *)testMessageWithTriggersJson:(NSArray<NSDictionary *> *)triggers;
++ (OSInAppMessageInternal *)testMessageWithTriggersJson:(NSArray *)triggers redisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
++ (OSInAppMessageInternal *)testMessage;
++ (OSInAppMessageInternal *)testMessageWithLiquid;
++ (OSInAppMessageInternal *)testMessageWithRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
++ (OSInAppMessageInternal *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers;
++ (OSInAppMessageInternal *)testMessageWithTriggers:(NSArray <NSArray<OSTrigger *> *> *)triggers withRedisplayLimit:(NSInteger)limit delay:(NSNumber *)delay;
++ (OSInAppMessageInternal *)testMessageWithPastEndTime:(BOOL)pastEndTime;
 + (NSDictionary *)testRegistrationJsonWithMessages:(NSArray<NSDictionary *> *)messages;
 + (NSDictionary *)testMessageJsonWithTriggerPropertyName:(NSString *)property withId:(NSString *)triggerId withOperator:(OSTriggerOperatorType)type withValue:(id)value;
 + (NSDictionary*)testInAppMessageGetContainsWithHTML:(NSString *)html;

@@ -26,7 +26,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (weak, nonatomic, nullable) id<OSInAppMessageViewDelegate> delegate;
 
-- (instancetype _Nonnull)initWithMessage:(OSInAppMessage *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
+- (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
 - (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion;
 - (void)setupWebViewConstraints;
 - (void)loadReplacementURL:(NSURL *)url;

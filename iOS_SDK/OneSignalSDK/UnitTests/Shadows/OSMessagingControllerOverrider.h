@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OSMessagingController.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -34,26 +34,29 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSMessagingControllerOverrider : NSObject
 
 + (void)dismissCurrentMessage;
-+ (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay;
++ (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)messagesForRedisplay;
 + (void)setSeenMessages:(NSMutableSet <NSString *> *)seenMessages;
 + (void)setMockDateGenerator:(NSTimeInterval(^)(void))testDateGenerator;
 + (BOOL)isInAppMessageShowing;
-+ (NSArray <OSInAppMessage *> *)messageDisplayQueue;
-+ (NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay;
++ (NSArray <OSInAppMessageInternal *> *)messageDisplayQueue;
++ (NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)messagesForRedisplay;
 
 @end
 
 @interface OSMessagingController (Tests)
 
 - (void)resetState;
-- (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action;
-- (void)persistInAppMessageForRedisplay:(OSInAppMessage *)message;
+- (void)messageViewDidSelectAction:(OSInAppMessageInternal *)message withAction:(OSInAppMessageAction *)action;
+- (void)persistInAppMessageForRedisplay:(OSInAppMessageInternal *)message;
 - (void)messageViewControllerWasDismissed;
 - (void)setLastTimeGenerator:(NSTimeInterval(^)(void))dateGenerator;
-- (NSArray<OSInAppMessage *> *)getInAppMessages;
-- (NSMutableDictionary <NSString *, OSInAppMessage *> *)getRedisplayedInAppMessages;
-- (NSMutableArray<OSInAppMessage *> *)getDisplayedMessages;
-
+- (NSArray<OSInAppMessageInternal *> *)getInAppMessages;
+- (NSMutableDictionary <NSString *, OSInAppMessageInternal *> *)getRedisplayedInAppMessages;
+- (NSMutableArray<OSInAppMessageInternal *> *)getDisplayedMessages;
+- (void)onWillDisplayInAppMessage:(OSInAppMessageInternal *)message;
+- (void)onDidDisplayInAppMessage:(OSInAppMessageInternal *)message;
+- (void)onWillDismissInAppMessage:(OSInAppMessageInternal *)message;
+- (void)onDidDismissInAppMessage:(OSInAppMessageInternal *)message;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -26,12 +26,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 #import "OneSignalClient.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OSInAppMessage (OSInAppMessageController)
+@interface OSInAppMessageInternal (OSInAppMessageController)
 
 - (void)loadMessageHTMLContentWithResult:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock;
 - (void)loadPreviewMessageHTMLContentWithUUID:(NSString * _Nonnull)previewUUID success:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock;

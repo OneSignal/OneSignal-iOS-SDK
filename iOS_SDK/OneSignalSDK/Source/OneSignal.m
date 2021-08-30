@@ -83,7 +83,7 @@
 #import "OSTrackerFactory.h"
 #import "OSMessagingController.h"
 #import "OSInAppMessageAction.h"
-#import "OSInAppMessage.h"
+#import "OSInAppMessageInternal.h"
 
 #import "OSUserState.h"
 #import "OSLocationState.h"
@@ -719,6 +719,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
+}
+
++ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
+    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
 /*
@@ -1960,7 +1965,7 @@ static BOOL _registerUserSuccessful = false;
 
     if (messagesJson) {
         for (NSDictionary *messageJson in messagesJson) {
-            let message = [OSInAppMessage instanceWithJson:messageJson];
+            let message = [OSInAppMessageInternal instanceWithJson:messageJson];
             if (message) {
                 [messages addObject:message];
             }
@@ -3004,6 +3009,7 @@ static NSString *_lastnonActiveMessageId;
     injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
     
     [self setupUNUserNotificationCenterDelegate];
+    [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
 }
 

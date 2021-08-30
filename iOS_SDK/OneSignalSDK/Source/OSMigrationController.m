@@ -36,6 +36,7 @@ THE SOFTWARE.
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessagingDefines.h"
 #import "OneSignalHelper.h"
+#import "OSInAppMessageInternal.h"
 
 @interface OneSignal ()
 + (OSInfluenceDataRepository *)influenceDataRepository;
@@ -47,6 +48,7 @@ THE SOFTWARE.
 - (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
     [self migrateIAMRedisplayCache];
+    [self migrateToOSInAppMessageInternal];
     [self saveCurrentSDKVersion];
 }
 
@@ -106,6 +108,36 @@ THE SOFTWARE.
             //Clear the cached redisplay dictionary of bad data
             [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY
                                                                     withValue:nil];
+        }
+    }
+}
+
+// OSInAppMessage has been made public
+// The old class has been renamed to OSInAppMessageInternal
+// We must set the new class name to the unarchiver to avoid crashing
+- (void)migrateToOSInAppMessageInternal {
+    let nameChangeVersion = 30700;
+    long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    if (sdkVersion < nameChangeVersion) {
+        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
+
+        [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
+        // Messages Array
+        NSArray<OSInAppMessageInternal *> *messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
+                                                                                          defaultValue:[NSArray<OSInAppMessageInternal *> new]];
+        if (messages && messages.count) {
+            [NSKeyedArchiver setClassName:@"OSInAppMessageInternal" forClass:[OSInAppMessageInternal class]];
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:messages];
+        } else {
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_MESSAGES_ARRAY withValue:nil];
+        }
+        
+        // Redisplay Messages Dict
+        NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages = [[NSMutableDictionary alloc] initWithDictionary:[OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:[NSMutableDictionary new]]];
+        if (redisplayedInAppMessages && redisplayedInAppMessages.count) {
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:redisplayedInAppMessages];
+        } else {
+            [OneSignalUserDefaults.initStandard saveCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY withValue:nil];
         }
     }
 }

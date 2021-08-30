@@ -30,7 +30,7 @@
 #import "OSInAppMessagingDefines.h"
 
 
-@implementation OSInAppMessage (OSInAppMessageController)
+@implementation OSInAppMessageInternal (OSInAppMessageController)
 
 - (void)loadMessageHTMLContentWithResult:(OSResultSuccessBlock _Nullable)successBlock failure:(OSFailureBlock _Nullable)failureBlock {
     let variantId = [self variantId];
