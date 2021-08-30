@@ -93,13 +93,9 @@
 // BOOL to track if the message content has loaded before tags have finished loading for liquid templating
 @property (nonatomic, nullable) NSString *pendingHTMLContent;
 
-@property (nonatomic) double leftMarginModifier;
+@property (nonatomic) BOOL useHeightMargin;
 
-@property (nonatomic) double rightMarginModifier;
-
-@property (nonatomic) double topMarginModifier;
-
-@property (nonatomic) double bottomMarginModifier;
+@property (nonatomic) BOOL useWidthMargin;
 
 @end
 
@@ -109,10 +105,8 @@
     if (self = [super init]) {
         self.message = inAppMessage;
         self.delegate = delegate;
-        self.topMarginModifier = 1.0;
-        self.bottomMarginModifier = 1.0;
-        self.leftMarginModifier = 1.0;
-        self.rightMarginModifier = 1.0;
+        self.useHeightMargin = YES;
+        self.useWidthMargin = YES;
     }
     
     return self;
@@ -260,17 +254,11 @@
     if (styles) {
         // We are currently only allowing default margin or no margin.
         // If we receive a number that isn't 0 we want to use default margin for now.
-        if (styles[@"top_margin"]) {
-            self.topMarginModifier = [styles[@"top_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        if (styles[@"remove_height_margin"]) {
+            self.useHeightMargin = ![styles[@"remove_height_margin"] boolValue];
         }
-        if (styles[@"bottom_margin"]) {
-            self.bottomMarginModifier = [styles[@"bottom_margin"] doubleValue] ==  0 ? 0 : 1.0;
-        }
-        if (styles[@"left_margin"]) {
-            self.leftMarginModifier = [styles[@"left_margin"] doubleValue] ==  0 ? 0 : 1.0;
-        }
-        if (styles[@"right_margin"]) {
-            self.rightMarginModifier = [styles[@"right_margin"] doubleValue] ==  0 ? 0 : 1.0;
+        if (styles[@"remove_width_margin"]) {
+            self.useWidthMargin = ![styles[@"remove_width_margin"] boolValue];
         }
     }
 }
@@ -349,18 +337,18 @@
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
     if (self.message.position == OSInAppMessageDisplayPositionFullScreen)
-        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:(self.topMarginModifier * -marginSpacing) + (self.bottomMarginModifier * -marginSpacing)];
+        self.heightConstraint = [self.messageView.heightAnchor constraintEqualToAnchor:height multiplier:1.0 constant:(self.useHeightMargin ? (2*-marginSpacing) : 0)];
     else
         self.heightConstraint = [self.messageView.heightAnchor constraintEqualToConstant:self.message.height.doubleValue];
     
     // The aspect ratio for each type (ie. Banner) determines the height normally
     // However the actual height of the HTML content takes priority.
     // Makes sure our webview is never taller than our screen.
-    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:(self.topMarginModifier * -marginSpacing) + (self.bottomMarginModifier * -marginSpacing)].active = true;
+    [self.messageView.heightAnchor constraintLessThanOrEqualToAnchor:height multiplier:1.0 constant:(self.useHeightMargin ? (2*-marginSpacing) : 0)].active = true;
 
     // Pins the message view to the left & right
-    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:marginSpacing * self.leftMarginModifier];
-    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:-marginSpacing * self.rightMarginModifier];
+    let leftConstraint = [self.messageView.leadingAnchor constraintEqualToAnchor:leading constant:(self.useWidthMargin ? marginSpacing : 0)];
+    let rightConstraint = [self.messageView.trailingAnchor constraintEqualToAnchor:trailing constant:(self.useWidthMargin ? -marginSpacing : 0)];
     
     // Ensure the message view is always centered horizontally
     [self.messageView.centerXAnchor constraintEqualToAnchor:center].active = true;
@@ -384,9 +372,9 @@
 
             self.initialYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:self.view.topAnchor constant:-8.0f];
             self.finalYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
-                                                                               constant:marginSpacing * self.topMarginModifier];
+                                                                               constant:(self.useHeightMargin ? marginSpacing : 0)];
             self.panVerticalConstraint = [self.messageView.topAnchor constraintEqualToAnchor:top
-                                                                                    constant:marginSpacing * self.topMarginModifier];
+                                                                                    constant:(self.useHeightMargin ? marginSpacing : 0)];
             break;
         case OSInAppMessageDisplayPositionBottom:
             if (@available(iOS 11, *)) {
@@ -398,9 +386,9 @@
 
             self.initialYConstraint = [self.messageView.topAnchor constraintEqualToAnchor:self.view.bottomAnchor constant:8.0f];
             self.finalYConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
-                                                                                  constant:-marginSpacing * self.bottomMarginModifier];
+                                                                                  constant:(self.useHeightMargin ? -marginSpacing : 0)];
             self.panVerticalConstraint = [self.messageView.bottomAnchor constraintEqualToAnchor:bottom
-                                                                                       constant:-marginSpacing * self.bottomMarginModifier];
+                                                                                       constant:(self.useHeightMargin ? -marginSpacing : 0)];
             break;
         case OSInAppMessageDisplayPositionFullScreen:
         case OSInAppMessageDisplayPositionCenterModal:
