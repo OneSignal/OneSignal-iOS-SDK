@@ -94,7 +94,7 @@
 
 - (void)overrideShowMessage:(OSInAppMessageInternal *)message {
     dispatch_async(dispatch_get_main_queue(), ^{
-        let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.self];
+        let viewController = [[OSInAppMessageViewController alloc] initWithMessage:message delegate:OSMessagingController.sharedInstance];
         [viewController viewDidLoad];
         [OSMessagingController.sharedInstance webViewContentFinishedLoading:message];
     });
@@ -107,7 +107,7 @@
 }
 
 + (void)dismissCurrentMessage {
-    [OSMessagingController.sharedInstance messageViewControllerWasDismissed];
+    [OSMessagingController.sharedInstance messageViewControllerWasDismissed: self.messageDisplayQueue.firstObject displayed:YES];
 }
 
 + (BOOL)isInAppMessageShowing {
