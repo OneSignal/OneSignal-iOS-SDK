@@ -698,16 +698,12 @@
     XCTAssertTrue(didAccept);
 }
 
+// We should always register right away regardless of notification prompt status
 - (void)testPromptedButNeveranswerNotificationPrompt {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
     [OneSignal promptForPushNotificationsWithUserResponse:nil];
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
-    // Don't make a network call right away
-    XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest);
-    
-    // Triggers the 30 fallback to register device right away.
-    [OneSignal performSelector:NSSelectorFromString(@"registerUser")];
     [UnitTestCommonMethods runBackgroundThreads];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
@@ -1498,26 +1494,25 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (void)testSendTagsBeforeRegisterComplete {
-    [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
-    [UnitTestCommonMethods initOneSignal];
+    [OneSignal sendTag:@"key" value:@"value"];
     [UnitTestCommonMethods foregroundApp];
     [UnitTestCommonMethods runBackgroundThreads];
     
     NSObjectOverrider.selectorNamesForInstantOnlyForFirstRun = [@[@"sendTagsToServer"] mutableCopy];
     
-    [OneSignal sendTag:@"key" value:@"value"];
+    
     [UnitTestCommonMethods runBackgroundThreads];
     
     // Do not try to send tag update yet as there isn't a player_id yet.
-    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 1);
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 0);
     
-    [UnitTestCommonMethods answerNotificationPrompt:false];
+    [UnitTestCommonMethods initOneSignal];
     [UnitTestCommonMethods runBackgroundThreads];
     
     // A single POST player create call should be made with tags included.
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"tags"][@"key"], @"value");
-    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @0);
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"notification_types"], @15);
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], @"0000000000000000000000000000000000000000000000000000000000000000");
 }
 
