@@ -257,7 +257,7 @@
     
     NSDictionary<NSString *, OSInAppMessageInternal *>*retrievedDict = [OneSignalUserDefaults.initStandard
                                                                 getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
-    XCTAssertEqualObjects(emptyDict, retrievedDict);
+    XCTAssertEqualObjects(nil, retrievedDict);
 }
 
 - (void)testIAMCachedCodeableMigration {
