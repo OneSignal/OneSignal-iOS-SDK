@@ -3157,6 +3157,71 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(notification.actionButtons[0][@"templateIcon"], @"myImage/thumbsup");
 }
 
+- (void)testCreateActionForButtonsWithIcon {
+    if (@available(iOS 15.0, *)) {
+        NSDictionary *aps = @{
+                            @"aps": @{
+                                @"content-available": @1,
+                                @"mutable-content": @1,
+                                @"alert": @"Message Body",
+                            },
+                            @"os_data": @{
+                                @"i": @"notif id",
+                                @"ti": @"templateId123",
+                                @"tn": @"Template name",
+                                @"buttons": @[@{
+                                    @"i": @"id1",
+                                    @"n": @"text1",
+                                    @"path": @"myImage/thumbsup",
+                                    @"icon_type": @"template"
+                                }]
+                            }};
+        OSNotification *notification = [OSNotification parseWithApns:aps];
+        UNNotificationAction *action = [OneSignalHelper createActionForButton:notification.actionButtons[0]];
+        XCTAssertNotNil(action.icon);
+        
+        aps = @{
+                @"aps": @{
+                    @"content-available": @1,
+                    @"mutable-content": @1,
+                    @"alert": @"Message Body",
+                },
+                @"os_data": @{
+                    @"i": @"notif id",
+                    @"ti": @"templateId123",
+                    @"tn": @"Template name",
+                    @"buttons": @[@{
+                        @"i": @"id1",
+                        @"n": @"text1",
+                        @"path": @"hand.thumbsup",
+                        @"icon_type": @"system"
+                    }]
+                }};
+        notification = [OSNotification parseWithApns:aps];
+        action = [OneSignalHelper createActionForButton:notification.actionButtons[0]];
+        XCTAssertNotNil(action.icon);
+        
+        aps = @{
+                @"aps": @{
+                    @"content-available": @1,
+                    @"mutable-content": @1,
+                    @"alert": @"Message Body",
+                },
+                @"os_data": @{
+                    @"i": @"notif id",
+                    @"ti": @"templateId123",
+                    @"tn": @"Template name",
+                    @"buttons": @[@{
+                        @"i": @"id1",
+                        @"n": @"text1"
+                    }]
+                }};
+        notification = [OSNotification parseWithApns:aps];
+        action = [OneSignalHelper createActionForButton:notification.actionButtons[0]];
+        XCTAssertNil(action.icon);
+    }
+}
+
 - (void)testNotificationJson {
     NSDictionary *aps = @{
                         @"aps": @{
