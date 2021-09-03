@@ -169,10 +169,20 @@
             continue;
         }
         
-        [buttonArray addObject: @{
-            @"text" : button[@"n"],
-            @"id" : (button[@"i"] ?: button[@"n"])
-        }];
+        NSMutableDictionary *actionDict = [NSMutableDictionary new];
+        actionDict[@"text"] = button[@"n"];
+        actionDict[@"id"] = button[@"i"] ?: button[@"n"];
+        
+        // Parse Action Icon into system or template icon
+        if (button[@"icon_type"] && button[@"path"]) {
+            if ([button[@"icon_type"] isEqualToString:@"system"]) {
+                actionDict[@"systemIcon"] = button[@"path"];
+            } else if ([button[@"icon_type"] isEqualToString:@"custom"]) {
+                actionDict[@"templateIcon"] = button[@"path"];
+            }
+        }
+        
+        [buttonArray addObject: actionDict];
     }
     
     _actionButtons = buttonArray;
