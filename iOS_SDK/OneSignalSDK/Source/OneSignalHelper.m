@@ -566,6 +566,25 @@ static OneSignal* singleInstance = nil;
     return [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
 }
 
++ (UNNotificationAction *)createActionForButton:(NSDictionary *)button {
+    if (@available(iOS 15.0, *)) {
+        UNNotificationActionIcon *icon;
+        if (button[@"systemIcon"]) {
+            icon = [UNNotificationActionIcon iconWithSystemImageName:button[@"systemIcon"]];
+        } else if (button[@"templateIcon"]) {
+            icon = [UNNotificationActionIcon iconWithTemplateImageName:button[@"templateIcon"]];
+        }
+        return [UNNotificationAction actionWithIdentifier:button[@"id"]
+                                                    title:button[@"text"]
+                                                  options:UNNotificationActionOptionForeground
+                                                     icon:icon];
+    } else {
+        return [UNNotificationAction actionWithIdentifier:button[@"id"]
+                                                    title:button[@"text"]
+                                                  options:UNNotificationActionOptionForeground];
+    }
+}
+
 + (void)addActionButtons:(OSNotification*)notification
    toNotificationContent:(UNMutableNotificationContent*)content {
     if (!notification.actionButtons || notification.actionButtons.count == 0)
@@ -573,9 +592,7 @@ static OneSignal* singleInstance = nil;
     
     let actionArray = [NSMutableArray new];
     for(NSDictionary* button in notification.actionButtons) {
-        let action = [UNNotificationAction actionWithIdentifier:button[@"id"]
-                                                          title:button[@"text"]
-                                                        options:UNNotificationActionOptionForeground];
+        let action = [self createActionForButton:button];
         [actionArray addObject:action];
     }
     
