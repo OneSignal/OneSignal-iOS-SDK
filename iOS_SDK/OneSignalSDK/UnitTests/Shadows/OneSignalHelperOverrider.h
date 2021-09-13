@@ -28,6 +28,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import "OneSignalHelper.h"
+
+@interface OneSignalHelper (Tests)
++ (UNNotificationAction *)createActionForButton:(NSDictionary *)button;
+@end
 
 @interface OneSignalHelperOverrider : NSObject
 + (void)reset;

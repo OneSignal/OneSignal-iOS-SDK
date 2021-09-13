@@ -566,6 +566,51 @@ static OneSignal* singleInstance = nil;
     return [UNNotificationRequest requestWithIdentifier:identifier content:content trigger:trigger];
 }
 
++ (UNNotificationAction *)createActionForButton:(NSDictionary *)button {
+    NSString *buttonId = button[@"id"];
+    NSString *buttonText = button[@"text"];
+    
+    if (@available(iOS 15.0, *)) {
+        // Using reflection for Xcode versions lower than 13
+        id icon; // UNNotificationActionIcon
+        let UNNotificationActionIconClass = NSClassFromString(@"UNNotificationActionIcon");
+        if (UNNotificationActionIconClass) {
+            if (button[@"systemIcon"]) {
+                icon = [UNNotificationActionIconClass performSelector:@selector(iconWithSystemImageName:)
+                                                           withObject:button[@"systemIcon"]];
+            } else if (button[@"templateIcon"]) {
+                icon = [UNNotificationActionIconClass performSelector:@selector(iconWithTemplateImageName:)
+                                                           withObject:button[@"templateIcon"]];
+            }
+        }
+        
+        // We need to use NSInvocation because performSelector only allows up to 2 arguments
+        SEL actionSelector = NSSelectorFromString(@"actionWithIdentifier:title:options:icon:");
+        UNNotificationAction * __unsafe_unretained action;
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UNNotificationAction methodSignatureForSelector:actionSelector]];
+        [invocation setTarget:[UNNotificationAction class]];
+        [invocation setSelector:actionSelector];
+        /*
+         From Apple's Documentation on NSInvocation:
+         Indices 0 and 1 indicate the hidden arguments self and _cmd, respectively;
+         you should set these values directly with the target and selector properties.
+         Use indices 2 and greater for the arguments normally passed in a message.
+        */
+        NSUInteger actionOption = UNNotificationActionOptionForeground;
+        [invocation setArgument:&buttonId atIndex:2];
+        [invocation setArgument:&buttonText atIndex:3];
+        [invocation setArgument:&actionOption atIndex:4];
+        [invocation setArgument:&icon atIndex:5];
+        [invocation invoke];
+        [invocation getReturnValue:&action];
+        return action;
+    } else {
+        return [UNNotificationAction actionWithIdentifier:buttonId
+                                                    title:buttonText
+                                                  options:UNNotificationActionOptionForeground];
+    }
+}
+
 + (void)addActionButtons:(OSNotification*)notification
    toNotificationContent:(UNMutableNotificationContent*)content {
     if (!notification.actionButtons || notification.actionButtons.count == 0)
@@ -573,9 +618,7 @@ static OneSignal* singleInstance = nil;
     
     let actionArray = [NSMutableArray new];
     for(NSDictionary* button in notification.actionButtons) {
-        let action = [UNNotificationAction actionWithIdentifier:button[@"id"]
-                                                          title:button[@"text"]
-                                                        options:UNNotificationActionOptionForeground];
+        let action = [self createActionForButton:button];
         [actionArray addObject:action];
     }
     
