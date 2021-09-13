@@ -189,12 +189,20 @@
     if (aps[@"thread-id"]) {
         _threadId = (NSString *)aps[@"thread-id"];
     }
+
+    if (aps[@"relevance-score"]) {
+        _relevanceScore = (NSNumber *)aps[@"relevance-score"];
+    }
+    
+    if (aps[@"interruption-level"]) {
+        _interruptionLevel = (NSString *)aps[@"interruption-level"];
+    }
     
     _category = aps[@"category"];
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat: @"notificationId=%@ templateId=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _rawPayload];
+    return [NSString stringWithFormat: @"notificationId=%@ templateId=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ relevanceScore=%@ interruptionLevel=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _relevanceScore, _interruptionLevel, _rawPayload];
 }
 
 - (NSDictionary *)jsonRepresentation {
@@ -253,6 +261,12 @@
     
     if (self.category)
         [obj setObject:self.category forKeyedSubscript: @"category"];
+    
+    if (self.relevanceScore)
+        [obj setObject:self.relevanceScore forKeyedSubscript: @"relevanceScore"];
+    
+    if (self.interruptionLevel)
+        [obj setObject:self.interruptionLevel forKeyedSubscript: @"interruptionLevel"];
 
     return obj;
 }
