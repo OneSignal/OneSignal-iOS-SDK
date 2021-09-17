@@ -33,6 +33,8 @@
 
 #import "OneSignalCommonDefines.h"
 
+#import "OneSignalUserDefaults.h"
+
 @implementation OSNotification
 
  OSNotificationDisplayResponse _completion;
@@ -297,7 +299,23 @@
 }
 
  - (OSNotificationDisplayResponse)getCompletionBlock {
+     /*
+      Maybe we need to store the badgeCount/increment number at this point
+      so that we know how much to subtract by in the NSE's cache
+      */
+     NSInteger badgeCount = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_BADGE_KEY defaultValue:0];
+     NSInteger previousBadgeCount = 0;
+     if (self.badgeIncrement) {
+         previousBadgeCount = badgeCount - self.badgeIncrement;
+     }
      OSNotificationDisplayResponse block = ^(OSNotification *notification){
+         /*
+          If notification is null here then display was cancelled and we need to
+          reset the badge count to the value prior to receipt of this notif
+          */
+         if (!notification) {
+             [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+         }
          [self complete:notification];
      };
      return block;
