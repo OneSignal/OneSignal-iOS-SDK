@@ -160,6 +160,7 @@
 #define ONESIGNAL_DISABLE_BADGE_CLEARING @"OneSignal_disable_badge_clearing"
 #define ONESIGNAL_APP_GROUP_NAME_KEY @"OneSignal_app_groups_key"
 #define ONESIGNAL_BADGE_KEY @"onesignalBadgeCount"
+#define ONESIGNAL_PREVIOUS_BADGE_KEY @"onesignalPreviousBadgeCount"
 
 // Firebase
 #define ONESIGNAL_FB_ENABLE_FIREBASE @"OS_ENABLE_FIREBASE_ANALYTICS"

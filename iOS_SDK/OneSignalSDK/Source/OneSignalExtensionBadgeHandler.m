@@ -77,6 +77,8 @@
 + (void)updateCachedBadgeValue:(NSInteger)value {
     // Since badge logic can be executed in an extension, we need to use app groups to get
     //  a shared NSUserDefaults from the app group suite name
+    NSInteger previousValue = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_BADGE_KEY defaultValue:0];
+    [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_PREVIOUS_BADGE_KEY withValue:previousValue];
     [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:value];
 }
 
