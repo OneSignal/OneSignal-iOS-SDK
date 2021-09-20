@@ -31,12 +31,14 @@
 #import "OSCachedUniqueOutcome.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
+#import <OneSignalSwift/OneSignalSwift-Swift.h>
 
 @implementation OneSignalCacheCleaner
 
 + (void)cleanCachedUserData {
     [self cleanUniqueOutcomeNotifications];
     [OneSignalHelper clearCachedMedia];
+    [OneSignalSwift swiftTest];
 }
 
 /*

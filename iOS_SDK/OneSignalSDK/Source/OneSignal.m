@@ -39,7 +39,6 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "NSString+OneSignal.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
-#import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotification+Internal.h"
 #import "OSOutcomeEventsFactory.h"
 #import "OSOutcomeEventsCache.h"
