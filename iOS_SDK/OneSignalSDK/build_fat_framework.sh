@@ -45,7 +45,7 @@ mv OneSignal OneSignal.framework
 
 cd $FINAL_FRAMEWORK
 
-declare -a files=("Headers" "Modules" "OneSignal")
+declare -a files=("Headers" "Modules" "OneSignal" "Frameworks")
 
 # Create the Versions folders
 mkdir Versions
