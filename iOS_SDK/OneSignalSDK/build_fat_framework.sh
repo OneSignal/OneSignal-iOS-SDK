@@ -16,17 +16,14 @@ XCODEBUILD_11_0=/Applications/Xcode11.0.app/Contents/Developer/usr/bin/xcodebuil
 #       However variant=Mac Catalyst needs to be be Xcode 11.0
 $XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphonesimulator" ARCHS="x86_64 i386" -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
 $XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e"  -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
-$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} ARCHS="x86_64h" VALID_ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE=${BUILD_TYPE} -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
 
 USER=$(id -un)
 DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/${DERIVED_DATA_RELATIVE_DIR}"
 
 # Use Debug configuration to expose symbols
-CATALYST_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-maccatalyst"
 SIMULATOR_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-iphonesimulator"
 IPHONE_DIR="${DERIVED_DATA_ONESIGNAL_DIR}/Debug-iphoneos"
 
-CATALYST_OUTPUT_DIR=${CATALYST_DIR}/OneSignal.framework
 SIMULATOR_OUTPUT_DIR=${SIMULATOR_DIR}/OneSignal.framework
 IPHONE_OUTPUT_DIR=${IPHONE_DIR}/OneSignal.framework
 
@@ -37,7 +34,7 @@ rm -rf "${UNIVERSAL_DIR}"
 mkdir "${UNIVERSAL_DIR}"
 
 echo "> Making Final OneSignal with all Architecture. iOS, iOS Simulator(x86_64), Mac Catalyst(x86_64h)"
-lipo -create -output "$UNIVERSAL_DIR"/OneSignal "${IPHONE_OUTPUT_DIR}"/OneSignal "${SIMULATOR_OUTPUT_DIR}"/OneSignal "${CATALYST_OUTPUT_DIR}"/OneSignal
+lipo -create -output "$UNIVERSAL_DIR"/OneSignal "${IPHONE_OUTPUT_DIR}"/OneSignal "${SIMULATOR_OUTPUT_DIR}"/OneSignal
 
 echo "> Copying Framework Structure to Universal Output Directory"
 cp -a ${IPHONE_OUTPUT_DIR} ${UNIVERSAL_DIR}
