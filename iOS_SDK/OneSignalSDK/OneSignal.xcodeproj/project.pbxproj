@@ -503,8 +503,6 @@
 		DE995AE326F8F303002F9395 /* OneSignalNotificationCategoryController.h in Headers */ = {isa = PBXBuildFile; fileRef = CAAEA68621ED68A40049CF15 /* OneSignalNotificationCategoryController.h */; };
 		DE995AED26F8F604002F9395 /* OneSignalSwift.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE995AEC26F8F604002F9395 /* OneSignalSwift.docc */; };
 		DE995AF326F8F62C002F9395 /* OneSignalSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE995AF226F8F62C002F9395 /* OneSignalSwift.swift */; };
-		DE995AF426F8F77E002F9395 /* OneSignalSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE995AE926F8F604002F9395 /* OneSignalSwift.framework */; };
-		DE995AF526F8F77E002F9395 /* OneSignalSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE995AE926F8F604002F9395 /* OneSignalSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE9A5DAA25D1FD6B00FCEC21 /* OSPlayerTags.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9A5DA925D1FD6B00FCEC21 /* OSPlayerTags.h */; };
 		DE9A5DB325D1FD8000FCEC21 /* OSPlayerTags.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */; };
 		DE9A5DB425D1FD8000FCEC21 /* OSPlayerTags.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */; };
@@ -528,13 +526,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = DE995ABC26F8EB11002F9395;
 			remoteInfo = OneSignalCore;
-		};
-		DE995AF626F8F77E002F9395 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE995AE826F8F604002F9395;
-			remoteInfo = OneSignalSwift;
 		};
 		DEF5CD11253932260003E9CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -563,7 +554,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				DE995AC726F8EB38002F9395 /* OneSignalCore.framework in Embed Frameworks */,
-				DE995AF526F8F77E002F9395 /* OneSignalSwift.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -908,7 +898,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE995AF426F8F77E002F9395 /* OneSignalSwift.framework in Frameworks */,
 				9D59C2F92321C7780008ECCF /* CoreGraphics.framework in Frameworks */,
 				9D59C2F82321C7720008ECCF /* WebKit.framework in Frameworks */,
 				3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */,
@@ -1728,7 +1717,6 @@
 			);
 			dependencies = (
 				DE995AC926F8EB38002F9395 /* PBXTargetDependency */,
-				DE995AF726F8F77E002F9395 /* PBXTargetDependency */,
 			);
 			name = OneSignalFramework;
 			productName = "OneSignal-Dynamic";
@@ -2373,11 +2361,6 @@
 			isa = PBXTargetDependency;
 			target = DE995ABC26F8EB11002F9395 /* OneSignalCore */;
 			targetProxy = DE995AC826F8EB38002F9395 /* PBXContainerItemProxy */;
-		};
-		DE995AF726F8F77E002F9395 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE995AE826F8F604002F9395 /* OneSignalSwift */;
-			targetProxy = DE995AF626F8F77E002F9395 /* PBXContainerItemProxy */;
 		};
 		DEF5CD12253932260003E9CC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
