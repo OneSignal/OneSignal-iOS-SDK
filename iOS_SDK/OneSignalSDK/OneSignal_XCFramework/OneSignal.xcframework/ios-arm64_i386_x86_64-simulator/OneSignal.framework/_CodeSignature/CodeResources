@@ -6,27 +6,27 @@
 	<dict>
 		<key>Frameworks/OneSignalCore.framework/Info.plist</key>
 		<data>
-		/XYkGBUIvmQAJQU0cf7Vbzy6dk4=
+		m6ylwhiU+vH+JkcXr2eZhhNHULU=
 		</data>
 		<key>Frameworks/OneSignalCore.framework/OneSignalCore</key>
 		<data>
-		xTF9LNZPFUbkorF/wotc3VzC8nY=
+		rllB7uDdizJjePAsSFNV3DMBRtE=
 		</data>
 		<key>Frameworks/OneSignalCore.framework/_CodeSignature/CodeResources</key>
 		<data>
-		avv2AK8ScVNMYFboeQ5UGoUo5p4=
+		7Pr8sjXG94YjCSChRzSmI3VVfU8=
 		</data>
 		<key>Frameworks/OneSignalSwift.framework/Info.plist</key>
 		<data>
-		i3X3K/WzUz07wLeKKzHTSSEr2VY=
+		BXIU+FZUd8W8rpoFmKbMr9umttQ=
 		</data>
 		<key>Frameworks/OneSignalSwift.framework/OneSignalSwift</key>
 		<data>
-		b6xUHuG2Uau+mDaZ25vOdyNEwj4=
+		t7cepNJP50fRr4cnpLuE5nMDTQ0=
 		</data>
 		<key>Frameworks/OneSignalSwift.framework/_CodeSignature/CodeResources</key>
 		<data>
-		gh8MLwgkkSpJ3fBRLGaYFapYXG8=
+		AugJqnn8l1myEoQnM+GTQdlBVNM=
 		</data>
 		<key>Headers/OneSignal.h</key>
 		<data>
@@ -34,7 +34,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		Y6uLBrIYgaJIC3RViHz0tm6VXv8=
+		8rA1RGNXtBOgo5CKelbKlBsNQac=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -47,66 +47,66 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			/XYkGBUIvmQAJQU0cf7Vbzy6dk4=
+			m6ylwhiU+vH+JkcXr2eZhhNHULU=
 			</data>
 			<key>hash2</key>
 			<data>
-			YNgJtlTzW8EqsZLrdHy3GKrF+LQMPgPXX6h6QcA+cRc=
+			C5Z3SHQYImiFACnfTgca2xMAeR061G1HAOVMX1za9nU=
 			</data>
 		</dict>
 		<key>Frameworks/OneSignalCore.framework/OneSignalCore</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			xTF9LNZPFUbkorF/wotc3VzC8nY=
+			rllB7uDdizJjePAsSFNV3DMBRtE=
 			</data>
 			<key>hash2</key>
 			<data>
-			dnY5NkR3u8U5DoeM7dcve2lMNpFlhnCrNSBhDR933Gw=
+			ef6F+loJYdRkkZYJHz8MkH4g9mghYlvdUi1fNDv02Rg=
 			</data>
 		</dict>
 		<key>Frameworks/OneSignalCore.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			avv2AK8ScVNMYFboeQ5UGoUo5p4=
+			7Pr8sjXG94YjCSChRzSmI3VVfU8=
 			</data>
 			<key>hash2</key>
 			<data>
-			FT7pLVE4ZJOP5kg1yRRNpxuSQiYApZgKL0FCOIbNGv8=
+			Zj1KSYgxmb1wsZU3F8fq5VwVgSJkDdPfHF9Wf9bToVs=
 			</data>
 		</dict>
 		<key>Frameworks/OneSignalSwift.framework/Info.plist</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			i3X3K/WzUz07wLeKKzHTSSEr2VY=
+			BXIU+FZUd8W8rpoFmKbMr9umttQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			k1lJjLslhinD1N7PLKLuH3oF7xq0ZmVIN0XWA0QoubE=
+			jHwIpAMs0graWzfDbXrNyBxoFe5nQBy3UENeI+/APoA=
 			</data>
 		</dict>
 		<key>Frameworks/OneSignalSwift.framework/OneSignalSwift</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			b6xUHuG2Uau+mDaZ25vOdyNEwj4=
+			t7cepNJP50fRr4cnpLuE5nMDTQ0=
 			</data>
 			<key>hash2</key>
 			<data>
-			gDwbL8bCBQbm67XrgoOdBmSMdgGTrWQXG5wZwqlgQX4=
+			OD7ZKmqam5JqKIf+6jXl+h2XxQX0jINnlt2zAhFTyfU=
 			</data>
 		</dict>
 		<key>Frameworks/OneSignalSwift.framework/_CodeSignature/CodeResources</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			gh8MLwgkkSpJ3fBRLGaYFapYXG8=
+			AugJqnn8l1myEoQnM+GTQdlBVNM=
 			</data>
 			<key>hash2</key>
 			<data>
-			gsau9NUgXyj6RHpeinSZ6s8M4LIfgbL3c690wq8GQ+8=
+			CmaewBcaHz93l2J51fWct/4xVEr6IvAEPq3y89sP680=
 			</data>
 		</dict>
 		<key>Headers/OneSignal.h</key>

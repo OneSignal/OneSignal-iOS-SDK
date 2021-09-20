@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		0vJRmcsQ44+pSIXEJe4p9H6Emv4=
+		BIFbij4FjpD7NxSXWMTFrMqxk2Y=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -15,63 +15,63 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ELcQBSvErPd13JUiWf1SECw0CicWKSlz7sPmapSmgzY=
+			mrZnuNGgxD76MPabHCDS0OvcXPAh9I3Uw71JLm2GstY=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/arm64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			weeI+ALg15Fl26cQRWKyNgDRyCxGhkzJtoGqAFamf3s=
+			3L+bOYBuCVrg75J5F8+5VjvX//7q4ioLAZePHYOwaDw=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/arm64-apple-ios-macabi.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			63+hS6D0qBR2ytGNCO6l3bL67UaSCZr5b49nbqhwTGA=
+			r6lm6q19TfzzMr1+DojD5G9FNxqLIPlz9mqQGp1VDIg=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/arm64.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			weeI+ALg15Fl26cQRWKyNgDRyCxGhkzJtoGqAFamf3s=
+			3L+bOYBuCVrg75J5F8+5VjvX//7q4ioLAZePHYOwaDw=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/arm64.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			63+hS6D0qBR2ytGNCO6l3bL67UaSCZr5b49nbqhwTGA=
+			r6lm6q19TfzzMr1+DojD5G9FNxqLIPlz9mqQGp1VDIg=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/x86_64-apple-ios-macabi.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KS+CgMUdJXvBSkGJtwcrjVzc00Zd4dt0Dza4zicSQnc=
+			6U7wtXyyliAONFFV0Uex3hdmvgVRGGEN97a8a1FLldc=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/x86_64-apple-ios-macabi.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			QyBBYpO45gpihFDla3sIAqSpE+vTNOdDxysKGUgui6s=
+			y08B5/dJcntEvW5P0Mg89oo1YbVWf84ODOfRG1vQ/g8=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/x86_64.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			KS+CgMUdJXvBSkGJtwcrjVzc00Zd4dt0Dza4zicSQnc=
+			6U7wtXyyliAONFFV0Uex3hdmvgVRGGEN97a8a1FLldc=
 			</data>
 		</dict>
 		<key>Modules/OneSignalSwift.swiftmodule/x86_64.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			QyBBYpO45gpihFDla3sIAqSpE+vTNOdDxysKGUgui6s=
+			y08B5/dJcntEvW5P0Mg89oo1YbVWf84ODOfRG1vQ/g8=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -85,7 +85,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			h8hLGAWQbIsubMFw0ASnKFZrx2efrctJg7JY2qL+zlk=
+			G1xpRNNS7y4jqAgHCTN/0XDoXXeNZbQE5gIRqHNCPQE=
 			</data>
 		</dict>
 	</dict>
