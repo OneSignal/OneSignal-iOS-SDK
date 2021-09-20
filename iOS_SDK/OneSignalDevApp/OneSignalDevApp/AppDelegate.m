@@ -64,7 +64,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     };
     id notificationReceiverBlock = ^(OSNotification *notif, OSNotificationDisplayResponse completion) {
         NSLog(@"Will Receive Notification - %@", notif.notificationId);
-        completion(notif);
+        completion(nil);
     };
     
     // Example block for IAM action click handler
@@ -86,6 +86,8 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal addEmailSubscriptionObserver:self];
     [OneSignal setInAppMessageLifecycleHandler:self];
     [OneSignal pauseInAppMessages:true];
+    
+    [OneSignal sendTag:@"name" value:@"elliot"];
 
     [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal setNotificationOpenedHandler:openNotificationHandler];
@@ -95,7 +97,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
+#define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
 
 + (NSString*)getOneSignalAppId {
