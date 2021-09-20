@@ -32,6 +32,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalHelperOverrider.h"
 #import "OneSignalHelper.h"
+#import "OneSignalUserDefaults.h"
 
 @interface BadgeTests : XCTestCase
 
@@ -70,6 +71,10 @@
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 1);
     
+    NSInteger previousValue = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_PREVIOUS_BADGE_KEY defaultValue:0];
+    
+    XCTAssertEqual(previousValue, 0);
+    
     NSMutableDictionary * userInfo = [@{
         @"aps": @{
             @"mutable-content": @1,
@@ -90,6 +95,10 @@
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 3);
     
+    previousValue = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_PREVIOUS_BADGE_KEY defaultValue:0];
+    
+    XCTAssertEqual(previousValue, 1);
+    
     //test that a negative badge_inc value decrements correctly
     [userInfo setObject:@{@"badge_inc" : @-1, @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"} forKey:@"os_data"];
     
@@ -101,6 +110,10 @@
     #pragma clang diagnostic pop
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 2);
+    
+    previousValue = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_PREVIOUS_BADGE_KEY defaultValue:0];
+    
+    XCTAssertEqual(previousValue, 3);
 }
 
 //tests to make sure that setting the badge works along with incrementing/decrementing
@@ -126,6 +139,10 @@
     #pragma clang diagnostic pop
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 54);
     
+    NSInteger previousValue = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_PREVIOUS_BADGE_KEY defaultValue:0];
+    
+    XCTAssertEqual(previousValue, 0);
+    
     [userInfo setObject:@{@"mutable-content" : @1, @"alert" : @"test msg"} forKey:@"aps"];
     [userInfo setObject:@{@"badge_inc" : @-1, @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"} forKey:@"os_data"];
     
@@ -141,6 +158,10 @@
     XCTAssert([replacementContent.badge intValue] == 53);
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 53);
+    
+    previousValue = [OneSignalUserDefaults.initShared getSavedIntegerForKey:ONESIGNAL_PREVIOUS_BADGE_KEY defaultValue:0];
+    
+    XCTAssertEqual(previousValue, 54);
 }
 
 //tests to make sure that the SDK never tries to set negative badge values
