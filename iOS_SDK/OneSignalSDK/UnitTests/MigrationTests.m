@@ -288,7 +288,7 @@
     XCTAssertNil(retrievedDict);
 }
 
-- (void)testIAMToInternalMigration {
+- (void)testIAMMessagesToInternalMigration {
     let limit = 5;
     let delay = 60;
     let message = [OSInAppMessageTestHelper testMessageWithRedisplayLimit:limit delay:@(delay)];
@@ -306,7 +306,13 @@
     NSArray<OSInAppMessageInternal *>*retrievedArray = [OneSignalUserDefaults.initStandard
                                                                 getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY defaultValue:nil];
     XCTAssertEqualObjects(messages, retrievedArray);
-    
+}
+
+- (void)testIAMRedisplayToInternalMigration {
+    let limit = 5;
+    let delay = 60;
+    let message = [OSInAppMessageTestHelper testMessageWithRedisplayLimit:limit delay:@(delay)];
+    message.isDisplayedInSession = true;
     // Cached Redisplay Messages
     NSMutableDictionary <NSString *, OSInAppMessageInternal *> *redisplayedInAppMessages = [NSMutableDictionary new];
     [redisplayedInAppMessages setObject:message forKey:message.messageId];
@@ -321,9 +327,6 @@
                                                                 getSavedCodeableDataForKey:OS_IAM_REDISPLAY_DICTIONARY defaultValue:nil];
     XCTAssertEqualObjects(redisplayedInAppMessages, retrievedDict);
 }
-
-
-
 
 
 @end

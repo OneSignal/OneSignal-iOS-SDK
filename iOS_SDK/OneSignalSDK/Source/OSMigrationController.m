@@ -118,6 +118,7 @@ THE SOFTWARE.
 - (void)migrateToOSInAppMessageInternal {
     let nameChangeVersion = 30700;
     long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
+    [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
     if (sdkVersion < nameChangeVersion) {
         [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
 
