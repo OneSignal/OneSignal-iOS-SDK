@@ -27,11 +27,15 @@
 
 #import <Foundation/Foundation.h>
 
+#import <UIKit/UIKit.h>
+
 #import "OSNotification+Internal.h"
 
 #import "OneSignal.h"
 
 #import "OneSignalCommonDefines.h"
+
+#import "OneSignalUserDefaults.h"
 
 @implementation OSNotification
 
@@ -298,6 +302,14 @@
 
  - (OSNotificationDisplayResponse)getCompletionBlock {
      OSNotificationDisplayResponse block = ^(OSNotification *notification){
+         /*
+          If notification is null here then display was cancelled and we need to
+          reset the badge count to the value prior to receipt of this notif
+          */
+         if (!notification) {
+             NSInteger previousBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
+             [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+         }
          [self complete:notification];
      };
      return block;
