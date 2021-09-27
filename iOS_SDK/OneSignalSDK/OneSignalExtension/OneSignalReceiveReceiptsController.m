@@ -27,11 +27,9 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalReceiveReceiptsController.h"
-#import "Requests.h"
-#import "OneSignalClient.h"
-#import "OSSubscription.h"
-#import "OneSignalCommonDefines.h"
-#import "OneSignalUserDefaults.h"
+//#import "Requests.h"
+//#import "OneSignalClient.h"
+//#import "OSSubscription.h"
 
 @implementation OneSignalReceiveReceiptsController
 
@@ -79,37 +77,37 @@
                           failureBlock:(nullable OSFailureBlock)failure {
     
     let message = [NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId playerId:%@ notificationId: %@, appId: %@", playerId, notificationId, appId];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:message];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:message];
 
     if (!appId) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"appId not available from shared UserDefaults!"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"appId not available from shared UserDefaults!"];
         if (failure)
             failure(nil);
         return;
     }
     
     if (![self isReceiveReceiptsEnabled]) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Receieve receipts disabled"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Receieve receipts disabled"];
         if (failure)
             failure(nil);
         return;
     }
-
-    let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
-    
-    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
-    dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId now sending confirmed delievery after: %i second delay", delay]];
-        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-            if (success) {
-                success(result);
-            }
-        } onFailure:^(NSError *error) {
-            if (failure) {
-                failure(error);
-            }
-        }];
-    });
+//
+//    let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
+//
+//    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);
+//    dispatch_after(dispatchTime, dispatch_get_main_queue(), ^{
+//        [OneSignalLog onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal sendReceiveReceiptWithPlayerId now sending confirmed delievery after: %i second delay", delay]];
+//        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+//            if (success) {
+//                success(result);
+//            }
+//        } onFailure:^(NSError *error) {
+//            if (failure) {
+//                failure(error);
+//            }
+//        }];
+//    });
 }
 
 @end

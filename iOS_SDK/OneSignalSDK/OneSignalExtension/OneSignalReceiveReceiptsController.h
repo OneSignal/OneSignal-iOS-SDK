@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OneSignalReceiveReceiptsController : NSObject
 
