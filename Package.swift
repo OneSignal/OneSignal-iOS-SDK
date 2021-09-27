@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "OneSignal",
+    name: "OneSignalSwift",
     products: [
         .library(
-            name: "OneSignal",
-            targets: ["OneSignal"]),
+            name: "OneSignalSwift",
+            targets: ["OneSignalSwift"]),
     ],
     targets: [
         .binaryTarget(
-          name: "OneSignal",
+          name: "OneSignalSwift",
           path: "iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignal.xcframework"
         )
     ]
