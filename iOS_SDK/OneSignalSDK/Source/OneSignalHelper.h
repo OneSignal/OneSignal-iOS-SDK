@@ -60,8 +60,6 @@
 + (BOOL)verifyURL:(NSString*)urlString;
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
 + (BOOL)isDisplayableNotification:(NSDictionary*)msg;
-+ (void)addAttachments:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
-+ (void)addActionButtons:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
 + (BOOL)isOneSignalPayload:(NSDictionary *)payload;
 
 // - Networking
