@@ -25,18 +25,17 @@
  * THE SOFTWARE.
  */
 
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalHelper.h"
 #import "OSInfluenceDataDefines.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
-#import "OSNotification+Internal.h"
 #import "OSSubscription.h"
 #import "OneSignalInternal.h"
 #import "OneSignalReceiveReceiptsController.h"
 #import "OSSessionManager.h"
 #import "OSMigrationController.h"
-#import "OneSignalUserDefaults.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler
 

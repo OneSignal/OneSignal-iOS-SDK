@@ -25,16 +25,14 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalHelper.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
-#import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 
 @implementation OneSignalTrackFirebaseAnalytics
 
 static NSTimeInterval lastOpenedTime = 0;
-static var trackingEnabled = false;
+static BOOL trackingEnabled = false;
 
 + (void)resetLocals {
     lastOpenedTime = 0;
@@ -55,15 +53,15 @@ static var trackingEnabled = false;
 
 + (void)updateFromDownloadParams:(NSDictionary*)params {
     trackingEnabled = (BOOL)params[@"fba"];
-    let sharedUserDefaults = OneSignalUserDefaults.initShared;
+    OneSignalUserDefaults *sharedUserDefaults = OneSignalUserDefaults.initShared;
     if (trackingEnabled)
-        [sharedUserDefaults saveBoolForKey:ONESIGNAL_FB_ENABLE_FIREBASE withValue:true];
+        [sharedUserDefaults saveBoolForKey:ONESIGNAL_FB_ENABLE_FIREBASE withValue:YES];
     else
         [sharedUserDefaults removeValueForKey:ONESIGNAL_FB_ENABLE_FIREBASE];
 }
 
 + (NSString*)appGroupKey {
-    return [OneSignalExtensionBadgeHandler appGroupName];
+    return [OneSignalUserDefaults appGroupName];
 }
 
 + (void)logEventWithName:(NSString*)name parameters:(NSDictionary*)params {
@@ -82,7 +80,7 @@ static var trackingEnabled = false;
     if (!notification.title)
         return @"";
     
-    var titleLength = notification.title.length;
+    NSUInteger titleLength = notification.title.length;
     if (titleLength > 10)
         titleLength = 10;
     
@@ -108,8 +106,8 @@ static var trackingEnabled = false;
     if (!trackingEnabled)
         return;
     
-    let campaign = [self getCampaignNameFromNotification:notification];
-    let sharedUserDefaults = OneSignalUserDefaults.initShared;
+    NSString *campaign = [self getCampaignNameFromNotification:notification];
+    OneSignalUserDefaults *sharedUserDefaults = OneSignalUserDefaults.initShared;
     [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_NOTIFICATION_ID_RECEIVED withValue:notification.notificationId];
     [sharedUserDefaults saveStringForKey:ONESIGNAL_FB_LAST_GAF_CAMPAIGN_RECEIVED withValue:campaign];
     [sharedUserDefaults saveDoubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED withValue:[[NSDate date] timeIntervalSince1970]];
@@ -127,13 +125,13 @@ static var trackingEnabled = false;
     if (!trackingEnabled)
         return;
     
-    let sharedUserDefaults = OneSignalUserDefaults.initShared;
+    OneSignalUserDefaults *sharedUserDefaults = OneSignalUserDefaults.initShared;
     NSTimeInterval lastTimeReceived = [sharedUserDefaults getSavedDoubleForKey:ONESIGNAL_FB_LAST_TIME_RECEIVED defaultValue:0];
     
     if (lastTimeReceived == 0)
         return;
     
-    let now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     
     // Attribute if app was opened in 2 minutes or less after displaying the notification
     if (now - lastTimeReceived > 120)

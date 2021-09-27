@@ -27,11 +27,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OneSignalExtensionBadgeHandler : NSObject
 + (void)handleBadgeCountWithNotificationRequest:(UNNotificationRequest *)request withNotification:(OSNotification *)notification withMutableNotificationContent:(UNMutableNotificationContent *)replacementContent;
 + (void)updateCachedBadgeValue:(NSInteger)value;
 + (NSInteger)currentCachedBadgeValue;
-+ (NSString *)appGroupName;
 @end
