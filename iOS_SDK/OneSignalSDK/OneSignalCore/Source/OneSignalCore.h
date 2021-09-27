@@ -12,7 +12,22 @@
 #import "OSNotification.h"
 #import "OSNotification+Internal.h"
 #import "OSNotificationClasses.h"
-
+#import "OneSignalLog.h"
+#import "NSURL+OneSignal.h"
+#import "NSString+OneSignal.h"
 @interface OneSignalCore : NSObject
 
 @end
+// Defines let and var in Objective-c for shorter code
+// __auto_type is compatible with Xcode 8+
+#if defined(__cplusplus)
+#define let auto const
+#else
+#define let const __auto_type
+#endif
+
+#if defined(__cplusplus)
+#define var auto
+#else
+#define var __auto_type
+#endif

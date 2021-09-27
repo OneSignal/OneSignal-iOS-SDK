@@ -25,7 +25,6 @@
  * THE SOFTWARE.
  */
 
-#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalExtensionBadgeHandler.h"
 
 @implementation OneSignalExtensionBadgeHandler
