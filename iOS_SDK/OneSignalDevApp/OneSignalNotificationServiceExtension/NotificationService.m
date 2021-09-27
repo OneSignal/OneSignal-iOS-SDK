@@ -1,4 +1,4 @@
-#import <OneSignal/OneSignal.h>
+#import <OneSignalExtension/OneSignalExtension.h>
 
 #import <UIKit/UIKit.h>
 
@@ -28,7 +28,7 @@
     
     NSLog(@"START!!!!!! request.content.userInfo: %@", request.content.userInfo);
     
-    [OneSignal didReceiveNotificationExtensionRequest:self.receivedRequest
+    [OneSignalExtension didReceiveNotificationExtensionRequest:self.receivedRequest
                        withMutableNotificationContent:self.bestAttemptContent
                                    withContentHandler:contentHandler];
     // DEBUGGING: Uncomment the 2 lines below and comment out the one above to ensure this extension is excuting
@@ -57,7 +57,7 @@
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
     
-    [OneSignal serviceExtensionTimeWillExpireRequest:self.receivedRequest withMutableNotificationContent:self.bestAttemptContent];
+    [OneSignalExtension serviceExtensionTimeWillExpireRequest:self.receivedRequest withMutableNotificationContent:self.bestAttemptContent];
     
     self.contentHandler(self.bestAttemptContent);
 }

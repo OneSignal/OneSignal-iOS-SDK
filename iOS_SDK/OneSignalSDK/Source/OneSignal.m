@@ -100,9 +100,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
-static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
-
 /* Enable the default in-app launch urls*/
 NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 
@@ -796,7 +793,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (NSString *)appGroupKey {
-    return [OneSignalExtensionBadgeHandler appGroupName];
+    return [OneSignalUserDefaults appGroupName];
 }
 
 + (BOOL)handleAppIdChange:(NSString*)appId {
@@ -1022,52 +1019,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     } onFailure:^(NSError *error) {
         _didCallDownloadParameters = false;
     }];
-}
-
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
-    _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
-}
-
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
-    onesignal_Log(logLevel, message);
-}
-
-+ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
-    onesignal_Log(logLevel, message);
-}
-
-void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
-    NSString* levelString;
-    switch (logLevel) {
-        case ONE_S_LL_FATAL:
-            levelString = @"FATAL: ";
-            break;
-        case ONE_S_LL_ERROR:
-            levelString = @"ERROR: ";
-            break;
-        case ONE_S_LL_WARN:
-            levelString = @"WARNING: ";
-            break;
-        case ONE_S_LL_INFO:
-            levelString = @"INFO: ";
-            break;
-        case ONE_S_LL_DEBUG:
-            levelString = @"DEBUG: ";
-            break;
-        case ONE_S_LL_VERBOSE:
-            levelString = @"VERBOSE: ";
-            break;
-            
-        default:
-            break;
-    }
-
-    if (logLevel <= _nsLogLevel)
-        NSLog(@"%@", [levelString stringByAppendingString:message]);
-    
-    if (logLevel <= _visualLogLevel) {
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
-    }
 }
 
 //presents the settings page to control/customize push notification settings

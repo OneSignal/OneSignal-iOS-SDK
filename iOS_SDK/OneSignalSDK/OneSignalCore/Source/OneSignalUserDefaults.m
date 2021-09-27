@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalUserDefaults.h"
-#import "OneSignalExtensionBadgeHandler.h"
+#import "OneSignalCommonDefines.h"
 
 @implementation OneSignalUserDefaults : NSObject
 
@@ -52,7 +52,7 @@
 }
 
 - (NSString * _Nonnull)appGroupKey {
-    return [OneSignalExtensionBadgeHandler appGroupName];
+    return [OneSignalUserDefaults appGroupName];
 }
 
 - (BOOL)keyExists:(NSString * _Nonnull)key {
@@ -160,5 +160,26 @@
     [self.userDefaults setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
     [self.userDefaults synchronize];
 }
+
+//gets the NSBundle of the primary application - NOT the app extension
+//this way we can determine the bundle ID for the host (primary) application.
++ (NSString *)primaryBundleIdentifier {
+    NSBundle *bundle = [NSBundle mainBundle];
+    if ([[bundle.bundleURL pathExtension] isEqualToString:@"appex"])
+        bundle = [NSBundle bundleWithURL:[[bundle.bundleURL URLByDeletingLastPathComponent] URLByDeletingLastPathComponent]];
+    
+    return [bundle bundleIdentifier];
+    
+}
+
++ (NSString *)appGroupName {
+    NSString *appGroupName = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_APP_GROUP_NAME_KEY];
+    
+    if (!appGroupName)
+        appGroupName = [NSString stringWithFormat:@"group.%@.%@", OneSignalUserDefaults.primaryBundleIdentifier, @"onesignal"];
+    
+    return [appGroupName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+
 
 @end
