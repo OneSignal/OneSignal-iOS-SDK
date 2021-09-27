@@ -26,8 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#import "OneSignal.h"
+#import "OSNotificationClasses.h"
 
 @interface OneSignalTrackFirebaseAnalytics : NSObject
 +(BOOL)libraryExists;

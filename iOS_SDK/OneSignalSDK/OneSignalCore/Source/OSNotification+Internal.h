@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+#import "OSNotificationClasses.h"
 
 #ifndef OSNotification_Internal_h
 #define OSNotification_Internal_h

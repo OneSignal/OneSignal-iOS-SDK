@@ -25,12 +25,16 @@
  * THE SOFTWARE.
  */
 
+#import <Foundation/Foundation.h>
+
 @interface OneSignalUserDefaults : NSObject
 
 @property (strong, nonatomic, nullable) NSUserDefaults *userDefaults;
 
 + (OneSignalUserDefaults * _Nonnull)initStandard;
 + (OneSignalUserDefaults * _Nonnull)initShared;
+
++ (NSString * _Nonnull)appGroupName;
 
 - (BOOL)keyExists:(NSString * _Nonnull)key;
 

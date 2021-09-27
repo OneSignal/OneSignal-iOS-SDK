@@ -25,9 +25,7 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignalHelper.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalNotificationCategoryController.h"
 
@@ -78,7 +76,7 @@
     for (int i = (int)currentCategories.count - MAX_CATEGORIES_SIZE; i >= 0; i--)
         [categoriesToRemove addObject:currentCategories[i]];
     
-    let existingCategories = self.existingCategories;
+    NSMutableSet<UNNotificationCategory*> *existingCategories = self.existingCategories;
     
     NSMutableSet<UNNotificationCategory *> *newCategories = [NSMutableSet new];
     
@@ -91,7 +89,7 @@
 
 - (NSString *)registerNotificationCategoryForNotificationId:(NSString *)notificationId {
     // if the notificationID is null/empty, just generate a random new UUID
-    let categoryId = CATEGORY_FORMAT_STRING(notificationId ?: NSUUID.UUID.UUIDString);
+    NSString *categoryId = CATEGORY_FORMAT_STRING(notificationId ?: NSUUID.UUID.UUIDString);
     
     [self saveCategoryId:categoryId];
     
@@ -102,7 +100,7 @@
 - (NSMutableSet<UNNotificationCategory*>*)existingCategories {
     __block NSMutableSet* allCategories;
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    let notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
+    UNUserNotificationCenter *notificationCenter = [UNUserNotificationCenter currentNotificationCenter];
     [notificationCenter getNotificationCategoriesWithCompletionHandler:^(NSSet<UNNotificationCategory *> *categories) {
         allCategories = [categories mutableCopy];
         dispatch_semaphore_signal(semaphore);

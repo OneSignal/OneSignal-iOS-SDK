@@ -43,6 +43,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
+#import <OneSignalCore/OneSignalCore.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -235,8 +236,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 - (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
 @end
 
-// Pass in nil means a notification will not display
-typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
 /* OneSignal Influence Types */
 typedef NS_ENUM(NSUInteger, OSInfluenceType) {
     DIRECT,
@@ -459,20 +458,6 @@ extern NSString* const ONESIGNAL_VERSION;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
-#pragma mark Logging
-typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
-    ONE_S_LL_NONE,
-    ONE_S_LL_FATAL,
-    ONE_S_LL_ERROR,
-    ONE_S_LL_WARN,
-    ONE_S_LL_INFO,
-    ONE_S_LL_DEBUG,
-    ONE_S_LL_VERBOSE
-};
-
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
-+ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
-
 #pragma mark Prompt For Push
 typedef void(^OSUserResponseBlock)(BOOL accepted);
 
@@ -509,14 +494,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (void)promptLocation;
 + (void)setLocationShared:(BOOL)enable;
 + (BOOL)isLocationShared;
-
-#pragma mark NotificationService Extension
-// iOS 10 only
-// Process from Notification Service Extension.
-// Used for iOS Media Attachemtns and Action Buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent __deprecated_msg("Please use didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler: instead.");
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
 
 #pragma mark Tags
 + (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
