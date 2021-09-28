@@ -187,7 +187,7 @@
 }
 
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
+    // ECM TODO: We need to handle privacy consent 
     if (request.method != GET) { //&& [OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
         if (failureBlock) {
             failureBlock([self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)]);

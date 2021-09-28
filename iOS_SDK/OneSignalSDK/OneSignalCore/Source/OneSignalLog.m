@@ -54,6 +54,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     if (logLevel <= _nsLogLevel)
         NSLog(@"%@", [levelString stringByAppendingString:message]);
+    
+    // ECM TODO: Do we want to support visual level?
 }
 
 @end
