@@ -98,12 +98,6 @@ NS_ASSUME_NONNULL_END
 
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withSMSAuthHashToken:(NSString * _Nullable)smsAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken;
 @end
-//
-//@interface OSRequestSendLocation : OneSignalRequest
-//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-//
-//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState smsAuthHashToken:(NSString * _Nullable)smsAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-//@end
 
 @interface OSRequestUpdateLanguage : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
@@ -131,39 +125,6 @@ NS_ASSUME_NONNULL_END
                          badgeCount:(NSNumber * _Nonnull)badgeCount
                        smsAuthToken:(NSString * _Nullable)smsAuthToken
                 externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-@end
-
-//@interface OSRequestOnFocus : OneSignalRequest
-//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-//                              appId:(NSString * _Nonnull)appId
-//                         activeTime:(NSNumber * _Nonnull)activeTime
-//                            netType:(NSNumber * _Nonnull)netType
-//                         deviceType:(NSNumber * _Nonnull)deviceType
-//                    influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams;
-//@end
-
-@interface OSRequestInAppMessageViewed : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId;
-@end
-
-@interface OSRequestInAppMessagePageViewed : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withPageId:(NSString * _Nonnull)pageId forVariantId:(NSString * _Nonnull)variantId;
-@end
-
-//@interface OSRequestInAppMessageClicked : OneSignalRequest
-//+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
-//                      withPlayerId:(NSString * _Nonnull)playerId
-//                     withMessageId:(NSString * _Nonnull)messageId
-//                      forVariantId:(NSString * _Nonnull)variantId
-//                     withAction:(OSInAppMessageAction * _Nonnull)action;
-//@end
-
-@interface OSRequestLoadInAppMessageContent : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
-@end
-
-@interface OSRequestLoadInAppMessagePreviewContent : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId previewUUID:(NSString * _Nonnull)previewUUID;
 @end
 
 @interface OSRequestUpdateExternalUserId : OneSignalRequest

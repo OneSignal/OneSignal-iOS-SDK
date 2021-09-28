@@ -31,9 +31,7 @@ THE SOFTWARE.
 #import "OSUserStatePushSynchronizer.h"
 #import "OSUserStateEmailSynchronizer.h"
 #import "OSUserStateSMSSynchronizer.h"
-#import "Requests.h"
-#import "OneSignalCommonDefines.h"
-#import "OneSignalUserDefaults.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSPendingCallbacks.h"
 
 @interface OneSignal ()

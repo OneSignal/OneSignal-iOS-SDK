@@ -11,6 +11,8 @@
 #import "OSSessionManager.h"
 #import "OSInfluence.h"
 #import "OSIndirectInfluence.h"
+#import "OSInAppMessageOutcome.h"
+#import "OSOutcomeEvent.h"
 // In this header, you should import all the public headers of your framework using statements like #import <OneSignalOutcomes/PublicHeader.h>
 
 

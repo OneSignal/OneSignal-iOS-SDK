@@ -26,15 +26,12 @@
  */
 
 #import "OSMessagingController.h"
-#import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
-#import "Requests.h"
-#import "OneSignalClient.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalInternal.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
-#import "OneSignalCommonDefines.h"
 #import "OneSignalDialogController.h"
 
 @interface OneSignal ()

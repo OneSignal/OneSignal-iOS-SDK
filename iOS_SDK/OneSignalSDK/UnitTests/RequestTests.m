@@ -26,7 +26,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OSOutcomeEvent.h"
 #import "OneSignalHelper.h"
 #import "OSInfluenceDataDefines.h"
