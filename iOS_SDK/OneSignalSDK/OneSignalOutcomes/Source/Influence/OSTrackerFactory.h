@@ -33,6 +33,8 @@ THE SOFTWARE.
 
 @interface OSTrackerFactory : NSObject
 
++ (OSTrackerFactory*)sharedTrackerFactory;
+
 - (id _Nonnull)initWithRepository:(OSInfluenceDataRepository * _Nonnull)dataRepository;
 - (void)saveInfluenceParams:(NSDictionary * _Nonnull)params;
 - (void)initFromCache;

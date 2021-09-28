@@ -112,9 +112,6 @@
 		7A72EB0F23E252C700B4D50F /* OSInAppMessageDisplayStats.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A72EB0D23E252C200B4D50F /* OSInAppMessageDisplayStats.m */; };
 		7A72EB1023E252C700B4D50F /* OSInAppMessageDisplayStats.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A72EB0D23E252C200B4D50F /* OSInAppMessageDisplayStats.m */; };
 		7A72EB1223E252DD00B4D50F /* OSInAppMessageDisplayStats.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A72EB1123E252D400B4D50F /* OSInAppMessageDisplayStats.h */; };
-		7A880F2B23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
-		7A880F2C23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
-		7A880F2D23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
 		7A880F312404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A880F322404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A880F332404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
@@ -450,15 +447,15 @@
 		DE7D188F27037F96002D3A5D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DE7D189027037F96002D3A5D /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D189C27038113002D3A5D /* OSInfluenceDataDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D1BD95D237663BF00A064F7 /* OSInfluenceDataDefines.h */; };
-		DE7D189D27038118002D3A5D /* OSChannelTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF986382444C42700C36EAE /* OSChannelTracker.h */; };
+		DE7D189D27038118002D3A5D /* OSChannelTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF986382444C42700C36EAE /* OSChannelTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D189E2703811D002D3A5D /* OSChannelTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986342444C41A00C36EAE /* OSChannelTracker.m */; };
 		DE7D189F27038121002D3A5D /* OSInAppMessageTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9863E2444C44300C36EAE /* OSInAppMessageTracker.h */; };
 		DE7D18A027038125002D3A5D /* OSInAppMessageTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9863A2444C43900C36EAE /* OSInAppMessageTracker.m */; };
 		DE7D18A127038129002D3A5D /* OSNotificationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF986402444C46A00C36EAE /* OSNotificationTracker.h */; };
 		DE7D18A22703812D002D3A5D /* OSNotificationTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986422444C47400C36EAE /* OSNotificationTracker.m */; };
-		DE7D18A327038133002D3A5D /* OSTrackerFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF986462444C64300C36EAE /* OSTrackerFactory.h */; };
+		DE7D18A327038133002D3A5D /* OSTrackerFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF986462444C64300C36EAE /* OSTrackerFactory.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18A427038136002D3A5D /* OSTrackerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986482444C65300C36EAE /* OSTrackerFactory.m */; };
-		DE7D18A527038139002D3A5D /* OSInfluenceDataRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9865B2447C12F00C36EAE /* OSInfluenceDataRepository.h */; };
+		DE7D18A527038139002D3A5D /* OSInfluenceDataRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9865B2447C12F00C36EAE /* OSInfluenceDataRepository.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18A62703813D002D3A5D /* OSInfluenceDataRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9865D2447C13C00C36EAE /* OSInfluenceDataRepository.m */; };
 		DE7D18A727038141002D3A5D /* OSIndirectInfluence.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A12EBDB23060B37005C4FA5 /* OSIndirectInfluence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18A827038144002D3A5D /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; };
@@ -494,6 +491,11 @@
 		DE7D18CD270385D0002D3A5D /* OSOutcomesRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18CB270385D0002D3A5D /* OSOutcomesRequests.m */; };
 		DE7D18CF270385E0002D3A5D /* OSOutcomesRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D18CE270385E0002D3A5D /* OSOutcomesRequests.h */; };
 		DE7D18D1270389E1002D3A5D /* OSMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AE28B8725B8ADF400529100 /* OSMacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DE7D18D22703ADE0002D3A5D /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; };
+		DE7D18D32703ADE0002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE7D18D62703B103002D3A5D /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
+		DE7D18D72703B111002D3A5D /* OSInAppMessageOutcome.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */; };
+		DE7D18D82703B11B002D3A5D /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
 		DE98772B2591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877332591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877342591656300DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
@@ -571,6 +573,13 @@
 			remoteGlobalIDString = DE7D187F27037F43002D3A5D;
 			remoteInfo = OneSignalOutcomes;
 		};
+		DE7D18D42703ADE0002D3A5D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D187F27037F43002D3A5D;
+			remoteInfo = OneSignalOutcomes;
+		};
 		DEF5CD11253932260003E9CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -610,6 +619,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				DE7D18D32703ADE0002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */,
 				DE7D1847270286C6002D3A5D /* OneSignalCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -1028,6 +1038,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE7D1846270286C6002D3A5D /* OneSignalCore.framework in Frameworks */,
+				DE7D18D22703ADE0002D3A5D /* OneSignalOutcomes.framework in Frameworks */,
 				DE7D1843270283B9002D3A5D /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1421,8 +1432,6 @@
 				CAB269DE21B2038B00F8A43C /* OSInAppMessageBridgeEvent.m */,
 				7A72EB1123E252D400B4D50F /* OSInAppMessageDisplayStats.h */,
 				7A72EB0D23E252C200B4D50F /* OSInAppMessageDisplayStats.m */,
-				7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */,
-				7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */,
 				7A1F2D902406EFDA007799A9 /* OSInAppMessageTag.h */,
 				7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */,
 				7A880F2E2404AD010081F5E8 /* OSInAppMessagePrompt.h */,
@@ -1560,6 +1569,8 @@
 			children = (
 				DE7D188D27037F5C002D3A5D /* Source */,
 				DE7D188227037F43002D3A5D /* OneSignalOutcomes.h */,
+				7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */,
+				7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */,
 				DE7D188327037F43002D3A5D /* OneSignalOutcomes.docc */,
 			);
 			path = OneSignalOutcomes;
@@ -1831,6 +1842,7 @@
 				DE7D18B32703816C002D3A5D /* OSOutcomeEventsCache.h in Headers */,
 				DE7D18B927038182002D3A5D /* OSOutcomeSourceBody.h in Headers */,
 				DE7D18A127038129002D3A5D /* OSNotificationTracker.h in Headers */,
+				DE7D18D72703B111002D3A5D /* OSInAppMessageOutcome.h in Headers */,
 				DE7D18B72703817A002D3A5D /* OSCachedUniqueOutcome.h in Headers */,
 				DE7D18B127038164002D3A5D /* OSOutcomeEventsFactory.h in Headers */,
 				DE7D18CF270385E0002D3A5D /* OSOutcomesRequests.h in Headers */,
@@ -1935,6 +1947,7 @@
 			);
 			dependencies = (
 				DE7D181B27026BEC002D3A5D /* PBXTargetDependency */,
+				DE7D18D52703ADE0002D3A5D /* PBXTargetDependency */,
 			);
 			name = OneSignalExtension;
 			productName = OneSignalExtension;
@@ -2191,7 +2204,6 @@
 				7A5E721025A66E1600CB5605 /* OSUserStatePushSynchronizer.m in Sources */,
 				912412421E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
-				7A880F2B23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */,
 				9124123A1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				A6B519AA2669747B00AED40E /* LanguageProviderAppDefined.m in Sources */,
 				9D3300F523145AF3000F0A83 /* OneSignalViewHelper.m in Sources */,
@@ -2265,7 +2277,6 @@
 				7AAA60692485D0420004FADE /* OSMigrationController.m in Sources */,
 				7A5E721125A66E1600CB5605 /* OSUserStatePushSynchronizer.m in Sources */,
 				9DDFEEF323189C0E00EAE0BB /* OneSignalViewHelper.m in Sources */,
-				7A880F2C23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */,
 				DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
 				912412431E73342200E41FD7 /* UNUserNotificationCenter+OneSignal.m in Sources */,
 				CA47439F2190FEA80020DC8C /* OSTrigger.m in Sources */,
@@ -2316,7 +2327,6 @@
 				DE7D186F2703751B002D3A5D /* OSRequests.m in Sources */,
 				7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */,
 				7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */,
-				7A880F2D23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */,
 				7AF8FDBB2332A58900A19245 /* OSSessionManager.m in Sources */,
 				9D1BD9622379F41B00A064F7 /* OSOutcomeEvent.m in Sources */,
 				7ABAF9E324606E940074DFA0 /* OutcomeV2Tests.m in Sources */,
@@ -2447,6 +2457,7 @@
 				03866CC12378A67B0009C1D8 /* RestClientAsserts.m in Sources */,
 				DE7D18CC270385D0002D3A5D /* OSOutcomesRequests.m in Sources */,
 				7ADF891C230DB5BD0054E0D6 /* UnitTestAppDelegate.m in Sources */,
+				DE7D18D82703B11B002D3A5D /* OSInAppMessageOutcome.m in Sources */,
 				9124123C1E73342200E41FD7 /* OneSignalWebView.m in Sources */,
 				CAB411AE208931EE005A70D1 /* DummyNotificationCenterDelegate.m in Sources */,
 				4529DEF01FA8433500CEAB1D /* NSLocaleOverrider.m in Sources */,
@@ -2501,6 +2512,7 @@
 				DE7D18B227038168002D3A5D /* OSOutcomeEventsFactory.m in Sources */,
 				DE7D18B42703816F002D3A5D /* OSOutcomeEventsCache.m in Sources */,
 				DE7D18A827038144002D3A5D /* OSIndirectInfluence.m in Sources */,
+				DE7D18D62703B103002D3A5D /* OSInAppMessageOutcome.m in Sources */,
 				DE7D189E2703811D002D3A5D /* OSChannelTracker.m in Sources */,
 				DE7D188427037F43002D3A5D /* OneSignalOutcomes.docc in Sources */,
 				DE7D18BC2703818D002D3A5D /* OSOutcomeSource.m in Sources */,
@@ -2572,6 +2584,11 @@
 			isa = PBXTargetDependency;
 			target = DE7D187F27037F43002D3A5D /* OneSignalOutcomes */;
 			targetProxy = DE7D18C827038249002D3A5D /* PBXContainerItemProxy */;
+		};
+		DE7D18D52703ADE0002D3A5D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D187F27037F43002D3A5D /* OneSignalOutcomes */;
+			targetProxy = DE7D18D42703ADE0002D3A5D /* PBXContainerItemProxy */;
 		};
 		DEF5CD12253932260003E9CC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
