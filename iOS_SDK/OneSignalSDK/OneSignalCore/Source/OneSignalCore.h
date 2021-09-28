@@ -18,6 +18,7 @@
 #import "OneSignalRequest.h"
 #import "OneSignalClient.h"
 #import "OneSignalCoreHelper.h"
+#import "OneSignalTrackFirebaseAnalytics.h"
 
 @interface OneSignalCore : NSObject
 
