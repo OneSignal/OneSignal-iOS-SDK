@@ -144,13 +144,13 @@
 }
 
 - (void)applicationIsActive:(NSNotification *)notification {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Active"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Application Active"];
     // Animate the showing of the IAM when opening the app from background
     [self animateAppearance:NO];
 }
 
 - (void)applicationIsInBackground:(NSNotification *)notification {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Application Entered Background"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Application Entered Background"];
     
     // Get current orientation of the device
     UIDeviceOrientation currentDeviceOrientation = UIDevice.currentDevice.orientation;
@@ -174,7 +174,7 @@
  Wait until the actual HTML content is loaded before animating appearance
  */
 - (void)setupInitialMessageUI {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Setting up In-App Message"];
     
     self.messageView.delegate = self;
     
@@ -207,7 +207,7 @@
 }
 
 - (void)displayMessage {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Displaying In-App Message"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Displaying In-App Message"];
     
     // Sets up the message view in a hidden position while we wait
     [self setupInitialMessageUI];
@@ -234,7 +234,7 @@
             }
             
             let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"html"]];
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:message];
             
             if (!self.message.isPreview)
                 [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
@@ -322,7 +322,7 @@
     if (error.code == 410 || error.code == 404) {
         [self.delegate messageIsNotActive:self.message];
     }
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
+    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:message];
 }
 
 /*
@@ -331,10 +331,10 @@
  Once the HTML content is loaded, we call animateAppearance() to show the message view
  */
 - (void)addConstraintsForMessage {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message Constraints"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Setting up In-App Message Constraints"];
     
     if (![self.view.subviews containsObject:self.messageView]) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"addConstraintsForMessage: messageView is not a subview of OSInAppMessageViewController"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"addConstraintsForMessage: messageView is not a subview of OSInAppMessageViewController"];
         [self.view addSubview:self.messageView];
     }
     
@@ -365,13 +365,13 @@
     CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
     
     let screenHeight = [NSString stringWithFormat:@"Screen Bounds Height: %f", mainBounds.size.height];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:screenHeight];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:screenHeight];
     let screenWidth = [NSString stringWithFormat:@"Screen Bounds Width: %f", mainBounds.size.width];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:screenWidth];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:screenWidth];
     let screenScale = [NSString stringWithFormat:@"Screen Bounds Scale: %f", UIScreen.mainScreen.scale];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:screenScale];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:screenScale];
     let heightMessage = [NSString stringWithFormat:@"In App Message Height: %f", self.message.height.doubleValue];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:heightMessage];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:heightMessage];
     
     // Height constraint based on the IAM being full screen or any others with a specific height
     // NOTE: full screen IAM payload has no height, so match screen height minus margins
@@ -713,9 +713,9 @@
     let event = [OSInAppMessageBridgeEvent instanceWithData:body];
     
     NSString *eventMessage = [NSString stringWithFormat:@"Action Occured with Event: %@", event];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventMessage];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:eventMessage];
     NSString *eventTypeMessage = [NSString stringWithFormat:@"Action Occured with Event Type: %lu", (unsigned long)event.type];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:eventTypeMessage];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:eventTypeMessage];
 
     if (event) {
         switch (event.type) {
@@ -806,7 +806,7 @@
     /*
      Code here will execute before the orientation change begins
      */
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Screen Orientation Change Detected"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Screen Orientation Change Detected"];
     
     UIApplicationState appState = UIApplication.sharedApplication.applicationState;
 
@@ -817,7 +817,7 @@
     if (currentOrientation == OrientationInvalid &&
         (appState == UIApplicationStateInactive || appState == UIApplicationStateBackground)) {
         
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Ended: Orientation same as previous or invalid orientation"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Ended: Orientation same as previous or invalid orientation"];
         
         self.previousOrientation = currentOrientation;
         
@@ -826,7 +826,7 @@
     
     self.previousOrientation = currentOrientation;
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Started: Hiding IAM"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Started: Hiding IAM"];
 
     // Deactivate the pan constraint while changing the screen orientation
     self.panVerticalConstraint.active = false;
@@ -838,7 +838,7 @@
         /*
          Code here will execute during the rotation
          */
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Occurring: Removing all previous IAM constraints"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Occurring: Removing all previous IAM constraints"];
         
         // Remove all of the constraints connected to the messageView
         [self.messageView removeConstraints:[self.messageView constraints]];
@@ -848,11 +848,11 @@
         /*
          Code here will execute after the rotation has finished
          */
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete: Getting new height from JS getPageMetaData()"];
         
         // Evaluate the JS getPageMetaData() to obtain the new height for the webView and use it within the completion callback to set the new height
         [self.messageView resetWebViewToMaxBoundsAndResizeHeight:^(NSNumber *newHeight) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Orientation Change Complete with New Height: Adding constraints again and showing IAM"];
             
             // Assign new height to message
             self.message.height = newHeight;
@@ -876,7 +876,7 @@
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Received in-app script message: %@", message.body]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Received in-app script message: %@", message.body]];
     [self jsEventOccurredWithBody:[message.body dataUsingEncoding:NSUTF8StringEncoding]];
 }
 

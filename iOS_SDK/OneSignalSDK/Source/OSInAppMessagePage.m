@@ -34,7 +34,7 @@
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     
     if (error || !json) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OSInAppMessagePage Unable to decode in-app message JSON: %@", error.description ?: @"No Data"]];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OSInAppMessagePage Unable to decode in-app message JSON: %@", error.description ?: @"No Data"]];
         return nil;
     }
     

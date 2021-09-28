@@ -206,7 +206,7 @@ static OneSignalLocation* singleInstance = nil;
         // We evaluate the following cases after permissions were asked (denied or given)
         CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
         BOOL showSettings = prompt && fallback && permissionStatus == kCLAuthorizationStatusDenied;
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"internalGetLocation called showSettings: %@", showSettings ? @"YES" : @"NO"]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"internalGetLocation called showSettings: %@", showSettings ? @"YES" : @"NO"]];
         // Fallback to settings alert view when the following condition are true:
         //   - On a prompt flow
         //   - Fallback to settings is enabled
@@ -246,7 +246,7 @@ static OneSignalLocation* singleInstance = nil;
     BOOL backgroundLocationEnable = backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription;
     BOOL permissionEnable = permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt;
     
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"internalGetLocation called backgroundLocationEnable: %@ permissionEnable: %@", backgroundLocationEnable ? @"YES" : @"NO", permissionEnable ? @"YES" : @"NO"]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"internalGetLocation called backgroundLocationEnable: %@ permissionEnable: %@", backgroundLocationEnable ? @"YES" : @"NO", permissionEnable ? @"YES" : @"NO"]];
     
     if (backgroundLocationEnable && permissionEnable) {
         #pragma clang diagnostic push
@@ -357,7 +357,7 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
+    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
     [OneSignalLocation sendAndClearLocationListener:ERROR];
     if ([OneSignalLocation backgroundTaskIsActive]) {
         [OneSignalLocation endTask];
