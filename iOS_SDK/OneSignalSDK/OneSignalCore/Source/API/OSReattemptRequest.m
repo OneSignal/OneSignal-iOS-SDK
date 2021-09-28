@@ -25,12 +25,12 @@
  * THE SOFTWARE.
  */
 
-#import "ReattemptRequest.h"
+#import "OSReattemptRequest.h"
 
-@implementation ReattemptRequest
+@implementation OSReattemptRequest
 
 +(instancetype)withRequest:(OneSignalRequest *)request successBlock:(OSResultSuccessBlock)success failureBlock:(OSFailureBlock)failure {
-    let reattempt = [ReattemptRequest new];
+    OSReattemptRequest *reattempt = [OSReattemptRequest new];
     
     reattempt.request = request;
     reattempt.successBlock = success;

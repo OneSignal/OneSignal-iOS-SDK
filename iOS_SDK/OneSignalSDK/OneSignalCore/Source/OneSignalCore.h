@@ -16,9 +16,8 @@
 #import "NSURL+OneSignal.h"
 #import "NSString+OneSignal.h"
 #import "OneSignalRequest.h"
-/*Block for generic results on success and errors on failure*/
-typedef void (^OSResultSuccessBlock)(NSDictionary* result);
-typedef void (^OSFailureBlock)(NSError* error);
+#import "OneSignalClient.h"
+#import "OneSignalCoreHelper.h"
 
 @interface OneSignalCore : NSObject
 

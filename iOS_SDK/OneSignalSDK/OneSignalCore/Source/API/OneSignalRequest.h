@@ -32,6 +32,10 @@
 #ifndef OneSignalRequest_h
 #define OneSignalRequest_h
 
+/*Block for generic results on success and errors on failure*/
+typedef void (^OSResultSuccessBlock)(NSDictionary* result);
+typedef void (^OSFailureBlock)(NSError* error);
+
 @interface OneSignalRequest : NSObject
 
 @property (nonatomic) BOOL disableLocalCaching;
