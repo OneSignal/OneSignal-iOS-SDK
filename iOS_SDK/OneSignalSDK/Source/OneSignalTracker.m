@@ -114,7 +114,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     else {
         // This checks if notification permissions changed when app was backgrounded
         [OneSignal sendNotificationTypesUpdate];
-        [OneSignal.sessionManager attemptSessionUpgrade:OneSignal.appEntryState];
+        [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
         [OneSignal receivedInAppMessageJson:nil];
     }
     
@@ -139,7 +139,7 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     OneSignal.appEntryState = APP_CLOSE;
 
-    let influences = [OneSignal.sessionManager getSessionInfluences];
+    let influences = [[OSSessionManager sharedSessionManager] getSessionInfluences];
     let focusCallParams = [self createFocusCallParams:influences onSessionEnded:false];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:influences focusEventType:BACKGROUND];
     

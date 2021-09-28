@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #import "OneSignal.h"
 #import "OSUserState.h"
-#import "OneSignalClient.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalLocation.h"
 #import "OSFocusCallParams.h"
 
