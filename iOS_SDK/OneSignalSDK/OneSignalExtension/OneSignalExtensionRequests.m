@@ -8,15 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalExtensionRequests.h"
-#import "OSOutcomeEvent.h"
-#import "OneSignalRequest.h"
-#import "OneSignalHelper.h"
-#import "OneSignalCommonDefines.h"
-#import <stdlib.h>
-#import <stdio.h>
-#import <sys/types.h>
-#import <sys/utsname.h>
-#import <sys/sysctl.h>
 
 @implementation OSRequestReceiveReceipts
 

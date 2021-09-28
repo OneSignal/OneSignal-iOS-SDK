@@ -48,7 +48,7 @@
 
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request             withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent
                 withContentHandler:(void (^)(UNNotificationContent * _Nonnull))contentHandler {
-    //[OneSignalLog onesignal_Log:ONE_S_LL_VERBOSE message:@"NSE request received"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"NSE request received"];
     
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
@@ -66,7 +66,7 @@
     [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotification:notification withMutableNotificationContent:replacementContent];
     
     // Track receieved
-    //[OneSignalTrackFirebaseAnalytics trackReceivedEvent:notification];
+    [OneSignalTrackFirebaseAnalytics trackReceivedEvent:notification];
 
     // Action Buttons
     [self addActionButtonsToExtentionRequest:request

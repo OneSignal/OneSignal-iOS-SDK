@@ -9,7 +9,6 @@
 
 #import <Foundation/Foundation.h>
 #import <OneSignalCore/OneSignalCore.h>
-#import "OneSignalRequest.h"
 
 @interface OSRequestReceiveReceipts : OneSignalRequest
 + (instancetype _Nonnull)withPlayerId:(NSString * _Nullable)playerId notificationId:(NSString * _Nonnull)notificationId appId:(NSString * _Nonnull)appId;
