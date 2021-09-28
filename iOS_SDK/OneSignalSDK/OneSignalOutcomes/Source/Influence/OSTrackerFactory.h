@@ -28,8 +28,7 @@ THE SOFTWARE.
 #import "OSInfluenceDataRepository.h"
 #import "OSInfluence.h"
 #import "OSChannelTracker.h"
-#import "OneSignal.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 #ifndef OSTrackerFactory_h
 #define OSTrackerFactory_h

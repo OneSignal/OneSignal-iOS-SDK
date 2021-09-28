@@ -28,8 +28,8 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSInfluence.h"
 #import "OSIndirectInfluence.h"
-#import "OneSignalHelper.h"
 #import "OSInAppMessageTracker.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OSChannelTracker ()
 
@@ -82,7 +82,7 @@ THE SOFTWARE.
     if (self.influenceType == INDIRECT)
         self.indirectIds = [self lastReceivedIds];
     
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"InAppMessageTracker initInfluencedTypeFromCache: %@", [self description]]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"InAppMessageTracker initInfluencedTypeFromCache: %@", [self description]]];
 }
 
 - (void)cacheState {

@@ -25,10 +25,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#import "OneSignal.h"
-
 #ifndef OSInfluence_h
 #define OSInfluence_h
+
+/* OneSignal Influence Types */
+typedef NS_ENUM(NSUInteger, OSInfluenceType) {
+    DIRECT,
+    INDIRECT,
+    UNATTRIBUTED,
+    DISABLED
+};
+/* OneSignal Influence Channels */
+typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
+    IN_APP_MESSAGE,
+    NOTIFICATION,
+};
 
 @interface OSInfluenceBuilder : NSObject
 

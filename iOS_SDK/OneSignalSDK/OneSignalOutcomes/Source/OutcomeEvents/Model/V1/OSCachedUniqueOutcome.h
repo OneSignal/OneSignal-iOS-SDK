@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+#import "OSInfluence.h"
 
 @interface OSCachedUniqueOutcome : NSObject
 

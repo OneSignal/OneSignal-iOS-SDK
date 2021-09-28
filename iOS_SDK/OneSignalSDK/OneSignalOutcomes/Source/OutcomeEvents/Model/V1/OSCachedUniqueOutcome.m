@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSCachedUniqueOutcome.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @implementation OSCachedUniqueOutcome
 

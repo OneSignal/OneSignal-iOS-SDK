@@ -25,8 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#import "OneSignal.h"
 #import "OSInfluenceDataRepository.h"
+#import "OSInfluence.h"
 
 #ifndef OSChannelTracker_h
 #define OSChannelTracker_h

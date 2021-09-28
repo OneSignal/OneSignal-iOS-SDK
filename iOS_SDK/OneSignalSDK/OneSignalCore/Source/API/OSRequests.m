@@ -27,9 +27,11 @@
 
 #import <Foundation/Foundation.h>
 #import "OSRequests.h"
-//#import "OSOutcomeEvent.h"
 #import "OneSignalRequest.h"
 #import "OneSignalCommonDefines.h"
+#import "OSMacros.h"
+#import "OneSignalCoreHelper.h"
+#import "OneSignalLog.h"
 #import <stdlib.h>
 #import <stdio.h>
 #import <sys/types.h>
@@ -349,40 +351,40 @@
 }
 @end
 
-@implementation OSRequestSendLocation
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
-    return [self withUserId:userId appId:appId location:coordinate networkType:netType backgroundState:backgroundState authHashToken:emailAuthHash authHashTokenKey:@"email_auth_hash" externalIdAuthToken:externalIdAuthToken];
-}
-
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId location:(os_last_location *)coordinate networkType:(NSNumber *)netType backgroundState:(BOOL)backgroundState smsAuthHashToken:(NSString *)smsAuthHash externalIdAuthToken:(NSString *)externalIdAuthToken {
-    return [self withUserId:userId appId:appId location:coordinate networkType:netType backgroundState:backgroundState authHashToken:smsAuthHash authHashTokenKey:@"sms_auth_hash" externalIdAuthToken:externalIdAuthToken];
-}
-
-+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId location:(os_last_location *)coordinate networkType:(NSNumber *)netType backgroundState:(BOOL)backgroundState authHashToken:(NSString *)authHashToken authHashTokenKey:(NSString *)authHashKey externalIdAuthToken:(NSString *)externalIdAuthToken {
-    let request = [OSRequestSendLocation new];
-    
-    let params = [NSMutableDictionary new];
-    params[@"app_id"] = appId;
-    params[@"lat"] = @(coordinate->cords.latitude);
-    params[@"long"] = @(coordinate->cords.longitude);
-    params[@"loc_acc_vert"] = @(coordinate->verticalAccuracy);
-    params[@"loc_acc"] = @(coordinate->horizontalAccuracy);
-    params[@"net_type"] = netType;
-    params[@"loc_bg"] = @(backgroundState);
-
-    if (authHashToken && authHashToken.length > 0 && authHashKey)
-        params[authHashKey] = authHashToken;
-    
-    if (externalIdAuthToken && externalIdAuthToken.length > 0)
-        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
-    
-    request.parameters = params;
-    request.method = PUT;
-    request.path = [NSString stringWithFormat:@"players/%@", userId];
-    
-    return request;
-}
-@end
+//@implementation OSRequestSendLocation
+//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
+//    return [self withUserId:userId appId:appId location:coordinate networkType:netType backgroundState:backgroundState authHashToken:emailAuthHash authHashTokenKey:@"email_auth_hash" externalIdAuthToken:externalIdAuthToken];
+//}
+//
+//+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId location:(os_last_location *)coordinate networkType:(NSNumber *)netType backgroundState:(BOOL)backgroundState smsAuthHashToken:(NSString *)smsAuthHash externalIdAuthToken:(NSString *)externalIdAuthToken {
+//    return [self withUserId:userId appId:appId location:coordinate networkType:netType backgroundState:backgroundState authHashToken:smsAuthHash authHashTokenKey:@"sms_auth_hash" externalIdAuthToken:externalIdAuthToken];
+//}
+//
+//+ (instancetype)withUserId:(NSString *)userId appId:(NSString *)appId location:(os_last_location *)coordinate networkType:(NSNumber *)netType backgroundState:(BOOL)backgroundState authHashToken:(NSString *)authHashToken authHashTokenKey:(NSString *)authHashKey externalIdAuthToken:(NSString *)externalIdAuthToken {
+//    let request = [OSRequestSendLocation new];
+//
+//    let params = [NSMutableDictionary new];
+//    params[@"app_id"] = appId;
+//    params[@"lat"] = @(coordinate->cords.latitude);
+//    params[@"long"] = @(coordinate->cords.longitude);
+//    params[@"loc_acc_vert"] = @(coordinate->verticalAccuracy);
+//    params[@"loc_acc"] = @(coordinate->horizontalAccuracy);
+//    params[@"net_type"] = netType;
+//    params[@"loc_bg"] = @(backgroundState);
+//
+//    if (authHashToken && authHashToken.length > 0 && authHashKey)
+//        params[authHashKey] = authHashToken;
+//
+//    if (externalIdAuthToken && externalIdAuthToken.length > 0)
+//        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
+//
+//    request.parameters = params;
+//    request.method = PUT;
+//    request.path = [NSString stringWithFormat:@"players/%@", userId];
+//
+//    return request;
+//}
+//@end
 
 @implementation OSRequestUpdateLanguage
 
@@ -476,41 +478,41 @@
 
 @end
 
-@implementation OSRequestOnFocus
-
-NSString * const IS_DIRECT = @"direct";
-NSString * const NOTIFICATION_IDS = @"notification_ids";
-
-+ (instancetype)withUserId:(NSString *)userId
-                     appId:(NSString *)appId
-                activeTime:(NSNumber *)activeTime
-                   netType:(NSNumber *)netType
-                deviceType:(NSNumber *)deviceType
-           influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
-    let request = [OSRequestOnFocus new];
-
-    let params = [NSMutableDictionary new];
-    params[@"app_id"] = appId;
-    params[@"state"] = @"ping";
-    params[@"type"] = @1;
-    params[@"active_time"] = activeTime;
-    params[@"net_type"] = netType;
-    params[@"device_type"] = deviceType;
-    
-    if (influenceParams) {
-        for (OSFocusInfluenceParam *influenceParam in influenceParams) {
-            params[influenceParam.influenceKey] = influenceParam.influenceIds;
-            params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
-        }
-    }
-    
-    request.parameters = params;
-    request.method = POST;
-    request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
-    
-    return request;
-}
-@end
+//@implementation OSRequestOnFocus
+//
+//NSString * const IS_DIRECT = @"direct";
+//NSString * const NOTIFICATION_IDS = @"notification_ids";
+//
+//+ (instancetype)withUserId:(NSString *)userId
+//                     appId:(NSString *)appId
+//                activeTime:(NSNumber *)activeTime
+//                   netType:(NSNumber *)netType
+//                deviceType:(NSNumber *)deviceType
+//           influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
+//    let request = [OSRequestOnFocus new];
+//
+//    let params = [NSMutableDictionary new];
+//    params[@"app_id"] = appId;
+//    params[@"state"] = @"ping";
+//    params[@"type"] = @1;
+//    params[@"active_time"] = activeTime;
+//    params[@"net_type"] = netType;
+//    params[@"device_type"] = deviceType;
+//
+//    if (influenceParams) {
+//        for (OSFocusInfluenceParam *influenceParam in influenceParams) {
+//            params[influenceParam.influenceKey] = influenceParam.influenceIds;
+//            params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
+//        }
+//    }
+//
+//    request.parameters = params;
+//    request.method = POST;
+//    request.path = [NSString stringWithFormat:@"players/%@/on_focus", userId];
+//
+//    return request;
+//}
+//@end
 
 @implementation OSRequestInAppMessageViewed
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
@@ -556,29 +558,29 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 }
 @end
 
-@implementation OSRequestInAppMessageClicked
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
-                      withPlayerId:(NSString * _Nonnull)playerId
-                     withMessageId:(NSString * _Nonnull)messageId
-                      forVariantId:(NSString * _Nonnull)variantId
-                     withAction:(OSInAppMessageAction * _Nonnull)action {
-    let request = [OSRequestInAppMessageClicked new];
-
-    request.parameters = @{
-       @"app_id": appId,
-       @"device_type": @0,
-       @"player_id": playerId,
-       @"click_id": action.clickId ?: @"",
-       @"variant_id": variantId,
-       @"first_click": @(action.firstClick)
-    };
-
-    request.method = POST;
-    request.path = [NSString stringWithFormat:@"in_app_messages/%@/click", messageId];
-
-    return request;
-}
-@end
+//@implementation OSRequestInAppMessageClicked
+//+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+//                      withPlayerId:(NSString * _Nonnull)playerId
+//                     withMessageId:(NSString * _Nonnull)messageId
+//                      forVariantId:(NSString * _Nonnull)variantId
+//                     withAction:(OSInAppMessageAction * _Nonnull)action {
+//    let request = [OSRequestInAppMessageClicked new];
+//
+//    request.parameters = @{
+//       @"app_id": appId,
+//       @"device_type": @0,
+//       @"player_id": playerId,
+//       @"click_id": action.clickId ?: @"",
+//       @"variant_id": variantId,
+//       @"first_click": @(action.firstClick)
+//    };
+//
+//    request.method = POST;
+//    request.path = [NSString stringWithFormat:@"in_app_messages/%@/click", messageId];
+//
+//    return request;
+//}
+//@end
 
 @implementation OSRequestLoadInAppMessageContent
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
@@ -641,102 +643,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
     request.parameters = parametres;
     request.method = PUT;
     request.path = [NSString stringWithFormat:@"players/%@", userId];
-
-    return request;
-}
-@end
-
-@implementation OSRequestSendOutcomesV1ToServer
-NSString * const APP_ID = @"app_id";
-NSString * const DEVICE = @"device_type";
-NSString * const OUTCOME_ID = @"id";
-NSString * const WEIGHT = @"weight";
-
-+ (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
-                                     appId:(NSString * _Nonnull)appId
-                                deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestSendOutcomesV1ToServer new];
-
-    let params = [NSMutableDictionary new];
-    params[APP_ID] = appId;
-    params[DEVICE] = deviceType;
-    params[IS_DIRECT] = @YES;
-    params[OUTCOME_ID] = outcome.name;
-
-    if (outcome.notificationIds && [outcome.notificationIds count] > 0)
-        params[NOTIFICATION_IDS] = outcome.notificationIds;
-
-    if ([outcome.weight doubleValue] > 0)
-        params[WEIGHT] = outcome.weight;
-
-    request.parameters = params;
-    request.method = POST;
-    request.path = @"outcomes/measure";
-
-    return request;
-}
-
-+ (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
-                                       appId:(NSString * _Nonnull)appId
-                                  deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestSendOutcomesV1ToServer new];
-
-    let params = [NSMutableDictionary new];
-    params[APP_ID] = appId;
-    params[DEVICE] = deviceType;
-    params[IS_DIRECT] = @NO;
-    params[OUTCOME_ID] = outcome.name;
-
-    if (outcome.notificationIds && [outcome.notificationIds count] > 0)
-        params[NOTIFICATION_IDS] = outcome.notificationIds;
-
-    if ([outcome.weight doubleValue] > 0)
-        params[WEIGHT] = outcome.weight;
-
-    request.parameters = params;
-    request.method = POST;
-    request.path = @"outcomes/measure";
-
-    return request;
-}
-
-+ (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
-                                           appId:(NSString * _Nonnull)appId
-                                      deviceType:(NSNumber * _Nonnull)deviceType {
-    let request = [OSRequestSendOutcomesV1ToServer new];
-
-    let params = [NSMutableDictionary new];
-    params[APP_ID] = appId;
-    params[DEVICE] = deviceType;
-
-    params[OUTCOME_ID] = outcome.name;
-
-    if ([outcome.weight doubleValue] > 0)
-        params[WEIGHT] = outcome.weight;
-
-    request.parameters = params;
-    request.method = POST;
-    request.path = @"outcomes/measure";
-
-    return request;
-}
-
-@end
-
-@implementation OSRequestSendOutcomesV2ToServer
-NSString * const OUTCOME_SOURCE = @"source";
-
-+ (instancetype)measureOutcomeEvent:(OSOutcomeEventParams *)outcome appId:(NSString *)appId deviceType:(NSNumber *)deviceType {
-    let request = [OSRequestSendOutcomesV2ToServer new];
-    
-    let params = [NSMutableDictionary new];
-    params[APP_ID] = appId;
-    params[DEVICE] = deviceType;
-    [params addEntriesFromDictionary:[outcome toDictionaryObject]];
-    
-    request.parameters = params;
-    request.method = POST;
-    request.path = @"outcomes/measure_sources";
 
     return request;
 }

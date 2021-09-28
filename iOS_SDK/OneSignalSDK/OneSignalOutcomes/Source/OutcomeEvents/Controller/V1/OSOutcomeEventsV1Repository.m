@@ -27,8 +27,7 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSOutcomeEventsV1Repository.h"
-#import "Requests.h"
-#import "OneSignalClient.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSOutcomeEvent.h"
 
 @implementation OSOutcomeEventsV1Repository
@@ -42,26 +41,26 @@ THE SOFTWARE.
     OneSignalRequest *request;
     switch (outcome.session) {
         case DIRECT:
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending direct outcome"];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Sending direct outcome"];
             request = [OSRequestSendOutcomesV1ToServer directWithOutcome:outcome
                                                                  appId:appId
                                                             deviceType:deviceType];
             break;
         case INDIRECT:
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending indirect outcome"];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Sending indirect outcome"];
             request = [OSRequestSendOutcomesV1ToServer indirectWithOutcome:outcome
                                                                    appId:appId
                                                               deviceType:deviceType];
             break;
         case UNATTRIBUTED:
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Sending unattributed outcome"];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Sending unattributed outcome"];
             request = [OSRequestSendOutcomesV1ToServer unattributedWithOutcome:outcome
                                                                        appId:appId
                                                                   deviceType:deviceType];
             break;
         case DISABLED:
         default:
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Outcomes for current session are disabled"];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Outcomes for current session are disabled"];
             return;
     }
 
