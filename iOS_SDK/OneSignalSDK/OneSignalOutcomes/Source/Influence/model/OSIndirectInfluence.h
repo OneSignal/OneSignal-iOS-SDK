@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-#import "OSJSONHandling.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OSIndirectInfluence : NSObject <NSCoding, OSJSONEncodable, OSJSONDecodable>
 
