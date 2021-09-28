@@ -31,7 +31,7 @@
 //#import "OSInfluenceDataDefines.h"
 //#import "OSSubscription.h"
 //#import "OneSignalInternal.h"
-//#import "OneSignalReceiveReceiptsController.h"
+#import "OneSignalReceiveReceiptsController.h"
 //#import "OSSessionManager.h"
 //#import "OSMigrationController.h"
 #import "OneSignalAttachmentHandler.h"
@@ -135,7 +135,7 @@
 
 + (void)onNotificationReceived:(NSString *)receivedNotificationId withBlockingTask:(dispatch_semaphore_t)semaphore {
     if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
-        
+        // ECM TODO: We probably need to rearchitect migrations a bit. Each module needs to migrate the models it is responsible for
         // If update was made without app being initialized/launched before -> migrate
 //        [[OSMigrationController new] migrate];
 //        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OneSignal sessionManager]]];
@@ -148,14 +148,14 @@
         let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
         // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
         int randomDelay = semaphore != nil ? arc4random_uniform(MAX_CONF_DELIVERY_DELAY) : 0;
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt with delay: %i", randomDelay]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt with delay: %i", randomDelay]];
         [OneSignal.receiveReceiptsController sendReceiveReceiptWithPlayerId:playerId notificationId:receivedNotificationId appId:appId delay:randomDelay successBlock:^(NSDictionary *result) {
-            [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Success for playerId: %@ result: %@", playerId, result]];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Success for playerId: %@ result: %@", playerId, result]];
             if (semaphore) {
                 dispatch_semaphore_signal(semaphore);
             }
         } failureBlock:^(NSError *error) {
-            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Failed for playerId: %@ error: %@", playerId, error]];
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal onNotificationReceived sendReceiveReceipt Failed for playerId: %@ error: %@", playerId, error]];
             if (semaphore) {
                 dispatch_semaphore_signal(semaphore);
             }
