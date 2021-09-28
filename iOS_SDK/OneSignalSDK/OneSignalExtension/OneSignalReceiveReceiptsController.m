@@ -27,9 +27,8 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalReceiveReceiptsController.h"
-//#import "Requests.h"
-//#import "OneSignalClient.h"
-//#import "OSSubscription.h"
+#import "Requests.h"
+#import "OneSignalClient.h"
 
 @implementation OneSignalReceiveReceiptsController
 
@@ -92,7 +91,7 @@
             failure(nil);
         return;
     }
-//
+
 //    let request = [OSRequestReceiveReceipts withPlayerId:playerId notificationId:notificationId appId:appId];
 //
 //    dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC);

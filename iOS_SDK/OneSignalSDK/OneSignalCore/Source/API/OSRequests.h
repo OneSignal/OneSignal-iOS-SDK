@@ -199,9 +199,6 @@ NS_ASSUME_NONNULL_END
 
 @end
 
-@interface OSRequestReceiveReceipts : OneSignalRequest
-+ (instancetype _Nonnull)withPlayerId:(NSString * _Nullable)playerId notificationId:(NSString * _Nonnull)notificationId appId:(NSString * _Nonnull)appId;
-@end
 
 @interface OSRequestTrackV1 : OneSignalRequest
 + (instancetype _Nonnull)trackUsageData:(NSString * _Nonnull)osUsageData
