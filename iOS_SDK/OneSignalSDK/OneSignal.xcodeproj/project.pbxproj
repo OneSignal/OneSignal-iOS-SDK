@@ -1153,14 +1153,6 @@
 			name = OnFocus;
 			sourceTree = "<group>";
 		};
-		7A9173A023197198007848FA /* ReceiveReceipts */ = {
-			isa = PBXGroup;
-			children = (
-				9D475EDA23874D1100EE69F9 /* Controller */,
-			);
-			name = ReceiveReceipts;
-			sourceTree = "<group>";
-		};
 		7AAA606B2485D0D70004FADE /* Migration */ = {
 			isa = PBXGroup;
 			children = (
@@ -1309,7 +1301,6 @@
 				7AF98632243F84AC00C36EAE /* Influence */,
 				7A674F172360D7DB001F9ACD /* OnFocus */,
 				7ADE379222E8B56F00263048 /* OutcomeEvents */,
-				7A9173A023197198007848FA /* ReceiveReceipts */,
 				454F94F31FAD263300D74CCF /* Model */,
 				9129C6B41E89E541009CB6A0 /* State */,
 				91F58D7B1E7C7EE30017D24D /* NotificationSettings */,
@@ -1458,13 +1449,6 @@
 				7AF9868B244A556F00C36EAE /* OSOutcomeEventsFactory.m */,
 				7AF9868F244A566F00C36EAE /* OSOutcomeEventsCache.h */,
 				7AF98691244A567B00C36EAE /* OSOutcomeEventsCache.m */,
-			);
-			name = Controller;
-			sourceTree = "<group>";
-		};
-		9D475EDA23874D1100EE69F9 /* Controller */ = {
-			isa = PBXGroup;
-			children = (
 			);
 			name = Controller;
 			sourceTree = "<group>";
