@@ -32,7 +32,7 @@
 #import "OneSignalHelper.h"
 #import "OneSignalClient.h"
 #import "OneSignalSelectorHelpers.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OneSignalCommonDefines.h"
 #import "OSInAppMessagingHelpers.h"
 #import "OSInfluenceDataDefines.h"

@@ -26,7 +26,7 @@ THE SOFTWARE.
 */
 
 #import "OneSignal.h"
-#import "Requests.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalLocation.h"
 #import "OSUserState.h"
 

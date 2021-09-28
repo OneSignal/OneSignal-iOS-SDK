@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"

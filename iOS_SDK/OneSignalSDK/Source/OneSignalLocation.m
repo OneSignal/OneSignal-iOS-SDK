@@ -31,8 +31,7 @@
 #import "OneSignalLocation.h"
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
-#import "OneSignalClient.h"
-#import "Requests.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalDialogController.h"
 #import "OSStateSynchronizer.h"
 

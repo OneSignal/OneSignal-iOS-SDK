@@ -25,8 +25,7 @@
  * THE SOFTWARE.
  */
 #import <UIKit/UIKit.h>
-#import "Requests.h"
-#import "OneSignalClient.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSUnattributedFocusTimeProcessor.h"
 #import "OSStateSynchronizer.h"
 

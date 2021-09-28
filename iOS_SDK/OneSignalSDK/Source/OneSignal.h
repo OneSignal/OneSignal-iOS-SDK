@@ -424,8 +424,6 @@ typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
-///*Block for handling outcome event being sent successfully*/
-//typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject

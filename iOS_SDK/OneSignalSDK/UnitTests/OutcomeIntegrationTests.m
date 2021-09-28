@@ -35,7 +35,7 @@
 #import "OneSignalOverrider.h"
 #import "UnitTestCommonMethods.h"
 #import "OneSignalClientOverrider.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "NSDateOverrider.h"
 #import "UNUserNotificationCenterOverrider.h"
 #import "RestClientAsserts.h"
