@@ -26,8 +26,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
-#import "OneSignalHelper.h"
 #import "OneSignalRequest.h"
 
 @interface ReattemptRequest : NSObject

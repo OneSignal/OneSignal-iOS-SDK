@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
+#import "OSNotification.h"
 
 @protocol OSJSONDecodable
 + (instancetype _Nullable)instanceWithData:(NSData * _Nonnull)data;

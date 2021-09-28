@@ -26,10 +26,8 @@
  */
 
 #import "OneSignalRequest.h"
-#import "OneSignalHelper.h"
-#import "OneSignal.h"
-#import "Requests.h"
 #import "OneSignalCommonDefines.h"
+#import "OneSignalLog.h"
 
 #define HTTP_HEADER_KEY_OS_VERSION @"SDK-Version"
 #define HTTP_HEADER_PREFIX_OS_VERSION @"onesignal/ios/"
@@ -56,9 +54,9 @@
 
 -(NSMutableURLRequest *)urlRequest {
     //build URL
-    let urlString = [OS_API_SERVER_URL stringByAppendingString:self.path];
+    NSString *urlString = [OS_API_SERVER_URL stringByAppendingString:self.path];
     
-    let request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
     for (NSString *key in self.additionalHeaders) {
         [request setValue:self.additionalHeaders[key] forHTTPHeaderField:key];
@@ -69,7 +67,7 @@
     
     [request setValue:OS_API_ACCEPT_HEADER forHTTPHeaderField:@"Accept"];
     
-    let versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, ONESIGNAL_VERSION];
+    NSString *versionString = [NSString stringWithFormat:@"%@%@", HTTP_HEADER_PREFIX_OS_VERSION, ONESIGNAL_VERSION];
     [request setValue:versionString forHTTPHeaderField:HTTP_HEADER_KEY_OS_VERSION];
     
     [request setHTTPMethod:httpMethodString(self.method)];
@@ -100,7 +98,7 @@
     
     //to prevent a crash, print error and return before attempting to serialize to JSON data
     if (![NSJSONSerialization isValidJSONObject:self.parameters]) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal Attempted to make a request with an invalid JSON body: %@", self.parameters]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal Attempted to make a request with an invalid JSON body: %@", self.parameters]];
         return;
     }
     

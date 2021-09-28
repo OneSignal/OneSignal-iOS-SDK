@@ -26,9 +26,7 @@
  */
 
 #import "OneSignalClient.h"
-#import "UIApplicationDelegate+OneSignal.h"
 #import "ReattemptRequest.h"
-#import "OneSignal.h"
 #import "OneSignalCommonDefines.h"
 
 @interface OneSignal (OneSignalClientExtra)
