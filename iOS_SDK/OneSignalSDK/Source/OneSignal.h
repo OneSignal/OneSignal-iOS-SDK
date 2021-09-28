@@ -441,8 +441,6 @@ typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
 
-extern NSString* const ONESIGNAL_VERSION;
-
 + (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;

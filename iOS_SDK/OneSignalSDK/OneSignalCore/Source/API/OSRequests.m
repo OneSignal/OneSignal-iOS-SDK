@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "Requests.h"
+#import "OSRequests.h"
 //#import "OSOutcomeEvent.h"
 #import "OneSignalRequest.h"
 #import "OneSignalCommonDefines.h"
@@ -336,10 +336,10 @@
     let request = [OSRequestSyncHashedEmail new];
     
     let lowerCase = [email lowercaseString];
-    let md5Hash = [OneSignalHelper hashUsingMD5:lowerCase];
-    let sha1Hash = [OneSignalHelper hashUsingSha1:lowerCase];
+    let md5Hash = [OneSignalCoreHelper hashUsingMD5:lowerCase];
+    let sha1Hash = [OneSignalCoreHelper hashUsingSha1:lowerCase];
     
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"%@ - MD5: %@, SHA1:%@", lowerCase, md5Hash, sha1Hash]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"%@ - MD5: %@, SHA1:%@", lowerCase, md5Hash, sha1Hash]];
     
     request.parameters = @{@"app_id" : appId, @"em_m" : md5Hash, @"em_s" : sha1Hash, @"net_type" : netType};
     request.method = PUT;
@@ -628,7 +628,7 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
 + (instancetype)withUserId:(NSString *)externalId withUserIdHashToken:(NSString *)hashToken withOneSignalUserId:(NSString *)userId  withChannelHashToken:(NSString *)channelHashToken withHashTokenKey:(NSString *)hashTokenKey appId:(NSString *)appId {
     NSString *msg = [NSString stringWithFormat:@"App ID: %@, external ID: %@", appId, externalId];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:msg];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:msg];
 
     let request = [OSRequestUpdateExternalUserId new];
     NSMutableDictionary *parametres = [NSMutableDictionary new];

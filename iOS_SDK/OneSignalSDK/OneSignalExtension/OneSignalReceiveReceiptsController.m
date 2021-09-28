@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalReceiveReceiptsController.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OneSignalClient.h"
 
 @implementation OneSignalReceiveReceiptsController
