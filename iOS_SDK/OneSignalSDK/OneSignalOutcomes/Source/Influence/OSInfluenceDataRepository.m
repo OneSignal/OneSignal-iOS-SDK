@@ -33,6 +33,13 @@ THE SOFTWARE.
 
 @implementation OSInfluenceDataRepository
 
+static OSInfluenceDataRepository *_influenceDataRepository;
++ (OSInfluenceDataRepository *)sharedInfluenceDataRepository {
+    if (!_influenceDataRepository)
+        _influenceDataRepository = [OSInfluenceDataRepository new];
+    return _influenceDataRepository;
+}
+
 - (void)cacheNotificationInfluenceType:(OSInfluenceType) influenceType {
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_CACHED_NOTIFICATION_INFLUENCE withValue:OS_INFLUENCE_TYPE_TO_STRING(influenceType)];
 }

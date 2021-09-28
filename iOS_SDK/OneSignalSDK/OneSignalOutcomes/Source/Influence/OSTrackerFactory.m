@@ -35,6 +35,13 @@ THE SOFTWARE.
 NSDictionary<NSString *, OSChannelTracker *> *_trackers;
 OSInfluenceDataRepository *_dataRepository;
 
+static OSTrackerFactory *_trackerFactory;
++ (OSTrackerFactory*)sharedTrackerFactory {
+    if (!_trackerFactory)
+        _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:[OSInfluenceDataRepository sharedInfluenceDataRepository]];
+    return _trackerFactory;
+}
+
 - (id)initWithRepository:(OSInfluenceDataRepository *)dataRepository {
     self = [super init];
     if (self) {

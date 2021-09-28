@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "OSOutcomesRequests.h"
 #import "OSSessionManager.h"
 #import "OSInfluence.h"
 #import "OSIndirectInfluence.h"

@@ -406,27 +406,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _appEntryState = appEntryState;
 }
 
-static OSInfluenceDataRepository *_influenceDataRepository;
-+ (OSInfluenceDataRepository *)influenceDataRepository {
-    if (!_influenceDataRepository)
-        _influenceDataRepository = [OSInfluenceDataRepository new];
-    return _influenceDataRepository;
-}
-
-static OSTrackerFactory *_trackerFactory;
-+ (OSTrackerFactory*)trackerFactory {
-    if (!_trackerFactory)
-        _trackerFactory = [[OSTrackerFactory alloc] initWithRepository:OneSignal.influenceDataRepository];
-    return _trackerFactory;
-}
-
-static OSSessionManager *_sessionManager;
-+ (OSSessionManager*)sessionManager {
-    if (!_sessionManager)
-        _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:OneSignal.trackerFactory];
-    return _sessionManager;
-}
-
 static OSOutcomeEventsCache *_outcomeEventsCache;
 + (OSOutcomeEventsCache *)outcomeEventsCache {
     if (!_outcomeEventsCache)

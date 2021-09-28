@@ -33,6 +33,7 @@
 #import "OSSessionManager.h"
 #import "OSOutcomeEventsRepository.h"
 #import "OSInfluenceDataDefines.h"
+#import "OSInAppMessageOutcome.h"
 
 @interface OneSignalOutcomeEventsController ()
 
