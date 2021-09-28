@@ -588,7 +588,7 @@ static BOOL _isInAppMessagingPaused = false;
     @synchronized (self.messageDisplayQueue) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Dismissing IAM and preparing to show next IAM"];
         // Remove DIRECT influence due to ClickHandler of ClickAction outcomes
-        [OneSignal.sessionManager onDirectInfluenceFromIAMClickFinished];
+        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClickFinished];
 
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
@@ -733,7 +733,7 @@ static BOOL _isInAppMessagingPaused = false;
 
     if (self.actionClickBlock) {
         // Any outcome sent on this callback should count as DIRECT from this IAM
-        [OneSignal.sessionManager onDirectInfluenceFromIAMClick:message.messageId];
+        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:message.messageId];
         self.actionClickBlock(action);
     }
 

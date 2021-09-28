@@ -570,9 +570,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     performedOnSessionRequest = false;
     pendingExternalUserId = nil;
     pendingExternalUserIdHashToken = nil;
-    
-    _trackerFactory = nil;
-    _sessionManager = nil;
+
     _outcomeEventsCache = nil;
     _outcomeEventFactory = nil;
     _outcomeEventsController = nil;
@@ -702,13 +700,17 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
+void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
+    [OneSignalLog onesignalLog:logLevel message:message];
+}
+
 /*
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
     [[OSMigrationController new] migrate];
     if ([self requiresUserPrivacyConsent]) {
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
         delayedInitializationForPrivacyConsent = true;
         _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
         // Init was not successful, set appId back to nil
@@ -739,7 +741,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
     // Outcomes init
     _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:OneSignal.outcomeEventsCache];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:OneSignal.sessionManager outcomeEventsFactory:_outcomeEventFactory];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:[OSSessionManager sharedSessionManager] outcomeEventsFactory:_outcomeEventFactory];
 
     if (appId && [self isLocationShared])
        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
@@ -982,7 +984,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
             [_outcomeEventsCache saveOutcomesV2ServiceEnabled:(BOOL)result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
 
-        [OneSignal.trackerFactory saveInfluenceParams:result];
+        [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
@@ -2105,7 +2107,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignalHelper lastMessageReceived:messageDict];
     if (!isActive) {
         OneSignal.appEntryState = NOTIFICATION_CLICK;
-        [OneSignal.sessionManager onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
+        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
     }
 
     [OneSignalHelper handleNotificationAction:actionType actionID:actionID];
