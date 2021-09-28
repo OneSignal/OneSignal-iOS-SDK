@@ -26,13 +26,10 @@ THE SOFTWARE.
 */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
-#import "OneSignalHelper.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSInfluence.h"
 #import "OSChannelTracker.h"
 #import "OSIndirectInfluence.h"
-#import "OSMacros.h"
 
 @implementation OSChannelTracker
 
@@ -78,13 +75,13 @@ THE SOFTWARE.
     _influenceType = _indirectIds != nil && _indirectIds.count > 0 ? INDIRECT : UNATTRIBUTED;
     
     [self cacheState];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker resetAndInitInfluence for: %@ finish with influenceType: %@", [self idTag], OS_INFLUENCE_TYPE_TO_STRING(_influenceType)]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker resetAndInitInfluence for: %@ finish with influenceType: %@", [self idTag], OS_INFLUENCE_TYPE_TO_STRING(_influenceType)]];
 }
 
 - (NSArray * _Nonnull)lastReceivedIds {
     NSMutableArray *ids = [NSMutableArray new];
     NSArray *lastChannelObjectReceived = [self lastChannelObjects];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ lastChannelObjectReceived: %@", [self idTag], lastChannelObjectReceived]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ lastChannelObjectReceived: %@", [self idTag], lastChannelObjectReceived]];
     if (!lastChannelObjectReceived || lastChannelObjectReceived.count == 0)
         return ids; // Unattributed session
      
@@ -102,12 +99,12 @@ THE SOFTWARE.
 }
 
 - (void)saveLastId:(NSString *)lastId {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ saveLastId id: %@", [self idTag], lastId]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ saveLastId id: %@", [self idTag], lastId]];
        
     let channelLimit = [self channelLimit];
     let lastChannelObjectsReceived = [self lastChannelObjectsReceivedByNewId:lastId];
 
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ saveLastId with lastChannelObjectReceived: %@", [self idTag], lastChannelObjectsReceived]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ saveLastId with lastChannelObjectReceived: %@", [self idTag], lastChannelObjectsReceived]];
 
     let timestamp = [NSDate date].timeIntervalSince1970;
     let indirectInfluence = [[OSIndirectInfluence alloc] initWithParamsInfluenceId:lastId forChannel:[self idTag] timestamp:timestamp];
@@ -132,7 +129,7 @@ THE SOFTWARE.
         channelObjectToSave = lastChannelObjectsReceivedMutable;
     }
        
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ with channelObjectToSave: %@", [self idTag], channelObjectToSave]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSChannelTracker for: %@ with channelObjectToSave: %@", [self idTag], channelObjectToSave]];
     [self saveChannelObjects:channelObjectToSave];
 }
 

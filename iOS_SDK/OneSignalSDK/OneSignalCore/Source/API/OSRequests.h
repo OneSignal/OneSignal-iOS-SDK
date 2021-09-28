@@ -27,10 +27,6 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalRequest.h"
-#import "OneSignalLocation.h"
-#import "OSOutcomeEventParams.h"
-#import "OSInAppMessageAction.h"
-#import "OSFocusInfluenceParam.h"
 
 #ifndef OneSignalRequests_h
 #define OneSignalRequests_h
@@ -102,12 +98,12 @@ NS_ASSUME_NONNULL_END
 
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId tags:(NSDictionary * _Nonnull)tags networkType:(NSNumber * _Nonnull)netType withSMSAuthHashToken:(NSString * _Nullable)smsAuthToken withExternalIdAuthHashToken:(NSString * _Nullable)externalIdAuthToken;
 @end
-
-@interface OSRequestSendLocation : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState smsAuthHashToken:(NSString * _Nullable)smsAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-@end
+//
+//@interface OSRequestSendLocation : OneSignalRequest
+//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState emailAuthHashToken:(NSString * _Nullable)emailAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+//
+//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId location:(os_last_location * _Nonnull)coordinate networkType:(NSNumber * _Nonnull)netType backgroundState:(BOOL)backgroundState smsAuthHashToken:(NSString * _Nullable)smsAuthHash externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
+//@end
 
 @interface OSRequestUpdateLanguage : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
@@ -137,14 +133,14 @@ NS_ASSUME_NONNULL_END
                 externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 @end
 
-@interface OSRequestOnFocus : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         activeTime:(NSNumber * _Nonnull)activeTime
-                            netType:(NSNumber * _Nonnull)netType
-                         deviceType:(NSNumber * _Nonnull)deviceType
-                    influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams;
-@end
+//@interface OSRequestOnFocus : OneSignalRequest
+//+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+//                              appId:(NSString * _Nonnull)appId
+//                         activeTime:(NSNumber * _Nonnull)activeTime
+//                            netType:(NSNumber * _Nonnull)netType
+//                         deviceType:(NSNumber * _Nonnull)deviceType
+//                    influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams;
+//@end
 
 @interface OSRequestInAppMessageViewed : OneSignalRequest
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId forVariantId:(NSString * _Nonnull)variantId;
@@ -154,13 +150,13 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withPlayerId:(NSString * _Nonnull)playerId withMessageId:(NSString * _Nonnull)messageId withPageId:(NSString * _Nonnull)pageId forVariantId:(NSString * _Nonnull)variantId;
 @end
 
-@interface OSRequestInAppMessageClicked : OneSignalRequest
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
-                      withPlayerId:(NSString * _Nonnull)playerId
-                     withMessageId:(NSString * _Nonnull)messageId
-                      forVariantId:(NSString * _Nonnull)variantId
-                     withAction:(OSInAppMessageAction * _Nonnull)action;
-@end
+//@interface OSRequestInAppMessageClicked : OneSignalRequest
+//+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
+//                      withPlayerId:(NSString * _Nonnull)playerId
+//                     withMessageId:(NSString * _Nonnull)messageId
+//                      forVariantId:(NSString * _Nonnull)variantId
+//                     withAction:(OSInAppMessageAction * _Nonnull)action;
+//@end
 
 @interface OSRequestLoadInAppMessageContent : OneSignalRequest
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withMessageId:(NSString * _Nonnull)messageId withVariantId:(NSString * _Nonnull)variant;
@@ -176,27 +172,6 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId  withEmailHashToken:(NSString * _Nullable)emailHashToken appId:(NSString * _Nonnull)appId;
 
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId withSMSHashToken:(NSString * _Nullable)smsHashToken appId:(NSString * _Nonnull)appId;
-@end
-
-@interface OSRequestSendOutcomesV1ToServer : OneSignalRequest
-+ (instancetype _Nonnull)directWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
-                                     appId:(NSString * _Nonnull)appId
-                                deviceType:(NSNumber * _Nonnull)deviceType;
-
-+ (instancetype _Nonnull)indirectWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
-                                       appId:(NSString * _Nonnull)appId
-                                  deviceType:(NSNumber * _Nonnull)deviceType;
-
-+ (instancetype _Nonnull)unattributedWithOutcome:(OSOutcomeEvent * _Nonnull)outcome
-                                           appId:(NSString * _Nonnull)appId
-                                      deviceType:(NSNumber * _Nonnull)deviceType;
-@end
-
-@interface OSRequestSendOutcomesV2ToServer : OneSignalRequest
-+ (instancetype _Nonnull)measureOutcomeEvent:(OSOutcomeEventParams * _Nonnull)outcome
-                                     appId:(NSString * _Nonnull)appId
-                                deviceType:(NSNumber * _Nonnull)deviceType;
-
 @end
 
 

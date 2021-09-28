@@ -25,10 +25,13 @@
  THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+
 #import "OSSessionManager.h"
 #import "OSOutcomeEventsFactory.h"
 #import "OSInAppMessageOutcome.h"
+
+/*Block for handling outcome event being sent successfully*/
+typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
 @interface OneSignalOutcomeEventsController : NSObject
 

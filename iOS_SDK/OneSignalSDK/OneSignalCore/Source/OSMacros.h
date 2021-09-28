@@ -27,3 +27,16 @@ THE SOFTWARE.
 
 #define mustOverride() @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"%s must be overridden in a subclass/category", __PRETTY_FUNCTION__] userInfo:nil]
 #define methodNotImplemented() mustOverride()
+// Defines let and var in Objective-c for shorter code
+// __auto_type is compatible with Xcode 8+
+#if defined(__cplusplus)
+#define let auto const
+#else
+#define let const __auto_type
+#endif
+
+#if defined(__cplusplus)
+#define var auto
+#else
+#define var __auto_type
+#endif

@@ -26,8 +26,7 @@
  */
 
 #import "OSOutcomeEvent.h"
-#import "OneSignalHelper.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @implementation OSOutcomeEvent
 

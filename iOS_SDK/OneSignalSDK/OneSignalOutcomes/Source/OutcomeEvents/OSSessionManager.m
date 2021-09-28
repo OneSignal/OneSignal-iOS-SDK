@@ -26,11 +26,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
-#import "OneSignalHelper.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSInfluenceDataDefines.h"
-#import "OneSignalInternal.h"
-#import "OneSignalCommonDefines.h"
 #import "OSSessionManager.h"
 
 @interface OSSessionManager ()
@@ -59,20 +56,20 @@
 }
 
 - (void)initSessionFromCache {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"OneSignal SessionManager initSessionFromCache"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignal SessionManager initSessionFromCache"];
     [_trackerFactory initFromCache];
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"SessionManager restored from cache with influences: %@", [self getInfluences].description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"SessionManager restored from cache with influences: %@", [self getInfluences].description]];
 }
 
 - (void)restartSessionIfNeeded:(AppEntryAction)entryAction {
     NSArray<OSChannelTracker *> *channelTrackers = [_trackerFactory channelsToResetByEntryAction:entryAction];
     NSMutableArray<OSInfluence *> *updatedInfluences = [NSMutableArray new];
     
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager restartSessionIfNeeded with entryAction:: %u channelTrackers: %@", entryAction, channelTrackers.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager restartSessionIfNeeded with entryAction:: %u channelTrackers: %@", entryAction, channelTrackers.description]];
 
     for (OSChannelTracker *channelTracker in channelTrackers) {
         NSArray *lastIds = [channelTracker lastReceivedIds];
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager restartSessionIfNeeded lastIds: %@", lastIds]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager restartSessionIfNeeded lastIds: %@", lastIds]];
 
         OSInfluence *influence = [channelTracker currentSessionInfluence];
         BOOL updated;
@@ -89,14 +86,14 @@
 }
 
 - (void)onInAppMessageReceived:(NSString *)messageId {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onInAppMessageReceived messageId: %@", messageId]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onInAppMessageReceived messageId: %@", messageId]];
     
     OSChannelTracker *inAppMessageTracker = [_trackerFactory iamChannelTracker];
     [inAppMessageTracker saveLastId:messageId];
 }
 
 - (void)onDirectInfluenceFromIAMClick:(NSString *)directIAMId {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onDirectInfluenceFromIAMClick messageId: %@", directIAMId]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onDirectInfluenceFromIAMClick messageId: %@", directIAMId]];
     
     OSChannelTracker *inAppMessageTracker = [_trackerFactory iamChannelTracker];
     // We don't care about ending the session duration because IAM doesn't influence a session
@@ -104,14 +101,14 @@
 }
 
 - (void)onDirectInfluenceFromIAMClickFinished {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"OneSignal SessionManager onDirectInfluenceFromIAMClickFinished"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignal SessionManager onDirectInfluenceFromIAMClickFinished"];
     
     OSChannelTracker *inAppMessageTracker = [_trackerFactory iamChannelTracker];
     [inAppMessageTracker resetAndInitInfluence];
 }
 
 - (void)onNotificationReceived:(NSString *)notificationId {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onNotificationReceived notificationId: %@", notificationId]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onNotificationReceived notificationId: %@", notificationId]];
 
     if (!notificationId || notificationId.length == 0)
         return;
@@ -121,7 +118,7 @@
 }
 
 - (void)onDirectInfluenceFromNotificationOpen:(AppEntryAction)entryAction withNotificationId:(NSString *)directNotificationId {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onDirectInfluenceFromNotificationOpen notificationId: %@", directNotificationId]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager onDirectInfluenceFromNotificationOpen notificationId: %@", directNotificationId]];
 
     if (!directNotificationId || directNotificationId.length == 0)
         return;
@@ -142,7 +139,7 @@
 }
 
 - (void)attemptSessionUpgrade:(AppEntryAction)entryAction withDirectId:(NSString *)directId {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager attemptSessionUpgrade with entryAction: %u", entryAction]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager attemptSessionUpgrade with entryAction: %u", entryAction]];
     
     OSChannelTracker *channelTrackerByAction = [_trackerFactory channelByEntryAction:entryAction];
     NSArray<OSChannelTracker *> *channelTrackersToReset = [_trackerFactory channelsToResetByEntryAction:entryAction];
@@ -157,7 +154,7 @@
     }
     
     if (updated) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager attemptSessionUpgrade channel updated, search for ending direct influences on channels: %@", channelTrackersToReset]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager attemptSessionUpgrade channel updated, search for ending direct influences on channels: %@", channelTrackersToReset]];
         [influencesToEnd addObject:lastInfluence];
        
         // Only one session influence channel can be DIRECT at the same time
@@ -171,7 +168,7 @@
         }
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"OneSignal SessionManager attemptSessionUpgrade try UNATTRIBUTED to INDIRECT upgrade"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OneSignal SessionManager attemptSessionUpgrade try UNATTRIBUTED to INDIRECT upgrade"];
     // We will try to override the UNATTRIBUTED session with INDIRECT
     for (OSChannelTracker *channelTracker in channelTrackersToReset) {
         if (channelTracker.influenceType == UNATTRIBUTED) {
@@ -189,7 +186,7 @@
         }
     }
     
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Trackers after update attempt: %@", [_trackerFactory channels].description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Trackers after update attempt: %@", [_trackerFactory channels].description]];
     [self sendSessionEndingWithInfluences:influencesToEnd];
 }
 
@@ -201,7 +198,7 @@
         return NO;
     
     NSString *message = @"OSChannelTracker changed: %@  \nfrom:  \ninfluenceType: %@  \n, directId: %@  \n, indirectIds: %@  \nto:  \ninfluenceType: %@  \n, directId: %@  \n, indirectIds: %@";
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:message,
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:message,
                                                        [channelTracker idTag],
                                                        OS_INFLUENCE_TYPE_TO_STRING(channelTracker.influenceType),
                                                        channelTracker.directId,
@@ -215,7 +212,7 @@
     channelTracker.indirectIds = indirectIds;
     [channelTracker cacheState];
     
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Trackers changed to: %@", [_trackerFactory channels].description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Trackers changed to: %@", [_trackerFactory channels].description]];
     
     return YES;
 }
@@ -249,7 +246,7 @@
 }
 
 - (void)sendSessionEndingWithInfluences:(NSArray<OSInfluence *> *)endingInfluences {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager sendSessionEndingWithInfluences with influences: %@", endingInfluences.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager sendSessionEndingWithInfluences with influences: %@", endingInfluences.description]];
     // Only end session if there are influences available to end
     if (endingInfluences.count > 0 && _delegate)
         [_delegate onSessionEnding:endingInfluences];

@@ -28,8 +28,8 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSInfluenceDataRepository.h"
 #import "OSInfluenceDataDefines.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
+#import "OSInfluence.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @implementation OSInfluenceDataRepository
 
