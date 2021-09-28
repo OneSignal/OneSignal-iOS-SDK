@@ -66,8 +66,6 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
-#import "Requests.h"
-#import "OneSignalClient.h"
 
 #import <UserNotifications/UserNotifications.h>
 

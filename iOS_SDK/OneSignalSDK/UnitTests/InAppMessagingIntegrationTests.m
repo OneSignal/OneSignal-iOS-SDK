@@ -46,7 +46,7 @@
 #import "UNUserNotificationCenterOverrider.h"
 #import "NSBundleOverrider.h"
 #import "UNUserNotificationCenter+OneSignal.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OneSignalOverrider.h"
 #import "OneSignalClientOverrider.h"

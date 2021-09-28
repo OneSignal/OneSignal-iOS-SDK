@@ -78,7 +78,7 @@
 
 // Networking
 #import "OneSignalClient.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 

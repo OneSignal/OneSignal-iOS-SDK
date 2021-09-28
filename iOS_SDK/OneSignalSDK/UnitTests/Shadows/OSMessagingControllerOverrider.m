@@ -32,7 +32,7 @@
 #import "NSTimerOverrider.h"
 #import "OSTriggerController.h"
 #import "OneSignalClientOverrider.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "OneSignalHelper.h"
 #import "OSMessagingController.h"
 
