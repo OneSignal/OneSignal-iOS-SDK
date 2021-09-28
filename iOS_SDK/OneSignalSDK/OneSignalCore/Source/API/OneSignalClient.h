@@ -26,7 +26,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignalHelper.h"
 #import "OneSignalRequest.h"
 
 #ifndef OneSignalClient_h

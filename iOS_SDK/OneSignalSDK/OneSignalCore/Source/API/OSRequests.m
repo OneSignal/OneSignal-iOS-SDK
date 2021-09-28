@@ -27,9 +27,8 @@
 
 #import <Foundation/Foundation.h>
 #import "Requests.h"
-#import "OSOutcomeEvent.h"
+//#import "OSOutcomeEvent.h"
 #import "OneSignalRequest.h"
-#import "OneSignalHelper.h"
 #import "OneSignalCommonDefines.h"
 #import <stdlib.h>
 #import <stdio.h>
@@ -645,22 +644,6 @@ NSString * const NOTIFICATION_IDS = @"notification_ids";
 
     return request;
 }
-@end
-
-@implementation OSRequestReceiveReceipts
-
-+ (instancetype _Nonnull)withPlayerId:(NSString *)playerId notificationId:(NSString *)notificationId appId:(NSString *)appId {
-    let request = [OSRequestReceiveReceipts new];
-    
-    request.parameters = @{@"app_id": appId,
-                           @"player_id": playerId ?: [NSNull null],
-                           @"device_type": @0};
-    request.method = PUT;
-    request.path = [NSString stringWithFormat:@"notifications/%@/report_received", notificationId];
-
-    return request;
-}
-
 @end
 
 @implementation OSRequestSendOutcomesV1ToServer
