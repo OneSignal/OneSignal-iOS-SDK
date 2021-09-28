@@ -26,7 +26,7 @@ THE SOFTWARE.
 */
 
 #import <Foundation/Foundation.h>
-
+#import "OSOutcomesRequests.h"
 #import "OSOutcomeEventsV2Repository.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OSOutcomeEvent.h"

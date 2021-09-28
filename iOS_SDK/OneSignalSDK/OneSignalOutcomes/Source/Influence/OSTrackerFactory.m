@@ -29,8 +29,6 @@ THE SOFTWARE.
 #import "OSTrackerFactory.h"
 #import "OSInAppMessageTracker.h"
 #import "OSNotificationTracker.h"
-#import "OSChannelTracker.h"
-#import "OSInfluenceDataRepository.h"
 
 @implementation OSTrackerFactory
 
@@ -66,7 +64,7 @@ OSInfluenceDataRepository *_dataRepository;
         OSChannelTracker * channel = _trackers[key];
         [influences addObject:[channel currentSessionInfluence]];
     }
-    
+
     return influences;
 }
 
@@ -74,14 +72,14 @@ OSInfluenceDataRepository *_dataRepository;
     NSMutableArray *influences = [NSMutableArray new];
     for (NSString* key in _trackers) {
         OSChannelTracker * channel = _trackers[key];
-        
+
         // IAM doesnt influence session calls
         if ([channel class] == [OSInAppMessageTracker class] )
             continue;
-        
+
         [influences addObject:[channel currentSessionInfluence]];
     }
-    
+
     return influences;
 }
 
@@ -113,11 +111,11 @@ OSInfluenceDataRepository *_dataRepository;
     // Avoid reset session if application is closed
     if (entryAction == APP_CLOSE)
         return channels;
-    
+
     // Avoid reset session if app was focused due to a notification click (direct session recently set)
     if (entryAction == APP_OPEN)
         [channels addObject:[self notificationChannelTracker]];
-    
+
     [channels addObject:[self iamChannelTracker]];
     return channels;
 }

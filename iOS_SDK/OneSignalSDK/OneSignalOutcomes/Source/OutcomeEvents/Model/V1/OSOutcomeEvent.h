@@ -63,3 +63,6 @@
 - (id _Nonnull)initFromOutcomeEventParams:(OSOutcomeEventParams * _Nonnull)eventParams;
 
 @end
+
+/*Block for handling outcome event being sent successfully*/
+typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);

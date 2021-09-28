@@ -30,8 +30,6 @@ THE SOFTWARE.
 #import "OSChannelTracker.h"
 #import <OneSignalCore/OneSignalCore.h>
 
-#ifndef OSTrackerFactory_h
-#define OSTrackerFactory_h
 
 @interface OSTrackerFactory : NSObject
 
@@ -47,5 +45,3 @@ THE SOFTWARE.
 - (NSArray<OSChannelTracker *> * _Nonnull)channelsToResetByEntryAction:(AppEntryAction)entryAction;
 
 @end
-
-#endif /* OSTrackerFactory_h */

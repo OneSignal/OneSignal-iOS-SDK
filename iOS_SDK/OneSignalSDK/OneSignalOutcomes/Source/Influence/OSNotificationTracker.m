@@ -28,7 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSInfluence.h"
 #import "OSNotificationTracker.h"
-#import "OneSignalInternal.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OSChannelTracker ()
 
@@ -75,7 +75,7 @@ THE SOFTWARE.
     else if (influenceType == DIRECT)
         self.directId = [self.dataRepository cachedNotificationOpenId];
 
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"NotificationTracker initInfluencedTypeFromCache: %@", [self description]]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"NotificationTracker initInfluencedTypeFromCache: %@", [self description]]];
 }
 
 - (void)cacheState {

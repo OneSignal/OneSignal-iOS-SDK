@@ -29,9 +29,7 @@
 #import "OSSessionManager.h"
 #import "OSOutcomeEventsFactory.h"
 #import "OSInAppMessageOutcome.h"
-
-/*Block for handling outcome event being sent successfully*/
-typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
+#import "OSOutcomeEvent.h"
 
 @interface OneSignalOutcomeEventsController : NSObject
 
