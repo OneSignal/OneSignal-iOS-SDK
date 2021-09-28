@@ -38,6 +38,13 @@
 
 @implementation OSSessionManager
 
+static OSSessionManager *_sessionManager;
++ (OSSessionManager*)sharedSessionManager {
+    if (!_sessionManager)
+        _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:[OSTrackerFactory sharedTrackerFactory]];
+    return _sessionManager;
+}
+
 - (instancetype _Nonnull)init:(Class<SessionStatusDelegate>)delegate withTrackerFactory:(OSTrackerFactory *)trackerFactory {
     if (self = [super init]) {
         _delegate = delegate;

@@ -29,8 +29,18 @@
 #define OSInAppMessageOutcome_h
 
 #import <Foundation/Foundation.h>
-#import "OSJSONHandling.h"
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
+
+@interface OSInAppMessageOutcome : NSObject
+
+@property (strong, nonatomic, nonnull) NSString *name;
+@property (strong, nonatomic, nonnull) NSNumber *weight;
+@property (nonatomic) BOOL unique;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
 
 @interface OSInAppMessageOutcome () <OSJSONDecodable>
 

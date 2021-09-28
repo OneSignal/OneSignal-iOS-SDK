@@ -26,13 +26,11 @@
  */
 
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
-//#import "OSInfluenceDataDefines.h"
-//#import "OSSubscription.h"
-//#import "OneSignalInternal.h"
 #import "OneSignalReceiveReceiptsController.h"
-//#import "OSSessionManager.h"
+#import "OSSessionManager.h"
 //#import "OSMigrationController.h"
 #import "OneSignalAttachmentHandler.h"
 
@@ -138,9 +136,9 @@
         // ECM TODO: We probably need to rearchitect migrations a bit. Each module needs to migrate the models it is responsible for
         // If update was made without app being initialized/launched before -> migrate
 //        [[OSMigrationController new] migrate];
-//        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OneSignal sessionManager]]];
-//        // Save received notification id
-//        [[OneSignal sessionManager] onNotificationReceived:receivedNotificationId];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OSSessionManager sharedSessionManager]]];
+        // Save received notification id
+        [[OSSessionManager sharedSessionManager] onNotificationReceived:receivedNotificationId];
         
         // Track confirmed delivery
         let sharedUserDefaults = OneSignalUserDefaults.initShared;

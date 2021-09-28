@@ -36,6 +36,8 @@
 
 @interface OSSessionManager : NSObject
 
++ (OSSessionManager*)sharedSessionManager;
+
 @property (nonatomic) id<SessionStatusDelegate> _Nonnull delegate;
 
 - (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nonnull)delegate withTrackerFactory:(OSTrackerFactory *_Nonnull)trackerFactory;
