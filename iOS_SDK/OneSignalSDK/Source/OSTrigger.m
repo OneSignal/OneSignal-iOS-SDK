@@ -36,7 +36,7 @@
     let json = (NSDictionary *)[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
     
     if (error || !json) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error parsing OSTrigger JSON: %@", error.description ?: @"None"]];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error parsing OSTrigger JSON: %@", error.description ?: @"None"]];
         return nil;
     }
     

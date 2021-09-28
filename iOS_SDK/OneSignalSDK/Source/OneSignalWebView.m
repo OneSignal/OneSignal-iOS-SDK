@@ -84,7 +84,7 @@ UIViewController *viewControllerForPresentation;
 }
 
 -(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
+    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:error.localizedDescription];
 }
 
 - (void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
@@ -136,14 +136,14 @@ UIViewController *viewControllerForPresentation;
 - (void)clearWebView {
     [_webView loadHTMLString:@"" baseURL:nil];
     if (viewControllerForPresentation) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"clearing web view"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"clearing web view"];
         [viewControllerForPresentation.view removeFromSuperview];
     }
         
 }
 
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
     [self clearWebView];
 }
 

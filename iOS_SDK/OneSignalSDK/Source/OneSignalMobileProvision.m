@@ -83,18 +83,18 @@
 }
 
 + (void)logInvalidProvisionError:(NSString *)message {
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:message];
+    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:message];
 }
 
 + (UIApplicationReleaseMode) releaseMode {
     NSDictionary *entitlements = nil;
     NSDictionary *provision = [self getProvision];
     if (provision) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"provision: %@", provision]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"provision: %@", provision]];
         entitlements = [provision objectForKey:@"Entitlements"];
     }
     else
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"provision not found"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"provision not found"];
               
     if (!provision) {
         // failure to read other than it simply not existing
