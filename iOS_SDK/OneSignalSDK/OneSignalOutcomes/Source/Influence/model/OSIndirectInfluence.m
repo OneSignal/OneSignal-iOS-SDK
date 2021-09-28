@@ -51,7 +51,7 @@
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
    
     if (error || !json) {
-        [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode indirect influence JSON: %@", error.description ?: @"No Data"]];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode indirect influence JSON: %@", error.description ?: @"No Data"]];
         return nil;
     }
    

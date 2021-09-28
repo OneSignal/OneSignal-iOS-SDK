@@ -427,7 +427,7 @@
 		DE7D1847270286C6002D3A5D /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D184C27028890002D3A5D /* OneSignalExtensionRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D184B27028890002D3A5D /* OneSignalExtensionRequests.m */; };
 		DE7D184E270288C6002D3A5D /* OneSignalExtensionRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D184D270288C6002D3A5D /* OneSignalExtensionRequests.h */; };
-		DE7D1862270374EE002D3A5D /* OSJSONHandling.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D185B270374EE002D3A5D /* OSJSONHandling.h */; };
+		DE7D1862270374EE002D3A5D /* OSJSONHandling.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D185B270374EE002D3A5D /* OSJSONHandling.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D1863270374EE002D3A5D /* OneSignalClient.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D185C270374EE002D3A5D /* OneSignalClient.m */; };
 		DE7D1864270374EE002D3A5D /* OneSignalClient.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D185C270374EE002D3A5D /* OneSignalClient.m */; };
 		DE7D1868270374EE002D3A5D /* OneSignalRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D185F270374EE002D3A5D /* OneSignalRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -460,9 +460,9 @@
 		DE7D18A427038136002D3A5D /* OSTrackerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986482444C65300C36EAE /* OSTrackerFactory.m */; };
 		DE7D18A527038139002D3A5D /* OSInfluenceDataRepository.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9865B2447C12F00C36EAE /* OSInfluenceDataRepository.h */; };
 		DE7D18A62703813D002D3A5D /* OSInfluenceDataRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9865D2447C13C00C36EAE /* OSInfluenceDataRepository.m */; };
-		DE7D18A727038141002D3A5D /* OSIndirectInfluence.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A12EBDB23060B37005C4FA5 /* OSIndirectInfluence.h */; };
+		DE7D18A727038141002D3A5D /* OSIndirectInfluence.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A12EBDB23060B37005C4FA5 /* OSIndirectInfluence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18A827038144002D3A5D /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; };
-		DE7D18A927038147002D3A5D /* OSInfluence.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9865524452A8C00C36EAE /* OSInfluence.h */; };
+		DE7D18A927038147002D3A5D /* OSInfluence.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9865524452A8C00C36EAE /* OSInfluence.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18AA2703814A002D3A5D /* OSInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9865724452A9600C36EAE /* OSInfluence.m */; };
 		DE7D18AB2703814F002D3A5D /* OSSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A12EBD623060A6F005C4FA5 /* OSSessionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18AC27038153002D3A5D /* OSSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */; };
@@ -492,7 +492,7 @@
 		DE7D18C727038249002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D18CC270385D0002D3A5D /* OSOutcomesRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18CB270385D0002D3A5D /* OSOutcomesRequests.m */; };
 		DE7D18CD270385D0002D3A5D /* OSOutcomesRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18CB270385D0002D3A5D /* OSOutcomesRequests.m */; };
-		DE7D18CF270385E0002D3A5D /* OSOutcomesRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D18CE270385E0002D3A5D /* OSOutcomesRequests.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DE7D18CF270385E0002D3A5D /* OSOutcomesRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D18CE270385E0002D3A5D /* OSOutcomesRequests.h */; };
 		DE7D18D1270389E1002D3A5D /* OSMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AE28B8725B8ADF400529100 /* OSMacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE98772B2591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877332591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };

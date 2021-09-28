@@ -29,6 +29,7 @@ THE SOFTWARE.
 #import "OSOutcomeEventsV1Repository.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OSOutcomeEvent.h"
+#import "OSOutcomesRequests.h"
 
 @implementation OSOutcomeEventsV1Repository
 

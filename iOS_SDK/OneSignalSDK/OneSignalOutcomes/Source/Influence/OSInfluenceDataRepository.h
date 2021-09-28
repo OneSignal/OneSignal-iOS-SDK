@@ -25,9 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-
-#ifndef OSInfluenceDataRepository_h
-#define OSInfluenceDataRepository_h
+#import "OSInfluence.h"
 
 @interface OSInfluenceDataRepository : NSObject
 
@@ -62,5 +60,3 @@ THE SOFTWARE.
 - (void)saveInfluenceParams:(NSDictionary * _Nonnull)params;
 
 @end
-
-#endif /* OSInfluenceDataRepository_h */

@@ -21,6 +21,7 @@
 #import "OneSignalCoreHelper.h"
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSMacros.h"
+#import "OSJSONHandling.h"
 
 @interface OneSignalCore : NSObject
 
