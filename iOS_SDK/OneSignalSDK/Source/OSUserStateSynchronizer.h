@@ -29,6 +29,8 @@ THE SOFTWARE.
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalLocation.h"
 #import "OSUserState.h"
+#import "OSLocationRequests.h"
+#import "OSFocusRequests.h"
 
 @interface OSUserStateSynchronizer : NSObject
 
