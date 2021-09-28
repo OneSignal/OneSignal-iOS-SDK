@@ -26,9 +26,31 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
 #import "OSOutcomeEventParams.h"
-#import "OSJSONHandling.h"
+#import "OSInfluence.h"
+#import <OneSignalCore/OneSignalCore.h>
+
+@interface OSOutcomeEvent : NSObject
+
+// Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
+@property (nonatomic) OSInfluenceType session;
+
+// Notification ids for the current session
+@property (strong, nonatomic, nullable) NSArray *notificationIds;
+
+// Id or name of the event
+@property (strong, nonatomic, nonnull) NSString *name;
+
+// Time of the event occurring
+@property (strong, nonatomic, nonnull) NSNumber *timestamp;
+
+// A weight to attach to the outcome name
+@property (strong, nonatomic, nonnull) NSDecimalNumber *weight;
+
+// Convert the object into a NSDictionary
+- (NSDictionary * _Nonnull)jsonRepresentation;
+
+@end
 
 @interface OSOutcomeEvent () <OSJSONEncodable>
 

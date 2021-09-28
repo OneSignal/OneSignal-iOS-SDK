@@ -29,15 +29,13 @@ THE SOFTWARE.
 #import "OSTrackerFactory.h"
 #import "OSInAppMessageTracker.h"
 #import "OSNotificationTracker.h"
-
-@interface OSTrackerFactory ()
-
-@property (strong, nonatomic, readwrite, nonnull) NSDictionary<NSString *, OSChannelTracker *> *trackers;
-@property (strong, nonatomic, readwrite, nonnull) OSInfluenceDataRepository *dataRepository;
-
-@end
+#import "OSChannelTracker.h"
+#import "OSInfluenceDataRepository.h"
 
 @implementation OSTrackerFactory
+
+NSDictionary<NSString *, OSChannelTracker *> *_trackers;
+OSInfluenceDataRepository *_dataRepository;
 
 - (id)initWithRepository:(OSInfluenceDataRepository *)dataRepository {
     self = [super init];

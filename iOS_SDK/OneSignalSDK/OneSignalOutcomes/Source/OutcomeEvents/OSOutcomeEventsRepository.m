@@ -28,8 +28,6 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSCachedUniqueOutcome.h"
 #import "OSOutcomeEventsRepository.h"
-#import "OneSignalInternal.h"
-#import "OSMacros.h"
 
 @implementation OSOutcomeEventsRepository
 
@@ -128,7 +126,7 @@ THE SOFTWARE.
 }
 
 - (void)saveUniqueOutcomeEventParams:(OSOutcomeEventParams *)eventParams {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSOutcomeEventsRepository saveUniqueOutcomeEventParams: %@", eventParams.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSOutcomeEventsRepository saveUniqueOutcomeEventParams: %@", eventParams.description]];
     if (eventParams.outcomeSource == nil)
         return;
     

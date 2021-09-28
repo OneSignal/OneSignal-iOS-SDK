@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 #import "OSIndirectInfluence.h"
-#import "OneSignalHelper.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OSIndirectInfluence ()
 

@@ -28,7 +28,7 @@ THE SOFTWARE.
 #import "OSOutcomeEventParams.h"
 #import "OSInfluence.h"
 #import "OSOutcomeEventsCache.h"
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 #ifndef OSOutcomeEventsRepository_h
 #define OSOutcomeEventsRepository_h

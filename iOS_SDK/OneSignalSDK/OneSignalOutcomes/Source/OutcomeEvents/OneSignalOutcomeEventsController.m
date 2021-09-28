@@ -27,14 +27,11 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalOutcomeEventsController.h"
-#import "Requests.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSOutcomeEvent.h"
 #import "OSCachedUniqueOutcome.h"
-#import "OneSignalClient.h"
 #import "OSSessionManager.h"
 #import "OSOutcomeEventsRepository.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 #import "OSInfluenceDataDefines.h"
 
 @interface OneSignalOutcomeEventsController ()
@@ -66,7 +63,7 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
 }
 
 - (void)clearOutcomes {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Outcomes cleared for current session"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Outcomes cleared for current session"];
     unattributedUniqueOutcomeEventsSentSet = [NSMutableSet set];
     [self saveUnattributedUniqueOutcomeEvents];
 }
@@ -134,7 +131,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
                   successBlock:(OSSendOutcomeSuccess _Nullable)success {
     NSArray<OSInfluence *> *influences = [self removeDisabledInfluences:sessionInfluences];
     if (influences.count == 0) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Unique Outcome disabled for current session"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Unique Outcome disabled for current session"];
         return;
     }
     
@@ -154,7 +151,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
         if (!uniqueInfluences || [uniqueInfluences count] == 0) {
             // Return null within the callback to determine not a failure, but not a success in terms of the request made
             NSString* message = @"Measure endpoint will not send because unique outcome already sent for: SessionInfluences: %@, Outcome name: %@";
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:message, [influences description], name]];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:message, [influences description], name]];
 
             if (success)
                 success(nil);
@@ -169,7 +166,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
         if ([unattributedUniqueOutcomeEventsSentSet containsObject:name]) {
             // Return null within the callback to determine not a failure, but not a success in terms of the request made
             NSString* message = @"Unique outcome already sent for: session: %@, name: %@";
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:message, OS_INFLUENCE_TYPE_TO_STRING(UNATTRIBUTED), name]];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:message, OS_INFLUENCE_TYPE_TO_STRING(UNATTRIBUTED), name]];
             
             if (success)
                 success(nil);
@@ -222,14 +219,14 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
                 unattributed = true;
                 break;
             case DISABLED:
-                [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel)]];
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel)]];
                 return; // finish method
         }
     }
 
     if (directSourceBody == nil && indirectSourceBody == nil && !unattributed) {
         // Disabled for all channels
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:@"Outcomes disabled for all channels"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Outcomes disabled for all channels"];
         return;
     }
 
@@ -256,7 +253,7 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
     NSMutableArray<OSInfluence *> *availableInfluences = [influences mutableCopy];
     for (OSInfluence *influence in influences) {
         if (influence.influenceType == DISABLED) {
-            [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel)]];
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Outcomes disabled for channel: %@", OS_INFLUENCE_CHANNEL_TO_STRING(influence.influenceChannel)]];
             [availableInfluences removeObject:influence];
         }
     }

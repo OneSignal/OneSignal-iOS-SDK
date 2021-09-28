@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSInfluence.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @implementation OSInfluenceBuilder
 
