@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignalRequest.h"
 
-@interface ReattemptRequest : NSObject
+@interface OSReattemptRequest : NSObject
 
 @property (strong, nonatomic) OneSignalRequest *request;
 @property (nonatomic) OSResultSuccessBlock successBlock;
