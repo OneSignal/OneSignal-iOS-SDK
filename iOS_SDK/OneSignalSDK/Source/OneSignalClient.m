@@ -132,6 +132,8 @@
         // Requests should all be completed at this point, the response NSDictionary will be passed back
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completionBlock)
+                // TODO: we send "success": 0 for example to the completionBlock
+                // TODO: but should we pass the errors too? Like invalid auth hash
                 completionBlock(response);
         });
     });

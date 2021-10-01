@@ -202,16 +202,39 @@ THE SOFTWARE.
     }
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withCompletion:^(NSDictionary<NSString *,NSDictionary *> *results) {
-        if (results[OS_PUSH] && results[OS_PUSH][OS_SUCCESS] && [results[OS_PUSH][OS_SUCCESS] boolValue]) {
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
+        var requestDidFail = false;
 
-            [OneSignal saveExternalIdAuthToken:hashToken];
+        if (results[OS_PUSH] && results[OS_PUSH][OS_SUCCESS]) {
+            if ([results[OS_PUSH][OS_SUCCESS] boolValue]) {
+                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:externalId];
+                
+                [OneSignal saveExternalIdAuthToken:hashToken];
+            } else {
+                requestDidFail = true;
+            }
         }
         
-        if (results[OS_EMAIL] && results[OS_EMAIL][OS_SUCCESS] && [results[OS_EMAIL][OS_SUCCESS] boolValue])
-            [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
-
-        if (successBlock)
+        if (results[OS_EMAIL] && results[OS_EMAIL][OS_SUCCESS]) {
+            if ([results[OS_EMAIL][OS_SUCCESS] boolValue])
+                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID withValue:externalId];
+            else
+                requestDidFail = true;
+        }
+        
+        if (results[OS_SMS] && results[OS_SMS][OS_SUCCESS]) {
+            if ([results[OS_SMS][OS_SUCCESS] boolValue])
+                [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_SMS_EXTERNAL_USER_ID withValue:externalId];
+            else
+                requestDidFail = true;
+        }
+        
+        // TODO: What info should go in NSError?
+        if (requestDidFail && failureBlock)
+            failureBlock([NSError errorWithDomain:@"com.onesignal.externalUserId" code:0
+                                         userInfo:@{@"error" : @"Failed to set external user ID for one or more channels",
+                                     @"results": results}]);
+        
+        if (!requestDidFail && successBlock)
             successBlock(results);
     }];
 }
