@@ -656,6 +656,40 @@
 }
 
 /*
+ Unity overrides orientation behavior and enables all orientations in supportedInterfaceOrientations, regardless of
+ the values set in the info.plist. It then uses its own internal logic for restricting the Application's views to
+ the selected orientations. This view controller inherits the behavior of all orientations being allowed so we need
+ to manually set the supported orientations based on the values in the plist.
+ If no values are selected for the orientation key in the plist then we will default to super's behavior.
+*/
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    NSUInteger orientationMask = 0;
+    NSArray *supportedOrientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
+    if (!supportedOrientations) {
+        return [super supportedInterfaceOrientations];
+    }
+    
+    if ([supportedOrientations containsObject:@"UIInterfaceOrientationLandscapeLeft"]) {
+        orientationMask += UIInterfaceOrientationMaskLandscapeLeft;
+    }
+    
+    if ([supportedOrientations containsObject:@"UIInterfaceOrientationLandscapeRight"]) {
+        orientationMask += UIInterfaceOrientationMaskLandscapeRight;
+    }
+    
+    if ([supportedOrientations containsObject:@"UIInterfaceOrientationPortrait"]) {
+        orientationMask += UIInterfaceOrientationMaskPortrait;
+    }
+    
+    if ([supportedOrientations containsObject:@"UIInterfaceOrientationPortraitUpsideDown"]) {
+        orientationMask += UIInterfaceOrientationMaskPortraitUpsideDown;
+    }
+    
+    return orientationMask;
+    
+}
+
+/*
  Override method for handling orientation change within a view controller on iOS 8 or higher
  This specifically handles the resizing and reanimation of a currently showing IAM
  */
