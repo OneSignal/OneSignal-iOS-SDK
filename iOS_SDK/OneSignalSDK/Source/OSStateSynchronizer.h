@@ -30,6 +30,9 @@ THE SOFTWARE.
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalLocation.h"
 #import "OSFocusCallParams.h"
+#import "OSEmailSubscription.h"
+#import "OSSubscription.h"
+#import "OSSMSSubscription.h"
 
 @interface OSStateSynchronizer : NSObject
 

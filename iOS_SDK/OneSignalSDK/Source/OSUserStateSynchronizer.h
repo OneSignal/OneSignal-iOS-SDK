@@ -31,6 +31,7 @@ THE SOFTWARE.
 #import "OSUserState.h"
 #import "OSLocationRequests.h"
 #import "OSFocusRequests.h"
+#import "OSSubscription.h"
 
 @interface OSUserStateSynchronizer : NSObject
 
