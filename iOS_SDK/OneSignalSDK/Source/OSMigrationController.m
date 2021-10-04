@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSMigrationController.h"
-#import "OSInfluenceDataRepository.h"
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSOutcomeEventsCache.h"
 #import "OSIndirectInfluence.h"
 #import "OSCachedUniqueOutcome.h"
@@ -63,7 +63,7 @@ THE SOFTWARE.
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
-        NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OneSignal influenceDataRepository] lastNotificationsReceivedData];
+        NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OSInfluenceDataRepository sharedInfluenceDataRepository] lastNotificationsReceivedData];
         if (indirectInfluenceData) {
             [NSKeyedArchiver setClassName:@"OSIndirectInfluence" forClass:[OSIndirectInfluence class]];
             [[OneSignal influenceDataRepository] saveNotifications:indirectInfluenceData];

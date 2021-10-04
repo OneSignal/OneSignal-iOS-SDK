@@ -53,6 +53,8 @@
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OneSignalNotificationSettingsIOS9.h"
 
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
+
 #import "OSObservable.h"
 #import "OSPendingCallbacks.h"
 
@@ -76,9 +78,6 @@
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
-#import "OSInfluenceDataDefines.h"
-#import "OSInfluenceDataRepository.h"
-#import "OSTrackerFactory.h"
 #import "OSMessagingController.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageInternal.h"
