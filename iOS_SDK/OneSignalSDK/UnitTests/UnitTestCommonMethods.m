@@ -59,6 +59,7 @@
 #import "OneSignalLocationOverrider.h"
 #import "OneSignalOverrider.h"
 #import "OneSignalUserDefaults.h"
+#import "OneSignalLog.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [OS_API_SERVER_URL stringByAppendingString:path];
@@ -224,7 +225,7 @@ static XCTestCase* _currentXCTestCase;
     
     [UIAlertViewOverrider reset];
 
-    [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
+    [OneSignalLog setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
 
     [NSTimerOverrider reset];
     [OneSignalLocationOverrider reset];
