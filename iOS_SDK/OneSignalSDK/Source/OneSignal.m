@@ -699,10 +699,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
-void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
-    [OneSignalLog onesignalLog:logLevel message:message];
-}
-
 /*
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
@@ -778,7 +774,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     // TODO: Maybe in the future we can make a file with add app ids and validate that way?
     if ([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:appId] ||
         [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId]) {
-        onesignal_Log(ONE_S_LL_WARN, @"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com");
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com"];
     }
 
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
@@ -808,7 +804,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     
     // Invalid app ids reaching here will cause failure
     if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
-       onesignal_Log(ONE_S_LL_FATAL, @"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n");
+        [OneSignalLog onesignalLog:ONE_S_LL_FATAL message:@"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n"];
        return false;
     }
     
@@ -876,7 +872,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"])
         [self.osNotificationSettings registerForProvisionalAuthorization:block];
     else
-        onesignal_Log(ONE_S_LL_WARN, @"registerForProvisionalAuthorization is only available in iOS 12+.");
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
@@ -1181,8 +1177,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (jsonError == nil) {
         [self sendTags:keyValuePairs];
     } else {
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error: %@", jsonError]);
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]);
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"sendTags JSON Parse Error: %@", jsonError]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]];
     }
 }
 
@@ -1209,7 +1205,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
    
     if (![NSJSONSerialization isValidJSONObject:keyValuePair]) {
         NSString *errorMessage = [NSString stringWithFormat:@"sendTags JSON Invalid: The following key/value pairs you attempted to send as tags are not valid JSON: %@", keyValuePair];
-        onesignal_Log(ONE_S_LL_WARN, errorMessage);
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:errorMessage];
         if (failureBlock) {
             NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
             failureBlock(error);
@@ -1220,7 +1216,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     for (NSString *key in [keyValuePair allKeys]) {
         if ([keyValuePair[key] isKindOfClass:[NSDictionary class]]) {
             NSString *errorMessage = @"sendTags Tags JSON must not contain nested objects";
-            onesignal_Log(ONE_S_LL_WARN, errorMessage);
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:errorMessage];
             if (failureBlock) {
                 NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : errorMessage}];
                 failureBlock(error);
@@ -1368,8 +1364,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (jsonError == nil)
         [self deleteTags:keys];
     else {
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]);
-        onesignal_Log(ONE_S_LL_WARN,[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]);
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"deleteTags JSON Parse Error: %@", jsonError]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]];
     }
 }
 
@@ -1409,14 +1405,14 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
             NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             
-            onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]);
+            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]];
             if (successBlock)
                 successBlock(result);
         });
     } onFailure:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            onesignal_Log(ONE_S_LL_ERROR, @"Create notification failed");
-            onesignal_Log(ONE_S_LL_INFO, [NSString stringWithFormat: @"%@", error]);
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message: @"Create notification failed"];
+            [OneSignalLog onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat: @"%@", error]];
             if (failureBlock)
                 failureBlock(error);
         });
@@ -1436,8 +1432,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if (jsonError == nil && jsonData != nil)
         [self postNotification:jsonData onSuccess:successBlock onFailure:failureBlock];
     else {
-        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]);
-        onesignal_Log(ONE_S_LL_WARN, [NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]);
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]];
     }
 }
 
@@ -1463,8 +1459,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
             NSData* jsonData = [NSJSONSerialization dataWithJSONObject:error.userInfo[@"returned"] options:0 error:nil];
             jsonResponse = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         } @catch(NSException* e) {
-            onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@", e]);
-            onesignal_Log(ONE_S_LL_ERROR, [NSString stringWithFormat:@"%@",  [NSThread callStackSymbols]]);
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"%@", e]];
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"%@",  [NSThread callStackSymbols]]];
             jsonResponse = @"{\"error\": \"Unknown error parsing error response.\"}";
         }
     }
@@ -1557,7 +1553,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"updateDeviceToken:onSuccess:onFailure:"])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, @"updateDeviceToken:onSuccess:onFailure:");
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateDeviceToken:onSuccess:onFailure:"];
 
     let isPushTokenDifferent = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken];
     self.currentSubscriptionState.pushToken = deviceToken;
@@ -1569,7 +1565,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)playerPutForPushTokenAndNotificationTypes {
-      onesignal_Log(ONE_S_LL_VERBOSE, @"Calling OneSignal PUT to updated pushToken and/or notificationTypes!");
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT to updated pushToken and/or notificationTypes!"];
 
       let request = [OSRequestUpdateDeviceToken
           withUserId:self.currentSubscriptionState.userId
@@ -1616,15 +1612,15 @@ static BOOL _trackedColdRestart = false;
         return false;
     
     // Don't make a 2nd on_session if have in inflight one
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"shouldRegisterNow:waitingForOneSReg: %d", waitingForOneSReg]);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"shouldRegisterNow:waitingForOneSReg: %d", waitingForOneSReg]];
     if (waitingForOneSReg)
         return false;
 
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"shouldRegisterNow:isImmediatePlayerCreateOrOnSession: %d", [self isImmediatePlayerCreateOrOnSession]]);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"shouldRegisterNow:isImmediatePlayerCreateOrOnSession: %d", [self isImmediatePlayerCreateOrOnSession]]];
     if ([self isImmediatePlayerCreateOrOnSession])
         return true;
 
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"shouldRegisterNow:isOnSessionSuccessfulForCurrentState: %d", isOnSessionSuccessfulForCurrentState]);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"shouldRegisterNow:isOnSessionSuccessfulForCurrentState: %d", isOnSessionSuccessfulForCurrentState]];
     if (isOnSessionSuccessfulForCurrentState)
         return false;
     
@@ -1632,11 +1628,11 @@ static BOOL _trackedColdRestart = false;
     NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
 
     if (lastTimeClosed == 0) {
-        onesignal_Log(ONE_S_LL_DEBUG, @"shouldRegisterNow: lastTimeClosed: default.");
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"shouldRegisterNow: lastTimeClosed: default."];
         return true;
     }
 
-    onesignal_Log(ONE_S_LL_DEBUG, [NSString stringWithFormat:@"shouldRegisterNow: lastTimeClosed: %f", lastTimeClosed]);
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldRegisterNow: lastTimeClosed: %f", lastTimeClosed]];
 
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
@@ -2008,7 +2004,7 @@ static NSString *_lastnonActiveMessageId;
     if (![OneSignalHelper isOneSignalPayload:messageDict])
         return;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"notificationReceived called! opened: %@", opened ? @"YES" : @"NO"]);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"notificationReceived called! opened: %@", opened ? @"YES" : @"NO"]];
     
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
@@ -2085,8 +2081,8 @@ static NSString *_lastnonActiveMessageId;
     
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
     
-    onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
-                                     isActive ? @"YES" : @"NO", messageId]);
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
+                                     isActive ? @"YES" : @"NO", messageId]];
 
     if (![OneSignal shouldSuppressURL]) {
         // Try to fetch the open url to launch
