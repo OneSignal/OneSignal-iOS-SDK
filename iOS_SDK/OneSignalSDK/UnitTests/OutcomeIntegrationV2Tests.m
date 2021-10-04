@@ -642,10 +642,10 @@
     [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 2 iam
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
     // 3. Dismiss iam
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClickFinished];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClickFinished];
     
     // 4. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
     let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
@@ -690,7 +690,7 @@
     [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
     
     [OneSignal sendOutcome:@"normal_1"];
     [OneSignal sendOutcome:@"normal_2"];
@@ -721,10 +721,10 @@
     [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 2 iam
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
     // 3. Dismiss iam
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClickFinished];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClickFinished];
     
     // 4. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
     let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
@@ -773,7 +773,7 @@
     [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
     
     let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
@@ -808,8 +808,8 @@
     [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
     
     let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
@@ -838,7 +838,7 @@
     [RestClientAsserts assertNumberOfMeasureSourcesRequests:2];
     
     // 4. If we don't dissmiss IAM indirect session shoud be cached
-    [[OneSignal sessionManager] initSessionFromCache];
+    [[OSSessionManager sharedSessionManager] initSessionFromCache];
     let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {

@@ -13,6 +13,7 @@
 #import "OSIndirectInfluence.h"
 #import "OSInAppMessageOutcome.h"
 #import "OSOutcomeEvent.h"
+#import "OSInfluenceDataDefines.h"
 // In this header, you should import all the public headers of your framework using statements like #import <OneSignalOutcomes/PublicHeader.h>
 
 

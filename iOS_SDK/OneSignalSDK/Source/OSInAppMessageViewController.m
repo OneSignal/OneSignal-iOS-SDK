@@ -237,7 +237,7 @@
             [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:message];
             
             if (!self.message.isPreview)
-                [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
+                [[OSSessionManager sharedSessionManager] onInAppMessageReceived:self.message.messageId];
 
             let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
             [self parseContentData:data];
