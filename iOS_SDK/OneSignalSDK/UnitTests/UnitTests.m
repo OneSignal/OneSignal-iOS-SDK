@@ -56,6 +56,9 @@
 #import "OneSignalDialogControllerOverrider.h"
 #import "OneSignalNotificationCategoryController.h"
 
+#import "OneSignalExtension.h"
+#import "OneSignalCore.h"
+
 // Shadows
 #import "NSObjectOverrider.h"
 #import "NSDateOverrider.h"
@@ -916,7 +919,7 @@ and the app was cold started from opening a notficiation open that the developer
     let response = [self createNotificationResponseForAnalyticsTests];
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignal didReceiveNotificationExtensionRequest:response.notification.request
+    [OneSignalExtension didReceiveNotificationExtensionRequest:response.notification.request
                        withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
@@ -1747,7 +1750,7 @@ didReceiveRemoteNotification:userInfo
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalExtension didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
     
@@ -1807,7 +1810,7 @@ didReceiveRemoteNotification:userInfo
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalExtension didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     // Make sure we didn't override an existing category
     XCTAssertEqualObjects(content.categoryIdentifier, @"some_category");
@@ -1880,7 +1883,7 @@ didReceiveRemoteNotification:userInfo
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalExtension didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
 
     // Make sure attachments were added.
@@ -1902,7 +1905,7 @@ didReceiveRemoteNotification:userInfo
     
     id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
-    UNMutableNotificationContent* content = [OneSignal serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalExtension serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
     // Make sure butons were added.
     XCTAssertEqualObjects(content.categoryIdentifier, @"__onesignal__dynamic__b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
@@ -1930,7 +1933,7 @@ didReceiveRemoteNotification:userInfo
     XCTestExpectation *contentExpectation = [self expectationWithDescription:@"onesignal_extension_content_handler_fired"];
     contentExpectation.expectedFulfillmentCount = 2;
     dispatch_async(dispatch_get_main_queue(), ^{
-        UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil withContentHandler:^(UNNotificationContent * _Nonnull replacementContent) {
+        UNMutableNotificationContent* content = [OneSignalExtension didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil withContentHandler:^(UNNotificationContent * _Nonnull replacementContent) {
             [contentExpectation fulfill];
         }];
         // If didReceiveNotificationExtenionRequest has returned then the semaphore has been signaled or timed out
@@ -2199,7 +2202,7 @@ didReceiveRemoteNotification:userInfo
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    UNMutableNotificationContent* content = [OneSignalExtension didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
     return content.attachments.firstObject;
@@ -3064,7 +3067,7 @@ didReceiveRemoteNotification:userInfo
 
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    let content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
+    let content = [OneSignalExtension didReceiveNotificationExtensionRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
     let ids = OneSignalNotificationCategoryController.sharedInstance.existingRegisteredCategoryIds;

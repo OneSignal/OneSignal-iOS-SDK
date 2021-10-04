@@ -49,7 +49,6 @@
 #pragma clang diagnostic ignored "-Wdeprecated"
 + (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
 #pragma clang diagnostic pop
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
 @end
 
 // This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.

@@ -882,7 +882,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
     if ([self requiresUserPrivacyConsent]) {
         if (methodName) {
-            [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent", methodName]];
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent", methodName]];
         }
         return true;
     }
@@ -942,7 +942,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
-    [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
@@ -1014,7 +1014,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
     if ([[UIApplication sharedApplication] canOpenURL:url]) {
         [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
     } else {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
     }
 }
 
@@ -2394,7 +2394,7 @@ static NSString *_lastnonActiveMessageId;
     
     // Checks to ensure it is a valid email
     if (![OneSignalHelper isValidEmail:email]) {
-        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid email (%@) passed to setEmail", email]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid email (%@) passed to setEmail", email]];
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : @"Email is invalid"}]);
         return;
@@ -2409,7 +2409,7 @@ static NSString *_lastnonActiveMessageId;
     
     // If both the email address & hash token are the same, there's no need to make a network call here.
     if ([self.currentEmailSubscriptionState.emailAddress isEqualToString:email] && ([self.currentEmailSubscriptionState.emailAuthCode isEqualToString:emailAuthToken] || (self.currentEmailSubscriptionState.emailAuthCode == nil && emailAuthToken == nil))) {
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Email already exists, there is no need to call setEmail again"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Email already exists, there is no need to call setEmail again"];
         if (successBlock)
             successBlock();
         return;
@@ -2419,7 +2419,7 @@ static NSString *_lastnonActiveMessageId;
     //  however, if this method was called with an email auth code passed in, then there is no need to check this setting
     //  and we do not need to delay the request
     if (!self.currentSubscriptionState.userId || (_downloadedParameters == false && emailAuthToken != nil)) {
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setEmail: until the parameters have been downloaded."];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setEmail: until the parameters have been downloaded."];
         delayedEmailParameters = [OneSignalSetEmailParameters withEmail:email withAuthToken:emailAuthToken withSuccess:successBlock withFailure:failureBlock];
         return;
     }
@@ -2446,7 +2446,7 @@ static NSString *_lastnonActiveMessageId;
                     [self callFailureBlockOnMainThread:failureBlock withError:error];
                 }];
             } else {
-                [self onesignal_Log:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
+                [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
             }
         } onFailure:^(NSError *error) {
             [self callFailureBlockOnMainThread:failureBlock withError:error];
@@ -2506,7 +2506,7 @@ static NSString *_lastnonActiveMessageId;
                                      externalIdAuthToken:[self mExternalIdAuthToken]];
     
     [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:^(NSError *error) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Encountered an error updating this user's email player record: %@", error.description]];
     }];
 }
 
@@ -2548,7 +2548,7 @@ static NSString *_lastnonActiveMessageId;
     
     // Checks to ensure it is a valid smsNumber
     if (!smsNumber || [smsNumber length] == 0) {
-        [self onesignal_Log:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid sms number (%@) passed to setSMSNumber", smsNumber]];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Invalid sms number (%@) passed to setSMSNumber", smsNumber]];
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal.sms" code:0 userInfo:@{@"error" : @"SMS number is invalid"}]);
         return;
@@ -2563,7 +2563,7 @@ static NSString *_lastnonActiveMessageId;
 
     // If both the sms number & hash token are the same, there's no need to make a network call here.
     if ([self.currentSMSSubscriptionState.smsNumber isEqualToString:smsNumber] && ([self.currentSMSSubscriptionState.smsAuthCode isEqualToString:hashToken] || (self.currentSMSSubscriptionState.smsAuthCode == nil && hashToken == nil))) {
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"SMS number already exists, there is no need to call setSMSNumber again"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"SMS number already exists, there is no need to call setSMSNumber again"];
         if (successBlock) {
             let response = [NSMutableDictionary new];
             [response setValue:smsNumber forKey:SMS_NUMBER_KEY];
@@ -2576,7 +2576,7 @@ static NSString *_lastnonActiveMessageId;
     // however, if this method was called with an sms auth code passed in, then there is no need to check this setting
     // and we do not need to delay the request
     if (!self.currentSubscriptionState.userId || (_downloadedParameters == false && hashToken == nil)) {
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setSMSNumber: until the parameters have been downloaded."];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setSMSNumber: until the parameters have been downloaded."];
         _delayedSMSParameters = [OneSignalSetSMSParameters withSMSNumber:smsNumber withAuthToken:hashToken withSuccess:successBlock withFailure:failureBlock];
         return;
     }
@@ -2619,7 +2619,7 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     if (!key) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
         return;
     }
 
@@ -2640,7 +2640,7 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     if (!key) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
         return;
     }
 
@@ -2703,7 +2703,7 @@ static NSString *_lastnonActiveMessageId;
     }
     
     if (!self.currentSubscriptionState.userId || _downloadedParameters == false) {
-        [self onesignal_Log:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setLanguage: until the parameters have been downloaded."];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"iOS Parameters for this application has not yet been downloaded. Delaying call to setLanguage: until the parameters have been downloaded."];
         delayedLanguageParameters = [OneSignalSetLanguageParameters language:language withSuccess:successBlock withFailure:failureBlock];
         return;
     }
@@ -2807,7 +2807,7 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
     if (!_outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -2824,7 +2824,7 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     if (!_outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -2844,7 +2844,7 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     if (!_outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -2864,7 +2864,7 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     if (!_outcomeEventsController) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -2879,7 +2879,7 @@ static NSString *_lastnonActiveMessageId;
 
 + (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
     if (!name || [name length] == 0) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
         return false;
     }
 
@@ -2888,7 +2888,7 @@ static NSString *_lastnonActiveMessageId;
 
 + (BOOL)isValidOutcomeValue:(NSNumber *)value {
     if (!value || value.intValue <= 0) {
-        [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
         return false;
     }
 

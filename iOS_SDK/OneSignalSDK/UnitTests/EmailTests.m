@@ -29,6 +29,7 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 #import "OSRequests.h"
+#import "OSFocusRequests.h"
 #import "OneSignalClient.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalClientOverrider.h"
@@ -50,7 +51,6 @@
 @end
 
 @interface OneSignal () 
-void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (void)registerUserInternal;

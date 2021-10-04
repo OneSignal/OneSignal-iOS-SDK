@@ -30,6 +30,10 @@
 #import <XCTest/XCTest.h>
 
 #import "OSRequests.h"
+#import "OSFocusRequests.h"
+#import "OSInAppMessagingRequests.h"
+#import "OSLocationRequests.h"
+#import "OSOutcomesRequests.h"
 #import "OneSignalHelper.h"
 #import "UnitTestCommonMethods.h"
 #import "OneSignalClientOverrider.h"

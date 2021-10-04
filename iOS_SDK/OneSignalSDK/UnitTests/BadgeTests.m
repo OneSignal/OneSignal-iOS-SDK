@@ -26,6 +26,7 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "OneSignalExtension.h"
 #import "UnitTestCommonMethods.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "UNUserNotificationCenterOverrider.h"
@@ -85,7 +86,7 @@
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //test that receiving a notification with badge_inc updates the badge icon number
-    [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
+    [OneSignalExtension didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 3);
@@ -97,7 +98,7 @@
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [OneSignal didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:nil];
+    [OneSignalExtension didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 2);
@@ -122,7 +123,7 @@
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //test that receiving a notification with badge_inc updates the badge icon number
-    [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
+    [OneSignalExtension didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:nil];
     #pragma clang diagnostic pop
     XCTAssert(OneSignalExtensionBadgeHandler.currentCachedBadgeValue == 54);
     
@@ -135,7 +136,7 @@
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //tests to make sure the extension is correctly modifying the badge value of the replacement content
-    let replacementContent = [OneSignal didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:mutableContent];
+    let replacementContent = [OneSignalExtension didReceiveNotificationExtensionRequest:newNotifResponse.notification.request withMutableNotificationContent:mutableContent];
     #pragma clang diagnostic pop
     
     XCTAssert([replacementContent.badge intValue] == 53);
@@ -164,7 +165,7 @@
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     //Since the notification is trying to set a negative value, the SDK should keep the badge count == 0
-    let replacementContent = [OneSignal didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:mutableContent];
+    let replacementContent = [OneSignalExtension didReceiveNotificationExtensionRequest:notifResponse.notification.request withMutableNotificationContent:mutableContent];
     #pragma clang diagnostic pop
     
     XCTAssert(replacementContent.badge.intValue == 0);
