@@ -32,6 +32,12 @@ THE SOFTWARE.
 
 @implementation OSOutcomeEventsCache
 
+static OSOutcomeEventsCache *_sharedOutcomeEventsCache;
++ (OSOutcomeEventsCache *)sharedOutcomeEventsCache {
+    if (!_sharedOutcomeEventsCache)
+        _sharedOutcomeEventsCache = [OSOutcomeEventsCache new];
+    return _sharedOutcomeEventsCache;
+}
 // Get current outcome service enabled. If V2 enabled return true otherwise false
 - (BOOL)isOutcomesV2ServiceEnabled {
     return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_OUTCOMES_V2 defaultValue:NO];

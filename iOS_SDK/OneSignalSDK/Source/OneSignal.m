@@ -402,13 +402,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _appEntryState = appEntryState;
 }
 
-static OSOutcomeEventsCache *_outcomeEventsCache;
-+ (OSOutcomeEventsCache *)outcomeEventsCache {
-    if (!_outcomeEventsCache)
-        _outcomeEventsCache = [[OSOutcomeEventsCache alloc] init];
-    return _outcomeEventsCache;
-}
-
 static OSOutcomeEventsFactory *_outcomeEventFactory;
 + (OSOutcomeEventsFactory *)outcomeEventFactory {
     return _outcomeEventFactory;
@@ -569,7 +562,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     pendingExternalUserId = nil;
     pendingExternalUserIdHashToken = nil;
 
-    _outcomeEventsCache = nil;
     _outcomeEventFactory = nil;
     _outcomeEventsController = nil;
     
@@ -734,7 +726,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     initializationTime = [NSDate date];
 
     // Outcomes init
-    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:OneSignal.outcomeEventsCache];
+    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:[OSSessionManager sharedSessionManager] outcomeEventsFactory:_outcomeEventFactory];
 
     if (appId && [self isLocationShared])
@@ -976,7 +968,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [[self getRemoteParamController] saveRemoteParams:result];
 
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
-            [_outcomeEventsCache saveOutcomesV2ServiceEnabled:(BOOL)result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
+            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:(BOOL)result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
 
         [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];

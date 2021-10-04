@@ -150,6 +150,7 @@
     XCTAssertEqual(1, [lastNotificationReceived count]);
     XCTAssertEqual(0, sdkVersion);
    
+    // ECM TODO: This is failing because we aren't migrating from the NSE on notification received
     // Receive notification
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
     
