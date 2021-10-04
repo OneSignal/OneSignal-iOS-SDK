@@ -463,7 +463,7 @@
 		DE7D18B027038160002D3A5D /* OSOutcomeEventsRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9867924497A4D00C36EAE /* OSOutcomeEventsRepository.m */; };
 		DE7D18B127038164002D3A5D /* OSOutcomeEventsFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF98689244A556300C36EAE /* OSOutcomeEventsFactory.h */; };
 		DE7D18B227038168002D3A5D /* OSOutcomeEventsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9868B244A556F00C36EAE /* OSOutcomeEventsFactory.m */; };
-		DE7D18B32703816C002D3A5D /* OSOutcomeEventsCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9868F244A566F00C36EAE /* OSOutcomeEventsCache.h */; };
+		DE7D18B32703816C002D3A5D /* OSOutcomeEventsCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF9868F244A566F00C36EAE /* OSOutcomeEventsCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18B42703816F002D3A5D /* OSOutcomeEventsCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF98691244A567B00C36EAE /* OSOutcomeEventsCache.m */; };
 		DE7D18B527038172002D3A5D /* OSOutcomeEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D1BD95E2379E7A900A064F7 /* OSOutcomeEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18B627038176002D3A5D /* OSOutcomeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D1BD95F2379E7C300A064F7 /* OSOutcomeEvent.m */; };
