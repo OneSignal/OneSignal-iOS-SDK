@@ -73,7 +73,7 @@
 - (void)testSendingOutcome_inUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes
     let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
@@ -97,7 +97,7 @@
 - (void)testSendingOutcome_inNotificationIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
@@ -149,7 +149,7 @@
 - (void)testSendingOutcome_inNotificationDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -201,7 +201,7 @@
 - (void)testSendingOutcomeWithValue_inUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes with values
     let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
@@ -225,7 +225,7 @@
 - (void)testSendingOutcomeWithValue_inNotificationIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
@@ -281,7 +281,7 @@
 - (void)testSendingOutcomeWithValue_inNotificationDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -337,7 +337,7 @@
 - (void)testUnattributedSession_cachedUniqueOutcomeCleanedOnNewSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 of the same unique outcomes
     NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
@@ -383,7 +383,7 @@
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -469,7 +469,7 @@
 - (void)testAttributedDirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -557,7 +557,7 @@
 - (void)testAttributedIndirectSession_sendsUniqueOutcomeForNewNotifications_andNotCachedNotifications {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -639,7 +639,7 @@
 - (void)testSendingOutcome_inIAMIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 2 iam
     [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
@@ -687,7 +687,7 @@
 - (void)testSendingOutcome_inIAMDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
     [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
@@ -718,7 +718,7 @@
 - (void)testSendingOutcomeWithValue_inIAMIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 2 iam
     [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
@@ -770,7 +770,7 @@
 - (void)testSendingOutcomeWithValue_inIAMDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
     [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
@@ -805,7 +805,7 @@
 - (void)testSendingOutcome_inIAMDirectSession_SaveIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
     [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
@@ -858,7 +858,7 @@
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeIAMsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -944,7 +944,7 @@
 - (void)testAttributedDirectSession_cachedUniqueOutcomeIAMsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -1032,7 +1032,7 @@
 - (void)testAttributedIndirectSession_sendsUniqueOutcomeForNewNIAMs_andNotCachedIAMs {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -1115,7 +1115,7 @@
 - (void)testUnattributedSessionToDirectSessionWhileInactive {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is UNATTRIBUTED
     NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
@@ -1161,7 +1161,7 @@
 - (void)testDirectSessionToDirectSessionWhileInactive {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     [UnitTestCommonMethods pullDownNotificationCenter];
     
@@ -1219,7 +1219,7 @@
 - (void)testIndirectSessionToDirectSessionWhileInactive {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // Background app
     [UnitTestCommonMethods backgroundApp];

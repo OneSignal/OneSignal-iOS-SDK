@@ -66,7 +66,7 @@ THE SOFTWARE.
         NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OSInfluenceDataRepository sharedInfluenceDataRepository] lastNotificationsReceivedData];
         if (indirectInfluenceData) {
             [NSKeyedArchiver setClassName:@"OSIndirectInfluence" forClass:[OSIndirectInfluence class]];
-            [[OneSignal influenceDataRepository] saveNotifications:indirectInfluenceData];
+            [[OSInfluenceDataRepository sharedInfluenceDataRepository] saveNotifications:indirectInfluenceData];
         }
     }
     
@@ -74,10 +74,10 @@ THE SOFTWARE.
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
         
         [NSKeyedUnarchiver setClass:[OSCachedUniqueOutcome class] forClassName:@"OSUniqueOutcomeNotification"];
-        NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OneSignal outcomeEventsCache] getAttributedUniqueOutcomeEventSent];
+        NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OSOutcomeEventsCache sharedOutcomeEventsCache] getAttributedUniqueOutcomeEventSent];
         if (attributedCacheUniqueOutcomeEvents) {
             [NSKeyedArchiver setClassName:@"OSCachedUniqueOutcome" forClass:[OSCachedUniqueOutcome class]];
-            [[OneSignal outcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
+            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
         }
     }
 }
