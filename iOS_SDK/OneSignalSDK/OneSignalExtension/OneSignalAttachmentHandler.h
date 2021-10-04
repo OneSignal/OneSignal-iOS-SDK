@@ -9,7 +9,7 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <UserNotifications/UserNotifications.h>
 
-@interface OneSignalAttachmentHelper : NSObject
+@interface OneSignalAttachmentHandler : NSObject
 + (void)addAttachments:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
 + (void)addActionButtons:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
 @end
