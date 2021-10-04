@@ -33,6 +33,7 @@
 #import "OSInAppMessageController.h"
 #import "OSInAppMessagePrompt.h"
 #import "OneSignalDialogController.h"
+#import "OSInAppMessagingRequests.h"
 
 @interface OneSignal ()
 

@@ -26,6 +26,7 @@
 */
 
 #import "OSInAppMessagePage.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @implementation OSInAppMessagePage
 
