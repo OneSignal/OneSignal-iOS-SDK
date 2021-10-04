@@ -100,7 +100,7 @@
 
 @end
 
-@implementation OneSignalAttachmentHelper
+@implementation OneSignalAttachmentHandler
 
 + (void)addActionButtons:(OSNotification*)notification
    toNotificationContent:(UNMutableNotificationContent*)content {
@@ -160,7 +160,7 @@
     let unAttachments = [NSMutableArray new];
     
     for(NSString* key in notification.attachments) {
-        let URI = [OneSignalAttachmentHelper trimURLSpacing:[notification.attachments valueForKey:key]];
+        let URI = [OneSignalAttachmentHandler trimURLSpacing:[notification.attachments valueForKey:key]];
         
         let nsURL = [NSURL URLWithString:URI];
         

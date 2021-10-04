@@ -409,7 +409,7 @@
 		DE7D1832270279D9002D3A5D /* OSNotificationClasses.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D1831270279D9002D3A5D /* OSNotificationClasses.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183427027A73002D3A5D /* OneSignalLog.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183327027A73002D3A5D /* OneSignalLog.m */; };
 		DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183527027AA0002D3A5D /* OneSignalLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DE7D183827027CC4002D3A5D /* OneSignalAttachmentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183727027CC4002D3A5D /* OneSignalAttachmentHandler.h */; };
+		DE7D183827027CC4002D3A5D /* OneSignalAttachmentHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D183727027CC4002D3A5D /* OneSignalAttachmentHandler.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D183A27027CD7002D3A5D /* OneSignalAttachmentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */; };
 		DE7D183B27027EFC002D3A5D /* NSURL+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = CA36A42B208FDEFB003EFA9A /* NSURL+OneSignal.m */; };
 		DE7D183D27027F13002D3A5D /* NSURL+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = CA36A42A208FDEFB003EFA9A /* NSURL+OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
