@@ -89,7 +89,7 @@
 + (DelayedConsentInitializationParameters *)delayedInitParameters;
 @end
 
-@interface OneSignalHelper (TestHelper)
+@interface OneSignalAttachmentHandler (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
 
@@ -2037,7 +2037,7 @@ didReceiveRemoteNotification:userInfo
 - (void)testHandlingMediaUrlExtensions {
     let testUrl = @"https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=100";
     
-    let cacheName = [OneSignalHelper downloadMediaAndSaveInBundle:testUrl];
+    let cacheName = [OneSignalAttachmentHandler downloadMediaAndSaveInBundle:testUrl];
     
     XCTAssertNotNil(cacheName);
 }
@@ -3199,7 +3199,7 @@ didReceiveRemoteNotification:userInfo
                                 }]
                             }};
         OSNotification *notification = [OSNotification parseWithApns:aps];
-        UNNotificationAction *action = [OneSignalHelper createActionForButton:notification.actionButtons[0]];
+        UNNotificationAction *action = [OneSignalAttachmentHandler createActionForButton:notification.actionButtons[0]];
         XCTAssertNotNil(action.icon);
         
         aps = @{
@@ -3220,7 +3220,7 @@ didReceiveRemoteNotification:userInfo
                     }]
                 }};
         notification = [OSNotification parseWithApns:aps];
-        action = [OneSignalHelper createActionForButton:notification.actionButtons[0]];
+        action = [OneSignalAttachmentHandler createActionForButton:notification.actionButtons[0]];
         XCTAssertNotNil(action.icon);
         
         aps = @{
@@ -3239,7 +3239,7 @@ didReceiveRemoteNotification:userInfo
                     }]
                 }};
         notification = [OSNotification parseWithApns:aps];
-        action = [OneSignalHelper createActionForButton:notification.actionButtons[0]];
+        action = [OneSignalAttachmentHandler createActionForButton:notification.actionButtons[0]];
         XCTAssertNil(action.icon);
     }
 }

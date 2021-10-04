@@ -12,5 +12,6 @@
 @interface OneSignalAttachmentHandler : NSObject
 + (void)addAttachments:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
 + (void)addActionButtons:(OSNotification*)notification toNotificationContent:(UNMutableNotificationContent*)content;
++ (UNNotificationAction *)createActionForButton:(NSDictionary *)button;
 @end
 
