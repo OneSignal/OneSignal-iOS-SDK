@@ -95,8 +95,6 @@
 
 + (OSPermissionSubscriptionState*_Nonnull)getPermissionSubscriptionState;
 
-+ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
-
 + (OSPlayerTags *_Nonnull)getPlayerTags;
 
 @end

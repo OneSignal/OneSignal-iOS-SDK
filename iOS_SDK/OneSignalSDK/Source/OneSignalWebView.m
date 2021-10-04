@@ -30,11 +30,6 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 
-@interface OneSignal ()
-
-+ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
-
-@end
 
 @implementation OneSignalWebView
 

@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
-#import "OSRequests.h"
+#import "OSFocusRequests.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"
@@ -45,7 +45,6 @@
 @end
 
 @interface OneSignal ()
-void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)getSMSAuthToken;
 + (NSString *)getSMSUserId;
 + (OneSignalSetSMSParameters *)delayedSMSParameters;
@@ -87,7 +86,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     self.ONESIGNAL_EXTERNAL_USER_ID = @"test_external_user_id";
     self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN = @"test_external_user_id_hash_token";
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignalLog setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
 }
 
 /*
