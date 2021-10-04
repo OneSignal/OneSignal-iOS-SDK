@@ -834,7 +834,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes forMessageId:(NSString *) messageId {
     if (outcomes.count == 0)
         return;
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:messageId];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:messageId];
     [OneSignal sendClickActionOutcomes:outcomes];
 }
 
