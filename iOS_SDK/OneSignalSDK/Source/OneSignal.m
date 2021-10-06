@@ -139,7 +139,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 
 @implementation OneSignal
 
-NSString* const ONESIGNAL_VERSION = @"021606";
+NSString* const ONESIGNAL_VERSION = @"021607";
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 
