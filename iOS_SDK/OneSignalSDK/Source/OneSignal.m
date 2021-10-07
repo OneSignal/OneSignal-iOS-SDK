@@ -569,6 +569,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _registerUserSuccessful = false;
     
     _delayedSMSParameters = nil;
+    
+    [OSSessionManager resetSharedSessionManager];
 }
 
 // Set to false as soon as it's read.

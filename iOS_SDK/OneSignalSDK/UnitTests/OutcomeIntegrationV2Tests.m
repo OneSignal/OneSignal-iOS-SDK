@@ -47,9 +47,6 @@
 #import "NSTimerOverrider.h"
 
 @interface OneSignal ()
-+ (OSOutcomeEventsCache*)outcomeEventsCache;
-+ (OSSessionManager*)sessionManager;
-+ (OSTrackerFactory*)trackerFactory;
 + (OneSignalOutcomeEventsController*)outcomeEventsController;
 @end
 
