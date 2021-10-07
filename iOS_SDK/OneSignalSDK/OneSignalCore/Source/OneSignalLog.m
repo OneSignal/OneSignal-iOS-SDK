@@ -12,10 +12,9 @@
 @implementation OneSignalLog
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
-static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
-    _nsLogLevel = nsLogLevel; _visualLogLevel = visualLogLevel;
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel {
+    _nsLogLevel = nsLogLevel;
 }
 
 + (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
@@ -54,8 +53,6 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     if (logLevel <= _nsLogLevel)
         NSLog(@"%@", [levelString stringByAppendingString:message]);
-    
-    // ECM TODO: Do we want to support visual level?
 }
 
 @end
