@@ -41,7 +41,7 @@
 static OSSessionManager *_sessionManager;
 + (OSSessionManager*)sharedSessionManager {
     if (!_sessionManager)
-        _sessionManager = [[OSSessionManager alloc] init:self withTrackerFactory:[OSTrackerFactory sharedTrackerFactory]];
+        _sessionManager = [[OSSessionManager alloc] init:nil withTrackerFactory:[OSTrackerFactory sharedTrackerFactory]];
     return _sessionManager;
 }
 
@@ -255,7 +255,7 @@ static OSSessionManager *_sessionManager;
 - (void)sendSessionEndingWithInfluences:(NSArray<OSInfluence *> *)endingInfluences {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OneSignal SessionManager sendSessionEndingWithInfluences with influences: %@", endingInfluences.description]];
     // Only end session if there are influences available to end
-    if (endingInfluences.count > 0 && _delegate)
+    if (endingInfluences.count > 0 && _delegate && [_delegate respondsToSelector:@selector(onSessionEnding:)])
         [_delegate onSessionEnding:endingInfluences];
 }
 
