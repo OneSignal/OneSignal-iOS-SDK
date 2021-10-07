@@ -36,7 +36,9 @@
 
 @interface OSSessionManager : NSObject
 
-+ (OSSessionManager*)sharedSessionManager;
++ (OSSessionManager *)sharedSessionManager;
+
++ (void)resetSharedSessionManager;
 
 @property (nonatomic) id<SessionStatusDelegate> _Nullable delegate;
 
