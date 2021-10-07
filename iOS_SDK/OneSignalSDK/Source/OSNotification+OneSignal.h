@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2021OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,10 @@
  * THE SOFTWARE.
  */
 
-#import "OSNotificationClasses.h"
 
-#ifndef OSNotification_Internal_h
-#define OSNotification_Internal_h
+#import <Foundation/Foundation.h>
+#import <OneSignalCore/OneSignalCore.h>
 
-@interface OSNotification(Internal)
-+(instancetype _Nonnull )parseWithApns:(nonnull NSDictionary *)message;
-- (void)setCompletionBlock:(OSNotificationDisplayResponse _Nonnull)completion;
-- (void)startTimeoutTimer;
-- (void)complete:(OSNotification *)notification;
+@interface OSNotification (OneSignal)
+- (OSNotificationDisplayResponse _Nullable)getCompletionBlock;
 @end
-
-#endif /* OSNotification_Internal_h */

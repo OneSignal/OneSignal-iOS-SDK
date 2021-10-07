@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2017 OneSignal
+ * Copyright 2021OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,22 @@
  * THE SOFTWARE.
  */
 
-#import "OSNotificationClasses.h"
 
-#ifndef OSNotification_Internal_h
-#define OSNotification_Internal_h
-
-@interface OSNotification(Internal)
-+(instancetype _Nonnull )parseWithApns:(nonnull NSDictionary *)message;
-- (void)setCompletionBlock:(OSNotificationDisplayResponse _Nonnull)completion;
-- (void)startTimeoutTimer;
-- (void)complete:(OSNotification *)notification;
+#import "OSNotification+OneSignal.h"
+#import <UIKit/UIKit.h>
+@implementation OSNotification (OneSignal)
+ - (OSNotificationDisplayResponse)getCompletionBlock {
+     OSNotificationDisplayResponse block = ^(OSNotification *notification){
+         /*
+          If notification is null here then display was cancelled and we need to
+          reset the badge count to the value prior to receipt of this notif
+          */
+         if (!notification) {
+             NSInteger previousBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
+             [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:previousBadgeCount];
+         }
+         [self complete:notification];
+     };
+     return block;
+ }
 @end
-
-#endif /* OSNotification_Internal_h */

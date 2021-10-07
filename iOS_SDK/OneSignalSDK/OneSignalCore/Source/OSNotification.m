@@ -306,22 +306,6 @@
     _completion = completion;
 }
 
- - (OSNotificationDisplayResponse)getCompletionBlock {
-     OSNotificationDisplayResponse block = ^(OSNotification *notification){
-         /*
-          If notification is null here then display was cancelled and we need to
-          reset the badge count to the value prior to receipt of this notif
-          */
-         if (!notification) {
-             // ECM TODO: We can't use sharedApplication in Core
-             //NSInteger previousBadgeCount = [UIApplication sharedApplication].applicationIconBadgeNumber;
-             [OneSignalUserDefaults.initShared saveIntegerForKey:ONESIGNAL_BADGE_KEY withValue:0];
-         }
-         [self complete:notification];
-     };
-     return block;
- }
-
  - (void)complete:(OSNotification *)notification {
      [_timeoutTimer invalidate];
      if (_completion) {
