@@ -35,7 +35,7 @@
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
     if (error || !json) {
-        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Unable to decode JS-bridge event with error: %@", error.description ?: @"Unknown Error"]];
+        [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Unable to decode JS-bridge event with error: %@", error.description ?: @"Unknown Error"]];
         return nil;
     }
     
