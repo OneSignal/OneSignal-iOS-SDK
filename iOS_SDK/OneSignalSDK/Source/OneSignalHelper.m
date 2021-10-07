@@ -40,6 +40,7 @@
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
 #import "OneSignalReceiveReceiptsController.h"
+#import "OSNotification+OneSignal.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
