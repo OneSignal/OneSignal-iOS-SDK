@@ -61,7 +61,7 @@
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
    
     if (error || !json) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app display state message JSON: %@", error.description ?: @"No Data"]];
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app display state message JSON: %@", error.description ?: @"No Data"]];
         return nil;
     }
    
@@ -112,7 +112,7 @@
 
 - (BOOL)shouldDisplayAgain {
     BOOL result = _displayQuantity < _displayLimit;
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"In app message shouldDisplayAgain: %hhu", result]];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"In app message shouldDisplayAgain: %hhu", result]];
     return result;
 }
 
