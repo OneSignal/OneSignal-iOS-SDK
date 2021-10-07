@@ -34,5 +34,9 @@
 #import "OSOutcomeEvent.h"
 #import "OSInfluenceDataDefines.h"
 #import "OSOutcomeEventsCache.h"
+#import "OSCachedUniqueOutcome.h"
 
+@interface OneSignalOutcomes : NSObject
++ (void)migrate;
+@end
 

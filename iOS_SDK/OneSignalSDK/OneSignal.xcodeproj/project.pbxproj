@@ -386,6 +386,8 @@
 		DE3CD2FA270F9A6D00A5BECD /* OSNotification+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2F8270F9A6D00A5BECD /* OSNotification+OneSignal.m */; };
 		DE3CD2FB270F9A6D00A5BECD /* OSNotification+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2F8270F9A6D00A5BECD /* OSNotification+OneSignal.m */; };
 		DE3CD2FD270F9A8100A5BECD /* OSNotification+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE3CD2FC270F9A8100A5BECD /* OSNotification+OneSignal.h */; };
+		DE3CD2FF270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */; };
+		DE3CD300270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */; };
 		DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */; };
 		DE7D17EA27026B95002D3A5D /* OneSignalCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE7D17E927026B95002D3A5D /* OneSignalCore.docc */; };
 		DE7D17EB27026B95002D3A5D /* OneSignalCore.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D17E827026B95002D3A5D /* OneSignalCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -937,6 +939,7 @@
 		DE367CC624EEF2BE00165207 /* OSInAppMessagePage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessagePage.m; sourceTree = "<group>"; };
 		DE3CD2F8270F9A6D00A5BECD /* OSNotification+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "OSNotification+OneSignal.m"; sourceTree = "<group>"; };
 		DE3CD2FC270F9A8100A5BECD /* OSNotification+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OSNotification+OneSignal.h"; sourceTree = "<group>"; };
+		DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalOutcomes.m; sourceTree = "<group>"; };
 		DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageViewControllerOverrider.m; sourceTree = "<group>"; };
 		DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageViewControllerOverrider.h; sourceTree = "<group>"; };
 		DE7D17E627026B95002D3A5D /* OneSignalCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1577,6 +1580,7 @@
 			children = (
 				DE7D188D27037F5C002D3A5D /* Source */,
 				DE7D188227037F43002D3A5D /* OneSignalOutcomes.h */,
+				DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */,
 				7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */,
 				7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */,
 				DE7D188327037F43002D3A5D /* OneSignalOutcomes.docc */,
@@ -2518,6 +2522,7 @@
 				A63E9E3B26742B4700EA273E /* LanguageProviderDevice.m in Sources */,
 				9129C6BA1E89E59B009CB6A0 /* OSPermission.m in Sources */,
 				91F58D871E7C88250017D24D /* OneSignalNotificationSettingsIOS9.m in Sources */,
+				DE3CD2FF270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */,
 				CA1A6E7220DC2E73001C41B9 /* OneSignalDialogRequest.m in Sources */,
 				7A880F332404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */,
 			);
@@ -2580,6 +2585,7 @@
 				DE7D18A027038125002D3A5D /* OSInAppMessageTracker.m in Sources */,
 				DE7D18BA27038185002D3A5D /* OSOutcomeSourceBody.m in Sources */,
 				DE7D18A22703812D002D3A5D /* OSNotificationTracker.m in Sources */,
+				DE3CD300270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */,
 				DE7D18B82703817D002D3A5D /* OSCachedUniqueOutcome.m in Sources */,
 				DE7D18BE27038194002D3A5D /* OSOutcomeEventParams.m in Sources */,
 				DE7D18C02703819D002D3A5D /* OSOutcomeEventsV1Repository.m in Sources */,

@@ -225,7 +225,7 @@ static XCTestCase* _currentXCTestCase;
     
     [UIAlertViewOverrider reset];
 
-    [OneSignalLog setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
+    [OneSignal setLogLevel:ONE_S_LL_INFO visualLevel:ONE_S_LL_NONE];
 
     [NSTimerOverrider reset];
     [OneSignalLocationOverrider reset];

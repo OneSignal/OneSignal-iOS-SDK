@@ -51,7 +51,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
     
-    [OneSignalLog setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
@@ -70,7 +70,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // Example block for IAM action click handler
     id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
         NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:message];
+        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:message];
     };
 
     // Example setter for IAM action click handler using OneSignal public method
