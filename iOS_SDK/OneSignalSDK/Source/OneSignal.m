@@ -2886,6 +2886,44 @@ static NSString *_lastnonActiveMessageId;
     return true;
 }
 
+static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
+
+#pragma mark Logging
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
+    [OneSignalLog setLogLevel:logLevel];
+    _visualLogLevel = visualLogLevel;
+}
++ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
+    [OneSignalLog onesignalLog:logLevel message:message];
+    NSString* levelString;
+    switch (logLevel) {
+        case ONE_S_LL_FATAL:
+            levelString = @"FATAL: ";
+            break;
+        case ONE_S_LL_ERROR:
+            levelString = @"ERROR: ";
+            break;
+        case ONE_S_LL_WARN:
+            levelString = @"WARNING: ";
+            break;
+        case ONE_S_LL_INFO:
+            levelString = @"INFO: ";
+            break;
+        case ONE_S_LL_DEBUG:
+            levelString = @"DEBUG: ";
+            break;
+        case ONE_S_LL_VERBOSE:
+            levelString = @"VERBOSE: ";
+            break;
+            
+        default:
+            break;
+    }
+    if (logLevel <= _visualLogLevel) {
+        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+    }
+}
+
 @end
 
 @implementation OneSignal (SessionStatusDelegate)

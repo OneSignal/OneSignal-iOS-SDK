@@ -443,6 +443,10 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
+#pragma mark Logging
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
++ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
+
 #pragma mark Prompt For Push
 typedef void(^OSUserResponseBlock)(BOOL accepted);
 
