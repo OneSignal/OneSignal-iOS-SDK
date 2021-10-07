@@ -20,7 +20,7 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
     ONE_S_LL_VERBOSE
 };
 
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel;
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
 @end
