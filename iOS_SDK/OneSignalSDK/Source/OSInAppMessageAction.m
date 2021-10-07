@@ -41,7 +41,7 @@
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     
     if (error || !json) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app message JSON: %@", error.description ?: @"No Data"]];
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Unable to decode in-app message JSON: %@", error.description ?: @"No Data"]];
         return nil;
     }
     
@@ -76,7 +76,7 @@
     else
         action.closesMessage = true; // Default behavior
     
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSInAppMessageAction %@", json]];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OSInAppMessageAction %@", json]];
 
     NSMutableArray *outcomes = [NSMutableArray new];
     //TODO: when backend is ready check that key matches

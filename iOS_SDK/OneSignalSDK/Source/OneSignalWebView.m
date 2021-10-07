@@ -131,14 +131,14 @@ UIViewController *viewControllerForPresentation;
 - (void)clearWebView {
     [_webView loadHTMLString:@"" baseURL:nil];
     if (viewControllerForPresentation) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"clearing web view"];
+        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"clearing web view"];
         [viewControllerForPresentation.view removeFromSuperview];
     }
         
 }
 
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
     [self clearWebView];
 }
 

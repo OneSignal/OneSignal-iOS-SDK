@@ -309,7 +309,7 @@ OneSignalWebView *webVC;
     NSString *uuid = [notification additionalData][ONESIGNAL_IAM_PREVIEW];
     if (uuid) {
 
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
+        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"IAM Preview Detected, Begin Handling"];
         OSInAppMessageInternal *message = [OSInAppMessageInternal instancePreviewFromNotification:notification];
         [[OSMessagingController sharedInstance] presentInAppPreviewMessage:message];
         return YES;

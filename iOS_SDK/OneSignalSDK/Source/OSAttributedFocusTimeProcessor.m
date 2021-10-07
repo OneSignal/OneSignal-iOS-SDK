@@ -54,7 +54,7 @@ static let DELAY_TIME = 30;
 }
 
 - (void)endDelayBackgroundTask {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
+    [OneSignal onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)delayBackgroundTask]];
     [UIApplication.sharedApplication endBackgroundTask:delayBackgroundTask];
     delayBackgroundTask = UIBackgroundTaskInvalid;
@@ -71,7 +71,7 @@ static let DELAY_TIME = 30;
 - (void)sendOnFocusCall:(OSFocusCallParams *)params {
     let unsentActive = [super getUnsentActiveTime];
     let totalTimeActive = unsentActive + params.timeElapsed;
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
+    [OneSignal onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"sendOnFocusCall attributed with totalTimeActive %f", totalTimeActive]];
     
     [super saveUnsentActiveTime:totalTimeActive];
@@ -80,7 +80,7 @@ static let DELAY_TIME = 30;
 
 - (void)sendUnsentActiveTime:(OSFocusCallParams *)params {
     let unsentActive = [super getUnsentActiveTime];
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
+    [OneSignal onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"sendUnsentActiveTime attributed with unsentActive %f", unsentActive]];
     
     [self sendOnFocusCallWithParams:params totalTimeActive:unsentActive];
@@ -113,14 +113,14 @@ static let DELAY_TIME = 30;
 
 - (void)sendBackgroundAttributedFocusPingWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"beginBackgroundAttributedFocusTask start"];
+        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"beginBackgroundAttributedFocusTask start"];
 
         [OneSignal.stateSynchronizer sendOnFocusTime:totalTimeActive params:params withSuccess:^(NSDictionary *result) {
             [super saveUnsentActiveTime:0];
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
+            [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
             [self endDelayBackgroundTask];
         } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed failed, will retry on next open"];
+            [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed failed, will retry on next open"];
             [self endDelayBackgroundTask];
         }];
     });
