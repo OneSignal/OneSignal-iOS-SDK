@@ -46,7 +46,6 @@
 #import "NSTimerOverrider.h"
 
 @interface OneSignal ()
-+ (OSSessionManager*)sessionManager;
 + (OSTrackerFactory*)trackerFactory;
 + (OneSignalOutcomeEventsController*)outcomeEventsController;
 @end
@@ -141,7 +140,6 @@
     [NSDateOverrider advanceSystemTimeBy:5];
 
     // 2. Background app, receive notification, and open notification
-    [OneSignalTracker onFocus:true];
     [UnitTestCommonMethods backgroundApp];
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
     

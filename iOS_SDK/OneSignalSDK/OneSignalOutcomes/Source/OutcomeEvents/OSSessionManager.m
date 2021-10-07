@@ -45,6 +45,10 @@ static OSSessionManager *_sessionManager;
     return _sessionManager;
 }
 
++ (void)resetSharedSessionManager {
+    _sessionManager = nil;
+}
+
 - (instancetype _Nonnull)init:(Class<SessionStatusDelegate>)delegate withTrackerFactory:(OSTrackerFactory *)trackerFactory {
     if (self = [super init]) {
         _delegate = delegate;
