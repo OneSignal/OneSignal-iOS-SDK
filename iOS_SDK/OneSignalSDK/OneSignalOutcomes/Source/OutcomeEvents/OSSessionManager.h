@@ -38,9 +38,9 @@
 
 + (OSSessionManager*)sharedSessionManager;
 
-@property (nonatomic) id<SessionStatusDelegate> _Nonnull delegate;
+@property (nonatomic) id<SessionStatusDelegate> _Nullable delegate;
 
-- (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nonnull)delegate withTrackerFactory:(OSTrackerFactory *_Nonnull)trackerFactory;
+- (instancetype _Nonnull)init:(Class<SessionStatusDelegate> _Nullable)delegate withTrackerFactory:(OSTrackerFactory *_Nonnull)trackerFactory;
 
 - (NSArray<OSInfluence *> *_Nonnull)getInfluences;
 - (NSArray<OSInfluence *> *_Nonnull)getSessionInfluences;
