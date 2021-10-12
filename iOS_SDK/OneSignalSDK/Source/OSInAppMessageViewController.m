@@ -97,6 +97,8 @@
 
 @property (nonatomic) BOOL useWidthMargin;
 
+@property (nonatomic) BOOL isFullscreen;
+
 @end
 
 @implementation OSInAppMessageViewController
@@ -225,25 +227,27 @@
 
 - (OSResultSuccessBlock)messageContentOnSuccess {
     return ^(NSDictionary *data) {
-        if (!data) {
-            [self encounteredErrorLoadingMessageContent:nil];
-            return;
-        }
-        
-        let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"html"]];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
-        
-        if (!self.message.isPreview)
-            [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
+        [OneSignalHelper dispatch_async_on_main_queue:^{
+            if (!data) {
+                [self encounteredErrorLoadingMessageContent:nil];
+                return;
+            }
+            
+            let message = [NSString stringWithFormat:@"In App Messaging htmlContent.html: %@", data[@"html"]];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:message];
+            
+            if (!self.message.isPreview)
+                [[OneSignal sessionManager] onInAppMessageReceived:self.message.messageId];
 
-        let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
-        [self parseContentData:data];
-        if (self.waitForTags) {
-            return;
-        }
-        [self.delegate messageWillDisplay:self.message];
-        [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
-        self.pendingHTMLContent = nil;
+            let baseUrl = [NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL];
+            [self parseContentData:data];
+            if (self.waitForTags) {
+                return;
+            }
+            [self.delegate messageWillDisplay:self.message];
+            [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:baseUrl];
+            self.pendingHTMLContent = nil;
+        }];
     };
 }
 
@@ -261,6 +265,34 @@
             self.useWidthMargin = ![styles[@"remove_width_margin"] boolValue];
         }
     }
+    self.isFullscreen = !self.useHeightMargin;
+    if (self.isFullscreen) {
+        self.pendingHTMLContent = [self setContentInsetsInHTML:self.pendingHTMLContent];
+    }
+}
+
+- (NSString *)setContentInsetsInHTML:(NSString *)html {
+    NSMutableString *newHTML = [[NSMutableString alloc] initWithString:html];
+    if (@available(iOS 11, *)) {
+        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+        CGFloat top = keyWindow.safeAreaInsets.top;
+        CGFloat bottom = keyWindow.safeAreaInsets.bottom;
+        CGFloat right = keyWindow.safeAreaInsets.right;
+        CGFloat left = keyWindow.safeAreaInsets.left;
+        NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:@"{\n\
+                            top: %f,\n\
+                            bottom: %f,\n\
+                            right: %f,\n\
+                            left: %f,\n\
+                        }",top, bottom, right, left];
+        //Script to set the tags for liquid tag substitution
+        NSString *insetsString = [NSString stringWithFormat:@"\n\n\
+                             <script> \
+                                setSafeAreaInsets(%@);\
+                             </script>",safeAreaInsetsObjectString];
+        [newHTML appendString: insetsString];
+    }
+    return newHTML;
 }
 
 - (void)setWaitForTags:(BOOL)waitForTags {
@@ -318,13 +350,15 @@
     // as a notch or a rounded corner on newer iOS devices like iPhone X
     // Note that Safe Area layout guides were only introduced in iOS 11
     if (@available(iOS 11, *)) {
-        let safeArea = self.view.safeAreaLayoutGuide;
-        top = safeArea.topAnchor;
-        bottom = safeArea.bottomAnchor;
-        leading = safeArea.leadingAnchor;
-        trailing = safeArea.trailingAnchor;
-        center = safeArea.centerXAnchor;
-        height = safeArea.heightAnchor;
+        if (!self.isFullscreen) {
+            let safeArea = self.view.safeAreaLayoutGuide;
+            top = safeArea.topAnchor;
+            bottom = safeArea.bottomAnchor;
+            leading = safeArea.leadingAnchor;
+            trailing = safeArea.trailingAnchor;
+            center = safeArea.centerXAnchor;
+            height = safeArea.heightAnchor;
+        }
     }
     
     CGRect mainBounds = [OneSignalViewHelper getScreenBounds];
@@ -400,8 +434,10 @@
             self.view.window.frame = mainBounds;
             NSLayoutAnchor *centerYanchor = self.view.centerYAnchor;
             if (@available(iOS 11, *)) {
-                let safeArea = self.view.safeAreaLayoutGuide;
-                centerYanchor = safeArea.centerYAnchor;
+                if (!self.isFullscreen) {
+                    let safeArea = self.view.safeAreaLayoutGuide;
+                    centerYanchor = safeArea.centerYAnchor;
+                }
             }
 
             self.initialYConstraint = [self.messageView.centerYAnchor constraintEqualToAnchor:centerYanchor constant:0.0f];
@@ -670,6 +706,10 @@
     }
 }
 
+- (void)updateSafeAreaInsets {
+    
+}
+
 /*
  This delegate function gets called when in-app html is load or action button is tapped
  */
@@ -701,6 +741,7 @@
             case OSInAppMessageBridgeEventTypePageResize: {
                 // Unused resize event for IAM during actions like orientation changes and displaying an IAM
                 // self.message.height = event.resize.height;
+                [self updateSafeAreaInsets];
                 break;
             }
             case OSInAppMessageBridgeEventTypeActionTaken: {

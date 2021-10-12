@@ -90,12 +90,12 @@
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
     NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
-        NSString *taggedHTML = [self addTagsToHTML:html];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
-        [self.webView loadHTMLString:taggedHTML baseURL:url];
-    });
+    
+    NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
+    NSString *taggedHTML = [self addTagsToHTML:html];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
+    [self.webView loadHTMLString:taggedHTML baseURL:url];
+    
 }
 
 - (void)setupWebviewWithMessageHandler:(id<WKScriptMessageHandler>)handler {
