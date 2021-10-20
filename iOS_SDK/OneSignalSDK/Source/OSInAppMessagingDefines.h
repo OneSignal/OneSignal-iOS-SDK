@@ -92,8 +92,16 @@ typedef NS_ENUM(NSUInteger, OSTriggerOperatorType) {
 // Verify that a string is a valid dynamic trigger
 #define OS_IS_TRIGGER_PROPERTY(kind) [OS_TRIGGER_PROPERTY_STRINGS containsObject:property]
 
+// Javascript object
+#define OS_JS_SAFE_AREA_INSETS_OBJ @"{\n\
+    top: %f,\n\
+    bottom: %f,\n\
+    right: %f,\n\
+    left: %f,\n\
+}"
 // JavaScript method names
 #define OS_JS_GET_PAGE_META_DATA_METHOD @"getPageMetaData()"
+#define OS_SET_SAFE_AREA_INSETS_METHOD @"setSafeAreaInsets(%@)"
 
 #define PREFERRED_VARIANT_ORDER @[@"ios", @"app", @"all"]
 

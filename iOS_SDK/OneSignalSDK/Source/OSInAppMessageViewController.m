@@ -279,13 +279,7 @@
         CGFloat bottom = keyWindow.safeAreaInsets.bottom;
         CGFloat right = keyWindow.safeAreaInsets.right;
         CGFloat left = keyWindow.safeAreaInsets.left;
-        NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:@"{\n\
-                            top: %f,\n\
-                            bottom: %f,\n\
-                            right: %f,\n\
-                            left: %f,\n\
-                        }",top, bottom, right, left];
-        //Script to set the tags for liquid tag substitution
+        NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
         NSString *insetsString = [NSString stringWithFormat:@"\n\n\
                              <script> \
                                 setSafeAreaInsets(%@);\
@@ -706,10 +700,6 @@
     }
 }
 
-- (void)updateSafeAreaInsets {
-    
-}
-
 /*
  This delegate function gets called when in-app html is load or action button is tapped
  */
@@ -741,7 +731,7 @@
             case OSInAppMessageBridgeEventTypePageResize: {
                 // Unused resize event for IAM during actions like orientation changes and displaying an IAM
                 // self.message.height = event.resize.height;
-                [self updateSafeAreaInsets];
+                [self.messageView updateSafeAreaInsets];
                 break;
             }
             case OSInAppMessageBridgeEventTypeActionTaken: {
