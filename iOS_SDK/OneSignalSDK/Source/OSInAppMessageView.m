@@ -38,7 +38,7 @@
 @property (strong, nonatomic, nonnull) OSInAppMessageInternal *message;
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
-
+@property (nonatomic) BOOL isFullscreen;
 @end
 
 
@@ -118,6 +118,16 @@
     [self layoutIfNeeded];
 }
 
+- (void)setIsFullscreen:(BOOL)isFullscreen {
+    _isFullscreen = isFullscreen;
+    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    if (!isFullscreen) {
+        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+        mainBounds.size.width -= (2.0 * marginSpacing);
+    }
+    [self.webView setFrame:mainBounds];
+}
+
 /*
  Method for resetting the height of the WebView so the JS can calculate the new height
  WebView will have margins accounted for on width, but height just needs to be phone height or larger
@@ -126,9 +136,12 @@
 - (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion {
     [self.webView removeConstraints:[self.webView constraints]];
     
-    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+   
     CGRect mainBounds = UIScreen.mainScreen.bounds;
-    mainBounds.size.width -= (2.0 * marginSpacing);
+    if (!self.isFullscreen) {
+        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+        mainBounds.size.width -= (2.0 * marginSpacing);
+    }
     
     [self.webView setFrame:mainBounds];
     [self.webView layoutIfNeeded];

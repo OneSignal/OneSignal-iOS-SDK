@@ -269,6 +269,7 @@
     if (self.isFullscreen) {
         self.pendingHTMLContent = [self setContentInsetsInHTML:self.pendingHTMLContent];
     }
+    [self.messageView setIsFullscreen:self.isFullscreen];
 }
 
 - (NSString *)setContentInsetsInHTML:(NSString *)html {

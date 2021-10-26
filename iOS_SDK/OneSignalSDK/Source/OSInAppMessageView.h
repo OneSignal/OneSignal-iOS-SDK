@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)loadReplacementURL:(NSURL *)url;
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
 - (void)removeScriptMessageHandler;
-
+- (void)setIsFullscreen:(BOOL)isFullscreen;
 @end
 
 NS_ASSUME_NONNULL_END
