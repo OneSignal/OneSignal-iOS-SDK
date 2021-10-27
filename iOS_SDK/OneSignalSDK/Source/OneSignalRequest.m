@@ -101,8 +101,8 @@
     }
     
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:&error];
-    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted | NSJSONWritingWithoutEscapingSlashes error:&error];
+
     request.HTTPBody = jsonData;
 }
 
