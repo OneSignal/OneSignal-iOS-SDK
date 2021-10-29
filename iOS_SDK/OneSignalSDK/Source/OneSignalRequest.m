@@ -101,9 +101,16 @@
     }
     
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted | NSJSONWritingWithoutEscapingSlashes error:&error];
+    if (@available(iOS 13, *))
+        request.HTTPBody = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingWithoutEscapingSlashes error:&error];
+    else {
+        NSData* requestData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:&error];
+        NSString* requestString = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
+        requestString = [requestString stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"];
+        requestData = [requestString dataUsingEncoding:NSUTF8StringEncoding];
 
-    request.HTTPBody = jsonData;
+        request.HTTPBody = requestData;
+    }
 }
 
 -(void)attachQueryParametersToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {
