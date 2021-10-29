@@ -734,4 +734,23 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : testExternalUserId, @"external_user_id_auth_hash" : testExternalUserIdHashToken}));
 }
 
+- (void)testConstructPut {
+    let oneSignalRequest = [OneSignalRequest new];
+    oneSignalRequest.path = @"test";
+    oneSignalRequest.method = PUT;
+    oneSignalRequest.parameters = @{
+        @"int": @(123),
+        @"double": @(1.23),
+        @"string_normal": @"thisisastring",
+        @"string_slashes": @"this/string/has/slashes",
+        @"string_escapedchars": @"this\nstring\\has\"escape\tchars",
+    };
+
+    let urlRequest = [oneSignalRequest urlRequest];
+    let urlRequestBodyString = [NSString stringWithUTF8String:[urlRequest.HTTPBody bytes]];
+    let expectedBodyString = @"{\"double\":1.23,\"int\":123,\"string_normal\":\"thisisastring\",\"string_slashes\":\"this/string/has/slashes\",\"string_escapedchars\":\"this\\nstring\\\\has\\\"escape\\tchars\"}";
+
+    XCTAssertTrue([urlRequestBodyString isEqualToString:expectedBodyString]);
+}
+
 @end
