@@ -490,7 +490,8 @@
     let firstTrigger = [OSTrigger customTriggerWithProperty:@"prop1" withOperator:OSTriggerOperatorTypeExists withValue:nil];
 
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[firstTrigger]] withRedisplayLimit:limit delay:@(delay)];
-    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+    NSDictionary* json = [OSInAppMessageTestHelper convertIAMtoJson:message];
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[json]];
 
     [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
 
@@ -1525,7 +1526,8 @@
     [OneSignal pauseInAppMessages:NO];
     let trigger = [OSTrigger dynamicTriggerWithKind:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withOperator:OSTriggerOperatorTypeGreaterThanOrEqualTo withValue:@0];
     let message = [OSInAppMessageTestHelper testMessageWithTriggers:@[@[trigger]] withRedisplayLimit:5 delay:@30];
-    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+    NSDictionary* json = [OSInAppMessageTestHelper convertIAMtoJson:message];
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[json]];
 
     //Time interval mock
     NSDateComponents* comps = [[NSDateComponents alloc]init];
@@ -1642,7 +1644,8 @@
  Mock response JSON and initializes the OneSignal SDK
  */
 - (void)initOneSignalWithInAppMessage:(OSInAppMessageInternal *)message {
-    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message.jsonRepresentation]];
+    NSDictionary* json = [OSInAppMessageTestHelper convertIAMtoJson:message];
+    let registrationJson = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[json]];
     [self initOneSignalWithRegistrationJSON:registrationJson];
 }
 
