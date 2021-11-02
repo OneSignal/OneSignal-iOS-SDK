@@ -166,6 +166,9 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 
 @property (strong, nonatomic, nonnull) NSString *messageId;
 
+// Convert the object into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
 @end
 
 @interface OSInAppMessageOutcome : NSObject
