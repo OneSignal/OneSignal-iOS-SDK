@@ -101,16 +101,18 @@
     }
     
     NSError *error;
-    if (@available(iOS 13, *))
-        request.HTTPBody = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingWithoutEscapingSlashes error:&error];
-    else {
-        NSData* requestData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:&error];
-        NSString* requestString = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
-        requestString = [requestString stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"];
-        requestData = [requestString dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *requestData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:&error];
+    NSString *requestString = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
 
-        request.HTTPBody = requestData;
+    NSRegularExpression *eidRegex = [NSRegularExpression regularExpressionWithPattern:@"(?<=\"external_user_id\":\").*\\/.*?(?=\",|\"\\})" options:0 error:&error];
+    NSArray *matches = [eidRegex matchesInString:requestString options:0 range:NSMakeRange(0, [requestString length])];
+    for (NSTextCheckingResult *match in matches) {
+        NSString *matched = [requestString substringWithRange:[match range]];
+        NSString *unescapedEID = [matched stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"];
+        requestString = [requestString stringByReplacingOccurrencesOfString:matched withString:unescapedEID];
     }
+
+    request.HTTPBody = [requestString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 -(void)attachQueryParametersToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {
