@@ -276,6 +276,9 @@
     NSMutableString *newHTML = [[NSMutableString alloc] initWithString:html];
     if (@available(iOS 11, *)) {
         UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+        if (!keyWindow) {
+            return newHTML;
+        }
         CGFloat top = keyWindow.safeAreaInsets.top;
         CGFloat bottom = keyWindow.safeAreaInsets.bottom;
         CGFloat right = keyWindow.safeAreaInsets.right;
