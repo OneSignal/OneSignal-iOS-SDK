@@ -85,7 +85,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal addSubscriptionObserver:self];
     [OneSignal addEmailSubscriptionObserver:self];
     [OneSignal setInAppMessageLifecycleHandler:self];
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
 
     [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal setNotificationOpenedHandler:openNotificationHandler];
@@ -95,7 +95,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     return YES;
 }
 
-#define ONESIGNAL_APP_ID_DEFAULT @"9ddf83fd-6cf8-403d-98a1-bd5285b23d0e"
+#define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
 
 + (NSString*)getOneSignalAppId {
