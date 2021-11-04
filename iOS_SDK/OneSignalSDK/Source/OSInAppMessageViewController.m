@@ -686,7 +686,7 @@
             case OSInAppMessageBridgeEventTypePageRenderingComplete: {
                 // BOOL set to true since the JS event fired, meaning the WebView was populated properly with the IAM code
                 self.didPageRenderingComplete = true;
-               
+                self.message.dragToDismissDisabled = event.renderingComplete.dragToDismissDisabled;
                 self.message.position = event.renderingComplete.displayLocation;
                 self.message.height = event.renderingComplete.height;
 
