@@ -3265,6 +3265,32 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(json[@"templateName"], @"Template name");
 }
 
+- (void)testInAppMessageInternalJson {
+    NSDictionary *messageJson = @{
+        @"id" : OS_TEST_MESSAGE_ID,
+        @"variants" : @{
+            @"ios" : @{
+                @"default" : OS_TEST_MESSAGE_VARIANT_ID,
+                @"en" : OS_TEST_ENGLISH_VARIANT_ID
+            },
+            @"all" : @{
+                @"default" : @"some_message_id"
+            }
+        },
+        @"triggers" : @[],
+        @"has_liquid" : @true,
+    };
+    OSInAppMessageInternal *message = [OSInAppMessageInternal instanceWithJson:messageJson];
+    NSDictionary *json = [message jsonRepresentation];
+    
+    XCTAssertEqualObjects(json[@"messageId"], OS_TEST_MESSAGE_ID);
+    XCTAssertNil(json[@"id"]);
+    XCTAssertEqualObjects(json[@"variants"][@"ios"][@"default"], OS_TEST_MESSAGE_VARIANT_ID);
+    XCTAssertEqualObjects(json[@"variants"][@"all"][@"default"], @"some_message_id");
+    XCTAssertEqualObjects(json[@"triggers"], @[]);
+    XCTAssertTrue(json[@"has_liquid"]);
+}
+
 - (void)testLaunchURL {
         
     // 1. Init OneSignal with app start

@@ -30,6 +30,13 @@
 #import "OneSignalCommonDefines.h"
 
 @implementation OSInAppMessage
+
+- (NSDictionary *)jsonRepresentation {
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"messageId"] = self.messageId;
+    return json;
+}
+
 @end
 
 @interface OSInAppMessageInternal ()
@@ -92,6 +99,7 @@
 + (instancetype)instanceWithJson:(NSDictionary * _Nonnull)json {
     let message = [OSInAppMessageInternal new];
     
+    // "id" is expected instead of "messageId" when parsing JSON from the backend
     if (json[@"id"] && [json[@"id"] isKindOfClass:[NSString class]])
         message.messageId = json[@"id"];
     else
@@ -156,7 +164,7 @@
 -(NSDictionary *)jsonRepresentation {
     let json = [NSMutableDictionary new];
     
-    json[@"id"] = self.messageId;
+    json[@"messageId"] = self.messageId;
     json[@"variants"] = self.variants;
     
     let triggers = [NSMutableArray new];
