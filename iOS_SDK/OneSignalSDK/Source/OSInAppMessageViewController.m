@@ -733,7 +733,8 @@
                 break;
             }
             case OSInAppMessageBridgeEventTypePageResize: {
-                // Unused resize event for IAM during actions like orientation changes and displaying an IAM
+                // resize event for IAM during actions like orientation changes and displaying an IAM
+                // Currently used for fullscreen IAMs to account for safe area changes
                 // self.message.height = event.resize.height;
                 if (self.isFullscreen) {
                     [self.messageView updateSafeAreaInsets];

@@ -89,9 +89,6 @@
 
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
-    NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
-    
-    NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
     NSString *taggedHTML = [self addTagsToHTML:html];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
     [self.webView loadHTMLString:taggedHTML baseURL:url];
@@ -120,8 +117,12 @@
 
 - (void)setIsFullscreen:(BOOL)isFullscreen {
     _isFullscreen = isFullscreen;
+    [self setWebviewFrame];
+}
+
+- (void)setWebviewFrame {
     CGRect mainBounds = UIScreen.mainScreen.bounds;
-    if (!isFullscreen) {
+    if (!self.isFullscreen) {
         CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
         mainBounds.size.width -= (2.0 * marginSpacing);
     }
@@ -137,13 +138,7 @@
     [self.webView removeConstraints:[self.webView constraints]];
     
    
-    CGRect mainBounds = UIScreen.mainScreen.bounds;
-    if (!self.isFullscreen) {
-        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
-        mainBounds.size.width -= (2.0 * marginSpacing);
-    }
-    
-    [self.webView setFrame:mainBounds];
+    [self setWebviewFrame];
     [self.webView layoutIfNeeded];
     
     // Evaluate JS getPageMetaData() method to obtain the updated height for the messageView to contain the webView contents
