@@ -44,11 +44,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype _Nonnull)initWithMessage:(OSInAppMessageInternal *)inAppMessage withScriptMessageHandler:(id<WKScriptMessageHandler>)messageHandler;
 - (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion;
+- (void)updateSafeAreaInsets;
 - (void)setupWebViewConstraints;
 - (void)loadReplacementURL:(NSURL *)url;
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url;
 - (void)removeScriptMessageHandler;
-
+- (void)setIsFullscreen:(BOOL)isFullscreen;
 @end
 
 NS_ASSUME_NONNULL_END

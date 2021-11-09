@@ -38,7 +38,7 @@
 @property (strong, nonatomic, nonnull) OSInAppMessageInternal *message;
 @property (strong, nonatomic, nonnull) WKWebView *webView;
 @property (nonatomic) BOOL loaded;
-
+@property (nonatomic) BOOL isFullscreen;
 @end
 
 
@@ -89,13 +89,10 @@
 
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
-    NSLog(@"11111 [self.webView loadHTMLString:html baseURL:url];");
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        NSLog(@"222222 [self.webView loadHTMLString:html baseURL:url];");
-        NSString *taggedHTML = [self addTagsToHTML:html];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
-        [self.webView loadHTMLString:taggedHTML baseURL:url];
-    });
+    NSString *taggedHTML = [self addTagsToHTML:html];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
+    [self.webView loadHTMLString:taggedHTML baseURL:url];
+    
 }
 
 - (void)setupWebviewWithMessageHandler:(id<WKScriptMessageHandler>)handler {
@@ -118,6 +115,20 @@
     [self layoutIfNeeded];
 }
 
+- (void)setIsFullscreen:(BOOL)isFullscreen {
+    _isFullscreen = isFullscreen;
+    [self setWebviewFrame];
+}
+
+- (void)setWebviewFrame {
+    CGRect mainBounds = UIScreen.mainScreen.bounds;
+    if (!self.isFullscreen) {
+        CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
+        mainBounds.size.width -= (2.0 * marginSpacing);
+    }
+    [self.webView setFrame:mainBounds];
+}
+
 /*
  Method for resetting the height of the WebView so the JS can calculate the new height
  WebView will have margins accounted for on width, but height just needs to be phone height or larger
@@ -126,11 +137,8 @@
 - (void)resetWebViewToMaxBoundsAndResizeHeight:(void (^) (NSNumber *newHeight)) completion {
     [self.webView removeConstraints:[self.webView constraints]];
     
-    CGFloat marginSpacing = [OneSignalViewHelper sizeToScale:MESSAGE_MARGIN];
-    CGRect mainBounds = UIScreen.mainScreen.bounds;
-    mainBounds.size.width -= (2.0 * marginSpacing);
-    
-    [self.webView setFrame:mainBounds];
+   
+    [self setWebviewFrame];
     [self.webView layoutIfNeeded];
     
     // Evaluate JS getPageMetaData() method to obtain the updated height for the messageView to contain the webView contents
@@ -149,6 +157,28 @@
         NSNumber *height = [self extractHeightFromMetaDataPayload:result];
         completion(height);
     }];
+}
+
+- (void)updateSafeAreaInsets {
+    if (@available(iOS 11, *)) {
+        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+        CGFloat top = keyWindow.safeAreaInsets.top;
+        CGFloat bottom = keyWindow.safeAreaInsets.bottom;
+        CGFloat right = keyWindow.safeAreaInsets.right;
+        CGFloat left = keyWindow.safeAreaInsets.left;
+        NSString *safeAreaInsetsObjectString = [NSString stringWithFormat:OS_JS_SAFE_AREA_INSETS_OBJ,top, bottom, right, left];
+        
+        NSString *setInsetsString = [NSString stringWithFormat:OS_SET_SAFE_AREA_INSETS_METHOD, safeAreaInsetsObjectString];
+        [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {
+            if (error) {
+                NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_SET_SAFE_AREA_INSETS_METHOD, error];
+                [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+                return;
+            }
+            NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_SET_SAFE_AREA_INSETS_METHOD, result];
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:successMessage];
+        }];
+    }
 }
 
 - (NSNumber *)extractHeightFromMetaDataPayload:(NSDictionary *)result {
