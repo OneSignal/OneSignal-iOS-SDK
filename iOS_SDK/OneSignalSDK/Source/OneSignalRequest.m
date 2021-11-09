@@ -106,7 +106,9 @@
 
     NSRegularExpression *eidRegex = [NSRegularExpression regularExpressionWithPattern:@"(?<=\"external_user_id\":\").*\\/.*?(?=\",|\"\\})" options:0 error:&error];
     NSArray *matches = [eidRegex matchesInString:requestString options:0 range:NSMakeRange(0, [requestString length])];
-    for (NSTextCheckingResult *match in matches) {
+
+    if ([matches count] > 0) {
+        NSTextCheckingResult *match = matches[0];
         NSString *matched = [requestString substringWithRange:[match range]];
         NSString *unescapedEID = [matched stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"];
         requestString = [requestString stringByReplacingOccurrencesOfString:matched withString:unescapedEID];
