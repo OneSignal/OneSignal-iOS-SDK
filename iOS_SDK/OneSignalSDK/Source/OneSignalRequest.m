@@ -101,9 +101,20 @@
     }
     
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters options:NSJSONWritingPrettyPrinted error:&error];
-    
-    request.HTTPBody = jsonData;
+    NSData *requestData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:&error];
+    NSString *requestString = [[NSString alloc] initWithData:requestData encoding:NSUTF8StringEncoding];
+
+    NSRegularExpression *eidRegex = [NSRegularExpression regularExpressionWithPattern:@"(?<=\"external_user_id\":\").*\\/.*?(?=\",|\"\\})" options:0 error:&error];
+    NSArray *matches = [eidRegex matchesInString:requestString options:0 range:NSMakeRange(0, [requestString length])];
+
+    if ([matches count] > 0) {
+        NSTextCheckingResult *match = matches[0];
+        NSString *matched = [requestString substringWithRange:[match range]];
+        NSString *unescapedEID = [matched stringByReplacingOccurrencesOfString:@"\\/" withString:@"/"];
+        requestString = [requestString stringByReplacingOccurrencesOfString:matched withString:unescapedEID];
+    }
+
+    request.HTTPBody = [requestString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 -(void)attachQueryParametersToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {
