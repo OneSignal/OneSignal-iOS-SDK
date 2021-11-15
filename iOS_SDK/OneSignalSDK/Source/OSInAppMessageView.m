@@ -172,11 +172,11 @@
         [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {
             if (error) {
                 NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_SET_SAFE_AREA_INSETS_METHOD, error];
-                [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+                [OneSignal onesignalLog:ONE_S_LL_ERROR message:errorMessage];
                 return;
             }
             NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_SET_SAFE_AREA_INSETS_METHOD, result];
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:successMessage];
+            [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:successMessage];
         }];
     }
 }
