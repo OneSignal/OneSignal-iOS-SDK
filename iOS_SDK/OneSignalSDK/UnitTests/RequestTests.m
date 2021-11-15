@@ -167,6 +167,10 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     return dictionariesAreEquivalent(serialized, correct);
 }
 
+BOOL checkHttpHeaders(NSDictionary *additionalHeaders, NSDictionary *correct) {
+    return dictionariesAreEquivalent(additionalHeaders, correct);
+}
+
 - (void)testBuildGetTags {
     let request = [OSRequestGetTags withUserId:testUserId appId:testAppId];
     
@@ -741,6 +745,40 @@ BOOL checkHttpBody(NSData *bodyData, NSDictionary *correct) {
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
 
     XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"external_user_id" : testExternalUserId, @"external_user_id_auth_hash" : testExternalUserIdHashToken}));
+}
+
+- (void)testSendTrackUsageRequest {
+    NSString *testUsageData = @"test usage data";
+    let request = [OSRequestTrackV1 trackUsageData:testUsageData appId:testAppId];
+    let correctUrl = correctUrlWithPath(@"v1/track");
+
+    XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId}));
+    XCTAssertTrue(checkHttpHeaders(request.additionalHeaders, @{@"app_id" : testAppId,
+                                                                @"OS-Usage-Data" : testUsageData,
+                                                              }));
+}
+
+- (void)testAdditionalHeaders {
+    // Create a fake request
+    let request = [OneSignalRequest new];
+    let params = [NSMutableDictionary new];
+    let headers = [NSMutableDictionary new];
+    params[@"app_id"] = testAppId;
+    headers[@"app_id"] = testAppId;
+    headers[@"test-header"] = @"test_header_value";
+    request.method = POST;
+    request.path = @"test/path";
+    request.parameters = params;
+    request.additionalHeaders = headers;
+    
+    // Properties must be set in the request before accessing urlRequest
+    let urlRequest = request.urlRequest;
+    let requestHeaders = urlRequest.allHTTPHeaderFields;
+    // Verify that all headers we added via additionalHeaders are in the request's header fields
+    for (NSString *key in headers) {
+        XCTAssertTrue(requestHeaders[key] != nil);
+    }
 }
 
 @end
