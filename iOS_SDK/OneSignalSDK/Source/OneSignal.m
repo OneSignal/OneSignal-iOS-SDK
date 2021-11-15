@@ -1710,14 +1710,24 @@ static BOOL _trackedColdRestart = false;
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
+    
+    // Tracking cold starts within 30 seconds of last close.
+    // Depending on the results of our tracking we will change this case
+    // from a tracking request to return true
     if (delta < minTimeThreshold && appId && !_registerUserFinished && !_trackedColdRestart) {
-        NSString *osUsageData = [NSString stringWithFormat:@"lib-name=OneSignal-iOS-SDK,lib-version=%@,lib-event=cold_restart", ONESIGNAL_VERSION];
+        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"shouldRegisterNow:coldRestart"];
+        // Set to true even if it doesn't pass the sample check
         _trackedColdRestart = true;
-        [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"shouldRegisterNow:trackColdRestart: successfully tracked cold restart"];
-        } onFailure:^(NSError *error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"shouldRegisterNow:trackColdRestart: Failed to track cold restart: %@", error.localizedDescription]];
-        }];
+        // Sample /track calls to avoid hitting our endpoint too hard
+        int randomSample = arc4random_uniform(100);
+        if (randomSample == 99) {
+            NSString *osUsageData = [NSString stringWithFormat:@"lib-name=OneSignal-iOS-SDK,lib-version=%@,lib-event=cold_restart", ONESIGNAL_VERSION];
+            [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
+                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"shouldRegisterNow:trackColdRestart: successfully tracked cold restart"];
+            } onFailure:^(NSError *error) {
+                [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"shouldRegisterNow:trackColdRestart: Failed to track cold restart: %@", error.localizedDescription]];
+            }];
+        }
     }
     return delta >= minTimeThreshold;
 }
