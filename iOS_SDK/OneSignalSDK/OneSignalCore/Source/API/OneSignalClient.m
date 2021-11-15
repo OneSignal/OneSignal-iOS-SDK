@@ -31,10 +31,6 @@
 #import "OneSignalLog.h"
 #import "OneSignalCoreHelper.h"
 
-//@interface OneSignal (OneSignalClientExtra)
-//+ (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
-//@end
-
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
 @property (strong, nonatomic) NSURLSession *noCacheSession;
