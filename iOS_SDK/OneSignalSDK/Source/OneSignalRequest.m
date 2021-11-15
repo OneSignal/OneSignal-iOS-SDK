@@ -60,6 +60,10 @@
     
     let request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
     
+    for (NSString *key in self.additionalHeaders) {
+        [request setValue:self.additionalHeaders[key] forHTTPHeaderField:key];
+    }
+    
     if (!self.dataRequest)
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
