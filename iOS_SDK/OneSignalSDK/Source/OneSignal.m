@@ -1709,6 +1709,12 @@ static BOOL _registerUserSuccessful = false;
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
+    if (delta < minTimeThreshold && appId) {
+        // https://api.onesignal.com/api/v1/track
+        // do track here
+        // OS-Usage-Data
+        NSLog(@"ECM tracking restart appId: %@", appId);
+    }
     return delta >= minTimeThreshold;
 }
 

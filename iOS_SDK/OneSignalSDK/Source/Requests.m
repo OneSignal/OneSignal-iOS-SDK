@@ -749,3 +749,20 @@ NSString * const OUTCOME_SOURCE = @"source";
     return request;
 }
 @end
+
+@implementation OSRequestTrackV1
+NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
++ (instancetype)trackUsageData:(NSString *)osUsageData appId:(NSString *)appId {
+    let request = [OSRequestTrackV1 new];
+    let params = [NSMutableDictionary new];
+    let headers = [NSMutableDictionary new];
+    params[APP_ID] = appId;
+    headers[APP_ID] = appId;
+    headers[OS_USAGE_DATA] = osUsageData;
+    request.method = POST;
+    request.path = @"v1/track";
+    request.parameters = params;
+    request.additionalHeaders = headers;
+    return request;
+}
+@end
