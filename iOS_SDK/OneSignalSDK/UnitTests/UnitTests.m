@@ -3330,4 +3330,92 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"timezone_id"], mockTimezone.name);
     
 }
+
+- (void)testParseCollapseIdInOSData {
+    NSDictionary *apsOsData = @{
+                        @"aps": @{
+                            @"content-available": @1,
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body",
+                            @"relevance-score": @0.15,
+                            @"interruption-level": @"time-sensitive",
+                        },
+                        @"os_data": @{
+                            @"i": @"notif id",
+                            @"ti": @"templateId123",
+                            @"tn": @"Template name",
+                            @"collapse_id" : @"test_id"
+                        }};
+    OSNotification *notification = [OSNotification parseWithApns:apsOsData];
+    XCTAssertEqualObjects(notification.collapseId, @"test_id");
+    NSDictionary *json = [notification jsonRepresentation];
+    XCTAssertEqualObjects(json[@"collapseId"], @"test_id");
+}
+
+- (void)testParseCollapseIdInCustom {
+    NSDictionary *apsCustom = @{
+                        @"aps": @{
+                            @"content-available": @1,
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body",
+                            @"relevance-score": @0.15,
+                            @"interruption-level": @"time-sensitive",
+                        },
+                        @"custom": @{
+                            @"i": @"notif id",
+                            @"ti": @"templateId123",
+                            @"tn": @"Template name",
+                            @"collapse_id" : @"test_id"
+                        }};
+    OSNotification *notification = [OSNotification parseWithApns:apsCustom];
+    XCTAssertEqualObjects(notification.collapseId, @"test_id");
+    NSDictionary *json = [notification jsonRepresentation];
+    XCTAssertEqualObjects(json[@"collapseId"], @"test_id");
+}
+
+- (void) testParseCollapseIdFromNotificationRequestWithCustom {
+    NSDictionary *apsCustom = @{
+                        @"aps": @{
+                            @"content-available": @1,
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body",
+                            @"relevance-score": @0.15,
+                            @"interruption-level": @"time-sensitive",
+                        },
+                        @"custom": @{
+                            @"i": @"notif id",
+                            @"ti": @"templateId123",
+                            @"tn": @"Template name"
+                        }};
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsCustom];
+    
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request                                                           withMutableNotificationContent:nil
+                                                                           withContentHandler:nil];
+    
+    XCTAssertEqualObjects(content.userInfo[@"custom"][@"collapse_id"], @"test_id");
+}
+
+- (void) testParseCollapseIdFromNotificationRequestWithOSData {
+    NSDictionary *apsOSData = @{
+                        @"aps": @{
+                            @"content-available": @1,
+                            @"mutable-content": @1,
+                            @"alert": @"Message Body",
+                            @"relevance-score": @0.15,
+                            @"interruption-level": @"time-sensitive",
+                        },
+                        @"os_data": @{
+                            @"i": @"notif id",
+                            @"ti": @"templateId123",
+                            @"tn": @"Template name"
+                        }};
+    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsOSData];
+
+    UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request                                                           withMutableNotificationContent:nil
+                                                                           withContentHandler:nil];
+    
+    
+    XCTAssertEqualObjects(content.userInfo[@"os_data"][@"collapse_id"], @"test_id");
+}
+
 @end

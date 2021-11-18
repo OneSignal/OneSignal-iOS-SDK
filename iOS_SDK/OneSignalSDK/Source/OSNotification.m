@@ -130,6 +130,7 @@
     _templateId = payload[@"ti"];
     _templateName = payload[@"tn"];
     _badgeIncrement = [payload[@"badge_inc"] integerValue];
+    _collapseId = payload[@"collapse_id"];
 }
 
 - (void)parseApnsFields {
@@ -216,7 +217,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat: @"notificationId=%@ templateId=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ relevanceScore=%@ interruptionLevel=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _relevanceScore, _interruptionLevel, _rawPayload];
+    return [NSString stringWithFormat: @"notificationId=%@ templateId=%@ templateName=%@ contentAvailable=%@ mutableContent=%@ category=%@ relevanceScore=%@ interruptionLevel=%@ collapseId=%@ rawPayload=%@", _notificationId, _templateId, _templateName, _contentAvailable ? @"YES" : @"NO", _mutableContent ? @"YES" : @"NO", _category, _relevanceScore, _interruptionLevel, _collapseId, _rawPayload];
 }
 
 - (NSDictionary *)jsonRepresentation {
@@ -281,6 +282,9 @@
     
     if (self.interruptionLevel)
         [obj setObject:self.interruptionLevel forKeyedSubscript: @"interruptionLevel"];
+    
+    if (self.collapseId)
+        [obj setObject:self.collapseId forKeyedSubscript: @"collapseId"];
 
     return obj;
 }
