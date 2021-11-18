@@ -348,6 +348,7 @@ static XCTestCase* _currentXCTestCase;
     UNNotificationRequest *unNotifRequqest = [UNNotificationRequest alloc];
     // Set as remote push type
     [unNotifRequqest setValue:[UNPushNotificationTrigger alloc] forKey:@"trigger"];
+    [unNotifRequqest setValue:@"test_id" forKey:@"identifier"];
     [unNotifContent setValue:userInfo forKey:@"userInfo"];
     [unNotifRequqest setValue:unNotifContent forKeyPath:@"content"];
     [unNotif setValue:unNotifRequqest forKeyPath:@"request"];
