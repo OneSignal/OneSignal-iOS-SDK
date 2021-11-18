@@ -1715,21 +1715,25 @@ static BOOL _trackedColdRestart = false;
     // Depending on the results of our tracking we will change this case
     // from a tracking request to return true
     if (delta < minTimeThreshold && appId && !_registerUserFinished && !_trackedColdRestart) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"shouldRegisterNow:coldRestart"];
-        // Set to true even if it doesn't pass the sample check
-        _trackedColdRestart = true;
-        // Sample /track calls to avoid hitting our endpoint too hard
-        int randomSample = arc4random_uniform(100);
-        if (randomSample == 99) {
-            NSString *osUsageData = [NSString stringWithFormat:@"lib-name=OneSignal-iOS-SDK,lib-version=%@,lib-event=cold_restart", ONESIGNAL_VERSION];
-            [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
-                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"shouldRegisterNow:trackColdRestart: successfully tracked cold restart"];
-            } onFailure:^(NSError *error) {
-                [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"shouldRegisterNow:trackColdRestart: Failed to track cold restart: %@", error.localizedDescription]];
-            }];
-        }
+        [OneSignal trackColdRestart];
     }
     return delta >= minTimeThreshold;
+}
+
++ (void)trackColdRestart {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart"];
+    // Set to true even if it doesn't pass the sample check
+    _trackedColdRestart = true;
+    // Sample /track calls to avoid hitting our endpoint too hard
+    int randomSample = arc4random_uniform(100);
+    if (randomSample == 99) {
+        NSString *osUsageData = [NSString stringWithFormat:@"kind=sdk, version=%@, source=iOS_SDK, name=cold_restart, lockScreenApp=false", ONESIGNAL_VERSION];
+        [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart: successfully tracked cold restart"];
+        } onFailure:^(NSError *error) {
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"trackColdRestart: Failed to track cold restart: %@", error.localizedDescription]];
+        }];
+    }
 }
 
 + (void)registerUserAfterDelay {
