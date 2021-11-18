@@ -136,6 +136,8 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 /* iOS 15+ : Interruption Level */
 @property(readonly)NSString *interruptionLevel;
 
+@property(readonly, nullable)NSString *collapseId;
+
 /* Parses an APNS push payload into a OSNotification object.
    Useful to call from your NotificationServiceExtension when the
       didReceiveNotificationRequest:withContentHandler: method fires. */
