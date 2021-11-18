@@ -55,7 +55,24 @@
     if (!replacementContent)
         replacementContent = [request.content mutableCopy];
     
-    let notification = [OSNotification parseWithApns:request.content.userInfo];
+    /*
+        Add the collapse Id (request.identifier) to userInfo
+        so it can be parsed by parseWithApns outside of the extension
+    */
+    NSMutableDictionary *userInfoWithCollapseId = [NSMutableDictionary dictionaryWithDictionary:replacementContent.userInfo];
+    if (userInfoWithCollapseId[@"os_data"]) {
+        NSMutableDictionary *osdataDict = [NSMutableDictionary dictionaryWithDictionary:userInfoWithCollapseId[@"os_data"]];
+        osdataDict[@"collapse_id"] = request.identifier;
+        userInfoWithCollapseId[@"os_data"] = osdataDict;
+    } else if (userInfoWithCollapseId[@"custom"]) {
+        NSMutableDictionary *customDict = [NSMutableDictionary dictionaryWithDictionary:userInfoWithCollapseId[@"custom"]];
+        customDict[@"collapse_id"] = request.identifier;
+        userInfoWithCollapseId[@"custom"] = customDict;
+    }
+    
+    replacementContent.userInfo = userInfoWithCollapseId;
+    
+    let notification = [OSNotification parseWithApns:replacementContent.userInfo];
 
     // Handle badge count
     [OneSignalExtensionBadgeHandler handleBadgeCountWithNotificationRequest:request withNotification:notification withMutableNotificationContent:replacementContent];
