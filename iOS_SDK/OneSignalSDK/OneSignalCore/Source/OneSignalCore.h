@@ -40,6 +40,7 @@
 #import "OneSignalTrackFirebaseAnalytics.h"
 #import "OSMacros.h"
 #import "OSJSONHandling.h"
+#import "OSPrivacyConsentController.h"
 
 @interface OneSignalCore : NSObject
 
