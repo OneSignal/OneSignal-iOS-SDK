@@ -246,7 +246,6 @@ static XCTestCase* _currentXCTestCase;
     if (setupUIApplicationDelegate)
         return;
     
-    //ECM Todo safe?
     // Force swizzle in all methods for tests.
     OneSignalHelperOverrider.mockIOSVersion = 9;
     
