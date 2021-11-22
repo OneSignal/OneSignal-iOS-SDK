@@ -508,6 +508,9 @@
 		DE7D18EE2703B5B9002D3A5D /* OSInAppMessagingRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18ED2703B5B9002D3A5D /* OSInAppMessagingRequests.m */; };
 		DE7D18EF2703B5B9002D3A5D /* OSInAppMessagingRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18ED2703B5B9002D3A5D /* OSInAppMessagingRequests.m */; };
 		DE7D18F02703B5B9002D3A5D /* OSInAppMessagingRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18ED2703B5B9002D3A5D /* OSInAppMessagingRequests.m */; };
+		DE971752274C48B700FC409E /* OSPrivacyConsentController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE971751274C48B700FC409E /* OSPrivacyConsentController.m */; };
+		DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */ = {isa = PBXBuildFile; fileRef = DE971753274C48CF00FC409E /* OSPrivacyConsentController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DE971755274C4B0C00FC409E /* OSPrivacyConsentController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE971751274C48B700FC409E /* OSPrivacyConsentController.m */; };
 		DE98772B2591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877332591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877342591656300DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
@@ -980,6 +983,8 @@
 		DE7D18E42703B510002D3A5D /* OSLocationRequests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSLocationRequests.m; sourceTree = "<group>"; };
 		DE7D18EB2703B5AA002D3A5D /* OSInAppMessagingRequests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessagingRequests.h; sourceTree = "<group>"; };
 		DE7D18ED2703B5B9002D3A5D /* OSInAppMessagingRequests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessagingRequests.m; sourceTree = "<group>"; };
+		DE971751274C48B700FC409E /* OSPrivacyConsentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSPrivacyConsentController.m; sourceTree = "<group>"; };
+		DE971753274C48CF00FC409E /* OSPrivacyConsentController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSPrivacyConsentController.h; sourceTree = "<group>"; };
 		DE9877292591654600DE07D5 /* NSDateFormatter+OneSignal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDateFormatter+OneSignal.h"; sourceTree = "<group>"; };
 		DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDateFormatter+OneSignal.m"; sourceTree = "<group>"; };
 		DE9A5DA925D1FD6B00FCEC21 /* OSPlayerTags.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSPlayerTags.h; sourceTree = "<group>"; };
@@ -1544,6 +1549,8 @@
 				DE7D187627037A16002D3A5D /* OneSignalCoreHelper.h */,
 				DE7D187827037A26002D3A5D /* OneSignalCoreHelper.m */,
 				7AE28B8725B8ADF400529100 /* OSMacros.h */,
+				DE971751274C48B700FC409E /* OSPrivacyConsentController.m */,
+				DE971753274C48CF00FC409E /* OSPrivacyConsentController.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1841,6 +1848,7 @@
 				DE7D183D27027F13002D3A5D /* NSURL+OneSignal.h in Headers */,
 				DE7D17EB27026B95002D3A5D /* OneSignalCore.h in Headers */,
 				DE7D182A270271A9002D3A5D /* OneSignalCommonDefines.h in Headers */,
+				DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */,
 				DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */,
 				DE7D182D270273B0002D3A5D /* OSNotification.h in Headers */,
 				DE7D183F27027F62002D3A5D /* NSString+OneSignal.h in Headers */,
@@ -2365,6 +2373,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE971755274C4B0C00FC409E /* OSPrivacyConsentController.m in Sources */,
 				DE7D186F2703751B002D3A5D /* OSRequests.m in Sources */,
 				7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */,
 				7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */,
@@ -2542,6 +2551,7 @@
 				DE7D183E27027F60002D3A5D /* NSString+OneSignal.m in Sources */,
 				DE7D17EA27026B95002D3A5D /* OneSignalCore.docc in Sources */,
 				DE7D18702703751B002D3A5D /* OSRequests.m in Sources */,
+				DE971752274C48B700FC409E /* OSPrivacyConsentController.m in Sources */,
 				DE7D182E270275FA002D3A5D /* OneSignalTrackFirebaseAnalytics.m in Sources */,
 				DE7D182827026F86002D3A5D /* OneSignalUserDefaults.m in Sources */,
 			);
