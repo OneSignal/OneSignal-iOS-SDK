@@ -47,7 +47,6 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 
 @interface OneSignal (UN_extra)
 + (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
-+ (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName;
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
 @end
 
@@ -232,7 +231,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     
     // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
         [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
         if (![self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)]) {
             completionHandler(7);
@@ -278,7 +277,7 @@ void finishProcessingNotification(UNNotification *notification,
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
     // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
         if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
             [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
         else

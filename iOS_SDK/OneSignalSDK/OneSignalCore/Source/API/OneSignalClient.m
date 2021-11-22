@@ -30,6 +30,7 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalLog.h"
 #import "OneSignalCoreHelper.h"
+#import "OSPrivacyConsentController.h"
 
 @interface OneSignalClient ()
 @property (strong, nonatomic) NSURLSession *sharedSession;
@@ -183,8 +184,7 @@
 }
 
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    // ECM TODO: We need to handle privacy consent 
-    if (request.method != GET) { //&& [OneSignal shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
+    if (request.method != GET && [OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
         if (failureBlock) {
             failureBlock([self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)]);
         }
