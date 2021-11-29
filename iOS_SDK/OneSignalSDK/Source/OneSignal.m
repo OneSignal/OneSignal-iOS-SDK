@@ -1678,6 +1678,7 @@ static BOOL _registerUserSuccessful = false;
     return _registerUserSuccessful || isOnSessionSuccessfulForCurrentState;
 }
 
+static BOOL _trackedColdRestart = false;
 + (BOOL)shouldRegisterNow {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1709,7 +1710,30 @@ static BOOL _registerUserSuccessful = false;
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
+    
+    // Tracking cold starts within 30 seconds of last close.
+    // Depending on the results of our tracking we will change this case
+    // from a tracking request to return true
+    if (delta < minTimeThreshold && appId && !_registerUserFinished && !_trackedColdRestart) {
+        [OneSignal trackColdRestart];
+    }
     return delta >= minTimeThreshold;
+}
+
++ (void)trackColdRestart {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart"];
+    // Set to true even if it doesn't pass the sample check
+    _trackedColdRestart = true;
+    // Sample /track calls to avoid hitting our endpoint too hard
+    int randomSample = arc4random_uniform(100);
+    if (randomSample == 99) {
+        NSString *osUsageData = [NSString stringWithFormat:@"kind=sdk, version=%@, source=iOS_SDK, name=cold_restart, lockScreenApp=false", ONESIGNAL_VERSION];
+        [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart: successfully tracked cold restart"];
+        } onFailure:^(NSError *error) {
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"trackColdRestart: Failed to track cold restart: %@", error.localizedDescription]];
+        }];
+    }
 }
 
 + (void)registerUserAfterDelay {

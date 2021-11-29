@@ -203,5 +203,9 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withPlayerId:(NSString * _Nullable)playerId notificationId:(NSString * _Nonnull)notificationId appId:(NSString * _Nonnull)appId;
 @end
 
+@interface OSRequestTrackV1 : OneSignalRequest
++ (instancetype _Nonnull)trackUsageData:(NSString * _Nonnull)osUsageData
+                                     appId:(NSString * _Nonnull)appId;
+@end
 #endif /* Requests_h */
 
