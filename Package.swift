@@ -44,22 +44,22 @@ let package = Package(
         .binaryTarget(
           name: "OneSignal",
           url: "https://github.com/OneSignal/OneSignal-XCFramework/releases/download/3.9.1/OneSignal.xcframework.zip",
-          checksum: "40ec6a392a1aa22b49eed82f563ee395a7672a1cc64ed818f27dd12dcb12e390"
+          checksum: "4445e4d3e0b92cae55602415c43d07ff1de0f8ab81f83c1a54f0094848988a47"
         ),
         .binaryTarget(
           name: "OneSignalExtension",
           url: "https://github.com/OneSignal/OneSignal-XCFramework/releases/download/3.9.1/OneSignalExtension.xcframework.zip",
-          checksum: "dae3cc4871ec80919fda2f7c4559f5b79eb55efe1f4bf1f8d41c7a0e7df20e7b"
+          checksum: "15431226ccb672a5d2eff6dfde7b7b32af7e378f5a71ea36dc3d2396c0cb8f3a"
         ),
         .binaryTarget(
           name: "OneSignalOutcomes",
           url: "https://github.com/OneSignal/OneSignal-XCFramework/releases/download/3.9.1/OneSignalOutcomes.xcframework.zip",
-          checksum: "569d2ba216a8d185cf2c6dc7fcda515956771dfa23aba322c4b9be8852faa03c"
+          checksum: "a0c123ddf3dbee1696674d8129d795e8a5e60704ae2a0c0d9a2025245046956a"
         ),
         .binaryTarget(
           name: "OneSignalCore",
           url: "https://github.com/OneSignal/OneSignal-XCFramework/releases/download/3.9.1/OneSignalCore.xcframework.zip",
-          checksum: "21393874f707c9e508f6dfe0278821e212f5d4d1206a4c8f1a8c77f8b958a253"
+          checksum: "338da36a9b097178b31e14eb6f3eea97594db2dc5786e75ed4e56ac1f344be07"
         )
     ]
 )
