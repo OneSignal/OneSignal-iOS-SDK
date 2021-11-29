@@ -1,0 +1,6 @@
+framework module OneSignalOutcomes {
+  umbrella header "OneSignalOutcomes.h"
+
+  export *
+  module * { export * }
+}
