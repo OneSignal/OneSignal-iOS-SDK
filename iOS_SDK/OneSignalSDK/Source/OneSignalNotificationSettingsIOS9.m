@@ -28,7 +28,6 @@
 #import <UIKit/UIKit.h>
 #import "OneSignalNotificationSettingsIOS9.h"
 #import "OneSignalInternal.h"
-#import "OneSignalUserDefaults.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 

@@ -27,9 +27,6 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalCacheCleaner.h"
-#import "OneSignalCommonDefines.h"
-#import "OSCachedUniqueOutcome.h"
-#import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 
 @implementation OneSignalCacheCleaner

@@ -28,7 +28,6 @@
 #import "OSPermission.h"
 #import "OneSignalHelper.h"
 #import "OneSignalInternal.h"
-#import "OneSignalUserDefaults.h"
 
 @implementation OSPermissionState
 

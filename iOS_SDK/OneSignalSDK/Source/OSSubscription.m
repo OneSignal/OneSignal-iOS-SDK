@@ -27,8 +27,6 @@
 
 #import "OSSubscription.h"
 #import "OneSignalHelper.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"

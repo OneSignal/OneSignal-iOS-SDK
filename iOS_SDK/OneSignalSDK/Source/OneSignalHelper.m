@@ -33,13 +33,11 @@
 #import "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalExtension/OneSignalExtension.h>
-#import "OneSignalTrackFirebaseAnalytics.h"
 #import <objc/runtime.h>
 #import "OneSignalInternal.h"
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
 #import "OneSignalNotificationCategoryController.h"
-#import "OneSignalReceiveReceiptsController.h"
 #import "OSNotification+OneSignal.h"
 
 #define NOTIFICATION_TYPE_ALL 7

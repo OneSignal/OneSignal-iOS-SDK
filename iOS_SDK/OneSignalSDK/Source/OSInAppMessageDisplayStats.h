@@ -25,8 +25,7 @@
 * THE SOFTWARE.
 */
 
-#import "OneSignal.h"
-#import "OSJSONHandling.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OSInAppMessageDisplayStats : NSObject <NSCoding, OSJSONDecodable, OSJSONEncodable>
 

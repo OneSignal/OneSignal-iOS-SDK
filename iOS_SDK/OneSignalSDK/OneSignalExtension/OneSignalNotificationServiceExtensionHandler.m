@@ -30,7 +30,6 @@
 #import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OneSignalExtensionBadgeHandler.h"
 #import "OneSignalReceiveReceiptsController.h"
-#import "OSSessionManager.h"
 #import "OneSignalAttachmentHandler.h"
 
 @implementation OneSignalNotificationServiceExtensionHandler

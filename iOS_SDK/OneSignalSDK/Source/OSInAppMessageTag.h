@@ -25,15 +25,9 @@
 * THE SOFTWARE.
 */
 
-#ifndef OSInAppMessageTag_h
-#define OSInAppMessageTag_h
-
 #import <Foundation/Foundation.h>
-#import "OSJSONHandling.h"
 #import "OneSignal.h"
 
 @interface OSInAppMessageTag () <OSJSONEncodable, OSJSONDecodable>
 
 @end
-
-#endif /* OSInAppMessageTag_h */
