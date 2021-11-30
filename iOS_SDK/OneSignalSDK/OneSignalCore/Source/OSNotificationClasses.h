@@ -57,4 +57,4 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 // Convert the class into a NSDictionary
 - (NSDictionary *_Nonnull)jsonRepresentation;
 
-@end;
+@end

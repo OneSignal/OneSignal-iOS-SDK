@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 @interface OSOutcomeEventsCache : NSObject
 
-+ (OSOutcomeEventsCache *)sharedOutcomeEventsCache;
++ (OSOutcomeEventsCache * _Nonnull)sharedOutcomeEventsCache;
 
 - (BOOL)isOutcomesV2ServiceEnabled;
 - (void)saveOutcomesV2ServiceEnabled:(BOOL)isEnabled;
