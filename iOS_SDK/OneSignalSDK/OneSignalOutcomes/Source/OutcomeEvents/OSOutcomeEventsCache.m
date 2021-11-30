@@ -27,8 +27,7 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSOutcomeEventsCache.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @implementation OSOutcomeEventsCache
 

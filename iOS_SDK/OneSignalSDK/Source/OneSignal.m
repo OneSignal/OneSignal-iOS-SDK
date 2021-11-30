@@ -37,14 +37,7 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
-#import "NSString+OneSignal.h"
-#import "OneSignalTrackFirebaseAnalytics.h"
-#import "OneSignalNotificationServiceExtensionHandler.h"
 #import "OSNotification+Internal.h"
-#import "OSOutcomeEventsFactory.h"
-#import "OSOutcomeEventsCache.h"
-#import "OneSignalCommonDefines.h"
-#import "OneSignalUserDefaults.h"
 #import "OneSignalCacheCleaner.h"
 #import "OSMigrationController.h"
 #import "OSRemoteParamController.h"
@@ -54,11 +47,10 @@
 #import "OneSignalNotificationSettingsIOS9.h"
 
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import "OneSignalExtension/OneSignalExtension.h"
 
 #import "OSObservable.h"
 #import "OSPendingCallbacks.h"
-
-#import "OneSignalExtensionBadgeHandler.h"
 
 #import <stdlib.h>
 #import <stdio.h>

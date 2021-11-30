@@ -28,8 +28,6 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSPlayerTags.h"
 #import "OneSignalHelper.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 
 @implementation OSPlayerTags
 

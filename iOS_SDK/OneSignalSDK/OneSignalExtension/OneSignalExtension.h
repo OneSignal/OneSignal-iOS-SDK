@@ -28,6 +28,9 @@
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
 #import "OneSignalAttachmentHandler.h"
+#import "OneSignalExtensionBadgeHandler.h"
+#import "OneSignalReceiveReceiptsController.h"
+#import "OneSignalNotificationServiceExtensionHandler.h"
 
 @interface OneSignalExtension : NSObject
 #pragma mark NotificationService Extension

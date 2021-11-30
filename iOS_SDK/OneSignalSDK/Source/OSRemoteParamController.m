@@ -27,8 +27,6 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSRemoteParamController.h"
-#import "OneSignalCommonDefines.h"
-#import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 #import "OneSignal.h"
 
