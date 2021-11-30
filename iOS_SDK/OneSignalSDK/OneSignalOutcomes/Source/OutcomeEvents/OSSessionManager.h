@@ -36,7 +36,7 @@
 
 @interface OSSessionManager : NSObject
 
-+ (OSSessionManager *)sharedSessionManager;
++ (OSSessionManager * _Nonnull)sharedSessionManager;
 
 + (void)resetSharedSessionManager;
 
