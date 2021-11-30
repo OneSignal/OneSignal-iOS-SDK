@@ -419,7 +419,6 @@
 		DE7D184427028530002D3A5D /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
 		DE7D184527028536002D3A5D /* OneSignalReceiveReceiptsController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A9173A3231971F8007848FA /* OneSignalReceiveReceiptsController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D1846270286C6002D3A5D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
-		DE7D1847270286C6002D3A5D /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D184C27028890002D3A5D /* OneSignalExtensionRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D184B27028890002D3A5D /* OneSignalExtensionRequests.m */; };
 		DE7D184E270288C6002D3A5D /* OneSignalExtensionRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D184D270288C6002D3A5D /* OneSignalExtensionRequests.h */; };
 		DE7D1862270374EE002D3A5D /* OSJSONHandling.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D185B270374EE002D3A5D /* OSJSONHandling.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -441,7 +440,6 @@
 		DE7D188427037F43002D3A5D /* OneSignalOutcomes.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE7D188327037F43002D3A5D /* OneSignalOutcomes.docc */; };
 		DE7D188527037F43002D3A5D /* OneSignalOutcomes.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D188227037F43002D3A5D /* OneSignalOutcomes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D188F27037F96002D3A5D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
-		DE7D189027037F96002D3A5D /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D189C27038113002D3A5D /* OSInfluenceDataDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 9D1BD95D237663BF00A064F7 /* OSInfluenceDataDefines.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D189D27038118002D3A5D /* OSChannelTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF986382444C42700C36EAE /* OSChannelTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D189E2703811D002D3A5D /* OSChannelTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986342444C41A00C36EAE /* OSChannelTracker.m */; };
@@ -482,13 +480,11 @@
 		DE7D18C1270381A1002D3A5D /* OSOutcomeEventsV2Repository.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AF98683244A32D900C36EAE /* OSOutcomeEventsV2Repository.h */; };
 		DE7D18C2270381A6002D3A5D /* OSOutcomeEventsV2Repository.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF98685244A32EF00C36EAE /* OSOutcomeEventsV2Repository.m */; };
 		DE7D18C627038249002D3A5D /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; };
-		DE7D18C727038249002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D18CC270385D0002D3A5D /* OSOutcomesRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18CB270385D0002D3A5D /* OSOutcomesRequests.m */; };
 		DE7D18CD270385D0002D3A5D /* OSOutcomesRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D18CB270385D0002D3A5D /* OSOutcomesRequests.m */; };
 		DE7D18CF270385E0002D3A5D /* OSOutcomesRequests.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D18CE270385E0002D3A5D /* OSOutcomesRequests.h */; };
 		DE7D18D1270389E1002D3A5D /* OSMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AE28B8725B8ADF400529100 /* OSMacros.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18D22703ADE0002D3A5D /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; };
-		DE7D18D32703ADE0002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE7D18D62703B103002D3A5D /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
 		DE7D18D72703B111002D3A5D /* OSInAppMessageOutcome.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A880F2923FB45CE0081F5E8 /* OSInAppMessageOutcome.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D18D82703B11B002D3A5D /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
@@ -508,9 +504,7 @@
 		DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */ = {isa = PBXBuildFile; fileRef = DE971753274C48CF00FC409E /* OSPrivacyConsentController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE971755274C4B0C00FC409E /* OSPrivacyConsentController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE971751274C48B700FC409E /* OSPrivacyConsentController.m */; };
 		DE9717642756BCFB00FC409E /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
-		DE9717652756BCFB00FC409E /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE9717662756BCFD00FC409E /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
-		DE9717672756BCFD00FC409E /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE98772B2591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877332591656200DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
 		DE9877342591656300DE07D5 /* NSDateFormatter+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */; };
@@ -613,42 +607,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DE7D1848270286C6002D3A5D /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DE7D18D32703ADE0002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */,
-				DE7D1847270286C6002D3A5D /* OneSignalCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DE7D189327037F96002D3A5D /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DE7D189027037F96002D3A5D /* OneSignalCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DE7D18CA27038249002D3A5D /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DE7D18C727038249002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */,
-				DE9717672756BCFD00FC409E /* OneSignalCore.framework in Embed Frameworks */,
-				DE9717652756BCFB00FC409E /* OneSignalExtension.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1927,7 +1885,6 @@
 				3E2400341D4FFC31008BDE70 /* Frameworks */,
 				3E2400351D4FFC31008BDE70 /* Headers */,
 				3E2400361D4FFC31008BDE70 /* Resources */,
-				DE7D18CA27038249002D3A5D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1985,7 +1942,6 @@
 				DE7D17F527026BA3002D3A5D /* Sources */,
 				DE7D17F627026BA3002D3A5D /* Frameworks */,
 				DE7D17F727026BA3002D3A5D /* Resources */,
-				DE7D1848270286C6002D3A5D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2006,7 +1962,6 @@
 				DE7D187C27037F43002D3A5D /* Sources */,
 				DE7D187D27037F43002D3A5D /* Frameworks */,
 				DE7D187E27037F43002D3A5D /* Resources */,
-				DE7D189327037F96002D3A5D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2986,6 +2941,7 @@
 		DE7D17F127026B95002D3A5D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3036,6 +2992,7 @@
 		DE7D17F227026B95002D3A5D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3092,6 +3049,7 @@
 		DE7D180427026BA3002D3A5D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3142,6 +3100,7 @@
 		DE7D180527026BA3002D3A5D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3198,6 +3157,7 @@
 		DE7D188B27037F43002D3A5D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3248,6 +3208,7 @@
 		DE7D188C27037F43002D3A5D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
