@@ -26,10 +26,7 @@
  */
 
 #import "OneSignal.h"
-#import "OSInfluence.h"
 #import "OSBaseFocusTimeProcessor.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 #import "OneSignalInternal.h"
 
 // This is an abstract class

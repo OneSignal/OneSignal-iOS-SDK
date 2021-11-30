@@ -27,8 +27,6 @@
 
 #import "OneSignalHelper.h"
 #import "OSSMSSubscription.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 
 @implementation OSSMSSubscriptionState
 

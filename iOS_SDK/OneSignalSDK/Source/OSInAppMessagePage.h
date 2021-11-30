@@ -26,7 +26,7 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "OSJSONHandling.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 @interface OSInAppMessagePage : NSObject <OSJSONDecodable>
 

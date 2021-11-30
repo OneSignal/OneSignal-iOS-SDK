@@ -26,10 +26,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OSJSONHandling.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessagePage.h"
 #import "OSInAppMessagingDefines.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

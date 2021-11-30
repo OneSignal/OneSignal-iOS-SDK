@@ -27,8 +27,6 @@
 
 #import "OneSignalHelper.h"
 #import "OSEmailSubscription.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 
 @implementation OSEmailSubscriptionState
 

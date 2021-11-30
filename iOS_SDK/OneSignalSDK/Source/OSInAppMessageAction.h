@@ -28,8 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageOutcome.h"
 #import "OSInAppMessageTag.h"
-#import "OSJSONHandling.h"
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OSInAppMessagePrompt.h"
 
 NS_ASSUME_NONNULL_BEGIN

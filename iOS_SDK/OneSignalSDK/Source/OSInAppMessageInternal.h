@@ -28,7 +28,6 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessagingDefines.h"
 #import "OSInAppMessageDisplayStats.h"
-#import "OSJSONHandling.h"
 #import "OneSignal.h"
 #import "OSTrigger.h"
 

@@ -58,6 +58,7 @@
 
 @end
 
+
 @interface OSInAppMessageTag : NSObject
 
 @property (strong, nonatomic, nullable) NSDictionary *tagsToAdd;

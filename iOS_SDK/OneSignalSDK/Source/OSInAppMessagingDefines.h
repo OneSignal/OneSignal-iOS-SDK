@@ -28,7 +28,6 @@
 #ifndef OSInAppMessagingDefines_h
 #define OSInAppMessagingDefines_h
 
-#import "OneSignal.h"
 
 // IAM display position enums
 typedef NS_ENUM(NSUInteger, OSInAppMessageDisplayPosition) {
