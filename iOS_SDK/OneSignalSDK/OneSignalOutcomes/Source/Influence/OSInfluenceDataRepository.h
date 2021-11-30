@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 @interface OSInfluenceDataRepository : NSObject
 
-+ (OSInfluenceDataRepository *)sharedInfluenceDataRepository;
++ (OSInfluenceDataRepository * _Nonnull)sharedInfluenceDataRepository;
 
 - (void)cacheNotificationInfluenceType:(OSInfluenceType) influenceType;
 - (OSInfluenceType)notificationCachedInfluenceType;
