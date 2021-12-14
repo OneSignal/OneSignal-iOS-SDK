@@ -75,7 +75,23 @@
 @synthesize error, response, done;
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    [outputHandle writeData:data];
+    NSError *fileHandleError;
+    if (@available(iOS 13.0, *)) {
+        [outputHandle writeData:data error:&fileHandleError];
+    } else {
+        @try {
+            [outputHandle writeData:data];
+        } @catch (NSException *e) {
+            NSDictionary *userInfo = @{
+                NSLocalizedDescriptionKey : @"Failed to write attachment data to filehandle",
+            };
+            fileHandleError = [NSError errorWithDomain:@"com.onesignal.download" code:0 userInfo:userInfo];
+        }
+    }
+    
+    if (fileHandleError != nil) {
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError.localizedDescription]];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
