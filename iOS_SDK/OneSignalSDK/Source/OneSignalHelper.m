@@ -75,9 +75,23 @@
 @synthesize error, response, done;
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    NSError *fileHandleError;
+    NSError * __autoreleasing fileHandleError;
+    NSError * __autoreleasing *fileHandleErrorPointer = &fileHandleError;
     if (@available(iOS 13.0, *)) {
-        [outputHandle writeData:data error:&fileHandleError];
+        // We need to use NSInvocation for reflection because performSelector cannot take pointer parameters
+        SEL writeDataSelector = NSSelectorFromString(@"writeData:error:");
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[NSFileHandle instanceMethodSignatureForSelector:writeDataSelector]];
+        [invocation setTarget:outputHandle];
+        [invocation setSelector:writeDataSelector];
+        /*
+         From Apple's Documentation on NSInvocation:
+         Indices 0 and 1 indicate the hidden arguments self and _cmd, respectively;
+         you should set these values directly with the target and selector properties.
+         Use indices 2 and greater for the arguments normally passed in a message.
+        */
+        [invocation setArgument:&data atIndex:2];
+        [invocation setArgument:&fileHandleErrorPointer atIndex:3];
+        [invocation invoke];
     } else {
         @try {
             [outputHandle writeData:data];
