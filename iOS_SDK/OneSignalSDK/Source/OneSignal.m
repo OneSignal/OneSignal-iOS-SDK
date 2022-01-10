@@ -1615,7 +1615,7 @@ static BOOL _trackedColdRestart = false;
 }
 
 + (void)trackColdRestart {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"trackColdRestart"];
     // Set to true even if it doesn't pass the sample check
     _trackedColdRestart = true;
     // Sample /track calls to avoid hitting our endpoint too hard
@@ -1623,9 +1623,9 @@ static BOOL _trackedColdRestart = false;
     if (randomSample == 99) {
         NSString *osUsageData = [NSString stringWithFormat:@"kind=sdk, version=%@, source=iOS_SDK, name=cold_restart, lockScreenApp=false", ONESIGNAL_VERSION];
         [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart: successfully tracked cold restart"];
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"trackColdRestart: successfully tracked cold restart"];
         } onFailure:^(NSError *error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"trackColdRestart: Failed to track cold restart: %@", error]];
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"trackColdRestart: Failed to track cold restart: %@", error]];
         }];
     }
 }
