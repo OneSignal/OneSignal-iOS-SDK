@@ -46,7 +46,37 @@
 @synthesize error, response, done;
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    [outputHandle writeData:data];
+    NSError * __autoreleasing fileHandleError;
+    NSError * __autoreleasing *fileHandleErrorPointer = &fileHandleError;
+    if (@available(iOS 13.0, *)) {
+        // We need to use NSInvocation for reflection because performSelector cannot take pointer parameters
+        SEL writeDataSelector = NSSelectorFromString(@"writeData:error:");
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[NSFileHandle instanceMethodSignatureForSelector:writeDataSelector]];
+        [invocation setTarget:outputHandle];
+        [invocation setSelector:writeDataSelector];
+        /*
+         From Apple's Documentation on NSInvocation:
+         Indices 0 and 1 indicate the hidden arguments self and _cmd, respectively;
+         you should set these values directly with the target and selector properties.
+         Use indices 2 and greater for the arguments normally passed in a message.
+        */
+        [invocation setArgument:&data atIndex:2];
+        [invocation setArgument:&fileHandleErrorPointer atIndex:3];
+        [invocation invoke];
+    } else {
+        @try {
+            [outputHandle writeData:data];
+        } @catch (NSException *e) {
+            NSDictionary *userInfo = @{
+                NSLocalizedDescriptionKey : @"Failed to write attachment data to filehandle",
+            };
+            fileHandleError = [NSError errorWithDomain:@"com.onesignal.download" code:0 userInfo:userInfo];
+        }
+    }
+    
+    if (fileHandleError != nil) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError.localizedDescription]];
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)aResponse completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
