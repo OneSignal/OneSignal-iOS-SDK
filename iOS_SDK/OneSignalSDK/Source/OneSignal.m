@@ -1322,7 +1322,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (void)sendTagsOnBackground {
-    if (!self.playerTags.tagsToSend || self.playerTags.tagsToSend.count <= 0)
+    if (!self.playerTags.tagsToSend || self.playerTags.tagsToSend.count <= 0 || !self.currentSubscriptionState.userId)
         return;
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendTagsToServer) object:nil];
