@@ -558,6 +558,33 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [smsExternalIdRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
 }
 
+- (void)testRegisterSmsAfterExternalUserId {
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    [UnitTestCommonMethods foregroundApp];
+    
+    [OneSignal setExternalUserId:self.ONESIGNAL_EXTERNAL_USER_ID withExternalIdAuthHashToken:self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN withSuccess:nil withFailure:nil];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    // The externalUserId is set as a parameter during the createDevice request.
+    [OneSignal setSMSNumber:self.ONESIGNAL_SMS_NUMBER withSMSAuthHashToken:self.ONESIGNAL_SMS_HASH_TOKEN];
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 5);
+    
+    OneSignalRequest *pushExternalIdRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:2];
+    OneSignalRequest *smsCreateDeviceRequest = [OneSignalClientOverrider.executedRequests objectAtIndex:3];
+    NSString *pushExpectedUrl = [NSString stringWithFormat:@"players/%@", OneSignalClientOverrider.pushUserId];
+    NSString *smsExpectedUrl = @"players";
+    XCTAssertEqualObjects(pushExpectedUrl, pushExternalIdRequest.path);
+    XCTAssertEqualObjects(smsExpectedUrl, smsCreateDeviceRequest.path);
+
+    XCTAssertEqual(7, smsCreateDeviceRequest.parameters.count);
+    XCTAssertTrue([smsCreateDeviceRequest.parameters objectForKey:@"app_id"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_EXTERNAL_USER_ID, [smsCreateDeviceRequest.parameters objectForKey:@"external_user_id"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN, [smsCreateDeviceRequest.parameters objectForKey:@"external_user_id_auth_hash"]);
+    XCTAssertEqualObjects(self.ONESIGNAL_SMS_HASH_TOKEN, [smsCreateDeviceRequest.parameters objectForKey:SMS_NUMBER_AUTH_HASH_KEY]);
+}
+
 - (void)testExternalIdNotSetOnSMSRegister {
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     [UnitTestCommonMethods foregroundApp];
@@ -575,7 +602,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(6, createDeviceRequest.parameters.count);
+    XCTAssertEqual(7, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);

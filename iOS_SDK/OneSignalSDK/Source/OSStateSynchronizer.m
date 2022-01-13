@@ -233,7 +233,7 @@ withSMSAuthHashToken:(NSString *)hashToken
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:appId withDeviceType:@(DEVICE_TYPE_SMS) withSMSNumber:smsNumber withPlayerId:_currentSubscriptionState.userId withSMSAuthHash:hashToken withExternalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:appId withDeviceType:@(DEVICE_TYPE_SMS) withSMSNumber:smsNumber withPlayerId:_currentSubscriptionState.userId withSMSAuthHash:hashToken withExternalUserId:[OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EXTERNAL_USER_ID defaultValue:nil] withExternalIdAuthToken:self.currentSubscriptionState.externalIdAuthCode] onSuccess:^(NSDictionary *result) {
             let smsPlayerId = (NSString*)result[@"id"];
             
             if (smsPlayerId) {

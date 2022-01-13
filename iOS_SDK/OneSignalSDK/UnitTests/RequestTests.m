@@ -532,7 +532,7 @@ BOOL checkHttpHeaders(NSDictionary *additionalHeaders, NSDictionary *correct) {
 }
 
 - (void)testCreateDevice {
-    let request = [OSRequestCreateDevice withAppId:testAppId withDeviceType:@0 withEmail:testEmailAddress withPlayerId:testUserId withEmailAuthHash:nil withExternalIdAuthToken:nil];
+    let request = [OSRequestCreateDevice withAppId:testAppId withDeviceType:@0 withEmail:testEmailAddress withPlayerId:testUserId withEmailAuthHash:nil withExternalUserId:nil withExternalIdAuthToken:nil];
     
     let correctUrl = correctUrlWithPath(@"players");
     
@@ -542,13 +542,13 @@ BOOL checkHttpHeaders(NSDictionary *additionalHeaders, NSDictionary *correct) {
 }
 
 - (void)testCreateDeviceWithAuthHash {
-    let request = [OSRequestCreateDevice withAppId:testAppId withDeviceType:@0 withEmail:testEmailAddress withPlayerId:testUserId withEmailAuthHash:nil withExternalIdAuthToken:@"external_id_auth_token"];
+    let request = [OSRequestCreateDevice withAppId:testAppId withDeviceType:@0 withEmail:testEmailAddress withPlayerId:testUserId withEmailAuthHash:nil withExternalUserId: @"external_user_id" withExternalIdAuthToken:@"external_id_auth_token"];
     
     let correctUrl = correctUrlWithPath(@"players");
     
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
     
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"device_type" : @0, @"identifier" : testEmailAddress, @"email_auth_hash" : [NSNull null], @"device_player_id" : testUserId, @"external_user_id_auth_hash" : @"external_id_auth_token"}));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"app_id" : testAppId, @"device_type" : @0, @"identifier" : testEmailAddress, @"email_auth_hash" : [NSNull null], @"device_player_id" : testUserId, @"external_user_id" : @"external_user_id", @"external_user_id_auth_hash" : @"external_id_auth_token"}));
 }
 
 - (void)testUpdateNotificationTypes {
