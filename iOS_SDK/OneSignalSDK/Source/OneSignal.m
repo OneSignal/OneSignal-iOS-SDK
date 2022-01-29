@@ -698,6 +698,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
     appSettings = newSettings;
+    // This allows this method to have an effect after init is called
+    [self enableInAppLaunchURL:launchInApp];
 }
 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
