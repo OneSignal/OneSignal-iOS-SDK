@@ -201,36 +201,45 @@
 @end
 
 @implementation OSRequestCreateDevice
-+ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withEmail:(NSString * _Nullable)email withPlayerId:(NSString * _Nullable)playerId withEmailAuthHash:(NSString * _Nullable)emailAuthHash withExternalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
++ (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId withDeviceType:(NSNumber * _Nonnull)deviceType withEmail:(NSString * _Nullable)email withPlayerId:(NSString * _Nullable)playerId withEmailAuthHash:(NSString * _Nullable)emailAuthHash withExternalUserId: (NSString * _Nullable)externalUserId withExternalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
     let request = [OSRequestCreateDevice new];
     
-    request.parameters = @{
-       @"app_id" : appId,
-       @"device_type" : deviceType,
-       @"identifier" : email ?: [NSNull null],
-       @"email_auth_hash" : emailAuthHash ?: [NSNull null],
-       @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
-       @"device_player_id" : playerId ?: [NSNull null]
-    };
+    let params = [[NSMutableDictionary alloc] initWithDictionary:@{
+        @"app_id" : appId,
+        @"device_type" : deviceType,
+        @"identifier" : email ?: [NSNull null],
+        @"email_auth_hash" : emailAuthHash ?: [NSNull null],
+        @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
+        @"device_player_id" : playerId ?: [NSNull null]
+     }];
     
+    if (externalUserId) {
+        params[@"external_user_id"] = externalUserId;
+    }
+    request.parameters = params;
     request.method = POST;
     request.path = @"players";
     
     return request;
 }
 
-+ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType withSMSNumber:(NSString *)smsNumber withPlayerId:(NSString *)playerId withSMSAuthHash:(NSString *)smsAuthHash withExternalIdAuthToken:(NSString *)externalIdAuthToken {
++ (instancetype)withAppId:(NSString *)appId withDeviceType:(NSNumber *)deviceType withSMSNumber:(NSString *)smsNumber withPlayerId:(NSString *)playerId withSMSAuthHash:(NSString *)smsAuthHash withExternalUserId: (NSString * _Nullable)externalUserId withExternalIdAuthToken:(NSString *)externalIdAuthToken {
     let request = [OSRequestCreateDevice new];
     
-    request.parameters = @{
-       @"app_id" : appId,
-       @"device_type" : deviceType,
-       @"identifier" : smsNumber ?: [NSNull null],
-       SMS_NUMBER_AUTH_HASH_KEY : smsAuthHash ?: [NSNull null],
-       @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
-       @"device_player_id" : playerId ?: [NSNull null]
-    };
+    let params = [[NSMutableDictionary alloc] initWithDictionary:@{
+           @"app_id" : appId,
+           @"device_type" : deviceType,
+           @"identifier" : smsNumber ?: [NSNull null],
+           SMS_NUMBER_AUTH_HASH_KEY : smsAuthHash ?: [NSNull null],
+           @"external_user_id_auth_hash" : externalIdAuthToken ?: [NSNull null],
+           @"device_player_id" : playerId ?: [NSNull null]
+        }];
     
+    if (externalUserId) {
+        params[@"external_user_id"] = externalUserId;
+    }
+    
+    request.parameters = params;
     request.method = POST;
     request.path = @"players";
     
