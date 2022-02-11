@@ -42,6 +42,7 @@
 */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 
 #pragma clang diagnostic push
@@ -443,6 +444,8 @@ typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 @interface OneSignal : NSObject
 
 extern NSString* const ONESIGNAL_VERSION;
+
++ (id<UIApplicationDelegate>)appDelegate;
 
 + (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;

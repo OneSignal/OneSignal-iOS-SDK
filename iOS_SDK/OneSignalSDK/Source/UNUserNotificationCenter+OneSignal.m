@@ -356,28 +356,33 @@ void finishProcessingNotification(UNNotification *notification,
     BOOL isCustomAction = actionIdentifier && ![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:actionIdentifier];
     BOOL isRemote = [notification.request.trigger isKindOfClass:NSClassFromString(@"UNPushNotificationTrigger")];
     
+    id<UIApplicationDelegate> appDelegate = OneSignal.appDelegate;
+    if (appDelegate == nil) {
+        appDelegate = sharedApp.delegate;
+    }
+    
     if (isRemote) {
         NSDictionary* remoteUserInfo = notification.request.content.userInfo;
         
         if (isTextReply &&
-            [sharedApp.delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)]) {
+            [appDelegate respondsToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)]) {
             NSDictionary* responseInfo = @{UIUserNotificationActionResponseTypedTextKey: userText};
-            [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forRemoteNotification:remoteUserInfo withResponseInfo:responseInfo completionHandler:^() {
+            [appDelegate application:sharedApp handleActionWithIdentifier:actionIdentifier forRemoteNotification:remoteUserInfo withResponseInfo:responseInfo completionHandler:^() {
                 completionHandler();
             }];
         }
         else if (isCustomAction &&
-                 [sharedApp.delegate respondsToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)])
-            [sharedApp.delegate application:sharedApp handleActionWithIdentifier:actionIdentifier forRemoteNotification:remoteUserInfo completionHandler:^() {
+                 [appDelegate respondsToSelector:@selector(application:handleActionWithIdentifier:forRemoteNotification:completionHandler:)])
+            [appDelegate application:sharedApp handleActionWithIdentifier:actionIdentifier forRemoteNotification:remoteUserInfo completionHandler:^() {
                 completionHandler();
             }];
         // Always trigger selector for open events and for non-content-available receive events.
         //  content-available seems to be an odd expection to iOS 10's fallback rules for legacy selectors.
-        else if ([sharedApp.delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)] &&
+        else if ([appDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)] &&
                  (!fromPresentNotification ||
                  ![[notification.request.trigger valueForKey:@"_isContentAvailable"] boolValue])) {
             // NOTE: Should always be true as our AppDelegate swizzling should be there unless something else unswizzled it.
-            [sharedApp.delegate application:sharedApp didReceiveRemoteNotification:remoteUserInfo fetchCompletionHandler:^(UIBackgroundFetchResult result) {
+            [appDelegate application:sharedApp didReceiveRemoteNotification:remoteUserInfo fetchCompletionHandler:^(UIBackgroundFetchResult result) {
                 // Call iOS 10's compleationHandler from iOS 9's completion handler.
                 completionHandler();
             }];

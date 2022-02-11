@@ -172,6 +172,8 @@ DelayedConsentInitializationParameters *_delayedInitParameters;
     return _delayedInitParameters;
 }
 
+static id<UIApplicationDelegate> appDelegate;
+
 static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
