@@ -445,6 +445,8 @@ typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
 extern NSString* const ONESIGNAL_VERSION;
 
++ (id<UIApplicationDelegate>)appDelegate;
+
 + (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
