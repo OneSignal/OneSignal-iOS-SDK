@@ -172,11 +172,11 @@ DelayedConsentInitializationParameters *_delayedInitParameters;
     return _delayedInitParameters;
 }
 
-static id<UIApplicationDelegate> appDelegate;
-
 static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
+static id<UIApplicationDelegate> appDelegate;
+
 // Make sure launchOptions have been set
 // We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
@@ -708,6 +708,20 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
     appSettings = newSettings;
+}
+
+
++ (void)setAppDelegate:(id<UIApplicationDelegate>)delegate {
+    appDelegate = delegate;
+}
+
++ (id<UIApplicationDelegate>)appDelegate {
+    return self.appDelegate;
+}
+
++ (void)setNotificationReceivedHandler:(OSNotificationReceivedBlock)block {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Notification received handler set successfully"];
+    [OneSignalHelper setNotificationReceivedBlock:block];
 }
 
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block {
@@ -2088,6 +2102,8 @@ static NSString *_lastnonActiveMessageId;
     // Should be called first, other methods relay on this global state below.
     [OneSignalHelper lastMessageReceived:messageDict];
     
+    [OneSignal handleReceivedNotificationWithPayload:messageDict];
+    
     BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
 
     if (opened) {
@@ -2121,6 +2137,16 @@ static NSString *_lastnonActiveMessageId;
         return customDict[@"i"];
     }
     return nil;
+}
+
++ (void)handleReceivedNotificationWithPayload:(NSDictionary *)payload {
+    // check to make sure it's a OneSignal notification
+    if (![OneSignalHelper isOneSignalPayload:payload]) {
+        return;
+    }
+    
+    OSNotification *osNotification = [OSNotification parseWithApns:payload];
+    [OneSignalHelper handleReceivedNotification:osNotification];
 }
 
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion {

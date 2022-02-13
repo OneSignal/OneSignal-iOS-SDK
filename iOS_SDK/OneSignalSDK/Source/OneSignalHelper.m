@@ -251,10 +251,16 @@ static NSMutableArray<OSNotificationOpenedResult*> *unprocessedOpenedNotifis;
     _lastMessageIdFromAction = nil;
     lastMessageID = @"";
 
+    notificationReceivedHandler = nil;
     notificationWillShowInForegroundHandler = nil;
     notificationOpenedHandler = nil;
     
     unprocessedOpenedNotifis = nil;
+}
+
+OSNotificationReceivedBlock notificationReceivedHandler;
++ (void)setNotificationReceivedBlock:(OSNotificationReceivedBlock)block {
+    notificationReceivedHandler = block;
 }
 
 OSNotificationWillShowInForegroundBlock notificationWillShowInForegroundHandler;
@@ -386,6 +392,13 @@ OneSignalWebView *webVC;
     }
     
     return userInfo;
+}
+
++ (void)handleReceivedNotification:(OSNotification *)notification {
+    if (notificationReceivedHandler) {
+        [notification startTimeoutTimer];
+        notificationReceivedHandler(notification);
+    }
 }
 
 + (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion {

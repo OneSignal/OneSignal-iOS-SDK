@@ -44,6 +44,9 @@
 + (NSMutableDictionary*) formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier;
 + (void)lastMessageReceived:(NSDictionary*)message;
 
++ (void)setNotificationReceivedBlock:(OSNotificationReceivedBlock)block;
++ (void)handleReceivedNotification:(OSNotification *)notification;
+
 + (void)setNotificationOpenedBlock:(OSNotificationOpenedBlock)block;
 + (void)setNotificationWillShowInForegroundBlock:(OSNotificationWillShowInForegroundBlock)block;
 + (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion;

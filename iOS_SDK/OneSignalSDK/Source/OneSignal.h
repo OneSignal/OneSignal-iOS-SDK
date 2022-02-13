@@ -445,8 +445,6 @@ typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
 extern NSString* const ONESIGNAL_VERSION;
 
-+ (id<UIApplicationDelegate>)appDelegate;
-
 + (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
@@ -492,11 +490,13 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 
 #pragma mark Public Handlers
 
+typedef void (^OSNotificationReceivedBlock)(OSNotification * _Nonnull notification);
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
 
++ (void)setNotificationReceivedHandler:(OSNotificationReceivedBlock _Nullable)block;
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
