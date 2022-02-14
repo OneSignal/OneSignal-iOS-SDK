@@ -316,7 +316,7 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)displayMessage:(OSInAppMessageInternal *)message {
     // Check if the app disabled IAMs for this device before showing an IAM
-    if (_isInAppMessagingPaused) {
+    if (_isInAppMessagingPaused && !message.isPreview) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"In app messages will not show while paused"];
         return;
     }
