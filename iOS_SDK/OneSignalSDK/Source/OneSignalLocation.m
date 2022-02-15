@@ -290,12 +290,19 @@ static OneSignalLocation* singleInstance = nil;
     }];
 }
 
++ (BOOL)backgroundTaskIsActive {
+    return fcTask && (fcTask != UIBackgroundTaskInvalid);
+}
+
 + (void)requestLocation {
     onesignal_Log(ONE_S_LL_DEBUG, @"OneSignalLocation Requesting Updated Location");
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
     if ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground
         && [clLocationManagerClass performSelector:@selector(significantLocationChangeMonitoringAvailable)]) {
         [locationManager performSelector:@selector(startMonitoringSignificantLocationChanges)];
+        if ([self backgroundTaskIsActive]) {
+            [self endTask];
+        }
     } else {
         [locationManager performSelector:@selector(requestLocation)];
     }
@@ -345,11 +352,17 @@ static OneSignalLocation* singleInstance = nil;
     [OneSignalLocation sendLocation];
     
     [OneSignalLocation sendAndClearLocationListener:PERMISSION_GRANTED];
+    if ([OneSignalLocation backgroundTaskIsActive]) {
+        [OneSignalLocation endTask];
+    }
 }
 
 - (void)locationManager:(id)manager didFailWithError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"CLLocationManager did fail with error: %@", error]];
     [OneSignalLocation sendAndClearLocationListener:ERROR];
+    if ([OneSignalLocation backgroundTaskIsActive]) {
+        [OneSignalLocation endTask];
+    }
 }
 
 + (void)resetSendTimer {
