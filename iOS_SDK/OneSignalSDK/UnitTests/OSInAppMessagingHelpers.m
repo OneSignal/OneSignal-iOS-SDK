@@ -110,6 +110,24 @@ int messageIdIncrementer = 0;
     };
 }
 
++ (NSDictionary * _Nonnull)testMessageJsonPreview {
+    return @{
+        @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
+        @"id" : [NSString stringWithFormat:@"%@_%i", OS_TEST_MESSAGE_ID, ++messageIdIncrementer],
+        @"variants" : @{
+            @"ios" : @{
+                @"default" : OS_TEST_MESSAGE_VARIANT_ID,
+                @"en" : OS_TEST_ENGLISH_VARIANT_ID
+            },
+            @"all" : @{
+                @"default" : @"should_never_be_used_by_any_test"
+            }
+        },
+        @"triggers" : @[],
+        @"is_preview" : @true,
+    };
+}
+
 + (NSDictionary * _Nonnull)testMessageJsonRedisplay {
     return @{
         @"type" : @"centered_modal", // Prevents issues with the "os_viewed_message" count trigger that lets us prevent a message from being shown > than X times
@@ -202,6 +220,14 @@ int messageIdIncrementer = 0;
         messageJsonWithEndTime[@"end_time"] = @"2200-01-01T00:00:00.000Z";
     }
     let data = [NSJSONSerialization dataWithJSONObject:messageJsonWithEndTime options:0 error:nil];
+
+    return [OSInAppMessageInternal instanceWithData:data];
+}
+
++ (OSInAppMessageInternal *)testMessageWithPreview {
+    let messageJson = self.testMessageJsonPreview;
+    
+    let data = [NSJSONSerialization dataWithJSONObject:messageJson options:0 error:nil];
 
     return [OSInAppMessageInternal instanceWithData:data];
 }
