@@ -126,6 +126,10 @@
         message.hasLiquid = YES;
     }
 
+    if (json[@"is_preview"]) {
+        message.isPreview = YES;
+    }
+
     if (json[@"triggers"] && [json[@"triggers"] isKindOfClass:[NSArray class]]) {
         let triggers = [NSMutableArray new];
         
@@ -188,6 +192,10 @@
     
     if (self.hasLiquid) {
         json[@"has_liquid"] = @true;
+    }
+
+    if (self.isPreview) {
+        json[@"is_preview"] = @true;
     }
     
     return json;

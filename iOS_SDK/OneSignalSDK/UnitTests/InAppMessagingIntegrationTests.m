@@ -1411,6 +1411,19 @@
     XCTAssertEqual(OSMessagingControllerOverrider.messageDisplayQueue.count, 1);
 }
 
+/*
+ Test IAMs should display even when IAMs are paused
+*/
+- (void)testPreviewIAMIsDisplayedOnPause {
+    [OneSignal pauseInAppMessages:true];
+    
+    let message = [OSInAppMessageTestHelper testMessageWithPreview];
+    
+    [self initOneSignalWithInAppMessage:message];
+
+    XCTAssertTrue(OSMessagingControllerOverrider.isInAppMessageShowing);
+}
+
 - (void)testInAppMessageIdTracked {
     [OneSignal pauseInAppMessages:false];
 
