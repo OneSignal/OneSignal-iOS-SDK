@@ -526,6 +526,9 @@
 		DEAD6FA2270B83AF00DE7C67 /* OneSignalAttachmentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */; };
 		DEAD6FA3270B83B100DE7C67 /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
 		DEAD6FA4270B83B300DE7C67 /* OneSignalExtensionRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D184B27028890002D3A5D /* OneSignalExtensionRequests.m */; };
+		DEB843A227C0245B00D7E943 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB843A127C0245B00D7E943 /* Info.plist */; };
+		DEB843A427C0246A00D7E943 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB843A327C0246A00D7E943 /* Info.plist */; };
+		DEB843A627C0247700D7E943 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB843A527C0247700D7E943 /* Info.plist */; };
 		DEE8198D24E21DF000868CBA /* UIApplication+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */; };
 		DEF5CCF52539321A0003E9CC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCF42539321A0003E9CC /* AppDelegate.m */; };
 		DEF5CCFB2539321A0003E9CC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCFA2539321A0003E9CC /* ViewController.m */; };
@@ -949,6 +952,9 @@
 		DE98772A2591655800DE07D5 /* NSDateFormatter+OneSignal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDateFormatter+OneSignal.m"; sourceTree = "<group>"; };
 		DE9A5DA925D1FD6B00FCEC21 /* OSPlayerTags.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSPlayerTags.h; sourceTree = "<group>"; };
 		DE9A5DB225D1FD8000FCEC21 /* OSPlayerTags.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSPlayerTags.m; sourceTree = "<group>"; };
+		DEB843A127C0245B00D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEB843A327C0246A00D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEB843A527C0247700D7E943 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEF5CCF12539321A0003E9CC /* UnitTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UnitTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEF5CCF32539321A0003E9CC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEF5CCF42539321A0003E9CC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1701,6 +1707,7 @@
 		DE97175A275597D100FC409E /* OneSignalCoreFramework */ = {
 			isa = PBXGroup;
 			children = (
+				DEB843A127C0245B00D7E943 /* Info.plist */,
 			);
 			path = OneSignalCoreFramework;
 			sourceTree = "<group>";
@@ -1708,6 +1715,7 @@
 		DE97175B275597DA00FC409E /* OneSignalOutcomesFramework */ = {
 			isa = PBXGroup;
 			children = (
+				DEB843A327C0246A00D7E943 /* Info.plist */,
 			);
 			path = OneSignalOutcomesFramework;
 			sourceTree = "<group>";
@@ -1715,6 +1723,7 @@
 		DE97175C275597E600FC409E /* OneSignalExtensionFramework */ = {
 			isa = PBXGroup;
 			children = (
+				DEB843A527C0247700D7E943 /* Info.plist */,
 			);
 			path = OneSignalExtensionFramework;
 			sourceTree = "<group>";
@@ -2118,6 +2127,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEB843A227C0245B00D7E943 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2125,6 +2135,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEB843A627C0247700D7E943 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2132,6 +2143,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEB843A427C0246A00D7E943 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
