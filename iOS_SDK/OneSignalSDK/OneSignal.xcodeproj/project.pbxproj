@@ -526,9 +526,6 @@
 		DEAD6FA2270B83AF00DE7C67 /* OneSignalAttachmentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D183927027CD7002D3A5D /* OneSignalAttachmentHandler.m */; };
 		DEAD6FA3270B83B100DE7C67 /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
 		DEAD6FA4270B83B300DE7C67 /* OneSignalExtensionRequests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE7D184B27028890002D3A5D /* OneSignalExtensionRequests.m */; };
-		DEB843A227C0245B00D7E943 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB843A127C0245B00D7E943 /* Info.plist */; };
-		DEB843A427C0246A00D7E943 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB843A327C0246A00D7E943 /* Info.plist */; };
-		DEB843A627C0247700D7E943 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEB843A527C0247700D7E943 /* Info.plist */; };
 		DEE8198D24E21DF000868CBA /* UIApplication+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */; };
 		DEF5CCF52539321A0003E9CC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCF42539321A0003E9CC /* AppDelegate.m */; };
 		DEF5CCFB2539321A0003E9CC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCFA2539321A0003E9CC /* ViewController.m */; };
@@ -2127,7 +2124,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEB843A227C0245B00D7E943 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2135,7 +2131,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEB843A627C0247700D7E943 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2143,7 +2138,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEB843A427C0246A00D7E943 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3014,7 +3008,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalCoreFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -3076,7 +3070,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalCoreFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -3130,7 +3124,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalExtensionFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -3190,7 +3184,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalExtensionFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -3244,7 +3238,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalOutcomesFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -3304,7 +3298,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = OneSignalOutcomesFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
