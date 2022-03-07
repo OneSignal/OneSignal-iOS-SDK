@@ -1,0 +1,6 @@
+framework module OneSignalCore {
+  umbrella header "OneSignalCore.h"
+
+  export *
+  module * { export * }
+}
