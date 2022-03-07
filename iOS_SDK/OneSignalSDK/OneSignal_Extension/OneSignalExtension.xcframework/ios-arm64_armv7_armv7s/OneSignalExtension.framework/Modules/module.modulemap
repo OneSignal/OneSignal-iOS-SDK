@@ -1,0 +1,6 @@
+framework module OneSignalExtension {
+  umbrella header "OneSignalExtension.h"
+
+  export *
+  module * { export * }
+}
