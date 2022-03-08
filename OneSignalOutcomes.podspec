@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "OneSignalOutcomes"
-    s.version          = "3.9.1"
+    s.version          = "3.11.0-alpha-01"
     s.summary          = "OneSignal's library for tracking user interactions in mobile apps. This should only be used as a part of the OneSignal Pod"
     s.homepage         = "https://onesignal.com"
     s.license          = { :type => 'MIT', :file => 'LICENSE' }
