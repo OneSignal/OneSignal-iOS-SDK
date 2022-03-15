@@ -32,3 +32,17 @@ jobs:
           code-signing-identity: ${{ secrets.CODE_SIGNING_IDENTITY }}
           team-id: ${{ secrets.TEAM_ID }}
           workspace-path: iOS_SDK/OneSignalSDK.xcworkspace # optional
+
+    distribute:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Setup NPM
+          uses: actions/setup-node@v2
+          with:
+            node-version: '14'
+
+        - name: Install App Center CLI
+          run: npm install -g appcenter-cli
+
+        - name: Upload IPA
+          run: echo todo
