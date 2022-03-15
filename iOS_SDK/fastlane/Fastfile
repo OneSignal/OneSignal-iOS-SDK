@@ -18,11 +18,13 @@ default_platform(:ios)
 platform :ios do
   desc "todo"
   lane :for_internal_distro do
-    proj_path = "OneSignalDevApp/OneSignalExample.xcodeproj"
-    identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+    proj_path       = "OneSignalDevApp/OneSignalExample.xcodeproj"
+    identifier      = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+    identifier_ext  = "#{identifier}+extension"
+    identifier_clip = "#{identifier}+clip"
+    git_url         = ENV["MATCH_REPO"]
 
     # set primary app bundle id
-    puts("setting primary app bundle id")
     update_app_identifier( 
       xcodeproj: proj_path,
       plist_path: "OneSignalDevApp/Info.plist", # based on relative directory from the proj
@@ -30,26 +32,27 @@ platform :ios do
     )
 
     # set extension bundle id
-    puts("setting extension bundle id")
     update_app_identifier( 
       xcodeproj: proj_path,
       plist_path: "OneSignalNotificationServiceExtension/Info.plist",
-      app_identifier: "#{identifier}+extension"
+      app_identifier: identifier_ext
     )
 
     # set clip bundle id
-    puts("setting clip bundle id")
     update_app_identifier( 
       xcodeproj: proj_path,
       plist_path: "OneSignalDevAppClip/Info.plist",
-      app_identifier: "#{identifier}+clip"
+      app_identifier: identifier_clip
     )
 
-    # sync_code_signing(
-    #   type: "adhoc",
-    #   app_identifier: "".
-    #   git_url:""
-    # )
+    sync_code_signing(
+      type: "adhoc",
+      platform: "ios",
+      app_identifier: [identifier, identifier_ext, identifier_clip],
+      git_url: git_url,
+      force_for_new_devices: true
+    )
+
     build_app(
       scheme: "OneSignalDevApp",
       export_method: "ad-hoc",
