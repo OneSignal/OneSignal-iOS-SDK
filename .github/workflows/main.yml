@@ -23,15 +23,18 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: yukiarrr/ios-build-action@v1.5.0
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1.99.0
         with:
-          project-path: iOS_SDK/OneSignalDevApp/OneSignalExample.xcodeproj
-          p12-key-base64: ${{ secrets.P12_KEY_BASE64 }}
-          p12-cer-base64: ${{ secrets.P12_CER_BASE64 }}
-          mobileprovision-base64: ${{ secrets.MOBILEPROVISION_BASE64 }}
-          code-signing-identity: ${{ secrets.CODE_SIGNING_IDENTITY }}
-          team-id: ${{ secrets.TEAM_ID }}
-          workspace-path: iOS_SDK/OneSignalSDK.xcworkspace # optional
+          ruby-version: 'default'
+
+      - name: Sign & Build IPA using Fastlane
+        uses: maierj/fastlane-action@v2.2.0
+        with:
+          lane: 'for_internal_distro'
+          subdirectory: 'iOS_SDK'
+          skip-tracking: true
+          verbose: true
 
     distribute:
       runs-on: ubuntu-latest
