@@ -18,3 +18,4 @@ DerivedData
 .idea/
 iOS_SDK/Carthage/Build
 /temp/
+iOS_SDK/fastlane/report.xml
