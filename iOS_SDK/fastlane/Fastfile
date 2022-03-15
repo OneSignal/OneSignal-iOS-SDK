@@ -16,16 +16,43 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Description of what the lane does"
+  desc "todo"
   lane :for_internal_distro do
+    proj_path = "OneSignalDevApp/OneSignalExample.xcodeproj"
+    identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+
+    # set primary app bundle id
+    puts("setting primary app bundle id")
+    update_app_identifier( 
+      xcodeproj: proj_path,
+      plist_path: "OneSignalDevApp/Info.plist", # based on relative directory from the proj
+      app_identifier: identifier
+    )
+
+    # set extension bundle id
+    puts("setting extension bundle id")
+    update_app_identifier( 
+      xcodeproj: proj_path,
+      plist_path: "OneSignalNotificationServiceExtension/Info.plist",
+      app_identifier: "#{identifier}+extension"
+    )
+
+    # set clip bundle id
+    puts("setting clip bundle id")
+    update_app_identifier( 
+      xcodeproj: proj_path,
+      plist_path: "OneSignalDevAppClip/Info.plist",
+      app_identifier: "#{identifier}+clip"
+    )
+
     # sync_code_signing(
     #   type: "adhoc",
-    #   app_identifier: ''.
-    #   git_url:''
+    #   app_identifier: "".
+    #   git_url:""
     # )
     build_app(
-      scheme: 'OneSignalDevApp',
-      export_method: 'ad-hoc',
+      scheme: "OneSignalDevApp",
+      export_method: "ad-hoc",
       clean: true,
     )
   end
