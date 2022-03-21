@@ -296,8 +296,10 @@
 - (void)setWaitForTags:(BOOL)waitForTags {
     _waitForTags = waitForTags;
     if (!waitForTags && self.pendingHTMLContent) {
-        [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:[NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL]];
-        self.pendingHTMLContent = nil;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.messageView loadedHtmlContent:self.pendingHTMLContent withBaseURL:[NSURL URLWithString:OS_IAM_WEBVIEW_BASE_URL]];
+            self.pendingHTMLContent = nil;
+        });
     }
 }
 
