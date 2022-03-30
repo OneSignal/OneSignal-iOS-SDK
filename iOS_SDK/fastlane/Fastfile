@@ -19,6 +19,7 @@ platform :ios do
   desc "todo"
   lane :for_internal_distro do
     proj_path       = "OneSignalDevApp/OneSignalExample.xcodeproj"
+    team_id         = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
     identifier      = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
     identifier_ext  = "#{identifier}+extension"
     identifier_clip = "#{identifier}+clip"
@@ -50,6 +51,7 @@ platform :ios do
       platform: "ios",
       app_identifier: [identifier, identifier_ext, identifier_clip],
       git_url: git_url,
+      git_branch: team_id, # support multiple teams easily
       force_for_new_devices: true
     )
 
