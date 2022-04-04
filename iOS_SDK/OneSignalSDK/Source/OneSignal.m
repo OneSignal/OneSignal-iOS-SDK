@@ -1733,7 +1733,7 @@ static BOOL _trackedColdRestart = false;
         [[OneSignalClient sharedClient] executeRequest:[OSRequestTrackV1 trackUsageData:osUsageData appId:appId] onSuccess:^(NSDictionary *result) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"trackColdRestart: successfully tracked cold restart"];
         } onFailure:^(NSError *error) {
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"trackColdRestart: Failed to track cold restart: %@", error.localizedDescription]];
+            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"trackColdRestart: Failed to track cold restart: %@", error]];
         }];
     }
 }

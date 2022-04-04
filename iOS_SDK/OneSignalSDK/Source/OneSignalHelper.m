@@ -104,7 +104,7 @@
     }
     
     if (fileHandleError != nil) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError.localizedDescription]];
+        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignal Error encountered while downloading attachment: %@", fileHandleError]];
     }
 }
 
