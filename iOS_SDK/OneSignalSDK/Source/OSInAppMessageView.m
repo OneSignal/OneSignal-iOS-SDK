@@ -67,7 +67,7 @@
     NSString *jsonString;
     if (!jsonData) {
         [OneSignal onesignalLog:ONE_S_LL_ERROR message:
-         [NSString stringWithFormat:@"Error parsing tag dictionary to json :%@",error.localizedDescription]];
+         [NSString stringWithFormat:@"Error parsing tag dictionary to json: %@", error]];
     } else {
          jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     }
