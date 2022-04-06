@@ -52,7 +52,7 @@ static BOOL trackingEnabled = false;
 
 
 + (void)updateFromDownloadParams:(NSDictionary*)params {
-    trackingEnabled = (BOOL)params[@"fba"];
+    trackingEnabled = [params[@"fba"] boolValue];
     OneSignalUserDefaults *sharedUserDefaults = OneSignalUserDefaults.initShared;
     if (trackingEnabled)
         [sharedUserDefaults saveBoolForKey:ONESIGNAL_FB_ENABLE_FIREBASE withValue:YES];

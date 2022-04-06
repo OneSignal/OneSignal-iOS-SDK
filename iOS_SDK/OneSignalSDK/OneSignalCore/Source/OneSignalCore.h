@@ -24,6 +24,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+#pragma clang diagnostic ignored "-Wnullability-completeness"
 #import <Foundation/Foundation.h>
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
