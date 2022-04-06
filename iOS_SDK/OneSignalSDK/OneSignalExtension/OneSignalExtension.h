@@ -34,6 +34,7 @@
 
 @interface OneSignalExtension : NSObject
 #pragma mark NotificationService Extension
+#pragma clang diagnostic ignored "-Wnullability-completeness"
 // iOS 10 only
 // Process from Notification Service Extension.
 // Used for iOS Media Attachemtns and Action Buttons.

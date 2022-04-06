@@ -65,4 +65,4 @@
 @end
 
 /*Block for handling outcome event being sent successfully*/
-typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* _Nonnull outcome);
+typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* _Nullable outcome);

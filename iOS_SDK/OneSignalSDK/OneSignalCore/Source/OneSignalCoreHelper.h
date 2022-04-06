@@ -26,6 +26,9 @@
  */
 
 @interface OneSignalCoreHelper : NSObject
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+
 // Threading
 + (void)runOnMainThread:(void(^)())block;
 + (void)dispatch_async_on_main_queue:(void(^)())block;

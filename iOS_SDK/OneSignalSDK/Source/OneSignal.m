@@ -944,7 +944,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [[self getRemoteParamController] saveRemoteParams:result];
 
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
-            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:(BOOL)result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
+            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:[result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE] boolValue]];
 
         [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];

@@ -198,10 +198,10 @@
 - (void)parseOtherApnsFields {
     NSDictionary *aps = _rawPayload[@"aps"];
     if (aps[@"content-available"])
-        _contentAvailable = (BOOL)aps[@"content-available"];
+        _contentAvailable = [aps[@"content-available"] boolValue];
     
     if (aps[@"mutable-content"])
-        _mutableContent = (BOOL)aps[@"mutable-content"];
+        _mutableContent = [aps[@"mutable-content"] boolValue];
     
     if (aps[@"thread-id"]) {
         _threadId = (NSString *)aps[@"thread-id"];
