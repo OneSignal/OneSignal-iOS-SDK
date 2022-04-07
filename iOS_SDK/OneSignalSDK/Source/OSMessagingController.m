@@ -138,8 +138,7 @@ static BOOL _isInAppMessagingPaused = false;
         };
         self.messages = [OneSignalUserDefaults.initStandard getSavedCodeableDataForKey:OS_IAM_MESSAGES_ARRAY
                                                                                           defaultValue:[NSArray<OSInAppMessageInternal *> new]];
-        self.triggerController = [OSTriggerController new];
-        self.triggerController.delegate = self;
+        [self initializeTriggerController];
         self.messageDisplayQueue = [NSMutableArray new];
         
         let standardUserDefaults = OneSignalUserDefaults.initStandard;
@@ -158,6 +157,14 @@ static BOOL _isInAppMessagingPaused = false;
     }
     
     return self;
+}
+
+- (void)initializeTriggerController {
+    self.triggerController = [OSTriggerController new];
+    self.triggerController.delegate = self;
+    NSString *timeSinceLastMessage = [OneSignalUserDefaults.initShared getSavedStringForKey:OS_IAM_TIME_SINCE_LAST_MESSAGE_KEY defaultValue:nil];
+    [self.triggerController timeSinceLastMessage:[[NSDateFormatter iso8601DateFormatter]
+                                                  dateFromString:timeSinceLastMessage]];
 }
 
 - (void)updateInAppMessagesFromCache {
@@ -602,7 +609,7 @@ static BOOL _isInAppMessagingPaused = false;
         // Reset the IAM viewController to prepare for next IAM if one exists
         self.viewController = nil;
         // Reset time since last IAM
-        [self.triggerController timeSinceLastMessage:[NSDate new]];
+        [self setAndPersistTimeSinceLastMessage];
 
         if (!_currentPromptAction) {
             [self evaluateMessageDisplayQueue];
@@ -610,6 +617,15 @@ static BOOL _isInAppMessagingPaused = false;
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Stop evaluateMessageDisplayQueue because prompt is currently displayed"];
         }
     }
+}
+
+- (void)setAndPersistTimeSinceLastMessage {
+    NSDate *timeSinceLastMessage = [NSDate new];
+    [self.triggerController timeSinceLastMessage:timeSinceLastMessage];
+    NSString *stringTimeSinceLastMessage = [[NSDateFormatter iso8601DateFormatter]
+                                            stringFromDate:timeSinceLastMessage];
+    [OneSignalUserDefaults.initShared saveStringForKey:OS_IAM_TIME_SINCE_LAST_MESSAGE_KEY
+                                             withValue:stringTimeSinceLastMessage];
 }
 
 - (void)evaluateMessageDisplayQueue {

@@ -120,6 +120,9 @@
 #pragma mark Private Methods
 
 - (void)timeSinceLastMessage:(NSDate *)date {
+    if (date == nil) {
+        date = [NSDate distantPast];
+    }
     self.dynamicTriggerController.timeSinceLastMessage = date;
 }
 
