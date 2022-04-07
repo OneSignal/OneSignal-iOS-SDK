@@ -10,8 +10,13 @@ Pod::Spec.new do |s|
     s.platform         = :ios, '9.0'
     s.requires_arc     = true
     
-    s.ios.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignal.xcframework'
-    #s.preserve_paths = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignal.xcframework'
+    s.subspec 'OneSignalMain' do |ss|
+      ss.dependency 'OneSignalXCFramework/OneSignalCore'
+      ss.dependency 'OneSignalXCFramework/OneSignalOutcomes'
+      ss.dependency 'OneSignalXCFramework/OneSignalExtension'
+      ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignal.xcframework'
+      #s.preserve_paths = 'iOS_SDK/OneSignalSDK/OneSignal_XCFramework/OneSignal.xcframework'
+    end
 
     s.subspec 'OneSignalCore' do |ss|
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Core/OneSignalCore.xcframework'
