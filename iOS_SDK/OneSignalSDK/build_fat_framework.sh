@@ -8,15 +8,12 @@ BUILD_TYPE="staticlib"
 BUILD_SCHEME="OneSignalFramework"
 BUILD_PROJECT="OneSignal.xcodeproj"
 
-# NOTE: Once Apple drops support for Xcode 10, we can edit this to use same xcodebuild version for all three build commands
-#XCODEBUILD_OLDEST_SUPPORTED=/Applications/Xcode10.1.app/Contents/Developer/usr/bin/xcodebuild
-XCODEBUILD_11_0=/Applications/Xcode11.0.app/Contents/Developer/usr/bin/xcodebuild
+# NOTE: We are now supporting Xcode 11 as our oldest build target.
+XCODEBUILD_OLDEST_SUPPORTED=/Applications/Xcode11.0.app/Contents/Developer/usr/bin/xcodebuild
 
-# For backwards compatible bitcode we need to build iphonesimulator + iphoneos with 3 versions behind the latest.
-#       However variant=Mac Catalyst needs to be be Xcode 11.0
-$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphonesimulator" ARCHS="x86_64 i386" -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
-$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e"  -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
-$XCODEBUILD_11_0 -configuration ${BUILD_CONFIG} ARCHS="x86_64h" VALID_ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE=${BUILD_TYPE} -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
+$XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphonesimulator" ARCHS="x86_64 i386" -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
+$XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} MACH_O_TYPE=${BUILD_TYPE} -sdk "iphoneos" ARCHS="armv7 armv7s arm64 arm64e"  -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
+$XCODEBUILD_OLDEST_SUPPORTED -configuration ${BUILD_CONFIG} ARCHS="x86_64h" VALID_ARCHS="x86_64h" -destination 'platform=macOS,variant=Mac Catalyst' MACH_O_TYPE=${BUILD_TYPE} -project ${BUILD_PROJECT} -scheme ${BUILD_SCHEME} SYMROOT="${DERIVED_DATA_RELATIVE_DIR}/"
 
 USER=$(id -un)
 DERIVED_DATA_ONESIGNAL_DIR="${WORKING_DIR}/${DERIVED_DATA_RELATIVE_DIR}"
