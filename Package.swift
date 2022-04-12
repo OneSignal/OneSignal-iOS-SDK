@@ -43,23 +43,23 @@ let package = Package(
         ),
         .binaryTarget(
           name: "OneSignal",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.9.1/OneSignal.xcframework.zip",
-          checksum: "7b5f7c306ad2ad4a56d5de3426c220c1ea44417e141b0b132d290bf6a15e7aae"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.0-beta-01/OneSignal.xcframework.zip",
+          checksum: "49e24118ee0ba114bd715482cda14b7b37cf1f50410766e4efd0d5c696a885bf"
         ),
         .binaryTarget(
           name: "OneSignalExtension",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.9.1/OneSignalExtension.xcframework.zip",
-          checksum: "372f8fce6f80d3b6a24c2a4ee883c9ecb7dce3d01c92e347e1a16559834e81c1"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.0-beta-01/OneSignalExtension.xcframework.zip",
+          checksum: "ae815d1cd77de5f2950c0fe2237a96d74b107b96836a2663dd434a24b428ae66"
         ),
         .binaryTarget(
           name: "OneSignalOutcomes",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.9.1/OneSignalOutcomes.xcframework.zip",
-          checksum: "e59761a2c32a0ccf6fa8f059119e962390bbccc5f0786fc0a0cc032dbcff4bc0"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.0-beta-01/OneSignalOutcomes.xcframework.zip",
+          checksum: "ac65e226cb97e9272563be8973621ffc29a014b4354203b0df82499633d7c76a"
         ),
         .binaryTarget(
           name: "OneSignalCore",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.9.1/OneSignalCore.xcframework.zip",
-          checksum: "bf61c8bbc856d8ac1d28981542f3cc66294ac75ed4267aae7c05af460dece2ac"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.0-beta-01/OneSignalCore.xcframework.zip",
+          checksum: "c6d1af6434d7eb97ad31056d84b2e180140c79612551f1b331aa88c82f8c96f4"
         )
     ]
 )
