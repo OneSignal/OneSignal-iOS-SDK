@@ -3096,19 +3096,20 @@ didReceiveRemoteNotification:userInfo
 
 
 - (void)testGetDeviceVariant {
-    // Simulator iPhone
     var deviceModel = [OneSignalHelper getDeviceVariant];
-    XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
-    
     // Catalyst ("Mac")
-    [UIDeviceOverrider setSystemName:@"Mac OS X"];
-    deviceModel = [OneSignalHelper getDeviceVariant];
-    XCTAssertEqualObjects(@"Mac", deviceModel);
-    
-    // Real iPhone
-    [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
-    deviceModel = [OneSignalHelper getDeviceVariant];
-    XCTAssertEqualObjects(@"iPhone9,3", deviceModel);
+    #if TARGET_OS_MACCATALYST
+        XCTAssertEqualObjects(@"Mac", deviceModel);
+    #elif TARGET_OS_SIMULATOR
+        // Simulator iPhone
+        deviceModel = [OneSignalHelper getDeviceVariant];
+        XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
+    #else
+        // Real iPhone
+        [OneSignalHelperOverrider setSystemInfoMachine:@"iPhone9,3"];
+        deviceModel = [OneSignalHelper getDeviceVariant];
+        XCTAssertEqualObjects(@"iPhone9,3", deviceModel);
+    #endif
 }
 
 - (void)testDeviceStateJson {

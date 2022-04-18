@@ -474,16 +474,16 @@ OneSignalWebView *webVC;
     let systemInfoMachine = [self getSystemInfoMachine];
 
     // x86_64 could mean an iOS Simulator or Catalyst app on macOS
-    if ([systemInfoMachine isEqualToString:@"x86_64"]) {
-        let systemName = UIDevice.currentDevice.systemName;
-        if ([systemName isEqualToString:@"iOS"]) {
-            let model = UIDevice.currentDevice.model;
+    #if TARGET_OS_MACCATALYST
+        return @"Mac";
+    #elif TARGET_OS_SIMULATOR
+        let model = UIDevice.currentDevice.model;
+        if (model) {
             return [@"Simulator " stringByAppendingString:model];
         } else {
-            return @"Mac";
+            return @"Simulator";
         }
-    }
-
+    #endif
     return systemInfoMachine;
 }
 

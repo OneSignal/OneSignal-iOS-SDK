@@ -154,13 +154,16 @@ NSInteger const DELAY = 60;
     XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
 }
 
+// This test needs to be run with Mac Catalyst as the build target
 -(void)testUnsupportedCatalyst {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [OSMessagingController removeInstance];
-    [OneSignalHelperOverrider setSystemInfoMachine:@"x86_64"];
-    [UIDeviceOverrider setSystemName:@"Mac OS X"]; // e.g. @"Mac OS X" @"iOS"
     let sharedInstance = OSMessagingController.sharedInstance;
-    XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
+    #if TARGET_OS_MACCATALYST
+        XCTAssertEqualObjects(sharedInstance.class, DummyOSMessagingController.class); // sharedInstance should be dummy controller
+    #else
+        XCTAssertEqualObjects(sharedInstance.class, OSMessagingController.class); // sharedInstance should be the true controller
+    #endif
 }
 
 -(void)testRealIphone {
