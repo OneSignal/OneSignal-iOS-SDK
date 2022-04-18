@@ -478,7 +478,11 @@ OneSignalWebView *webVC;
         return @"Mac";
     #elif TARGET_OS_SIMULATOR
         let model = UIDevice.currentDevice.model;
-        return [@"Simulator " stringByAppendingString:model];
+        if (model) {
+            return [@"Simulator " stringByAppendingString:model];
+        } else {
+            return @"Simulator";
+        }
     #endif
     return systemInfoMachine;
 }
