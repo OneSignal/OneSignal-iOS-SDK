@@ -3007,11 +3007,15 @@ static NSString *_lastnonActiveMessageId;
     }
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
-    // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views or from hostless unit tests.
+    // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views or from hostless unit tests or share-extension.
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/935
-    NSString *processName = [[NSProcessInfo processInfo] processName];
-    if ([processName isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [processName isEqualToString:@"IBDesignablesAgent-iOS"] || [processName isEqualToString:@"xctest"])
+    // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/1073
+    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+    NSString *processName = [processInfo processName];
+    NSString *infoPath = [[processInfo arguments] objectAtIndex:0];
+
+    if ([processName isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [processName isEqualToString:@"IBDesignablesAgent-iOS"] || [processName isEqualToString:@"xctest"] || ([infoPath rangeOfString: @".appex"].location != NSNotFound))
         return;
 
     // Double loading of class detection.
