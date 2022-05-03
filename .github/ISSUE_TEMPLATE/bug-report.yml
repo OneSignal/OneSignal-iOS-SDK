@@ -3,7 +3,7 @@ description: File a bug report
 title: "[Bug]: "
 labels: ["bug", "triage"]
 # assignees:
-#   - assign your sdk team e.g., onesignal/unity
+#   - OneSignal/ios-sdk
 body:
   - type: markdown
     attributes:
