@@ -70,8 +70,6 @@ body:
         * iOS 13.7
         * iOS 8.0
       render: Markdown
-    validations:
-        required: true
 
   - type: textarea
     id: logs
