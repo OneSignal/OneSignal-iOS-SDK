@@ -110,7 +110,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal addEmailSubscriptionObserver:self];
     [OneSignal setInAppMessageLifecycleHandler:self];
     [OneSignal sendTag:@"name" value:@"elliot"];
-    [OneSignal pauseInAppMessages:false];
+    [OneSignal pauseInAppMessages:true];
 
     [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal setNotificationOpenedHandler:openNotificationHandler];
@@ -121,7 +121,10 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 }
 
 - (void)messaging:(FIRMessaging *)messaging didReceiveRegistrationToken:(NSString *)fcmToken {
-    NSLog([NSString stringWithFormat:@"ECM registrationtoken: %@",fcmToken]);
+    NSLog(@"ECM registrationtoken: %@", fcmToken);
+    NSDictionary *dataDict = [NSDictionary dictionaryWithObject:fcmToken forKey:@"token"];
+        [[NSNotificationCenter defaultCenter] postNotificationName:
+         @"FCMToken" object:nil userInfo:dataDict];
 }
 
 #define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"

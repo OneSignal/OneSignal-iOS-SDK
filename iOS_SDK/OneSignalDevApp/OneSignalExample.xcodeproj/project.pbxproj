@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
-		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
-		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		9112E8871E724C320022A1CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8861E724C320022A1CB /* main.m */; };
 		9112E88A1E724C320022A1CB /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8891E724C320022A1CB /* AppDelegate.m */; };
 		9112E88D1E724C320022A1CB /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E88C1E724C320022A1CB /* ViewController.m */; };
@@ -19,7 +17,6 @@
 		9112E8951E724C320022A1CB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9112E8931E724C320022A1CB /* LaunchScreen.storyboard */; };
 		9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		9150E7761E73BEDD00C5D46A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 9150E7751E73BEDD00C5D46A /* NotificationService.m */; };
-		9150E77A1E73BEDD00C5D46A /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9150E7721E73BEDC00C5D46A /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		91B6EA041E83214A00B5CF01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		91B6EA061E83215000B5CF01 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		91B6EA071E83215800B5CF01 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9150E7821E73BFB600C5D46A /* UIKit.framework */; };
@@ -34,7 +31,6 @@
 		DE68DA6624C7695A00FC95A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE68DA6524C7695A00FC95A8 /* Assets.xcassets */; };
 		DE68DA6924C7695A00FC95A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE68DA6724C7695A00FC95A8 /* LaunchScreen.storyboard */; };
 		DE68DA6C24C7695A00FC95A8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA6B24C7695A00FC95A8 /* main.m */; };
-		DE68DA7024C7695A00FC95A8 /* OneSignalExampleClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = DE68DA5724C7695900FC95A8 /* OneSignalExampleClip.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DE68DA7724C769F200FC95A8 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		DE68DA7824C769F900FC95A8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9112E8A61E724EE00022A1CB /* SystemConfiguration.framework */; };
 		DE68DA7924C76A0300FC95A8 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
@@ -54,18 +50,13 @@
 		DE99751D2825B9D20036B763 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = DE99751C2825B9D20036B763 /* FirebaseInAppMessaging-Beta */; };
 		DE99751F2825B9D20036B763 /* FirebaseInAppMessagingSwift-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = DE99751E2825B9D20036B763 /* FirebaseInAppMessagingSwift-Beta */; };
 		DE9975212825B9D20036B763 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = DE9975202825B9D20036B763 /* FirebaseMessaging */; };
+		DE9975262825C4340036B763 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE9975252825C4340036B763 /* GoogleService-Info.plist */; };
+		DE9975272825C4340036B763 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE9975252825C4340036B763 /* GoogleService-Info.plist */; };
 		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
 		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		9150E7781E73BEDD00C5D46A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9112E87A1E724C320022A1CB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9150E7711E73BEDC00C5D46A;
-			remoteInfo = OneSignalNotificationServiceExtension;
-		};
 		DE68DA6E24C7695A00FC95A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9112E87A1E724C320022A1CB /* Project object */;
@@ -76,28 +67,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		9150E77E1E73BEDD00C5D46A /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				9150E77A1E73BEDD00C5D46A /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DE68DA7124C7695A00FC95A8 /* Embed App Clips */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
-			dstSubfolderSpec = 16;
-			files = (
-				DE68DA7024C7695A00FC95A8 /* OneSignalExampleClip.app in Embed App Clips */,
-			);
-			name = "Embed App Clips";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		DE9717792756E6EF00FC409E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -127,7 +96,6 @@
 
 /* Begin PBXFileReference section */
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		9112E8821E724C320022A1CB /* OneSignalExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9112E8861E724C320022A1CB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -172,6 +140,7 @@
 		DE7D180C27026BCC002D3A5D /* OneSignalExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE7D181D27026C02002D3A5D /* OneSignalExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE7D18C327038240002D3A5D /* OneSignalOutcomes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalOutcomes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE9975252825C4340036B763 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		DEA22668261E62690092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266A261E62780092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266C261E627D0092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -251,7 +220,7 @@
 		9112E8841E724C320022A1CB /* OneSignalDevApp */ = {
 			isa = PBXGroup;
 			children = (
-				4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */,
+				DE9975252825C4340036B763 /* GoogleService-Info.plist */,
 				9112E8A81E72506C0022A1CB /* OneSignalDevApp.entitlements */,
 				9112E8881E724C320022A1CB /* AppDelegate.h */,
 				9112E8891E724C320022A1CB /* AppDelegate.m */,
@@ -339,14 +308,11 @@
 				9112E87E1E724C320022A1CB /* Sources */,
 				9112E87F1E724C320022A1CB /* Frameworks */,
 				9112E8801E724C320022A1CB /* Resources */,
-				9150E77E1E73BEDD00C5D46A /* Embed App Extensions */,
-				DE68DA7124C7695A00FC95A8 /* Embed App Clips */,
 				DEA226FA261F74060092FF58 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				9150E7791E73BEDD00C5D46A /* PBXTargetDependency */,
 				DE68DA6F24C7695A00FC95A8 /* PBXTargetDependency */,
 			);
 			name = OneSignalExample;
@@ -470,9 +436,9 @@
 			files = (
 				9112E8951E724C320022A1CB /* LaunchScreen.storyboard in Resources */,
 				91B6EA0A1E834B1700B5CF01 /* sentImage.jpg in Resources */,
-				4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */,
 				9112E8921E724C320022A1CB /* Assets.xcassets in Resources */,
 				9112E8901E724C320022A1CB /* Main.storyboard in Resources */,
+				DE9975262825C4340036B763 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,7 +447,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				91B6EA0C1E834BD800B5CF01 /* sentImage.jpg in Resources */,
-				458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */,
+				DE9975272825C4340036B763 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,11 +496,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		9150E7791E73BEDD00C5D46A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9150E7711E73BEDC00C5D46A /* OneSignalNotificationServiceExtension */;
-			targetProxy = 9150E7781E73BEDD00C5D46A /* PBXContainerItemProxy */;
-		};
 		DE68DA6F24C7695A00FC95A8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE68DA5624C7695900FC95A8 /* OneSignalExampleClip */;
