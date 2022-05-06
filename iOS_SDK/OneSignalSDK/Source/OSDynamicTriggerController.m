@@ -79,7 +79,7 @@
         if ([trigger.kind isEqualToString:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME]) {
             let currentDuration = fabs([[OneSignal sessionLaunchTime] timeIntervalSinceNow]);
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:currentDuration forOperator:trigger.operatorType]) {
-                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"session time trigger completed: %@", trigger.triggerId]];
+                [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"session time trigger completed: %@", trigger.triggerId]];
                 [self.delegate dynamicTriggerCompleted:trigger.triggerId];
                 //[self.delegate dynamicTriggerFired:trigger.triggerId];
                 return true;
@@ -94,7 +94,7 @@
             let timestampSinceLastMessage = fabs([self.timeSinceLastMessage timeIntervalSinceNow]);
 
             if ([self evaluateTimeInterval:requiredTimeValue withCurrentValue:timestampSinceLastMessage forOperator:trigger.operatorType]) {
-                [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"time since last inapp trigger completed: %@", trigger.triggerId]];
+                [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"time since last inapp trigger completed: %@", trigger.triggerId]];
                 return true;
             }
             offset = requiredTimeValue - timestampSinceLastMessage;
@@ -111,7 +111,7 @@
                                           userInfo:@{@"trigger" : trigger}
                                            repeats:false];
         if (timer) {
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"timer added for triggerId: %@, messageId: %@", trigger.triggerId, messageId]];
+            [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"timer added for triggerId: %@, messageId: %@", trigger.triggerId, messageId]];
             [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
         }
 
@@ -139,7 +139,7 @@
         case OSTriggerOperatorTypeNotEqualTo:
             return !OS_ROUGHLY_EQUAL(timeInterval, currentTimeInterval);
         default:
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
+            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to apply an invalid operator on a time-based in-app-message trigger: %@", OS_OPERATOR_TO_STRING(operator)]];
             return false;
     }
 }

@@ -59,6 +59,7 @@
 #import "OneSignalLocationOverrider.h"
 #import "OneSignalOverrider.h"
 #import "OneSignalUserDefaults.h"
+#import "OneSignalLog.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [OS_API_SERVER_URL stringByAppendingString:path];
@@ -245,7 +246,6 @@ static XCTestCase* _currentXCTestCase;
     if (setupUIApplicationDelegate)
         return;
     
-    //ECM Todo safe?
     // Force swizzle in all methods for tests.
     OneSignalHelperOverrider.mockIOSVersion = 9;
     

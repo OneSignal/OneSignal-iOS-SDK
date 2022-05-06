@@ -26,10 +26,7 @@
  */
 
 #import "OneSignal.h"
-#import "OSInfluence.h"
 #import "OSBaseFocusTimeProcessor.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 #import "OneSignalInternal.h"
 
 // This is an abstract class
@@ -44,7 +41,7 @@
 }
 
 - (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime {
-    [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor hasMinSyncTime getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
+    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor hasMinSyncTime getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
     return activeTime >= [self getMinSessionTime];
 }
 

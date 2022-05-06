@@ -30,11 +30,6 @@
 #import "OneSignal.h"
 #import "OneSignalHelper.h"
 
-@interface OneSignal ()
-
-+ (void)onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message;
-
-@end
 
 @implementation OneSignalWebView
 
@@ -84,7 +79,7 @@ UIViewController *viewControllerForPresentation;
 }
 
 -(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
-    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"webView: An error occurred during navigation: %@", error]];
+    [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"webView: An error occurred during navigation: %@", error]];
 }
 
 - (void)pinSubviewToMarginsWithSubview:(UIView *)subview withSuperview:(UIView *)superview {
@@ -136,14 +131,14 @@ UIViewController *viewControllerForPresentation;
 - (void)clearWebView {
     [_webView loadHTMLString:@"" baseURL:nil];
     if (viewControllerForPresentation) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"clearing web view"];
+        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"clearing web view"];
         [viewControllerForPresentation.view removeFromSuperview];
     }
         
 }
 
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
     [self clearWebView];
 }
 

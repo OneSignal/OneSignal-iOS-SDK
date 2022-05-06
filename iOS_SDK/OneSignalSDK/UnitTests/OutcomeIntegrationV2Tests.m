@@ -36,7 +36,7 @@
 #import "OneSignalOverrider.h"
 #import "UnitTestCommonMethods.h"
 #import "OneSignalClientOverrider.h"
-#import "Requests.h"
+#import "OSRequests.h"
 #import "NSDateOverrider.h"
 #import "UNUserNotificationCenterOverrider.h"
 #import "RestClientAsserts.h"
@@ -47,9 +47,6 @@
 #import "NSTimerOverrider.h"
 
 @interface OneSignal ()
-+ (OSOutcomeEventsCache*)outcomeEventsCache;
-+ (OSSessionManager*)sessionManager;
-+ (OSTrackerFactory*)trackerFactory;
 + (OneSignalOutcomeEventsController*)outcomeEventsController;
 @end
 
@@ -73,10 +70,10 @@
 - (void)testSendingOutcome_inUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
         XCTAssertEqual(influence.ids, nil);
@@ -97,7 +94,7 @@
 - (void)testSendingOutcome_inNotificationIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
@@ -111,7 +108,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate NOTIFICATION influence is INDIRECT and send 2 outcomes
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -149,7 +146,7 @@
 - (void)testSendingOutcome_inNotificationDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -162,7 +159,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 5. Validate NOTIFICATION influence is DIRECT and send 2 outcomes
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -201,10 +198,10 @@
 - (void)testSendingOutcomeWithValue_inUnattributedSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 outcomes with values
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
         XCTAssertEqual(influence.ids, nil);
@@ -225,7 +222,7 @@
 - (void)testSendingOutcomeWithValue_inNotificationIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds to trigger a new session
     [UnitTestCommonMethods backgroundApp];
@@ -239,7 +236,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 5. Validate NOTIFICATION influence INDIRECT and send 2 outcomes with values
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -281,7 +278,7 @@
 - (void)testSendingOutcomeWithValue_inNotificationDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -294,7 +291,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate NOTIFICATION influence is DIRECT and send 2 outcomes with values
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -337,10 +334,10 @@
 - (void)testUnattributedSession_cachedUniqueOutcomeCleanedOnNewSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Validate all influences are UNATTRIBUTED and send 2 of the same unique outcomes
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
         XCTAssertEqual(influence.ids, nil);
@@ -365,7 +362,7 @@
     [RestClientAsserts assertOnSessionAtIndex:3];
 
     // 7. Validate new influences are UNATTRIBUTED and send the same 2 unique outcomes
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         XCTAssertEqual(influence.influenceType, UNATTRIBUTED);
         XCTAssertEqual(influence.ids, nil);
@@ -383,7 +380,7 @@
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -398,7 +395,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate new NOTIFICATION influence is INDIRECT and send 2 of the same unique outcomes
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -439,7 +436,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 10. Validate new NOTIFICATION influence is INDIRECT and send the same 2 unique outcomes
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -469,7 +466,7 @@
 - (void)testAttributedDirectSession_cachedUniqueOutcomeNotificationsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -484,7 +481,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate new influences are ATTRIBUTED (DIRECT or INDIRECT) and send 2 of the same unique outcomes
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -526,7 +523,7 @@
     [UnitTestCommonMethods foregroundApp];
 
     // 10. Validate new session is DIRECT and send the same 2 unique outcomes
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -557,7 +554,7 @@
 - (void)testAttributedIndirectSession_sendsUniqueOutcomeForNewNotifications_andNotCachedNotifications {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -571,7 +568,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send 1 unique outcome
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -610,7 +607,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 10. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send the same unique outcome
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -639,16 +636,16 @@
 - (void)testSendingOutcome_inIAMIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 2 iam
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
     // 3. Dismiss iam
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClickFinished];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClickFinished];
     
     // 4. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -687,10 +684,10 @@
 - (void)testSendingOutcome_inIAMDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
     
     [OneSignal sendOutcome:@"normal_1"];
     [OneSignal sendOutcome:@"normal_2"];
@@ -718,16 +715,16 @@
 - (void)testSendingOutcomeWithValue_inIAMIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 2 iam
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_2"];
     // 3. Dismiss iam
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClickFinished];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClickFinished];
     
     // 4. Validate IN_APP_MESSAGE influence is INDIRECT and send 2 outcomes
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -770,10 +767,10 @@
 - (void)testSendingOutcomeWithValue_inIAMDirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
     
     let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
@@ -805,11 +802,11 @@
 - (void)testSendingOutcome_inIAMDirectSession_SaveIndirectSession {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Receive 1 IAM and send outcomes from action
-    [[OneSignal sessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
-    [[OneSignal sessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onInAppMessageReceived:@"test_in_app_message_1"];
+    [[OSSessionManager sharedSessionManager] onDirectInfluenceFromIAMClick:@"test_in_app_message_1"];
     
     let val1 = [NSNumber numberWithDouble:3.4];
     [OneSignal sendOutcomeWithValue:@"value_1" value:val1];
@@ -838,8 +835,8 @@
     [RestClientAsserts assertNumberOfMeasureSourcesRequests:2];
     
     // 4. If we don't dissmiss IAM indirect session shoud be cached
-    [[OneSignal sessionManager] initSessionFromCache];
-    let sessionInfluences = [OneSignal.sessionManager getInfluences];
+    [[OSSessionManager sharedSessionManager] initSessionFromCache];
+    let sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -858,7 +855,7 @@
 - (void)testAttributedIndirectSession_cachedUniqueOutcomeIAMsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -873,7 +870,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate new NOTIFICATION influence is INDIRECT and send 2 of the same unique outcomes
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -914,7 +911,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 10. Validate new NOTIFICATION influence is INDIRECT and send the same 2 unique outcomes
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -944,7 +941,7 @@
 - (void)testAttributedDirectSession_cachedUniqueOutcomeIAMsCleanedAfter7Days {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -959,7 +956,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate new influences are ATTRIBUTED (DIRECT or INDIRECT) and send 2 of the same unique outcomes
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1001,7 +998,7 @@
     [UnitTestCommonMethods foregroundApp];
 
     // 10. Validate new session is DIRECT and send the same 2 unique outcomes
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1032,7 +1029,7 @@
 - (void)testAttributedIndirectSession_sendsUniqueOutcomeForNewNIAMs_andNotCachedIAMs {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
@@ -1046,7 +1043,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
 
     // 5. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send 1 unique outcome
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1085,7 +1082,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // 10. Validate new NOTIFICATION influence is ATTRIBUTED (DIRECT or INDIRECT) and send the same unique outcome
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1115,10 +1112,10 @@
 - (void)testUnattributedSessionToDirectSessionWhileInactive {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // 2. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is UNATTRIBUTED
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1142,7 +1139,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 5. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is direct
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1161,12 +1158,12 @@
 - (void)testDirectSessionToDirectSessionWhileInactive {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     [UnitTestCommonMethods pullDownNotificationCenter];
     
     // 2. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is UNATTRIBUTED
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
 
     // 3. Receive notification 1 and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:YES];
@@ -1175,7 +1172,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 5. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is direct
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1200,7 +1197,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 8. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is direct
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1219,13 +1216,13 @@
 - (void)testIndirectSessionToDirectSessionWhileInactive {
     // 1. Open app
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
-    [[OneSignal outcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
+    [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:YES];
     
     // Background app
     [UnitTestCommonMethods backgroundApp];
     
     // 2. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is UNATTRIBUTED
-    NSArray<OSInfluence *> *sessionInfluences = [OneSignal.sessionManager getInfluences];
+    NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
 
     // 3. Receive notification 1 and open it
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
@@ -1234,7 +1231,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 5. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is INDIRECT
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:
@@ -1259,7 +1256,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
     
     // 8. Make sure IN_APP_MESSAGE influence is UNATTRIBUTED and Notifications is direct
-    sessionInfluences = [OneSignal.sessionManager getInfluences];
+    sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
             case IN_APP_MESSAGE:

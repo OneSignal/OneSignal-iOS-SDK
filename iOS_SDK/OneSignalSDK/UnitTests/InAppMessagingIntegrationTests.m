@@ -46,7 +46,9 @@
 #import "UNUserNotificationCenterOverrider.h"
 #import "NSBundleOverrider.h"
 #import "UNUserNotificationCenter+OneSignal.h"
-#import "Requests.h"
+#import "OSRequests.h"
+#import "OSInAppMessagingRequests.h"
+#import "OSOutcomesRequests.h"
 #import "OSMessagingControllerOverrider.h"
 #import "OneSignalOverrider.h"
 #import "OneSignalClientOverrider.h"
@@ -1449,7 +1451,7 @@
     XCTAssertEqual(1, OSMessagingControllerOverrider.messageDisplayQueue.count);
 
     // Check influence id saved
-    lastReceivedIds = [[[OneSignal trackerFactory] iamChannelTracker] lastReceivedIds];
+    lastReceivedIds = [[[OSTrackerFactory sharedTrackerFactory] iamChannelTracker] lastReceivedIds];
     XCTAssertEqual(lastReceivedIds.count, 1);
 }
 

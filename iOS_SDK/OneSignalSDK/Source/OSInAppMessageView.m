@@ -58,7 +58,7 @@
     NSError *error;
     OSPlayerTags *tags = [OneSignal getPlayerTags];
     if (!tags.allTags || tags.allTags.count <= 0 ) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"[getTagsString] no tags found for the player"];
+        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"[getTagsString] no tags found for the player"];
         return nil;
     }
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
@@ -66,7 +66,7 @@
                                                          error:&error];
     NSString *jsonString;
     if (!jsonData) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:
          [NSString stringWithFormat:@"Error parsing tag dictionary to json: %@", error]];
     } else {
          jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -90,7 +90,7 @@
 - (void)loadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
     // UI Update must be done on the main thread
     NSString *taggedHTML = [self addTagsToHTML:html];
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"loadedHtmlContent with Tags: \n%@", taggedHTML]];
     [self.webView loadHTMLString:taggedHTML baseURL:url];
     
 }
@@ -145,11 +145,11 @@
     [self.webView evaluateJavaScript:OS_JS_GET_PAGE_META_DATA_METHOD completionHandler:^(NSDictionary *result, NSError *error) {
         if (error) {
             NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_JS_GET_PAGE_META_DATA_METHOD, error];
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+            [OneSignal onesignalLog:ONE_S_LL_ERROR message:errorMessage];
             return;
         }
         NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_JS_GET_PAGE_META_DATA_METHOD, result];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:successMessage];
+        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:successMessage];
         
         [self setupWebViewConstraints];
 
@@ -172,11 +172,11 @@
         [self.webView evaluateJavaScript:setInsetsString completionHandler:^(NSDictionary *result, NSError * _Nullable error) {
             if (error) {
                 NSString *errorMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Error: %@", OS_SET_SAFE_AREA_INSETS_METHOD, error];
-                [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+                [OneSignal onesignalLog:ONE_S_LL_ERROR message:errorMessage];
                 return;
             }
             NSString *successMessage = [NSString stringWithFormat:@"Javascript Method: %@ Evaluated with Success: %@", OS_SET_SAFE_AREA_INSETS_METHOD, result];
-            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:successMessage];
+            [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:successMessage];
         }];
     }
 }
@@ -186,7 +186,7 @@
 }
 
 - (void)setupWebViewConstraints {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Setting up In-App Message WebView Constraints"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Setting up In-App Message WebView Constraints"];
     
     [self.webView removeConstraints:[self.webView constraints]];
     

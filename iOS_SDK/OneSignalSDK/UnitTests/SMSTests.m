@@ -27,7 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
-#import "Requests.h"
+#import "OSFocusRequests.h"
 #import "OneSignalUserDefaults.h"
 #import "OneSignalClientOverrider.h"
 #import "UnitTestCommonMethods.h"
@@ -45,7 +45,6 @@
 @end
 
 @interface OneSignal ()
-void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
 + (NSString *)getSMSAuthToken;
 + (NSString *)getSMSUserId;
 + (OneSignalSetSMSParameters *)delayedSMSParameters;

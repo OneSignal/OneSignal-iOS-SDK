@@ -25,7 +25,6 @@
  * THE SOFTWARE.
  */
 #import "LanguageProviderAppDefined.h"
-#import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 #import "LanguageContext.h"
 

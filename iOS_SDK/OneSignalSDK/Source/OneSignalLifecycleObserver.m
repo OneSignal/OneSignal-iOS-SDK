@@ -60,7 +60,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 
 + (void)registerLifecycleObserverAsUIScene {
     if (@available(iOS 13.0, *)) {
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registering for Scene Lifecycle notifications"];
+        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registering for Scene Lifecycle notifications"];
         [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didEnterBackground) name:@"UISceneDidEnterBackgroundNotification" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didBecomeActive) name:@"UISceneDidActivateNotification" object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willResignActive) name:@"UISceneWillDeactivateNotification" object:nil];
@@ -68,7 +68,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 }
 
 + (void)registerLifecycleObserverAsUIApplication {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registering for Application Lifecycle notifications"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registering for Application Lifecycle notifications"];
     [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willResignActive) name:UIApplicationWillResignActiveNotification object:nil];
@@ -79,7 +79,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 }
      
 - (void)didBecomeActive {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"application/scene didBecomeActive"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didBecomeActive"];
     
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:NO];
@@ -89,7 +89,7 @@ static OneSignalLifecycleObserver* _instance = nil;
 }
 
 - (void)willResignActive {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene willResignActive"];
     
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:YES];
@@ -98,14 +98,14 @@ static OneSignalLifecycleObserver* _instance = nil;
 }
 
 - (void)didEnterBackground {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"application/scene didEnterBackground"];
     
     if ([OneSignal appId])
         [OneSignalLocation onFocus:NO];
 }
 
 - (void)dealloc {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"lifecycle observer deallocated"];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"lifecycle observer deallocated"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

@@ -257,7 +257,7 @@
         case OSTriggerOperatorTypeNotEqualTo:
             return ![realValue isEqualToString:value];
         default:
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to use an invalid comparison operator (%@) on a string type", OS_OPERATOR_TO_STRING(operatorType)]];
+            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to use an invalid comparison operator (%@) on a string type", OS_OPERATOR_TO_STRING(operatorType)]];
     }
     return false;
 }
@@ -279,7 +279,7 @@
         case OSTriggerOperatorTypeExists:
         case OSTriggerOperatorTypeNotExists:
         case OSTriggerOperatorTypeContains:
-            [OneSignal onesignal_Log:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(operatorType)]];
+            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Attempted to compare/check equality for a non-comparative operator (%@)", OS_OPERATOR_TO_STRING(operatorType)]];
     }
     return false;
 }

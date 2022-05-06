@@ -27,13 +27,8 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSMigrationController.h"
-#import "OSInfluenceDataRepository.h"
-#import "OSOutcomeEventsCache.h"
-#import "OSIndirectInfluence.h"
-#import "OSCachedUniqueOutcome.h"
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OneSignal.h"
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
 #import "OSInAppMessagingDefines.h"
 #import "OneSignalHelper.h"
 #import "OSInAppMessageInternal.h"
@@ -60,24 +55,24 @@ THE SOFTWARE.
     let uniqueCacheOutcomeVersion = 21403;
     long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     if (sdkVersion < influenceVersion) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
+        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
-        NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OneSignal influenceDataRepository] lastNotificationsReceivedData];
+        NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OSInfluenceDataRepository sharedInfluenceDataRepository] lastNotificationsReceivedData];
         if (indirectInfluenceData) {
             [NSKeyedArchiver setClassName:@"OSIndirectInfluence" forClass:[OSIndirectInfluence class]];
-            [[OneSignal influenceDataRepository] saveNotifications:indirectInfluenceData];
+            [[OSInfluenceDataRepository sharedInfluenceDataRepository] saveNotifications:indirectInfluenceData];
         }
     }
     
     if (sdkVersion < uniqueCacheOutcomeVersion) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
+        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
         
         [NSKeyedUnarchiver setClass:[OSCachedUniqueOutcome class] forClassName:@"OSUniqueOutcomeNotification"];
-        NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OneSignal outcomeEventsCache] getAttributedUniqueOutcomeEventSent];
+        NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OSOutcomeEventsCache sharedOutcomeEventsCache] getAttributedUniqueOutcomeEventSent];
         if (attributedCacheUniqueOutcomeEvents) {
             [NSKeyedArchiver setClassName:@"OSCachedUniqueOutcome" forClass:[OSCachedUniqueOutcome class]];
-            [[OneSignal outcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
+            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveAttributedUniqueOutcomeEventNotificationIds:attributedCacheUniqueOutcomeEvents];
         }
     }
 }
@@ -120,7 +115,7 @@ THE SOFTWARE.
     long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
     if (sdkVersion < nameChangeVersion) {
-        [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
+        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
         // Messages Array
