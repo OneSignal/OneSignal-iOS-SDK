@@ -30,8 +30,10 @@
 
 #import <UIKit/UIKit.h>
 #import <OneSignal/OneSignal.h>
+@import FirebaseCore;
+@import FirebaseMessaging;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, OSInAppMessageLifecycleHandler>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver, OSEmailSubscriptionObserver, OSInAppMessageLifecycleHandler, FIRMessagingDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
