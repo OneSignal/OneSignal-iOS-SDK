@@ -127,6 +127,43 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
          @"FCMToken" object:nil userInfo:dataDict];
 }
 
+// Receive displayed notifications for iOS 10 devices.
+// Handle incoming notification messages while app is in the foreground.
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+  NSDictionary *userInfo = notification.request.content.userInfo;
+
+  // With swizzling disabled you must let Messaging know about the message, for Analytics
+  // [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+
+  // ...
+
+  // Print full message.
+  NSLog(@"%@", userInfo);
+
+  // Change this to your preferred presentation option
+  completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionAlert);
+}
+
+// Handle notification messages after display notification is tapped by the user.
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void(^)(void))completionHandler {
+  NSDictionary *userInfo = response.notification.request.content.userInfo;
+//  if (userInfo[kGCMMessageIDKey]) {
+//    NSLog(@"Message ID: %@", userInfo[kGCMMessageIDKey]);
+//  }
+
+  // With swizzling disabled you must let Messaging know about the message, for Analytics
+  // [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+
+  // Print full message.
+  NSLog(@"%@", userInfo);
+
+  completionHandler();
+}
+
 #define ONESIGNAL_APP_ID_DEFAULT @"77e32082-ea27-42e3-a898-c72e141824ef"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"77e32082-ea27-42e3-a898-c72e141824ef"
 
