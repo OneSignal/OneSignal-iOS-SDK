@@ -43,126 +43,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
-
+#import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
-
-/* The action type associated to an OSNotificationAction object */
-typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
-    OSNotificationActionTypeOpened,
-    OSNotificationActionTypeActionTaken
-};
-
-@interface OSNotificationAction : NSObject
-
-/* The type of the notification action */
-@property(readonly)OSNotificationActionType type;
-
-/* The ID associated with the button tapped. NULL when the actionType is NotificationTapped */
-@property(readonly, nullable)NSString* actionId;
-
-@end
-
-/* OneSignal OSNotification */
-@interface OSNotification : NSObject
-
-/* Unique Message Identifier */
-@property(readonly, nullable)NSString* notificationId;
-
-/* Unique Template Identifier */
-@property(readonly, nullable)NSString* templateId;
-
-/* Name of Template */
-@property(readonly, nullable)NSString* templateName;
-
-/* True when the key content-available is set to 1 in the apns payload.
-   content-available is used to wake your app when the payload is received.
-   See Apple's documenation for more details.
-  https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623013-application
-*/
-@property(readonly)BOOL contentAvailable;
-
-/* True when the key mutable-content is set to 1 in the apns payload.
- mutable-content is used to wake your Notification Service Extension to modify a notification.
- See Apple's documenation for more details.
- https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension
- */
-@property(readonly, getter=hasMutableContent)BOOL mutableContent;
-
-/*
- Notification category key previously registered to display with.
- This overrides OneSignal's actionButtons.
- See Apple's documenation for more details.
- https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/SupportingNotificationsinYourApp.html#//apple_ref/doc/uid/TP40008194-CH4-SW26
-*/
-@property(readonly, nullable)NSString* category;
-
-/* The badge assigned to the application icon */
-@property(readonly)NSInteger badge;
-@property(readonly)NSInteger badgeIncrement;
-
-/* The sound parameter passed to the notification
- By default set to UILocalNotificationDefaultSoundName */
-@property(readonly, nullable)NSString* sound;
-
-/* Main push content */
-@property(readonly, nullable)NSString* title;
-@property(readonly, nullable)NSString* subtitle;
-@property(readonly, nullable)NSString* body;
-
-/* Web address to launch within the app via a WKWebView */
-@property(readonly, nullable)NSString* launchURL;
-
-/* Additional key value properties set within the payload */
-@property(readonly, nullable)NSDictionary* additionalData;
-
-/* iOS 10+ : Attachments sent as part of the rich notification */
-@property(readonly, nullable)NSDictionary* attachments;
-
-/* Action buttons passed */
-@property(readonly, nullable)NSArray *actionButtons;
-
-/* Holds the original payload received
- Keep the raw value for users that would like to root the push */
-@property(readonly, nonnull)NSDictionary *rawPayload;
-
-/* iOS 10+ : Groups notifications into threads */
-@property(readonly, nullable)NSString *threadId;
-
-/* iOS 15+ : Relevance Score for notification summary */
-@property(readonly, nullable)NSNumber *relevanceScore;
-
-/* iOS 15+ : Interruption Level */
-@property(readonly)NSString *interruptionLevel;
-
-@property(readonly, nullable)NSString *collapseId;
-
-/* Parses an APNS push payload into a OSNotification object.
-   Useful to call from your NotificationServiceExtension when the
-      didReceiveNotificationRequest:withContentHandler: method fires. */
-+ (instancetype)parseWithApns:(nonnull NSDictionary*)message;
-
-/* Convert object into a custom Dictionary / JSON Object */
-- (NSDictionary* _Nonnull)jsonRepresentation;
-
-/* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
-- (NSString* _Nonnull)stringify;
-
-@end
-
-@interface OSNotificationOpenedResult : NSObject
-
-@property(readonly, nonnull)OSNotification* notification;
-@property(readonly, nonnull)OSNotificationAction *action;
-
-/* Convert object into an NSString that can be convertible into a custom Dictionary / JSON Object */
-- (NSString* _Nonnull)stringify;
-
-// Convert the class into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
-@end;
 
 @interface OSInAppMessage : NSObject
 
@@ -173,16 +58,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 
 @end
 
-@interface OSInAppMessageOutcome : NSObject
-
-@property (strong, nonatomic, nonnull) NSString *name;
-@property (strong, nonatomic, nonnull) NSNumber *weight;
-@property (nonatomic) BOOL unique;
-
-// Convert the class into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
-@end
 
 @interface OSInAppMessageTag : NSObject
 
@@ -233,43 +108,6 @@ typedef NS_ENUM(NSUInteger, OSNotificationActionType)  {
 - (void)onDidDisplayInAppMessage:(OSInAppMessage *)message;
 - (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
 - (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
-@end
-
-// Pass in nil means a notification will not display
-typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
-/* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, OSInfluenceType) {
-    DIRECT,
-    INDIRECT,
-    UNATTRIBUTED,
-    DISABLED
-};
-/* OneSignal Influence Channels */
-typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
-    IN_APP_MESSAGE,
-    NOTIFICATION,
-};
-
-@interface OSOutcomeEvent : NSObject
-
-// Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) OSInfluenceType session;
-
-// Notification ids for the current session
-@property (strong, nonatomic, nullable) NSArray *notificationIds;
-
-// Id or name of the event
-@property (strong, nonatomic, nonnull) NSString *name;
-
-// Time of the event occurring
-@property (strong, nonatomic, nonnull) NSNumber *timestamp;
-
-// A weight to attach to the outcome name
-@property (strong, nonatomic, nonnull) NSDecimalNumber *weight;
-
-// Convert the object into a NSDictionary
-- (NSDictionary * _Nonnull)jsonRepresentation;
-
 @end
 
 typedef NS_ENUM(NSInteger, OSNotificationPermission) {
@@ -436,13 +274,9 @@ typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
-/*Block for handling outcome event being sent successfully*/
-typedef void (^OSSendOutcomeSuccess)(OSOutcomeEvent* outcome);
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
-
-extern NSString* const ONESIGNAL_VERSION;
 
 + (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;
@@ -460,16 +294,6 @@ extern NSString* const ONESIGNAL_VERSION;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
-typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
-    ONE_S_LL_NONE,
-    ONE_S_LL_FATAL,
-    ONE_S_LL_ERROR,
-    ONE_S_LL_WARN,
-    ONE_S_LL_INFO,
-    ONE_S_LL_DEBUG,
-    ONE_S_LL_VERBOSE
-};
-
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
@@ -509,14 +333,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (void)promptLocation;
 + (void)setLocationShared:(BOOL)enable;
 + (BOOL)isLocationShared;
-
-#pragma mark NotificationService Extension
-// iOS 10 only
-// Process from Notification Service Extension.
-// Used for iOS Media Attachemtns and Action Buttons.
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent __deprecated_msg("Please use didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler: instead.");
-+ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
-+ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
 
 #pragma mark Tags
 + (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
@@ -626,6 +442,14 @@ typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
 + (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSSendOutcomeSuccess _Nullable)success;
+
+#pragma mark Extension
+// iOS 10 only
+// Process from Notification Service Extension.
+// Used for iOS Media Attachemtns and Action Buttons.
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent __deprecated_msg("Please use didReceiveNotificationExtensionRequest:withMutableNotificationContent:withContentHandler: instead.");
++ (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler;
++ (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest* _Nonnull)request withMutableNotificationContent:(UNMutableNotificationContent* _Nullable)replacementContent;
 @end
 
 #pragma clang diagnostic pop
