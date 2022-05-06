@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		033A55762825C96000024F7A /* FlutterAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 033A55752825C94600024F7A /* FlutterAppDelegate.mm */; };
+		033A55772825C96700024F7A /* FlutterPluginAppLifeCycleDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 033A55742825C91700024F7A /* FlutterPluginAppLifeCycleDelegate.mm */; };
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		9112E8871E724C320022A1CB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9112E8861E724C320022A1CB /* main.m */; };
@@ -114,6 +116,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		033A55732825C89900024F7A /* FlutterPluginAppLifeCycleDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlutterPluginAppLifeCycleDelegate.h; sourceTree = "<group>"; };
+		033A55742825C91700024F7A /* FlutterPluginAppLifeCycleDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FlutterPluginAppLifeCycleDelegate.mm; sourceTree = "<group>"; };
+		033A55752825C94600024F7A /* FlutterAppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FlutterAppDelegate.mm; sourceTree = "<group>"; };
+		033A55782825C9CD00024F7A /* FlutterAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlutterAppDelegate.h; sourceTree = "<group>"; };
+		033A55792825CC6F00024F7A /* FlutterPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlutterPlugin.h; sourceTree = "<group>"; };
+		033A557A2825CD5F00024F7A /* FlutterPluginAppLifeCycleDelegate_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlutterPluginAppLifeCycleDelegate_internal.h; sourceTree = "<group>"; };
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		9112E8821E724C320022A1CB /* OneSignalExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -214,9 +222,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		033A55722825C87800024F7A /* FirebaseFlutter */ = {
+			isa = PBXGroup;
+			children = (
+				033A55732825C89900024F7A /* FlutterPluginAppLifeCycleDelegate.h */,
+				033A55742825C91700024F7A /* FlutterPluginAppLifeCycleDelegate.mm */,
+				033A55752825C94600024F7A /* FlutterAppDelegate.mm */,
+				033A55782825C9CD00024F7A /* FlutterAppDelegate.h */,
+				033A55792825CC6F00024F7A /* FlutterPlugin.h */,
+				033A557A2825CD5F00024F7A /* FlutterPluginAppLifeCycleDelegate_internal.h */,
+			);
+			path = FirebaseFlutter;
+			sourceTree = "<group>";
+		};
 		9112E8791E724C320022A1CB = {
 			isa = PBXGroup;
 			children = (
+				033A55722825C87800024F7A /* FirebaseFlutter */,
 				91B6EA091E834B1700B5CF01 /* sentImage.jpg */,
 				9112E8841E724C320022A1CB /* OneSignalDevApp */,
 				9150E7731E73BEDD00C5D46A /* OneSignalNotificationServiceExtension */,
@@ -490,8 +512,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				9112E88D1E724C320022A1CB /* ViewController.m in Sources */,
+				033A55762825C96000024F7A /* FlutterAppDelegate.mm in Sources */,
 				9112E88A1E724C320022A1CB /* AppDelegate.m in Sources */,
 				9112E8871E724C320022A1CB /* main.m in Sources */,
+				033A55772825C96700024F7A /* FlutterPluginAppLifeCycleDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
