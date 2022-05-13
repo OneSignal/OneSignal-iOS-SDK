@@ -60,6 +60,8 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
+#import <OneSignalUser/OneSignalUser-Swift.h>
+#import <OneSignalUser/OneSignalUser.h>
 
 #import <UserNotifications/UserNotifications.h>
 
@@ -611,6 +613,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Method must be called to successfully init OneSignal
  */
 + (void)initWithLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
+    NSString *testUser = [OneSignalUser userTest];
+    NSLog(@"ECM test: %@", testUser);
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
