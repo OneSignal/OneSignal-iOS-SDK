@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:swiftuitest/swiftuitest.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:OneSignalDevApp/OneSignalExample.xcodeproj">
    </FileRef>
    <FileRef

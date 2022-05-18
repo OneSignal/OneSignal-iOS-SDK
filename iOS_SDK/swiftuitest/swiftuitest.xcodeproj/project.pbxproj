@@ -1,0 +1,584 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DED6070328357BA300A07C56 /* swiftuitestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED6070228357BA300A07C56 /* swiftuitestApp.swift */; };
+		DED6070528357BA300A07C56 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED6070428357BA300A07C56 /* ContentView.swift */; };
+		DED6070728357BA600A07C56 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DED6070628357BA600A07C56 /* Assets.xcassets */; };
+		DED6070A28357BA600A07C56 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DED6070928357BA600A07C56 /* Preview Assets.xcassets */; };
+		DED6072028357C9D00A07C56 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED6071F28357C9D00A07C56 /* NotificationService.swift */; };
+		DED6072428357C9D00A07C56 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = DED6071D28357C9D00A07C56 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DED607412835861500A07C56 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED6072C283582C000A07C56 /* OneSignal.framework */; };
+		DED607422835861500A07C56 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED6072C283582C000A07C56 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED607442835861700A07C56 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED607302835832B00A07C56 /* OneSignalCore.framework */; };
+		DED607452835861700A07C56 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED607302835832B00A07C56 /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED607462835861A00A07C56 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED607332835832E00A07C56 /* OneSignalExtension.framework */; };
+		DED607472835861A00A07C56 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED607332835832E00A07C56 /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED607482835861D00A07C56 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED607362835833200A07C56 /* OneSignalOutcomes.framework */; };
+		DED607492835861D00A07C56 /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED607362835833200A07C56 /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED6074A2835862400A07C56 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED6072C283582C000A07C56 /* OneSignal.framework */; };
+		DED6074B2835862400A07C56 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED6072C283582C000A07C56 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED6074D2835862700A07C56 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED607302835832B00A07C56 /* OneSignalCore.framework */; };
+		DED6074E2835862700A07C56 /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED607302835832B00A07C56 /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED6074F2835862A00A07C56 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED607332835832E00A07C56 /* OneSignalExtension.framework */; };
+		DED607502835862A00A07C56 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED607332835832E00A07C56 /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DED607512835862D00A07C56 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED607362835833200A07C56 /* OneSignalOutcomes.framework */; };
+		DED607522835862D00A07C56 /* OneSignalOutcomes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED607362835833200A07C56 /* OneSignalOutcomes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DED6072228357C9D00A07C56 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DED606F728357BA300A07C56 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DED6071C28357C9D00A07C56;
+			remoteInfo = OneSignalNotificationServiceExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DED6072828357C9D00A07C56 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DED6072428357C9D00A07C56 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DED607432835861500A07C56 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DED607452835861700A07C56 /* OneSignalCore.framework in Embed Frameworks */,
+				DED607472835861A00A07C56 /* OneSignalExtension.framework in Embed Frameworks */,
+				DED607492835861D00A07C56 /* OneSignalOutcomes.framework in Embed Frameworks */,
+				DED607422835861500A07C56 /* OneSignal.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DED6074C2835862400A07C56 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				DED6074E2835862700A07C56 /* OneSignalCore.framework in Embed Frameworks */,
+				DED607502835862A00A07C56 /* OneSignalExtension.framework in Embed Frameworks */,
+				DED607522835862D00A07C56 /* OneSignalOutcomes.framework in Embed Frameworks */,
+				DED6074B2835862400A07C56 /* OneSignal.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		DED606FF28357BA300A07C56 /* swiftuitest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = swiftuitest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DED6070228357BA300A07C56 /* swiftuitestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swiftuitestApp.swift; sourceTree = "<group>"; };
+		DED6070428357BA300A07C56 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DED6070628357BA600A07C56 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DED6070928357BA600A07C56 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DED6071D28357C9D00A07C56 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DED6071F28357C9D00A07C56 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		DED6072128357C9D00A07C56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DED6072928357E6200A07C56 /* swiftuitest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = swiftuitest.entitlements; sourceTree = "<group>"; };
+		DED6072A28357E6600A07C56 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DED6072C283582C000A07C56 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DED607302835832B00A07C56 /* OneSignalCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DED607332835832E00A07C56 /* OneSignalExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DED607362835833200A07C56 /* OneSignalOutcomes.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalOutcomes.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DED606FC28357BA300A07C56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DED607442835861700A07C56 /* OneSignalCore.framework in Frameworks */,
+				DED607462835861A00A07C56 /* OneSignalExtension.framework in Frameworks */,
+				DED607482835861D00A07C56 /* OneSignalOutcomes.framework in Frameworks */,
+				DED607412835861500A07C56 /* OneSignal.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DED6071A28357C9D00A07C56 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DED6074D2835862700A07C56 /* OneSignalCore.framework in Frameworks */,
+				DED6074F2835862A00A07C56 /* OneSignalExtension.framework in Frameworks */,
+				DED607512835862D00A07C56 /* OneSignalOutcomes.framework in Frameworks */,
+				DED6074A2835862400A07C56 /* OneSignal.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DED606F628357BA300A07C56 = {
+			isa = PBXGroup;
+			children = (
+				DED6070128357BA300A07C56 /* swiftuitest */,
+				DED6071E28357C9D00A07C56 /* OneSignalNotificationServiceExtension */,
+				DED6070028357BA300A07C56 /* Products */,
+				DED6072B283582C000A07C56 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		DED6070028357BA300A07C56 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DED606FF28357BA300A07C56 /* swiftuitest.app */,
+				DED6071D28357C9D00A07C56 /* OneSignalNotificationServiceExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DED6070128357BA300A07C56 /* swiftuitest */ = {
+			isa = PBXGroup;
+			children = (
+				DED6072A28357E6600A07C56 /* Info.plist */,
+				DED6072928357E6200A07C56 /* swiftuitest.entitlements */,
+				DED6070228357BA300A07C56 /* swiftuitestApp.swift */,
+				DED6070428357BA300A07C56 /* ContentView.swift */,
+				DED6070628357BA600A07C56 /* Assets.xcassets */,
+				DED6070828357BA600A07C56 /* Preview Content */,
+			);
+			path = swiftuitest;
+			sourceTree = "<group>";
+		};
+		DED6070828357BA600A07C56 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				DED6070928357BA600A07C56 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		DED6071E28357C9D00A07C56 /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXGroup;
+			children = (
+				DED6071F28357C9D00A07C56 /* NotificationService.swift */,
+				DED6072128357C9D00A07C56 /* Info.plist */,
+			);
+			path = OneSignalNotificationServiceExtension;
+			sourceTree = "<group>";
+		};
+		DED6072B283582C000A07C56 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DED607362835833200A07C56 /* OneSignalOutcomes.framework */,
+				DED607332835832E00A07C56 /* OneSignalExtension.framework */,
+				DED607302835832B00A07C56 /* OneSignalCore.framework */,
+				DED6072C283582C000A07C56 /* OneSignal.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DED606FE28357BA300A07C56 /* swiftuitest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DED6070D28357BA600A07C56 /* Build configuration list for PBXNativeTarget "swiftuitest" */;
+			buildPhases = (
+				DED606FB28357BA300A07C56 /* Sources */,
+				DED606FC28357BA300A07C56 /* Frameworks */,
+				DED606FD28357BA300A07C56 /* Resources */,
+				DED6072828357C9D00A07C56 /* Embed App Extensions */,
+				DED607432835861500A07C56 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DED6072328357C9D00A07C56 /* PBXTargetDependency */,
+			);
+			name = swiftuitest;
+			packageProductDependencies = (
+			);
+			productName = swiftuitest;
+			productReference = DED606FF28357BA300A07C56 /* swiftuitest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DED6071C28357C9D00A07C56 /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DED6072528357C9D00A07C56 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */;
+			buildPhases = (
+				DED6071928357C9D00A07C56 /* Sources */,
+				DED6071A28357C9D00A07C56 /* Frameworks */,
+				DED6071B28357C9D00A07C56 /* Resources */,
+				DED6074C2835862400A07C56 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneSignalNotificationServiceExtension;
+			packageProductDependencies = (
+			);
+			productName = OneSignalNotificationServiceExtension;
+			productReference = DED6071D28357C9D00A07C56 /* OneSignalNotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DED606F728357BA300A07C56 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1320;
+				LastUpgradeCheck = 1320;
+				TargetAttributes = {
+					DED606FE28357BA300A07C56 = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
+					DED6071C28357C9D00A07C56 = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
+				};
+			};
+			buildConfigurationList = DED606FA28357BA300A07C56 /* Build configuration list for PBXProject "swiftuitest" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DED606F628357BA300A07C56;
+			packageReferences = (
+			);
+			productRefGroup = DED6070028357BA300A07C56 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DED606FE28357BA300A07C56 /* swiftuitest */,
+				DED6071C28357C9D00A07C56 /* OneSignalNotificationServiceExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DED606FD28357BA300A07C56 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DED6070A28357BA600A07C56 /* Preview Assets.xcassets in Resources */,
+				DED6070728357BA600A07C56 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DED6071B28357C9D00A07C56 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DED606FB28357BA300A07C56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DED6070528357BA300A07C56 /* ContentView.swift in Sources */,
+				DED6070328357BA300A07C56 /* swiftuitestApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DED6071928357C9D00A07C56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DED6072028357C9D00A07C56 /* NotificationService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DED6072328357C9D00A07C56 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DED6071C28357C9D00A07C56 /* OneSignalNotificationServiceExtension */;
+			targetProxy = DED6072228357C9D00A07C56 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		DED6070B28357BA600A07C56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DED6070C28357BA600A07C56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DED6070E28357BA600A07C56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = swiftuitest/swiftuitest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"swiftuitest/Preview Content\"";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = swiftuitest/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DED6070F28357BA600A07C56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = swiftuitest/swiftuitest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"swiftuitest/Preview Content\"";
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = swiftuitest/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DED6072628357C9D00A07C56 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = OneSignalNotificationServiceExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DED6072728357C9D00A07C56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 99SW8E36CT;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = OneSignalNotificationServiceExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DED606FA28357BA300A07C56 /* Build configuration list for PBXProject "swiftuitest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DED6070B28357BA600A07C56 /* Debug */,
+				DED6070C28357BA600A07C56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DED6070D28357BA600A07C56 /* Build configuration list for PBXNativeTarget "swiftuitest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DED6070E28357BA600A07C56 /* Debug */,
+				DED6070F28357BA600A07C56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DED6072528357C9D00A07C56 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DED6072628357C9D00A07C56 /* Debug */,
+				DED6072728357C9D00A07C56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DED606F728357BA300A07C56 /* Project object */;
+}
