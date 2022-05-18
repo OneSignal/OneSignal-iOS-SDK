@@ -10,7 +10,7 @@ import OneSignal
 
 @main
 struct swiftuitestApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegateTest.self) var appDelegate
+    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegateTest
     var body: some Scene {
         WindowGroup {
             ContentView()

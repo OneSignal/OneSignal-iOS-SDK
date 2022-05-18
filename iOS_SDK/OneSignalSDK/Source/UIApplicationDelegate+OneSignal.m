@@ -70,6 +70,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
+    
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
     
     if (delegateClass) {
@@ -81,6 +82,7 @@ static NSArray* delegateSubclasses = nil;
     
     delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
     delegateSubclasses = ClassGetSubclasses(delegateClass);
+    DumpObjcMethods(delegateClass);
     
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase

@@ -2908,6 +2908,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 }
 
 @end
+
 /*
  End of outcome module
  */
@@ -2929,7 +2930,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)
-+ (void)load {
++ (void)initialize {
     
     if ([self shouldDisableBasedOnProcessArguments]) {
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];

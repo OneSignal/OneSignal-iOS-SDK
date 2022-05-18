@@ -36,5 +36,5 @@ NSArray* ClassGetSubclasses(Class parentClass);
 void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass);
 BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
 BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
-
+void DumpObjcMethods(Class clz);
 #endif /* OneSignalSelectorHelpers_h */

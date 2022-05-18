@@ -48,6 +48,29 @@ Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFin
     return searchClass;
 }
 
+// Just for debugging
+void DumpObjcMethods(Class clz) {
+    unsigned int methodCount = 0;
+    Method *methods = class_copyMethodList(clz, &methodCount);
+    
+    
+    NSLog(@"Found %d methods on '%s'\n", methodCount, class_getName(clz));
+    
+    
+    for (unsigned int i = 0; i < methodCount; i++) {
+        Method method = methods[i];
+        
+        
+        NSLog(@"'%s' has method named '%s' of encoding '%s'\n",
+              class_getName(clz),
+              sel_getName(method_getName(method)),
+              method_getTypeEncoding(method));
+    }
+    
+    
+    free(methods);
+}
+
 BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getClassMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
