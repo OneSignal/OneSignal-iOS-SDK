@@ -10,8 +10,7 @@ import OneSignal
 
 @main
 struct swiftuitestApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+    @UIApplicationDelegateAdaptor(AppDelegateTest.self) var appDelegate
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -19,7 +18,7 @@ struct swiftuitestApp: App {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegateTest: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
            // Remove this method to stop OneSignal Debugging
         OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
