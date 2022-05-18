@@ -21,6 +21,7 @@ struct swiftuitestApp: App {
 class AppDelegateTest: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
            // Remove this method to stop OneSignal Debugging
+        OneSignal.setSwiftUIAppDelegate(self)
         OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
         OneSignal.sendTag("name", value: "elliot")
         OneSignal.initWithLaunchOptions(launchOptions)

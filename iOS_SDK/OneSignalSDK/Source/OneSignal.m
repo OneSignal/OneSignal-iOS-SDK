@@ -58,7 +58,6 @@
 #import <sys/utsname.h>
 #import <sys/sysctl.h>
 #import <objc/runtime.h>
-#import <UIKit/UIKit.h>
 
 
 #import <UserNotifications/UserNotifications.h>
@@ -402,6 +401,16 @@ static OSOutcomeEventsFactory *_outcomeEventFactory;
 static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (OneSignalOutcomeEventsController *)getOutcomeEventsController {
     return _outcomeEventsController;
+}
+
+static id<UIApplicationDelegate> _swiftUIAppDelegate;
+
++ (id<UIApplicationDelegate>)getSwiftUIAppDelegate {
+    return _swiftUIAppDelegate;
+}
+
++ (void)setSwiftUIAppDelegate:(id)appDelegate {
+    _swiftUIAppDelegate = appDelegate;
 }
 
 + (NSString*)appId {
@@ -2930,7 +2939,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)
-+ (void)initialize {
++ (void)load {
     
     if ([self shouldDisableBasedOnProcessArguments]) {
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];

@@ -88,6 +88,8 @@
 
 + (OSPlayerTags *_Nonnull)getPlayerTags;
 
++ (id<UIApplicationDelegate>)getSwiftUIAppDelegate;
+
 @end
 
 @interface OSDeviceState (OSDeviceStateInternal)

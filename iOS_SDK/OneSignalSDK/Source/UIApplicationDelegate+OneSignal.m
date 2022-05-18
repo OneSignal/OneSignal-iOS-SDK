@@ -108,6 +108,7 @@ static NSArray* delegateSubclasses = nil;
     // Used to track how long the app has been closed
     injectToProperClass(@selector(oneSignalApplicationWillTerminate:),
                         @selector(applicationWillTerminate:), delegateSubclasses, newClass, delegateClass);
+    DumpObjcMethods(delegateClass);
 
     [self setOneSignalDelegate:delegate];
 }
@@ -142,9 +143,12 @@ static NSArray* delegateSubclasses = nil;
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
     [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
-    
-    if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
+
+    if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)]) {
         [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    } else if ([OneSignal getSwiftUIAppDelegate] != nil && [[OneSignal getSwiftUIAppDelegate] respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]) {
+        [[OneSignal getSwiftUIAppDelegate] application:app didRegisterForRemoteNotificationsWithDeviceToken:inDeviceToken];
+    }
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {

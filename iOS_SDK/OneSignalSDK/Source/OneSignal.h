@@ -45,6 +45,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import <UIKit/UIKit.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -288,6 +289,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
 #pragma mark Initialization
++ (void)setSwiftUIAppDelegate:(id<UIApplicationDelegate>)appDelegate;
 + (void)setAppId:(NSString* _Nonnull)newAppId;
 + (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
