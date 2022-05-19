@@ -37,6 +37,7 @@
 #import "OneSignalSelectorHelpers.h"
 #import "OneSignalHelper.h"
 #import "OSMessagingController.h"
+#import "SwizzlingForwarder.h"
 
 @interface OneSignal (UN_extra)
 + (void) didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken;
@@ -186,8 +187,16 @@ static NSArray* delegateSubclasses = nil;
 //          iOS 9  - Does not have this issue.
 - (void) oneSignalReceiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
-    
-    BOOL callExistingSelector = [self respondsToSelector:@selector(oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:)];
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:self
+        withYourSelector:@selector(
+            oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:
+        )
+        withOriginalSelector:@selector(
+            application:didReceiveRemoteNotification:fetchCompletionHandler:
+        )
+    ];
+
     BOOL startedBackgroundJob = false;
     
     if ([OneSignal appId]) {
@@ -205,11 +214,11 @@ static NSArray* delegateSubclasses = nil;
         else if (appState == UIApplicationStateActive && isVisibleNotification)
             [OneSignal notificationReceived:userInfo wasOpened:NO];
         else
-            startedBackgroundJob = [OneSignal receiveRemoteNotification:application UserInfo:userInfo completionHandler:callExistingSelector ? nil : completionHandler];
+            startedBackgroundJob = [OneSignal receiveRemoteNotification:application UserInfo:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
     }
     
-    if (callExistingSelector) {
-        [self oneSignalReceiveRemoteNotification:application UserInfo:userInfo fetchCompletionHandler:completionHandler];
+    if (forwarder.hasReceiver) {
+        [forwarder invokeWithArgs:@[application, userInfo, completionHandler]];
         return;
     }
     
