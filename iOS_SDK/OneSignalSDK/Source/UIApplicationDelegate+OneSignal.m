@@ -72,7 +72,7 @@ static NSArray* delegateSubclasses = nil;
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
     
-    if (delegateClass) {
+    if ([delegate class] == delegateClass) {
         [self setOneSignalDelegate:delegate];
         return;
     }
