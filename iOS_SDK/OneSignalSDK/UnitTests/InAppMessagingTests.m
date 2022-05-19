@@ -44,6 +44,7 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageBridgeEvent.h"
 #import "UIDeviceOverrider.h"
+#import "OSMessagingControllerOverrider.h"
 
 /*
  Test to make sure that OSInAppMessage correctly implements
@@ -122,6 +123,15 @@ NSInteger const DELAY = 60;
  */
 - (void)tearDown {
     [super tearDown];
+    [UnitTestCommonMethods runBackgroundThreads];
+    [OneSignal setInAppMessageClickHandler:nil];
+    [OneSignal pauseInAppMessages:true];
+
+    OneSignalOverrider.shouldOverrideSessionLaunchTime = false;
+
+    [OSMessagingController.sharedInstance resetState];
+
+    NSTimerOverrider.shouldScheduleTimers = true;
 }
 
 -(void)testIphoneSimulator {
