@@ -80,10 +80,23 @@
 
 @end
 
+@interface AppDelegateForInfiniteLoopTest : UIResponder<UIApplicationDelegate>
+@end
+@implementation AppDelegateForInfiniteLoopTest
+@end
+
+static id<UIApplicationDelegate> orignalDelegate;
+
 @interface UIApplicationDelegateSwizzingTest : XCTestCase
 @end
 
 @implementation UIApplicationDelegateSwizzingTest
+
+// Called once BEFORE -setUp
++ (void)setUp {
+    [super setUp];
+    orignalDelegate = UIApplication.sharedApplication.delegate;
+}
 
 // Called BEFORE each test method
 - (void)setUp {
@@ -94,6 +107,7 @@
 // Called AFTER each test method
 - (void)tearDown {
     [super tearDown];
+    UIApplication.sharedApplication.delegate = orignalDelegate;
 }
 
 - (void)testAddsMissingSelectors {
@@ -159,4 +173,18 @@
     ]);
 }
 
+- (void)testDoubleSwizzleInfiniteLoop {
+    // 1. Save original delegate
+    id<UIApplicationDelegate> localOrignalDelegate = UIApplication.sharedApplication.delegate;
+    
+    // 2. Create a new delegate and assign it
+    id myAppDelegate = [AppDelegateForInfiniteLoopTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    
+    // 3. Put the original delegate back
+    UIApplication.sharedApplication.delegate = localOrignalDelegate;
+    
+    // 4. Call something to confirm we don't get stuck in an infinite call loop
+    [localOrignalDelegate applicationWillTerminate:UIApplication.sharedApplication];
+}
 @end
