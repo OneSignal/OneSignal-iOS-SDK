@@ -21,7 +21,7 @@ body:
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](#insert-project-code-of-conduct-here)
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/OneSignal/OneSignal-iOS-SDK/blob/main/CONTRIBUTING.md)
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true
