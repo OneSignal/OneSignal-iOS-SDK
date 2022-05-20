@@ -85,6 +85,57 @@
 @implementation AppDelegateForInfiniteLoopTest
 @end
 
+@interface AppDelegateForExistingSelectorsTest : UIResponder<UIApplicationDelegate> {
+    @public NSMutableDictionary *selectorCallsDict;
+}
+@end
+@implementation AppDelegateForExistingSelectorsTest
+- (instancetype)init {
+    self = [super init];
+    selectorCallsDict = [NSMutableDictionary new];
+    return self;
+}
+
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    SEL thisSelector = @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError*)err
+{
+    SEL thisSelector = @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)data
+{
+    SEL thisSelector = @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    SEL thisSelector = @selector(applicationWillTerminate:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+@end
+
 static id<UIApplicationDelegate> orignalDelegate;
 
 @interface UIApplicationDelegateSwizzlingTest : XCTestCase
@@ -186,5 +237,47 @@ static id<UIApplicationDelegate> orignalDelegate;
     
     // 4. Call something to confirm we don't get stuck in an infinite call loop
     [localOrignalDelegate applicationWillTerminate:UIApplication.sharedApplication];
+}
+
+- (void)testSwizzleExistingSelectors {
+    AppDelegateForExistingSelectorsTest* myAppDelegate = [AppDelegateForExistingSelectorsTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    XCTAssertTrue([myAppDelegate->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
+        )
+    ]);
+
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didFailToRegisterForRemoteNotificationsWithError:[NSError new]];
+    XCTAssertTrue([myAppDelegate->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didFailToRegisterForRemoteNotificationsWithError:)
+        )
+    ]);
+
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didRegisterForRemoteNotificationsWithDeviceToken:[NSData new]];
+    XCTAssertTrue([myAppDelegate->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)
+        )
+    ]);
+
+    [appDelegate
+        applicationWillTerminate:UIApplication.sharedApplication];
+    XCTAssertTrue([myAppDelegate->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(applicationWillTerminate:)
+        )
+    ]);
 }
 @end
