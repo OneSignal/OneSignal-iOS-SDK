@@ -36,6 +36,19 @@
 + (void)swizzleSelectorsOnDelegate:(id)delegate;
 + (void)registerDelegate;
 + (void)setUseiOS10_2_workaround:(BOOL)enable;
+
+// Our named swizzling methods on UNNotificationCenter
+- (void)setOneSignalUNDelegate:(id)delegate;
+- (void)onesignalGetNotificationSettingsWithCompletionHandler:(void(^)(UNNotificationSettings *settings))completionHandler;
+- (void)onesignalRequestAuthorizationWithOptions:(UNAuthorizationOptions)options completionHandler:(void (^)(BOOL granted, NSError *__nullable error))completionHandler;
+
+// Our named swizzling methods on UNNotificationCenterDelegate
+- (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
+                willPresentNotification:(UNNotification *)notification
+                  withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler;
+- (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
+         didReceiveNotificationResponse:(UNNotificationResponse *)response
+                  withCompletionHandler:(void(^)())completionHandler;
 @end
 
 
