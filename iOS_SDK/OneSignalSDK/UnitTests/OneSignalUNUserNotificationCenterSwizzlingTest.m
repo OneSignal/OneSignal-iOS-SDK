@@ -11,10 +11,10 @@
 #import "DummyNotificationCenterDelegate.h"
 #import "OneSignalUNUserNotificationCenterHelper.h"
 
-@interface OneSignalUNUserNotificationCenterSwizzingTest : XCTestCase
+@interface OneSignalUNUserNotificationCenterSwizzlingTest : XCTestCase
 @end
 
-@implementation OneSignalUNUserNotificationCenterSwizzingTest
+@implementation OneSignalUNUserNotificationCenterSwizzlingTest
 
 // Called BEFORE each test method
 - (void)setUp {

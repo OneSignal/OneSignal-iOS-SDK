@@ -87,10 +87,10 @@
 
 static id<UIApplicationDelegate> orignalDelegate;
 
-@interface UIApplicationDelegateSwizzingTest : XCTestCase
+@interface UIApplicationDelegateSwizzlingTest : XCTestCase
 @end
 
-@implementation UIApplicationDelegateSwizzingTest
+@implementation UIApplicationDelegateSwizzlingTest
 
 // Called once BEFORE -setUp
 + (void)setUp {
