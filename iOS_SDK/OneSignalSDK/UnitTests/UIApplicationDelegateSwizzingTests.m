@@ -48,6 +48,36 @@
        forKey:NSStringFromSelector(thisSelector)
     ];
 }
+
+- (void)application:(UIApplication *)application
+    didFailToRegisterForRemoteNotificationsWithError:(NSError*)err
+{
+    SEL thisSelector = @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+
+- (void)application:(UIApplication *)application
+    didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)data
+{
+    SEL thisSelector = @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    SEL thisSelector = @selector(applicationWillTerminate:);
+    [selectorCallsDict
+       setObject:@(true)
+       forKey:NSStringFromSelector(thisSelector)
+    ];
+}
+
 @end
 
 @interface UIApplicationDelegateSwizzingTest : XCTestCase
@@ -91,8 +121,7 @@
                         initForwardingTarget:receiver];
     UIApplication.sharedApplication.delegate = myAppDelegate;
     id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
-    
-    // Test application:didReceiveRemoteNotification:fetchCompletionHandler:
+
     [appDelegate
         application:UIApplication.sharedApplication
         didReceiveRemoteNotification:@{}
@@ -102,8 +131,32 @@
             @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
         )
     ]);
-    
-    // TODO: Will add the rest of the methods in a follow up commit.
+
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didFailToRegisterForRemoteNotificationsWithError:[NSError new]];
+    XCTAssertTrue([receiver->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didFailToRegisterForRemoteNotificationsWithError:)
+        )
+    ]);
+
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didRegisterForRemoteNotificationsWithDeviceToken:[NSData new]];
+    XCTAssertTrue([receiver->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)
+        )
+    ]);
+
+    [appDelegate
+        applicationWillTerminate:UIApplication.sharedApplication];
+    XCTAssertTrue([receiver->selectorCallsDict
+        objectForKey:NSStringFromSelector(
+            @selector(applicationWillTerminate:)
+        )
+    ]);
 }
 
 @end

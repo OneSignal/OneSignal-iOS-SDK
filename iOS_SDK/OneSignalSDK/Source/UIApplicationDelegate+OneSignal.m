@@ -142,8 +142,16 @@ static NSArray* delegateSubclasses = nil;
     
     [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
-    if ([self respondsToSelector:@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)])
-        [self oneSignalDidRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:self
+        withYourSelector:@selector(
+            oneSignalDidRegisterForRemoteNotifications:deviceToken:
+        )
+        withOriginalSelector:@selector(
+            application:didRegisterForRemoteNotificationsWithDeviceToken:
+        )
+    ];
+    [forwarder invokeWithArgs:@[app, inDeviceToken]];
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
@@ -152,8 +160,16 @@ static NSArray* delegateSubclasses = nil;
     if ([OneSignal appId])
         [OneSignal handleDidFailRegisterForRemoteNotification:err];
     
-    if ([self respondsToSelector:@selector(oneSignalDidFailRegisterForRemoteNotification:error:)])
-        [self oneSignalDidFailRegisterForRemoteNotification:app error:err];
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:self
+        withYourSelector:@selector(
+            oneSignalDidFailRegisterForRemoteNotification:error:
+        )
+        withOriginalSelector:@selector(
+           application:didFailToRegisterForRemoteNotificationsWithError:
+        )
+    ];
+    [forwarder invokeWithArgs:@[app, err]];
 }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
@@ -263,8 +279,16 @@ static NSArray* delegateSubclasses = nil;
     if ([OneSignal appId])
         [OneSignalTracker onFocus:YES];
     
-    if ([self respondsToSelector:@selector(oneSignalApplicationWillTerminate:)])
-        [self oneSignalApplicationWillTerminate:application];
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:self
+        withYourSelector:@selector(
+            oneSignalApplicationWillTerminate:
+        )
+        withOriginalSelector:@selector(
+            applicationWillTerminate:
+        )
+    ];
+    [forwarder invokeWithArgs:@[application]];
 }
 
 @end
