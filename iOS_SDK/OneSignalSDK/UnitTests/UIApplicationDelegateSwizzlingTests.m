@@ -136,6 +136,24 @@
 }
 @end
 
+@interface AppDelegateForDepercatedDidReceiveRemoteNotificationTest : UIResponder<UIApplicationDelegate> {
+    @public BOOL selectorCalled;
+}
+@end
+
+@implementation AppDelegateForDepercatedDidReceiveRemoteNotificationTest
+- (instancetype)init {
+    self = [super init];
+    selectorCalled = false;
+    return self;
+}
+-(void)application:(UIApplication *)application
+    didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+    selectorCalled = true;
+}
+@end
+
 static id<UIApplicationDelegate> orignalDelegate;
 
 @interface UIApplicationDelegateSwizzlingTest : XCTestCase
@@ -279,5 +297,31 @@ static id<UIApplicationDelegate> orignalDelegate;
             @selector(applicationWillTerminate:)
         )
     ]);
+}
+
+// OneSignal adds application:didReceiveRemoteNotification:fetchCompletionHandler: however
+// this causes iOS to no longer call application:didReceiveRemoteNotification: since it sees
+// the delegate is using the newer method. To prevent OneSignal from creating side effects we
+// need to forward this event to the deprecated application:didReceiveRemoteNotification:.
+/** From Apple's documenation:
+ Implement the application:didReceiveRemoteNotification:fetchCompletionHandler:
+ method instead of this one whenever possible. If your delegate implements both
+ methods, the app object calls the
+ application:didReceiveRemoteNotification:fetchCompletionHandler: method.
+*/
+- (void)testCallsDepercatedDidReceiveRemoteNotification {
+    AppDelegateForDepercatedDidReceiveRemoteNotificationTest* myAppDelegate =
+        [AppDelegateForDepercatedDidReceiveRemoteNotificationTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+    
+    // Apple will call this AppDelegate method
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    // Ensures the OneSignal swizzling code forwarded it to
+    // application:didReceiveRemoteNotification:
+    XCTAssertTrue(myAppDelegate->selectorCalled);
 }
 @end
