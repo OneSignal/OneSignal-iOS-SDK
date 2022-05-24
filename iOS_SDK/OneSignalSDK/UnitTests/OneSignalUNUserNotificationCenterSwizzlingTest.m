@@ -8,13 +8,33 @@
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalHelperOverrider.h"
 #import "OneSignalHelper.h"
-#import "DummyNotificationCenterDelegate.h"
 #import "OneSignalUNUserNotificationCenterHelper.h"
 
-@interface OneSignalUNUserNotificationCenterSwizzingTest : XCTestCase
+@interface DummyNotificationCenterDelegateForDoesSwizzleTest : NSObject<UNUserNotificationCenterDelegate>
+@end
+@implementation DummyNotificationCenterDelegateForDoesSwizzleTest
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+}
 @end
 
-@implementation OneSignalUNUserNotificationCenterSwizzingTest
+@interface DummyNotificationCenterDelegateAssignedBeforeOneSignalTest : NSObject<UNUserNotificationCenterDelegate>
+@end
+@implementation DummyNotificationCenterDelegateAssignedBeforeOneSignalTest
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+}
+
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+}
+@end
+
+
+@interface OneSignalUNUserNotificationCenterSwizzlingTest : XCTestCase
+@end
+
+@implementation OneSignalUNUserNotificationCenterSwizzlingTest
 
 // Called BEFORE each test method
 - (void)setUp {
@@ -27,13 +47,14 @@
 // Called AFTER each test method
 - (void)tearDown {
     [super tearDown];
+    [OneSignalUNUserNotificationCenterHelper restoreDelegateAsOneSignal];
 }
 
 // Tests to make sure that UNNotificationCenter setDelegate: duplicate calls don't double-swizzle for the same object
 - (void)testAUNUserNotificationCenterDelegateAssigningDoesSwizzle {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
 
-    let dummyDelegate = [[DummyNotificationCenterDelegate alloc] init];
+    let dummyDelegate = [DummyNotificationCenterDelegateForDoesSwizzleTest new];
 
     IMP original = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
 
@@ -51,15 +72,13 @@
     IMP newSwizzled = class_getMethodImplementation([dummyDelegate class], @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:));
 
     XCTAssertEqual(swizzled, newSwizzled);
-
-    [OneSignalUNUserNotificationCenterHelper restoreDelegateAsOneSignal];
 }
 
 - (void)testUNUserNotificationCenterDelegateAssignedBeforeOneSignal {
     [OneSignalUNUserNotificationCenterHelper putIntoPreloadedState];
 
     // Create and assign a delegate with iOS
-    let dummyDelegate = [DummyNotificationCenterDelegate new];
+    let dummyDelegate = [DummyNotificationCenterDelegateAssignedBeforeOneSignalTest new];
     UNUserNotificationCenter.currentNotificationCenter.delegate = dummyDelegate;
     
     // Save original implemenation reference, before OneSignal is loaded.
@@ -72,8 +91,6 @@
     
     // Since we swizzled the implemenations should be different.
     XCTAssertNotEqual(originalDummyImp, swizzledDummyImp);
-    
-    [OneSignalUNUserNotificationCenterHelper restoreDelegateAsOneSignal];
 }
 
 @end

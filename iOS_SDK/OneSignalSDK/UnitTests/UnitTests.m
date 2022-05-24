@@ -76,9 +76,6 @@
 #import "OneSignalOverrider.h"
 #import "NSTimeZoneOverrider.h"
 
-// Dummies
-#import "DummyNotificationCenterDelegate.h"
-
 // Networking
 #import "OneSignalClient.h"
 #import "OSRequests.h"

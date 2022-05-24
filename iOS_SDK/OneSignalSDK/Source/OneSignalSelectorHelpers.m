@@ -71,7 +71,7 @@ BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeL
 
 BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getInstanceMethod(newClass, newSel);
-    IMP imp = method_getImplementation(newMeth);
+    IMP newImp = method_getImplementation(newMeth);
     
     const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
     // Keep - class_getInstanceMethod for existing detection.
@@ -79,13 +79,24 @@ BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSe
     BOOL existing = class_getInstanceMethod(addToClass, makeLikeSel) != NULL;
     
     if (existing) {
-        class_addMethod(addToClass, newSel, imp, methodTypeEncoding);
-        newMeth = class_getInstanceMethod(addToClass, newSel);
         Method orgMeth = class_getInstanceMethod(addToClass, makeLikeSel);
+        IMP orgImp = method_getImplementation(orgMeth);
+        
+        // If implementations are the same then the target selector
+        // (AKA makeLikeSel) already has the implemenation we want. Without
+        // this check we would add the implemenation again as newSel. This will
+        // cause the fowarding logic in our code to think there is an orignal
+        // implemenation to call, causing an infinite loop.
+        if (newImp == orgImp) {
+            return existing;
+        }
+        
+        class_addMethod(addToClass, newSel, newImp, methodTypeEncoding);
+        newMeth = class_getInstanceMethod(addToClass, newSel);
         method_exchangeImplementations(orgMeth, newMeth);
     }
     else
-        class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
+        class_addMethod(addToClass, makeLikeSel, newImp, methodTypeEncoding);
     
     return existing;
 }
