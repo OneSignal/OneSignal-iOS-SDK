@@ -129,9 +129,6 @@ static NSArray* delegateSubclasses = nil;
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
-    injectToProperClass(@selector(oneSignalReceivedRemoteNotification:userInfo:),
-                        @selector(application:didReceiveRemoteNotification:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
-    
     injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:),
                         @selector(application:didReceiveLocalNotification:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
 }
@@ -184,17 +181,6 @@ static NSArray* delegateSubclasses = nil;
         [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
 }
 #pragma clang diagnostic pop
-// Fallback method - Normally this would not fire as oneSignalReceiveRemoteNotification below will fire instead. Was needed for iOS 6 support in the past.
-- (void)oneSignalReceivedRemoteNotification:(UIApplication*)application userInfo:(NSDictionary*)userInfo {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalReceivedRemoteNotification:userInfo:"];
-
-    if ([OneSignal appId]) {
-        [OneSignal notificationReceived:userInfo wasOpened:YES];
-    }
-    
-    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)])
-        [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
-}
 
 // Fires when a notication is opened or recieved while the app is in focus.
 //   - Also fires when the app is in the background and a notificaiton with content-available=1 is received.
@@ -238,13 +224,33 @@ static NSArray* delegateSubclasses = nil;
         return;
     }
     
-    // Make sure not a cold start from tap on notification (OS doesn't call didReceiveRemoteNotification)
-    if ([self respondsToSelector:@selector(oneSignalReceivedRemoteNotification:userInfo:)]
-        && ![[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
-        [self oneSignalReceivedRemoteNotification:application userInfo:userInfo];
+    [OneSignalAppDelegate
+        forwardToDepercatedApplication:application
+        didReceiveRemoteNotification:userInfo];
     
     if (!startedBackgroundJob)
         completionHandler(UIBackgroundFetchResultNewData);
+}
+
+// Forwards to application:didReceiveRemoteNotification: in the rare case
+// that the app happens to use this BUT doesn't use
+// UNUserNotificationCenterDelegate OR
+// application:didReceiveRemoteNotification:fetchCompletionHandler:
+// https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623117-application?language=objc
++(void)forwardToDepercatedApplication:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo {
+    id<UIApplicationDelegate> originalDelegate = UIApplication.sharedApplication.delegate;
+    if (![originalDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:)])
+        return;
+    
+    // Make sure we don't forward to this depreated selector on cold start
+    // from a notification open, since iOS itself doesn't call this either
+    if ([[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
+        return;
+    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [originalDelegate application:application didReceiveRemoteNotification:userInfo];
+    #pragma clang diagnostic pop
 }
 
 #pragma clang diagnostic push
