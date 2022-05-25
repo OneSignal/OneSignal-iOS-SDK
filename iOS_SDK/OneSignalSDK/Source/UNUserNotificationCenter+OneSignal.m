@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
-
+#import <objc/runtime.h>
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignal.h"
 #import "OneSignalInternal.h"
@@ -50,7 +50,7 @@ typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentati
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
 @end
 
-@interface OSUNUserNotificationCenterDelegate : NSObject
+@interface OSUNUserNotificationCenterDelegate : NSObject<UNUserNotificationCenterDelegate>
 + (OSUNUserNotificationCenterDelegate*)sharedInstance;
 @end
 
@@ -175,10 +175,36 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [self onesignalGetNotificationSettingsWithCompletionHandler:wrapperBlock];
 }
 
+// Just for debugging
+void DumpObjcMethods(Class clz) {
+    unsigned int methodCount = 0;
+    Method *methods = class_copyMethodList(clz, &methodCount);
+
+
+    NSLog(@"Found %d methods on '%s'\n", methodCount, class_getName(clz));
+
+
+    for (unsigned int i = 0; i < methodCount; i++) {
+        Method method = methods[i];
+
+
+        NSLog(@"'%s' has method named '%s' of encoding '%s'\n",
+              class_getName(clz),
+              sel_getName(method_getName(method)),
+              method_getTypeEncoding(method));
+    }
+
+
+    free(methods);
+}
+
 // Take the received delegate and swizzle in our own hooks.
 //  - Selector will be called once if developer does not set a UNUserNotificationCenter delegate.
 //  - Selector will be called a 2nd time if the developer does set one.
 - (void) setOneSignalUNDelegate:(id)delegate {
+    NSLog(@"ECM Test delegate class name: %@", [delegate class]);
+    DumpObjcMethods([delegate class]);
+    
     if (previousDelegate == delegate) {
         [self setOneSignalUNDelegate:delegate];
         return;
