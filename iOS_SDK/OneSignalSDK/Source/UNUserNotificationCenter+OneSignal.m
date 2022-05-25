@@ -36,7 +36,7 @@
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OneSignalCommonDefines.h"
-
+#import "SwizzlingForwarder.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -205,21 +205,31 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                         @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
 }
 
-+ (void)forwardNotificationWithCenter:(UNUserNotificationCenter *)center
++ (BOOL)forwardNotificationWithCenter:(UNUserNotificationCenter *)center
                          notification:(UNNotification *)notification
                       OneSignalCenter:(id)instance
                     completionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
-    // Call orginal selector if one was set.
-    if ([instance respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)])
-        [instance onesignalUserNotificationCenter:center willPresentNotification:notification withCompletionHandler:completionHandler];
-    // Or call a legacy AppDelegate selector
-    else {
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:instance
+        withYourSelector:@selector(
+            onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:
+        )
+        withOriginalSelector:@selector(
+            userNotificationCenter:willPresentNotification:withCompletionHandler:
+        )
+    ];
+    if (forwarder.hasReceiver) {
+        [forwarder invokeWithArgs:@[center, notification, completionHandler]];
+        return true;
+    } else {
+        // call a legacy AppDelegate selector
         [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
                                                 isTextReply:false
                                            actionIdentifier:nil
                                                    userText:nil
                                     fromPresentNotification:true
                                       withCompletionHandler:^() {}];
+        return false;
     }
 }
 
@@ -232,8 +242,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
-        [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
-        if (![self respondsToSelector:@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)]) {
+        BOOL hasReceiver = [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
+        if (!hasReceiver) {
             completionHandler(7);
         }
         return;
@@ -278,10 +288,20 @@ void finishProcessingNotification(UNNotification *notification,
                   withCompletionHandler:(void(^)())completionHandler {
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
-        if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
-            [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
-        else
+        SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+            initWithTarget:self
+            withYourSelector:@selector(
+                onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
+            )
+            withOriginalSelector:@selector(
+                userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
+            )
+        ];
+        if (forwarder.hasReceiver) {
+            [forwarder invokeWithArgs:@[center, response, completionHandler]];
+        } else {
             completionHandler();
+        }
         return;
     }
     
@@ -290,8 +310,18 @@ void finishProcessingNotification(UNNotification *notification,
     [OneSignalUNUserNotificationCenter processiOS10Open:response];
     
     // Call orginal selector if one was set.
-    if ([self respondsToSelector:@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)])
-        [self onesignalUserNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
+        initWithTarget:self
+        withYourSelector:@selector(
+            onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
+        )
+        withOriginalSelector:@selector(
+            userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
+        )
+    ];
+    if (forwarder.hasReceiver) {
+        [forwarder invokeWithArgs:@[center, response, completionHandler]];
+    }
     // Or call a legacy AppDelegate selector
     //  - If not a dismiss event as their isn't a iOS 9 selector for it.
     else if (![OneSignalUNUserNotificationCenter isDismissEvent:response]) {
