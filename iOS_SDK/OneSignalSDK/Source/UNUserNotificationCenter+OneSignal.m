@@ -210,7 +210,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                       OneSignalCenter:(id)instance
                     completionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-        initWithTarget:self
+        initWithTarget:instance
         withYourSelector:@selector(
             onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:
         )
