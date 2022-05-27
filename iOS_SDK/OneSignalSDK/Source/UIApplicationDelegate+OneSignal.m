@@ -71,6 +71,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
+    [OneSignalAppDelegate traceCall:@"setOneSignalDelegate:"];
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
     
     if ([delegate class] == delegateClass) {
@@ -135,7 +136,7 @@ static NSArray* delegateSubclasses = nil;
 
 
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
+    [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
     [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
@@ -152,7 +153,7 @@ static NSArray* delegateSubclasses = nil;
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
+    [OneSignalAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
     if ([OneSignal appId])
         [OneSignal handleDidFailRegisterForRemoteNotification:err];
@@ -172,7 +173,7 @@ static NSArray* delegateSubclasses = nil;
 #pragma clang diagnostic ignored "-Wdeprecated"
 // iOS 9 Only
 - (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterUserNotifications:settings:"];
+    [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterUserNotifications:settings:"];
     
     if ([OneSignal appId])
         [OneSignal updateNotificationTypes:(int)notificationSettings.types];
@@ -188,7 +189,7 @@ static NSArray* delegateSubclasses = nil;
 //          iOS 10 - This crashes the app if it is called twice! Crash will happen when the app is resumed.
 //          iOS 9  - Does not have this issue.
 - (void) oneSignalReceiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
+    [OneSignalAppDelegate traceCall:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
         withYourSelector:@selector(
@@ -257,7 +258,7 @@ static NSArray* delegateSubclasses = nil;
 #pragma clang diagnostic ignored "-Wdeprecated"
 - (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
 #pragma clang diagnostic pop
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
+    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
     
     if ([OneSignal appId])
         [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
@@ -271,7 +272,7 @@ static NSArray* delegateSubclasses = nil;
 #pragma clang diagnostic ignored "-Wdeprecated"
 - (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
 #pragma clang diagnostic pop
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"oneSignalLocalNotificationOpened:notification:"];
+    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:notification:"];
     
     if ([OneSignal appId])
         [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
@@ -295,6 +296,12 @@ static NSArray* delegateSubclasses = nil;
         )
     ];
     [forwarder invokeWithArgs:@[application]];
+}
+
+// Used to log all calls, also used in unit tests to observer
+// the OneSignalAppDelegate selectors get called.
++(void) traceCall:(NSString*)selector {
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:selector];
 }
 
 @end

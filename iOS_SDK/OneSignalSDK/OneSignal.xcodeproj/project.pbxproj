@@ -53,6 +53,7 @@
 		03CCCC8D283624F3004BF794 /* SwizzlingForwarder.h in Headers */ = {isa = PBXBuildFile; fileRef = 03CCCC8B283624F3004BF794 /* SwizzlingForwarder.h */; };
 		03CCCC8E283624F3004BF794 /* SwizzlingForwarder.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CCCC8C283624F3004BF794 /* SwizzlingForwarder.m */; };
 		03CCCC8F283624F3004BF794 /* SwizzlingForwarder.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CCCC8C283624F3004BF794 /* SwizzlingForwarder.m */; };
+		03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */; };
 		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
@@ -632,6 +633,8 @@
 		03CCCC842835F291004BF794 /* UIApplicationDelegateSwizzlingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIApplicationDelegateSwizzlingTests.m; sourceTree = "<group>"; };
 		03CCCC8B283624F3004BF794 /* SwizzlingForwarder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwizzlingForwarder.h; sourceTree = "<group>"; };
 		03CCCC8C283624F3004BF794 /* SwizzlingForwarder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SwizzlingForwarder.m; sourceTree = "<group>"; };
+		03E56DD128405F4A006AA1DA /* OneSignalAppDelegateOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalAppDelegateOverrider.h; sourceTree = "<group>"; };
+		03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalAppDelegateOverrider.m; sourceTree = "<group>"; };
 		16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSTimeZoneOverrider.m; sourceTree = "<group>"; };
 		16664C5425DDB2CB003B8A14 /* NSTimeZoneOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSTimeZoneOverrider.h; sourceTree = "<group>"; };
 		1AF75EAC1E8567FD0097B315 /* NSString+OneSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+OneSignal.h"; sourceTree = "<group>"; };
@@ -1172,6 +1175,8 @@
 				DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */,
 				16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */,
 				16664C5425DDB2CB003B8A14 /* NSTimeZoneOverrider.h */,
+				03E56DD128405F4A006AA1DA /* OneSignalAppDelegateOverrider.h */,
+				03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */,
 			);
 			path = Shadows;
 			sourceTree = "<group>";
@@ -2394,6 +2399,7 @@
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				CA4743A02190FEA80020DC8C /* OSTrigger.m in Sources */,
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
+				03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */,
 				7AF9863D2444C43900C36EAE /* OSInAppMessageTracker.m in Sources */,
 				DE9877342591656300DE07D5 /* NSDateFormatter+OneSignal.m in Sources */,
 				DEAD6F98270B829700DE7C67 /* OneSignalLog.m in Sources */,
