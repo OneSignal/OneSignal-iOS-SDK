@@ -195,8 +195,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 }
 
 + (void)swizzleSelectorsOnDelegate:(id)delegate {
-    delegateUNClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UNUserNotificationCenterDelegate));
-    delegateUNSubclasses = ClassGetSubclasses(delegateUNClass);
+    delegateUNClass = [delegate class];
+    delegateUNSubclasses = @[];
     
     injectToProperClass(@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:),
                         @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);

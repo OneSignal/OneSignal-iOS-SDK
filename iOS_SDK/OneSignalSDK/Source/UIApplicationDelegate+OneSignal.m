@@ -81,8 +81,8 @@ static NSArray* delegateSubclasses = nil;
     
     Class newClass = [OneSignalAppDelegate class];
     
-    delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
-    delegateSubclasses = ClassGetSubclasses(delegateClass);
+    delegateClass = [delegate class];
+    delegateSubclasses = @[];
     
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
