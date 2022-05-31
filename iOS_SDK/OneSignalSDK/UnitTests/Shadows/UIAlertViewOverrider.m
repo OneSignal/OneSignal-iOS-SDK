@@ -35,11 +35,19 @@ static NSObject<UIAlertViewDelegate>* lastUIAlertViewDelegate;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated"
 + (void)load {
-    injectToProperClass(@selector(overrideAddButtonWithTitle:), @selector(addButtonWithTitle:), @[], [UIAlertViewOverrider class], [UIAlertView class]);
+    injectSelector(
+        [UIAlertView class],
+        @selector(addButtonWithTitle:),
+        [UIAlertViewOverrider class],
+        @selector(overrideAddButtonWithTitle:)
+    );
     
-    injectToProperClass(@selector(overrideInitWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:),
-                        @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:), @[],
-                        [UIAlertViewOverrider class], [UIAlertView class]);
+    injectSelector(
+        [UIAlertView class],
+        @selector(initWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:),
+        [UIAlertViewOverrider class],
+        @selector(overrideInitWithTitle:message:delegate:cancelButtonTitle:otherButtonTitles:)
+    );
 }
 #pragma GCC diagnostic pop
 

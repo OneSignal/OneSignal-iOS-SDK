@@ -40,7 +40,12 @@
     // Swizzle an injected method defined in OneSignalHelper
     injectStaticSelector([NSURLSessionOverrider class], @selector(overrideDownloadItemAtURL:toFile:error:), [NSURLSession class], @selector(downloadItemAtURL:toFile:error:));
     #pragma clang diagnostic pop
-    injectToProperClass(@selector(overrideDataTaskWithRequest:completionHandler:), @selector(dataTaskWithRequest:completionHandler:), @[], [NSURLSessionOverrider class], [NSURLSession class]);
+    injectSelector(
+        [NSURLSession class],
+        @selector(dataTaskWithRequest:completionHandler:),
+        [NSURLSessionOverrider class],
+        @selector(overrideDataTaskWithRequest:completionHandler:)
+   );
 }
 
 // Override downloading of media attachment

@@ -30,8 +30,7 @@
 
 // Functions to help sizzle methods.
 
-void injectToProperClass(SEL newSel, SEL makeLikeSel, NSArray* delegateSubclasses, Class myClass, Class delegateClass);
-BOOL injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
 BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
+BOOL injectSelector(Class targetClass, SEL targetSelector, Class myClass, SEL mySelector);
 
 #endif /* OneSignalSelectorHelpers_h */

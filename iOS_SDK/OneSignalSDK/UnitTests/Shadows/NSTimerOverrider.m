@@ -76,7 +76,12 @@ static NSMutableArray<NSTimer*>* _pendingNSTimers;
     swizzleClassMethodWithCategoryImplementation(NSTimer.class, @selector(timerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideTimerWithTimeInterval:target:selector:userInfo:repeats:));
     swizzleClassMethodWithCategoryImplementation(NSTimer.class, @selector(scheduledTimerWithTimeInterval:target:selector:userInfo:repeats:), @selector(overrideScheduledTimerWithTimeInterval:target:selector:userInfo:repeats:));
     // __NSCFTimer is special here as the implementation of invalidate lives in this private class
-    injectToProperClass(@selector(overrideInvalidate), @selector(invalidate), @[NSClassFromString(@"__NSCFTimer")], NSTimerOverrider.class, NSTimer.class);
+    injectSelector(
+        NSClassFromString(@"__NSCFTimer"),
+        @selector(invalidate),
+        [NSTimerOverrider class],
+        @selector(overrideInvalidate)
+    );
 }
 
 + (void)reset {

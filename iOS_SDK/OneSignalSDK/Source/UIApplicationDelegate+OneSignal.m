@@ -62,10 +62,6 @@
 
 static Class delegateClass = nil;
 
-// Store an array of all UIAppDelegate subclasses to iterate over in cases where UIAppDelegate swizzled methods are not overriden in main AppDelegate
-// But rather in one of the subclasses
-static NSArray* delegateSubclasses = nil;
-
 +(Class)delegateClass {
     return delegateClass;
 }
@@ -80,34 +76,48 @@ static NSArray* delegateSubclasses = nil;
     }
     
     Class newClass = [OneSignalAppDelegate class];
-    
     delegateClass = [delegate class];
-    delegateSubclasses = @[];
     
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
     //   UNNotificationServiceExtension (mutable-content) and UNNotificationContentExtension (with category) replaced it.
-    injectToProperClass(@selector(oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:),
-                        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:), delegateSubclasses, newClass, delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:),
+        newClass,
+        @selector(oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:)
+    );
     
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
 
-    injectToProperClass(@selector(oneSignalDidFailRegisterForRemoteNotification:error:),
-                        @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, newClass, delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(application:didFailToRegisterForRemoteNotificationsWithError:),
+        newClass,
+        @selector(oneSignalDidFailRegisterForRemoteNotification:error:)
+    );
     
     if (NSClassFromString(@"CoronaAppDelegate")) {
         [self setOneSignalDelegate:delegate];
         return;
     }
     
-    injectToProperClass(@selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:),
-                        @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:), delegateSubclasses, newClass, delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:),
+        newClass,
+        @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)
+    );
     
     [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
 
     // Used to track how long the app has been closed
-    injectToProperClass(@selector(oneSignalApplicationWillTerminate:),
-                        @selector(applicationWillTerminate:), delegateSubclasses, newClass, delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(applicationWillTerminate:),
+        newClass,
+        @selector(oneSignalApplicationWillTerminate:)
+    );
 
     [self setOneSignalDelegate:delegate];
 }
@@ -116,22 +126,34 @@ static NSArray* delegateSubclasses = nil;
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
-    injectToProperClass(@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-                        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:),
+        [OneSignalAppDelegate class],
+        @selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)
+    );
     
     // iOS 10 requestAuthorizationWithOptions has it's own callback
     //   We also check the permssion status from applicationDidBecomeActive: each time.
     //   Keeping for fallback in case of a race condidion where the focus event fires to soon.
-    injectToProperClass(@selector(oneSignalDidRegisterUserNotifications:settings:),
-                        @selector(application:didRegisterUserNotificationSettings:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(application:didRegisterUserNotificationSettings:),
+        [OneSignalAppDelegate class],
+        @selector(oneSignalDidRegisterUserNotifications:settings:)
+   );
 }
 
 + (void)sizzlePreiOS10MethodsPhase2 {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
-    injectToProperClass(@selector(oneSignalLocalNotificationOpened:notification:),
-                        @selector(application:didReceiveLocalNotification:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
+    injectSelector(
+        delegateClass,
+        @selector(application:didReceiveLocalNotification:),
+        [OneSignalAppDelegate class],
+        @selector(oneSignalLocalNotificationOpened:notification:)
+    );
 }
 
 

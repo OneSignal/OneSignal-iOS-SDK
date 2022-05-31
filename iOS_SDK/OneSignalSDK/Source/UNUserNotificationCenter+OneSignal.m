@@ -94,16 +94,27 @@ static NSArray* delegateUNSubclasses = nil;
 __weak static id previousDelegate;
 
 + (void)swizzleSelectors {
-    injectToProperClass(@selector(setOneSignalUNDelegate:), @selector(setDelegate:), @[], [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(setDelegate:),
+        [OneSignalUNUserNotificationCenter class],
+        @selector(setOneSignalUNDelegate:)
+   );
     
     // Overrides to work around 10.2.1 bug where getNotificationSettingsWithCompletionHandler: reports as declined if called before
     //  requestAuthorizationWithOptions:'s completionHandler fires when the user accepts notifications.
-    injectToProperClass(@selector(onesignalRequestAuthorizationWithOptions:completionHandler:),
-                        @selector(requestAuthorizationWithOptions:completionHandler:), @[],
-                        [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(onesignalGetNotificationSettingsWithCompletionHandler:),
-                        @selector(getNotificationSettingsWithCompletionHandler:), @[],
-                        [OneSignalUNUserNotificationCenter class], [UNUserNotificationCenter class]);
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(requestAuthorizationWithOptions:completionHandler:),
+        [OneSignalUNUserNotificationCenter class],
+        @selector(onesignalRequestAuthorizationWithOptions:completionHandler:)
+    );
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(getNotificationSettingsWithCompletionHandler:),
+        [OneSignalUNUserNotificationCenter class],
+        @selector(onesignalGetNotificationSettingsWithCompletionHandler:)
+   );
 }
 
 + (void)registerDelegate {
@@ -196,13 +207,18 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 
 + (void)swizzleSelectorsOnDelegate:(id)delegate {
     delegateUNClass = [delegate class];
-    delegateUNSubclasses = @[];
-    
-    injectToProperClass(@selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:),
-                        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
-    
-    injectToProperClass(@selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
-                        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:), delegateUNSubclasses, [OneSignalUNUserNotificationCenter class], delegateUNClass);
+    injectSelector(
+        delegateUNClass,
+        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:),
+        [OneSignalUNUserNotificationCenter class],
+        @selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)
+    );
+    injectSelector(
+        delegateUNClass,
+        @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
+        [OneSignalUNUserNotificationCenter class],
+        @selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)
+    );
 }
 
 + (BOOL)forwardNotificationWithCenter:(UNUserNotificationCenter *)center

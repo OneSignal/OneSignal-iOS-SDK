@@ -60,7 +60,12 @@ static NSTimeInterval _globalTimeOffset;
     swizzleClassMethodWithCategoryImplementation([NSDate class], @selector(date), @selector(overrideDate));
     swizzleClassMethodWithCategoryImplementation([NSDate class], @selector(dateWithTimeIntervalSince1970:), @selector(overrideDateWithTimeIntervalSince1970:));
 
-    injectToProperClass(@selector(overrideTimeIntervalSinceNow), @selector(timeIntervalSinceNow), @[], [NSDateOverrider class], [NSDate class]);
+    injectSelector(
+        [NSDate class],
+        @selector(timeIntervalSinceNow),
+        [NSDateOverrider class],
+        @selector(overrideTimeIntervalSinceNow)
+   );
 }
 
 +(void) reset {

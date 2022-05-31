@@ -58,13 +58,48 @@ static int apnsTokenLength = 32;
 static UIApplication *sharedApplication;
 
 + (void)load {
-    injectToProperClass(@selector(overrideRegisterForRemoteNotifications), @selector(registerForRemoteNotifications), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(overrideCurrentUserNotificationSettings), @selector(currentUserNotificationSettings), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(overrideRegisterForRemoteNotificationTypes:), @selector(registerForRemoteNotificationTypes:), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(overrideRegisterUserNotificationSettings:), @selector(registerUserNotificationSettings:), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(overrideApplicationState), @selector(applicationState), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(overrideScheduleLocalNotification:), @selector(scheduleLocalNotification:), @[], [UIApplicationOverrider class], [UIApplication class]);
-    injectToProperClass(@selector(overrideOpenURL:options:completionHandler:), @selector(openURL:options:completionHandler:), @[], [UIApplicationOverrider class], [UIApplication class]);
+    injectSelector(
+        [UIApplication class],
+        @selector(registerForRemoteNotifications),
+        [UIApplicationOverrider class],
+        @selector(overrideRegisterForRemoteNotifications)
+    );
+    injectSelector(
+        [UIApplication class],
+        @selector(currentUserNotificationSettings),
+        [UIApplicationOverrider class],
+        @selector(overrideCurrentUserNotificationSettings)
+    );
+    injectSelector(
+        [UIApplication class],
+        @selector(registerForRemoteNotificationTypes:),
+        [UIApplicationOverrider class],
+        @selector(overrideRegisterForRemoteNotificationTypes:)
+    );
+    injectSelector(
+        [UIApplication class],
+        @selector(registerUserNotificationSettings:),
+        [UIApplicationOverrider class],
+        @selector(overrideRegisterUserNotificationSettings:)
+    );
+    injectSelector(
+        [UIApplication class],
+        @selector(applicationState),
+        [UIApplicationOverrider class],
+        @selector(overrideApplicationState)
+    );
+    injectSelector(
+        [UIApplication class],
+        @selector(scheduleLocalNotification:),
+        [UIApplicationOverrider class],
+        @selector(overrideScheduleLocalNotification:)
+    );
+    injectSelector(
+        [UIApplication class],
+        @selector(openURL:options:completionHandler:),
+        [UIApplicationOverrider class],
+        @selector(overrideOpenURL:options:completionHandler:)
+   );
 }
 
 + (void)reset {

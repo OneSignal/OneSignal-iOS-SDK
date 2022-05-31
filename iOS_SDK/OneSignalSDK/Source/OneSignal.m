@@ -2949,16 +2949,30 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
         return;
 
     // Double loading of class detection.
-    BOOL existing = injectSelector([OneSignalAppDelegate class], @selector(oneSignalLoadedTagSelector:), self, @selector(oneSignalLoadedTagSelector:));
+    BOOL existing = injectSelector(
+        self,
+        @selector(oneSignalLoadedTagSelector:),
+        [OneSignalAppDelegate class],
+        @selector(oneSignalLoadedTagSelector:)
+    );
     if (existing) {
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
         return;
     }
 
     // Swizzle - UIApplication delegate
-    injectToProperClass(@selector(setOneSignalDelegate:), @selector(setDelegate:), @[], [OneSignalAppDelegate class], [UIApplication class]);
-    
-    injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:), @selector(setApplicationIconBadgeNumber:), @[], [OneSignalAppDelegate class], [UIApplication class]);
+    injectSelector(
+        [UIApplication class],
+        @selector(setDelegate:),
+        [OneSignalAppDelegate class],
+        @selector(setOneSignalDelegate:)
+   );
+    injectSelector(
+        [UIApplication class],
+        @selector(setApplicationIconBadgeNumber:),
+        [OneSignalAppDelegate class],
+        @selector(onesignalSetApplicationIconBadgeNumber:)
+    );
     
     [self setupUNUserNotificationCenterDelegate];
     [[OSMigrationController new] migrate];
