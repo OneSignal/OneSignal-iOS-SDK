@@ -9,6 +9,8 @@
 #import "OneSignalHelperOverrider.h"
 #import "OneSignalHelper.h"
 #import "OneSignalUNUserNotificationCenterHelper.h"
+#import "TestHelperFunctions.h"
+#import "OneSignalUNUserNotificationCenterOverrider.h"
 
 @interface DummyNotificationCenterDelegateForDoesSwizzleTest : NSObject<UNUserNotificationCenterDelegate>
 @end
@@ -122,6 +124,41 @@
 @end
 @implementation UNUserNotificationCenterDelegateForInfiniteLoopTest
 @end
+
+
+@interface UNUserNotificationCenterDelegateForInfiniteLoopWithAnotherSwizzlerTest : UIResponder<UNUserNotificationCenterDelegate>
+@end
+@implementation UNUserNotificationCenterDelegateForInfiniteLoopWithAnotherSwizzlerTest
+@end
+@interface OtherUNNotificationLibraryASwizzler : NSObject
++(void)swizzleUNUserNotificationCenterDelegate;
++(BOOL)selectorCalled;
+@end
+@implementation OtherUNNotificationLibraryASwizzler
+static BOOL selectorCalled = false;
++(BOOL)selectorCalled {
+    return selectorCalled;
+}
+
++(void)swizzleUNUserNotificationCenterDelegate
+{
+    swizzleExistingSelector(
+        [UNUserNotificationCenter.currentNotificationCenter.delegate class],
+        @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:),
+        [self class],
+        @selector(userNotificationCenterLibraryA:willPresentNotification:withCompletionHandler:)
+    );
+}
+-(void)userNotificationCenterLibraryA:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+{
+    selectorCalled = true;
+    // Standard basic swizzling forwarder another library may have.
+    if ([self respondsToSelector:@selector(userNotificationCenterLibraryA:willPresentNotification:withCompletionHandler:)])
+        [self userNotificationCenterLibraryA:center willPresentNotification:notification withCompletionHandler:completionHandler];
+}
+@end
+
+
 
 @interface OneSignalUNUserNotificationCenterSwizzlingTest : XCTestCase
 @end
@@ -280,6 +317,35 @@
 
     // 4. Call something to confirm we don't get stuck in an infinite call loop
     [localOrignalDelegate userNotificationCenter:UNUserNotificationCenter.currentNotificationCenter willPresentNotification:[self createBasiciOSNotification] withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+}
+
+- (void)testCompatibleWithOtherSwizzlerWhenSwapingBetweenNil {
+    // 1. Create a new delegate and assign it
+    id myAppDelegate = [UNUserNotificationCenterDelegateForInfiniteLoopWithAnotherSwizzlerTest new];
+    UNUserNotificationCenter.currentNotificationCenter.delegate = myAppDelegate;
+    
+    // 2. Other library swizzles
+    [OtherUNNotificationLibraryASwizzler swizzleUNUserNotificationCenterDelegate];
+    
+    // 3. Nil and set it again to trigger OneSignal swizzling again.
+    UNUserNotificationCenter.currentNotificationCenter.delegate = nil;
+    UNUserNotificationCenter.currentNotificationCenter.delegate = myAppDelegate;
+
+    // 4. Call something to confirm we don't get stuck in an infinite call loop
+    id<UNUserNotificationCenterDelegate> delegate =
+        UNUserNotificationCenter.currentNotificationCenter.delegate;
+    [delegate
+        userNotificationCenter:UNUserNotificationCenter.currentNotificationCenter
+        willPresentNotification:[self createBasiciOSNotification]
+        withCompletionHandler:^(UNNotificationPresentationOptions options) {}
+    ];
+    
+    // 5. Ensure OneSignal's selector is called.
+    XCTAssertEqual([OneSignalUNUserNotificationCenterOverrider
+        callCountForSelector:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:"], 1);
+    
+    // 6. Ensure other library selector is still called too.
+    XCTAssertTrue([OtherUNNotificationLibraryASwizzler selectorCalled]);
 }
 
 - (void)testSwizzleExistingSelectors {
