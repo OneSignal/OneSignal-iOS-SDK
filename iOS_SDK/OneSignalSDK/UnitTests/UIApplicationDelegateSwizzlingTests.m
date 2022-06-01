@@ -86,6 +86,38 @@
 @implementation AppDelegateForInfiniteLoopTest
 @end
 
+@interface AppDelegateForInfiniteLoopWithAnotherSwizzlerTest : UIResponder<UIApplicationDelegate>
+@end
+@implementation AppDelegateForInfiniteLoopWithAnotherSwizzlerTest
+@end
+@interface OtherLibraryASwizzler : NSObject
++(void)swizzleAppDelegate;
++(BOOL)selectorCalled;
+@end
+@implementation OtherLibraryASwizzler
+static BOOL selectorCalled = false;
++(BOOL)selectorCalled {
+    return selectorCalled;
+}
+
++(void)swizzleAppDelegate
+{
+    swizzleExistingSelector(
+        [UIApplication.sharedApplication.delegate class],
+        @selector(applicationWillTerminate:),
+        [self class],
+        @selector(applicationWillTerminateLibraryA:)
+    );
+}
+- (void)applicationWillTerminateLibraryA:(UIApplication *)application
+{
+    selectorCalled = true;
+    // Standard basic swizzling forwarder another library may have.
+    if ([self respondsToSelector:@selector(applicationWillTerminateLibraryA:)])
+        [self applicationWillTerminateLibraryA:application];
+}
+@end
+
 @interface AppDelegateForExistingSelectorsTest : UIResponder<UIApplicationDelegate> {
     @public NSMutableDictionary *selectorCallsDict;
 }
@@ -374,6 +406,30 @@ static id<UIApplicationDelegate> orignalDelegate;
     
     // 4. Call something to confirm we don't get stuck in an infinite call loop
     [localOrignalDelegate applicationWillTerminate:UIApplication.sharedApplication];
+}
+
+- (void)testCompatibleWithOtherSwizzlerWhenSwapingBetweenNil {
+    // 1. Create a new delegate and assign it
+    id myAppDelegate = [AppDelegateForInfiniteLoopWithAnotherSwizzlerTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    
+    // 2. Other library swizzles
+    [OtherLibraryASwizzler swizzleAppDelegate];
+    
+    // 3. Nil and set it again to trigger OneSignal swizzling again.
+    UIApplication.sharedApplication.delegate = nil;
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+
+    // 4. Call something to confirm we don't get stuck in an infinite call loop
+    id<UIApplicationDelegate> delegate = UIApplication.sharedApplication.delegate;
+    [delegate applicationWillTerminate:UIApplication.sharedApplication];
+    
+    // 5. Ensure OneSignal's selector is called.
+    XCTAssertEqual([OneSignalAppDelegateOverrider
+        callCountForSelector:@"oneSignalApplicationWillTerminate:"], 1);
+    
+    // 6. Ensure other library selector is still called too.
+    XCTAssertTrue([OtherLibraryASwizzler selectorCalled]);
 }
 
 - (void)testSwizzleExistingSelectors {

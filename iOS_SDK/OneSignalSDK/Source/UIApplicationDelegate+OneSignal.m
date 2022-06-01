@@ -304,6 +304,7 @@ static Class delegateClass = nil;
 }
 
 -(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
     
     if ([OneSignal appId])
         [OneSignalTracker onFocus:YES];

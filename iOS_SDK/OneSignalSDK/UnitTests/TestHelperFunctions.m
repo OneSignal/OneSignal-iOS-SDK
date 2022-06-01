@@ -90,3 +90,15 @@ void swizzleClassMethodWithCategoryImplementation(Class class, SEL original, SEL
         method_exchangeImplementations(originalMethod, newMethod);
     }
 }
+
+// Use for tests to simulate how another library would swizzle.
+void swizzleExistingSelector(Class targetClass, SEL targetSelector, Class myClass, SEL mySelector) {
+    Method orgMeth = class_getInstanceMethod(targetClass, targetSelector);
+    Method newMeth = class_getInstanceMethod(myClass, mySelector);
+    IMP newImp = method_getImplementation(newMeth);
+    const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
+    
+    class_addMethod(targetClass, mySelector, newImp, methodTypeEncoding);
+    newMeth = class_getInstanceMethod(targetClass, mySelector);
+    method_exchangeImplementations(orgMeth, newMeth);
+}
