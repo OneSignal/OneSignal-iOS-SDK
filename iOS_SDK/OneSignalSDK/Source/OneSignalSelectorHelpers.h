@@ -29,8 +29,6 @@
 #define OneSignalSelectorHelpers_h
 
 // Functions to help sizzle methods.
-
-BOOL injectClassSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel);
 BOOL injectSelector(Class targetClass, SEL targetSelector, Class myClass, SEL mySelector);
 
 #endif /* OneSignalSelectorHelpers_h */
