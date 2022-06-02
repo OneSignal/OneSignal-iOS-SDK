@@ -60,23 +60,28 @@
 
 + (void) oneSignalLoadedTagSelector {}
 
-static Class delegateClass = nil;
-
-+(Class)delegateClass {
-    return delegateClass;
-}
+// A Set to keep track of which classes we have already swizzled so we only
+// swizzle each one once. If we swizzled more than once then this will create
+// an infinite loop, this includes swizzling with ourselves but also with
+// another SDK that swizzles.
+static NSMutableSet<Class>* swizzledClasses;
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
     [OneSignalAppDelegate traceCall:@"setOneSignalDelegate:"];
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
     
-    if ([delegate class] == delegateClass) {
+    if (swizzledClasses == nil)
+        swizzledClasses = [NSMutableSet new];
+    
+    Class delegateClass = [delegate class];
+    
+    if (delegate == nil || [swizzledClasses containsObject:delegateClass]) {
         [self setOneSignalDelegate:delegate];
         return;
     }
+    [swizzledClasses addObject:delegateClass];
     
     Class newClass = [OneSignalAppDelegate class];
-    delegateClass = [delegate class];
     
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
@@ -88,7 +93,7 @@ static Class delegateClass = nil;
         @selector(oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:)
     );
     
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1];
+    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase1:delegateClass];
 
     injectSelector(
         delegateClass,
@@ -109,7 +114,7 @@ static Class delegateClass = nil;
         @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)
     );
     
-    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2];
+    [OneSignalAppDelegate sizzlePreiOS10MethodsPhase2:delegateClass];
 
     // Used to track how long the app has been closed
     injectSelector(
@@ -122,7 +127,7 @@ static Class delegateClass = nil;
     [self setOneSignalDelegate:delegate];
 }
 
-+ (void)sizzlePreiOS10MethodsPhase1 {
++ (void)sizzlePreiOS10MethodsPhase1:(Class)delegateClass {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
@@ -144,7 +149,7 @@ static Class delegateClass = nil;
    );
 }
 
-+ (void)sizzlePreiOS10MethodsPhase2 {
++ (void)sizzlePreiOS10MethodsPhase2:(Class)delegateClass {
     if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
@@ -304,6 +309,7 @@ static Class delegateClass = nil;
 }
 
 -(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
+    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
     
     if ([OneSignal appId])
         [OneSignalTracker onFocus:YES];

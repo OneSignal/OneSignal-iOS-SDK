@@ -83,16 +83,6 @@ static OSUNUserNotificationCenterDelegate* singleInstance = nil;
     [OneSignalUNUserNotificationCenter registerDelegate];
 }
 
-static Class delegateUNClass = nil;
-
-// Store an array of all UIAppDelegate subclasses to iterate over in cases where UIAppDelegate swizzled methods are not overriden in main AppDelegate
-// But rather in one of the subclasses
-static NSArray* delegateUNSubclasses = nil;
-
-//ensures setDelegate: swizzles will never get executed twice for the same delegate object
-//captures a weak reference to avoid retain cycles
-__weak static id previousDelegate;
-
 + (void)swizzleSelectors {
     injectSelector(
         [UNUserNotificationCenter class],
@@ -186,16 +176,27 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     [self onesignalGetNotificationSettingsWithCompletionHandler:wrapperBlock];
 }
 
+
+// A Set to keep track of which classes we have already swizzled so we only
+// swizzle each one once. If we swizzled more than once then this will create
+// an infinite loop, this includes swizzling with ourselves but also with
+// another SDK that swizzles.
+static NSMutableSet<Class>* swizzledClasses;
+
 // Take the received delegate and swizzle in our own hooks.
 //  - Selector will be called once if developer does not set a UNUserNotificationCenter delegate.
 //  - Selector will be called a 2nd time if the developer does set one.
 - (void) setOneSignalUNDelegate:(id)delegate {
-    if (previousDelegate == delegate) {
+    if (swizzledClasses == nil)
+        swizzledClasses = [NSMutableSet new];
+    
+    Class delegateClass = [delegate class];
+    
+    if (delegate == nil || [swizzledClasses containsObject:delegateClass]) {
         [self setOneSignalUNDelegate:delegate];
         return;
     }
-
-    previousDelegate = delegate;
+    [swizzledClasses addObject:delegateClass];
 
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
 
@@ -206,7 +207,7 @@ static UNNotificationSettings* cachedUNNotificationSettings;
 }
 
 + (void)swizzleSelectorsOnDelegate:(id)delegate {
-    delegateUNClass = [delegate class];
+    Class delegateUNClass = [delegate class];
     injectSelector(
         delegateUNClass,
         @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:),
@@ -256,6 +257,8 @@ static UNNotificationSettings* cachedUNNotificationSettings;
                 willPresentNotification:(UNNotification *)notification
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     
+    [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:"];
+    
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
         BOOL hasReceiver = [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
@@ -302,6 +305,7 @@ void finishProcessingNotification(UNNotification *notification,
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
+    [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
         SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
@@ -432,6 +436,12 @@ void finishProcessingNotification(UNNotification *notification,
     }
     else
         completionHandler();
+}
+
+// Used to log all calls, also used in unit tests to observer
+// the OneSignalUserNotificationCenter selectors get called.
++(void) traceCall:(NSString*)selector {
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:selector];
 }
 
 @end

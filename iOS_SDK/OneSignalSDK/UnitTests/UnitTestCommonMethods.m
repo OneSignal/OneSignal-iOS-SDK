@@ -61,6 +61,7 @@
 #import "OneSignalUserDefaults.h"
 #import "OneSignalLog.h"
 #import "OneSignalAppDelegateOverrider.h"
+#import "OneSignalUNUserNotificationCenterOverrider.h"
 
 NSString * serverUrlWithPath(NSString *path) {
     return [OS_API_SERVER_URL stringByAppendingString:path];
@@ -235,6 +236,7 @@ static XCTestCase* _currentXCTestCase;
 
     [OneSignalLifecycleObserver removeObserver];
     [OneSignalAppDelegateOverrider reset];
+    [OneSignalUNUserNotificationCenterOverrider reset];
 }
 
 + (void)beforeAllTest:(XCTestCase *)testCase {

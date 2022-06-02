@@ -54,10 +54,6 @@
 + (NSString*)mUserId;
 @end
 
-@interface UIApplication (Swizzling)
-+(Class)delegateClass;
-@end
-
 @implementation OSNotificationAction
 @synthesize type = _type, actionId = _actionId;
 
