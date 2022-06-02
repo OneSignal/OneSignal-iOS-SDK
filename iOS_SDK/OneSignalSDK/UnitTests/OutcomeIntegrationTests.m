@@ -347,15 +347,18 @@
     
     // 2. Close the app for 31 seconds
     [UnitTestCommonMethods backgroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     [NSDateOverrider advanceSystemTimeBy:31];
     
     // 3. Receive 1 notification in background
     [UnitTestCommonMethods receiveNotification:@"test_notification_1" wasOpened:NO];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // 4. Open app
-    [UnitTestCommonMethods initOneSignal_andThreadWaitWithForeground];
+    [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
-    // 5. Make sure NOTIFICATION influence is DIRECT and has 1 notification
+    // 5. Make sure NOTIFICATION influence is INDIRECT and has 1 notification
     NSArray<OSInfluence *> *sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
     for (OSInfluence *influence in sessionInfluences) {
         switch (influence.influenceChannel) {
@@ -375,6 +378,7 @@
     
     // 7. Open app
     [UnitTestCommonMethods foregroundApp];
+    [UnitTestCommonMethods runBackgroundThreads];
     
     // 8. Make sure all influences are UNATTRIBUTED and has 0 notifications
     sessionInfluences = [[OSSessionManager sharedSessionManager] getInfluences];
