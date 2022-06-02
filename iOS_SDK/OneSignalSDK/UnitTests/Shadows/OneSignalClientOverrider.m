@@ -67,9 +67,24 @@ static NSDictionary* remoteParams;
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
     
     //with refactored networking code, need to replace the implementation of the execute request method so tests don't actually execite HTTP requests
-    injectToProperClass(@selector(overrideExecuteRequest:onSuccess:onFailure:), @selector(executeRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
-    injectToProperClass(@selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:), @selector(executeSimultaneousRequests:withSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
-    injectToProperClass(@selector(overrideExecuteDataRequest:onSuccess:onFailure:), @selector(executeDataRequest:onSuccess:onFailure:), @[], [OneSignalClientOverrider class], [OneSignalClient class]);
+    injectSelector(
+        [OneSignalClient class],
+        @selector(executeRequest:onSuccess:onFailure:),
+        [OneSignalClientOverrider class],
+        @selector(overrideExecuteRequest:onSuccess:onFailure:)
+    );
+    injectSelector(
+        [OneSignalClient class],
+        @selector(executeSimultaneousRequests:withSuccess:onFailure:),
+        [OneSignalClientOverrider class],
+        @selector(overrideExecuteSimultaneousRequests:withSuccess:onFailure:)
+    );
+    injectSelector(
+        [OneSignalClient class],
+        @selector(executeDataRequest:onSuccess:onFailure:),
+        [OneSignalClientOverrider class],
+        @selector(overrideExecuteDataRequest:onSuccess:onFailure:)
+    );
 
     executionQueue = dispatch_queue_create("com.onesignal.execution", NULL);
     executedRequests = [NSMutableArray new];

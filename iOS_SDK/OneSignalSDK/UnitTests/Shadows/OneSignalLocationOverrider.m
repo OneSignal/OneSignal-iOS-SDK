@@ -54,9 +54,24 @@ NSArray *locations;
     injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideStarted), [OneSignalLocation class], @selector(started));
     injectStaticSelector([OneSignalLocationOverrider class], @selector(overrideAuthorizationStatus), [CLLocationManager class], @selector(authorizationStatus));
     
-    injectSelector([OneSignalLocationOverrider class], @selector(overrideRequestAlwaysAuthorization), [CLLocationManager class], @selector(requestAlwaysAuthorization));
-    injectSelector([OneSignalLocationOverrider class], @selector(overrideRequestWhenInUseAuthorization), [CLLocationManager class], @selector(requestWhenInUseAuthorization));
-    injectSelector([OneSignalLocationOverrider class], @selector(overrideStartUpdatingLocation), [CLLocationManager class], @selector(startUpdatingLocation));
+    injectSelector(
+        [CLLocationManager class],
+        @selector(requestAlwaysAuthorization),
+        [OneSignalLocationOverrider class],
+        @selector(overrideRequestAlwaysAuthorization)
+    );
+    injectSelector(
+        [CLLocationManager class],
+        @selector(requestWhenInUseAuthorization),
+        [OneSignalLocationOverrider class],
+        @selector(overrideRequestWhenInUseAuthorization)
+    );
+    injectSelector(
+        [CLLocationManager class],
+        @selector(startUpdatingLocation),
+        [OneSignalLocationOverrider class],
+        @selector(overrideStartUpdatingLocation)
+   );
     
     // Never asked use for location service permission
     startedMock = false;

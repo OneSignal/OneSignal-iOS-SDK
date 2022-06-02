@@ -87,8 +87,18 @@
 + (void)load {
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wundeclared-selector"
-    injectToProperClass(@selector(overrideShowMessage:), @selector(showMessage:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
-    injectToProperClass(@selector(overrideWebViewContentFinishedLoading:), @selector(webViewContentFinishedLoading:), @[], [OSMessagingControllerOverrider class], [OSMessagingController class]);
+    injectSelector(
+        [OSMessagingController class],
+        @selector(showMessage:),
+        [OSMessagingControllerOverrider class],
+        @selector(overrideShowMessage:)
+    );
+    injectSelector(
+        [OSMessagingController class],
+        @selector(webViewContentFinishedLoading:),
+        [OSMessagingControllerOverrider class],
+        @selector(overrideWebViewContentFinishedLoading:)
+    );
     #pragma clang diagnostic pop
 }
 

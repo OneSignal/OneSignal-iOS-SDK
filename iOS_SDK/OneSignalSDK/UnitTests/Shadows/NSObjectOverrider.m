@@ -36,7 +36,12 @@ static BOOL instantRunPerformSelectorAfterDelay;
 static NSMutableArray* selectorNamesForInstantOnlyForFirstRun;
 
 + (void)load {
-    injectToProperClass(@selector(overridePerformSelector:withObject:afterDelay:), @selector(performSelector:withObject:afterDelay:), @[], [NSObjectOverrider class], [NSObject class]);
+    injectSelector(
+        [NSObject class],
+        @selector(performSelector:withObject:afterDelay:),
+        [NSObjectOverrider class],
+        @selector(overridePerformSelector:withObject:afterDelay:)
+   );
 }
 
 + (void)reset {

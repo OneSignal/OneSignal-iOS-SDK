@@ -57,26 +57,44 @@ static void (^lastRequestAuthorizationWithOptionsBlock)(BOOL granted, NSError *e
     unNotifiserialQueue = dispatch_queue_create("com.UNNotificationCenter", DISPATCH_QUEUE_SERIAL);
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wundeclared-selector"
-    injectToProperClass(@selector(overrideInitWithBundleProxy:),
-                        @selector(initWithBundleProxy:), @[],
-                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(initWithBundleProxy:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideInitWithBundleProxy:)
+    );
     #pragma clang diagnostic pop
     
-    injectToProperClass(@selector(overrideInitWithBundleIdentifier:),
-                        @selector(initWithBundleIdentifier:), @[],
-                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideGetNotificationSettingsWithCompletionHandler:),
-                        @selector(getNotificationSettingsWithCompletionHandler:), @[],
-                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideSetNotificationCategories:),
-                        @selector(setNotificationCategories:), @[],
-                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideGetNotificationCategoriesWithCompletionHandler:),
-                        @selector(getNotificationCategoriesWithCompletionHandler:), @[],
-                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
-    injectToProperClass(@selector(overrideRequestAuthorizationWithOptions:completionHandler:),
-                        @selector(requestAuthorizationWithOptions:completionHandler:), @[],
-                        [UNUserNotificationCenterOverrider class], [UNUserNotificationCenter class]);
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(initWithBundleIdentifier:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideInitWithBundleIdentifier:)
+    );
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(getNotificationSettingsWithCompletionHandler:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideGetNotificationSettingsWithCompletionHandler:)
+    );
+    injectSelector(
+        [UNUserNotificationCenter class],
+        @selector(setNotificationCategories:),
+        [UNUserNotificationCenterOverrider class],
+        @selector(overrideSetNotificationCategories:)
+    );
+    injectSelector(
+       [UNUserNotificationCenter class],
+       @selector(getNotificationCategoriesWithCompletionHandler:),
+       [UNUserNotificationCenterOverrider class],
+       @selector(overrideGetNotificationCategoriesWithCompletionHandler:)
+    );
+    injectSelector(
+       [UNUserNotificationCenter class],
+       @selector(requestAuthorizationWithOptions:completionHandler:),
+       [UNUserNotificationCenterOverrider class],
+       @selector(overrideRequestAuthorizationWithOptions:completionHandler:)
+   );
 }
 
 + (UNAuthorizationOptions)lastRequestedAuthorizationOptions {

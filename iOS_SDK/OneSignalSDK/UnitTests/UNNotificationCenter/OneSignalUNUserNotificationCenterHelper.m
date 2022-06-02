@@ -17,27 +17,23 @@
 // Why? This way we can setup a senario where someone else's delegate is assigned before OneSignal get loaded.
 + (void)putIntoPreloadedState {
     // Put back original implementation for setDelegat and others first.
-    injectToProperClass(
-        @selector(setDelegate:),
+    injectSelector(
+        [UNUserNotificationCenter class],
         @selector(setOneSignalUNDelegate:),
-        @[],
         [OneSignalUNUserNotificationCenter class],
-        [UNUserNotificationCenter class]
+        @selector(setDelegate:)
     );
-    
-    injectToProperClass(
-        @selector(requestAuthorizationWithOptions:completionHandler:),
+    injectSelector(
+        [UNUserNotificationCenter class],
         @selector(onesignalRequestAuthorizationWithOptions:completionHandler:),
-        @[],
         [OneSignalUNUserNotificationCenter class],
-        [UNUserNotificationCenter class]
+        @selector(requestAuthorizationWithOptions:completionHandler:)
     );
-    injectToProperClass(
-        @selector(getNotificationSettingsWithCompletionHandler:),
+    injectSelector(
+        [UNUserNotificationCenter class],
         @selector(onesignalGetNotificationSettingsWithCompletionHandler:),
-        @[],
         [OneSignalUNUserNotificationCenter class],
-        [UNUserNotificationCenter class]
+        @selector(getNotificationSettingsWithCompletionHandler:)
     );
     
     // Unassign OneSignal as the delegate

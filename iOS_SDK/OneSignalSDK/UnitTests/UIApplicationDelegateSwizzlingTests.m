@@ -5,6 +5,7 @@
 
 #import "UnitTestCommonMethods.h"
 #import "TestHelperFunctions.h"
+#import "OneSignalAppDelegateOverrider.h"
 
 @interface AppDelegateForAddsMissingSelectorsTest : UIResponder<UIApplicationDelegate>
 @end
@@ -154,6 +155,124 @@
 }
 @end
 
+
+@interface AppDelegateBaseClassForMissingSelectorsTest : UIResponder<UIApplicationDelegate>
+@end
+@implementation AppDelegateBaseClassForMissingSelectorsTest
+@end
+@interface AppDelegateInheritsFromBaseMissingSelectorsTest : AppDelegateBaseClassForMissingSelectorsTest
+@end
+@implementation AppDelegateInheritsFromBaseMissingSelectorsTest
+@end
+
+@interface AppDelegateBaseClassForBaseHasSelectorTest : UIResponder<UIApplicationDelegate>
+    @property (nonatomic, readwrite) BOOL selectorCalled;
+@end
+@implementation AppDelegateBaseClassForBaseHasSelectorTest
+- (instancetype)init {
+    self = [super init];
+    _selectorCalled = false;
+    return self;
+}
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    _selectorCalled = true;
+}
+@end
+@interface AppDelegateInhertisFromBaseClassForBaseHasSelectorTest : AppDelegateBaseClassForBaseHasSelectorTest
+@end
+@implementation AppDelegateInhertisFromBaseClassForBaseHasSelectorTest
+@end
+
+@interface AppDelegateBaseClassOnlyProtocol : UIResponder<UIApplicationDelegate>
+@end
+@implementation AppDelegateBaseClassOnlyProtocol
+@end
+@interface AppDelegateInhertisFromBaseButChildHasSelector : AppDelegateBaseClassOnlyProtocol
+@property (nonatomic, readwrite) BOOL selectorCalled;
+@end
+@implementation AppDelegateInhertisFromBaseButChildHasSelector
+- (instancetype)init {
+    self = [super init];
+    _selectorCalled = false;
+    return self;
+}
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    _selectorCalled = true;
+}
+@end
+
+@interface AppDelegateBaseClassBothHaveSelectors : UIResponder<UIApplicationDelegate>
+@property (nonatomic, readwrite) BOOL selectorCalledOnParent;
+@end
+@implementation AppDelegateBaseClassBothHaveSelectors
+- (instancetype)init {
+    self = [super init];
+    _selectorCalledOnParent = false;
+    return self;
+}
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    _selectorCalledOnParent = true;
+}
+@end
+@interface AppDelegateInhertisFromBaseBothHaveSelectors : AppDelegateBaseClassBothHaveSelectors
+@property (nonatomic, readwrite) BOOL selectorCalledOnChild;
+@end
+@implementation AppDelegateInhertisFromBaseBothHaveSelectors
+- (instancetype)init {
+    self = [super init];
+    _selectorCalledOnChild = false;
+    return self;
+}
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    _selectorCalledOnChild = true;
+    [super
+        application:application
+        didReceiveRemoteNotification:userInfo
+        fetchCompletionHandler:completionHandler];
+}
+@end
+
+@interface AppDelegateBaseClassBothHaveSelectorsButSuperIsNotCalled : UIResponder<UIApplicationDelegate>
+@property (nonatomic, readwrite) BOOL selectorCalledOnParent;
+@end
+@implementation AppDelegateBaseClassBothHaveSelectorsButSuperIsNotCalled
+- (instancetype)init {
+    self = [super init];
+    _selectorCalledOnParent = false;
+    return self;
+}
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    _selectorCalledOnParent = true;
+}
+@end
+@interface AppDelegateInhertisFromBaseBothHaveSelectorsButSuperIsNotCalled
+    : AppDelegateBaseClassBothHaveSelectorsButSuperIsNotCalled
+@property (nonatomic, readwrite) BOOL selectorCalledOnChild;
+@end
+@implementation AppDelegateInhertisFromBaseBothHaveSelectorsButSuperIsNotCalled
+- (instancetype)init {
+    self = [super init];
+    _selectorCalledOnChild = false;
+    return self;
+}
+- (void)application:(UIApplication *)application
+        didReceiveRemoteNotification:(NSDictionary *)userInfo
+        fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+    _selectorCalledOnChild = true;
+}
+@end
+
+
 static id<UIApplicationDelegate> orignalDelegate;
 
 @interface UIApplicationDelegateSwizzlingTest : XCTestCase
@@ -271,6 +390,7 @@ static id<UIApplicationDelegate> orignalDelegate;
             @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
         )
     ]);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
 
     [appDelegate
         application:UIApplication.sharedApplication
@@ -323,5 +443,84 @@ static id<UIApplicationDelegate> orignalDelegate;
     // Ensures the OneSignal swizzling code forwarded it to
     // application:didReceiveRemoteNotification:
     XCTAssertTrue(myAppDelegate->selectorCalled);
+}
+
+- (void)testAppDelegateInheritsFromBaseMissingSelectors {
+    id myAppDelegate = [AppDelegateInheritsFromBaseMissingSelectorsTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+    
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
+}
+
+- (void)testAppDelegateInheritsFromBaseWhereBaseHasSelector {
+    AppDelegateInhertisFromBaseClassForBaseHasSelectorTest *myAppDelegate =
+        [AppDelegateInhertisFromBaseClassForBaseHasSelectorTest new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+    
+    // Apple will call this AppDelegate method
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    // Ensures the OneSignal swizzling code forwards to original
+    XCTAssertTrue(myAppDelegate.selectorCalled);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
+}
+
+- (void)testAppDelegateInheritsFromBaseWhereChildHasSelector {
+    AppDelegateInhertisFromBaseButChildHasSelector *myAppDelegate =
+        [AppDelegateInhertisFromBaseButChildHasSelector new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+    
+    // Apple will call this AppDelegate method
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    // Ensures the OneSignal swizzling code forwards to original
+    XCTAssertTrue(myAppDelegate.selectorCalled);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
+}
+
+- (void)testAppDelegateInheritsFromBaseWhereBothHaveSelectors {
+    AppDelegateInhertisFromBaseBothHaveSelectors *myAppDelegate =
+        [AppDelegateInhertisFromBaseBothHaveSelectors new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+    
+    // Apple will call this AppDelegate method
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    // Ensures the OneSignal swizzling code forwards to original
+    XCTAssertTrue(myAppDelegate.selectorCalledOnChild);
+    XCTAssertTrue(myAppDelegate.selectorCalledOnParent);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
+}
+
+- (void)testAppDelegateInheritsFromBaseWhereBothHaveSelectorsButSuperIsNotCalled {
+    AppDelegateInhertisFromBaseBothHaveSelectorsButSuperIsNotCalled *myAppDelegate =
+        [AppDelegateInhertisFromBaseBothHaveSelectorsButSuperIsNotCalled new];
+    UIApplication.sharedApplication.delegate = myAppDelegate;
+    id<UIApplicationDelegate> appDelegate = UIApplication.sharedApplication.delegate;
+    
+    // Apple will call this AppDelegate method
+    [appDelegate
+        application:UIApplication.sharedApplication
+        didReceiveRemoteNotification:@{}
+        fetchCompletionHandler:^(UIBackgroundFetchResult result){}];
+    // Ensures the OneSignal swizzling code forwards to original
+    XCTAssertTrue(myAppDelegate.selectorCalledOnChild);
+    // In this test, child overrides the parent and intently doesn't call super
+    XCTAssertFalse(myAppDelegate.selectorCalledOnParent);
+    XCTAssertEqual([OneSignalAppDelegateOverrider callCountForSelector:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"], 1);
 }
 @end

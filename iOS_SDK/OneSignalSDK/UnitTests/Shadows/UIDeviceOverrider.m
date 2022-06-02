@@ -27,8 +27,18 @@ static NSString *_model; // e.g. @"iPhone", @"iPod touch"
 }
 
 + (void)load {
-    injectToProperClass(@selector(overrideSystemName), @selector(systemName), @[], [UIDeviceOverrider class], [UIDevice class]);
-    injectToProperClass(@selector(overrideModel), @selector(model), @[], [UIDeviceOverrider class], [UIDevice class]);
+    injectSelector(
+        [UIDevice class],
+        @selector(systemName),
+        [UIDeviceOverrider class],
+        @selector(overrideSystemName)
+    );
+    injectSelector(
+       [UIDevice class],
+       @selector(model),
+       [UIDeviceOverrider class],
+       @selector(overrideModel)
+   );
 }
 
 + (void)reset {

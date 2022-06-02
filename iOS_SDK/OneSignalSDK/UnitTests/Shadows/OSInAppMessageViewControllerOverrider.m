@@ -35,8 +35,18 @@
 + (void)load {
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wundeclared-selector"
-    injectToProperClass(@selector(overrideAnimateAppearance), @selector(animateAppearance), @[], [OSInAppMessageViewControllerOverrider class], [OSInAppMessageViewController class]);
-    injectToProperClass(@selector(overrideAnimateAppearance:), @selector(animateAppearance:), @[], [OSInAppMessageViewControllerOverrider class], [OSInAppMessageViewController class]);
+    injectSelector(
+        [OSInAppMessageViewController class],
+        @selector(animateAppearance),
+        [OSInAppMessageViewControllerOverrider class],
+        @selector(overrideAnimateAppearance)
+    );
+    injectSelector(
+        [OSInAppMessageViewController class],
+        @selector(animateAppearance:),
+        [OSInAppMessageViewControllerOverrider class],
+        @selector(overrideAnimateAppearance:)
+    );
     #pragma clang diagnostic pop
 }
 

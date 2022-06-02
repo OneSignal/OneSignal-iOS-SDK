@@ -42,13 +42,33 @@ static BOOL privacyState = false;
 }
 
 + (void)load {
-    injectToProperClass(@selector(overrideBundleIdentifier), @selector(bundleIdentifier), @[], [NSBundleOverrider class], [NSBundle class]);
+    injectSelector(
+        [NSBundle class],
+        @selector(bundleIdentifier),
+        [NSBundleOverrider class],
+        @selector(overrideBundleIdentifier)
+    );
     
-    injectToProperClass(@selector(overrideObjectForInfoDictionaryKey:), @selector(objectForInfoDictionaryKey:), @[], [NSBundleOverrider class], [NSBundle class]);
-    injectToProperClass(@selector(overrideURLForResource:withExtension:), @selector(URLForResource:withExtension:), @[], [NSBundleOverrider class], [NSBundle class]);
+    injectSelector(
+        [NSBundle class],
+        @selector(objectForInfoDictionaryKey:),
+        [NSBundleOverrider class],
+        @selector(overrideObjectForInfoDictionaryKey:)
+   );
+   injectSelector(
+       [NSBundle class],
+       @selector(URLForResource:withExtension:),
+       [NSBundleOverrider class],
+       @selector(overrideURLForResource:withExtension:)
+    );
     
     // Doesn't work to swizzle for mocking. Both an NSDictionary and NSMutableDictionarys both throw odd selecotor not found errors.
-    // injectToProperClass(@selector(overrideInfoDictionary), @selector(infoDictionary), @[], [NSBundleOverrider class], [NSBundle class]);
+    // injectSelector(
+    //     [NSBundle class],
+    //     @selector(infoDictionary),
+    //     [NSBundleOverrider class],
+    //     @selector(overrideInfoDictionary)
+    // );
 }
 
 +(void) setNsbundleDictionary:(NSDictionary*)value {

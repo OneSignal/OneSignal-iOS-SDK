@@ -33,7 +33,12 @@
 @implementation OSInAppMessageViewOverrider
 
 + (void)load {
-    injectToProperClass(@selector(overrideLoadedHtmlContent:withBaseURL:), @selector(loadedHtmlContent:withBaseURL:), @[], [OSInAppMessageViewOverrider class], [OSInAppMessageView class]);
+    injectSelector(
+        [OSInAppMessageView class],
+        @selector(loadedHtmlContent:withBaseURL:),
+        [OSInAppMessageViewOverrider class],
+        @selector(overrideLoadedHtmlContent:withBaseURL:)
+   );
 }
 
 - (void)overrideLoadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {

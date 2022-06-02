@@ -42,7 +42,12 @@
 static OSDialogRequest *currentDialog;
 
 + (void)load {
-    injectToProperClass(@selector(overrideDisplayDialog:), @selector(displayDialog:), @[], [OneSignalDialogControllerOverrider class], [OneSignalDialogController class]);
+    injectSelector(
+        [OneSignalDialogController class],
+        @selector(displayDialog:),
+        [OneSignalDialogControllerOverrider class],
+        @selector(overrideDisplayDialog:)
+    );
 }
 
 - (void)overrideDisplayDialog:(OSDialogRequest * _Nonnull)request {
