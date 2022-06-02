@@ -1605,12 +1605,6 @@ static BOOL _trackedColdRestart = false;
     const int minTimeThreshold = 30;
     NSTimeInterval delta = now - lastTimeClosed;
     
-    // Tracking cold starts within 30 seconds of last close.
-    // Depending on the results of our tracking we will change this case
-    // from a tracking request to return true
-    if (delta < minTimeThreshold && appId && !_registerUserFinished && !_trackedColdRestart) {
-        [OneSignal trackColdRestart];
-    }
     return delta >= minTimeThreshold;
 }
 
