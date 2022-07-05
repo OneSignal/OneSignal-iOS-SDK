@@ -15,6 +15,11 @@ Pod::Spec.new do |s|
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Core/OneSignalCore.xcframework'
     end
 
+    s.subspec 'OneSignalUser' do |ss|
+      ss.dependency 'OneSignal/OneSignalCore'
+      ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_User/OneSignalUser.xcframework'
+    end
+
     s.subspec 'OneSignalOutcomes' do |ss|
       ss.dependency 'OneSignal/OneSignalCore'
       ss.vendored_frameworks = 'iOS_SDK/OneSignalSDK/OneSignal_Outcomes/OneSignalOutcomes.xcframework'
