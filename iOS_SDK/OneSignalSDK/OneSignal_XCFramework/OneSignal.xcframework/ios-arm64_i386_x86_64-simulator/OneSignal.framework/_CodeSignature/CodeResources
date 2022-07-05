@@ -4,6 +4,30 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Frameworks/OneSignalUser.framework/Frameworks/OneSignalCore.framework/Info.plist</key>
+		<data>
+		ERMX+ZtCY3fPp0xaArdRhwc34Hk=
+		</data>
+		<key>Frameworks/OneSignalUser.framework/Frameworks/OneSignalCore.framework/OneSignalCore</key>
+		<data>
+		yjgSzSrMOoMC4Yj8ngmQZq29o00=
+		</data>
+		<key>Frameworks/OneSignalUser.framework/Frameworks/OneSignalCore.framework/_CodeSignature/CodeResources</key>
+		<data>
+		/zMe0kXDPaicaEbRF86cBpF5qUE=
+		</data>
+		<key>Frameworks/OneSignalUser.framework/Info.plist</key>
+		<data>
+		0tR4x92tEeam5TSE6Jb/Kchciro=
+		</data>
+		<key>Frameworks/OneSignalUser.framework/OneSignalUser</key>
+		<data>
+		OGE/GVP/HD36IMGivJWanCvaqMg=
+		</data>
+		<key>Frameworks/OneSignalUser.framework/_CodeSignature/CodeResources</key>
+		<data>
+		JLdhIdBXM0Jud4te/WtCgPsbiZg=
+		</data>
 		<key>Headers/OneSignal.h</key>
 		<data>
 		mQ+MJNUP1yuwHNHzLF2Yntx7Juk=
@@ -19,6 +43,72 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Frameworks/OneSignalUser.framework/Frameworks/OneSignalCore.framework/Info.plist</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			ERMX+ZtCY3fPp0xaArdRhwc34Hk=
+			</data>
+			<key>hash2</key>
+			<data>
+			Z/RoWGbxH/vbLH/vM5+zWGWEZ1C0bOtktnKYVV8JfeA=
+			</data>
+		</dict>
+		<key>Frameworks/OneSignalUser.framework/Frameworks/OneSignalCore.framework/OneSignalCore</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			yjgSzSrMOoMC4Yj8ngmQZq29o00=
+			</data>
+			<key>hash2</key>
+			<data>
+			lagBjFWByGxMw2q9fAiW7saw/MhndiBmaZxA2phdO8E=
+			</data>
+		</dict>
+		<key>Frameworks/OneSignalUser.framework/Frameworks/OneSignalCore.framework/_CodeSignature/CodeResources</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			/zMe0kXDPaicaEbRF86cBpF5qUE=
+			</data>
+			<key>hash2</key>
+			<data>
+			5nCUBuowW5b89wjYr6w7ilO1+xiwGqf8JZfX9VeL08k=
+			</data>
+		</dict>
+		<key>Frameworks/OneSignalUser.framework/Info.plist</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			0tR4x92tEeam5TSE6Jb/Kchciro=
+			</data>
+			<key>hash2</key>
+			<data>
+			PquOsHGsrJp5UwGGWSYPzoaWbU5KFIe4/sqhxtgKVfc=
+			</data>
+		</dict>
+		<key>Frameworks/OneSignalUser.framework/OneSignalUser</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			OGE/GVP/HD36IMGivJWanCvaqMg=
+			</data>
+			<key>hash2</key>
+			<data>
+			pB0G4JTSvKXbY9i2kE8DG+tozM3blA1QrWoxmphA57w=
+			</data>
+		</dict>
+		<key>Frameworks/OneSignalUser.framework/_CodeSignature/CodeResources</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			JLdhIdBXM0Jud4te/WtCgPsbiZg=
+			</data>
+			<key>hash2</key>
+			<data>
+			d126EwNmU5mAhOf4qDrRg/uJkuD6pr5FG5WBlE/eDjc=
+			</data>
+		</dict>
 		<key>Headers/OneSignal.h</key>
 		<dict>
 			<key>hash</key>

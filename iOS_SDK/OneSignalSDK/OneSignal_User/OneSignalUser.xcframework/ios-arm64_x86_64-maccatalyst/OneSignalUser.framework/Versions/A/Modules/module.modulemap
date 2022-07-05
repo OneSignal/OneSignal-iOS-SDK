@@ -1,0 +1,11 @@
+framework module OneSignalUser {
+  umbrella header "OneSignalUser.h"
+
+  export *
+  module * { export * }
+}
+
+module OneSignalUser.Swift {
+    header "OneSignalUser-Swift.h"
+    requires objc
+}
