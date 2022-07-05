@@ -20,6 +20,7 @@ let package = Package(
                 "OneSignal",
                 "OneSignalExtension",
                 "OneSignalOutcomes",
+                "OneSignalUser",
                 "OneSignalCore"
             ],
             path: "OneSignalWrapper"
@@ -41,6 +42,14 @@ let package = Package(
             ],
             path: "OneSignalOutcomesWrapper"
         ),
+        .target(
+            name: "OneSignalUserWrapper",
+            dependencies: [
+                "OneSignalUser",
+                "OneSignalCore"
+            ],
+            path: "OneSignalUserWrapper"
+        ),
         .binaryTarget(
           name: "OneSignal",
           url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.12.7/OneSignal.xcframework.zip",
@@ -58,8 +67,13 @@ let package = Package(
         ),
         .binaryTarget(
           name: "OneSignalCore",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.12.7/OneSignalCore.xcframework.zip",
-          checksum: "1f51ffa939a5bb58b05f9a83be18e20a6d692182822a5a559396f0c567f8bde0"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalCore.xcframework.zip",
+          checksum: "6378ad0fdba2e485274b87b192d0c6419f37e92bd33d9a2f7993b9c5e137b94f"
+        ),
+        .binaryTarget(
+          name: "OneSignalUser",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalUser.xcframework.zip",
+          checksum: "6378ad0fdba2e485274b87b192d0c6419f37e92bd33d9a2f7993b9c5e137b94f"
         )
     ]
 )
