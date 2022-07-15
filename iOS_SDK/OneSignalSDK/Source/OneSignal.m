@@ -60,6 +60,8 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
+// #import <OneSignalUser/OneSignalUser-Swift.h>
+// #import <OneSignalUser/OneSignalUser.h>
 
 #import <UserNotifications/UserNotifications.h>
 
@@ -574,6 +576,30 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (BOOL)shouldDelaySubscriptionSettingsUpdate {
     return shouldDelaySubscriptionUpdate;
+}
+
+#pragma mark User Model 🔥
+
+#pragma mark User Model - User Identity 🔥
+// TODO: Actual implementations
+
++ (OSUser* _Nonnull)user {
+    OSUser *user = [[OSUser alloc] init];
+    return user;
+}
+
++ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId {
+    return [OneSignalUser login:externalId];
+}
+
++ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
+    OSUser *user = [OneSignalUser login:externalId withToken:token];
+    return user;
+}
+
++ (OSUser* _Nonnull)loginGuest {
+    OSUser *user = [OneSignalUser loginGuest];
+    return user;
 }
 
 /*

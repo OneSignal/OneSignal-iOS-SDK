@@ -45,9 +45,12 @@
 #import <UserNotifications/UserNotifications.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import <OneSignalUser/OneSignalUser.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
+
+@class OSUser;
 
 @interface OSInAppMessage : NSObject
 
@@ -286,6 +289,14 @@ typedef void (^OSFailureBlock)(NSError* error);
 
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
+
+#pragma mark User Model 🔥
+
+#pragma mark User Model - User Identity 🔥
++ (OSUser* _Nonnull)user;
++ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId;
++ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token;
++ (OSUser* _Nonnull)loginGuest;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
