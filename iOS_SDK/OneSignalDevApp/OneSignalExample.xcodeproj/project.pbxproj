@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03432CDB1EBD426A0071FC48 /* CoreLocation.framework */; };
+		3C4CC2A22880C5DC0039A786 /* SwiftTestFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4CC2A12880C5DC0039A786 /* SwiftTestFile.swift */; };
 		4529DECC1FA7EAB800CEAB1D /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91B6EA051E83215000B5CF01 /* UserNotifications.framework */; };
 		4529DEFE1FA921DA00CEAB1D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
 		458396691FACFBB300D5DB95 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */; };
@@ -141,6 +142,8 @@
 
 /* Begin PBXFileReference section */
 		03432CDB1EBD426A0071FC48 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		3C4CC2A02880C5DC0039A786 /* OneSignalExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalExample-Bridging-Header.h"; sourceTree = "<group>"; };
+		3C4CC2A12880C5DC0039A786 /* SwiftTestFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftTestFile.swift; sourceTree = "<group>"; };
 		4529DEFD1FA921D900CEAB1D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		454F94F71FAD49F300D74CCF /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		9112E8821E724C320022A1CB /* OneSignalExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneSignalExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -296,7 +299,8 @@
 				9112E8931E724C320022A1CB /* LaunchScreen.storyboard */,
 				9112E8961E724C320022A1CB /* Info.plist */,
 				9112E8851E724C320022A1CB /* Supporting Files */,
-				94735146291C4701000D91D3 /* OneSignalExample-Bridging-Header.h */,
+				3C4CC2A12880C5DC0039A786 /* SwiftTestFile.swift */,
+				3C4CC2A02880C5DC0039A786 /* OneSignalExample-Bridging-Header.h */,
 			);
 			path = OneSignalDevApp;
 			sourceTree = "<group>";
@@ -475,7 +479,7 @@
 					9112E8811E724C320022A1CB = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 99SW8E36CT;
-						LastSwiftMigration = 1410;
+						LastSwiftMigration = 1320;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -582,7 +586,7 @@
 				9112E88D1E724C320022A1CB /* ViewController.m in Sources */,
 				9112E88A1E724C320022A1CB /* AppDelegate.m in Sources */,
 				9112E8871E724C320022A1CB /* main.m in Sources */,
-				9473515E291C4EDC000D91D3 /* OneSignalWidgetExtension.intentdefinition in Sources */,
+				3C4CC2A22880C5DC0039A786 /* SwiftTestFile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
