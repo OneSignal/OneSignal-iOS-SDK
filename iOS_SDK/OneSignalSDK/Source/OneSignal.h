@@ -293,10 +293,17 @@ typedef void (^OSFailureBlock)(NSError* error);
 #pragma mark User Model 🔥
 
 #pragma mark User Model - User Identity 🔥
+typedef void (^OSUserLoginBlock)(OSUser* _Nonnull user);
+
+//+ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId;
+//+ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token;
+//+ (OSUser* _Nonnull)loginGuest;
+
+// TODO: Confirm nullability
 + (OSUser* _Nonnull)user;
-+ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId;
-+ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token;
-+ (OSUser* _Nonnull)loginGuest;
++ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock _Nonnull)block;
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock _Nonnull)block;
++ (void)loginGuest:(OSUserLoginBlock _Nonnull)block;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
