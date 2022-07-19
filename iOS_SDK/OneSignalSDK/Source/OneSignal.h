@@ -300,7 +300,7 @@ typedef void (^OSUserLoginBlock)(OSUser* _Nonnull user);
 //+ (OSUser* _Nonnull)loginGuest;
 
 // TODO: Confirm nullability
-+ (OSUser* _Nonnull)user;
++ (OSUser* _Nonnull)user NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock _Nonnull)block;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock _Nonnull)block;
 + (void)loginGuest:(OSUserLoginBlock _Nonnull)block;
