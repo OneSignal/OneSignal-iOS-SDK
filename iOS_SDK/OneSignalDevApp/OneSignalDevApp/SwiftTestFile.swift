@@ -16,9 +16,18 @@ public class SwiftTestFile: NSObject {
         
         // User Identity
         var _ = OneSignal.user
-        var _ = OneSignal.login("foo")
-        var _ = OneSignal.login("foo", withToken: "someToken")
-        var _ = OneSignal.loginGuest()
+        
+        OneSignal.login("foo") { user in
+            var _ = user
+        }
+       
+        OneSignal.login("foo", withToken: "someToken") { user in
+            var _ = user
+        }
+        
+        var _ = OneSignal.loginGuest { user in
+            var _ = user
+        }
                
         // TODO: access user like a property instead of user()
         

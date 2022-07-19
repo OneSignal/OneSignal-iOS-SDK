@@ -618,18 +618,19 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return user;
 }
 
-+ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId {
-    return [OneSignalUser login:externalId];
++ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock)block{
+    OSUser *user = [OneSignalUser login:externalId];
+    block(user);
 }
 
-+ (OSUser* _Nonnull)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock)block{
     OSUser *user = [OneSignalUser login:externalId withToken:token];
-    return user;
+    block(user);
 }
 
-+ (OSUser* _Nonnull)loginGuest {
++ (void)loginGuest:(OSUserLoginBlock)block {
     OSUser *user = [OneSignalUser loginGuest];
-    return user;
+    block(user);
 }
 
 /*

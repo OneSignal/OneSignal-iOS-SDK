@@ -102,10 +102,20 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 - (void)testUserModelMethods {
     
     // User Identity
-    OSUser* myUser = OneSignal.user;
-    myUser = [OneSignal login:@"foo"];
-    myUser = [OneSignal login:@"bar" withToken:@"someToken"];
-    myUser = [OneSignal loginGuest];
+    __block OSUser* myUser = OneSignal.user;
+    
+    [OneSignal login:@"foo" withResult:^(OSUser * _Nonnull user) {
+        myUser = user;
+    }];
+    
+    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(OSUser * _Nonnull user) {
+        myUser = user;
+    }];
+    
+    [OneSignal loginGuest:^(OSUser * _Nonnull user) {
+        myUser = user;
+    }];
+    
     
     // Aliases
     [OneSignal.user addAlias:@"foo" id:@"foo1"];
