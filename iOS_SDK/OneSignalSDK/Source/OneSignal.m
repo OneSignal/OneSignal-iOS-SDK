@@ -61,7 +61,7 @@
 #import <UIKit/UIKit.h>
 
  //#import <OneSignalUser/OneSignalUser-Swift.h>
- #import "UnitTests-Swift.h"
+// #import "UnitTests-Swift.h"
 // #import <OneSignalUser/OneSignalUser.h>
 
 #import <UserNotifications/UserNotifications.h>
@@ -584,25 +584,25 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 #pragma mark User Model - User Identity 🔥
 // TODO: Actual implementations
 
-+ (OSUser* _Nonnull)user {
-    OSUser *user = [[OSUser alloc] init];
-    return user;
-}
-
-+ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock)block{
-    OSUser *user = [OneSignalUser login:externalId];
-    block(user);
-}
-
-+ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock)block{
-    OSUser *user = [OneSignalUser login:externalId withToken:token];
-    block(user);
-}
-
-+ (void)loginGuest:(OSUserLoginBlock)block {
-    OSUser *user = [OneSignalUser loginGuest];
-    block(user);
-}
+//+ (OSUser* _Nonnull)user {
+//    OSUser *user = [[OSUser alloc] init];
+//    return user;
+//}
+//
+//+ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock)block{
+//    OSUser *user = [OneSignalUser login:externalId];
+//    block(user);
+//}
+//
+//+ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock)block{
+//    OSUser *user = [OneSignalUser login:externalId withToken:token];
+//    block(user);
+//}
+//
+//+ (void)loginGuest:(OSUserLoginBlock)block {
+//    OSUser *user = [OneSignalUser loginGuest];
+//    block(user);
+//}
 
 /*
  1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
