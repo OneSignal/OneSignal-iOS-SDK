@@ -53,6 +53,8 @@
 		DE97177A2756E6FF00FC409E /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D18C327038240002D3A5D /* OneSignalOutcomes.framework */; };
 		DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; };
 		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DEA4B4502888B01000E9FE12 /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */; };
+		DEA4B4512888B01000E9FE12 /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +118,7 @@
 				DE9717762756E6E100FC409E /* OneSignalExtension.framework in Embed Frameworks */,
 				DE7D18C527038240002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */,
 				DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */,
+				DEA4B4512888B01000E9FE12 /* OneSignalUser.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,6 +177,7 @@
 		DEA22668261E62690092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266A261E62780092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266C261E627D0092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +186,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */,
+				DEA4B4502888B01000E9FE12 /* OneSignalUser.framework in Frameworks */,
 				DE7D18C427038240002D3A5D /* OneSignalOutcomes.framework in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
 				9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */,
@@ -274,6 +279,7 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */,
 				DE7D18C327038240002D3A5D /* OneSignalOutcomes.framework */,
 				DE7D181D27026C02002D3A5D /* OneSignalExtension.framework */,
 				DE7D180C27026BCC002D3A5D /* OneSignalExtension.framework */,

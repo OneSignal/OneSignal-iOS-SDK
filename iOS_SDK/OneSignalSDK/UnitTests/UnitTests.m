@@ -81,6 +81,7 @@
 #import "OSRequests.h"
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
+#import "UnitTests-Swift.h"
 
 @interface OneSignal (TestHelper)
 + (DelayedConsentInitializationParameters *)delayedInitParameters;
@@ -1801,7 +1802,7 @@ didReceiveRemoteNotification:userInfo
                             @"att": @{ @"id": @"http://domain.com/file.jpg" }
                             }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse * notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -1876,7 +1877,7 @@ didReceiveRemoteNotification:userInfo
                             @"att": @{ @"id": @"file.jpg" }
                             }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -1900,7 +1901,7 @@ didReceiveRemoteNotification:userInfo
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     UNMutableNotificationContent* content = [OneSignalExtension serviceExtensionTimeWillExpireRequest:[notifResponse notification].request withMutableNotificationContent:nil];
     
@@ -1923,7 +1924,7 @@ didReceiveRemoteNotification:userInfo
                         @"att": @{ @"id": @"http://domain.com/file.jpg" }
                     }};
     
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     // create an expectation that is fulfilled when the contentHandler is fired and when didReceiveNotificationExtensionRequest
     // returns. This indicates that the semaphore waiting on the confirmed delivery has been signaled.
@@ -2193,7 +2194,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 - (UNNotificationAttachment *)deliverNotificationWithJSON:(id)json {
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:json];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:json];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
@@ -3404,7 +3405,7 @@ didReceiveRemoteNotification:userInfo
                             @"ti": @"templateId123",
                             @"tn": @"Template name"
                         }};
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsCustom];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsCustom];
     
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request                                                           withMutableNotificationContent:nil
                                                                            withContentHandler:nil];
@@ -3426,7 +3427,7 @@ didReceiveRemoteNotification:userInfo
                             @"ti": @"templateId123",
                             @"tn": @"Template name"
                         }};
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsOSData];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:apsOSData];
 
     UNMutableNotificationContent* content = [OneSignal didReceiveNotificationExtensionRequest:[notifResponse notification].request                                                           withMutableNotificationContent:nil
                                                                            withContentHandler:nil];
