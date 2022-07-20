@@ -60,7 +60,8 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
-// #import <OneSignalUser/OneSignalUser-Swift.h>
+ //#import <OneSignalUser/OneSignalUser-Swift.h>
+ #import "UnitTests-Swift.h"
 // #import <OneSignalUser/OneSignalUser.h>
 
 #import <UserNotifications/UserNotifications.h>
