@@ -26,7 +26,7 @@
  */
 
 import Foundation
-//import OneSignalCore
+import OneSignalCore
 
 @objc
 public class OneSignalUser: NSObject {

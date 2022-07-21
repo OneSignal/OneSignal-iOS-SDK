@@ -81,7 +81,7 @@
 #import "OSRequests.h"
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
-#import "UnitTests-Swift.h"
+//#import "UnitTests-Swift.h"
 
 @interface OneSignal (TestHelper)
 + (DelayedConsentInitializationParameters *)delayedInitParameters;
@@ -1742,7 +1742,7 @@ didReceiveRemoteNotification:userInfo
 
 // iOS 10 - Notification Service Extension test
 - (void) didReceiveNotificationExtensionRequestDontOverrideCateogoryWithUserInfo:(NSDictionary *)userInfo {
-    id notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
+    UNNotificationResponse *notifResponse = [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
     
     [[notifResponse notification].request.content setValue:@"some_category" forKey:@"categoryIdentifier"];
     
