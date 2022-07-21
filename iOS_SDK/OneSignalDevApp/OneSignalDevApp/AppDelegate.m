@@ -93,61 +93,61 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     NSLog(@"🔥 BEGIN misc. test methods for User Model");
-    //[self testUserModelMethods];
+    [self testUserModelMethods];
     NSLog(@"🔥 END misc. test methods for User Model");
 
     return YES;
 }
 
-//- (void)testUserModelMethods {
-//
-//    // User Identity
-//    __block OSUser* myUser = OneSignal.user;
-//
-//    [OneSignal login:@"foo" withResult:^(OSUser * _Nonnull user) {
-//        myUser = user;
-//    }];
-//
-//    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(OSUser * _Nonnull user) {
-//        myUser = user;
-//    }];
-//
-//    [OneSignal loginGuest:^(OSUser * _Nonnull user) {
-//        myUser = user;
-//    }];
-//
-//
-//    // Aliases
-//    [OneSignal.user addAlias:@"foo" id:@"foo1"];
-//    [OneSignal.user addAliases:@{@"foo": @"foo1", @"bar": @"bar2"}];
-//    [OneSignal.user removeAlias:@"foo"];
-//    [OneSignal.user removeAliases:@[@"foo", @"bar"]];
-//
-//    // Tags
-//    [OneSignal.user setTag:@"foo" :@"bar"]; // TODO: 2nd param looks weird, fix
-//    [OneSignal.user setTags:@{@"foo": @"foo1", @"bar": @"bar2"}];
-//    [OneSignal.user removeTag:@"foo"];
-//    [OneSignal.user removeTags:@[@"foo", @"bar"]];
-//
-//    // Outcomes
-//    [OneSignal.user setOutcome:@"foo"];
-//    [OneSignal.user setUniqueOutcome:@"foo"];
-//    [OneSignal.user setOutcomeWithValue:@"foo" :4.50]; // TODO: 2nd param looks weird, fix
-//
-//    // Email
-//    [OneSignal.user addEmail:@"person@example.com"];
-//    [OneSignal.user removeEmail:@"person@example.com"];
-//
-//    // SMS
-//    [OneSignal.user addSmsNumber:@"+15551231234"];
-//    [OneSignal.user removeSmsNumber:@"+15551231234"];
-//
-//    // Triggers
-//    [OneSignal.user setTrigger:@"foo" :@"bar"]; // TODO: looks weird, fix
-//    [OneSignal.user setTriggers:@{@"foo": @"foo1", @"bar": @"bar2"}];
-//    [OneSignal.user removeTrigger:@"foo"];
-//    [OneSignal.user removeTriggers:@[@"foo", @"bar"]];
-//}
+- (void)testUserModelMethods {
+    
+    // User Identity
+    __block OSUser* myUser = OneSignal.user;
+    
+    [OneSignal login:@"foo" withResult:^(OSUser * _Nonnull user) {
+        myUser = user;
+    }];
+    
+    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(OSUser * _Nonnull user) {
+        myUser = user;
+    }];
+    
+    [OneSignal loginGuest:^(OSUser * _Nonnull user) {
+        myUser = user;
+    }];
+    
+    
+    // Aliases
+    [OneSignal.user addAlias:@"foo" id:@"foo1"];
+    [OneSignal.user addAliases:@{@"foo": @"foo1", @"bar": @"bar2"}];
+    [OneSignal.user removeAlias:@"foo"];
+    [OneSignal.user removeAliases:@[@"foo", @"bar"]];
+    
+    // Tags
+    [OneSignal.user setTag:@"foo" :@"bar"]; // TODO: 2nd param looks weird, fix
+    [OneSignal.user setTags:@{@"foo": @"foo1", @"bar": @"bar2"}];
+    [OneSignal.user removeTag:@"foo"];
+    [OneSignal.user removeTags:@[@"foo", @"bar"]];
+    
+    // Outcomes
+    [OneSignal.user setOutcome:@"foo"];
+    [OneSignal.user setUniqueOutcome:@"foo"];
+    [OneSignal.user setOutcomeWithValue:@"foo" :4.50]; // TODO: 2nd param looks weird, fix
+    
+    // Email
+    [OneSignal.user addEmail:@"person@example.com"];
+    [OneSignal.user removeEmail:@"person@example.com"];
+    
+    // SMS
+    [OneSignal.user addSmsNumber:@"+15551231234"];
+    [OneSignal.user removeSmsNumber:@"+15551231234"];
+    
+    // Triggers
+    [OneSignal.user setTrigger:@"foo" :@"bar"]; // TODO: looks weird, fix
+    [OneSignal.user setTriggers:@{@"foo": @"foo1", @"bar": @"bar2"}];
+    [OneSignal.user removeTrigger:@"foo"];
+    [OneSignal.user removeTriggers:@[@"foo", @"bar"]];
+}
 
 #define ONESIGNAL_APP_ID_DEFAULT @"0ba9731b-33bd-43f4-8b59-61172e27447d"
 #define ONESIGNAL_APP_ID_KEY_FOR_TESTING @"ONESIGNAL_APP_ID_KEY_FOR_TESTING"
