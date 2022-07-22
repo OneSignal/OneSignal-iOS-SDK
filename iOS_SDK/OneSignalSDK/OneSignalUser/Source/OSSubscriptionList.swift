@@ -25,27 +25,15 @@
  THE SOFTWARE.
  */
 
+
+
 import Foundation
-import OneSignalCore
+
+@objc protocol OSSubscriptionInterface {
+    var id: UUID { get set }
+}
 
 @objc
-public class OneSignalUser: NSObject {
+public class OSSubscriptionList: NSObject {
     
-    @objc
-    public static func login(_ externalId: String) -> OSUser {
-        print("🔥 OneSignalUser login() called")
-        return OSUser()
-    }
-    
-    @objc
-    public static func login(_ externalId: String, withToken: String) -> OSUser {
-        print("🔥 OneSignalUser loginwithBearerToken() called")
-        return OSUser()
-    }
-    
-    @objc
-    public static func loginGuest() -> OSUser {
-        print("🔥 OneSignalUser loginGuest() called")
-        return OSUser()
-    }
 }

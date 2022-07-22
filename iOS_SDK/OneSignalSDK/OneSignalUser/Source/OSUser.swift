@@ -31,6 +31,17 @@ import OneSignalCore
 @objc
 public class OSUser: NSObject {
     
+    var onesignalId: UUID
+    var externalId: String?
+    var language: String?
+    var aliases: [String : String] = [:]
+    var subscriptions: OSSubscriptionList = OSSubscriptionList()
+    var tags: [String : String] = [:]
+    
+    init(onesignalId: UUID) {
+        self.onesignalId = onesignalId
+    }
+    
     // Aliases
     
     @objc
@@ -138,5 +149,10 @@ public class OSUser: NSObject {
     @objc
     public func removeTriggers(_ triggers: [String]) -> Void {
         print("🔥 OSUser removeTriggers() called")
+    }
+    
+    @objc
+    public func clearTriggers() -> Void {
+        print("🔥 OSUser clearTriggers() called")
     }
 }
