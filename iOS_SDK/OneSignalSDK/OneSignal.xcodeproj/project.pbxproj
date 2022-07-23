@@ -55,6 +55,8 @@
 		03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 03E56DD228405F4A006AA1DA /* OneSignalAppDelegateOverrider.m */; };
 		16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 16664C4B25DDB195003B8A14 /* NSTimeZoneOverrider.m */; };
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
+		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3CC10451286A52A600148757 /* OSUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC1044F286A52A600148757 /* OSUser.swift */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
@@ -662,6 +664,9 @@
 		1AF75EAD1E8567FD0097B315 /* NSString+OneSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+OneSignal.m"; sourceTree = "<group>"; };
 		37747F9319147D6500558FAD /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37E6B2BA19D9CAF300D0C601 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
+		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3CC1044F286A52A600148757 /* OSUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSUser.swift; sourceTree = "<group>"; };
 		3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3E2400381D4FFC31008BDE70 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1291,6 +1296,8 @@
 		911E2CBB1E398AB3003112A4 /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */,
+				3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */,
 				03CCCC802835D902004BF794 /* UNNotificationCenter */,
 				7A5A818324899050002E07C8 /* Models */,
 				03866CBE2378A5ED0009C1D8 /* Asserts */,
@@ -1327,6 +1334,7 @@
 				7ABAF9D72457DD620074DFA0 /* SessionManagerTests.m */,
 				7A5A818124897693002E07C8 /* MigrationTests.m */,
 				A662399026850DDE00D52FD8 /* LanguageTest.m */,
+				3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -2168,6 +2176,7 @@
 					911E2CB91E398AB3003112A4 = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = 99SW8E36CT;
+						LastSwiftMigration = 1320;
 						ProvisioningStyle = Automatic;
 						TestTargetID = DEF5CCF02539321A0003E9CC;
 					};
@@ -2512,6 +2521,7 @@
 				912412201E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				03E56DD328405F4A006AA1DA /* OneSignalAppDelegateOverrider.m in Sources */,
 				DE9877342591656300DE07D5 /* NSDateFormatter+OneSignal.m in Sources */,
+				3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */,
 				7ABAF9D82457DD620074DFA0 /* SessionManagerTests.m in Sources */,
 				CA85C15320604AEA003AB529 /* RequestTests.m in Sources */,
 				9D34853A233D2E3600EB81C9 /* OneSignalLocationOverrider.m in Sources */,
@@ -2580,6 +2590,7 @@
 				CACBAAAA218A65AE000ACAA5 /* InAppMessagingTests.m in Sources */,
 				7AF5174924FDC2C500B076BC /* OSRemoteParamController.m in Sources */,
 				4529DEE71FA82CDC00CEAB1D /* UNUserNotificationCenterOverrider.m in Sources */,
+				3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */,
 				4529DEDB1FA8284E00CEAB1D /* NSDataOverrider.m in Sources */,
 				7AD1723A2416D53B00A78B19 /* OSInAppMessageLocationPrompt.m in Sources */,
 				CA7FC8A221927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
@@ -2921,6 +2932,8 @@
 				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.UnitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "UnitTests/UnitTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/UnitTestApp";
 			};
@@ -3087,6 +3100,8 @@
 				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.UnitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "UnitTests/UnitTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/UnitTestApp.app/UnitTestApp";
 			};
