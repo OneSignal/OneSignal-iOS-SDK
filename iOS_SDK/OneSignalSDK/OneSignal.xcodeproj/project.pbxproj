@@ -380,7 +380,7 @@
 		DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */; };
 		DE69E19F282ED8060090BB3D /* OneSignalUser.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE69E19E282ED8060090BB3D /* OneSignalUser.docc */; };
 		DE69E1A0282ED8060090BB3D /* OneSignalUser.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69E19D282ED8060090BB3D /* OneSignalUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DE69E1AC282ED87A0090BB3D /* OneSignalUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE69E1AA282ED8790090BB3D /* OneSignalUser.swift */; };
+		DE69E1AC282ED87A0090BB3D /* OneSignalUserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE69E1AA282ED8790090BB3D /* OneSignalUserManager.swift */; };
 		DE69E1AD282ED8F20090BB3D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DE69E1AE282ED8F20090BB3D /* OneSignalCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE69E1B2282ED9430090BB3D /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
@@ -943,7 +943,7 @@
 		DE69E19D282ED8060090BB3D /* OneSignalUser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalUser.h; sourceTree = "<group>"; };
 		DE69E19E282ED8060090BB3D /* OneSignalUser.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = OneSignalUser.docc; sourceTree = "<group>"; };
 		DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTestApp-Bridging-Header.h"; sourceTree = "<group>"; };
-		DE69E1AA282ED8790090BB3D /* OneSignalUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUser.swift; sourceTree = "<group>"; };
+		DE69E1AA282ED8790090BB3D /* OneSignalUserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalUserManager.swift; sourceTree = "<group>"; };
 		DE7D17E627026B95002D3A5D /* OneSignalCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE7D17E827026B95002D3A5D /* OneSignalCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCore.h; sourceTree = "<group>"; };
 		DE7D17E927026B95002D3A5D /* OneSignalCore.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = OneSignalCore.docc; sourceTree = "<group>"; };
@@ -1554,7 +1554,7 @@
 			children = (
 				DE69E19D282ED8060090BB3D /* OneSignalUser.h */,
 				3CC1044F286A52A600148757 /* OSUser.swift */,
-				DE69E1AA282ED8790090BB3D /* OneSignalUser.swift */,
+				DE69E1AA282ED8790090BB3D /* OneSignalUserManager.swift */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
 			);
 			path = Source;
@@ -2635,7 +2635,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE69E1AC282ED87A0090BB3D /* OneSignalUser.swift in Sources */,
+				DE69E1AC282ED87A0090BB3D /* OneSignalUserManager.swift in Sources */,
 				3CC10451286A52A600148757 /* OSUser.swift in Sources */,
 				DE69E19F282ED8060090BB3D /* OneSignalUser.docc in Sources */,
 			);

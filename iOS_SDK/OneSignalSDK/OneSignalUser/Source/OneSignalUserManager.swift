@@ -28,8 +28,14 @@
 import Foundation
 import OneSignalCore
 
+@objc protocol OneSignalUserManagerInterface {
+    static func login(_ externalId: String) -> OSUser
+    static func login(externalId: String, withToken: String) -> OSUser
+    static func loginGuest() -> OSUser
+}
+
 @objc
-public class OneSignalUser: NSObject {
+public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     
     @objc
     public static func login(_ externalId: String) -> OSUser {
