@@ -45,7 +45,6 @@
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
 #import "OneSignalInternal.h"
-#import <OneSignalUser/OneSignalUser.h>
 
 @interface OneSignalTracker ()
 + (void)setLastOpenedTime:(NSTimeInterval)lastOpened;
@@ -70,7 +69,6 @@
  */
 - (void)setUp {
     [super setUp];
-    OSUser *user = [OSUser new];
     [UnitTestCommonMethods beforeEachTest:self];
     
     [OneSignalUNUserNotificationCenter setUseiOS10_2_workaround:true];

@@ -81,7 +81,6 @@
 #import "OSRequests.h"
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
-//#import "UnitTests-Swift.h"
 
 @interface OneSignal (TestHelper)
 + (DelayedConsentInitializationParameters *)delayedInitParameters;
