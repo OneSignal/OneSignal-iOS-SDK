@@ -46,7 +46,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     }
     
     @objc
-    public static func login(_ externalId: String, withToken: String) -> OSUser {
+    public static func login(externalId: String, withToken: String) -> OSUser {
         print("🔥 OneSignalUser loginwithBearerToken() called")
         return user
     }
