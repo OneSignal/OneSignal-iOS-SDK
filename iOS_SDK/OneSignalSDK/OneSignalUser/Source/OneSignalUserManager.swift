@@ -42,12 +42,14 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     @objc
     public static func login(_ externalId: String) -> OSUser {
         print("🔥 OneSignalUser login() called")
+        user.setExternalId(externalId)
         return user
     }
     
     @objc
     public static func login(externalId: String, withToken: String) -> OSUser {
         print("🔥 OneSignalUser loginwithBearerToken() called")
+        user.setExternalId(externalId)
         return user
     }
     
