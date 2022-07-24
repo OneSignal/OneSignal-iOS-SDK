@@ -31,6 +31,17 @@ import OneSignalCore
 @objc
 public class OSUser: NSObject {
     
+    var onesignalId: UUID
+    var language: String?
+    var aliases: [String : String] = [:]
+    var tags: [String : String] = [:]
+    var triggers: [String : String] = [:] // update to include bool, number
+    // email, sms, subscriptions todo
+    
+    @objc public init(_ onesignalId: UUID) {
+        self.onesignalId = onesignalId
+    }
+    
     // Aliases
     
     @objc
@@ -74,6 +85,11 @@ public class OSUser: NSObject {
     @objc
     public func removeTags(_ tags: [String]) -> Void {
         print("🔥 OSUser removeTags() called")
+    }
+    
+    @objc
+    public func getTag(_ tag: String) -> Void {
+        print("🔥 OSUser getTag() called")
     }
     
     // Outcomes
