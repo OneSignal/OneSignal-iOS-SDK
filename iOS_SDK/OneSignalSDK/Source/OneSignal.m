@@ -624,7 +624,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock)block{
-    OSUser *user = [OneSignalUserManager login:externalId withToken:token];
+    OSUser *user = [OneSignalUserManager loginWithExternalId:externalId withToken:token];
     block(user);
 }
 

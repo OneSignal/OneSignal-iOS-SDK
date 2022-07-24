@@ -45,7 +45,7 @@ public class OSUser: NSObject {
     // Aliases
     
     @objc
-    public func addAlias(_ label: String, id: String) -> Void {
+    public func addAlias(label: String, id: String) -> Void {
         print("🔥 OSUser addAlias() called")
     }
     
@@ -67,7 +67,7 @@ public class OSUser: NSObject {
     // Tags
     
     @objc
-    public func setTag(_ key: String, _ value: String) -> Void {
+    public func setTag(key: String, value: String) -> Void {
         // TODO: Value for tags can be non-string?
         print("🔥 OSUser sendTag() called")
     }
@@ -105,7 +105,7 @@ public class OSUser: NSObject {
     }
     
     @objc
-    public func setOutcomeWithValue(_ name: String, _ value: Float) -> Void {
+    public func setOutcome(name: String, value: Float) -> Void {
         print("🔥 OSUser setOutcomeWithValue() called")
     }
     
@@ -136,7 +136,7 @@ public class OSUser: NSObject {
     // Triggers
     
     @objc
-    public func setTrigger(_ key: String, _ value: String) -> Void {
+    public func setTrigger(key: String, value: String) -> Void {
         // TODO: Value for trigger can be non-string
         print("🔥 OSUser setTrigger() called")
     }
