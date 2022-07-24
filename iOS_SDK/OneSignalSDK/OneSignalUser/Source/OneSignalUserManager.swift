@@ -29,6 +29,7 @@ import Foundation
 import OneSignalCore
 
 @objc protocol OneSignalUserManagerInterface {
+    static var user: OSUser { get set }
     static func login(_ externalId: String) -> OSUser
     static func login(externalId: String, withToken: String) -> OSUser
     static func loginGuest() -> OSUser
@@ -36,22 +37,23 @@ import OneSignalCore
 
 @objc
 public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
+    @objc static var user = OSUser(UUID())
     
     @objc
     public static func login(_ externalId: String) -> OSUser {
         print("🔥 OneSignalUser login() called")
-        return OSUser()
+        return user
     }
     
     @objc
     public static func login(_ externalId: String, withToken: String) -> OSUser {
         print("🔥 OneSignalUser loginwithBearerToken() called")
-        return OSUser()
+        return user
     }
     
     @objc
     public static func loginGuest() -> OSUser {
         print("🔥 OneSignalUser loginGuest() called")
-        return OSUser()
+        return user
     }
 }
