@@ -127,7 +127,7 @@ static OneSignalLocation* singleInstance = nil;
 + (void)onFocus:(BOOL)isActive {
     
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent])
+    if ([OneSignal requiresPrivacyConsent])
         return;
     
     if (!locationManager || ![self started])
@@ -325,7 +325,7 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
-    if (([OneSignal requiresUserPrivacyConsent] || ![OneSignal isLocationShared]) && !fallbackToSettings) {
+    if (([OneSignal requiresPrivacyConsent] || ![OneSignal isLocationShared]) && !fallbackToSettings) {
         [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManagerDelegate clear Location listener due to permissions denied or location shared not available"];
         [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
         return;
@@ -386,7 +386,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)sendLocation {
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent])
+    if ([OneSignal requiresPrivacyConsent])
         return;
     
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
