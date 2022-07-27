@@ -320,10 +320,11 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 + (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
-+ (void)consentGranted:(BOOL)granted;
++ (void)setPrivacyConsent:(BOOL)granted;
+// TODO: add getPrivacyConsent method
 // Tells your application if privacy consent is still needed from the current user
-+ (BOOL)requiresUserPrivacyConsent;
-+ (void)setRequiresUserPrivacyConsent:(BOOL)required;
++ (BOOL)requiresPrivacyConsent;
++ (void)setRequiresPrivacyConsent:(BOOL)required;
 
 #pragma mark Public Handlers
 

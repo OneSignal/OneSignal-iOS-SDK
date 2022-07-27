@@ -718,7 +718,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [[OSMigrationController new] migrate];
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
-    if ([self requiresUserPrivacyConsent]) {
+    if ([self requiresPrivacyConsent]) {
         [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
         delayedInitializationForPrivacyConsent = true;
         _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
@@ -889,14 +889,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
 }
 
-+ (void)setRequiresUserPrivacyConsent:(BOOL)required {
++ (void)setRequiresPrivacyConsent:(BOOL)required {
     let remoteParamController = [self getRemoteParamController];
 
     // Already set by remote params
     if ([remoteParamController hasPrivacyConsentKey])
         return;
 
-    if ([self requiresUserPrivacyConsent] && !required) {
+    if ([self requiresPrivacyConsent] && !required) {
         [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
         return;
     }
@@ -904,11 +904,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [remoteParamController savePrivacyConsentRequired:required];
 }
 
-+ (BOOL)requiresUserPrivacyConsent {
++ (BOOL)requiresPrivacyConsent {
     return [OSPrivacyConsentController requiresUserPrivacyConsent];
 }
 
-+ (void)consentGranted:(BOOL)granted {
++ (void)setPrivacyConsent:(BOOL)granted {
     [OSPrivacyConsentController consentGranted:granted];
     
     if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)
