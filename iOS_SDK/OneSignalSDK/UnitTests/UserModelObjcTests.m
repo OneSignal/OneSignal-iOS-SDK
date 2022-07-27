@@ -44,15 +44,6 @@
     [super tearDown];
 }
 
-- (void)testPropertyWrapper_checkPrintLog {
-    // temp. test to see that OSQueueable's didSet is called on externalId by checking logs
-    __block OSUser* myUser = OneSignal.user;
-    [OneSignal login:@"foo" withResult:^(OSUser * _Nonnull user) {
-        myUser = user;
-    }];
-    XCTAssertNotNil(myUser);
-}
-
 - (void)testUserModelMethodAccess {
     // this test lays out the public APIs of the user model
 

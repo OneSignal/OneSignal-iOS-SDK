@@ -28,27 +28,11 @@
 import Foundation
 import OneSignalCore
 
-@propertyWrapper struct OSQueueable {
-    var wrappedValue: String? {
-        didSet {
-            if let wrappedValue = self.wrappedValue {
-                print("🔥 OSQueueable didSet with: \(wrappedValue)")
-            }
-        }
-    }
-    
-    init(wrappedValue: String?) {
-        if let wrappedValue = self.wrappedValue {
-            print("🔥 OSQueueable init with: \(wrappedValue)")
-        }
-    }
-}
-
 @objc
 public class OSUser: NSObject {
     
     var onesignalId: UUID
-    @OSQueueable var externalId: String?
+    var externalId: String?
     var language: String?
     var aliases: [String : String] = [:]
     var tags: [String : String] = [:]
@@ -57,11 +41,6 @@ public class OSUser: NSObject {
     
     @objc public init(_ onesignalId: UUID) {
         self.onesignalId = onesignalId
-    }
-    
-    func setExternalId(_ externalId: String) -> Void {
-        print("🔥 OSUser setExternalId() called")
-        self.externalId = externalId
     }
     
     // Aliases
