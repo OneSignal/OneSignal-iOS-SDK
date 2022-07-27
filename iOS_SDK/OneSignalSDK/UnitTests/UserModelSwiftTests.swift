@@ -47,15 +47,6 @@ class UserModelSwiftTests: XCTestCase {
         try super.tearDownWithError()
     }
 
-    func testPropertyWrapper_checkPrintLog() throws {
-        // temp. test to see that OSQueueable's didSet is called on externalId by checking logs
-        var myUser = OneSignal.user
-        OneSignal.login("foo") { user in
-            myUser = user
-        }
-        XCTAssertNotNil(myUser)
-    }
-
     func testUserModelMethodAccess() throws {
         // this test lays out the public APIs of the user model
         
