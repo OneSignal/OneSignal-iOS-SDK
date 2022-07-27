@@ -69,7 +69,6 @@ public class OSUser: NSObject {
     
     @objc
     public func setTag(key: String, value: String) -> Void {
-        // TODO: Value for tags can be non-string?
         print("🔥 OSUser sendTag() called")
     }
     
@@ -138,7 +137,7 @@ public class OSUser: NSObject {
     
     @objc
     public func setTrigger(key: String, value: String) -> Void {
-        // TODO: Value for trigger can be non-string
+        // TODO: UM Value for trigger can be non-string
         print("🔥 OSUser setTrigger() called")
     }
     

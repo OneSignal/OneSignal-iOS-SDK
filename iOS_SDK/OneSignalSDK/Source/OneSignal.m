@@ -581,7 +581,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 #pragma mark User Model 🔥
 
 #pragma mark User Model - User Identity 🔥
-// TODO: Actual implementations
+// TODO: UM Actual implementations
 
 + (OSUser* _Nonnull)user {
     OSUser *user = [[OSUser alloc] init:[NSUUID new]];

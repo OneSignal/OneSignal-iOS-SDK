@@ -32,7 +32,3 @@ FOUNDATION_EXPORT double OneSignalUserVersionNumber;
 
 //! Project version string for OneSignalUser.
 FOUNDATION_EXPORT const unsigned char OneSignalUserVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <OneSignalUser/PublicHeader.h>
-
-//#import <OneSignalUser/OneSignalUser-Swift.h>
