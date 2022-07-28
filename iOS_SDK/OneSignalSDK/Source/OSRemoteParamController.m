@@ -49,7 +49,7 @@ THE SOFTWARE.
     if ([self hasPrivacyConsentKey]) {
         let required = [params[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
         [self savePrivacyConsentRequired:required];
-        [OneSignal setRequiresUserPrivacyConsent:required];
+        [OneSignal setRequiresPrivacyConsent:required];
     }
 }
 

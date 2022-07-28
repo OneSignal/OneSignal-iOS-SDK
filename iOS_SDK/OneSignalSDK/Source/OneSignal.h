@@ -45,9 +45,12 @@
 #import <UserNotifications/UserNotifications.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
+#import <OneSignalUser/OneSignalUser.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
+
+@class OSUser;
 
 @interface OSInAppMessage : NSObject
 
@@ -287,14 +290,25 @@ typedef void (^OSFailureBlock)(NSError* error);
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
+#pragma mark User Model 🔥
+
+#pragma mark User Model - User Identity 🔥
+typedef void (^OSUserLoginBlock)(OSUser* _Nonnull user);
+
+// TODO: Confirm nullabilities
++ (OSUser* _Nonnull)user NS_REFINED_FOR_SWIFT;
++ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock _Nonnull)block;
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock _Nonnull)block;
++ (void)loginGuest:(OSUserLoginBlock _Nonnull)block;
+
 #pragma mark Initialization
-+ (void)setAppId:(NSString* _Nonnull)newAppId;
++ (void)setAppId:(NSString* _Nonnull)newAppId; // TODO: UM renamed to just 1 method: initialize()
 + (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel; // TODO: UM split up into 2?
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
 #pragma mark Prompt For Push
@@ -306,10 +320,11 @@ typedef void(^OSUserResponseBlock)(BOOL accepted);
 + (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
-+ (void)consentGranted:(BOOL)granted;
++ (void)setPrivacyConsent:(BOOL)granted;
+// TODO: add getPrivacyConsent method
 // Tells your application if privacy consent is still needed from the current user
-+ (BOOL)requiresUserPrivacyConsent;
-+ (void)setRequiresUserPrivacyConsent:(BOOL)required;
++ (BOOL)requiresPrivacyConsent;
++ (void)setRequiresPrivacyConsent:(BOOL)required;
 
 #pragma mark Public Handlers
 
@@ -335,6 +350,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (BOOL)isLocationShared;
 
 #pragma mark Tags
+// TODO: UM these are rescoped to user
 + (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 + (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value;
 + (void)sendTags:(NSDictionary* _Nonnull)keyValuePair onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
@@ -349,6 +365,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (void)deleteTagsWithJsonString:(NSString* _Nonnull)jsonString;
 
 #pragma mark Permission, Subscription, and Email Observers
+// TODO: UM observers are rescoped
 NS_ASSUME_NONNULL_BEGIN
 
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
@@ -365,6 +382,7 @@ NS_ASSUME_NONNULL_BEGIN
 NS_ASSUME_NONNULL_END
 
 #pragma mark Email
+// TODO: UM emails are rescoped to user
 // Typedefs defining completion blocks for email & simultaneous HTTP requests
 typedef void (^OSEmailFailureBlock)(NSError *error);
 typedef void (^OSEmailSuccessBlock)();
@@ -385,6 +403,7 @@ typedef void (^OSEmailSuccessBlock)();
 + (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock;
 
 #pragma mark SMS
+// TODO: UM SMS are rescoped to user
 // Typedefs defining completion blocks for SMS & simultaneous HTTP requests
 typedef void (^OSSMSFailureBlock)(NSError *error);
 typedef void (^OSSMSSuccessBlock)(NSDictionary *results);
@@ -411,6 +430,7 @@ typedef void (^OSUpdateLanguageFailureBlock)(NSError *error);
 typedef void (^OSUpdateLanguageSuccessBlock)();
 
 // Language input ISO 639-1 code representation for user input language
+// TODO: UM these are rescoped to user
 + (void)setLanguage:(NSString * _Nonnull)language;
 + (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock;
 
@@ -419,6 +439,7 @@ typedef void (^OSUpdateLanguageSuccessBlock)();
 typedef void (^OSUpdateExternalUserIdFailureBlock)(NSError *error);
 typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
 
+// TODO: UM remove these
 + (void)setExternalUserId:(NSString * _Nonnull)externalId;
 + (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
 + (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
@@ -428,6 +449,7 @@ typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
 #pragma mark In-App Messaging
 + (BOOL)isInAppMessagingPaused;
 + (void)pauseInAppMessages:(BOOL)pause;
+// TODO: UM triggers are rescoped to user
 + (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
 + (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
 + (void)removeTriggerForKey:(NSString * _Nonnull)key;
@@ -436,6 +458,7 @@ typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
 + (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 #pragma mark Outcomes
+// TODO: UM these are rescoped to user
 + (void)sendOutcome:(NSString * _Nonnull)name;
 + (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
 + (void)sendUniqueOutcome:(NSString * _Nonnull)name;
