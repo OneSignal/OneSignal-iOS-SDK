@@ -42,6 +42,12 @@ public class OSUser: NSObject {
     
     @objc public var pushSubscription: OSPushSubscription?
     
+    // TODO: UM This is public for now to create a push subscription for testing
+    @objc public func createPushSubscription(id: UUID, token: UUID) {
+        self.pushSubscription = OSPushSubscription(id: id, token: token)
+        print("🔥 OSUser has set pushSubcription")
+    }
+    
     @objc public init(_ onesignalId: UUID) {
         self.onesignalId = onesignalId
     }
