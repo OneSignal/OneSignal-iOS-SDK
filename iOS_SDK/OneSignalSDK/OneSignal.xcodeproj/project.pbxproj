@@ -57,6 +57,7 @@
 		37E6B2BB19D9CAF300D0C601 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
+		3C2C7DC8288F3C020020F9AE /* OSPushSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSPushSubscription.swift */; };
 		3CC10451286A52A600148757 /* OSUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC1044F286A52A600148757 /* OSUser.swift */; };
 		3E464ED71D88ED1F00DCF7E9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 37E6B2BA19D9CAF300D0C601 /* UIKit.framework */; };
 		3E66F5821D90A2C600E45A01 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */; };
@@ -667,6 +668,7 @@
 		3C2C7DC2288E007E0020F9AE /* UnitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UnitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
 		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
+		3C2C7DC7288F3C020020F9AE /* OSPushSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPushSubscription.swift; sourceTree = "<group>"; };
 		3CC1044F286A52A600148757 /* OSUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OSUser.swift; sourceTree = "<group>"; };
 		3E08E2701D49A5C8002176DE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3E2400381D4FFC31008BDE70 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1562,6 +1564,7 @@
 				3CC1044F286A52A600148757 /* OSUser.swift */,
 				DE69E1AA282ED8790090BB3D /* OneSignalUserManager.swift */,
 				DE69E1A9282ED8790090BB3D /* UnitTestApp-Bridging-Header.h */,
+				3C2C7DC7288F3C020020F9AE /* OSPushSubscription.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -2645,6 +2648,7 @@
 			files = (
 				DE69E1AC282ED87A0090BB3D /* OneSignalUserManager.swift in Sources */,
 				3CC10451286A52A600148757 /* OSUser.swift in Sources */,
+				3C2C7DC8288F3C020020F9AE /* OSPushSubscription.swift in Sources */,
 				DE69E19F282ED8060090BB3D /* OneSignalUser.docc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
