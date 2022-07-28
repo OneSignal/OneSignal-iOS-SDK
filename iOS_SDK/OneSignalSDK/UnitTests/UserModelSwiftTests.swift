@@ -35,6 +35,17 @@ extension OneSignal {
     }
 }
 
+// Non-class type 'OSPushSubscriptionTestObserver' cannot conform to class protocol 'OSPushSubscriptionObserver'
+// ^ Cannot use a struct for an OSPushSubscriptionObserver
+
+class OSPushSubscriptionTestObserver: OSPushSubscriptionObserver {
+    func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState) {
+        print("🔥 onOSPushSubscriptionChanged \(previous) -> \(current)")
+        dump(previous)
+        dump(current)
+    }
+}
+
 class UserModelSwiftTests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -98,5 +109,35 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.user.removeTriggers(["foo", "bar"])
 
         XCTAssertNotNil(myUser)
+    }
+    
+    func testPushSubscriptionFunctionality() throws {
+        
+        // Create a user and mock pushSubscription
+        let user = OneSignal.user
+        user.createPushSubscription(id: UUID(), token: UUID())
+        
+        // Add a subscription observer
+        let observer = OSPushSubscriptionTestObserver()
+        user.pushSubscription?.addObserver(observer)
+        
+        // Check accessing some properties
+        print("🔥 token \(user.pushSubscription?.token)")
+        print("🔥 enabled \(user.pushSubscription?.enabled)")
+        
+        // Check that the observer fires when enabled is set
+        user.pushSubscription?.enabled = false;
+        
+        // Remove the observer and check observer is not fired
+        user.pushSubscription?.removeObserver(observer)
+        user.pushSubscription?.enabled = true;
+    }
+    
+
+    func testPushSubscriptionMethodsAccess() throws {
+        let user = OneSignal.user
+        let observer = OSPushSubscriptionTestObserver()
+        user.pushSubscription?.addObserver(observer)
+        user.pushSubscription?.removeObserver(observer)
     }
 }
