@@ -32,6 +32,18 @@
 
 @end
 
+
+@interface OSPushSubscriptionTestObserver: NSObject<OSPushSubscriptionObserver>
+- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscription * _Nonnull)previous current:(OSPushSubscription * _Nonnull)current;
+@end
+
+@implementation OSPushSubscriptionTestObserver
+- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscriptionState * _Nonnull)previous current:(OSPushSubscriptionState * _Nonnull)current {
+    NSLog(@"🔥 UnitTest:onOSPushSubscriptionChanged :%@ :%@", previous, current);
+    
+}
+@end
+
 @implementation UserModelObjcTests
 
 - (void)setUp {
@@ -95,6 +107,40 @@
     [OneSignal.user removeTriggers:@[@"foo", @"bar"]];
 
     XCTAssertNotNil(myUser);
+}
+
+- (void)testPushSubscriptionFunctionality {
+    
+    // Create a user and mock pushSubscription
+    OSUser* user = OneSignal.user;
+    [user createPushSubscriptionWithId:[NSUUID new] token:[NSUUID new]];
+    
+    // Add a subscription observer
+    OSPushSubscriptionTestObserver* observer = [OSPushSubscriptionTestObserver new];
+    [user.pushSubscription addObserver:observer];
+    
+    // Check accessing some properties
+    NSLog(@"🔥 token %@", user.pushSubscription.token);
+    NSLog(@"🔥 subscriptionId %@", user.pushSubscription.id);
+    
+    // Check that the observer fires when enabled is set
+    user.pushSubscription.enabled = false;
+    
+    // Remove the observer and check observer is not fired
+    [user.pushSubscription removeObserver:observer];
+    user.pushSubscription.enabled = true;
+}
+
+- (void)testPushSubscriptionMethodsAccess {
+    OSUser* user = OneSignal.user;
+    
+    NSUUID* subscriptionId = user.pushSubscription.id;
+    NSUUID* token = user.pushSubscription.token;
+    bool enabled = user.pushSubscription.enabled; // BOOL or bool preferred?
+    
+    OSPushSubscriptionTestObserver* observer = [OSPushSubscriptionTestObserver new];
+    [user.pushSubscription addObserver:observer];
+    [user.pushSubscription removeObserver:observer];
 }
 
 @end
