@@ -37,7 +37,10 @@ public class OSUser: NSObject {
     var aliases: [String : String] = [:]
     var tags: [String : String] = [:]
     var triggers: [String : String] = [:] // update to include bool, number
+    
     // email, sms, subscriptions todo
+    
+    @objc public var pushSubscription: OSPushSubscription?
     
     @objc public init(_ onesignalId: UUID) {
         self.onesignalId = onesignalId
