@@ -60,6 +60,8 @@
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 
+ //#import <OneSignalUser/OneSignalUser-Swift.h>
+// #import <OneSignalUser/OneSignalUser.h>
 
 #import <UserNotifications/UserNotifications.h>
 
@@ -606,6 +608,31 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return shouldDelaySubscriptionUpdate;
 }
 
+#pragma mark User Model 🔥
+
+#pragma mark User Model - User Identity 🔥
+// TODO: UM Actual implementations
+
++ (OSUser* _Nonnull)user {
+    OSUser *user = [[OSUser alloc] init:[NSUUID new]];
+    return user;
+}
+
++ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock)block{
+    OSUser *user = [OneSignalUserManager login:externalId];
+    block(user);
+}
+
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock)block{
+    OSUser *user = [OneSignalUserManager loginWithExternalId:externalId withToken:token];
+    block(user);
+}
+
++ (void)loginGuest:(OSUserLoginBlock)block {
+    OSUser *user = [OneSignalUserManager loginGuest];
+    block(user);
+}
+
 /*
  1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application
@@ -825,7 +852,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [[OSMigrationController new] migrate];
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
-    if ([self requiresUserPrivacyConsent]) {
+    if ([self requiresPrivacyConsent]) {
         [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
         delayedInitializationForPrivacyConsent = true;
         _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
@@ -996,14 +1023,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
 }
 
-+ (void)setRequiresUserPrivacyConsent:(BOOL)required {
++ (void)setRequiresPrivacyConsent:(BOOL)required {
     let remoteParamController = [self getRemoteParamController];
 
     // Already set by remote params
     if ([remoteParamController hasPrivacyConsentKey])
         return;
 
-    if ([self requiresUserPrivacyConsent] && !required) {
+    if ([self requiresPrivacyConsent] && !required) {
         [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
         return;
     }
@@ -1011,11 +1038,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [remoteParamController savePrivacyConsentRequired:required];
 }
 
-+ (BOOL)requiresUserPrivacyConsent {
++ (BOOL)requiresPrivacyConsent {
     return [OSPrivacyConsentController requiresUserPrivacyConsent];
 }
 
-+ (void)consentGranted:(BOOL)granted {
++ (void)setPrivacyConsent:(BOOL)granted {
     [OSPrivacyConsentController consentGranted:granted];
     
     if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)

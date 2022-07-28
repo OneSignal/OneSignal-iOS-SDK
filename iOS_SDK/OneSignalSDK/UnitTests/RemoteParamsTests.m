@@ -225,7 +225,7 @@
     //indicates initialization was delayed
     XCTAssertNil(OneSignal.appId);
     
-    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertTrue([OneSignal requiresPrivacyConsent]);
     
     let latestHttpRequest = OneSignalClientOverrider.lastUrl;
     
@@ -234,11 +234,11 @@
     //if lastUrl is null, isEqualToString: will return false, so perform an equality check as well
     XCTAssertTrue([OneSignalClientOverrider.lastUrl isEqualToString:latestHttpRequest] || latestHttpRequest == OneSignalClientOverrider.lastUrl);
     
-    [OneSignal consentGranted:true];
+    [OneSignal setPrivacyConsent:true];
     
     XCTAssertTrue([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:OneSignal.appId]);
     
-    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertFalse([OneSignal requiresPrivacyConsent]);
 }
 
 - (void)testUserPrivacyConsentRequired_ByRemoteParams {
@@ -248,7 +248,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // requires_user_privacy_consent set as true on remote params
-    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertTrue([OneSignal requiresPrivacyConsent]);
     [NSBundleOverrider setPrivacyState:false];
 }
 
@@ -256,12 +256,12 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // requires_user_privacy_consent set as false on remote params
-    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertFalse([OneSignal requiresPrivacyConsent]);
     [NSBundleOverrider setPrivacyState:false];
 }
 
 - (void)testUserPrivacyConsentRequired_UserConfigurationOverrideByRemoteParams {
-    [OneSignal setRequiresUserPrivacyConsent:false];
+    [OneSignal setRequiresPrivacyConsent:false];
 
     NSMutableDictionary *params = [[OneSignalClientOverrider remoteParamsResponse] mutableCopy];
     [params setObject:@YES forKey:IOS_REQUIRES_USER_PRIVACY_CONSENT];
@@ -269,7 +269,7 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // requires_user_privacy_consent set as true on remote params
-    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertTrue([OneSignal requiresPrivacyConsent]);
     [NSBundleOverrider setPrivacyState:false];
 }
 
@@ -280,10 +280,10 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // requires_user_privacy_consent set as true on remote params
-    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertTrue([OneSignal requiresPrivacyConsent]);
     
-    [OneSignal setRequiresUserPrivacyConsent:false];
-    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    [OneSignal setRequiresPrivacyConsent:false];
+    XCTAssertTrue([OneSignal requiresPrivacyConsent]);
     [NSBundleOverrider setPrivacyState:false];
 }
 
@@ -292,10 +292,10 @@
     [UnitTestCommonMethods initOneSignal_andThreadWait];
 
     // requires_user_privacy_consent set as false on remote params
-    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+    XCTAssertFalse([OneSignal requiresPrivacyConsent]);
     
-    [OneSignal setRequiresUserPrivacyConsent:true];
-    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+    [OneSignal setRequiresPrivacyConsent:true];
+    XCTAssertFalse([OneSignal requiresPrivacyConsent]);
     [NSBundleOverrider setPrivacyState:false];
 }
 

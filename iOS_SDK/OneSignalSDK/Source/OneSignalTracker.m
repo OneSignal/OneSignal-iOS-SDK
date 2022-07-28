@@ -108,8 +108,7 @@ static BOOL didEnterBackgroundTriggered = NO;
 
 + (void)onFocus:(BOOL)toBackground {
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresUserPrivacyConsent]) {
-        [self resetBackgroundDetection];
+    if ([OneSignal requiresPrivacyConsent])
         return;
     }
     
