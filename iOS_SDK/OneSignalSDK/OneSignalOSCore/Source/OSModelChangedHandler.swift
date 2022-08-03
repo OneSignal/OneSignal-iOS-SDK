@@ -27,7 +27,7 @@
 
 import Foundation
 
-class OSModelChangedArgs: NSObject {
+public class OSModelChangedArgs: NSObject {
     /**
      The full model in its current state.
      */
@@ -56,7 +56,7 @@ class OSModelChangedArgs: NSObject {
     }
 }
 
-class OSModelChangedHandler: NSObject {
+public class OSModelChangedHandler: NSObject {
     func onChanged(args: OSModelChangedArgs) {
         
     }

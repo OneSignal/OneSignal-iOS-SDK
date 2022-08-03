@@ -32,17 +32,17 @@ public class OSEventProducer<THandler>: NSObject {
     var subscribers: [THandler] = []
     var thing: [String] = []
     
-    func subscribe(_ handler: THandler) {
+    public func subscribe(_ handler: THandler) {
         // TODO: UM do we want to synchronize on subscribers
         subscribers.append(handler) // TODO: UM style, implicit or explicit self?
     }
 
-    func unsubscribe(_ handler: THandler) {
+    public func unsubscribe(_ handler: THandler) {
         // TODO: UM do we want to synchronize on subscribers
         // subscribers.removeAll(where: { $0 === handler})
     }
 
-    func fire(callback: (THandler) -> Void) {
+    public func fire(callback: (THandler) -> Void) {
         for subscriber in subscribers {
             callback(subscriber)
         }
