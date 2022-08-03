@@ -27,6 +27,7 @@
 
 import Foundation
 
+
 open class OSModelStore<TModel: OSModel>: NSObject {
     let changeSubscription: OSEventProducer<OSModelStoreChangedHandler>
     var models: [String : TModel] = [:]
@@ -46,7 +47,6 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.added(model)
         }
-    }
     
     func remove(_ id: String) {
         print("🔥 OSModelStore remove with model \(id)")
