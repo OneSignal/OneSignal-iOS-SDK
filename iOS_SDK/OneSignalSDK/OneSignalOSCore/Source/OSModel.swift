@@ -39,7 +39,7 @@ open class OSModel: NSObject {
     var data: [String : AnyObject?] = [:]
     let changeNotifier: OSEventProducer<OSModelChangedHandler>
 
-    public init(_ changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+    public init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.changeNotifier = changeNotifier
     }
     

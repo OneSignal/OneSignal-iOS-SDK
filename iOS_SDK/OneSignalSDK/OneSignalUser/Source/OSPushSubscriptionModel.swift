@@ -70,9 +70,8 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
     func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
         // TODO: UM name and scope of function
         // TODO: UM update model, add operation to backend
-
-        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
-        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
+        let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
+        let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
         
         self.set(name: "enabled", value: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
@@ -83,6 +82,6 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled ?? false
-        super.init(OSEventProducer())
+        super.init(changeNotifier: OSEventProducer())
     }
 }
