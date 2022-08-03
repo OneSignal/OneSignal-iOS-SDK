@@ -29,7 +29,7 @@ import Foundation
 import OneSignalCore
 
 @objc protocol OneSignalUserManagerInterface {
-    static var user: OSUser { get set }
+    static var user: OSUser? { get set }
     static func login(_ externalId: String) -> OSUser
     static func login(externalId: String, withToken: String) -> OSUser
     static func loginGuest() -> OSUser
@@ -37,23 +37,30 @@ import OneSignalCore
 
 @objc
 public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
-    @objc static var user = OSUser(UUID())
+    // TODO: UM temp make public so OneSignal.m can access, but users shouldn't access this directly
+    @objc public static var user: OSUser?
     
     @objc
     public static func login(_ externalId: String) -> OSUser {
         print("🔥 OneSignalUser login() called")
-        return user
+        return createAndSetUser()
     }
     
     @objc
     public static func login(externalId: String, withToken: String) -> OSUser {
         print("🔥 OneSignalUser loginwithBearerToken() called")
-        return user
+        return createAndSetUser()
     }
     
     @objc
     public static func loginGuest() -> OSUser {
         print("🔥 OneSignalUser loginGuest() called")
-        return user
+        return createAndSetUser()
+    }
+    
+    static func createAndSetUser() -> OSUser {
+        // do stuff
+        return OSUser(onesignalId: UUID(),
+                           pushSubscription: OSPushSubscription(subscriptionId: UUID(), token: nil, enabled: false))
     }
 }

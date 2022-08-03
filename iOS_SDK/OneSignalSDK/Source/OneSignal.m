@@ -614,7 +614,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 // TODO: UM Actual implementations
 
 + (OSUser* _Nonnull)user {
-    OSUser *user = [[OSUser alloc] init:[NSUUID new]];
+    OSUser *user = [OneSignalUserManager user];
+    if (!user) {
+        user = [OneSignalUserManager loginGuest];
+    }
     return user;
 }
 
