@@ -56,8 +56,10 @@
     [super tearDown];
 }
 
+/**
+ This test lays out the public APIs of the user model
+ */
 - (void)testUserModelMethodAccess {
-    // this test lays out the public APIs of the user model
 
     // User Identity
     __block OSUser* myUser = OneSignal.user;
@@ -109,38 +111,42 @@
     XCTAssertNotNil(myUser);
 }
 
-- (void)testPushSubscriptionFunctionality {
+/**
+ This is to collect things that should not work, but do for now.
+ */
+- (void)testTheseShouldNotWork {
+    
+    // Should not be accessible
+    OSUser *user = OneSignalUserManager.user; // This shouldn't be accessible to the public
+    
+    // Should not be settable
+    // OneSignal.user.pushSubscription.token = [NSUUID new]; // <- Confirmed that users can't set token
+    // OneSignal.user.pushSubscription.subscriptionId = [NSUUID new]; // <- Confirmed that users can't set subscriptionId
+}
+
+/**
+ Test the access of properties and methods, and setting properties related to the push subscription.
+ */
+- (void)testPushSubscriptionPropertiesAccess {
     
     // Create a user and mock pushSubscription
     OSUser* user = OneSignal.user;
-    [user createPushSubscriptionWithId:[NSUUID new] token:[NSUUID new]];
-    
-    // Add a subscription observer
-    OSPushSubscriptionTestObserver* observer = [OSPushSubscriptionTestObserver new];
-    [user.pushSubscription addObserver:observer];
-    
-    // Check accessing some properties
-    NSLog(@"🔥 token %@", user.pushSubscription.token);
-    NSLog(@"🔥 subscriptionId %@", user.pushSubscription.id);
-    
-    // Check that the observer fires when enabled is set
-    user.pushSubscription.enabled = false;
-    
-    // Remove the observer and check observer is not fired
-    [user.pushSubscription removeObserver:observer];
-    user.pushSubscription.enabled = true;
-}
+    [user testCreatePushSubscriptionWithSubscriptionId:[NSUUID new] token:[NSUUID new] enabled:false];
 
-- (void)testPushSubscriptionMethodsAccess {
-    OSUser* user = OneSignal.user;
-    
-    NSUUID* subscriptionId = user.pushSubscription.id;
+    // Access properties of the pushSubscription
+    NSUUID* subscriptionId = user.pushSubscription.subscriptionId;
     NSUUID* token = user.pushSubscription.token;
     bool enabled = user.pushSubscription.enabled; // BOOL or bool preferred?
     
+    // Set the enabled property of the pushSubscription
+    user.pushSubscription.enabled = true;
+    
+    // Create a push subscription observer
     OSPushSubscriptionTestObserver* observer = [OSPushSubscriptionTestObserver new];
-    [user.pushSubscription addObserver:observer];
-    [user.pushSubscription removeObserver:observer];
+    
+    // Push subscription observers are not user-scoped
+    [OneSignal addSubscriptionObserver:observer];
+    [OneSignal removeSubscriptionObserver:observer];
 }
 
 @end
