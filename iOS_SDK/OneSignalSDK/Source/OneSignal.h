@@ -46,6 +46,7 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import <OneSignalUser/OneSignalUser.h>
+#import <OneSignalOSCore/OneSignalOSCore.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
