@@ -27,6 +27,7 @@
 
 import Foundation
 import OneSignalCore
+import OneSignalOSCore
 
 @objc public protocol OSPushSubscriptionObserver { //  weak reference?
     @objc func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState)
@@ -52,7 +53,7 @@ protocol OSPushSubscriptionInterface {
 }
 
 @objc
-public class OSPushSubscription: NSObject, OSPushSubscriptionInterface {
+public class OSPushSubscription: OSModel, OSPushSubscriptionInterface {
     @objc public let subscriptionId: UUID
     @objc public private(set) var token: UUID?
     @objc public var enabled = false { // this should default to false when first created
@@ -66,6 +67,8 @@ public class OSPushSubscription: NSObject, OSPushSubscriptionInterface {
         // TODO: UM update model, add operation to backend
         let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
         let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
+        
+        self.set(name: "enabled", value: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
@@ -74,5 +77,6 @@ public class OSPushSubscription: NSObject, OSPushSubscriptionInterface {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled ?? false
+        super.init(changeNotifier: OSEventProducer())
     }
 }
