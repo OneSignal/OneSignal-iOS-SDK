@@ -371,8 +371,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 
-+ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer;
++ (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
++ (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
 
 + (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
