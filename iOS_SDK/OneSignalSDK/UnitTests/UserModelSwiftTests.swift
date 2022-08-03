@@ -58,8 +58,10 @@ class UserModelSwiftTests: XCTestCase {
         try super.tearDownWithError()
     }
 
+    /**
+     This test lays out the public APIs of the user model
+     */
     func testUserModelMethodAccess() throws {
-        // this test lays out the public APIs of the user model
         
         // User Identity
         var myUser: OSUser = OneSignal.user
@@ -111,33 +113,42 @@ class UserModelSwiftTests: XCTestCase {
         XCTAssertNotNil(myUser)
     }
     
-    func testPushSubscriptionFunctionality() throws {
+    /**
+     This is to collect things that should not work, but do for now.
+     */
+    func testTheseShouldNotWork() throws {
+        // Should not be accessible
+        let _ = OneSignalUserManager.user; // This shouldn't be accessible to the public
         
-        // Create a user and mock pushSubscription
-        let user = OneSignal.user
-        user.createPushSubscription(id: UUID(), token: UUID())
-        
-        // Add a subscription observer
-        let observer = OSPushSubscriptionTestObserver()
-        user.pushSubscription?.addObserver(observer)
-        
-        // Check accessing some properties
-        print("🔥 token \(user.pushSubscription?.token)")
-        print("🔥 enabled \(user.pushSubscription?.enabled)")
-        
-        // Check that the observer fires when enabled is set
-        user.pushSubscription?.enabled = false;
-        
-        // Remove the observer and check observer is not fired
-        user.pushSubscription?.removeObserver(observer)
-        user.pushSubscription?.enabled = true;
+        // Should not be settable
+        // OneSignal.user.pushSubscription.token = UUID() // <- Confirmed that users can't set token
+        // OneSignal.user.pushSubscription.subscriptionId = UUID() // <- Confirmed that users can't set subscriptionId
     }
     
-
-    func testPushSubscriptionMethodsAccess() throws {
+    /**
+     Test the access of properties and methods, and setting properties related to the push subscription.
+     */
+    func testPushSubscriptionPropertiesAccess() throws {
+        // Create a user and mock pushSubscription
         let user = OneSignal.user
-        let observer = OSPushSubscriptionTestObserver()
-        user.pushSubscription?.addObserver(observer)
-        user.pushSubscription?.removeObserver(observer)
+        user.testCreatePushSubscription(subscriptionId: UUID(), token: UUID(), enabled: false)
+        
+        // Access properties of the pushSubscription
+        let _ = user.pushSubscription.subscriptionId
+        let _ = user.pushSubscription.token
+        let _ = user.pushSubscription.enabled
+        
+        // Set the enabled property of the pushSubscription
+        user.pushSubscription.enabled = true;
+        
+        
+        // Create a push subscription observer
+        let _ = OSPushSubscriptionTestObserver()
+
+        // Push subscription observers are not user-scoped
+        // TODO: UM The following does not build as of now
+        // OneSignal.addSubscriptionObserver(observer)
+        // OneSignal.removeSubscriptionObserver(observer)
+     
     }
 }
