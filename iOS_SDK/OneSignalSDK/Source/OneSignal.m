@@ -1262,14 +1262,15 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 // onOSSubscriptionChanged should only fire if something changed.
-+ (void)addSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
+// TODO: UM rename to addPushSubscriptionObserver, and connect functionality
++ (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer {
     [self.subscriptionStateChangesObserver addObserver:observer];
     
     if ([self.currentSubscriptionState compare:self.lastSubscriptionState])
         [OSSubscriptionChangedInternalObserver fireChangesObserver:self.currentSubscriptionState];
 }
 
-+ (void)removeSubscriptionObserver:(NSObject<OSSubscriptionObserver>*)observer {
++ (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer {
     [self.subscriptionStateChangesObserver removeObserver:observer];
 }
 
