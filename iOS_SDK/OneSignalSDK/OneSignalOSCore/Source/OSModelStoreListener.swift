@@ -27,7 +27,7 @@
 
 import Foundation
 
-class OSModelStoreListener<TModel: OSModel>: NSObject {
+public class OSModelStoreListener<TModel: OSModel>: NSObject {
     
     let store: OSModelStore<TModel>
     // TODO: UM Operation Repo

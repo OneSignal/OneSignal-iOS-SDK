@@ -375,6 +375,8 @@
 		CACBAAAC218A662B000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
 		CACBAAB4218A7113000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
+		DE12F3F2289B28C4002F63AA /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
+		DE12F3F3289B28C4002F63AA /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
@@ -564,6 +566,13 @@
 			remoteGlobalIDString = 3C115160289A259500565C41;
 			remoteInfo = OneSignalOSCore;
 		};
+		DE12F3F4289B28C4002F63AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3C115160289A259500565C41;
+			remoteInfo = OneSignalOSCore;
+		};
 		DE69E1AF282ED8F20090BB3D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
@@ -657,6 +666,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				DE12F3F3289B28C4002F63AA /* OneSignalOSCore.framework in Embed Frameworks */,
 				DE69E1AE282ED8F20090BB3D /* OneSignalCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -1127,6 +1137,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE12F3F2289B28C4002F63AA /* OneSignalOSCore.framework in Frameworks */,
 				DE69E1AD282ED8F20090BB3D /* OneSignalCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2209,6 +2220,7 @@
 			);
 			dependencies = (
 				DE69E1B0282ED8F20090BB3D /* PBXTargetDependency */,
+				DE12F3F5289B28C4002F63AA /* PBXTargetDependency */,
 			);
 			name = OneSignalUser;
 			productName = OneSignalUser;
@@ -2908,6 +2920,11 @@
 			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
 			targetProxy = 3C115199289AF86C00565C41 /* PBXContainerItemProxy */;
 		};
+		DE12F3F5289B28C4002F63AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
+			targetProxy = DE12F3F4289B28C4002F63AA /* PBXContainerItemProxy */;
+		};
 		DE69E1B0282ED8F20090BB3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
@@ -2978,6 +2995,7 @@
 		3C115173289A259500565C41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3029,6 +3047,7 @@
 		3C115174289A259500565C41 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3071,7 +3090,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
