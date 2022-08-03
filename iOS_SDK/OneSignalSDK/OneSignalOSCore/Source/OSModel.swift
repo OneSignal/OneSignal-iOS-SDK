@@ -27,17 +27,18 @@
 
 import Foundation
 
-class OSModel: NSObject {
+@objc
+open class OSModel: NSObject {
     
     var id: String?
     var data: [String : AnyObject?] = [:]
     let changeNotifier: OSEventProducer<OSModelChangedHandler>
-    
-    init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+
+    public init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.changeNotifier = changeNotifier
     }
     
-    func set<T>(name: String, value: T) {
+    public func set<T>(name: String, value: T) {
         
         let oldValue = data[name] as AnyObject // Error encountered: Argument type 'AnyObject?' expected to be an instance of a class or class-constrained type
         
@@ -48,10 +49,13 @@ class OSModel: NSObject {
         data[name] = newValue
 
         let changeArgs = OSModelChangedArgs(model: self, property: name, oldValue: oldValue, newValue: newValue)
+        self.changeNotifier.fire { modelChangeHandler in
+            modelChangeHandler.onChanged(args: changeArgs)
+        }
         // fire the changeNotifier
     }
 
-    func get<T>(_ name: String) -> T {
+    public func get<T>(_ name: String) -> T {
         return data[name] as! T
     }
 

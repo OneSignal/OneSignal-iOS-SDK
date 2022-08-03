@@ -27,7 +27,7 @@
 
 import Foundation
 
-class OSModelStore<TModel: OSModel>: NSObject {
+public class OSModelStore<TModel: OSModel>: NSObject {
     let changeSubscription: OSEventProducer<OSModelStoreListener<TModel>>
     
     init(changeSubscription: OSEventProducer<OSModelStoreListener<TModel>>) {
@@ -35,7 +35,7 @@ class OSModelStore<TModel: OSModel>: NSObject {
     }
     
     func add() {
-        
+        //model.subscribe()
     }
     
     func remove() {
