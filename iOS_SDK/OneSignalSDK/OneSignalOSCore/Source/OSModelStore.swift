@@ -34,12 +34,26 @@ public class OSModelStore<TModel: OSModel>: NSObject {
         self.changeSubscription = changeSubscription
     }
     
-    func add() {
-        //model.subscribe()
+    func add(_ model: TModel) {
+        // TODO: UM add model to list and subscribe
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.added(model)
+        }
     }
     
-    func remove() {
-        
+    func remove(_ model: TModel) {
+        // TODO: UM remove model to list and unsubscribe
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.removed(model)
+        }
+    }
+}
+
+extension OSModelStore: OSModelChangedHandler {
+    public func onChanged(args: OSModelChangedArgs) {
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.updated(model: args.model as! TModel, property: args.property, oldValue: args.oldValue, newValue: args.newValue)
+        }
     }
 }
 
