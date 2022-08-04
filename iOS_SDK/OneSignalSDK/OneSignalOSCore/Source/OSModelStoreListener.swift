@@ -27,20 +27,31 @@
 
 import Foundation
 
-public class OSModelStoreListener<TModel: OSModel>: NSObject {
+public protocol OSModelStoreListener {
+    associatedtype TModel: OSModel
     
-    let store: OSModelStore<TModel>
+    var store: OSModelStore<TModel> { get }
+    init(_ store: OSModelStore<TModel>)
+    
     // TODO: UM Operation Repo
     
-    init(_ store: OSModelStore<TModel>) {
-        self.store = store
-    }
+    func getAddOperation() //returns operation
     
+    func getRemoveOperation() //returns operation
+    
+    func getUpdateOperation() //returns operation
+
+    
+    
+}
+
+extension OSModelStoreListener {
+    // TODO: UM call the appropriate operation
     /**
      Called when a model has been added to the model store.
      */
     func added(_ model: TModel) {
-        
+
     }
     
     /**
@@ -56,6 +67,4 @@ public class OSModelStoreListener<TModel: OSModel>: NSObject {
     func removed(_ model: TModel) {
         
     }
-    
-    
 }
