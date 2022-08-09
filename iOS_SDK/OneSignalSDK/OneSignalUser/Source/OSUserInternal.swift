@@ -27,30 +27,81 @@
 
 import Foundation
 import OneSignalCore
+import OneSignalOSCore
 
-@objc
-public class OSUser: NSObject {
+/**
+ This is the user interface exposed to the public.
+ */
+@objc public protocol OSUser {
+    var pushSubscription: OSPushSubscriptionInterface { get }
+    // Aliases
+    func addAlias(label: String, id: String) -> Void
+    func addAliases(_ aliases: [String : String]) -> Void
+    func removeAlias(_ label: String) -> Void
+    func removeAliases(_ labels: [String]) -> Void
+    // Tags
+    func setTag(key: String, value: String) -> Void
+    func setTags(_ tags: [String : String]) -> Void
+    func removeTag(_ tag: String) -> Void
+    func removeTags(_ tags: [String]) -> Void
+    func getTag(_ tag: String) -> Void
+    // Outcomes
+    func setOutcome(_ name: String) -> Void
+    func setUniqueOutcome(_ name: String) -> Void
+    func setOutcome(name: String, value: Float) -> Void
+    // Email
+    func addEmail(_ email: String) -> Void
+    func removeEmail(_ email: String) -> Void
+    // SMS
+    func addSmsNumber(_ number: String) -> Void
+    func removeSmsNumber(_ number: String) -> Void
+    // Triggers
+    func setTrigger(key: String, value: String) -> Void
+    func setTriggers(_ triggers: [String : String]) -> Void
+    func removeTrigger(_ trigger: String) -> Void
+    func removeTriggers(_ triggers: [String]) -> Void
+    
+    // TODO: UM This is a temporary function to create a push subscription for testing
+    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool)
+}
+
+/**
+ Internal user object that implements the public-facing OSUser protocol.
+ Class made public because it is used in OneSignalUserManager which is public.
+ */
+public class OSUserInternal: NSObject, OSUser {
     
     let onesignalId: UUID
-    var externalId: String?
-    var language: String?
-    var aliases: [String : String] = [:]
-    var tags: [String : String] = [:]
     var triggers: [String : String] = [:] // update to include bool, number
     
     // email, sms, subscriptions todo
     
-    @objc public var pushSubscription: OSPushSubscription
+    @objc public var pushSubscription: OSPushSubscriptionInterface
+
+    // Sessions will be outside this?
+    
+    // Owns an Identity Model and Properties Model
+    var identityModel: OSIdentityModel = OSIdentityModel(OSEventProducer())
+    var propertiesModel: OSPropertiesModel = OSPropertiesModel(OSEventProducer())
     
     // TODO: UM This is a temporary function to create a push subscription for testing
     @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
-        self.pushSubscription = OSPushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
+        self.pushSubscription = OSPushSubscriptionModel(subscriptionId: subscriptionId, token: token, enabled: enabled)
         print("🔥 OSUser has set pushSubcription for testing")
     }
     
-    @objc public init(onesignalId: UUID, pushSubscription: OSPushSubscription) {
+    init(onesignalId: UUID, pushSubscription: OSPushSubscriptionModel) {
         self.onesignalId = onesignalId
         self.pushSubscription = pushSubscription
+        // workaround for didSet: call initializeProperties(...)
+    }
+    
+    init(onesignalId: UUID, pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
+        self.onesignalId = onesignalId
+        self.pushSubscription = pushSubscription
+        self.identityModel = identityModel
+        self.propertiesModel = propertiesModel
+        // workaround for didSet: call initializeProperties(...)
     }
     
     // Aliases
@@ -58,6 +109,11 @@ public class OSUser: NSObject {
     @objc
     public func addAlias(label: String, id: String) -> Void {
         print("🔥 OSUser addAlias() called")
+        // Alt1: update alias list, and fire, observer sees entire list as changed, listener can figure out delta
+        // or Operation can figure it out,  etc depends how Delta is figured out
+        // confirm didSet for appending, see if new object
+        // since it is a struct, it changes, diff if its a class
+        self.identityModel.aliases[label] = id
     }
     
     @objc
