@@ -31,16 +31,26 @@ import OneSignalCore
 @objc
 public class OSUser: NSObject {
     
-    var onesignalId: UUID
+    let onesignalId: UUID
     var externalId: String?
     var language: String?
     var aliases: [String : String] = [:]
     var tags: [String : String] = [:]
     var triggers: [String : String] = [:] // update to include bool, number
+    
     // email, sms, subscriptions todo
     
-    @objc public init(_ onesignalId: UUID) {
+    @objc public var pushSubscription: OSPushSubscription
+    
+    // TODO: UM This is a temporary function to create a push subscription for testing
+    @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
+        self.pushSubscription = OSPushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
+        print("🔥 OSUser has set pushSubcription for testing")
+    }
+    
+    @objc public init(onesignalId: UUID, pushSubscription: OSPushSubscription) {
         self.onesignalId = onesignalId
+        self.pushSubscription = pushSubscription
     }
     
     // Aliases
