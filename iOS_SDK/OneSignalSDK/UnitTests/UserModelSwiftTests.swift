@@ -148,6 +148,23 @@ class UserModelSwiftTests: XCTestCase {
         // TODO: UM The following does not build as of now
         // OneSignal.addSubscriptionObserver(observer)
         // OneSignal.removeSubscriptionObserver(observer)
-
+    }
+    
+    /**
+     Test the model repo hook up via a login with external ID and setting alias.
+     */
+    func testModelRepositoryHookUpWithLoginAndSetAlias() throws {
+        // login an user with external ID
+        OneSignal.login("user01", withResult: { user in
+            print("🔥 Unit Tests: logged in user is \(user)")
+        })
+        
+        let user = OneSignal.user
+        
+        print("🔥 Unit Tests adding alias label_01: user_01")
+        user.addAlias(label: "label_01", id: "user_01")
+        
+        print("🔥 Unit Tests adding alias label_02: user_02")
+        user.addAlias(label: "label_02", id: "user_02")
     }
 }
