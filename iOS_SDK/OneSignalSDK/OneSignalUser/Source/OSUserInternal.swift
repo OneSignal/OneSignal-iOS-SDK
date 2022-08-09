@@ -103,11 +103,11 @@ public class OSUserInternal: NSObject, OSUser {
         self.propertiesModel = propertiesModel
         // workaround for didSet: call initializeProperties(...)
     }
-
+    
     // Aliases
-
+    
     @objc
-    public func addAlias(label: String, id: String) {
+    public func addAlias(label: String, id: String) -> Void {
         print("🔥 OSUser addAlias() called")
         // Alt1: update alias list, and fire, observer sees entire list as changed, listener can figure out delta
         // or Operation can figure it out,  etc depends how Delta is figured out
@@ -117,108 +117,109 @@ public class OSUserInternal: NSObject, OSUser {
     }
 
     @objc
-    public func addAliases(_ aliases: [String: String]) {
+    public func addAliases(_ aliases: [String : String]) -> Void {
         print("🔥 OSUser addAliases() called")
     }
-
+    
     @objc
-    public func removeAlias(_ label: String) {
+    public func removeAlias(_ label: String) -> Void {
         print("🔥 OSUser removeAlias() called")
     }
-
+    
     @objc
-    public func removeAliases(_ labels: [String]) {
+    public func removeAliases(_ labels: [String]) -> Void {
         print("🔥 OSUser removeAliases() called")
     }
 
     // Tags
-
+    
     @objc
-    public func setTag(key: String, value: String) {
+    public func setTag(key: String, value: String) -> Void {
         print("🔥 OSUser sendTag() called")
     }
-
+    
     @objc
-    public func setTags(_ tags: [String: String]) {
+    public func setTags(_ tags: [String : String]) -> Void {
         print("🔥 OSUser sendTags() called")
     }
-
+    
     @objc
-    public func removeTag(_ tag: String) {
+    public func removeTag(_ tag: String) -> Void {
         print("🔥 OSUser removeTag() called")
     }
-
+    
     @objc
-    public func removeTags(_ tags: [String]) {
+    public func removeTags(_ tags: [String]) -> Void {
         print("🔥 OSUser removeTags() called")
     }
-
+    
     @objc
-    public func getTag(_ tag: String) {
+    public func getTag(_ tag: String) -> Void {
         print("🔥 OSUser getTag() called")
     }
-
+    
     // Outcomes
-
+    
     @objc
-    public func setOutcome(_ name: String) {
+    public func setOutcome(_ name: String) -> Void {
         print("🔥 OSUser sendOutcome() called")
     }
-
+    
     @objc
-    public func setUniqueOutcome(_ name: String) {
+    public func setUniqueOutcome(_ name: String) -> Void {
         print("🔥 OSUser setUniqueOutcome() called")
     }
-
+    
     @objc
-    public func setOutcome(name: String, value: Float) {
+    public func setOutcome(name: String, value: Float) -> Void {
         print("🔥 OSUser setOutcomeWithValue() called")
     }
-
+    
     // Email
-
+    
     @objc
-    public func addEmail(_ email: String) {
+    public func addEmail(_ email: String) -> Void {
         print("🔥 OSUser addEmail() called")
     }
-
+    
     @objc
-    public func removeEmail(_ email: String) {
+    public func removeEmail(_ email: String) -> Void {
         print("🔥 OSUser removeEmail() called")
     }
-
+    
     // SMS
-
+    
     @objc
-    public func addSmsNumber(_ number: String) {
+    public func addSmsNumber(_ number: String) -> Void {
         print("🔥 OSUser addPhoneNumber() called")
     }
-
+    
     @objc
-    public func removeSmsNumber(_ number: String) {
+    public func removeSmsNumber(_ number: String) -> Void {
         print("🔥 OSUser removePhoneNumber() called")
     }
-
+    
     // Triggers
-
+    
     @objc
-    public func setTrigger(key: String, value: String) {
+    public func setTrigger(key: String, value: String) -> Void {
         // TODO: UM Value for trigger can be non-string
         print("🔥 OSUser setTrigger() called")
     }
-
+    
     @objc
-    public func setTriggers(_ triggers: [String: String]) {
+    public func setTriggers(_ triggers: [String : String]) -> Void {
         print("🔥 OSUser setTriggers() called")
     }
-
+    
     @objc
-    public func removeTrigger(_ trigger: String) {
+    public func removeTrigger(_ trigger: String) -> Void {
         print("🔥 OSUser removeTrigger() called")
     }
-
+    
     @objc
-    public func removeTriggers(_ triggers: [String]) {
+    public func removeTriggers(_ triggers: [String]) -> Void {
         print("🔥 OSUser removeTriggers() called")
     }
+    
 }
