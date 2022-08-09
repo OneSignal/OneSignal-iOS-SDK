@@ -51,8 +51,6 @@
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 
-@class OSUser;
-
 @interface OSInAppMessage : NSObject
 
 @property (strong, nonatomic, nonnull) NSString *messageId;
@@ -294,10 +292,10 @@ typedef void (^OSFailureBlock)(NSError* error);
 #pragma mark User Model 🔥
 
 #pragma mark User Model - User Identity 🔥
-typedef void (^OSUserLoginBlock)(OSUser* _Nonnull user);
+typedef void (^OSUserLoginBlock)(id<OSUser> _Nonnull user);
 
 // TODO: Confirm nullabilities
-+ (OSUser* _Nonnull)user NS_REFINED_FOR_SWIFT;
++ (id<OSUser> _Nonnull)user NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock _Nonnull)block;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock _Nonnull)block;
 + (void)loginGuest:(OSUserLoginBlock _Nonnull)block;
