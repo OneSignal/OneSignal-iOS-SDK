@@ -38,7 +38,6 @@ import OneSignalOSCore
 
 @objc
 public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
-
     @objc public static var user: OSUserInternal?
     
     // has Identity and Properties Model Stores
@@ -49,11 +48,9 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     static var identityModelStoreListener = OSIdentityModelStoreListener(identityModelStore)
     static var propertiesModelStoreListener = OSPropertiesModelStoreListener(propertiesModelStore)
     
+
     static func startModelStoreListeners() {
-        // Model store listeners subscribe to their models
-        // Where should these live?
-        OneSignalUserManager.identityModelStoreListener.start()
-        OneSignalUserManager.propertiesModelStoreListener.start()
+
     }
 
     @objc
