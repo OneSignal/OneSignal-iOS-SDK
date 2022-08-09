@@ -27,44 +27,49 @@
 
 import Foundation
 
-public protocol OSModelStoreListener {
+public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     associatedtype TModel: OSModel
     
     var store: OSModelStore<TModel> { get }
+    // TODO: UM Operation Repo
+    // var opRepo: OSOperationRepo {get}
+    
     init(_ store: OSModelStore<TModel>)
     
-    // TODO: UM Operation Repo
+    func getAddOperation(_ model: TModel) -> OSOperation?
     
-    func getAddOperation() //returns operation
+    func getRemoveOperation(_ model: TModel) -> OSOperation?
     
-    func getRemoveOperation() //returns operation
-    
-    func getUpdateOperation() //returns operation
-
-    
-    
+    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation?
 }
 
 extension OSModelStoreListener {
-    // TODO: UM call the appropriate operation
-    /**
-     Called when a model has been added to the model store.
-     */
-    func added(_ model: TModel) {
+    public func start() {
+        store.changeSubscription.subscribe(self)
+    }
+    
+    func close() {
+        store.changeSubscription.unsubscribe(self)
+    }
 
+    public func added(_ model: OSModel) {
+        print("🔥 OSModelStoreListener.added() with model \(model)")
+        if let operation = getAddOperation(model as! Self.TModel) {
+            // opRepo.enqueue(operation)
+        }
+    }
+
+    public func updated(_ args: OSModelChangedArgs) {
+        print("🔥 OSModelStoreListener.updated() with args \(args)")
+        if let operation = getUpdateOperation(args) {
+            // opRepo.enqueue(operation)
+        }
     }
     
-    /**
-     Called when a model has been updated.
-     */
-    func updated(model: TModel, property: String, oldValue: AnyObject?, newValue: AnyObject?) {
-        
-    }
-    
-    /**
-     Called when a model has been removed from the model store.
-     */
-    func removed(_ model: TModel) {
-        
+    public func removed(_ model: OSModel) {
+        print("🔥 OSModelStoreListener.removed() with model \(model)")
+        if let operation = getRemoveOperation(model as! Self.TModel) {
+            // opRepo.enqueue(operation)
+        }
     }
 }
