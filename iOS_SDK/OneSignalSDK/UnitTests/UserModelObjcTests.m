@@ -149,4 +149,22 @@
     [OneSignal removeSubscriptionObserver:observer];
 }
 
+/**
+ Test the model repo hook up via a login with external ID and setting alias.
+ */
+- (void)testModelRepositoryHookUpWithLoginAndSetAlias {
+    // login an user with external ID
+    [OneSignal login:@"user01" withResult:^(id<OSUser> _Nonnull user) {
+       NSLog(@"🔥 Unit Tests: logged in user is %@", user);
+    }];
+    
+    id<OSUser> user = OneSignal.user;
+    
+    NSLog(@"🔥 Unit Tests adding alias label_01: user_01");
+    [user addAliasWithLabel:@"label_01" id:@"user_01"];
+    
+    NSLog(@"🔥 Unit Tests adding alias label_02: user_02");
+    [user addAliasWithLabel:@"label_02" id:@"user_02"];
+}
+
 @end
