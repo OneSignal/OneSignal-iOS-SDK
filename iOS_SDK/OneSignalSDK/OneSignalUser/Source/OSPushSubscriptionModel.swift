@@ -46,14 +46,19 @@ public class OSPushSubscriptionState: NSObject {
     }
 }
 
-protocol OSPushSubscriptionInterface {
+/**
+ This is the push subscription interface exposed to the public.
+ */
+@objc public protocol OSPushSubscriptionInterface {
     var subscriptionId: UUID { get }
     var token: UUID? { get }
     var enabled: Bool { get set }
 }
 
-@objc
-public class OSPushSubscription: OSModel, OSPushSubscriptionInterface {
+/**
+ Internal push subscription model that implements the public-facing OSUser protocol.
+ */
+class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
     @objc public let subscriptionId: UUID
     @objc public private(set) var token: UUID?
     @objc public var enabled = false { // this should default to false when first created
@@ -77,6 +82,6 @@ public class OSPushSubscription: OSModel, OSPushSubscriptionInterface {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled ?? false
-        super.init(changeNotifier: OSEventProducer())
+        super.init(OSEventProducer())
     }
 }

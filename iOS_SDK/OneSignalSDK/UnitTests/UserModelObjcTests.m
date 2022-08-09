@@ -34,7 +34,7 @@
 
 
 @interface OSPushSubscriptionTestObserver: NSObject<OSPushSubscriptionObserver>
-- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscription * _Nonnull)previous current:(OSPushSubscription * _Nonnull)current;
+- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscriptionState * _Nonnull)previous current:(OSPushSubscriptionState * _Nonnull)current;
 @end
 
 @implementation OSPushSubscriptionTestObserver
