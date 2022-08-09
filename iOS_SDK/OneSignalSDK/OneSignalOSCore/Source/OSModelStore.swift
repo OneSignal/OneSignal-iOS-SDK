@@ -27,32 +27,48 @@
 
 import Foundation
 
-public class OSModelStore<TModel: OSModel>: NSObject {
-    let changeSubscription: OSEventProducer<OSModelStoreListener<TModel>>
+open class OSModelStore<TModel: OSModel>: NSObject {
+    let changeSubscription: OSEventProducer<OSModelStoreChangedHandler>
+    var models: [String : TModel] = [:]
     
-    init(changeSubscription: OSEventProducer<OSModelStoreListener<TModel>>) {
+    public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>) {
         self.changeSubscription = changeSubscription
     }
     
-    func add(_ model: TModel) {
-        // TODO: UM add model to list and subscribe
+    public func add(id: String, model: TModel) {
+        print("🔥 OSModelStore add with model \(model)")
+        // TODO: UM persist the new model to storage.
+        models[id] = model
+        
+        // listen for changes to this model
+        model.changeNotifier.subscribe(self)
+        
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.added(model)
         }
     }
     
-    func remove(_ model: TModel) {
-        // TODO: UM remove model to list and unsubscribe
-        self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.removed(model)
+    func remove(_ id: String) {
+        print("🔥 OSModelStore remove with model \(id)")
+        if let model = models[id] {
+            models.removeValue(forKey: id)
+            // no longer listen for changes to this model
+            model.changeNotifier.unsubscribe(self)
+            // TODO: Remove the model from storage
+            self.changeSubscription.fire { modelStoreListener in
+                modelStoreListener.removed(model)
+            }
         }
     }
 }
 
 extension OSModelStore: OSModelChangedHandler {
     public func onChanged(args: OSModelChangedArgs) {
+        print("🔥 OSModelStore.onChanged() with args \(args)")
+        // TODO: Persist the changed model to storage. Consider batching.
+
         self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.updated(model: args.model as! TModel, property: args.property, oldValue: args.oldValue, newValue: args.newValue)
+            modelStoreListener.updated(args)
         }
     }
 }
