@@ -27,40 +27,81 @@
 
 import Foundation
 import OneSignalCore
+import OneSignalOSCore
 
 @objc protocol OneSignalUserManagerInterface {
-    static var user: OSUser? { get set }
-    static func login(_ externalId: String) -> OSUser
-    static func login(externalId: String, withToken: String) -> OSUser
-    static func loginGuest() -> OSUser
+    static var user: OSUserInternal? { get set }
+    static func login(_ externalId: String) -> OSUserInternal
+    static func login(externalId: String, withToken: String) -> OSUserInternal
+    static func loginGuest() -> OSUserInternal
 }
 
 @objc
 public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
-    // TODO: UM temp make public so OneSignal.m can access, but users shouldn't access this directly
-    @objc public static var user: OSUser?
+    // TODO: UM temp make user public so OneSignal.m can access, but users shouldn't access this directly?
+    @objc public static var user: OSUserInternal?
     
-    @objc
-    public static func login(_ externalId: String) -> OSUser {
-        print("🔥 OneSignalUser login() called")
-        return createAndSetUser()
+    // has Identity and Properties Model Stores
+    static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer())
+    static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer())
+    
+    // TODO: UM, and Model Store Listeners: where do they live? Here for now.
+    static var identityModelStoreListener = OSIdentityModelStoreListener(identityModelStore)
+    static var propertiesModelStoreListener = OSPropertiesModelStoreListener(propertiesModelStore)
+    
+    public override init() {
+        // Model store listeners subscribe to their models
+        // Where should these live?
+        OneSignalUserManager.identityModelStoreListener.start()
+        OneSignalUserManager.propertiesModelStoreListener.start()
     }
     
     @objc
-    public static func login(externalId: String, withToken: String) -> OSUser {
+    public static func login(_ externalId: String) -> OSUserInternal {
+        print("🔥 OneSignalUserManager login() called")
+        var identityModel: OSIdentityModel?
+        var propertiesModel: OSPropertiesModel?
+        
+        // 1. Attempt to retrieve user from backend?
+        // 2. Attempt to retrieve user from cache or stores?
+        
+        // 3. Create new user
+        identityModel = OSIdentityModel(OSEventProducer())
+        self.identityModelStore.add(id: externalId, model: identityModel!)
+        identityModel!.id = UUID().uuidString
+        identityModel!.externalId = externalId
+
+        propertiesModel = OSPropertiesModel(OSEventProducer())
+        self.propertiesModelStore.add(id: externalId, model: propertiesModel!)
+        propertiesModel!.id = identityModel!.id
+
+        return createAndSetUser(identityModel: identityModel!, propertiesModel: propertiesModel!)
+    }
+    
+    @objc
+    public static func login(externalId: String, withToken: String) -> OSUserInternal {
         print("🔥 OneSignalUser loginwithBearerToken() called")
-        return createAndSetUser()
+        // validate the token
+        return login(externalId)
     }
     
     @objc
-    public static func loginGuest() -> OSUser {
-        print("🔥 OneSignalUser loginGuest() called")
-        return createAndSetUser()
+    public static func loginGuest() -> OSUserInternal {
+        print("🔥 OneSignalUserManager loginGuest() called")
+        let identityModel = OSIdentityModel(OSEventProducer())
+        let propertiesModel = OSPropertiesModel(OSEventProducer())
+        // TODO: model logic for guest users
+        return createAndSetUser(identityModel: identityModel, propertiesModel: propertiesModel)
     }
     
-    static func createAndSetUser() -> OSUser {
+    static func createAndSetUser(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) -> OSUserInternal {
         // do stuff
-        return OSUser(onesignalId: UUID(),
-                           pushSubscription: OSPushSubscription(subscriptionId: UUID(), token: nil, enabled: false))
+        self.user = OSUserInternal(
+            onesignalId: UUID(),
+            pushSubscription: OSPushSubscriptionModel(subscriptionId: UUID(), token: nil, enabled: false),
+            identityModel: identityModel,
+            propertiesModel: propertiesModel)
+        
+        return self.user!
     }
 }
