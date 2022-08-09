@@ -85,7 +85,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 @end
 
 
-typedef OSObservable<NSObject<OSSubscriptionObserver>*, OSSubscriptionStateChanges*> ObservableSubscriptionStateChangesType;
+typedef OSObservable<NSObject<OSPushSubscriptionObserver>*, OSSubscriptionStateChanges*> ObservableSubscriptionStateChangesType;
 
 @interface OSSubscriptionChangedInternalObserver : NSObject<OSSubscriptionStateObserver>
 + (void)fireChangesObserver:(OSSubscriptionState*)state;
