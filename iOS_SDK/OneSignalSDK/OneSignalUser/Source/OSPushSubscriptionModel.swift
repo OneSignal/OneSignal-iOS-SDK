@@ -82,6 +82,6 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled ?? false
-        super.init(changeNotifier: OSEventProducer())
+        super.init(OSEventProducer())
     }
 }
