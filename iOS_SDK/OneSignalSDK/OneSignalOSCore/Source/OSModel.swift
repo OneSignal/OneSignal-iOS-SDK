@@ -30,7 +30,12 @@ import Foundation
 @objc
 open class OSModel: NSObject {
     
-    var id: String?
+    public var id: String? {
+        didSet  {
+            print("🔥 didSet OSModel.id from \(oldValue) to \(id).")
+            self.set(name: "id", value: id)
+        }
+    }
     var data: [String : AnyObject?] = [:]
     let changeNotifier: OSEventProducer<OSModelChangedHandler>
 
