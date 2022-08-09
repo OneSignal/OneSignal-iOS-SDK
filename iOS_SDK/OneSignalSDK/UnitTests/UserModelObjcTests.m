@@ -62,17 +62,17 @@
 - (void)testUserModelMethodAccess {
 
     // User Identity
-    __block OSUser* myUser = OneSignal.user;
+    __block id<OSUser> myUser = OneSignal.user;
 
-    [OneSignal login:@"foo" withResult:^(OSUser * _Nonnull user) {
+    [OneSignal login:@"foo" withResult:^(id<OSUser> _Nonnull user) {
         myUser = user;
     }];
 
-    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(OSUser * _Nonnull user) {
+    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(id<OSUser> _Nonnull user) {
         myUser = user;
     }];
 
-    [OneSignal loginGuest:^(OSUser * _Nonnull user) {
+    [OneSignal loginGuest:^(id<OSUser> _Nonnull user) {
         myUser = user;
     }];
 
@@ -117,7 +117,7 @@
 - (void)testTheseShouldNotWork {
     
     // Should not be accessible
-    OSUser *user = OneSignalUserManager.user; // This shouldn't be accessible to the public
+    id<OSUser> user = OneSignalUserManager.user; // This shouldn't be accessible to the public
     
     // Should not be settable
     // OneSignal.user.pushSubscription.token = [NSUUID new]; // <- Confirmed that users can't set token
@@ -130,7 +130,7 @@
 - (void)testPushSubscriptionPropertiesAccess {
     
     // Create a user and mock pushSubscription
-    OSUser* user = OneSignal.user;
+    id<OSUser> user = OneSignal.user;
     [user testCreatePushSubscriptionWithSubscriptionId:[NSUUID new] token:[NSUUID new] enabled:false];
 
     // Access properties of the pushSubscription
