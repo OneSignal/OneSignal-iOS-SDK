@@ -118,7 +118,7 @@ class UserModelSwiftTests: XCTestCase {
      */
     func testTheseShouldNotWork() throws {
         // Should not be accessible
-        let _ = OneSignalUserManager.user; // This shouldn't be accessible to the public
+        let _ = OneSignalUserManager.user;
         
         // Should not be settable
         // OneSignal.user.pushSubscription.token = UUID() // <- Confirmed that users can't set token

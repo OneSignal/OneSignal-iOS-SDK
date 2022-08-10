@@ -38,7 +38,6 @@ import OneSignalOSCore
 
 @objc
 public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
-    // TODO: UM temp make user public so OneSignal.m can access, but users shouldn't access this directly?
     @objc public static var user: OSUserInternal?
     
     // has Identity and Properties Model Stores
@@ -49,7 +48,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     static var identityModelStoreListener = OSIdentityModelStoreListener(identityModelStore)
     static var propertiesModelStoreListener = OSPropertiesModelStoreListener(propertiesModelStore)
     
-    public override init() {
+    static func startModelStoreListeners() {
         // Model store listeners subscribe to their models
         // Where should these live?
         OneSignalUserManager.identityModelStoreListener.start()
@@ -59,6 +58,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     @objc
     public static func login(_ externalId: String) -> OSUserInternal {
         print("🔥 OneSignalUserManager login() called")
+        startModelStoreListeners()
         var identityModel: OSIdentityModel?
         var propertiesModel: OSPropertiesModel?
         
@@ -88,6 +88,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     @objc
     public static func loginGuest() -> OSUserInternal {
         print("🔥 OneSignalUserManager loginGuest() called")
+        startModelStoreListeners()
         let identityModel = OSIdentityModel(OSEventProducer())
         let propertiesModel = OSPropertiesModel(OSEventProducer())
         // TODO: model logic for guest users
