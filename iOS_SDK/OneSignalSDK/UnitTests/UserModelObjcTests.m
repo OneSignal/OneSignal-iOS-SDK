@@ -117,7 +117,7 @@
 - (void)testTheseShouldNotWork {
     
     // Should not be accessible
-    id<OSUser> user = OneSignalUserManager.user; // This shouldn't be accessible to the public
+    id<OSUser> user = OneSignalUserManager.user;
     
     // Should not be settable
     // OneSignal.user.pushSubscription.token = [NSUUID new]; // <- Confirmed that users can't set token
