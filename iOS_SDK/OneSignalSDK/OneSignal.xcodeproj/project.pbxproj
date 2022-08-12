@@ -72,6 +72,7 @@
 		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSPushSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSPushSubscriptionModel.swift */; };
+		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */; };
 		3CE5F9E5289D9AA3004A156E /* OSOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE5F9E4289D9AA3004A156E /* OSOperation.swift */; };
 		3CE9227A289FA88B001B1062 /* OSIdentityModelStoreListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */; };
@@ -741,6 +742,7 @@
 		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
 		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSPushSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPushSubscriptionModel.swift; sourceTree = "<group>"; };
+		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSModelStoreChangedHandler.swift; sourceTree = "<group>"; };
 		3CE5F9E4289D9AA3004A156E /* OSOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperation.swift; sourceTree = "<group>"; };
 		3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityModelStoreListener.swift; sourceTree = "<group>"; };
@@ -1287,6 +1289,7 @@
 				3C11518C289AF5E800565C41 /* OSModelChangedHandler.swift */,
 				3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */,
 				3CE5F9E4289D9AA3004A156E /* OSOperation.swift */,
+				3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -2595,6 +2598,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */,
 				3C11518B289ADEEB00565C41 /* OSEventProducer.swift in Sources */,
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
