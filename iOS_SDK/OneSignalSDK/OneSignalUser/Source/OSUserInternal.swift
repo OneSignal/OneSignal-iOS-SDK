@@ -81,21 +81,15 @@ public class OSUserInternal: NSObject, OSUser {
     // Sessions will be outside this?
     
     // Owns an Identity Model and Properties Model
-    var identityModel: OSIdentityModel = OSIdentityModel(OSEventProducer())
-    var propertiesModel: OSPropertiesModel = OSPropertiesModel(OSEventProducer())
+    var identityModel: OSIdentityModel
+    var propertiesModel: OSPropertiesModel
     
     // TODO: UM This is a temporary function to create a push subscription for testing
     @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
         self.pushSubscription = OSPushSubscriptionModel(subscriptionId: subscriptionId, token: token, enabled: enabled)
         print("🔥 OSUser has set pushSubcription for testing")
     }
-    
-    init(onesignalId: UUID, pushSubscription: OSPushSubscriptionModel) {
-        self.onesignalId = onesignalId
-        self.pushSubscription = pushSubscription
-        // workaround for didSet: call initializeProperties(...)
-    }
-    
+        
     init(onesignalId: UUID, pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
         self.onesignalId = onesignalId
         self.pushSubscription = pushSubscription
