@@ -66,12 +66,11 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         // 2. Attempt to retrieve user from cache or stores?
         
         // 3. Create new user
-        identityModel = OSIdentityModel(OSEventProducer())
+        identityModel = OSIdentityModel(id: externalId, changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: externalId, model: identityModel!)
-        identityModel!.id = UUID().uuidString
         identityModel!.externalId = externalId
 
-        propertiesModel = OSPropertiesModel(OSEventProducer())
+        propertiesModel = OSPropertiesModel(id: externalId, changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: externalId, model: propertiesModel!)
         propertiesModel!.id = identityModel!.id
 
@@ -89,9 +88,11 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     public static func loginGuest() -> OSUserInternal {
         print("🔥 OneSignalUserManager loginGuest() called")
         startModelStoreListeners()
-        let identityModel = OSIdentityModel(OSEventProducer())
-        let propertiesModel = OSPropertiesModel(OSEventProducer())
+        
         // TODO: model logic for guest users
+        let identityModel = OSIdentityModel(id: UUID().uuidString, changeNotifier: OSEventProducer())
+        let propertiesModel = OSPropertiesModel(id: identityModel.id, changeNotifier: OSEventProducer())
+
         return createAndSetUser(identityModel: identityModel, propertiesModel: propertiesModel)
     }
     
