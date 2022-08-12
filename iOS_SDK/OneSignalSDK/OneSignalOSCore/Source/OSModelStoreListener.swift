@@ -52,22 +52,22 @@ extension OSModelStoreListener {
         store.changeSubscription.unsubscribe(self)
     }
 
-    public func added(_ model: OSModel) {
-        print("🔥 OSModelStoreListener.added() with model \(model)")
+    public func onAdded(_ model: OSModel) {
+        print("🔥 OSModelStoreListener.onAdded() with model \(model)")
         if let operation = getAddOperation(model as! Self.TModel) {
             // opRepo.enqueue(operation)
         }
     }
 
-    public func updated(_ args: OSModelChangedArgs) {
-        print("🔥 OSModelStoreListener.updated() with args \(args)")
+    public func onUpdated(_ args: OSModelChangedArgs) {
+        print("🔥 OSModelStoreListener.onUpdated() with args \(args)")
         if let operation = getUpdateOperation(args) {
             // opRepo.enqueue(operation)
         }
     }
     
-    public func removed(_ model: OSModel) {
-        print("🔥 OSModelStoreListener.removed() with model \(model)")
+    public func onRemoved(_ model: OSModel) {
+        print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
         if let operation = getRemoveOperation(model as! Self.TModel) {
             // opRepo.enqueue(operation)
         }
