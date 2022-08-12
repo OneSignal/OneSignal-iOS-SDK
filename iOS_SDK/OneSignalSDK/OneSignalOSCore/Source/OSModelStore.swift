@@ -44,7 +44,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         model.changeNotifier.subscribe(self)
         
         self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.added(model)
+            modelStoreListener.onAdded(model)
         }
     }
     
@@ -56,7 +56,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             model.changeNotifier.unsubscribe(self)
             // TODO: Remove the model from storage
             self.changeSubscription.fire { modelStoreListener in
-                modelStoreListener.removed(model)
+                modelStoreListener.onRemoved(model)
             }
         }
     }
@@ -68,7 +68,7 @@ extension OSModelStore: OSModelChangedHandler {
         // TODO: Persist the changed model to storage. Consider batching.
 
         self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.updated(args)
+            modelStoreListener.onUpdated(args)
         }
     }
 }
