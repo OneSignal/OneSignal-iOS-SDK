@@ -24,32 +24,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
 import Foundation
-import OneSignalOSCore
 
-class OSIdentityModelStoreListener: OSModelStoreListener {
-    var store: OSModelStore<OSIdentityModel>
-    var opRepo: OSOperationRepo
-
-    required init(store: OSModelStore<OSIdentityModel>, opRepo: OSOperationRepo) {
-        self.store = store
-        self.opRepo = opRepo
-    }
+public class OSOperationRepo: NSObject {
+    var queue: Array<OSOperation> = Array() // change to a some kind of Queue
     
-    func getAddOperation(_ model: OSIdentityModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+    func enqueue(_ operation: OSOperation) {
+        print("🔥 OSOperationRepo enqueue \(operation)")
+        queue.append(operation)
     }
-    
-    func getRemoveOperation(_ model: OSIdentityModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
-    }
-    
-    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
-    }
-    
 }

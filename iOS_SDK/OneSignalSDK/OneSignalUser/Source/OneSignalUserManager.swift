@@ -45,8 +45,8 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer())
     
     // TODO: UM, and Model Store Listeners: where do they live? Here for now.
-    static var identityModelStoreListener = OSIdentityModelStoreListener(identityModelStore)
-    static var propertiesModelStoreListener = OSPropertiesModelStoreListener(propertiesModelStore)
+    static var identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore, opRepo: OSOperationRepo())
+    static var propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore, opRepo: OSOperationRepo())
     
     static func startModelStoreListeners() {
         // Model store listeners subscribe to their models
