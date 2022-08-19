@@ -29,22 +29,49 @@ import Foundation
 import OneSignalOSCore
 
 class OSIdentityModel: OSModel {
-    var onesignalId: UUID? {
-        didSet  {
-            print("🔥 didSet OSIdentityModel.onesignalId from \(oldValue) to \(onesignalId).")
-            self.set(name: "onesignalId", value: onesignalId)
-        }
-    }
+    var onesignalId: UUID?
+
     var externalId: String? {
         didSet  {
-            print("🔥 didSet OSIdentityModel.externalId from \(oldValue) to \(externalId).")
-            self.set(name: "externalId", value: externalId)
+            guard self.hydrating else {
+                print("🔥 didSet OSIdentityModel.externalId from \(oldValue) to \(externalId!).")
+                self.set(property: "externalId", oldValue: oldValue, newValue: externalId)
+                return
+            }
         }
     }
-    var aliases: [String : String] = [:] {
-        didSet  {
-            print("🔥 didSet OSIdentityModel.aliases from \(oldValue) to \(aliases).")
-            self.set(name: "aliases", value: aliases)
+    var aliases: [String : String] = [:]
+    
+    func setAlias(label: String, id: String) {
+        guard self.hydrating else {
+            print("🔥 OSIdentityModel.setAlias \(label) : \(id).")
+            let oldValue: String? = aliases[label]
+            aliases[label] = id
+            self.set(property: label, oldValue: oldValue, newValue: id)
+            return
         }
+    }
+    
+    func removeAlias(_ label: String) {
+        guard self.hydrating else {
+            print("🔥 OSIdentityModel.removeAlias \(label).")
+            if let oldValue = aliases.removeValue(forKey: label) {
+                self.set(property: label, oldValue: oldValue, newValue: nil)
+            }
+            return
+        }
+    }
+    
+    public override func hydrate(_ response: [String : String]) {
+        print("🔥 OSIdentityModel hydrate()")
+        self.hydrating = true
+        // TODO: Update Model properties with the response
+        // Flesh out implementation and how to parse the response, deleted aliases...
+        for property in response {
+            if property.key != "external_id" && property.key != "onesignal_id" {
+                aliases[property.key] = property.value
+            }
+        }
+        self.hydrating = false
     }
 }
