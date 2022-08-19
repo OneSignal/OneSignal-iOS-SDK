@@ -26,12 +26,13 @@
  */
 
 import Foundation
+import OneSignalExtension
 
 @objc
 open class OSModel: NSObject {
     
     public var id: String
-    var data: [String : AnyObject?] = [:]
+    public var hydrating = false // TODO: Starts out false?
     let changeNotifier: OSEventProducer<OSModelChangedHandler>
 
     public init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
@@ -39,26 +40,28 @@ open class OSModel: NSObject {
         self.changeNotifier = changeNotifier
     }
     
-    public func set<T>(name: String, value: T) {
-        
-        let oldValue = data[name] as AnyObject // Error encountered: Argument type 'AnyObject?' expected to be an instance of a class or class-constrained type
-        
-        let newValue = value as AnyObject // Error encountered: Cannot assign value of type 'T' to subscript of type 'AnyObject??'
-        
-        if (oldValue === newValue) { return }
-            
-        data[name] = newValue
-
-        let changeArgs = OSModelChangedArgs(model: self, property: name, oldValue: oldValue, newValue: newValue)
+    public func set<T>(property: String, oldValue: T, newValue: T) {
+        let changeArgs = OSModelChangedArgs(model: self, property: property, oldValue: oldValue, newValue: newValue)
         self.changeNotifier.fire { modelChangeHandler in
             modelChangeHandler.onChanged(args: changeArgs)
         }
     }
 
+    /*
     public func get<T>(_ name: String) -> T {
         return data[name] as! T
     }
+    */
 
     // TODO: Other get function which creates if not found
+    
+    /**
+     This function receives a server response and updates the model's properties. It must be implemented by every OSModel class.
+     */
+    open func hydrate(_ response: [String : String]) {
+        // TODO: Modify the Error that is thrown?
+        // throw NSError(domain: "OneSignalError", code: 0, userInfo: ["error": "Function must be overridden."])
+        print("Error: Function must be overridden.")
+    }
 }
 
