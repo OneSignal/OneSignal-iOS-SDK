@@ -28,6 +28,42 @@
 import Foundation
 import OneSignalOSCore
 
+// MARK: - Identity Operations
+
+/**
+ An OSUpdateIdentityOperation includes operations for adding, removing, and updating an alias.
+ It may also include adding, removing, and updating an external_id.
+ */
+class OSUpdateIdentityOperation: OSOperation {
+    // Operation Information
+    let name = "OSUpdateIdentityOperation"
+    let operationId = UUID()
+    let timestamp = Date()
+
+    // Model Information
+    var model: OSModel = OSIdentityModel(id: "testtest", changeNotifier: OSEventProducer()) // TODO: Implement NSCoding for OSModel
+    let property: String
+    let value: Any?
+    
+    init(model: OSIdentityModel, property: String, value: Any?) {
+        self.model = model
+        self.property = property
+        self.value = value
+    }
+    
+    func encode(with coder: NSCoder) {
+        //
+    }
+    
+    required init?(coder: NSCoder) {
+        // model = coder.decodeObject(forKey: "model") as! String
+        property = coder.decodeObject(forKey: "property") as! String
+        value = coder.decodeObject(forKey: "value")
+    }
+}
+
+// MARK: - Model Store Listener
+
 class OSIdentityModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSIdentityModel>
     
@@ -36,18 +72,19 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
     }
     
     func getAddOperation(_ model: OSIdentityModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+        return nil
     }
     
     func getRemoveOperation(_ model: OSIdentityModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+        return nil
     }
     
     func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+        return OSUpdateIdentityOperation(
+            model: args.model as! OSIdentityModel,
+            property: args.property,
+            value: args.newValue
+        )
     }
     
 }
