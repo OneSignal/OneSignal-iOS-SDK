@@ -162,10 +162,16 @@ class UserModelSwiftTests: XCTestCase {
         
         let user = OneSignal.user
         
+        // Check that operations for alias (Identity) are created correctly and enqueued.
+        // Removing a non-existent alias does not create an operation
         print("🔥 Unit Tests adding alias label_01: user_01")
         user.addAlias(label: "label_01", id: "user_01")
-        
-        print("🔥 Unit Tests adding alias label_02: user_02")
+        user.removeAlias("nonexistent")
+        user.removeAlias("label_01")
         user.addAlias(label: "label_02", id: "user_02")
+        user.addAliases(["test1": "user1", "test2": "user2", "test3": "user3"])
+        user.removeAliases(["test1", "label_01", "test2"])
+        
+        user.setTag(key: "foo", value: "bar")
     }
 }
