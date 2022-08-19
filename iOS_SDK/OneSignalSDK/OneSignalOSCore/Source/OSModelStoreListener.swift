@@ -31,9 +31,8 @@ public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     associatedtype TModel: OSModel
     
     var store: OSModelStore<TModel> { get }
-    var opRepo: OSOperationRepo { get }
     
-    init(store: OSModelStore<TModel>, opRepo: OSOperationRepo)
+    init(store: OSModelStore<TModel>)
     
     func getAddOperation(_ model: TModel) -> OSOperation?
     
@@ -54,21 +53,21 @@ extension OSModelStoreListener {
     public func onAdded(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onAdded() with model \(model)")
         if let operation = getAddOperation(model as! Self.TModel) {
-            opRepo.enqueue(operation)
+            OSOperationRepo.sharedInstance.enqueue(operation)
         }
     }
 
     public func onUpdated(_ args: OSModelChangedArgs) {
         print("🔥 OSModelStoreListener.onUpdated() with args \(args)")
         if let operation = getUpdateOperation(args) {
-            opRepo.enqueue(operation)
+            OSOperationRepo.sharedInstance.enqueue(operation)
         }
     }
     
     public func onRemoved(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
         if let operation = getRemoveOperation(model as! Self.TModel) {
-            opRepo.enqueue(operation)
+            OSOperationRepo.sharedInstance.enqueue(operation)
         }
     }
 }

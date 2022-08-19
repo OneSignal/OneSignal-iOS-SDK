@@ -24,13 +24,53 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import Foundation
 
+import Foundation
+import OneSignalCore
+
+/**
+ The OSOperationRepo is a static singleton.
+ OSOperation are enqueued to their appropriate executors when model store observers observe changes to their models.
+ */
 public class OSOperationRepo: NSObject {
-    var queue: Array<OSOperation> = Array() // change to a some kind of Queue
+    static let sharedInstance = OSOperationRepo(executors: []) // TODO: Setup executors
     
+    // Maps operation names to the interfaces for the operation executors
+    let operationToExecutorMap: [String : OSOperationExecutor]
+    let executors: [OSOperationExecutor]
+
+    // TODO: This should come from a config
+    var operationsProcessingInterval = 5000
+    
+    public init(executors: [OSOperationExecutor]) {
+        self.executors = executors
+        var executorsMap: [String : OSOperationExecutor] = [:]
+        for executor in executors {
+            for operation in executor.supportedOperations {
+                executorsMap[operation] = executor
+            }
+        }
+        self.operationToExecutorMap = executorsMap
+    }
+    
+    /**
+     An OSOperation will be enqueued to its executor who will save it to disk via UserDefaults.
+     When app is relaunched, read from disk to see if any operations need to be sent still.
+     */
     func enqueue(_ operation: OSOperation) {
         print("🔥 OSOperationRepo enqueue \(operation)")
-        queue.append(operation)
+        let executor = operationToExecutorMap[operation.name] // do some check for it not existing?
+        executor?.enqueue(operation)
+    }
+    
+    func flush() {
+        for executor in executors {
+            executor.execute()
+        }
     }
 }
+
+// how to implement every 5 seconds flush, some background service callign every 5 seconds,
+// blocking queue, sync queue - many threads are manipulating the same queue, think about lock it when flush
+// can't use async keyword bc ios 13+
+// https://developer.apple.com/documentation/dispatch/dispatchqueue
