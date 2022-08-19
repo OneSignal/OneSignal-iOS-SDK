@@ -98,31 +98,34 @@ public class OSUserInternal: NSObject, OSUser {
         // workaround for didSet: call initializeProperties(...)
     }
     
-    // Aliases
+    // MARK: - Aliases
     
     @objc
     public func addAlias(label: String, id: String) -> Void {
         print("🔥 OSUser addAlias() called")
-        // Alt1: update alias list, and fire, observer sees entire list as changed, listener can figure out delta
-        // or Operation can figure it out,  etc depends how Delta is figured out
-        // confirm didSet for appending, see if new object
-        // since it is a struct, it changes, diff if its a class
-        self.identityModel.aliases[label] = id
+        self.identityModel.setAlias(label: label, id: id)
     }
 
     @objc
     public func addAliases(_ aliases: [String : String]) -> Void {
         print("🔥 OSUser addAliases() called")
+        for alias in aliases {
+            addAlias(label: alias.key, id: alias.value)
+        }
     }
     
     @objc
     public func removeAlias(_ label: String) -> Void {
         print("🔥 OSUser removeAlias() called")
+        self.identityModel.removeAlias(label)
     }
     
     @objc
     public func removeAliases(_ labels: [String]) -> Void {
         print("🔥 OSUser removeAliases() called")
+        for label in labels {
+            removeAlias(label)
+        }
     }
 
     // Tags
@@ -130,21 +133,25 @@ public class OSUserInternal: NSObject, OSUser {
     @objc
     public func setTag(key: String, value: String) -> Void {
         print("🔥 OSUser sendTag() called")
+        self.propertiesModel.tags[key] = value
     }
     
     @objc
     public func setTags(_ tags: [String : String]) -> Void {
         print("🔥 OSUser sendTags() called")
+        // TODO: Implementation
     }
     
     @objc
     public func removeTag(_ tag: String) -> Void {
         print("🔥 OSUser removeTag() called")
+        // TODO: Implementation
     }
     
     @objc
     public func removeTags(_ tags: [String]) -> Void {
         print("🔥 OSUser removeTags() called")
+        // TODO: Implementation
     }
     
     @objc

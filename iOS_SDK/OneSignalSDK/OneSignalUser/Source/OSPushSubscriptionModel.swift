@@ -73,7 +73,8 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
         let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
         
-        self.set(name: "enabled", value: newValue)
+        // use hydrating bool to determine calling self.set
+        self.set(property: "enabled", oldValue: oldValue, newValue: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
@@ -82,6 +83,6 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled ?? false
-        super.init(OSEventProducer())
+        super.init(id: subscriptionId.uuidString, changeNotifier: OSEventProducer())
     }
 }
