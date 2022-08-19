@@ -28,6 +28,48 @@
 import Foundation
 import OneSignalOSCore
 
+// MARK: - Property Operations
+
+class OSUpdatePropertyOperation: OSOperation {
+    
+    let name = "OSUpdatePropertyOperation"
+    // TODO: Extract this out to the protocol have these same properties:
+    var operationId = UUID()
+    let timestamp = Date()
+    
+    var model: OSModel = OSPropertiesModel(id: "testtest", changeNotifier: OSEventProducer()) // TODO: Implement NSCoding for OSModel
+
+    let modelId: String
+    let property: String
+    let value: Any?
+    
+    func encode(with coder: NSCoder) {
+        coder.encode(name, forKey: "name")
+        coder.encode(operationId, forKey: "operationId")
+        coder.encode(timestamp, forKey: "timestamp")
+        coder.encode(modelId, forKey: "modelId")
+        coder.encode(property, forKey: "property")
+        coder.encode(value, forKey: "value")
+        // TODO: Encode the model
+    }
+    
+    required init?(coder: NSCoder) {
+        modelId = coder.decodeObject(forKey: "modelId") as! String
+        property = coder.decodeObject(forKey: "property") as! String
+        value = coder.decodeObject(forKey: "value")
+        // ...
+    }
+    
+    init(model: OSPropertiesModel, property: String, value: Any?) {
+        self.model = model
+        self.modelId = model.id
+        self.property = property
+        self.value = value
+    }
+}
+
+// MARK: - Model Store Listener
+
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
  
@@ -36,18 +78,20 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
     }
     
     func getAddOperation(_ model: OSPropertiesModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+        return nil
     }
     
     func getRemoveOperation(_ model: OSPropertiesModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+        return nil
     }
     
     func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation? {
         // TODO: Implementation
-        return OSOperation()
+        return OSUpdatePropertyOperation(
+            model: args.model as! OSPropertiesModel,
+            property: args.property,
+            value: args.newValue
+        )
     }
     
 }
