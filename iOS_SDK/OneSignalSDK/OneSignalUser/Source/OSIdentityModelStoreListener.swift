@@ -35,37 +35,13 @@ import OneSignalOSCore
  It may also include adding, removing, and updating an external_id (??? need to confirm).
  */
 class OSUpdateIdentityDelta: OSDelta {
-    let name = "OSUpdateIdentityDelta"
-    // TODO: Extract these same properties out to the protocol/superclass:
-    let deltaId: UUID
-    let timestamp: Date
-    let model: OSModel
-    let property: String
-    let value: Any?
-    
-    // TODO: Extract these same init()'s across OSDeltas to a superclass:
-    init(model: OSIdentityModel, property: String, value: Any?) {
-        self.deltaId = UUID()
-        self.timestamp = Date()
-        self.model = model
-        self.property = property
-        self.value = value
-    }
-    
-    func encode(with coder: NSCoder) {
-        coder.encode(deltaId, forKey: "deltaId")
-        coder.encode(timestamp, forKey: "timestamp")
-        coder.encode(model, forKey: "model")
-        coder.encode(property, forKey: "property")
-        coder.encode(value, forKey: "value")
+    // TODO: Best practice for overriding a stored property in subclass?
+    init(model: OSModel, property: String, value: Any?) {
+        super.init(name: "OSUpdateIdentityDelta", model: model, property: property, value: value)
     }
     
     required init?(coder: NSCoder) {
-        deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
-        timestamp = coder.decodeObject(forKey: "timestamp") as! Date
-        model = coder.decodeObject(forKey: "model") as! OSModel
-        property = coder.decodeObject(forKey: "property") as! String
-        value = coder.decodeObject(forKey: "value")
+        super.init(coder: coder)
     }
 }
 
