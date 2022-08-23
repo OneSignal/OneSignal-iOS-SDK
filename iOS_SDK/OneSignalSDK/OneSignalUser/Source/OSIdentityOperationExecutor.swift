@@ -30,33 +30,48 @@ import OneSignalOSCore
 import OneSignalCore
 
 class OSIdentityOperationExecutor: OSOperationExecutor {
-    var supportedOperations: [String] = ["OSUpdateIdentityOperation"] // TODO: Don't hardcode
-    var queue: [OSOperation] = []
+    var supportedDeltas: [String] = ["OSUpdateIdentityDelta"] // TODO: Don't hardcode
+    var deltaQueue: [OSDelta] = []
+    var operationQueue: [OSOperation] = []
     
-    /**
-     For the Identity Model change requests, we enqueue each operation as a separate request.
-     */
-    func enqueue(_ operation: OSOperation) {
-        print("🔥 OSIdentityOperationExecutor enqueue \(operation)")
-        // Cache the operation
-        OneSignalUserDefaults.initShared().saveObject(forKey: operation.operationId.uuidString, withValue: operation)
-        queue.append(operation)
+    func enqueueDelta(_ delta: OSDelta) {
+        print("🔥 OSIdentityOperationExecutor enqueueDelta: \(delta)")
+        deltaQueue.append(delta)
     }
     
-
-
-    
-    func execute() {
-        if queue.isEmpty {
+    func processDeltaQueue() {
+        if deltaQueue.isEmpty {
             return
         }
-            
-        let operation = queue.removeFirst()
+        // TODO: Implementation
+        for delta in deltaQueue {
+            // Remove the delta from the cache when it becomes an Operation
+            OneSignalUserDefaults.initShared().removeValue(forKey: delta.deltaId.uuidString)
+            // enqueueOperation(operation)
+        }
+        processOperationQueue()
+    }
+   
+    func enqueueOperation(_ operation: OSOperation) {
+        print("🔥 OSIdentityOperationExecutor enqueueOperation: \(operation)")
+        // Cache the Operation
+        OneSignalUserDefaults.initShared().saveObject(forKey: operation.operationId.uuidString, withValue: operation)
+        operationQueue.append(operation)
+    }
+    
+    func processOperationQueue() {
+        if operationQueue.isEmpty {
+            return
+        }
+        for operation in operationQueue {
+            executeOperation(operation)
+        }
+    }
+    
+    func executeOperation(_ operation: OSOperation) {
         // Execute the operation
-        
         // Mock a response
-        
-        let response = ["language": "en"]
+        let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
         
         // On success, remove operation from cache, and hydrate model
         OneSignalUserDefaults.initShared().removeValue(forKey: operation.operationId.uuidString)
@@ -64,5 +79,4 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         operation.model.hydrate(response)
         // On failure, retry logic, but order of operations matters
     }
-    
 }

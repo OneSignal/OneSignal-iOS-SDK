@@ -28,41 +28,48 @@
 import Foundation
 import OneSignalOSCore
 
-// MARK: - Identity Operations
+// MARK: - Identity Deltas
 
 /**
- An OSUpdateIdentityOperation includes operations for adding, removing, and updating an alias.
- It may also include adding, removing, and updating an external_id.
+ An OSUpdateIdentityDelta includes operations for adding, removing, and updating an alias.
+ It may also include adding, removing, and updating an external_id (??? need to confirm).
  */
-class OSUpdateIdentityOperation: OSOperation {
-    // Operation Information
-    let name = "OSUpdateIdentityOperation"
-    let operationId = UUID()
-    let timestamp = Date()
-
-    // Model Information
-    var model: OSModel = OSIdentityModel(id: "testtest", changeNotifier: OSEventProducer()) // TODO: Implement NSCoding for OSModel
+class OSUpdateIdentityDelta: OSDelta {
+    let name = "OSUpdateIdentityDelta"
+    // TODO: Extract these same properties out to the protocol/superclass:
+    let deltaId: UUID
+    let timestamp: Date
+    let model: OSModel
     let property: String
     let value: Any?
     
+    // TODO: Extract these same init()'s across OSDeltas to a superclass:
     init(model: OSIdentityModel, property: String, value: Any?) {
+        self.deltaId = UUID()
+        self.timestamp = Date()
         self.model = model
         self.property = property
         self.value = value
     }
     
     func encode(with coder: NSCoder) {
-        //
+        coder.encode(deltaId, forKey: "deltaId")
+        coder.encode(timestamp, forKey: "timestamp")
+        coder.encode(model, forKey: "model")
+        coder.encode(property, forKey: "property")
+        coder.encode(value, forKey: "value")
     }
     
     required init?(coder: NSCoder) {
-        // model = coder.decodeObject(forKey: "model") as! String
+        deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
+        timestamp = coder.decodeObject(forKey: "timestamp") as! Date
+        model = coder.decodeObject(forKey: "model") as! OSModel
         property = coder.decodeObject(forKey: "property") as! String
         value = coder.decodeObject(forKey: "value")
     }
 }
 
-// MARK: - Model Store Listener
+// MARK: - Identity Model Store Listener
 
 class OSIdentityModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSIdentityModel>
@@ -71,20 +78,21 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
         self.store = store
     }
     
-    func getAddOperation(_ model: OSIdentityModel) -> OSOperation? {
+    func getAddDelta(_ model: OSIdentityModel) -> OSDelta? {
+        // Note: these add/remove Operations are adding/removing a model
+        // And not adding/removing properties of a model, differing currently from Web
         return nil
     }
     
-    func getRemoveOperation(_ model: OSIdentityModel) -> OSOperation? {
+    func getRemoveDelta(_ model: OSIdentityModel) -> OSDelta? {
         return nil
     }
     
-    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation? {
-        return OSUpdateIdentityOperation(
+    func getUpdateDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        return OSUpdateIdentityDelta(
             model: args.model as! OSIdentityModel,
             property: args.property,
             value: args.newValue
         )
     }
-    
 }
