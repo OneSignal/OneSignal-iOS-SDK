@@ -30,45 +30,41 @@ import OneSignalOSCore
 
 // MARK: - Property Operations
 
-class OSUpdatePropertyOperation: OSOperation {
-    
-    let name = "OSUpdatePropertyOperation"
-    // TODO: Extract this out to the protocol have these same properties:
-    var operationId = UUID()
-    let timestamp = Date()
-    
-    var model: OSModel = OSPropertiesModel(id: "testtest", changeNotifier: OSEventProducer()) // TODO: Implement NSCoding for OSModel
-
-    let modelId: String
+class OSUpdatePropertyDelta: OSDelta {
+    let name = "OSUpdatePropertyDelta"
+    let deltaId: UUID
+    let timestamp: Date
+    let model: OSModel
     let property: String
     let value: Any?
     
-    func encode(with coder: NSCoder) {
-        coder.encode(name, forKey: "name")
-        coder.encode(operationId, forKey: "operationId")
-        coder.encode(timestamp, forKey: "timestamp")
-        coder.encode(modelId, forKey: "modelId")
-        coder.encode(property, forKey: "property")
-        coder.encode(value, forKey: "value")
-        // TODO: Encode the model
-    }
-    
-    required init?(coder: NSCoder) {
-        modelId = coder.decodeObject(forKey: "modelId") as! String
-        property = coder.decodeObject(forKey: "property") as! String
-        value = coder.decodeObject(forKey: "value")
-        // ...
-    }
-    
+    // TODO: Extract these same init()'s across OSOperations to a superclass:
     init(model: OSPropertiesModel, property: String, value: Any?) {
+        self.deltaId = UUID()
+        self.timestamp = Date()
         self.model = model
-        self.modelId = model.id
         self.property = property
         self.value = value
     }
+    
+    func encode(with coder: NSCoder) {
+        coder.encode(deltaId, forKey: "operationId")
+        coder.encode(timestamp, forKey: "timestamp")
+        coder.encode(model, forKey: "model")
+        coder.encode(property, forKey: "property")
+        coder.encode(value, forKey: "value")
+    }
+    
+    required init?(coder: NSCoder) {
+        deltaId = coder.decodeObject(forKey: "operationId") as! UUID
+        timestamp = coder.decodeObject(forKey: "timestamp") as! Date
+        model = coder.decodeObject(forKey: "model") as! OSModel
+        property = coder.decodeObject(forKey: "property") as! String
+        value = coder.decodeObject(forKey: "value")
+    }
 }
 
-// MARK: - Model Store Listener
+// MARK: - Properties Model Store Listener
 
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
@@ -77,21 +73,20 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
         self.store = store
     }
     
-    func getAddOperation(_ model: OSPropertiesModel) -> OSOperation? {
+    func getAddDelta(_ model: OSPropertiesModel) -> OSDelta? {
         return nil
     }
     
-    func getRemoveOperation(_ model: OSPropertiesModel) -> OSOperation? {
+    func getRemoveDelta(_ model: OSPropertiesModel) -> OSDelta? {
         return nil
     }
     
-    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation? {
+    func getUpdateDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         // TODO: Implementation
-        return OSUpdatePropertyOperation(
+        return OSUpdatePropertyDelta(
             model: args.model as! OSPropertiesModel,
             property: args.property,
             value: args.newValue
         )
     }
-    
 }

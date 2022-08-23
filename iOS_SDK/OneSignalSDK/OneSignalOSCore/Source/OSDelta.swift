@@ -27,15 +27,13 @@
 
 import Foundation
 
-public protocol OSOperationExecutor {
-    var supportedDeltas: [String] { get }
-    var deltaQueue: [OSDelta] { get }
-    var operationQueue: [OSOperation] { get }
+public protocol OSDelta: NSCoding {
+    var name: String { get }
+    var deltaId: UUID { get }
+    var timestamp: Date { get }
     
-    func enqueueDelta(_ delta: OSDelta)
-    func processDeltaQueue()
+    var model: OSModel { get }
     
-    func enqueueOperation(_ operation: OSOperation)
-    func processOperationQueue()
-    func executeOperation(_ operation: OSOperation)
+    // define how to respond to operation and get hydrated
+    // like operation.complete()
 }

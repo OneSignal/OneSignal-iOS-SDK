@@ -30,39 +30,55 @@ import OneSignalOSCore
 import OneSignalCore
 
 class OSPropertyOperationExecutor: OSOperationExecutor {
-    var supportedOperations: [String] = ["OSUpdatePropertyOperation"] // TODO: Don't hardcode
-    var queue: [OSOperation] = []
+    var supportedDeltas: [String] = ["OSUpdatePropertyOperation"] // TODO: Don't hardcode
+    var deltaQueue: [OSDelta] = []
+    var operationQueue: [OSOperation] = []
 
-    /**
-     For the Properties Model change requests, we only keep the latest OSOperation with the snapshot of the Model.
-     */
-    func enqueue(_ operation: OSOperation) {
-        print("🔥 OSPropertyOperationExecutor enqueue \(operation)")
-        OneSignalUserDefaults.initShared().saveObject(forKey: operation.operationId.uuidString, withValue: operation)
-        if !queue.isEmpty {
-            let prevOperation = queue.removeFirst()
-            OneSignalUserDefaults.initShared().removeValue(forKey: prevOperation.operationId.uuidString)
-        }
-        queue = [operation]
+    func enqueueDelta(_ delta: OSDelta) {
+        print("🔥 OSPropertyOperationExecutor enqueue delta\(delta)")
+        deltaQueue.append(delta)
     }
 
-    func execute() {
-        if queue.isEmpty {
+    func processDeltaQueue() {
+        if deltaQueue.isEmpty {
             return
         }
-            
-        let operation = queue.removeFirst()
+        // TODO: Implementation
+        for delta in deltaQueue {
+            // Remove the delta from the cache when it becomes an Operation
+            OneSignalUserDefaults.initShared().removeValue(forKey: delta.deltaId.uuidString)
+            // enqueueOperation(operation)
+        }
+        processOperationQueue()
+    }
+    
+    func enqueueOperation(_ operation: OSOperation) {
+        print("🔥 OSPropertyOperationExecutor enqueueOperation: \(operation)")
+        // Cache the Operation
+        OneSignalUserDefaults.initShared().saveObject(forKey: operation.operationId.uuidString, withValue: operation)
+        operationQueue.append(operation)
+    }
+    
+    func processOperationQueue() {
+        if operationQueue.isEmpty {
+            return
+        }
+        for operation in operationQueue {
+            executeOperation(operation)
+        }
+    }
+    
+    func executeOperation(_ operation: OSOperation) {
         // Execute the operation
-        
         // Mock a response
         
         let response = ["language": "en"]
 
         // On success, remove operation from cache, and hydrate model
         OneSignalUserDefaults.initShared().removeValue(forKey: operation.operationId.uuidString)
+        
         operation.model.hydrate(response)
         
         // On failure, retry logic
-        // Consider if newer properties request has been made that has the more updated model
     }
 }
