@@ -49,5 +49,26 @@ class OSPropertiesModel: OSModel {
     }
     
     // ... and more ...
+    
+    // MARK: - Initialization
+    
+    // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
+    override init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        super.init(id: id, changeNotifier: changeNotifier)
+    }
+    
+    override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
+        coder.encode(language, forKey: "language")
+        coder.encode(tags, forKey: "tags")
+        // ... and more
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        language = coder.decodeObject(forKey: "language") as? String
+        tags = coder.decodeObject(forKey: "tags") as! [String : String]
+        // ... and more
+    }
 }
 

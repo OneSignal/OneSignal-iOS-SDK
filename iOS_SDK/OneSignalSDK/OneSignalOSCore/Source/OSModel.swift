@@ -26,11 +26,10 @@
  */
 
 import Foundation
-import OneSignalExtension
 
 @objc
-open class OSModel: NSObject {
-    public var id: String
+open class OSModel: NSObject, NSCoding {
+    public let id: String
     public var hydrating = false // TODO: Starts out false?
     let changeNotifier: OSEventProducer<OSModelChangedHandler>
 
@@ -39,20 +38,25 @@ open class OSModel: NSObject {
         self.changeNotifier = changeNotifier
     }
     
+    // Question: What does it mean to encode and decode the changeNotifier when
+    // the goal is to we are cache the model and its properties
+    open func encode(with coder: NSCoder) {
+        coder.encode(id, forKey: "id")
+        coder.encode(changeNotifier, forKey: "changeNotifier")
+    }
+    
+    public required init?(coder: NSCoder) {
+        id = coder.decodeObject(forKey: "id") as! String
+        changeNotifier = coder.decodeObject(forKey: "changeNotifier") as! OSEventProducer<OSModelChangedHandler>
+    }
+    
+    // We can add operation name to this... , such as enum of "updated", "deleted", "added"
     public func set<T>(property: String, oldValue: T, newValue: T) {
         let changeArgs = OSModelChangedArgs(model: self, property: property, oldValue: oldValue, newValue: newValue)
         self.changeNotifier.fire { modelChangeHandler in
             modelChangeHandler.onChanged(args: changeArgs)
         }
     }
-
-    /*
-    public func get<T>(_ name: String) -> T {
-        return data[name] as! T
-    }
-    */
-
-    // TODO: Other get function which creates if not found
     
     /**
      This function receives a server response and updates the model's properties. It must be implemented by every OSModel class.
