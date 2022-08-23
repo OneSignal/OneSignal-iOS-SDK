@@ -30,42 +30,53 @@ import OneSignalCore
 
 /**
  The OSOperationRepo is a static singleton.
- OSOperation are enqueued to their appropriate executors when model store observers observe changes to their models.
+ OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
  */
 public class OSOperationRepo: NSObject {
-    static let sharedInstance = OSOperationRepo(executors: []) // TODO: Setup executors
+    public static let sharedInstance = OSOperationRepo()
     
-    // Maps operation names to the interfaces for the operation executors
-    let operationToExecutorMap: [String : OSOperationExecutor]
-    let executors: [OSOperationExecutor]
+    // Maps delta names to the interfaces for the operation executors
+    var deltasToExecutorMap: [String : OSOperationExecutor] = [:]
+    var executors: [OSOperationExecutor] = []
+    var deltaQueue: [OSDelta] = []
 
     // TODO: This should come from a config
     var operationsProcessingInterval = 5000
-    
-    public init(executors: [OSOperationExecutor]) {
-        self.executors = executors
-        var executorsMap: [String : OSOperationExecutor] = [:]
-        for executor in executors {
-            for operation in executor.supportedOperations {
-                executorsMap[operation] = executor
-            }
-        }
-        self.operationToExecutorMap = executorsMap
-    }
-    
+
     /**
-     An OSOperation will be enqueued to its executor who will save it to disk via UserDefaults.
-     When app is relaunched, read from disk to see if any operations need to be sent still.
+     Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
+     If everything starts up on initialize(), order can matter, ideally not but it can.
+     Likely call init on this from oneSignal but exeuctors can come from diff modules.
      */
-    func enqueue(_ operation: OSOperation) {
-        print("🔥 OSOperationRepo enqueue \(operation)")
-        let executor = operationToExecutorMap[operation.name] // do some check for it not existing?
-        executor?.enqueue(operation)
+    func initialize() {
+        // Prevent sharedInstance from being called before this initialize() function?
     }
     
-    func flush() {
+    public func addExecutor(_ executor: OSOperationExecutor) {
+        executors.append(executor)
+        for delta in executor.supportedDeltas {
+            deltasToExecutorMap[delta] = executor
+        }
+    }
+    
+    func enqueueDelta(_ delta: OSDelta) {
+        print("🔥 OSOperationRepo enqueueDelta: \(delta)")
+        // TODO: Cache the delta
+        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: delta.deltaId.uuidString, withValue: delta)
+        
+        deltaQueue.append(delta)
+    }
+    
+    func flushDeltaQueue() {
+        for delta in deltaQueue {
+            if let executor = deltasToExecutorMap[delta.name] {
+                executor.enqueueDelta(delta)
+            }
+            // keep in queue if no executor matches, we may not have the executor available yet
+        }
+        
         for executor in executors {
-            executor.execute()
+            executor.processDeltaQueue()
         }
     }
 }
