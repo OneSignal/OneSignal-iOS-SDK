@@ -31,36 +31,13 @@ import OneSignalOSCore
 // MARK: - Property Operations
 
 class OSUpdatePropertyDelta: OSDelta {
-    let name = "OSUpdatePropertyDelta"
-    let deltaId: UUID
-    let timestamp: Date
-    let model: OSModel
-    let property: String
-    let value: Any?
-    
-    // TODO: Extract these same init()'s across OSOperations to a superclass:
-    init(model: OSPropertiesModel, property: String, value: Any?) {
-        self.deltaId = UUID()
-        self.timestamp = Date()
-        self.model = model
-        self.property = property
-        self.value = value
-    }
-    
-    func encode(with coder: NSCoder) {
-        coder.encode(deltaId, forKey: "operationId")
-        coder.encode(timestamp, forKey: "timestamp")
-        coder.encode(model, forKey: "model")
-        coder.encode(property, forKey: "property")
-        coder.encode(value, forKey: "value")
+    // TODO: Best practice for overriding a stored property in subclass?
+    init(model: OSModel, property: String, value: Any?) {
+        super.init(name: "OSUpdatePropertyDelta", model: model, property: property, value: value)
     }
     
     required init?(coder: NSCoder) {
-        deltaId = coder.decodeObject(forKey: "operationId") as! UUID
-        timestamp = coder.decodeObject(forKey: "timestamp") as! Date
-        model = coder.decodeObject(forKey: "model") as! OSModel
-        property = coder.decodeObject(forKey: "property") as! String
-        value = coder.decodeObject(forKey: "value")
+        super.init(coder: coder)
     }
 }
 
