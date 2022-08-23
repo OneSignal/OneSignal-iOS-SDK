@@ -99,7 +99,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         // do stuff
         self.user = OSUserInternal(
             onesignalId: UUID(),
-            pushSubscription: OSPushSubscriptionModel(subscriptionId: UUID(), token: nil, enabled: false),
+            pushSubscription: OSPushSubscriptionModel(token: nil, enabled: false),
             identityModel: identityModel,
             propertiesModel: propertiesModel)
         

@@ -86,7 +86,7 @@ public class OSUserInternal: NSObject, OSUser {
     
     // TODO: UM This is a temporary function to create a push subscription for testing
     @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
-        self.pushSubscription = OSPushSubscriptionModel(subscriptionId: subscriptionId, token: token, enabled: enabled)
+        self.pushSubscription = OSPushSubscriptionModel(token: token, enabled: enabled)
         print("🔥 OSUser has set pushSubcription for testing")
     }
         
