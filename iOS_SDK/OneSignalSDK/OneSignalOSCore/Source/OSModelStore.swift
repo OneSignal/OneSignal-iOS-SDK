@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 
 
 open class OSModelStore<TModel: OSModel>: NSObject {
@@ -38,8 +39,11 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     
     public func add(id: String, model: TModel) {
         print("🔥 OSModelStore add with model \(model)")
-        // TODO: UM persist the new model to storage.
+
         models[id] = model
+        
+        // TODO: Persist the new model to storage.
+        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: model.id, withValue: model)
         
         // listen for changes to this model
         model.changeNotifier.subscribe(self)
@@ -52,9 +56,13 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         print("🔥 OSModelStore remove with model \(id)")
         if let model = models[id] {
             models.removeValue(forKey: id)
+
+            // Remove the model from storage
+            OneSignalUserDefaults.initShared().removeValue(forKey: model.id)
+            
             // no longer listen for changes to this model
             model.changeNotifier.unsubscribe(self)
-            // TODO: Remove the model from storage
+            
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
             }
@@ -65,7 +73,9 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 extension OSModelStore: OSModelChangedHandler {
     public func onChanged(args: OSModelChangedArgs) {
         print("🔥 OSModelStore.onChanged() with args \(args)")
-        // TODO: Persist the changed model to storage. Consider batching.
+        
+        // TODO: Persist the changed model to storage. TODO: Consider batching.
+        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: args.model.id, withValue: args.model)
 
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onUpdated(args)
