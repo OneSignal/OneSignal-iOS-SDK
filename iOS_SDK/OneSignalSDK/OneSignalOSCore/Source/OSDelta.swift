@@ -27,13 +27,38 @@
 
 import Foundation
 
-public protocol OSDelta: NSCoding {
-    var name: String { get }
-    var deltaId: UUID { get }
-    var timestamp: Date { get }
+open class OSDelta: NSCoding {
+    let name: String
+    public let deltaId: UUID
+    let timestamp: Date
+    let model: OSModel
+    let property: String
+    let value: Any?
     
-    var model: OSModel { get }
+    public init(name: String, model: OSModel, property: String, value: Any?) {
+        self.name = name
+        self.deltaId = UUID()
+        self.timestamp = Date()
+        self.model = model
+        self.property = property
+        self.value = value
+    }
     
-    // define how to respond to operation and get hydrated
-    // like operation.complete()
+    public func encode(with coder: NSCoder) {
+        coder.encode(name, forKey: "name")
+        coder.encode(deltaId, forKey: "deltaId")
+        coder.encode(timestamp, forKey: "timestamp")
+        coder.encode(model, forKey: "model")
+        coder.encode(property, forKey: "property")
+        coder.encode(value, forKey: "value")
+    }
+    
+    public required init?(coder: NSCoder) {
+        name = coder.decodeObject(forKey: "name") as! String
+        deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
+        timestamp = coder.decodeObject(forKey: "timestamp") as! Date
+        model = coder.decodeObject(forKey: "model") as! OSModel
+        property = coder.decodeObject(forKey: "property") as! String
+        value = coder.decodeObject(forKey: "value")
+    }
 }
