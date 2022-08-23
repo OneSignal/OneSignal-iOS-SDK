@@ -29,6 +29,9 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
+/**
+ Public-facing API to access the User Manager.
+ */
 @objc protocol OneSignalUserManagerInterface {
     static var user: OSUserInternal? { get set }
     static func login(_ externalId: String) -> OSUserInternal
@@ -48,17 +51,30 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     static var identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
     static var propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
     
-    static func startModelStoreListeners() {
-        // Model store listeners subscribe to their models
-        // Where should these live?
+    // has Property and Identity operation executors
+    static let propertyExecutor = OSPropertyOperationExecutor()
+    static let identityExecutor = OSIdentityOperationExecutor()
+
+    // OneSignalUserManager start() or initialize() method
+    // Read from cache, set stuff up
+    static func start() { // initialize() is existing method
+        // To implement
+    }
+    
+    static func startModelStoreListenersAndExecutors() {
+        // Model store listeners subscribe to their models. TODO: Where should these live?
         OneSignalUserManager.identityModelStoreListener.start()
         OneSignalUserManager.propertiesModelStoreListener.start()
+        
+        // Setup the executors
+        OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
+        OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
     }
     
     @objc
     public static func login(_ externalId: String) -> OSUserInternal {
         print("🔥 OneSignalUserManager login() called")
-        startModelStoreListeners()
+        startModelStoreListenersAndExecutors()
         var identityModel: OSIdentityModel?
         var propertiesModel: OSPropertiesModel?
         
@@ -73,7 +89,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         propertiesModel = OSPropertiesModel(id: externalId, changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: externalId, model: propertiesModel!)
 
-        return createAndSetUser(identityModel: identityModel!, propertiesModel: propertiesModel!)
+        return createAndSetUserForTesting(identityModel: identityModel!, propertiesModel: propertiesModel!)
     }
     
     @objc
@@ -86,16 +102,16 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     @objc
     public static func loginGuest() -> OSUserInternal {
         print("🔥 OneSignalUserManager loginGuest() called")
-        startModelStoreListeners()
+        startModelStoreListenersAndExecutors()
         
         // TODO: model logic for guest users
         let identityModel = OSIdentityModel(id: UUID().uuidString, changeNotifier: OSEventProducer())
         let propertiesModel = OSPropertiesModel(id: identityModel.id, changeNotifier: OSEventProducer())
 
-        return createAndSetUser(identityModel: identityModel, propertiesModel: propertiesModel)
+        return createAndSetUserForTesting(identityModel: identityModel, propertiesModel: propertiesModel)
     }
     
-    static func createAndSetUser(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) -> OSUserInternal {
+    static func createAndSetUserForTesting(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) -> OSUserInternal {
         // do stuff
         self.user = OSUserInternal(
             onesignalId: UUID(),
