@@ -29,9 +29,9 @@ import Foundation
 import OneSignalOSCore
 
 class OSIdentityModel: OSModel {
-    var onesignalId: UUID?
+    var onesignalId: UUID? // let? optional?
 
-    var externalId: String? {
+    var externalId: String? { // let? optional?
         didSet  {
             guard self.hydrating else {
                 print("🔥 didSet OSIdentityModel.externalId from \(oldValue) to \(externalId!).")
@@ -40,7 +40,29 @@ class OSIdentityModel: OSModel {
             }
         }
     }
+    
     var aliases: [String : String] = [:]
+    
+    // MARK: - Initialization
+    
+    // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
+    override init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        super.init(id: id, changeNotifier: changeNotifier)
+    }
+    
+    override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
+        coder.encode(onesignalId, forKey: "onesignalId")
+        coder.encode(externalId, forKey: "externalId")
+        coder.encode(aliases, forKey: "aliases")
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        onesignalId = coder.decodeObject(forKey: "onesignalId") as? UUID
+        externalId = coder.decodeObject(forKey: "externalId") as? String
+        aliases = coder.decodeObject(forKey: "aliases") as! [String : String]
+    }
     
     func setAlias(label: String, id: String) {
         guard self.hydrating else {
