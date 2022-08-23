@@ -64,12 +64,16 @@ class OSIdentityModel: OSModel {
         aliases = coder.decodeObject(forKey: "aliases") as! [String : String]
     }
     
+    // MARK: - Alias Methods
+    
     func setAlias(label: String, id: String) {
+        // Don't let them use `onesignal_id` as an alias label
+        // Don't let them use `external_id` either?
         guard self.hydrating else {
             print("🔥 OSIdentityModel.setAlias \(label) : \(id).")
             let oldValue: String? = aliases[label]
             aliases[label] = id
-            self.set(property: label, oldValue: oldValue, newValue: id)
+            self.set(property: "aliases", oldValue: (label: label, id: oldValue), newValue: (label: label, id: id))
             return
         }
     }
