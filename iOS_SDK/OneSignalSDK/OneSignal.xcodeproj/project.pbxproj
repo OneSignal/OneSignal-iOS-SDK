@@ -72,6 +72,7 @@
 		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSPushSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSPushSubscriptionModel.swift */; };
+		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */; };
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
@@ -745,6 +746,7 @@
 		3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModelSwiftTests.swift; sourceTree = "<group>"; };
 		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSPushSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPushSubscriptionModel.swift; sourceTree = "<group>"; };
+		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertyOperationExecutor.swift; sourceTree = "<group>"; };
@@ -1297,6 +1299,7 @@
 				3CE5F9E4289D9AA3004A156E /* OSOperation.swift */,
 				3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */,
 				3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */,
+				3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1693,8 +1696,8 @@
 				3C2C7DC7288F3C020020F9AE /* OSPushSubscriptionModel.swift */,
 				3CE92279289FA88B001B1062 /* OSIdentityModelStoreListener.swift */,
 				3CF8629D28A183F900776CA4 /* OSIdentityModel.swift */,
-				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
 				3CF862A128A197D200776CA4 /* OSPropertiesModelStoreListener.swift */,
+				3CF8629F28A1964F00776CA4 /* OSPropertiesModel.swift */,
 				3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */,
 				3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */,
 			);
@@ -2616,6 +2619,7 @@
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
 				3C115187289ADE7700565C41 /* OSModelStoreListener.swift in Sources */,
 				3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */,
+				3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */,
 				3C11518D289AF5E800565C41 /* OSModelChangedHandler.swift in Sources */,
 				3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */,
 				3CE5F9E5289D9AA3004A156E /* OSOperation.swift in Sources */,

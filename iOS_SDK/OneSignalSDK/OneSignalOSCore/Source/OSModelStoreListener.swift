@@ -34,11 +34,11 @@ public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     
     init(store: OSModelStore<TModel>)
     
-    func getAddOperation(_ model: TModel) -> OSOperation?
+    func getAddDelta(_ model: TModel) -> OSDelta?
     
-    func getRemoveOperation(_ model: TModel) -> OSOperation?
+    func getRemoveDelta(_ model: TModel) -> OSDelta?
     
-    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation?
+    func getUpdateDelta(_ args: OSModelChangedArgs) -> OSDelta?
 }
 
 extension OSModelStoreListener {
@@ -52,22 +52,22 @@ extension OSModelStoreListener {
 
     public func onAdded(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onAdded() with model \(model)")
-        if let operation = getAddOperation(model as! Self.TModel) {
-            OSOperationRepo.sharedInstance.enqueue(operation)
+        if let delta = getAddDelta(model as! Self.TModel) {
+            OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
 
     public func onUpdated(_ args: OSModelChangedArgs) {
         print("🔥 OSModelStoreListener.onUpdated() with args \(args)")
-        if let operation = getUpdateOperation(args) {
-            OSOperationRepo.sharedInstance.enqueue(operation)
+        if let delta = getUpdateDelta(args) {
+            OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
     
     public func onRemoved(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
-        if let operation = getRemoveOperation(model as! Self.TModel) {
-            OSOperationRepo.sharedInstance.enqueue(operation)
+        if let delta = getRemoveDelta(model as! Self.TModel) {
+            OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
 }

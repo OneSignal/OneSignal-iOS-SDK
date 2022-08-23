@@ -27,6 +27,7 @@
 
 import Foundation
 
+// TODO: Remove class? Modify? Since we are enqueing OSDeltas instead now.
 public protocol OSOperation: NSCoding {
     var name: String { get }
     var operationId: UUID { get }
