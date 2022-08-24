@@ -71,7 +71,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 }
 
 extension OSModelStore: OSModelChangedHandler {
-    public func onChanged(args: OSModelChangedArgs) {
+    public func onModelUpdated(args: OSModelChangedArgs) {
         print("🔥 OSModelStore.onChanged() with args \(args)")
         
         // TODO: Persist the changed model to storage. TODO: Consider batching.
