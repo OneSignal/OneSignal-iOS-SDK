@@ -50,15 +50,15 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
         self.store = store
     }
     
-    func getAddDelta(_ model: OSPropertiesModel) -> OSDelta? {
+    func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
         return nil
     }
     
-    func getRemoveDelta(_ model: OSPropertiesModel) -> OSDelta? {
+    func getRemoveModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
         return nil
     }
     
-    func getUpdateDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         // TODO: Implementation
         return OSUpdatePropertyDelta(
             model: args.model as! OSPropertiesModel,
