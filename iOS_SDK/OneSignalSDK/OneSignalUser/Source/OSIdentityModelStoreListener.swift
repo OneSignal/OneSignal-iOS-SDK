@@ -54,17 +54,17 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
         self.store = store
     }
     
-    func getAddDelta(_ model: OSIdentityModel) -> OSDelta? {
+    func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
         // Note: these add/remove Operations are adding/removing a model
         // And not adding/removing properties of a model, differing currently from Web
         return nil
     }
     
-    func getRemoveDelta(_ model: OSIdentityModel) -> OSDelta? {
+    func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
         return nil
     }
     
-    func getUpdateDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSUpdateIdentityDelta(
             model: args.model as! OSIdentityModel,
             property: args.property,

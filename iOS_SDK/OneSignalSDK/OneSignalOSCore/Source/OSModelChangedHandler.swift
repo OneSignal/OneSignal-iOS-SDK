@@ -57,5 +57,5 @@ public class OSModelChangedArgs: NSObject {
 }
 
 public protocol OSModelChangedHandler {
-    func onChanged(args: OSModelChangedArgs)
+    func onModelUpdated(args: OSModelChangedArgs)
 }
