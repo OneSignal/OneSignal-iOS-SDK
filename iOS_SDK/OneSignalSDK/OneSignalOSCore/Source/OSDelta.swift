@@ -27,7 +27,7 @@
 
 import Foundation
 
-open class OSDelta: NSCoding {
+open class OSDelta: NSObject, NSCoding {
     let name: String
     public let deltaId: UUID
     let timestamp: Date
