@@ -45,7 +45,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: model.id, withValue: model)
         
         // listen for changes to this model
-        model.changeNotifier.subscribe(self)
+        model.changeNotifier?.subscribe(self)
         
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
@@ -61,7 +61,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             OneSignalUserDefaults.initShared().removeValue(forKey: model.id)
             
             // no longer listen for changes to this model
-            model.changeNotifier.unsubscribe(self)
+            model.changeNotifier?.unsubscribe(self)
             
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
