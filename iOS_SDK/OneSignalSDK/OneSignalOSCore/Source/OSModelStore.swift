@@ -29,11 +29,20 @@ import Foundation
 import OneSignalCore
 
 open class OSModelStore<TModel: OSModel>: NSObject {
+    let storeKey: String
     let changeSubscription: OSEventProducer<OSModelStoreChangedHandler>
-    var models: [String : TModel] = [:]
+    var models: [String : TModel]
     
-    public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>) {
+    public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>, storeKey: String) {
+        self.storeKey = storeKey
         self.changeSubscription = changeSubscription
+        
+        // read models from cache, if any
+        self.models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as! [String : TModel]
+    }
+    
+    public func getModels() -> [String: TModel] {
+        return self.models
     }
     
     public func add(id: String, model: TModel) {
@@ -41,8 +50,8 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
         models[id] = model
         
-        // TODO: Persist the new model to storage.
-        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: model.id, withValue: model)
+        // persist the models (including new model) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
         
         // listen for changes to this model
         model.changeNotifier?.subscribe(self)
@@ -57,9 +66,9 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         if let model = models[id] {
             models.removeValue(forKey: id)
 
-            // Remove the model from storage
-            OneSignalUserDefaults.initShared().removeValue(forKey: model.id)
-            
+            // persist the models (with removed model) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+
             // no longer listen for changes to this model
             model.changeNotifier?.unsubscribe(self)
             
@@ -74,8 +83,8 @@ extension OSModelStore: OSModelChangedHandler {
     public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
         print("🔥 OSModelStore.onChanged() with args \(args)")
         
-        // TODO: Persist the changed model to storage. TODO: Consider batching.
-        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: args.model.id, withValue: args.model)
+        // persist the changed models to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
         guard !hydrating else {
             return
@@ -85,4 +94,3 @@ extension OSModelStore: OSModelChangedHandler {
         }
     }
 }
-
