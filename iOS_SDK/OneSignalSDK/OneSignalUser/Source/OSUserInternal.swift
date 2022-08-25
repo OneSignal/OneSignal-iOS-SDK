@@ -71,7 +71,6 @@ import OneSignalOSCore
  */
 public class OSUserInternal: NSObject, OSUser {
     
-    let onesignalId: UUID
     var triggers: [String : String] = [:] // update to include bool, number
     
     // email, sms, subscriptions todo
@@ -90,8 +89,7 @@ public class OSUserInternal: NSObject, OSUser {
         print("🔥 OSUser has set pushSubcription for testing")
     }
         
-    init(onesignalId: UUID, pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
-        self.onesignalId = onesignalId
+    init(pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
         self.pushSubscription = pushSubscription
         self.identityModel = identityModel
         self.propertiesModel = propertiesModel
