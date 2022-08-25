@@ -28,6 +28,7 @@
 import Foundation
 
 open class OSDelta: NSObject, NSCoding {
+    // TODO: Maybe need to include the old value as well. For caching, need to deal with nil old values.
     let name: String
     public let deltaId: UUID
     let timestamp: Date
