@@ -44,8 +44,8 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     @objc public static var user: OSUserInternal?
     
     // has Identity and Properties Model Stores
-    static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer())
-    static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer())
+    static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL") // TODO: Don't hardcode
+    static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: "OS_PROPERTIES_MODEL") // TODO: Don't hardcode
     
     // TODO: UM, and Model Store Listeners: where do they live? Here for now.
     static var identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
@@ -55,10 +55,13 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     static let propertyExecutor = OSPropertyOperationExecutor()
     static let identityExecutor = OSIdentityOperationExecutor()
 
-    // OneSignalUserManager start() or initialize() method
-    // Read from cache, set stuff up
-    static func start() { // initialize() is existing method
-        // To implement
+    static func start() {
+        // TODO: Finish implementation
+        // Read from cache, set stuff up
+        // Read the models from User Defaults
+        
+        // startModelStoreListenersAndExecutors() moves here after this start() method is hooked up.
+        self.user = loadUserFromCache() // TODO: Revisit when to load user from the cache.
     }
     
     static func startModelStoreListenersAndExecutors() {
@@ -111,14 +114,34 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         return createAndSetUserForTesting(identityModel: identityModel, propertiesModel: propertiesModel)
     }
     
-    static func createAndSetUserForTesting(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) -> OSUserInternal {
-        // do stuff
-        self.user = OSUserInternal(
-            onesignalId: UUID(),
-            pushSubscription: OSPushSubscriptionModel(token: nil, enabled: false),
+    static func loadUserFromCache() -> OSUserInternal? {
+        // Corrupted state if one exists without the other.
+        guard !identityModelStore.getModels().isEmpty &&
+                !propertiesModelStore.getModels().isEmpty // TODO: Check pushSubscriptionModel as well.
+        else {
+            return nil
+        }
+        
+        // TODO: Need to load any SMS and emails subs too
+        
+        // There is a user in the cache
+        let identityModel = identityModelStore.getModels().first!.value
+        let propertiesModel = propertiesModelStore.getModels().first!.value
+        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false) // Modify to get from cache.
+
+        let user = OSUserInternal(
+            pushSubscription: pushSubscription,
             identityModel: identityModel,
             propertiesModel: propertiesModel)
         
-        return self.user!
+        return user
+    }
+    
+    static func createUser(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscription: OSPushSubscriptionModel) -> OSUserInternal {
+        let user = OSUserInternal(
+            pushSubscription: pushSubscription,
+            identityModel: identityModel,
+            propertiesModel: propertiesModel)
+        return user
     }
 }
