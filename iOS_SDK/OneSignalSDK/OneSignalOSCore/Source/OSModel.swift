@@ -30,8 +30,8 @@ import Foundation
 @objc
 open class OSModel: NSObject, NSCoding {
     public let id: String
-    public var hydrating = false // TODO: Starts out false?
     public var changeNotifier: OSEventProducer<OSModelChangedHandler>? // MUST set after initWithCoder
+    private var hydrating = false // TODO: Starts out false?
 
     public init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.id = id
@@ -57,16 +57,21 @@ open class OSModel: NSObject, NSCoding {
         let changeArgs = OSModelChangedArgs(model: self, property: property, oldValue: oldValue, newValue: newValue)
         
         changeNotifier.fire { modelChangeHandler in
-            modelChangeHandler.onModelUpdated(args: changeArgs)
+            modelChangeHandler.onModelUpdated(args: changeArgs, hydrating: self.hydrating)
         }
     }
     
     /**
-     This function receives a server response and updates the model's properties. It must be implemented by every OSModel class.
+     This function receives a server response and updates the model's properties.
      */
-    open func hydrate(_ response: [String : String]) {
-        // TODO: Modify the Error that is thrown?
-        // throw NSError(domain: "OneSignalError", code: 0, userInfo: ["error": "Function must be overridden."])
+    public func hydrate(_ response: [String : String]) {
+        self.hydrating = true
+        hydrateModel(response) // Calls model-specific hydration logic
+        self.hydrating = false
+    }
+    
+    open func hydrateModel(_ response: [String : String]) {
+        // TODO: Log as an error.
         print("Error: Function must be overridden.")
     }
 }
