@@ -71,12 +71,15 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 }
 
 extension OSModelStore: OSModelChangedHandler {
-    public func onModelUpdated(args: OSModelChangedArgs) {
+    public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
         print("🔥 OSModelStore.onChanged() with args \(args)")
         
         // TODO: Persist the changed model to storage. TODO: Consider batching.
         // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: args.model.id, withValue: args.model)
 
+        guard !hydrating else {
+            return
+        }
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onUpdated(args)
         }

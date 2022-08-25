@@ -31,20 +31,14 @@ import OneSignalOSCore
 class OSPropertiesModel: OSModel {
     var language: String? {
         didSet  {
-            guard self.hydrating else {
-                print("🔥 didSet OSPropertiesModel.language from \(oldValue) to \(language).")
-                self.set(property: "language", oldValue: oldValue, newValue: language)
-                return
-            }
+            print("🔥 didSet OSPropertiesModel.language from \(oldValue) to \(language).")
+            self.set(property: "language", oldValue: oldValue, newValue: language)
         }
     }
     var tags: [String : String] = [:] {
         didSet  {
-            guard self.hydrating else {
-                print("🔥 didSet OSPropertiesModel.tags from \(oldValue) to \(tags).")
-                self.set(property: "tags", oldValue: oldValue, newValue: tags)
-                return
-            }
+            print("🔥 didSet OSPropertiesModel.tags from \(oldValue) to \(tags).")
+            self.set(property: "tags", oldValue: oldValue, newValue: tags)
         }
     }
     
@@ -69,6 +63,11 @@ class OSPropertiesModel: OSModel {
         language = coder.decodeObject(forKey: "language") as? String
         tags = coder.decodeObject(forKey: "tags") as! [String : String]
         // ... and more
+    }
+    
+    public override func hydrateModel(_ response: [String : String]) {
+        print("🔥 OSPropertiesModel hydrateModel()")
+        // TODO: Update Model properties with the response
     }
 }
 
