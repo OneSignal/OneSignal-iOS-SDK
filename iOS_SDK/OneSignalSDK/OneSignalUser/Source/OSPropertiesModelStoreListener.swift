@@ -28,19 +28,6 @@
 import Foundation
 import OneSignalOSCore
 
-// MARK: - Property Operations
-
-class OSUpdatePropertyDelta: OSDelta {
-    // TODO: Best practice for overriding a stored property in subclass?
-    init(model: OSModel, property: String, value: Any?) {
-        super.init(name: "OSUpdatePropertyDelta", model: model, property: property, value: value)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-}
-
 // MARK: - Properties Model Store Listener
 
 class OSPropertiesModelStoreListener: OSModelStoreListener {
@@ -59,8 +46,8 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
     }
     
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        // TODO: Implementation
-        return OSUpdatePropertyDelta(
+        return OSDelta(
+            name: "OSUpdatePropertyDelta", // TODO: Don't hardcode
             model: args.model as! OSPropertiesModel,
             property: args.property,
             value: args.newValue
