@@ -78,21 +78,31 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     public static func login(_ externalId: String) -> OSUserInternal {
         print("🔥 OneSignalUserManager login() called")
         startModelStoreListenersAndExecutors()
-        var identityModel: OSIdentityModel?
-        var propertiesModel: OSPropertiesModel?
+
+        // Check if the existing user is the same one being logged in. If so, return.
+        if let user = self.user {
+            guard user.identityModel.externalId != externalId else {
+                return user
+            }
+        }
         
         // 1. Attempt to retrieve user from backend?
-        // 2. Attempt to retrieve user from cache or stores?
+        // 2. Attempt to retrieve user from cache or stores? (No, done in start() method for now)
         
         // 3. Create new user
-        identityModel = OSIdentityModel(id: externalId, changeNotifier: OSEventProducer())
-        self.identityModelStore.add(id: externalId, model: identityModel!)
-        identityModel!.externalId = externalId
+        // TODO: Remove/take care of the old user's information.
+        let identityModel = OSIdentityModel(id: externalId, changeNotifier: OSEventProducer()) // TODO: Change id?
+        self.identityModelStore.add(id: externalId, model: identityModel)
+        identityModel.externalId = externalId // TODO: Don't fire this change.
 
-        propertiesModel = OSPropertiesModel(id: externalId, changeNotifier: OSEventProducer())
-        self.propertiesModelStore.add(id: externalId, model: propertiesModel!)
+        let propertiesModel = OSPropertiesModel(id: externalId, changeNotifier: OSEventProducer()) // TODO: Change id?
+        self.propertiesModelStore.add(id: externalId, model: propertiesModel)
 
-        return createAndSetUserForTesting(identityModel: identityModel!, propertiesModel: propertiesModel!)
+        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
+        
+        let user = createUser(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
+        self.user = user
+        return user
     }
     
     @objc
@@ -107,11 +117,16 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         print("🔥 OneSignalUserManager loginGuest() called")
         startModelStoreListenersAndExecutors()
         
+        // TODO: Another user in cache? Remove old user's info?
+        
         // TODO: model logic for guest users
         let identityModel = OSIdentityModel(id: UUID().uuidString, changeNotifier: OSEventProducer())
         let propertiesModel = OSPropertiesModel(id: identityModel.id, changeNotifier: OSEventProducer())
-
-        return createAndSetUserForTesting(identityModel: identityModel, propertiesModel: propertiesModel)
+        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
+        
+        let user = createUser(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
+        self.user = user
+        return user
     }
     
     static func loadUserFromCache() -> OSUserInternal? {
