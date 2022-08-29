@@ -31,7 +31,7 @@
 @implementation UIApplication (OneSignal)
 
 + (BOOL)applicationIsActive {
-    if ([self isAppUsingUIScene]) {
+    if ([self isAppUsingUIScene] && [NSThread isMainThread]) {
         if (@available(iOS 13.0, *)) {
             UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
             id windowScene = [keyWindow performSelector:@selector(windowScene)];
