@@ -39,9 +39,19 @@
         [OSInAppMessageViewOverrider class],
         @selector(overrideLoadedHtmlContent:withBaseURL:)
    );
+    injectSelector(
+        [OSInAppMessageView class],
+        @selector(setIsFullscreen:),
+        [OSInAppMessageViewOverrider class],
+        @selector(overrideSetIsFullscreen:)
+   );
 }
 
 - (void)overrideLoadedHtmlContent:(NSString *)html withBaseURL:(NSURL *)url {
+    
+}
+
+- (void)overrideSetIsFullscreen:(BOOL)isFullscreen {
     
 }
 
