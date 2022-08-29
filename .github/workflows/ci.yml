@@ -1,0 +1,43 @@
+name: iOS CI
+
+on:
+  pull_request:
+    branches:
+      - '**'
+    paths-ignore:
+      - '.github/**'
+      - 'README.md'
+
+jobs:
+  build:
+    name: Build and Test using any available iPhone simulator
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout OneSignal-iOS-SDK
+        uses: actions/checkout@v3
+      - name: Set Default Scheme
+        run: |
+          default="UnitTestApp"
+          echo $default | cat >default
+          echo Using default scheme: $default
+      - name: Build
+        env:
+          scheme: ${{ 'UnitTestApp' }}
+          platform: ${{ 'iOS Simulator' }}
+          file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
+          filetype_parameter: ${{ 'project' }}
+        run: |
+          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+      - name: Test
+        env:
+          scheme: ${{ 'UnitTestApp' }}
+          platform: ${{ 'iOS Simulator' }}
+          file_to_build: ${{ 'iOS_SDK/OneSignalSDK/OneSignal.xcodeproj' }}
+          filetype_parameter: ${{ 'project' }}
+        run: |
+          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
