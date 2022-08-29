@@ -393,6 +393,7 @@
 		DE3CD2FF270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */; };
 		DE3CD300270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */; };
 		DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */; };
+		DE75B3E028BD432800162A95 /* OneSignalUNUserNotificationCenterOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE75B3DE28BD432700162A95 /* OneSignalUNUserNotificationCenterOverrider.m */; };
 		DE7D17EA27026B95002D3A5D /* OneSignalCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE7D17E927026B95002D3A5D /* OneSignalCore.docc */; };
 		DE7D17EB27026B95002D3A5D /* OneSignalCore.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D17E827026B95002D3A5D /* OneSignalCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE7D17FD27026BA3002D3A5D /* OneSignalExtension.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE7D17FC27026BA3002D3A5D /* OneSignalExtension.docc */; };
@@ -917,6 +918,8 @@
 		DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalOutcomes.m; sourceTree = "<group>"; };
 		DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSInAppMessageViewControllerOverrider.m; sourceTree = "<group>"; };
 		DE5EFECB24D8DC0E0032632D /* OSInAppMessageViewControllerOverrider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSInAppMessageViewControllerOverrider.h; sourceTree = "<group>"; };
+		DE75B3DE28BD432700162A95 /* OneSignalUNUserNotificationCenterOverrider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalUNUserNotificationCenterOverrider.m; sourceTree = "<group>"; };
+		DE75B3DF28BD432800162A95 /* OneSignalUNUserNotificationCenterOverrider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalUNUserNotificationCenterOverrider.h; sourceTree = "<group>"; };
 		DE7D17E627026B95002D3A5D /* OneSignalCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OneSignalCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE7D17E827026B95002D3A5D /* OneSignalCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCore.h; sourceTree = "<group>"; };
 		DE7D17E927026B95002D3A5D /* OneSignalCore.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = OneSignalCore.docc; sourceTree = "<group>"; };
@@ -1133,6 +1136,8 @@
 		4529DECD1FA81DE000CEAB1D /* Shadows */ = {
 			isa = PBXGroup;
 			children = (
+				DE75B3DF28BD432800162A95 /* OneSignalUNUserNotificationCenterOverrider.h */,
+				DE75B3DE28BD432700162A95 /* OneSignalUNUserNotificationCenterOverrider.m */,
 				7A65D628246627AD007FF196 /* OSInAppMessageViewOverrider.h */,
 				7A65D629246627AD007FF196 /* OSInAppMessageViewOverrider.m */,
 				5B58E4F3237CE7B3009401E0 /* UIDeviceOverrider.h */,
@@ -2530,6 +2535,7 @@
 				9129C6C01E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				7AC8D3A824993A0E0023EDE8 /* OSDeviceState.m in Sources */,
 				A6D7093E26962C96007B3347 /* OneSignalSetLanguageParameters.m in Sources */,
+				DE75B3E028BD432800162A95 /* OneSignalUNUserNotificationCenterOverrider.m in Sources */,
 				7AFE856D2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */,
 				CA8E19082193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
 				4529DEE11FA82AB300CEAB1D /* NSBundleOverrider.m in Sources */,
