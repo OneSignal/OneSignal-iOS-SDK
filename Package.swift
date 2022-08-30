@@ -11,7 +11,7 @@ let package = Package(
             targets: ["OneSignalWrapper"]),
         .library(
             name: "OneSignalExtension",
-            targets: ["OneSignalExtensionWrapper"]),
+            targets: ["OneSignalExtensionWrapper"])
     ],
     targets: [
         .target(
@@ -63,4 +63,3 @@ let package = Package(
         )
     ]
 )
-
