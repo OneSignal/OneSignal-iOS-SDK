@@ -21,6 +21,9 @@ jobs:
           default="UnitTestApp"
           echo $default | cat >default
           echo Using default scheme: $default
+      - name: Run Swift Lint
+        run: |
+          swiftlint
       - name: Build
         env:
           scheme: ${{ 'UnitTestApp' }}
