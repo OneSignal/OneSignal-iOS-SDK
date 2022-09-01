@@ -193,9 +193,7 @@
 		7AF5174824FDC2C500B076BC /* OSRemoteParamController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF5174624FDC2C500B076BC /* OSRemoteParamController.m */; };
 		7AF5174924FDC2C500B076BC /* OSRemoteParamController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF5174624FDC2C500B076BC /* OSRemoteParamController.m */; };
 		7AF5174C24FE980400B076BC /* RemoteParamsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF5174B24FE980400B076BC /* RemoteParamsTests.m */; };
-		7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; };
 		7AF9865324451F3900C36EAE /* OSFocusCallParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AFE856E2368DDC50091D6A5 /* OSFocusCallParams.h */; };
-		7AF9865A24452A9600C36EAE /* OSInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9865724452A9600C36EAE /* OSInfluence.m */; };
 		7AFE856B2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AFE856A2368DDB80091D6A5 /* OSFocusCallParams.m */; };
 		7AFE856C2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AFE856A2368DDB80091D6A5 /* OSFocusCallParams.m */; };
 		7AFE856D2368DDB80091D6A5 /* OSFocusCallParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AFE856A2368DDB80091D6A5 /* OSFocusCallParams.m */; };
@@ -2692,7 +2690,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */,
-				7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */,
 				7ABAF9E324606E940074DFA0 /* OutcomeV2Tests.m in Sources */,
 				DE7D18E72703B510002D3A5D /* OSLocationRequests.m in Sources */,
 				9D1BD96F237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */,
@@ -2754,7 +2751,6 @@
 				03389F691FB548A0006537F0 /* OneSignalTrackFirebaseAnalyticsOverrider.m in Sources */,
 				CA810FD3202BA97600A60FED /* OSEmailSubscription.m in Sources */,
 				7ABAF9D62457D3FF0074DFA0 /* ChannelTrackersTests.m in Sources */,
-				7AF9865A24452A9600C36EAE /* OSInfluence.m in Sources */,
 				4529DED51FA823B900CEAB1D /* TestHelperFunctions.m in Sources */,
 				911E2CBD1E398AB3003112A4 /* UnitTests.m in Sources */,
 				CA63AF8420211F7400E340FB /* EmailTests.m in Sources */,
