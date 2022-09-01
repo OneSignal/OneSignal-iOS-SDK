@@ -37,7 +37,7 @@ public class OSPushSubscriptionState: NSObject {
     @objc public let subscriptionId: UUID
     @objc public let token: UUID?
     @objc public let enabled: Bool
-    
+
     init(subscriptionId: UUID, token: UUID?, enabled: Bool) {
         self.subscriptionId = subscriptionId
         self.token = token
@@ -60,16 +60,16 @@ public class OSPushSubscription: NSObject, OSPushSubscriptionInterface {
             didSetEnabledHelper(oldValue: oldValue, newValue: enabled)
         }
     }
-    
+
     func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
         // TODO: UM name and scope of function
         // TODO: UM update model, add operation to backend
-        let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
-        let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
+        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
+        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
-    
+
     init(subscriptionId: UUID, token: UUID?, enabled: Bool?) {
         self.subscriptionId = subscriptionId
         self.token = token

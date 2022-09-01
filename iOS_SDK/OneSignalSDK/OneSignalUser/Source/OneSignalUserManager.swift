@@ -39,25 +39,25 @@ import OneSignalCore
 public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     // TODO: UM temp make public so OneSignal.m can access, but users shouldn't access this directly
     @objc public static var user: OSUser?
-    
+
     @objc
     public static func login(_ externalId: String) -> OSUser {
         print("🔥 OneSignalUser login() called")
         return createAndSetUser()
     }
-    
+
     @objc
     public static func login(externalId: String, withToken: String) -> OSUser {
         print("🔥 OneSignalUser loginwithBearerToken() called")
         return createAndSetUser()
     }
-    
+
     @objc
     public static func loginGuest() -> OSUser {
         print("🔥 OneSignalUser loginGuest() called")
         return createAndSetUser()
     }
-    
+
     static func createAndSetUser() -> OSUser {
         // do stuff
         return OSUser(onesignalId: UUID(),
