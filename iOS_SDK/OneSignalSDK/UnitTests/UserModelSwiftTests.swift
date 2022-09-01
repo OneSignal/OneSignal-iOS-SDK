@@ -26,7 +26,6 @@
  */
 
 import XCTest
-import OneSignal
 
 // TODO: UM This goes elsewhere
 extension OneSignal {
@@ -143,12 +142,12 @@ class UserModelSwiftTests: XCTestCase {
         user.pushSubscription.enabled = true
 
         // Create a push subscription observer
-        _ = OSPushSubscriptionTestObserver()
+        let observer = OSPushSubscriptionTestObserver()
 
         // Push subscription observers are not user-scoped
         // TODO: UM The following does not build as of now
-        // OneSignal.addSubscriptionObserver(observer)
-        // OneSignal.removeSubscriptionObserver(observer)
+//         OneSignal.addSubscriptionObserver(observer)
+//         OneSignal.removeSubscriptionObserver(observer)
     }
     
     /**
