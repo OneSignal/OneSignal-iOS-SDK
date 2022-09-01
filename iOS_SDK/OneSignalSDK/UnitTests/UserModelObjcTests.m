@@ -145,8 +145,8 @@
     OSPushSubscriptionTestObserver* observer = [OSPushSubscriptionTestObserver new];
     
     // Push subscription observers are not user-scoped
-    [OneSignal addSubscriptionObserver:observer];
-    [OneSignal removeSubscriptionObserver:observer];
+//    [OneSignal addSubscriptionObserver:observer];
+//    [OneSignal removeSubscriptionObserver:observer];
 }
 
 /**
