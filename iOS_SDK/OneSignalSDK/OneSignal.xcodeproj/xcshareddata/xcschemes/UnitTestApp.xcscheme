@@ -26,7 +26,60 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      codeCoverageEnabled = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "YES">
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "911E2CB91E398AB3003112A4"
+            BuildableName = "UnitTests.xctest"
+            BlueprintName = "UnitTests"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE7D17E527026B95002D3A5D"
+            BuildableName = "OneSignalCore.framework"
+            BlueprintName = "OneSignalCore"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE7D17F827026BA3002D3A5D"
+            BuildableName = "OneSignalExtension.framework"
+            BlueprintName = "OneSignalExtension"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
+            BuildableName = "OneSignal.framework"
+            BlueprintName = "OneSignalFramework"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "3C115160289A259500565C41"
+            BuildableName = "OneSignalOSCore.framework"
+            BlueprintName = "OneSignalOSCore"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE7D187F27037F43002D3A5D"
+            BuildableName = "OneSignalOutcomes.framework"
+            BlueprintName = "OneSignalOutcomes"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "DE69E19A282ED8060090BB3D"
+            BuildableName = "OneSignalUser.framework"
+            BlueprintName = "OneSignalUser"
+            ReferencedContainer = "container:OneSignal.xcodeproj">
+         </BuildableReference>
+      </CodeCoverageTargets>
       <Testables>
          <TestableReference
             skipped = "NO">
