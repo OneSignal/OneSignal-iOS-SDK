@@ -42,7 +42,7 @@ jobs:
           device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
           xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device" -resultBundlePath TestResults
       - name: Analyze Tests
-        uses: emawby/xcresulttool@main
+        uses: actions/emawby/xcresulttool@main
         with:
           path: TestResults.xcresult
           show-passed-tests: false
