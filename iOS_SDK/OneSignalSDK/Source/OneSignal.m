@@ -583,7 +583,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 #pragma mark User Model - User Identity 🔥
 // TODO: UM Actual implementations
 
-+ (id<OSUser> _Nullable)user {
++ (id<OSUser> _Nonnull)user {
     OSUserInternal *user = [OneSignalUserManager user];
     return user;
 }
