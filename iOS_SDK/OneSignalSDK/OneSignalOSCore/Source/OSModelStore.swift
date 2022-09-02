@@ -51,6 +51,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
         }
+    }
     
     func remove(_ id: String) {
         print("🔥 OSModelStore remove with model \(id)")
