@@ -34,6 +34,11 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     var deltaQueue: [OSDelta] = []
     var operationQueue: [OSOperation] = []
     
+    func start() {
+        // Read unfinished operations from cache, if any... TODO: Don't hardcode
+        self.operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", defaultValue: []) as! [OSOperation]
+    }
+    
     func enqueueDelta(_ delta: OSDelta) {
         print("🔥 OSIdentityOperationExecutor enqueueDelta: \(delta)")
         deltaQueue.append(delta)
