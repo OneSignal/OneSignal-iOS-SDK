@@ -32,6 +32,7 @@ public protocol OSOperationExecutor {
     var deltaQueue: [OSDelta] { get }
     var operationQueue: [OSOperation] { get }
     
+    func start()
     func enqueueDelta(_ delta: OSDelta)
     func processDeltaQueue()
     
