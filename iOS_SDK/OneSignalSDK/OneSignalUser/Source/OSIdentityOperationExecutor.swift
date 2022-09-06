@@ -51,7 +51,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         // TODO: Implementation
         for delta in deltaQueue {
             // Remove the delta from the cache when it becomes an Operation
-            OneSignalUserDefaults.initShared().removeValue(forKey: delta.deltaId.uuidString)
+            OSOperationRepo.sharedInstance.removeDeltaFromCache(delta)
             // enqueueOperation(operation)
         }
         processOperationQueue()
@@ -59,9 +59,10 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
    
     func enqueueOperation(_ operation: OSOperation) {
         print("🔥 OSIdentityOperationExecutor enqueueOperation: \(operation)")
-        // Cache the Operation
-        OneSignalUserDefaults.initShared().saveObject(forKey: operation.operationId.uuidString, withValue: operation)
         operationQueue.append(operation)
+
+        // persist executor's operations (including new operation) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
     }
     
     func processOperationQueue() {
@@ -79,7 +80,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
         
         // On success, remove operation from cache, and hydrate model
-        OneSignalUserDefaults.initShared().removeValue(forKey: operation.operationId.uuidString)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
 
         operation.model.hydrate(response)
         // On failure, retry logic, but order of operations matters

@@ -67,13 +67,21 @@ public class OSOperationRepo: NSObject {
     
     func enqueueDelta(_ delta: OSDelta) {
         print("🔥 OSOperationRepo enqueueDelta: \(delta)")
-        // TODO: Cache the delta
-        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: delta.deltaId.uuidString, withValue: delta)
-        
         deltaQueue.append(delta)
+
+        // Persist the deltas (including new delta) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
+    }
+    
+    public func removeDeltaFromCache(_ delta: OSDelta) {
+        // Persist the deltas (including removed delta) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
     }
     
     func flushDeltaQueue() {
+        if deltaQueue.isEmpty {
+            return
+        }
         for delta in deltaQueue {
             if let executor = deltasToExecutorMap[delta.name] {
                 executor.enqueueDelta(delta)
