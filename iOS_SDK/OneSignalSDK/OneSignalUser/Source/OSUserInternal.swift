@@ -71,7 +71,6 @@ import OneSignalOSCore
  */
 public class OSUserInternal: NSObject, OSUser {
     
-    let onesignalId: UUID
     var triggers: [String : String] = [:] // update to include bool, number
     
     // email, sms, subscriptions todo
@@ -90,8 +89,7 @@ public class OSUserInternal: NSObject, OSUser {
         print("🔥 OSUser has set pushSubcription for testing")
     }
         
-    init(onesignalId: UUID, pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
-        self.onesignalId = onesignalId
+    init(pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
         self.pushSubscription = pushSubscription
         self.identityModel = identityModel
         self.propertiesModel = propertiesModel
@@ -102,13 +100,18 @@ public class OSUserInternal: NSObject, OSUser {
     
     @objc
     public func addAlias(label: String, id: String) -> Void {
+        // Don't let them use `onesignal_id` as an alias label
+        // Don't let them use `external_id` either??
         print("🔥 OSUser addAlias() called")
         self.identityModel.setAlias(label: label, id: id)
     }
 
     @objc
     public func addAliases(_ aliases: [String : String]) -> Void {
+        // Don't let them use `onesignal_id` as an alias label
+        // Don't let them use `external_id` either??
         print("🔥 OSUser addAliases() called")
+        // Don't make separate calls resulting in many deltas
         for alias in aliases {
             addAlias(label: alias.key, id: alias.value)
         }

@@ -33,11 +33,8 @@ class OSIdentityModel: OSModel {
 
     var externalId: String? { // let? optional?
         didSet  {
-            guard self.hydrating else {
-                print("🔥 didSet OSIdentityModel.externalId from \(oldValue) to \(externalId!).")
-                self.set(property: "externalId", oldValue: oldValue, newValue: externalId)
-                return
-            }
+            print("🔥 didSet OSIdentityModel.externalId from \(oldValue) to \(externalId!).")
+            self.set(property: "externalId", oldValue: oldValue, newValue: externalId)
         }
     }
     
@@ -69,28 +66,22 @@ class OSIdentityModel: OSModel {
     func setAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either?
-        guard self.hydrating else {
-            print("🔥 OSIdentityModel.setAlias \(label) : \(id).")
-            let oldValue: String? = aliases[label]
-            aliases[label] = id
-            self.set(property: "aliases", oldValue: (label: label, id: oldValue), newValue: (label: label, id: id))
-            return
-        }
+        print("🔥 OSIdentityModel.setAlias \(label) : \(id).")
+        let oldValue: String? = aliases[label]
+        aliases[label] = id
+        self.set(property: "aliases", oldValue: ["label": label, "id": oldValue], newValue: ["label": label, "id": id])
     }
     
     func removeAlias(_ label: String) {
-        guard self.hydrating else {
-            print("🔥 OSIdentityModel.removeAlias \(label).")
-            if let oldValue = aliases.removeValue(forKey: label) {
-                self.set(property: label, oldValue: oldValue, newValue: nil)
-            }
-            return
+        print("🔥 OSIdentityModel.removeAlias \(label).")
+        if let oldValue = aliases.removeValue(forKey: label) {
+            // Cannot encode a nil value
+            self.set(property: label, oldValue: oldValue, newValue: "")
         }
     }
     
-    public override func hydrate(_ response: [String : String]) {
-        print("🔥 OSIdentityModel hydrate()")
-        self.hydrating = true
+    public override func hydrateModel(_ response: [String : String]) {
+        print("🔥 OSIdentityModel hydrateModel()")
         // TODO: Update Model properties with the response
         // Flesh out implementation and how to parse the response, deleted aliases...
         for property in response {
@@ -98,6 +89,5 @@ class OSIdentityModel: OSModel {
                 aliases[property.key] = property.value
             }
         }
-        self.hydrating = false
     }
 }

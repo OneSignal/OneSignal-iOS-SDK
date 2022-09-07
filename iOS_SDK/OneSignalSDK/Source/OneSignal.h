@@ -292,10 +292,10 @@ typedef void (^OSFailureBlock)(NSError* error);
 #pragma mark User Model 🔥
 
 #pragma mark User Model - User Identity 🔥
-typedef void (^OSUserLoginBlock)(id<OSUser> _Nullable user);
+typedef void (^OSUserLoginBlock)(id<OSUser> _Nonnull user); // TODO: _Nullable
 
 // TODO: Confirm nullabilities
-+ (id<OSUser> _Nullable)user NS_REFINED_FOR_SWIFT;
++ (id<OSUser> _Nonnull )user NS_REFINED_FOR_SWIFT; // TODO: _Nullable
 + (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock _Nonnull)block;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock _Nonnull)block;
 + (void)loginGuest:(OSUserLoginBlock _Nonnull)block;

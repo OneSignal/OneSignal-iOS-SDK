@@ -4585,6 +4585,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		3C115172289A259500565C41 /* Build configuration list for PBXNativeTarget "OneSignalOSCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C115173289A259500565C41 /* Release */,
+				3C115174289A259500565C41 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3E24003F1D4FFC31008BDE70 /* Build configuration list for PBXNativeTarget "OneSignalFramework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
