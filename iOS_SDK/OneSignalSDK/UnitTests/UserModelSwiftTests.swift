@@ -117,8 +117,6 @@ class UserModelSwiftTests: XCTestCase {
      */
     func testTheseShouldNotWork() throws {
         // Should not be accessible
-        _ = OneSignalUserManager.user; // This shouldn't be accessible to the public
-
         let _ = OneSignalUserManager.user;
         
         // Should not be settable
@@ -147,8 +145,8 @@ class UserModelSwiftTests: XCTestCase {
 
         // Push subscription observers are not user-scoped
         // TODO: UM The following does not build as of now
-//         OneSignal.addSubscriptionObserver(observer)
-//         OneSignal.removeSubscriptionObserver(observer)
+        // OneSignal.addSubscriptionObserver(observer)
+        // OneSignal.removeSubscriptionObserver(observer)
     }
     
     /**

@@ -30,40 +30,48 @@ import Foundation
 @objc
 open class OSModel: NSObject, NSCoding {
     public let id: String
-    public var hydrating = false // TODO: Starts out false?
-    let changeNotifier: OSEventProducer<OSModelChangedHandler>
+    public var changeNotifier: OSEventProducer<OSModelChangedHandler>? // MUST set after initWithCoder
+    private var hydrating = false // TODO: Starts out false?
 
     public init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.id = id
         self.changeNotifier = changeNotifier
     }
     
-    // Question: What does it mean to encode and decode the changeNotifier when
-    // the goal is to we are cache the model and its properties
     open func encode(with coder: NSCoder) {
         coder.encode(id, forKey: "id")
-        coder.encode(changeNotifier, forKey: "changeNotifier")
     }
     
     public required init?(coder: NSCoder) {
         id = coder.decodeObject(forKey: "id") as! String
-        changeNotifier = coder.decodeObject(forKey: "changeNotifier") as! OSEventProducer<OSModelChangedHandler>
     }
     
     // We can add operation name to this... , such as enum of "updated", "deleted", "added"
     public func set<T>(property: String, oldValue: T, newValue: T) {
+        guard let changeNotifier = self.changeNotifier else {
+            // TODO: Log an Error, that we have a model that doesn't have a changenotif set on it
+            print("🔥 OSModel changeNotifier is not set!")
+            return
+        }
+        
         let changeArgs = OSModelChangedArgs(model: self, property: property, oldValue: oldValue, newValue: newValue)
-        self.changeNotifier.fire { modelChangeHandler in
-            modelChangeHandler.onChanged(args: changeArgs)
+        
+        changeNotifier.fire { modelChangeHandler in
+            modelChangeHandler.onModelUpdated(args: changeArgs, hydrating: self.hydrating)
         }
     }
     
     /**
-     This function receives a server response and updates the model's properties. It must be implemented by every OSModel class.
+     This function receives a server response and updates the model's properties.
      */
-    open func hydrate(_ response: [String : String]) {
-        // TODO: Modify the Error that is thrown?
-        // throw NSError(domain: "OneSignalError", code: 0, userInfo: ["error": "Function must be overridden."])
+    public func hydrate(_ response: [String : String]) {
+        self.hydrating = true
+        hydrateModel(response) // Calls model-specific hydration logic
+        self.hydrating = false
+    }
+    
+    open func hydrateModel(_ response: [String : String]) {
+        // TODO: Log as an error.
         print("Error: Function must be overridden.")
     }
 }

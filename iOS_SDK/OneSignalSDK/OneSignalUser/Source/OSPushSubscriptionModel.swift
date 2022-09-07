@@ -38,7 +38,7 @@ public class OSPushSubscriptionState: NSObject {
     @objc public let subscriptionId: UUID?
     @objc public let token: UUID?
     @objc public let enabled: Bool
-
+    
     init(subscriptionId: UUID?, token: UUID?, enabled: Bool) {
         self.subscriptionId = subscriptionId
         self.token = token
