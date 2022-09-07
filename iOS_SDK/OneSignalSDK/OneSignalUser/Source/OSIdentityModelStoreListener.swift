@@ -28,23 +28,6 @@
 import Foundation
 import OneSignalOSCore
 
-// MARK: - Identity Deltas
-
-/**
- An OSUpdateIdentityDelta includes operations for adding, removing, and updating an alias.
- It may also include adding, removing, and updating an external_id (??? need to confirm).
- */
-class OSUpdateIdentityDelta: OSDelta {
-    // TODO: Best practice for overriding a stored property in subclass?
-    init(model: OSModel, property: String, value: Any?) {
-        super.init(name: "OSUpdateIdentityDelta", model: model, property: property, value: value)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-}
-
 // MARK: - Identity Model Store Listener
 
 class OSIdentityModelStoreListener: OSModelStoreListener {
@@ -54,18 +37,17 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
         self.store = store
     }
     
-    func getAddDelta(_ model: OSIdentityModel) -> OSDelta? {
-        // Note: these add/remove Operations are adding/removing a model
-        // And not adding/removing properties of a model, differing currently from Web
+    func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
         return nil
     }
     
-    func getRemoveDelta(_ model: OSIdentityModel) -> OSDelta? {
+    func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
         return nil
     }
     
-    func getUpdateDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        return OSUpdateIdentityDelta(
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        return OSDelta(
+            name: "OSUpdateIdentityDelta", // TODO: Don't hardcode.
             model: args.model as! OSIdentityModel,
             property: args.property,
             value: args.newValue

@@ -39,6 +39,7 @@ public class OSEventProducer<THandler>: NSObject {
 
     public func unsubscribe(_ handler: THandler) {
         print("🔥 OSEventProducer.unsubscribe() called with handler: \(handler)")
+
         // TODO: UM do we want to synchronize on subscribers
         // subscribers.removeAll(where: { $0 === handler})
     }

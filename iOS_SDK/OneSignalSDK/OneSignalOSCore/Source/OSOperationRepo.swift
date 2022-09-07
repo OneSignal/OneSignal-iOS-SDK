@@ -33,14 +33,14 @@ import OneSignalCore
  OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
  */
 public class OSOperationRepo: NSObject {
-    public static let sharedInstance = OSOperationRepo()
+    public static let sharedInstance = OSOperationRepo().start()
     
     // Maps delta names to the interfaces for the operation executors
     var deltasToExecutorMap: [String : OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
     var deltaQueue: [OSDelta] = []
 
-    // TODO: This should come from a config
+    // TODO: This should come from a config, plist, method, remote params
     var operationsProcessingInterval = 5000
 
     /**
@@ -48,26 +48,40 @@ public class OSOperationRepo: NSObject {
      If everything starts up on initialize(), order can matter, ideally not but it can.
      Likely call init on this from oneSignal but exeuctors can come from diff modules.
      */
-    func initialize() {
-        // Prevent sharedInstance from being called before this initialize() function?
+    func start() -> OSOperationRepo {
+        // Read the Deltas from cache, if any... TODO: Don't hardcode key value
+        self.deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", defaultValue: []) as! [OSDelta]
+        return self
     }
     
+    /**
+     Add and start an executor.
+     */
     public func addExecutor(_ executor: OSOperationExecutor) {
         executors.append(executor)
         for delta in executor.supportedDeltas {
             deltasToExecutorMap[delta] = executor
+            executor.start()
         }
     }
     
     func enqueueDelta(_ delta: OSDelta) {
         print("🔥 OSOperationRepo enqueueDelta: \(delta)")
-        // TODO: Cache the delta
-        // OneSignalUserDefaults.initStandard().saveCodeableData(forKey: delta.deltaId.uuidString, withValue: delta)
-        
         deltaQueue.append(delta)
+
+        // Persist the deltas (including new delta) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
+    }
+    
+    public func removeDeltaFromCache(_ delta: OSDelta) {
+        // Persist the deltas (including removed delta) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
     }
     
     func flushDeltaQueue() {
+        if deltaQueue.isEmpty {
+            return
+        }
         for delta in deltaQueue {
             if let executor = deltasToExecutorMap[delta.name] {
                 executor.enqueueDelta(delta)
