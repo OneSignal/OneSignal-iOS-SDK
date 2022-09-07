@@ -65,7 +65,6 @@
 		3C11518D289AF5E800565C41 /* OSModelChangedHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C11518C289AF5E800565C41 /* OSModelChangedHandler.swift */; };
 		3C11518E289AF83600565C41 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		3C11518F289AF83600565C41 /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3C115192289AF85400565C41 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		3C115197289AF86C00565C41 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		3C2C7DC4288E007E0020F9AE /* UserModelSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC3288E007E0020F9AE /* UserModelSwiftTests.swift */; };
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
@@ -381,7 +380,6 @@
 		CACBAAAC218A662B000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
 		CACBAAB4218A7113000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAAB218A662B000ACAA5 /* WebKit.framework */; };
 		CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */ = {isa = PBXBuildFile; fileRef = CA810FCF202BA97300A60FED /* OSEmailSubscription.h */; };
-		DE12F3F2289B28C4002F63AA /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14524D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */; };
 		DE16C14724D3727200670EFA /* OneSignalLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = DE16C14624D3727200670EFA /* OneSignalLifecycleObserver.h */; };
@@ -405,7 +403,6 @@
 		DE69E19F282ED8060090BB3D /* OneSignalUser.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE69E19E282ED8060090BB3D /* OneSignalUser.docc */; };
 		DE69E1A0282ED8060090BB3D /* OneSignalUser.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69E19D282ED8060090BB3D /* OneSignalUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE69E1AC282ED87A0090BB3D /* OneSignalUserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE69E1AA282ED8790090BB3D /* OneSignalUserManager.swift */; };
-		DE69E1AD282ED8F20090BB3D /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DE69E1B2282ED9430090BB3D /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE7D17EA27026B95002D3A5D /* OneSignalCore.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE7D17E927026B95002D3A5D /* OneSignalCore.docc */; };
 		DE7D17EB27026B95002D3A5D /* OneSignalCore.h in Headers */ = {isa = PBXBuildFile; fileRef = DE7D17E827026B95002D3A5D /* OneSignalCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -535,6 +532,9 @@
 		DEA4B4652888C59100E9FE12 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
 		DEA4B4662888C59E00E9FE12 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEA4B4672888C5F200E9FE12 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
+		DEA98C1928C90EE5000C6856 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
+		DEA98C1C28C90EE6000C6856 /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
+		DEA98C1E28C90EE9000C6856 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DECE6F5B28C90821007058EE /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C115161289A259500565C41 /* OneSignalOSCore.framework */; };
 		DEE8198D24E21DF000868CBA /* UIApplication+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE20425C24E21C1500350E4F /* UIApplication+OneSignal.h */; };
 		DEF5CCF52539321A0003E9CC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF5CCF42539321A0003E9CC /* AppDelegate.m */; };
@@ -1069,7 +1069,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C115192289AF85400565C41 /* OneSignalCore.framework in Frameworks */,
+				DEA98C1E28C90EE9000C6856 /* OneSignalCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1112,8 +1112,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE12F3F2289B28C4002F63AA /* OneSignalOSCore.framework in Frameworks */,
-				DE69E1AD282ED8F20090BB3D /* OneSignalCore.framework in Frameworks */,
+				DEA98C1C28C90EE6000C6856 /* OneSignalOSCore.framework in Frameworks */,
+				DEA98C1928C90EE5000C6856 /* OneSignalCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
