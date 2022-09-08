@@ -117,8 +117,8 @@ class UserModelSwiftTests: XCTestCase {
      */
     func testTheseShouldNotWork() throws {
         // Should not be accessible
-        let _ = OneSignalUserManager.user;
-        
+        _ = OneSignalUserManager.user
+
         // Should not be settable
         // OneSignal.user.pushSubscription.token = UUID() // <- Confirmed that users can't set token
         // OneSignal.user.pushSubscription.subscriptionId = UUID() // <- Confirmed that users can't set subscriptionId
@@ -148,7 +148,7 @@ class UserModelSwiftTests: XCTestCase {
         // OneSignal.addSubscriptionObserver(observer)
         // OneSignal.removeSubscriptionObserver(observer)
     }
-    
+
     /**
      Test the model repo hook up via a login with external ID and setting alias.
      */
@@ -157,9 +157,9 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.login("user01", withResult: { user in
             print("🔥 Unit Tests: logged in user is \(user)")
         })
-        
+
         let user = OneSignal.user
-        
+
         // Check that deltas for alias (Identity) are created correctly and enqueued.
         print("🔥 Unit Tests adding alias label_01: user_01")
         user.addAlias(label: "label_01", id: "user_01")
@@ -168,7 +168,7 @@ class UserModelSwiftTests: XCTestCase {
         user.addAlias(label: "label_02", id: "user_02")
         user.addAliases(["test1": "user1", "test2": "user2", "test3": "user3"])
         user.removeAliases(["test1", "label_01", "test2"])
-        
+
         user.setTag(key: "foo", value: "bar")
     }
 }
