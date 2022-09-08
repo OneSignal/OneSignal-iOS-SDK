@@ -37,15 +37,15 @@ open class OSModel: NSObject, NSCoding {
         self.id = id
         self.changeNotifier = changeNotifier
     }
-    
+
     open func encode(with coder: NSCoder) {
         coder.encode(id, forKey: "id")
     }
-    
+
     public required init?(coder: NSCoder) {
         id = coder.decodeObject(forKey: "id") as! String
     }
-    
+
     // We can add operation name to this... , such as enum of "updated", "deleted", "added"
     public func set<T>(property: String, oldValue: T, newValue: T) {
         guard let changeNotifier = self.changeNotifier else {
@@ -53,26 +53,25 @@ open class OSModel: NSObject, NSCoding {
             print("🔥 OSModel changeNotifier is not set!")
             return
         }
-        
+
         let changeArgs = OSModelChangedArgs(model: self, property: property, oldValue: oldValue, newValue: newValue)
-        
+
         changeNotifier.fire { modelChangeHandler in
             modelChangeHandler.onModelUpdated(args: changeArgs, hydrating: self.hydrating)
         }
     }
-    
+
     /**
      This function receives a server response and updates the model's properties.
      */
-    public func hydrate(_ response: [String : String]) {
+    public func hydrate(_ response: [String: String]) {
         self.hydrating = true
         hydrateModel(response) // Calls model-specific hydration logic
         self.hydrating = false
     }
-    
-    open func hydrateModel(_ response: [String : String]) {
+
+    open func hydrateModel(_ response: [String: String]) {
         // TODO: Log as an error.
         print("Error: Function must be overridden.")
     }
 }
-

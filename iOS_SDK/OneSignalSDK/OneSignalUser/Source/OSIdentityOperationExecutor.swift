@@ -33,17 +33,17 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = ["OSUpdateIdentityDelta"] // TODO: Don't hardcode
     var deltaQueue: [OSDelta] = []
     var operationQueue: [OSOperation] = []
-    
+
     func start() {
         // Read unfinished operations from cache, if any... TODO: Don't hardcode
         self.operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", defaultValue: []) as! [OSOperation]
     }
-    
+
     func enqueueDelta(_ delta: OSDelta) {
         print("🔥 OSIdentityOperationExecutor enqueueDelta: \(delta)")
         deltaQueue.append(delta)
     }
-    
+
     func processDeltaQueue() {
         if deltaQueue.isEmpty {
             return
@@ -56,7 +56,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         }
         processOperationQueue()
     }
-   
+
     func enqueueOperation(_ operation: OSOperation) {
         print("🔥 OSIdentityOperationExecutor enqueueOperation: \(operation)")
         operationQueue.append(operation)
@@ -64,7 +64,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         // persist executor's operations (including new operation) to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
     }
-    
+
     func processOperationQueue() {
         if operationQueue.isEmpty {
             return
@@ -73,12 +73,12 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             executeOperation(operation)
         }
     }
-    
+
     func executeOperation(_ operation: OSOperation) {
         // Execute the operation
         // Mock a response
         let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
-        
+
         // On success, remove operation from cache, and hydrate model
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
 

@@ -29,15 +29,15 @@ import Foundation
 
 public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     associatedtype TModel: OSModel
-    
+
     var store: OSModelStore<TModel> { get }
-    
+
     init(store: OSModelStore<TModel>)
-    
+
     func getAddModelDelta(_ model: TModel) -> OSDelta?
-    
+
     func getRemoveModelDelta(_ model: TModel) -> OSDelta?
-    
+
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta?
 }
 
@@ -45,7 +45,7 @@ extension OSModelStoreListener {
     public func start() {
         store.changeSubscription.subscribe(self)
     }
-    
+
     func close() {
         store.changeSubscription.unsubscribe(self)
     }
@@ -63,7 +63,7 @@ extension OSModelStoreListener {
             OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
-    
+
     public func onRemoved(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
         if let delta = getRemoveModelDelta(model as! Self.TModel) {

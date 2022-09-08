@@ -32,10 +32,10 @@ public protocol OSOperation: NSCoding {
     var name: String { get }
     var operationId: UUID { get }
     var timestamp: Date { get }
-    
+
     // OSOperation has an OSModel property to hydrate it after a successful request
     var model: OSModel { get }
-    
+
     // define how to respond to operation and get hydrated
     // like operation.complete()
 }

@@ -32,19 +32,19 @@ import OneSignalOSCore
 
 class OSIdentityModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSIdentityModel>
-    
+
     required init(store: OSModelStore<OSIdentityModel>) {
         self.store = store
     }
-    
+
     func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
         return nil
     }
-    
+
     func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
         return nil
     }
-    
+
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
             name: "OSUpdateIdentityDelta", // TODO: Don't hardcode.

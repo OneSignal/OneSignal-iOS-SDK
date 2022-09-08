@@ -32,19 +32,19 @@ import OneSignalOSCore
 
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
- 
+
     required init(store: OSModelStore<OSPropertiesModel>) {
         self.store = store
     }
-    
+
     func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
         return nil
     }
-    
+
     func getRemoveModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
         return nil
     }
-    
+
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
             name: "OSUpdatePropertyDelta", // TODO: Don't hardcode

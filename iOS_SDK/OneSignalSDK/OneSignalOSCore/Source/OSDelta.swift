@@ -35,7 +35,7 @@ open class OSDelta: NSObject, NSCoding {
     let model: OSModel
     let property: String
     let value: Any?
-    
+
     public init(name: String, model: OSModel, property: String, value: Any?) {
         self.name = name
         self.deltaId = UUID()
@@ -44,7 +44,7 @@ open class OSDelta: NSObject, NSCoding {
         self.property = property
         self.value = value
     }
-    
+
     public func encode(with coder: NSCoder) {
         coder.encode(name, forKey: "name")
         coder.encode(deltaId, forKey: "deltaId")
@@ -53,7 +53,7 @@ open class OSDelta: NSObject, NSCoding {
         coder.encode(property, forKey: "property")
         coder.encode(value, forKey: "value")
     }
-    
+
     public required init?(coder: NSCoder) {
         name = coder.decodeObject(forKey: "name") as! String
         deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
