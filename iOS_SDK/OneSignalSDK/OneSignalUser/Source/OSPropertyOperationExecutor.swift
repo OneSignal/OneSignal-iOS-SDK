@@ -36,7 +36,10 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
     func start() {
         // Read unfinished operations from cache, if any... TODO: Don't hardcode
-        self.operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_PROPERTY_OPERATION_EXECUTOR_OPERATIONS", defaultValue: []) as! [OSOperation]
+        guard let operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_PROPERTY_OPERATION_EXECUTOR_OPERATIONS", defaultValue: []) as? [OSOperation] else {
+            return
+        }
+        self.operationQueue = operationQueue
     }
 
     func enqueueDelta(_ delta: OSDelta) {

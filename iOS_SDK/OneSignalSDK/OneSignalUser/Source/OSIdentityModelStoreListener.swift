@@ -48,7 +48,7 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
             name: "OSUpdateIdentityDelta", // TODO: Don't hardcode.
-            model: args.model as! OSIdentityModel,
+            model: args.model,
             property: args.property,
             value: args.newValue
         )

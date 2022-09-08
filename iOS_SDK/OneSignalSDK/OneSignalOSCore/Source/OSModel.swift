@@ -43,6 +43,7 @@ open class OSModel: NSObject, NSCoding {
     }
 
     public required init?(coder: NSCoder) {
+        // swiftlint:disable:next force_cast
         id = coder.decodeObject(forKey: "id") as! String
     }
 
