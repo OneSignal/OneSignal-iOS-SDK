@@ -38,7 +38,7 @@ public class OSPushSubscriptionState: NSObject {
     @objc public let subscriptionId: UUID?
     @objc public let token: UUID?
     @objc public let enabled: Bool
-    
+
     init(subscriptionId: UUID?, token: UUID?, enabled: Bool) {
         self.subscriptionId = subscriptionId
         self.token = token
@@ -70,15 +70,15 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
     func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
         // TODO: UM name and scope of function
         // TODO: UM update model, add operation to backend
-        let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
-        let _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
-        
+        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
+        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
+
         // use hydrating bool to determine calling self.set
         self.set(property: "enabled", oldValue: oldValue, newValue: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
-    
+
     // When this PushSubscription is initialized, it will not have a subscriptionId until a request to the backend is made.
     init(token: UUID?, enabled: Bool?) {
         self.token = token
@@ -86,14 +86,14 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         // TODO: What should be the id of this model?
         super.init(id: UUID().uuidString, changeNotifier: OSEventProducer())
     }
-    
+
     override func encode(with coder: NSCoder) {
         super.encode(with: coder)
         coder.encode(subscriptionId, forKey: "subscriptionId")
         coder.encode(token, forKey: "token")
         coder.encode(enabled, forKey: "enabled")
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? UUID

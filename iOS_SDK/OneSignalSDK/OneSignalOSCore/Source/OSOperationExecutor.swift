@@ -31,11 +31,11 @@ public protocol OSOperationExecutor {
     var supportedDeltas: [String] { get }
     var deltaQueue: [OSDelta] { get }
     var operationQueue: [OSOperation] { get }
-    
+
     func start()
     func enqueueDelta(_ delta: OSDelta)
     func processDeltaQueue()
-    
+
     func enqueueOperation(_ operation: OSOperation)
     func processOperationQueue()
     func executeOperation(_ operation: OSOperation)

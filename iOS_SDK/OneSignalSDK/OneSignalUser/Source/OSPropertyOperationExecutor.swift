@@ -38,7 +38,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         // Read unfinished operations from cache, if any... TODO: Don't hardcode
         self.operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_PROPERTY_OPERATION_EXECUTOR_OPERATIONS", defaultValue: []) as! [OSOperation]
     }
-    
+
     func enqueueDelta(_ delta: OSDelta) {
         print("🔥 OSPropertyOperationExecutor enqueue delta\(delta)")
         deltaQueue.append(delta)
@@ -56,7 +56,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
         processOperationQueue()
     }
-    
+
     func enqueueOperation(_ operation: OSOperation) {
         print("🔥 OSPropertyOperationExecutor enqueueOperation: \(operation)")
         operationQueue.append(operation)
@@ -64,7 +64,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         // persist executor's operations (including new operation) to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_PROPERTY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
     }
-    
+
     func processOperationQueue() {
         if operationQueue.isEmpty {
             return
@@ -73,18 +73,18 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             executeOperation(operation)
         }
     }
-    
+
     func executeOperation(_ operation: OSOperation) {
         // Execute the operation
         // Mock a response
-        
+
         let response = ["language": "en"]
 
         // On success, remove operation from cache, and hydrate model
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_PROPERTY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
-        
+
         operation.model.hydrate(response)
-        
+
         // On failure, retry logic
     }
 }

@@ -28,9 +28,9 @@
 import Foundation
 
 public class OSEventProducer<THandler>: NSObject {
-    
+
     var subscribers: [THandler] = []
-    
+
     public func subscribe(_ handler: THandler) {
         print("🔥 OSEventProducer.subscribe() called with handler: \(handler)")
         // TODO: UM do we want to synchronize on subscribers

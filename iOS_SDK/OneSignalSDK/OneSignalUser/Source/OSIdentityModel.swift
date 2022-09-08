@@ -32,37 +32,37 @@ class OSIdentityModel: OSModel {
     var onesignalId: UUID? // let? optional?
 
     var externalId: String? { // let? optional?
-        didSet  {
+        didSet {
             print("🔥 didSet OSIdentityModel.externalId from \(oldValue) to \(externalId!).")
             self.set(property: "externalId", oldValue: oldValue, newValue: externalId)
         }
     }
-    
-    var aliases: [String : String] = [:]
-    
+
+    var aliases: [String: String] = [:]
+
     // MARK: - Initialization
-    
+
     // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
     override init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(id: id, changeNotifier: changeNotifier)
     }
-    
+
     override func encode(with coder: NSCoder) {
         super.encode(with: coder)
         coder.encode(onesignalId, forKey: "onesignalId")
         coder.encode(externalId, forKey: "externalId")
         coder.encode(aliases, forKey: "aliases")
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         onesignalId = coder.decodeObject(forKey: "onesignalId") as? UUID
         externalId = coder.decodeObject(forKey: "externalId") as? String
-        aliases = coder.decodeObject(forKey: "aliases") as! [String : String]
+        aliases = coder.decodeObject(forKey: "aliases") as! [String: String]
     }
-    
+
     // MARK: - Alias Methods
-    
+
     func setAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either?
@@ -71,7 +71,7 @@ class OSIdentityModel: OSModel {
         aliases[label] = id
         self.set(property: "aliases", oldValue: ["label": label, "id": oldValue], newValue: ["label": label, "id": id])
     }
-    
+
     func removeAlias(_ label: String) {
         print("🔥 OSIdentityModel.removeAlias \(label).")
         if let oldValue = aliases.removeValue(forKey: label) {
@@ -79,8 +79,8 @@ class OSIdentityModel: OSModel {
             self.set(property: label, oldValue: oldValue, newValue: "")
         }
     }
-    
-    public override func hydrateModel(_ response: [String : String]) {
+
+    public override func hydrateModel(_ response: [String: String]) {
         print("🔥 OSIdentityModel hydrateModel()")
         // TODO: Update Model properties with the response
         // Flesh out implementation and how to parse the response, deleted aliases...

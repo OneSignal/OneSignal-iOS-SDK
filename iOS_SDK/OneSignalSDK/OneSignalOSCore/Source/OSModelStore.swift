@@ -31,36 +31,36 @@ import OneSignalCore
 open class OSModelStore<TModel: OSModel>: NSObject {
     let storeKey: String
     let changeSubscription: OSEventProducer<OSModelStoreChangedHandler>
-    var models: [String : TModel]
-    
+    var models: [String: TModel]
+
     public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>, storeKey: String) {
         self.storeKey = storeKey
         self.changeSubscription = changeSubscription
-        
+
         // read models from cache, if any
-        self.models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as! [String : TModel]
+        self.models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as! [String: TModel]
     }
-    
+
     public func getModels() -> [String: TModel] {
         return self.models
     }
-    
+
     public func add(id: String, model: TModel) {
         print("🔥 OSModelStore add with model \(model)")
 
         models[id] = model
-        
+
         // persist the models (including new model) to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
-        
+
         // listen for changes to this model
         model.changeNotifier?.subscribe(self)
-        
+
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
         }
     }
-    
+
     func remove(_ id: String) {
         print("🔥 OSModelStore remove with model \(id)")
         if let model = models[id] {
@@ -71,7 +71,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
             // no longer listen for changes to this model
             model.changeNotifier?.unsubscribe(self)
-            
+
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
             }
@@ -82,7 +82,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 extension OSModelStore: OSModelChangedHandler {
     public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
         print("🔥 OSModelStore.onChanged() with args \(args)")
-        
+
         // persist the changed models to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 

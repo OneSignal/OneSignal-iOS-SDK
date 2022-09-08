@@ -34,9 +34,9 @@ import OneSignalCore
  */
 public class OSOperationRepo: NSObject {
     public static let sharedInstance = OSOperationRepo().start()
-    
+
     // Maps delta names to the interfaces for the operation executors
-    var deltasToExecutorMap: [String : OSOperationExecutor] = [:]
+    var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
     var executors: [OSOperationExecutor] = []
     var deltaQueue: [OSDelta] = []
 
@@ -53,7 +53,7 @@ public class OSOperationRepo: NSObject {
         self.deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", defaultValue: []) as! [OSDelta]
         return self
     }
-    
+
     /**
      Add and start an executor.
      */
@@ -64,7 +64,7 @@ public class OSOperationRepo: NSObject {
             executor.start()
         }
     }
-    
+
     func enqueueDelta(_ delta: OSDelta) {
         print("🔥 OSOperationRepo enqueueDelta: \(delta)")
         deltaQueue.append(delta)
@@ -72,12 +72,12 @@ public class OSOperationRepo: NSObject {
         // Persist the deltas (including new delta) to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
     }
-    
+
     public func removeDeltaFromCache(_ delta: OSDelta) {
         // Persist the deltas (including removed delta) to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
     }
-    
+
     func flushDeltaQueue() {
         if deltaQueue.isEmpty {
             return
@@ -88,7 +88,7 @@ public class OSOperationRepo: NSObject {
             }
             // keep in queue if no executor matches, we may not have the executor available yet
         }
-        
+
         for executor in executors {
             executor.processDeltaQueue()
         }
