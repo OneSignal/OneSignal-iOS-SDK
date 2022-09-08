@@ -55,11 +55,13 @@ open class OSDelta: NSObject, NSCoding {
     }
 
     public required init?(coder: NSCoder) {
+        // swiftlint:disable force_cast
         name = coder.decodeObject(forKey: "name") as! String
         deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
         timestamp = coder.decodeObject(forKey: "timestamp") as! Date
         model = coder.decodeObject(forKey: "model") as! OSModel
         property = coder.decodeObject(forKey: "property") as! String
         value = coder.decodeObject(forKey: "value")
+        // swiftlint:enable force_cast
     }
 }
