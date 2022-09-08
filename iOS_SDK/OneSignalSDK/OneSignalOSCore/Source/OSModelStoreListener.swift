@@ -52,6 +52,7 @@ extension OSModelStoreListener {
 
     public func onAdded(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onAdded() with model \(model)")
+        // swiftlint:disable:next force_cast
         if let delta = getAddModelDelta(model as! Self.TModel) {
             OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
@@ -66,6 +67,7 @@ extension OSModelStoreListener {
 
     public func onRemoved(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
+        // swiftlint:disable:next force_cast
         if let delta = getRemoveModelDelta(model as! Self.TModel) {
             OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }

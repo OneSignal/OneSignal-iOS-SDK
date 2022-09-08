@@ -61,7 +61,12 @@ class OSPropertiesModel: OSModel {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         language = coder.decodeObject(forKey: "language") as? String
-        tags = coder.decodeObject(forKey: "tags") as! [String: String]
+        guard let tags = coder.decodeObject(forKey: "tags") as? [String: String] else {
+            // log error
+            return
+        }
+        self.tags = tags
+        
         // ... and more
     }
 

@@ -48,7 +48,7 @@ class OSPropertiesModelStoreListener: OSModelStoreListener {
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
             name: "OSUpdatePropertyDelta", // TODO: Don't hardcode
-            model: args.model as! OSPropertiesModel,
+            model: args.model,
             property: args.property,
             value: args.newValue
         )

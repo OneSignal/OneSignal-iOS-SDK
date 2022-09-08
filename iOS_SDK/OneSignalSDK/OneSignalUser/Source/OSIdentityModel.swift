@@ -58,7 +58,11 @@ class OSIdentityModel: OSModel {
         super.init(coder: coder)
         onesignalId = coder.decodeObject(forKey: "onesignalId") as? UUID
         externalId = coder.decodeObject(forKey: "externalId") as? String
-        aliases = coder.decodeObject(forKey: "aliases") as! [String: String]
+        guard let aliases = coder.decodeObject(forKey: "aliases") as? [String: String] else {
+            // log error
+            return
+        }
+        self.aliases = aliases
     }
 
     // MARK: - Alias Methods
