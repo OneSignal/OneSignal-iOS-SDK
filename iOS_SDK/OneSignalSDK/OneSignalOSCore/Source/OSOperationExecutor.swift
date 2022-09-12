@@ -34,6 +34,7 @@ public protocol OSOperationExecutor {
 
     func start()
     func enqueueDelta(_ delta: OSDelta)
+    func cacheDeltaQueue()
     func processDeltaQueue()
 
     func enqueueOperation(_ operation: OSOperation)

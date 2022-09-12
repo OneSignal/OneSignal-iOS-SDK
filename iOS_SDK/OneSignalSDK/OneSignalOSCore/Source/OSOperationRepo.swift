@@ -88,11 +88,6 @@ public class OSOperationRepo: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
     }
 
-    public func removeDeltaFromCache(_ delta: OSDelta) {
-        // Persist the deltas (including removed delta) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
-    }
-
     func flushDeltaQueue() {
         print("🔥 OSOperationRepo flushDeltaQueue")
         if deltaQueue.isEmpty {
@@ -108,6 +103,13 @@ public class OSOperationRepo: NSObject {
                 // keep in queue if no executor matches, we may not have the executor available yet
                 index += 1
             }
+        }
+
+        // Persist the deltas (including removed deltas) to storage after they are divvy'd up to executors.
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
+
+        for executor in executors {
+            executor.cacheDeltaQueue()
         }
 
         for executor in executors {
