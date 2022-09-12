@@ -56,11 +56,11 @@ public class OSOperationRepo: NSObject {
         } else {
             // log error
         }
-        
+
         pollFlushQueue()
         return self
     }
-    
+
     private func pollFlushQueue() {
         DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
             print("🔥 OSOperationRepo pollFlushQueue: begin flush")
@@ -68,7 +68,7 @@ public class OSOperationRepo: NSObject {
             self?.pollFlushQueue()
         }
     }
-    
+
     /**
      Add and start an executor.
      */
@@ -98,7 +98,7 @@ public class OSOperationRepo: NSObject {
         if deltaQueue.isEmpty {
             return
         }
-        
+
         var index = 0
         for delta in deltaQueue {
             if let executor = deltasToExecutorMap[delta.name] {

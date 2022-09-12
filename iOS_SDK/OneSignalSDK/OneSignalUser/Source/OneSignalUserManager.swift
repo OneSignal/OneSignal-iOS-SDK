@@ -91,7 +91,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
 
         // 3. Create new user
         // TODO: Remove/take care of the old user's information.
-        
+
         let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: externalId, model: identityModel)
         identityModel.externalId = externalId // TODO: Don't fire this change.
