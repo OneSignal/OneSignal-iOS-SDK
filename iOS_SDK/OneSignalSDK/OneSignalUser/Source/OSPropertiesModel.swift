@@ -66,7 +66,7 @@ class OSPropertiesModel: OSModel {
             return
         }
         self.tags = tags
-        
+
         // ... and more
     }
 
