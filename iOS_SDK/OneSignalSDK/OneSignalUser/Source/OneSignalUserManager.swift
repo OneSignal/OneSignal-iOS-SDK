@@ -44,8 +44,8 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     @objc public static var user: OSUserInternal?
 
     // has Identity and Properties Model Stores
-    static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL") // TODO: Don't hardcode
-    static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: "OS_PROPERTIES_MODEL") // TODO: Don't hardcode
+    static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL_STORE") // TODO: Don't hardcode
+    static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: "OS_PROPERTIES_MODEL_STORE") // TODO: Don't hardcode
 
     // TODO: UM, and Model Store Listeners: where do they live? Here for now.
     static var identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
@@ -91,11 +91,12 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
 
         // 3. Create new user
         // TODO: Remove/take care of the old user's information.
-        let identityModel = OSIdentityModel(id: externalId, changeNotifier: OSEventProducer()) // TODO: Change id?
+        
+        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: externalId, model: identityModel)
         identityModel.externalId = externalId // TODO: Don't fire this change.
 
-        let propertiesModel = OSPropertiesModel(id: externalId, changeNotifier: OSEventProducer()) // TODO: Change id?
+        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: externalId, model: propertiesModel)
 
         let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
@@ -120,8 +121,8 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         // TODO: Another user in cache? Remove old user's info?
 
         // TODO: model logic for guest users
-        let identityModel = OSIdentityModel(id: UUID().uuidString, changeNotifier: OSEventProducer())
-        let propertiesModel = OSPropertiesModel(id: identityModel.id, changeNotifier: OSEventProducer())
+        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
+        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
 
         let user = createUser(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
