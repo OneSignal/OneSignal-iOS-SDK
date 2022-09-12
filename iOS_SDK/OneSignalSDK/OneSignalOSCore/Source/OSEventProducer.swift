@@ -45,7 +45,7 @@ public class OSEventProducer<THandler>: NSObject {
 
     public func fire(callback: (THandler) -> Void) {
         print("🔥 OSEventProducer.fire() called with the following subscribers:")
-        dump(subscribers)
+        // dump(subscribers) -> uncomment for more verbose log during testing
         for subscriber in subscribers {
             callback(subscriber)
         }

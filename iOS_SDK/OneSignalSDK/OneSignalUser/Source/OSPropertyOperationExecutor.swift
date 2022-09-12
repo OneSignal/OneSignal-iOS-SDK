@@ -30,7 +30,7 @@ import OneSignalOSCore
 import OneSignalCore
 
 class OSPropertyOperationExecutor: OSOperationExecutor {
-    var supportedDeltas: [String] = ["OSUpdatePropertyOperation"] // TODO: Don't hardcode
+    var supportedDeltas: [String] = ["OSUpdatePropertyDelta"] // TODO: Don't hardcode
     var deltaQueue: [OSDelta] = []
     var operationQueue: [OSOperation] = []
 
@@ -69,10 +69,10 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func processOperationQueue() {
-        if operationQueue.isEmpty {
+        if self.operationQueue.isEmpty {
             return
         }
-        for operation in operationQueue {
+        for operation in self.operationQueue {
             executeOperation(operation)
         }
     }

@@ -56,6 +56,7 @@ open class OSDelta: NSObject, NSCoding {
 
     public required init?(coder: NSCoder) {
         // swiftlint:disable force_cast
+        // TODO: Discuss how to handle this case.
         name = coder.decodeObject(forKey: "name") as! String
         deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
         timestamp = coder.decodeObject(forKey: "timestamp") as! Date
@@ -63,5 +64,6 @@ open class OSDelta: NSObject, NSCoding {
         property = coder.decodeObject(forKey: "property") as! String
         value = coder.decodeObject(forKey: "value")
         // swiftlint:enable force_cast
+        // TODO: essentially guard let every one of these properties ^ to return nil
     }
 }

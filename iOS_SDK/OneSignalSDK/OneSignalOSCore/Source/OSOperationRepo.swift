@@ -98,8 +98,3 @@ public class OSOperationRepo: NSObject {
         }
     }
 }
-
-// how to implement every 5 seconds flush, some background service callign every 5 seconds,
-// blocking queue, sync queue - many threads are manipulating the same queue, think about lock it when flush
-// can't use async keyword bc ios 13+
-// https://developer.apple.com/documentation/dispatch/dispatchqueue
