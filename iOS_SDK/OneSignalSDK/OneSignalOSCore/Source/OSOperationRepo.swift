@@ -50,11 +50,11 @@ public class OSOperationRepo: NSObject {
      */
     func start() -> OSOperationRepo {
         // Read the Deltas from cache, if any... TODO: Don't hardcode key value
-        guard let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", defaultValue: []) as? [OSDelta] else {
+        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", defaultValue: []) as? [OSDelta] {
+            self.deltaQueue = deltaQueue
+        } else {
             // log error
-            return self
         }
-        self.deltaQueue = deltaQueue
         return self
     }
 
