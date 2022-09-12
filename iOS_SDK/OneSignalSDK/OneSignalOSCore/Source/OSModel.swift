@@ -29,22 +29,17 @@ import Foundation
 
 @objc
 open class OSModel: NSObject, NSCoding {
-    public let id: String
     public var changeNotifier: OSEventProducer<OSModelChangedHandler>? // MUST set after initWithCoder
     private var hydrating = false // TODO: Starts out false?
 
-    public init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
-        self.id = id
+    public init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.changeNotifier = changeNotifier
     }
 
     open func encode(with coder: NSCoder) {
-        coder.encode(id, forKey: "id")
     }
 
     public required init?(coder: NSCoder) {
-        // swiftlint:disable:next force_cast
-        id = coder.decodeObject(forKey: "id") as! String
     }
 
     // We can add operation name to this... , such as enum of "updated", "deleted", "added"

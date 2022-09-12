@@ -47,8 +47,8 @@ class OSPropertiesModel: OSModel {
     // MARK: - Initialization
 
     // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
-    override init(id: String, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
-        super.init(id: id, changeNotifier: changeNotifier)
+    override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        super.init(changeNotifier: changeNotifier)
     }
 
     override func encode(with coder: NSCoder) {
