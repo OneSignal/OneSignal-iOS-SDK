@@ -38,11 +38,12 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         self.changeSubscription = changeSubscription
 
         // read models from cache, if any
-        guard let models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as? [String: TModel] else {
+        if let models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as? [String: TModel] {
+            self.models = models
+        } else {
+            // log error
             self.models = [:]
-            return
         }
-        self.models = models
     }
 
     public func getModels() -> [String: TModel] {
