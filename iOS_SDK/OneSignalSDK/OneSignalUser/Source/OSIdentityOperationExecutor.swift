@@ -35,7 +35,14 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     var operationQueue: [OSOperation] = []
 
     func start() {
-        // Read unfinished operations from cache, if any... TODO: Don't hardcode
+        // Read unfinished deltas and operations from cache, if any... TODO: Don't hardcode
+
+        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_DELTA_QUEUE", defaultValue: []) as? [OSDelta] {
+            self.deltaQueue = deltaQueue
+        } else {
+            // log error
+        }
+
         if let operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", defaultValue: []) as? [OSOperation] {
             self.operationQueue = operationQueue
         } else {
@@ -48,6 +55,10 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         deltaQueue.append(delta)
     }
 
+    func cacheDeltaQueue() {
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_DELTA_QUEUE", withValue: self.deltaQueue)
+    }
+
     func processDeltaQueue() {
         if deltaQueue.isEmpty {
             return
@@ -55,7 +66,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         // TODO: Implementation
         for delta in deltaQueue {
             // Remove the delta from the cache when it becomes an Operation
-            OSOperationRepo.sharedInstance.removeDeltaFromCache(delta)
+            // Optimize when it is cached.
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_DELTA_QUEUE", withValue: self.deltaQueue)
             // enqueueOperation(operation)
         }
         self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
@@ -77,6 +89,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         for operation in operationQueue {
             executeOperation(operation)
         }
+        self.operationQueue = [] // TODO: Check that we can simply clear all the operations in the operationQueue
     }
 
     func executeOperation(_ operation: OSOperation) {
@@ -85,6 +98,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
         // On success, remove operation from cache, and hydrate model
+        // TODO: May need to remove this operation from the operationQueue too
+        // For example, if app restarts and we read in operations between sending this off and getting the response
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_IDENTITY_OPERATION_EXECUTOR_OPERATIONS", withValue: self.operationQueue)
 
         operation.model.hydrate(response)
