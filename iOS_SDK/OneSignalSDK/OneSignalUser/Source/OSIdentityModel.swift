@@ -78,6 +78,7 @@ class OSIdentityModel: OSModel {
 
     func removeAlias(_ label: String) {
         print("🔥 OSIdentityModel.removeAlias \(label).")
+        // TODO: create a delta even if this alias does not exist locally.
         if let oldValue = aliases.removeValue(forKey: label) {
             // Cannot encode a nil value
             self.set(property: label, oldValue: oldValue, newValue: "")
