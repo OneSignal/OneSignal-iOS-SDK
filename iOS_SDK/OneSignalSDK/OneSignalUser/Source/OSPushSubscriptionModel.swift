@@ -84,7 +84,7 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         self.token = token
         self.enabled = enabled ?? false
         // TODO: What should be the id of this model?
-        super.init(id: UUID().uuidString, changeNotifier: OSEventProducer())
+        super.init(changeNotifier: OSEventProducer())
     }
 
     override func encode(with coder: NSCoder) {
