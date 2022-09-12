@@ -151,8 +151,9 @@
 
 /**
  Test the model repo hook up via a login with external ID and setting alias.
+ Test the operation repo hookup as well and check the deltas being enqueued and flushed.
  */
-- (void)testModelRepositoryHookUpWithLoginAndSetAlias {
+- (void)testModelAndOperationRepositoryHookUpWithLoginAndSetAlias {
     // login an user with external ID
     [OneSignal login:@"user01" withResult:^(id<OSUser> _Nonnull user) {
        NSLog(@"🔥 Unit Tests: logged in user is %@", user);
@@ -170,6 +171,9 @@
     [user removeAliases:@[@"test1", @"label_01", @"test2"]];
     
     [user setTagWithKey:@"foo" value:@"bar"];
+    
+    // Sleep to allow the flush to be called 1 time.
+    [NSThread sleepForTimeInterval:6.0f];
 }
 
 @end
