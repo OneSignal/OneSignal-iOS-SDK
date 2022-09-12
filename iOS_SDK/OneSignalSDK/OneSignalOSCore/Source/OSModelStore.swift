@@ -82,7 +82,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             }
         }
     }
-    
+
     func clear() { // TODO: Prefer to use an observer pattern like `onUserChanged`
         // remove models from the cache
     }

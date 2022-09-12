@@ -171,7 +171,7 @@ class UserModelSwiftTests: XCTestCase {
         user.removeAliases(["test1", "label_01", "test2"])
 
         user.setTag(key: "foo", value: "bar")
-        
+
         // Sleep to allow the flush to be called 1 time.
         Thread.sleep(forTimeInterval: 6)
     }
