@@ -41,7 +41,7 @@ public class OSOperationRepo: NSObject {
     var deltaQueue: [OSDelta] = []
 
     // TODO: This should come from a config, plist, method, remote params
-    var operationsProcessingInterval = 5000
+    var pollIntervalSeconds = 5
 
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
@@ -49,15 +49,26 @@ public class OSOperationRepo: NSObject {
      Likely call init on this from oneSignal but exeuctors can come from diff modules.
      */
     func start() -> OSOperationRepo {
+        print("🔥 OSOperationRepo start()")
         // Read the Deltas from cache, if any... TODO: Don't hardcode key value
         if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
         } else {
             // log error
         }
+        
+        pollFlushQueue()
         return self
     }
-
+    
+    private func pollFlushQueue() {
+        DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
+            print("🔥 OSOperationRepo pollFlushQueue: begin flush")
+            self?.flushDeltaQueue()
+            self?.pollFlushQueue()
+        }
+    }
+    
     /**
      Add and start an executor.
      */
@@ -83,14 +94,20 @@ public class OSOperationRepo: NSObject {
     }
 
     func flushDeltaQueue() {
+        print("🔥 OSOperationRepo flushDeltaQueue")
         if deltaQueue.isEmpty {
             return
         }
+        
+        var index = 0
         for delta in deltaQueue {
             if let executor = deltasToExecutorMap[delta.name] {
                 executor.enqueueDelta(delta)
+                deltaQueue.remove(at: index)
+            } else {
+                // keep in queue if no executor matches, we may not have the executor available yet
+                index += 1
             }
-            // keep in queue if no executor matches, we may not have the executor available yet
         }
 
         for executor in executors {

@@ -58,6 +58,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             OSOperationRepo.sharedInstance.removeDeltaFromCache(delta)
             // enqueueOperation(operation)
         }
+        self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
         processOperationQueue()
     }
 
@@ -76,6 +77,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         for operation in self.operationQueue {
             executeOperation(operation)
         }
+        self.operationQueue = [] // TODO: Check that we can simply clear all the ops in the operationQueue
     }
 
     func executeOperation(_ operation: OSOperation) {

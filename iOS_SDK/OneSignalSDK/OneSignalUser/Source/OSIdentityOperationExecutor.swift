@@ -58,6 +58,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             OSOperationRepo.sharedInstance.removeDeltaFromCache(delta)
             // enqueueOperation(operation)
         }
+        self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
         processOperationQueue()
     }
 
