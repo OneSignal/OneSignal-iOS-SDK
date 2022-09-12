@@ -40,8 +40,8 @@ extension OneSignal {
 class OSPushSubscriptionTestObserver: OSPushSubscriptionObserver {
     func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState) {
         print("🔥 onOSPushSubscriptionChanged \(previous) -> \(current)")
-        dump(previous)
-        dump(current)
+        // dump(previous) -> uncomment for more verbose log during testing
+        // dump(current) -> uncomment for more verbose log during testing
     }
 }
 
@@ -151,8 +151,9 @@ class UserModelSwiftTests: XCTestCase {
 
     /**
      Test the model repo hook up via a login with external ID and setting alias.
+     Test the operation repo hookup as well and check the deltas being enqueued and flushed.
      */
-    func testModelRepositoryHookUpWithLoginAndSetAlias() throws {
+    func testModelAndOperationRepositoryHookUpWithLoginAndSetAlias() throws {
         // login an user with external ID
         OneSignal.login("user01", withResult: { user in
             print("🔥 Unit Tests: logged in user is \(user)")
@@ -170,5 +171,8 @@ class UserModelSwiftTests: XCTestCase {
         user.removeAliases(["test1", "label_01", "test2"])
 
         user.setTag(key: "foo", value: "bar")
+        
+        // Sleep to allow the flush to be called 1 time.
+        Thread.sleep(forTimeInterval: 6)
     }
 }
