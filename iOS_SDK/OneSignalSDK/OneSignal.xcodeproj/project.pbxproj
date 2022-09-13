@@ -4371,6 +4371,7 @@
 		DECE6F5A28C903D7007058EE /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = OneSignalOSCoreFramework/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = OneSignalOSCore;
