@@ -55,15 +55,22 @@ open class OSDelta: NSObject, NSCoding {
     }
 
     public required init?(coder: NSCoder) {
-        // swiftlint:disable force_cast
-        // TODO: Discuss how to handle this case.
-        name = coder.decodeObject(forKey: "name") as! String
-        deltaId = coder.decodeObject(forKey: "deltaId") as! UUID
-        timestamp = coder.decodeObject(forKey: "timestamp") as! Date
-        model = coder.decodeObject(forKey: "model") as! OSModel
-        property = coder.decodeObject(forKey: "property") as! String
-        value = coder.decodeObject(forKey: "value")
-        // swiftlint:enable force_cast
-        // TODO: essentially guard let every one of these properties ^ to return nil
+        guard let name = coder.decodeObject(forKey: "name") as? String,
+              let deltaId = coder.decodeObject(forKey: "deltaId") as? UUID,
+              let timestamp = coder.decodeObject(forKey: "timestamp") as? Date,
+              let model = coder.decodeObject(forKey: "model") as? OSModel,
+              let property = coder.decodeObject(forKey: "property") as? String,
+              let value = coder.decodeObject(forKey: "value")
+        else {
+            // TODO: Log error
+            return nil
+        }
+
+        self.name = name
+        self.deltaId = deltaId
+        self.timestamp = timestamp
+        self.model = model
+        self.property = property
+        self.value = value
     }
 }
