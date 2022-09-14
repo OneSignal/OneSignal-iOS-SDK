@@ -33,36 +33,36 @@ import OneSignalOSCore
  This is the user interface exposed to the public.
  */
 @objc public protocol OSUser {
-    var pushSubscription: OSPushSubscriptionInterface { get }
+    var pushSubscription: OSPushSubscriptionInterface { get } // TODO: static var
     // Aliases
-    func addAlias(label: String, id: String)
-    func addAliases(_ aliases: [String: String])
-    func removeAlias(_ label: String)
-    func removeAliases(_ labels: [String])
+    static func addAlias(label: String, id: String)
+    static func addAliases(_ aliases: [String: String])
+    static func removeAlias(_ label: String)
+    static func removeAliases(_ labels: [String])
     // Tags
-    func setTag(key: String, value: String)
-    func setTags(_ tags: [String: String])
-    func removeTag(_ tag: String)
-    func removeTags(_ tags: [String])
-    func getTag(_ tag: String)
+    static func setTag(key: String, value: String)
+    static func setTags(_ tags: [String: String])
+    static func removeTag(_ tag: String)
+    static func removeTags(_ tags: [String])
+    static func getTag(_ tag: String)
     // Outcomes
-    func setOutcome(_ name: String)
-    func setUniqueOutcome(_ name: String)
-    func setOutcome(name: String, value: Float)
+    static func setOutcome(_ name: String)
+    static func setUniqueOutcome(_ name: String)
+    static func setOutcome(name: String, value: Float)
     // Email
-    func addEmail(_ email: String)
-    func removeEmail(_ email: String)
+    static func addEmail(_ email: String)
+    static func removeEmail(_ email: String)
     // SMS
-    func addSmsNumber(_ number: String)
-    func removeSmsNumber(_ number: String)
+    static func addSmsNumber(_ number: String)
+    static func removeSmsNumber(_ number: String)
     // Triggers
-    func setTrigger(key: String, value: String)
-    func setTriggers(_ triggers: [String: String])
-    func removeTrigger(_ trigger: String)
-    func removeTriggers(_ triggers: [String])
+    static func setTrigger(key: String, value: String)
+    static func setTriggers(_ triggers: [String: String])
+    static func removeTrigger(_ trigger: String)
+    static func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool)
+    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) // TODO: static
 }
 
 /**
@@ -70,7 +70,7 @@ import OneSignalOSCore
  Class made public because it is used in OneSignalUserManager which is public.
  */
 public class OSUserInternal: NSObject, OSUser {
-
+    // TODO: make properties static
     var triggers: [String: String] = [:] // update to include bool, number
 
     // email, sms, subscriptions todo
@@ -84,12 +84,12 @@ public class OSUserInternal: NSObject, OSUser {
     var propertiesModel: OSPropertiesModel
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
+    @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) { // TODO: static
         self.pushSubscription = OSPushSubscriptionModel(token: token, enabled: enabled)
         print("🔥 OSUser has set pushSubcription for testing")
     }
 
-    init(pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) {
+    init(pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) { // TODO: don't init instances
         self.pushSubscription = pushSubscription
         self.identityModel = identityModel
         self.propertiesModel = propertiesModel
@@ -99,15 +99,15 @@ public class OSUserInternal: NSObject, OSUser {
     // MARK: - Aliases
 
     @objc
-    public func addAlias(label: String, id: String) {
+    public static func addAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either??
         print("🔥 OSUser addAlias() called")
-        self.identityModel.setAlias(label: label, id: id)
+        // identityModel.setAlias(label: label, id: id) // TODO: Uncomment
     }
 
     @objc
-    public func addAliases(_ aliases: [String: String]) {
+    public static func addAliases(_ aliases: [String: String]) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either??
         print("🔥 OSUser addAliases() called")
@@ -118,112 +118,111 @@ public class OSUserInternal: NSObject, OSUser {
     }
 
     @objc
-    public func removeAlias(_ label: String) {
+    public static func removeAlias(_ label: String) {
         print("🔥 OSUser removeAlias() called")
-        self.identityModel.removeAlias(label)
+        // self.identityModel.removeAlias(label) // TODO: Uncomment
     }
 
     @objc
-    public func removeAliases(_ labels: [String]) {
+    public static func removeAliases(_ labels: [String]) {
         print("🔥 OSUser removeAliases() called")
         for label in labels {
             removeAlias(label)
         }
     }
 
-    // Tags
+    // MARK: - Tags
 
     @objc
-    public func setTag(key: String, value: String) {
+    public static func setTag(key: String, value: String) {
         print("🔥 OSUser sendTag() called")
-        self.propertiesModel.tags[key] = value
+        // self.propertiesModel.tags[key] = value // TODO: Uncomment
     }
 
     @objc
-    public func setTags(_ tags: [String: String]) {
+    public static func setTags(_ tags: [String: String]) {
         print("🔥 OSUser sendTags() called")
         // TODO: Implementation
     }
 
     @objc
-    public func removeTag(_ tag: String) {
+    public static func removeTag(_ tag: String) {
         print("🔥 OSUser removeTag() called")
         // TODO: Implementation
     }
 
     @objc
-    public func removeTags(_ tags: [String]) {
+    public static func removeTags(_ tags: [String]) {
         print("🔥 OSUser removeTags() called")
         // TODO: Implementation
     }
 
     @objc
-    public func getTag(_ tag: String) {
+    public static func getTag(_ tag: String) {
         print("🔥 OSUser getTag() called")
     }
 
-    // Outcomes
+    // MARK: - Outcomes
 
     @objc
-    public func setOutcome(_ name: String) {
+    public static func setOutcome(_ name: String) {
         print("🔥 OSUser sendOutcome() called")
     }
 
     @objc
-    public func setUniqueOutcome(_ name: String) {
+    public static func setUniqueOutcome(_ name: String) {
         print("🔥 OSUser setUniqueOutcome() called")
     }
 
     @objc
-    public func setOutcome(name: String, value: Float) {
+    public static func setOutcome(name: String, value: Float) {
         print("🔥 OSUser setOutcomeWithValue() called")
     }
 
-    // Email
+    // MARK: - Email
 
     @objc
-    public func addEmail(_ email: String) {
+    public static func addEmail(_ email: String) {
         print("🔥 OSUser addEmail() called")
     }
 
     @objc
-    public func removeEmail(_ email: String) {
+    public static func removeEmail(_ email: String) {
         print("🔥 OSUser removeEmail() called")
     }
 
-    // SMS
+    // MARK: - SMS
 
     @objc
-    public func addSmsNumber(_ number: String) {
-        print("🔥 OSUser addPhoneNumber() called")
+    public static func addSmsNumber(_ number: String) {
+        print("🔥 OSUser addSmsNumber() called")
     }
 
     @objc
-    public func removeSmsNumber(_ number: String) {
-        print("🔥 OSUser removePhoneNumber() called")
+    public static func removeSmsNumber(_ number: String) {
+        print("🔥 OSUser removeSmsNumber() called")
     }
 
-    // Triggers
+    // MARK: - Triggers
 
     @objc
-    public func setTrigger(key: String, value: String) {
+    public static func setTrigger(key: String, value: String) {
         // TODO: UM Value for trigger can be non-string
         print("🔥 OSUser setTrigger() called")
     }
 
     @objc
-    public func setTriggers(_ triggers: [String: String]) {
+    public static func setTriggers(_ triggers: [String: String]) {
         print("🔥 OSUser setTriggers() called")
     }
 
     @objc
-    public func removeTrigger(_ trigger: String) {
+    public static func removeTrigger(_ trigger: String) {
         print("🔥 OSUser removeTrigger() called")
     }
 
     @objc
-    public func removeTriggers(_ triggers: [String]) {
+    public static func removeTriggers(_ triggers: [String]) {
         print("🔥 OSUser removeTriggers() called")
     }
-
 }
