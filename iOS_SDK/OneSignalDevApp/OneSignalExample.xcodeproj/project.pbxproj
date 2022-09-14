@@ -37,6 +37,8 @@
 		94735169291C5A68000D91D3 /* LiveActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94735147291C4702000D91D3 /* LiveActivityController.swift */; };
 		CACBAAB6218A7136000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
 		CACBAAB7218A713C000ACAA5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CACBAAB5218A7136000ACAA5 /* WebKit.framework */; };
+		DE12F3F7289B2B7F002F63AA /* OneSignalOSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE12F3F6289B2B7F002F63AA /* OneSignalOSCore.framework */; };
+		DE12F3F8289B2B7F002F63AA /* OneSignalOSCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE12F3F6289B2B7F002F63AA /* OneSignalOSCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE68DA5B24C7695900FC95A8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA5A24C7695900FC95A8 /* AppDelegate.m */; };
 		DE68DA5E24C7695900FC95A8 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA5D24C7695900FC95A8 /* SceneDelegate.m */; };
 		DE68DA6124C7695900FC95A8 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE68DA6024C7695900FC95A8 /* ViewController.m */; };
@@ -133,6 +135,7 @@
 			files = (
 				DE7D180827026BB5002D3A5D /* OneSignalCore.framework in Embed Frameworks */,
 				DE9717762756E6E100FC409E /* OneSignalExtension.framework in Embed Frameworks */,
+				DE12F3F8289B2B7F002F63AA /* OneSignalOSCore.framework in Embed Frameworks */,
 				DE7D18C527038240002D3A5D /* OneSignalOutcomes.framework in Embed Frameworks */,
 				DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */,
 				DEA4B4512888B01000E9FE12 /* OneSignalUser.framework in Embed Frameworks */,
@@ -179,6 +182,7 @@
 		9473515C291C4EDC000D91D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		94735162291C4EE3000D91D3 /* OneSignalWidgetExtensionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalWidgetExtensionExtension.entitlements; sourceTree = "<group>"; };
 		CACBAAB5218A7136000ACAA5 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		DE12F3F6289B2B7F002F63AA /* OneSignalOSCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalOSCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE138BFD2523CFA300AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE138BFF2523CFA700AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE138C012523CFAD00AB46A3 /* libOneSignal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libOneSignal.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -215,6 +219,7 @@
 				DEA4B4502888B01000E9FE12 /* OneSignalUser.framework in Frameworks */,
 				DE7D18C427038240002D3A5D /* OneSignalOutcomes.framework in Frameworks */,
 				03432CDC1EBD426A0071FC48 /* CoreLocation.framework in Frameworks */,
+				DE12F3F7289B2B7F002F63AA /* OneSignalOSCore.framework in Frameworks */,
 				9112E8A71E724EE00022A1CB /* SystemConfiguration.framework in Frameworks */,
 				DEA226F8261F74060092FF58 /* OneSignal.framework in Frameworks */,
 				DE9717752756E6E000FC409E /* OneSignalExtension.framework in Frameworks */,
@@ -316,6 +321,7 @@
 		9112E8A21E724DCA0022A1CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DE12F3F6289B2B7F002F63AA /* OneSignalOSCore.framework */,
 				DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */,
 				DE7D18C327038240002D3A5D /* OneSignalOutcomes.framework */,
 				DE7D181D27026C02002D3A5D /* OneSignalExtension.framework */,
