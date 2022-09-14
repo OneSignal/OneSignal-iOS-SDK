@@ -29,47 +29,53 @@ import Foundation
 
 public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     associatedtype TModel: OSModel
-    
+
     var store: OSModelStore<TModel> { get }
-    // TODO: UM Operation Repo
-    // var opRepo: OSOperationRepo {get}
-    
-    init(_ store: OSModelStore<TModel>)
-    
-    func getAddOperation(_ model: TModel) -> OSOperation?
-    
-    func getRemoveOperation(_ model: TModel) -> OSOperation?
-    
-    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation?
+
+    init(store: OSModelStore<TModel>)
+
+    func getAddModelDelta(_ model: TModel) -> OSDelta?
+
+    func getRemoveModelDelta(_ model: TModel) -> OSDelta?
+
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta?
 }
 
 extension OSModelStoreListener {
     public func start() {
         store.changeSubscription.subscribe(self)
     }
-    
+
     func close() {
         store.changeSubscription.unsubscribe(self)
     }
 
-    public func added(_ model: OSModel) {
-        print("🔥 OSModelStoreListener.added() with model \(model)")
-        if let operation = getAddOperation(model as! Self.TModel) {
-            // opRepo.enqueue(operation)
+    public func onAdded(_ model: OSModel) {
+        print("🔥 OSModelStoreListener.onAdded() with model \(model)")
+        guard let addedModel = model as? Self.TModel else {
+            // TODO: log error
+            return
+        }
+        if let delta = getAddModelDelta(addedModel) {
+            OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
 
-    public func updated(_ args: OSModelChangedArgs) {
-        print("🔥 OSModelStoreListener.updated() with args \(args)")
-        if let operation = getUpdateOperation(args) {
-            // opRepo.enqueue(operation)
+    public func onUpdated(_ args: OSModelChangedArgs) {
+        print("🔥 OSModelStoreListener.onUpdated() with args \(args)")
+        if let delta = getUpdateModelDelta(args) {
+            OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
-    
-    public func removed(_ model: OSModel) {
-        print("🔥 OSModelStoreListener.removed() with model \(model)")
-        if let operation = getRemoveOperation(model as! Self.TModel) {
-            // opRepo.enqueue(operation)
+
+    public func onRemoved(_ model: OSModel) {
+        print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
+        guard let removedModel = model as? Self.TModel else {
+            // TODO: log error
+            return
+        }
+        if let delta = getRemoveModelDelta(removedModel) {
+            OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
 }

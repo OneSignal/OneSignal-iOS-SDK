@@ -41,14 +41,14 @@ public class OSModelChangedArgs: NSObject {
     /**
      The old value of the property, prior to it being changed.
      */
-    public let oldValue: AnyObject?
+    public let oldValue: Any?
 
     /**
      The new value of the property, after it has been changed.
      */
-    public let newValue: AnyObject?
-    
-    init(model: OSModel, property: String, oldValue: AnyObject?, newValue: AnyObject?) {
+    public let newValue: Any?
+
+    init(model: OSModel, property: String, oldValue: Any?, newValue: Any?) {
         self.model = model
         self.property = property
         self.oldValue = oldValue
@@ -57,5 +57,5 @@ public class OSModelChangedArgs: NSObject {
 }
 
 public protocol OSModelChangedHandler {
-    func onChanged(args: OSModelChangedArgs)
+    func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool)
 }

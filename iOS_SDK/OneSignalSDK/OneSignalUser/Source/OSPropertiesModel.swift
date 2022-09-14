@@ -30,18 +30,48 @@ import OneSignalOSCore
 
 class OSPropertiesModel: OSModel {
     var language: String? {
-        didSet  {
+        didSet {
             print("🔥 didSet OSPropertiesModel.language from \(oldValue) to \(language).")
-            self.set(name: "language", value: language)
+            self.set(property: "language", oldValue: oldValue, newValue: language)
         }
     }
-    var tags: [String : String] = [:] {
-        didSet  {
+    var tags: [String: String] = [:] {
+        didSet {
             print("🔥 didSet OSPropertiesModel.tags from \(oldValue) to \(tags).")
-            self.set(name: "tags", value: tags)
+            self.set(property: "tags", oldValue: oldValue, newValue: tags)
         }
     }
-    
-    // ... and more ...
-}
 
+    // ... and more ...
+
+    // MARK: - Initialization
+
+    // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
+    override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        super.init(changeNotifier: changeNotifier)
+    }
+
+    override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
+        coder.encode(language, forKey: "language")
+        coder.encode(tags, forKey: "tags")
+        // ... and more
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        language = coder.decodeObject(forKey: "language") as? String
+        guard let tags = coder.decodeObject(forKey: "tags") as? [String: String] else {
+            // log error
+            return
+        }
+        self.tags = tags
+
+        // ... and more
+    }
+
+    public override func hydrateModel(_ response: [String: String]) {
+        print("🔥 OSPropertiesModel hydrateModel()")
+        // TODO: Update Model properties with the response
+    }
+}
