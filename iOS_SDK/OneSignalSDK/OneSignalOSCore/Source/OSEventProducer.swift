@@ -28,9 +28,9 @@
 import Foundation
 
 public class OSEventProducer<THandler>: NSObject {
-    
+
     var subscribers: [THandler] = []
-    
+
     public func subscribe(_ handler: THandler) {
         print("🔥 OSEventProducer.subscribe() called with handler: \(handler)")
         // TODO: UM do we want to synchronize on subscribers
@@ -46,7 +46,7 @@ public class OSEventProducer<THandler>: NSObject {
 
     public func fire(callback: (THandler) -> Void) {
         print("🔥 OSEventProducer.fire() called with the following subscribers:")
-        dump(subscribers)
+        // dump(subscribers) -> uncomment for more verbose log during testing
         for subscriber in subscribers {
             callback(subscriber)
         }

@@ -28,26 +28,29 @@
 import Foundation
 import OneSignalOSCore
 
+// MARK: - Properties Model Store Listener
+
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
- 
-    required init(_ store: OSModelStore<OSPropertiesModel>) {
+
+    required init(store: OSModelStore<OSPropertiesModel>) {
         self.store = store
     }
-    
-    func getAddOperation(_ model: OSPropertiesModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+
+    func getAddModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
+        return nil
     }
-    
-    func getRemoveOperation(_ model: OSPropertiesModel) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+
+    func getRemoveModelDelta(_ model: OSPropertiesModel) -> OSDelta? {
+        return nil
     }
-    
-    func getUpdateOperation(_ args: OSModelChangedArgs) -> OSOperation? {
-        // TODO: Implementation
-        return OSOperation()
+
+    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        return OSDelta(
+            name: "OSUpdatePropertyDelta", // TODO: Don't hardcode
+            model: args.model,
+            property: args.property,
+            value: args.newValue
+        )
     }
-    
 }

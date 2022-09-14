@@ -35,15 +35,15 @@ public protocol OSModelStoreChangedHandler {
     /**
      Called when a model has been added to the model store.
      */
-    func added(_ model: OSModel)
-    
+    func onAdded(_ model: OSModel)
+
     /**
      Called when a model has been updated.
      */
-    func updated(_ args: OSModelChangedArgs)
-    
+    func onUpdated(_ args: OSModelChangedArgs)
+
     /**
      Called when a model has been removed from the model store.
      */
-    func removed(_ model: OSModel)
+    func onRemoved(_ model: OSModel)
 }

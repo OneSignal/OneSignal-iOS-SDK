@@ -26,31 +26,18 @@
  */
 
 import Foundation
-import OneSignalOSCore
 
-// MARK: - Identity Model Store Listener
+public protocol OSOperationExecutor {
+    var supportedDeltas: [String] { get }
+    var deltaQueue: [OSDelta] { get }
+    var operationQueue: [OSOperation] { get }
 
-class OSIdentityModelStoreListener: OSModelStoreListener {
-    var store: OSModelStore<OSIdentityModel>
+    func start()
+    func enqueueDelta(_ delta: OSDelta)
+    func cacheDeltaQueue()
+    func processDeltaQueue()
 
-    required init(store: OSModelStore<OSIdentityModel>) {
-        self.store = store
-    }
-
-    func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
-        return nil
-    }
-
-    func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
-        return nil
-    }
-
-    func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        return OSDelta(
-            name: "OSUpdateIdentityDelta", // TODO: Don't hardcode.
-            model: args.model,
-            property: args.property,
-            value: args.newValue
-        )
-    }
+    func enqueueOperation(_ operation: OSOperation)
+    func processOperationQueue()
+    func executeOperation(_ operation: OSOperation)
 }

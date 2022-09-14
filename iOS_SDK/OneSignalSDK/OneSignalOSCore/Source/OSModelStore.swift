@@ -26,50 +26,80 @@
  */
 
 import Foundation
+import OneSignalCore
 
 open class OSModelStore<TModel: OSModel>: NSObject {
+    let storeKey: String
     let changeSubscription: OSEventProducer<OSModelStoreChangedHandler>
-    var models: [String : TModel] = [:]
-    
-    public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>) {
+    var models: [String: TModel]
+
+    public init(changeSubscription: OSEventProducer<OSModelStoreChangedHandler>, storeKey: String) {
+        self.storeKey = storeKey
         self.changeSubscription = changeSubscription
-    }
-    
-    public func add(id: String, model: TModel) {
-        print("🔥 OSModelStore add with model \(model)")
-        // TODO: UM persist the new model to storage.
-        models[id] = model
-        
-        // listen for changes to this model
-        model.changeNotifier.subscribe(self)
-        
-        self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.added(model)
+
+        // read models from cache, if any
+        if let models = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: self.storeKey, defaultValue: [:]) as? [String: TModel] {
+            self.models = models
+        } else {
+            // log error
+            self.models = [:]
         }
     }
-    
+
+    public func getModels() -> [String: TModel] {
+        return self.models
+    }
+
+    public func add(id: String, model: TModel) {
+        print("🔥 OSModelStore add with model \(model)")
+
+        models[id] = model
+
+        // persist the models (including new model) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+
+        // listen for changes to this model
+        model.changeNotifier?.subscribe(self)
+
+        self.changeSubscription.fire { modelStoreListener in
+            modelStoreListener.onAdded(model)
+        }
+    }
+
     func remove(_ id: String) {
         print("🔥 OSModelStore remove with model \(id)")
         if let model = models[id] {
             models.removeValue(forKey: id)
+
+            // persist the models (with removed model) to storage
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+
             // no longer listen for changes to this model
-            model.changeNotifier.unsubscribe(self)
-            // TODO: Remove the model from storage
+            model.changeNotifier?.unsubscribe(self)
+
             self.changeSubscription.fire { modelStoreListener in
-                modelStoreListener.removed(model)
+                modelStoreListener.onRemoved(model)
             }
         }
+    }
+
+    func clear() { // TODO: Prefer to use an observer pattern like `onUserChanged`
+        // remove models from the cache
     }
 }
 
 extension OSModelStore: OSModelChangedHandler {
-    public func onChanged(args: OSModelChangedArgs) {
+    public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
         print("🔥 OSModelStore.onChanged() with args \(args)")
-        // TODO: Persist the changed model to storage. Consider batching.
 
+        // persist the changed models to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
+
+        guard !hydrating else {
+            return
+        }
         self.changeSubscription.fire { modelStoreListener in
-            modelStoreListener.updated(args)
+            modelStoreListener.onUpdated(args)
         }
     }
 }
-

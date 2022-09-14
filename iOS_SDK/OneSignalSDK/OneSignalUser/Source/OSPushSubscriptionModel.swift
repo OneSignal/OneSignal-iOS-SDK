@@ -35,11 +35,11 @@ import OneSignalOSCore
 
 @objc
 public class OSPushSubscriptionState: NSObject {
-    @objc public let subscriptionId: UUID
+    @objc public let subscriptionId: UUID?
     @objc public let token: UUID?
     @objc public let enabled: Bool
 
-    init(subscriptionId: UUID, token: UUID?, enabled: Bool) {
+    init(subscriptionId: UUID?, token: UUID?, enabled: Bool) {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled
@@ -50,7 +50,7 @@ public class OSPushSubscriptionState: NSObject {
  This is the push subscription interface exposed to the public.
  */
 @objc public protocol OSPushSubscriptionInterface {
-    var subscriptionId: UUID { get }
+    var subscriptionId: UUID? { get }
     var token: UUID? { get }
     var enabled: Bool { get set }
 }
@@ -59,7 +59,7 @@ public class OSPushSubscriptionState: NSObject {
  Internal push subscription model that implements the public-facing OSUser protocol.
  */
 class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
-    @objc public let subscriptionId: UUID
+    @objc public private(set) var subscriptionId: UUID?
     @objc public private(set) var token: UUID?
     @objc public var enabled = false { // this should default to false when first created
         didSet {
@@ -70,19 +70,34 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
     func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
         // TODO: UM name and scope of function
         // TODO: UM update model, add operation to backend
-
         _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
         _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
-        
-        self.set(name: "enabled", value: newValue)
+
+        // use hydrating bool to determine calling self.set
+        self.set(property: "enabled", oldValue: oldValue, newValue: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
 
-    init(subscriptionId: UUID, token: UUID?, enabled: Bool?) {
-        self.subscriptionId = subscriptionId
+    // When this PushSubscription is initialized, it will not have a subscriptionId until a request to the backend is made.
+    init(token: UUID?, enabled: Bool?) {
         self.token = token
         self.enabled = enabled ?? false
-        super.init(OSEventProducer())
+        // TODO: What should be the id of this model?
+        super.init(changeNotifier: OSEventProducer())
+    }
+
+    override func encode(with coder: NSCoder) {
+        super.encode(with: coder)
+        coder.encode(subscriptionId, forKey: "subscriptionId")
+        coder.encode(token, forKey: "token")
+        coder.encode(enabled, forKey: "enabled")
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? UUID
+        token = coder.decodeObject(forKey: "token") as? UUID
+        enabled = (coder.decodeObject(forKey: "enabled") != nil) // TODO: Not correct!
     }
 }
