@@ -34,7 +34,7 @@
 
 
 @interface OSPushSubscriptionTestObserver: NSObject<OSPushSubscriptionObserver>
-- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscription * _Nonnull)previous current:(OSPushSubscription * _Nonnull)current;
+- (void)onOSPushSubscriptionChangedWithPrevious:(OSPushSubscriptionState * _Nonnull)previous current:(OSPushSubscriptionState * _Nonnull)current;
 @end
 
 @implementation OSPushSubscriptionTestObserver
@@ -62,17 +62,17 @@
 - (void)testUserModelMethodAccess {
 
     // User Identity
-    __block OSUser* myUser = OneSignal.user;
+    __block id<OSUser> myUser = OneSignal.user;
 
-    [OneSignal login:@"foo" withResult:^(OSUser * _Nonnull user) {
+    [OneSignal login:@"foo" withResult:^(id<OSUser> _Nonnull user) {
         myUser = user;
     }];
 
-    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(OSUser * _Nonnull user) {
+    [OneSignal login:@"foo" withToken:@"someToken" withResult:^(id<OSUser> _Nonnull user) {
         myUser = user;
     }];
 
-    [OneSignal loginGuest:^(OSUser * _Nonnull user) {
+    [OneSignal loginGuest:^(id<OSUser> _Nonnull user) {
         myUser = user;
     }];
 
@@ -117,7 +117,7 @@
 - (void)testTheseShouldNotWork {
     
     // Should not be accessible
-    OSUser *user = OneSignalUserManager.user; // This shouldn't be accessible to the public
+    id<OSUser> user = OneSignalUserManager.user;
     
     // Should not be settable
     // OneSignal.user.pushSubscription.token = [NSUUID new]; // <- Confirmed that users can't set token
@@ -130,7 +130,7 @@
 - (void)testPushSubscriptionPropertiesAccess {
     
     // Create a user and mock pushSubscription
-    OSUser* user = OneSignal.user;
+    id<OSUser> user = OneSignal.user;
     [user testCreatePushSubscriptionWithSubscriptionId:[NSUUID new] token:[NSUUID new] enabled:false];
 
     // Access properties of the pushSubscription
@@ -145,8 +145,35 @@
     OSPushSubscriptionTestObserver* observer = [OSPushSubscriptionTestObserver new];
     
     // Push subscription observers are not user-scoped
-    [OneSignal addSubscriptionObserver:observer];
-    [OneSignal removeSubscriptionObserver:observer];
+//    [OneSignal addSubscriptionObserver:observer];
+//    [OneSignal removeSubscriptionObserver:observer];
+}
+
+/**
+ Test the model repo hook up via a login with external ID and setting alias.
+ Test the operation repo hookup as well and check the deltas being enqueued and flushed.
+ */
+- (void)testModelAndOperationRepositoryHookUpWithLoginAndSetAlias {
+    // login an user with external ID
+    [OneSignal login:@"user01" withResult:^(id<OSUser> _Nonnull user) {
+       NSLog(@"🔥 Unit Tests: logged in user is %@", user);
+    }];
+    
+    id<OSUser> user = OneSignal.user;
+    
+    // Check that deltas for alias (Identity) are created correctly and enqueued.
+    NSLog(@"🔥 Unit Tests adding alias label_01: user_01");
+    [user addAliasWithLabel:@"label_01" id:@"user_01"];
+    [user removeAlias:@"nonexistent"];
+    [user removeAlias:@"label_01"];
+    [user addAliasWithLabel:@"label_02" id:@"user_02"];
+    [user addAliases:@{@"test1": @"user1", @"test2": @"user2", @"test3": @"user3"}];
+    [user removeAliases:@[@"test1", @"label_01", @"test2"]];
+    
+    [user setTagWithKey:@"foo" value:@"bar"];
+    
+    // Sleep to allow the flush to be called 1 time.
+    [NSThread sleepForTimeInterval:6.0f];
 }
 
 @end
