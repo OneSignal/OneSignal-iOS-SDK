@@ -28,41 +28,47 @@
 import Foundation
 
 @objc
-open class OSModel: NSObject {
-    
-    public var id: String? {
-        didSet  {
-            print("🔥 didSet OSModel.id from \(oldValue) to \(id).")
-            self.set(name: "id", value: id)
-        }
-    }
-    var data: [String : AnyObject?] = [:]
-    let changeNotifier: OSEventProducer<OSModelChangedHandler>
+open class OSModel: NSObject, NSCoding {
+    public var changeNotifier: OSEventProducer<OSModelChangedHandler>? // MUST set after initWithCoder
+    private var hydrating = false // TODO: Starts out false?
 
-    public init(_ changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+    public init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.changeNotifier = changeNotifier
     }
-    
-    public func set<T>(name: String, value: T) {
-        
-        let oldValue = data[name] as AnyObject // Error encountered: Argument type 'AnyObject?' expected to be an instance of a class or class-constrained type
-        
-        let newValue = value as AnyObject // Error encountered: Cannot assign value of type 'T' to subscript of type 'AnyObject??'
-        
-        if (oldValue === newValue) { return }
-            
-        data[name] = newValue
 
-        let changeArgs = OSModelChangedArgs(model: self, property: name, oldValue: oldValue, newValue: newValue)
-        self.changeNotifier.fire { modelChangeHandler in
-            modelChangeHandler.onChanged(args: changeArgs)
+    open func encode(with coder: NSCoder) {
+    }
+
+    public required init?(coder: NSCoder) {
+    }
+
+    // We can add operation name to this... , such as enum of "updated", "deleted", "added"
+    public func set<T>(property: String, oldValue: T, newValue: T) {
+        guard let changeNotifier = self.changeNotifier else {
+            // TODO: Log an Error, that we have a model that doesn't have a changenotif set on it
+            print("🔥 OSModel changeNotifier is not set!")
+            return
+        }
+
+        let changeArgs = OSModelChangedArgs(model: self, property: property, oldValue: oldValue, newValue: newValue)
+
+        changeNotifier.fire { modelChangeHandler in
+            modelChangeHandler.onModelUpdated(args: changeArgs, hydrating: self.hydrating)
         }
     }
 
-    public func get<T>(_ name: String) -> T {
-        return data[name] as! T
+    /**
+     This function receives a server response and updates the model's properties.
+     */
+    public func hydrate(_ response: [String: String]) {
+        // TODO: Thread safety when processing server responses to hydrate models.
+        self.hydrating = true
+        hydrateModel(response) // Calls model-specific hydration logic
+        self.hydrating = false
     }
 
-    // TODO: Other get function which creates if not found
+    open func hydrateModel(_ response: [String: String]) {
+        // TODO: Log as an error.
+        print("Error: Function must be overridden.")
+    }
 }
-

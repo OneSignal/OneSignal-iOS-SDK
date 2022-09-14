@@ -40,8 +40,8 @@ extension OneSignal {
 class OSPushSubscriptionTestObserver: OSPushSubscriptionObserver {
     func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState) {
         print("🔥 onOSPushSubscriptionChanged \(previous) -> \(current)")
-        dump(previous)
-        dump(current)
+        // dump(previous) -> uncomment for more verbose log during testing
+        // dump(current) -> uncomment for more verbose log during testing
     }
 }
 
@@ -117,9 +117,8 @@ class UserModelSwiftTests: XCTestCase {
      */
     func testTheseShouldNotWork() throws {
         // Should not be accessible
-        _ = OneSignalUserManager.user; // This shouldn't be accessible to the public
+        _ = OneSignalUserManager.user
 
-        
         // Should not be settable
         // OneSignal.user.pushSubscription.token = UUID() // <- Confirmed that users can't set token
         // OneSignal.user.pushSubscription.subscriptionId = UUID() // <- Confirmed that users can't set subscriptionId
@@ -146,25 +145,34 @@ class UserModelSwiftTests: XCTestCase {
 
         // Push subscription observers are not user-scoped
         // TODO: UM The following does not build as of now
-//         OneSignal.addSubscriptionObserver(observer)
-//         OneSignal.removeSubscriptionObserver(observer)
+        // OneSignal.addSubscriptionObserver(observer)
+        // OneSignal.removeSubscriptionObserver(observer)
     }
-    
+
     /**
      Test the model repo hook up via a login with external ID and setting alias.
+     Test the operation repo hookup as well and check the deltas being enqueued and flushed.
      */
-    func testModelRepositoryHookUpWithLoginAndSetAlias() throws {
+    func testModelAndOperationRepositoryHookUpWithLoginAndSetAlias() throws {
         // login an user with external ID
         OneSignal.login("user01", withResult: { user in
             print("🔥 Unit Tests: logged in user is \(user)")
         })
-        
+
         let user = OneSignal.user
-        
+
+        // Check that deltas for alias (Identity) are created correctly and enqueued.
         print("🔥 Unit Tests adding alias label_01: user_01")
         user.addAlias(label: "label_01", id: "user_01")
-        
-        print("🔥 Unit Tests adding alias label_02: user_02")
+        user.removeAlias("nonexistent")
+        user.removeAlias("label_01")
         user.addAlias(label: "label_02", id: "user_02")
+        user.addAliases(["test1": "user1", "test2": "user2", "test3": "user3"])
+        user.removeAliases(["test1", "label_01", "test2"])
+
+        user.setTag(key: "foo", value: "bar")
+
+        // Sleep to allow the flush to be called 1 time.
+        Thread.sleep(forTimeInterval: 6)
     }
 }
