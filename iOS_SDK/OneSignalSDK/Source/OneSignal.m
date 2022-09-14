@@ -612,30 +612,16 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 #pragma mark User Model - User Identity 🔥
 // TODO: UM Actual implementations
-
-+ (id<OSUser> _Nonnull)user { // TODO: _Nullable
-    OSUserInternal *user = [OneSignalUserManager user];
-    // TODO: Remove below. Don't call loginGuest.
-    if (!user) {
-            user = [OneSignalUserManager loginGuest];
-        }
-    return user;
++ (Class<OSUser>)User {
+    return [OSUserInternal class];
 }
 
-+ (void)login:(NSString * _Nonnull)externalId withResult:(OSUserLoginBlock)block{
-    OSUserInternal *user = [OneSignalUserManager login:externalId];
-    block(user);
++ (void)login:(NSString * _Nonnull)externalId {
+    [OneSignalUserManager login:externalId];
 }
 
-+ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token withResult:(OSUserLoginBlock)block{
-    OSUserInternal *user = [OneSignalUserManager loginWithExternalId:externalId withToken:token];
-    block(user);
-}
-
-// treat this like "device model"
-+ (void)loginGuest:(OSUserLoginBlock)block {
-    OSUserInternal *user = [OneSignalUserManager loginGuest];
-    block(user);
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
+    [OneSignalUserManager loginWithExternalId:externalId withToken:token];
 }
 
 /*
