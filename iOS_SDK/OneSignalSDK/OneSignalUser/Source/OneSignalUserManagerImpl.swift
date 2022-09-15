@@ -33,23 +33,69 @@ import OneSignalOSCore
  Public-facing API to access the User Manager.
  */
 @objc protocol OneSignalUserManager {
-    static var user: OSUserInternalImpl? { get set }
+    static var User: OSUser.Type { get }
     static func login(_ externalId: String) -> OSUserInternalImpl
     static func login(externalId: String, withToken: String) -> OSUserInternalImpl
     static func loginGuest() -> OSUserInternalImpl
 }
 
+/**
+ This is the user interface exposed to the public.
+ */
+@objc public protocol OSUser {
+    static var pushSubscription: OSPushSubscriptionInterface { get }
+    // Aliases
+    static func addAlias(label: String, id: String)
+    static func addAliases(_ aliases: [String: String])
+    static func removeAlias(_ label: String)
+    static func removeAliases(_ labels: [String])
+    // Tags
+    static func setTag(key: String, value: String)
+    static func setTags(_ tags: [String: String])
+    static func removeTag(_ tag: String)
+    static func removeTags(_ tags: [String])
+    static func getTag(_ tag: String)
+    // Outcomes
+    static func setOutcome(_ name: String)
+    static func setUniqueOutcome(_ name: String)
+    static func setOutcome(name: String, value: Float)
+    // Email
+    static func addEmail(_ email: String)
+    static func removeEmail(_ email: String)
+    // SMS
+    static func addSmsNumber(_ number: String)
+    static func removeSmsNumber(_ number: String)
+    // Triggers
+    static func setTrigger(key: String, value: String)
+    static func setTriggers(_ triggers: [String: String])
+    static func removeTrigger(_ trigger: String)
+    static func removeTriggers(_ triggers: [String])
+
+    // TODO: UM This is a temporary function to create a push subscription for testing
+    static func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool)
+}
+
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
-    @objc public static var user: OSUserInternalImpl?
-
+    static var user: OSUserInternal {
+        if let user = _user {
+            return user
+        }
+    
+        let user = _login(externalId: nil, withToken: nil)
+        _user = user
+        return user
+    }
+    
+    private static var _user: OSUserInternal?
+    
     // has Identity and Properties Model Stores
-    static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL_STORE") // TODO: Don't hardcode
-    static var propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: "OS_PROPERTIES_MODEL_STORE") // TODO: Don't hardcode
+    static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL_STORE") // TODO: Don't hardcode
+    static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: "OS_PROPERTIES_MODEL_STORE") // TODO: Don't hardcode
 
     // TODO: UM, and Model Store Listeners: where do they live? Here for now.
-    static var identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
-    static var propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
+    static let identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
+    static let propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
 
     // has Property and Identity operation executors
     static let propertyExecutor = OSPropertyOperationExecutor()
@@ -159,5 +205,100 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             identityModel: identityModel,
             propertiesModel: propertiesModel)
         return user
+    }
+}
+
+extension OneSignalUserManagerImpl: OSUser {
+    public static var User: OSUser.Type {
+        return self
+    }
+
+    public static var pushSubscription: OSPushSubscriptionInterface {
+        return user.pushSubscription
+    }
+        
+    public static func addAlias(label: String, id: String) {
+        user.addAlias(label: label, id: id)
+    }
+    
+    public static func addAliases(_ aliases: [String : String]) {
+        user.addAliases(aliases)
+    }
+    
+    public static func removeAlias(_ label: String) {
+        user.removeAlias(label)
+    }
+    
+    public static func removeAliases(_ labels: [String]) {
+        user.removeAliases(labels)
+    }
+    
+    public static func setTag(key: String, value: String) {
+        user.setTag(key: key, value: value)
+    }
+    
+    public static func setTags(_ tags: [String : String]) {
+        user.setTags(tags)
+    }
+    
+    public static func removeTag(_ tag: String) {
+        user.removeTag(tag)
+    }
+    
+    public static func removeTags(_ tags: [String]) {
+        user.removeTags(tags)
+    }
+    
+    // TODO: No tag getter?
+    public static func getTag(_ tag: String) {
+        user.getTag(tag)
+    }
+    
+    public static func setOutcome(_ name: String) {
+        user.setOutcome(name)
+    }
+    
+    public static func setUniqueOutcome(_ name: String) {
+        user.setUniqueOutcome(name)
+    }
+    
+    public static func setOutcome(name: String, value: Float) {
+        user.setOutcome(name: name, value: value)
+    }
+    
+    public static func addEmail(_ email: String) {
+        user.addEmail(email)
+    }
+    
+    public static func removeEmail(_ email: String) {
+        user.removeEmail(email)
+    }
+    
+    public static func addSmsNumber(_ number: String) {
+        user.addSmsNumber(number)
+    }
+    
+    public static func removeSmsNumber(_ number: String) {
+        user.removeSmsNumber(number)
+    }
+    
+    public static func setTrigger(key: String, value: String) {
+        user.setTrigger(key: key, value: value)
+    }
+    
+    public static func setTriggers(_ triggers: [String : String]) {
+        user.setTriggers(triggers)
+    }
+    
+    public static func removeTrigger(_ trigger: String) {
+        user.removeTrigger(trigger)
+    }
+    
+    public static func removeTriggers(_ triggers: [String]) {
+        user.removeTriggers(triggers)
+    }
+    
+    public static func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
+        user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
     }
 }
