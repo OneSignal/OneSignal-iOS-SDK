@@ -67,10 +67,10 @@ class OSIdentityModel: OSModel {
 
     // MARK: - Alias Methods
 
-    func setAlias(label: String, id: String) {
+    func addAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either?
-        print("🔥 OSIdentityModel.setAlias \(label) : \(id).")
+        print("🔥 OSIdentityModel.addAlias \(label) : \(id).")
         let oldValue: String? = aliases[label]
         aliases[label] = id
         self.set(property: "aliases", oldValue: ["label": label, "id": oldValue], newValue: ["label": label, "id": id])

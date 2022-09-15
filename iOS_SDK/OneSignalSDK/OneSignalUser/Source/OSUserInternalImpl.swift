@@ -32,197 +32,175 @@ import OneSignalOSCore
 /**
  This is the user interface exposed to the public.
  */
-@objc public protocol OSUser {
-    var pushSubscription: OSPushSubscriptionInterface { get } // TODO: static var
+protocol OSUserInternal {
+    var pushSubscription: OSPushSubscriptionInterface { get }
+    var identityModel: OSIdentityModel { get }
+    var propertiesModel: OSPropertiesModel { get }
     // Aliases
-    static func addAlias(label: String, id: String)
-    static func addAliases(_ aliases: [String: String])
-    static func removeAlias(_ label: String)
-    static func removeAliases(_ labels: [String])
+    func addAlias(label: String, id: String)
+    func addAliases(_ aliases: [String: String])
+    func removeAlias(_ label: String)
+    func removeAliases(_ labels: [String])
     // Tags
-    static func setTag(key: String, value: String)
-    static func setTags(_ tags: [String: String])
-    static func removeTag(_ tag: String)
-    static func removeTags(_ tags: [String])
-    static func getTag(_ tag: String)
+    func setTag(key: String, value: String)
+    func setTags(_ tags: [String: String])
+    func removeTag(_ tag: String)
+    func removeTags(_ tags: [String])
+    func getTag(_ tag: String)
     // Outcomes
-    static func setOutcome(_ name: String)
-    static func setUniqueOutcome(_ name: String)
-    static func setOutcome(name: String, value: Float)
+    func setOutcome(_ name: String)
+    func setUniqueOutcome(_ name: String)
+    func setOutcome(name: String, value: Float)
     // Email
-    static func addEmail(_ email: String)
-    static func removeEmail(_ email: String)
+    func addEmail(_ email: String)
+    func removeEmail(_ email: String)
     // SMS
-    static func addSmsNumber(_ number: String)
-    static func removeSmsNumber(_ number: String)
+    func addSmsNumber(_ number: String)
+    func removeSmsNumber(_ number: String)
     // Triggers
-    static func setTrigger(key: String, value: String)
-    static func setTriggers(_ triggers: [String: String])
-    static func removeTrigger(_ trigger: String)
-    static func removeTriggers(_ triggers: [String])
+    func setTrigger(key: String, value: String)
+    func setTriggers(_ triggers: [String: String])
+    func removeTrigger(_ trigger: String)
+    func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) // TODO: static
+    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool)
 }
 
 /**
- Internal user object that implements the public-facing OSUser protocol.
- Class made public because it is used in OneSignalUserManager which is public.
+ Internal user object that implements the OSUserInternal protocol.
  */
-public class OSUserInternalImpl: NSObject, OSUser {
-    // TODO: make properties static
-    var triggers: [String: String] = [:] // update to include bool, number
+class OSUserInternalImpl: NSObject, OSUserInternal {
+    var triggers: [String: String] = [:] // TODO: update to include bool, number...
 
-    // email, sms, subscriptions todo
-
-    @objc public var pushSubscription: OSPushSubscriptionInterface
+    var identityModel: OSIdentityModel
+    var propertiesModel: OSPropertiesModel
+    var pushSubscription: OSPushSubscriptionInterface
+    // TODO: email, sms subscriptions
 
     // Sessions will be outside this?
 
-    // Owns an Identity Model and Properties Model
-    var identityModel: OSIdentityModel
-    var propertiesModel: OSPropertiesModel
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    @objc public func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) { // TODO: static
-        self.pushSubscription = OSPushSubscriptionModel(token: token, enabled: enabled)
-        print("🔥 OSUser has set pushSubcription for testing")
+    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
+        pushSubscription = OSPushSubscriptionModel(token: token, enabled: enabled)
+        print("🔥 OSUserInternalImpl has set pushSubcription for testing")
     }
 
-    init(pushSubscription: OSPushSubscriptionModel, identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel) { // TODO: don't init instances
-        self.pushSubscription = pushSubscription
+    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscription: OSPushSubscriptionModel) {
         self.identityModel = identityModel
         self.propertiesModel = propertiesModel
-        // workaround for didSet: call initializeProperties(...)
+        self.pushSubscription = pushSubscription
     }
 
     // MARK: - Aliases
 
-    @objc
-    public static func addAlias(label: String, id: String) {
+    
+    func addAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either??
-        print("🔥 OSUser addAlias() called")
-        // identityModel.setAlias(label: label, id: id) // TODO: Uncomment
+        print("🔥 OSUserInternalImpl addAlias() called")
+        identityModel.addAlias(label: label, id: id)
     }
 
-    @objc
-    public static func addAliases(_ aliases: [String: String]) {
+    func addAliases(_ aliases: [String: String]) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either??
-        print("🔥 OSUser addAliases() called")
+        print("🔥 OSUserInternalImpl addAliases() called")
         // Don't make separate calls resulting in many deltas
         for alias in aliases {
             addAlias(label: alias.key, id: alias.value)
         }
     }
 
-    @objc
-    public static func removeAlias(_ label: String) {
-        print("🔥 OSUser removeAlias() called")
-        // self.identityModel.removeAlias(label) // TODO: Uncomment
+    func removeAlias(_ label: String) {
+        print("🔥 OSUserInternalImpl removeAlias() called")
+        self.identityModel.removeAlias(label)
     }
 
-    @objc
-    public static func removeAliases(_ labels: [String]) {
-        print("🔥 OSUser removeAliases() called")
+    func removeAliases(_ labels: [String]) {
+        print("🔥 OSUserInternalImpl removeAliases() called")
         for label in labels {
             removeAlias(label)
         }
     }
 
     // MARK: - Tags
-
-    @objc
-    public static func setTag(key: String, value: String) {
-        print("🔥 OSUser sendTag() called")
-        // self.propertiesModel.tags[key] = value // TODO: Uncomment
+    
+    func setTag(key: String, value: String) {
+        print("🔥 OSUserInternalImpl sendTag() called")
+        self.propertiesModel.tags[key] = value
     }
 
-    @objc
-    public static func setTags(_ tags: [String: String]) {
-        print("🔥 OSUser sendTags() called")
+    func setTags(_ tags: [String: String]) {
+        print("🔥 OSUserInternalImpl sendTags() called")
         // TODO: Implementation
     }
 
-    @objc
-    public static func removeTag(_ tag: String) {
-        print("🔥 OSUser removeTag() called")
+    func removeTag(_ tag: String) {
+        print("🔥 OSUserInternalImpl removeTag() called")
         // TODO: Implementation
     }
 
-    @objc
-    public static func removeTags(_ tags: [String]) {
-        print("🔥 OSUser removeTags() called")
+    func removeTags(_ tags: [String]) {
+        print("🔥 OSUserInternalImpl removeTags() called")
         // TODO: Implementation
     }
 
-    @objc
-    public static func getTag(_ tag: String) {
-        print("🔥 OSUser getTag() called")
+    func getTag(_ tag: String) {
+        print("🔥 OSUserInternalImpl getTag() called")
     }
 
     // MARK: - Outcomes
 
-    @objc
-    public static func setOutcome(_ name: String) {
-        print("🔥 OSUser sendOutcome() called")
+    func setOutcome(_ name: String) {
+        print("🔥 OSUserInternalImpl sendOutcome() called")
     }
 
-    @objc
-    public static func setUniqueOutcome(_ name: String) {
-        print("🔥 OSUser setUniqueOutcome() called")
+    func setUniqueOutcome(_ name: String) {
+        print("🔥 OSUserInternalImpl setUniqueOutcome() called")
     }
 
-    @objc
-    public static func setOutcome(name: String, value: Float) {
-        print("🔥 OSUser setOutcomeWithValue() called")
+    func setOutcome(name: String, value: Float) {
+        print("🔥 OSUserInternalImpl setOutcomeWithValue() called")
     }
 
     // MARK: - Email
 
-    @objc
-    public static func addEmail(_ email: String) {
-        print("🔥 OSUser addEmail() called")
+    func addEmail(_ email: String) {
+        print("🔥 OSUserInternalImpl addEmail() called")
     }
 
-    @objc
-    public static func removeEmail(_ email: String) {
-        print("🔥 OSUser removeEmail() called")
+    func removeEmail(_ email: String) {
+        print("🔥 OSUserInternalImpl removeEmail() called")
     }
 
     // MARK: - SMS
 
-    @objc
-    public static func addSmsNumber(_ number: String) {
-        print("🔥 OSUser addSmsNumber() called")
+    func addSmsNumber(_ number: String) {
+        print("🔥 OSUserInternalImpl addSmsNumber() called")
     }
 
-    @objc
-    public static func removeSmsNumber(_ number: String) {
-        print("🔥 OSUser removeSmsNumber() called")
+    func removeSmsNumber(_ number: String) {
+        print("🔥 OSUserInternalImpl removeSmsNumber() called")
     }
 
     // MARK: - Triggers
 
-    @objc
-    public static func setTrigger(key: String, value: String) {
+    func setTrigger(key: String, value: String) {
         // TODO: UM Value for trigger can be non-string
-        print("🔥 OSUser setTrigger() called")
+        print("🔥 OSUserInternalImpl setTrigger() called")
     }
 
-    @objc
-    public static func setTriggers(_ triggers: [String: String]) {
-        print("🔥 OSUser setTriggers() called")
+    func setTriggers(_ triggers: [String: String]) {
+        print("🔥 OSUserInternalImpl setTriggers() called")
     }
 
-    @objc
-    public static func removeTrigger(_ trigger: String) {
-        print("🔥 OSUser removeTrigger() called")
+    func removeTrigger(_ trigger: String) {
+        print("🔥 OSUserInternalImpl removeTrigger() called")
     }
 
-    @objc
-    public static func removeTriggers(_ triggers: [String]) {
-        print("🔥 OSUser removeTriggers() called")
+    func removeTriggers(_ triggers: [String]) {
+        print("🔥 OSUserInternalImpl removeTriggers() called")
     }
 }
