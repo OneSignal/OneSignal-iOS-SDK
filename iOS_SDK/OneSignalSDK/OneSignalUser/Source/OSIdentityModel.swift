@@ -46,6 +46,11 @@ class OSIdentityModel: OSModel {
     override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
     }
+    
+    init(externalId: String?, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        self.externalId = externalId // TODO: check didSet is not called
+        super.init(changeNotifier: changeNotifier)
+    }
 
     override func encode(with coder: NSCoder) {
         super.encode(with: coder)
