@@ -32,16 +32,16 @@ import OneSignalOSCore
 /**
  Public-facing API to access the User Manager.
  */
-@objc protocol OneSignalUserManagerInterface {
-    static var user: OSUserInternal? { get set }
-    static func login(_ externalId: String) -> OSUserInternal
-    static func login(externalId: String, withToken: String) -> OSUserInternal
-    static func loginGuest() -> OSUserInternal
+@objc protocol OneSignalUserManager {
+    static var user: OSUserInternalImpl? { get set }
+    static func login(_ externalId: String) -> OSUserInternalImpl
+    static func login(externalId: String, withToken: String) -> OSUserInternalImpl
+    static func loginGuest() -> OSUserInternalImpl
 }
 
 @objc
-public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
-    @objc public static var user: OSUserInternal?
+public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
+    @objc public static var user: OSUserInternalImpl?
 
     // has Identity and Properties Model Stores
     static var identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL_STORE") // TODO: Don't hardcode
@@ -66,8 +66,8 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
 
     static func startModelStoreListenersAndExecutors() {
         // Model store listeners subscribe to their models. TODO: Where should these live?
-        OneSignalUserManager.identityModelStoreListener.start()
-        OneSignalUserManager.propertiesModelStoreListener.start()
+        OneSignalUserManagerImpl.identityModelStoreListener.start()
+        OneSignalUserManagerImpl.propertiesModelStoreListener.start()
 
         // Setup the executors
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
@@ -75,7 +75,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     }
 
     @objc
-    public static func login(_ externalId: String) -> OSUserInternal {
+    public static func login(_ externalId: String) -> OSUserInternalImpl {
         print("🔥 OneSignalUserManager login() called")
         startModelStoreListenersAndExecutors()
 
@@ -107,14 +107,14 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
     }
 
     @objc
-    public static func login(externalId: String, withToken: String) -> OSUserInternal {
+    public static func login(externalId: String, withToken: String) -> OSUserInternalImpl {
         print("🔥 OneSignalUser loginwithBearerToken() called")
         // validate the token
         return login(externalId)
     }
 
     @objc
-    public static func loginGuest() -> OSUserInternal {
+    public static func loginGuest() -> OSUserInternalImpl {
         print("🔥 OneSignalUserManager loginGuest() called")
         startModelStoreListenersAndExecutors()
 
@@ -130,7 +130,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         return user
     }
 
-    static func loadUserFromCache() -> OSUserInternal? {
+    static func loadUserFromCache() -> OSUserInternalImpl? {
         // Corrupted state if one exists without the other.
         guard !identityModelStore.getModels().isEmpty &&
                 !propertiesModelStore.getModels().isEmpty // TODO: Check pushSubscriptionModel as well.
@@ -145,7 +145,7 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         let propertiesModel = propertiesModelStore.getModels().first!.value
         let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false) // Modify to get from cache.
 
-        let user = OSUserInternal(
+        let user = OSUserInternalImpl(
             pushSubscription: pushSubscription,
             identityModel: identityModel,
             propertiesModel: propertiesModel)
@@ -153,8 +153,8 @@ public class OneSignalUserManager: NSObject, OneSignalUserManagerInterface {
         return user
     }
 
-    static func createUser(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscription: OSPushSubscriptionModel) -> OSUserInternal {
-        let user = OSUserInternal(
+    static func createUser(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscription: OSPushSubscriptionModel) -> OSUserInternalImpl {
+        let user = OSUserInternalImpl(
             pushSubscription: pushSubscription,
             identityModel: identityModel,
             propertiesModel: propertiesModel)

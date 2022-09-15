@@ -69,7 +69,7 @@ import OneSignalOSCore
  Internal user object that implements the public-facing OSUser protocol.
  Class made public because it is used in OneSignalUserManager which is public.
  */
-public class OSUserInternal: NSObject, OSUser {
+public class OSUserInternalImpl: NSObject, OSUser {
     // TODO: make properties static
     var triggers: [String: String] = [:] // update to include bool, number
 
