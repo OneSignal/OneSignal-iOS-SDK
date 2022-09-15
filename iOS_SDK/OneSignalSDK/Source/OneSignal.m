@@ -583,15 +583,19 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 #pragma mark User Model - User Identity 🔥
 // TODO: UM Actual implementations
 + (Class<OSUser>)User {
-    return [OSUserInternal class];
+    return [OneSignalUserManagerImpl User];
 }
 
 + (void)login:(NSString * _Nonnull)externalId {
-    [OneSignalUserManager login:externalId];
+    [OneSignalUserManagerImpl loginWithExternalId:externalId withToken:nil];
 }
 
-+ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token {
-    [OneSignalUserManager loginWithExternalId:externalId withToken:token];
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
+    [OneSignalUserManagerImpl loginWithExternalId:externalId withToken:token];
+}
+
++ (void)logout {
+    [OneSignalUserManagerImpl logout];
 }
 
 /*

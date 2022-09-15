@@ -34,9 +34,8 @@ import OneSignalOSCore
  */
 @objc protocol OneSignalUserManager {
     static var User: OSUser.Type { get }
-    static func login(_ externalId: String) -> OSUserInternalImpl
-    static func login(externalId: String, withToken: String) -> OSUserInternalImpl
-    static func loginGuest() -> OSUserInternalImpl
+    static func login(externalId: String?, withToken: String?)
+    static func logout()
 }
 
 /**
@@ -103,17 +102,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     static func start() {
         // TODO: Finish implementation
-        // Read from cache, set stuff up
-        // Read the models from User Defaults
-
         // startModelStoreListenersAndExecutors() moves here after this start() method is hooked up.
-        self.user = loadUserFromCache() // TODO: Revisit when to load user from the cache.
+        loadUserFromCache() // TODO: Revisit when to load user from the cache.
     }
 
     static func startModelStoreListenersAndExecutors() {
         // Model store listeners subscribe to their models. TODO: Where should these live?
-        OneSignalUserManagerImpl.identityModelStoreListener.start()
-        OneSignalUserManagerImpl.propertiesModelStoreListener.start()
+        identityModelStoreListener.start()
+        propertiesModelStoreListener.start()
 
         // Setup the executors
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
@@ -121,67 +117,52 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     @objc
-    public static func login(_ externalId: String) -> OSUserInternalImpl {
-        print("🔥 OneSignalUserManager login() called")
+    public static func login(externalId: String?, withToken: String?) {
+       _ = _login(externalId: externalId, withToken: withToken)
+    }
+    
+    private static func _login(externalId: String?, withToken: String?) -> OSUserInternal {
+        print("🔥 OneSignalUserManagerImpl login() called")
         startModelStoreListenersAndExecutors()
+        
+        
+        // If have token, validate token. Account for this being a requirement.
 
         // Check if the existing user is the same one being logged in. If so, return.
-        if let user = self.user {
-            guard user.identityModel.externalId != externalId else {
+        if let user = _user {
+            guard (user.identityModel.externalId != externalId) || externalId == nil else {
                 return user
             }
         }
-
-        // 1. Attempt to retrieve user from backend?
-        // 2. Attempt to retrieve user from cache or stores? (No, done in start() method for now)
-
-        // 3. Create new user
+        
+        // Create new user
         // TODO: Remove/take care of the old user's information.
 
-        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
-        self.identityModelStore.add(id: externalId, model: identityModel)
-        identityModel.externalId = externalId // TODO: Don't fire this change.
+        let identityModel = OSIdentityModel(externalId: externalId, changeNotifier: OSEventProducer())
+        self.identityModelStore.add(id: "OS_IDENTITY_MODEL_KEY", model: identityModel) // TODO: dont hardcode
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        self.propertiesModelStore.add(id: externalId, model: propertiesModel)
+        self.propertiesModelStore.add(id: "OS_PROPERTIES_MODEL_KEY", model: propertiesModel) // TODO: dont hardcode
 
         let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
-
-        let user = createUser(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
-        self.user = user
-        return user
+        // TODO: Add push subscription to store
+        
+        self._user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
+        return self.user
     }
 
     @objc
-    public static func login(externalId: String, withToken: String) -> OSUserInternalImpl {
-        print("🔥 OneSignalUser loginwithBearerToken() called")
-        // validate the token
-        return login(externalId)
+    public static func logout() {
+        // TODO: Clear the models cache
+        _user = nil
     }
 
-    @objc
-    public static func loginGuest() -> OSUserInternalImpl {
-        print("🔥 OneSignalUserManager loginGuest() called")
-        startModelStoreListenersAndExecutors()
-
-        // TODO: Another user in cache? Remove old user's info?
-
-        // TODO: model logic for guest users
-        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
-        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
-
-        let user = createUser(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
-        self.user = user
-        return user
-    }
-
-    static func loadUserFromCache() -> OSUserInternalImpl? {
+    static func loadUserFromCache() {
         // Corrupted state if one exists without the other.
         guard !identityModelStore.getModels().isEmpty &&
                 !propertiesModelStore.getModels().isEmpty // TODO: Check pushSubscriptionModel as well.
         else {
-            return nil
+            return
         }
 
         // TODO: Need to load any SMS and emails subs too
@@ -189,23 +170,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // There is a user in the cache
         let identityModel = identityModelStore.getModels().first!.value
         let propertiesModel = propertiesModelStore.getModels().first!.value
-        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false) // Modify to get from cache.
+        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false) // TODO: Modify to get from cache.
 
-        let user = OSUserInternalImpl(
-            pushSubscription: pushSubscription,
-            identityModel: identityModel,
-            propertiesModel: propertiesModel)
-
-        return user
+        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
     }
 
-    static func createUser(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscription: OSPushSubscriptionModel) -> OSUserInternalImpl {
-        let user = OSUserInternalImpl(
-            pushSubscription: pushSubscription,
-            identityModel: identityModel,
-            propertiesModel: propertiesModel)
-        return user
-    }
 }
 
 extension OneSignalUserManagerImpl: OSUser {

@@ -294,7 +294,8 @@ typedef void (^OSFailureBlock)(NSError* error);
 #pragma mark User Model - User Identity 🔥
 + (Class<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;
-+ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nonnull)token;
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token;
++ (void)logout;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId; // TODO: UM renamed to just 1 method: initialize()
