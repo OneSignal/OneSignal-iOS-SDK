@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 import OneSignalOSCore
 
 // MARK: - Identity Model Store Listener
@@ -47,7 +48,7 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
         return OSDelta(
-            name: "OSUpdateIdentityDelta", // TODO: Don't hardcode.
+            name: OS_UPDATE_IDENTITY_DELTA,
             model: args.model,
             property: args.property,
             value: args.newValue
