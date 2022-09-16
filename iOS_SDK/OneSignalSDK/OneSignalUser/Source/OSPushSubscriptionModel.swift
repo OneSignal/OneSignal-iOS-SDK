@@ -49,7 +49,7 @@ public class OSPushSubscriptionState: NSObject {
 /**
  This is the push subscription interface exposed to the public.
  */
-@objc public protocol OSPushSubscriptionInterface {
+@objc public protocol OSPushSubscriptionInterface { // TODO: Renaming of this protocol?
     var subscriptionId: UUID? { get }
     var token: UUID? { get }
     var enabled: Bool { get set }
