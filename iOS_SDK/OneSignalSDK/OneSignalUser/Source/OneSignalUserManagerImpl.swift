@@ -89,8 +89,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     private static var _user: OSUserInternal?
 
     // has Identity and Properties Model Stores
-    static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: "OS_IDENTITY_MODEL_STORE") // TODO: Don't hardcode
-    static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: "OS_PROPERTIES_MODEL_STORE") // TODO: Don't hardcode
+    static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
+    static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
 
     // TODO: UM, and Model Store Listeners: where do they live? Here for now.
     static let identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
@@ -138,10 +138,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // TODO: Remove/take care of the old user's information.
 
         let identityModel = OSIdentityModel(externalId: externalId, changeNotifier: OSEventProducer())
-        self.identityModelStore.add(id: "OS_IDENTITY_MODEL_KEY", model: identityModel) // TODO: dont hardcode
+        self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        self.propertiesModelStore.add(id: "OS_PROPERTIES_MODEL_KEY", model: propertiesModel) // TODO: dont hardcode
+        self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
 
         let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
         // TODO: Add push subscription to store
