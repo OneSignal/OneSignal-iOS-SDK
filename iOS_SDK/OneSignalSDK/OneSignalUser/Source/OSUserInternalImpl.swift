@@ -80,7 +80,6 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     // Sessions will be outside this?
 
-
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
         pushSubscription = OSPushSubscriptionModel(token: token, enabled: enabled)
@@ -95,7 +94,6 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     // MARK: - Aliases
 
-    
     func addAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either??
@@ -126,7 +124,7 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     }
 
     // MARK: - Tags
-    
+
     func setTag(key: String, value: String) {
         print("🔥 OSUserInternalImpl sendTag() called")
         self.propertiesModel.tags[key] = value
