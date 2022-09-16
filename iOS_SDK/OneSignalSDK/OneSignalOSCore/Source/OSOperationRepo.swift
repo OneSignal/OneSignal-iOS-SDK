@@ -50,8 +50,8 @@ public class OSOperationRepo: NSObject {
      */
     func start() -> OSOperationRepo {
         print("🔥 OSOperationRepo start()")
-        // Read the Deltas from cache, if any... TODO: Don't hardcode key value
-        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", defaultValue: []) as? [OSDelta] {
+        // Read the Deltas from cache, if any...
+        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
         } else {
             // log error
@@ -85,7 +85,7 @@ public class OSOperationRepo: NSObject {
         deltaQueue.append(delta)
 
         // Persist the deltas (including new delta) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
     func flushDeltaQueue() {
@@ -106,7 +106,7 @@ public class OSOperationRepo: NSObject {
         }
 
         // Persist the deltas (including removed deltas) to storage after they are divvy'd up to executors.
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: "OS_OPERATION_REPO_DELTA_QUEUE", withValue: self.deltaQueue)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
 
         for executor in executors {
             executor.cacheDeltaQueue()
