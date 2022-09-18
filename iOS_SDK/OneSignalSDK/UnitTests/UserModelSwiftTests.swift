@@ -82,7 +82,6 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.User.setTags(["foo": "foo1", "bar": "bar2"])
         OneSignal.User.removeTag("foo")
         OneSignal.User.removeTags(["foo", "bar"])
-        OneSignal.User.getTag("foo")
 
         // Outcomes
         OneSignal.User.setOutcome("foo")

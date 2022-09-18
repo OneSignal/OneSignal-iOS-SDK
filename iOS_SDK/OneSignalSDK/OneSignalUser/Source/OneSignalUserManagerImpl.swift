@@ -53,7 +53,6 @@ import OneSignalOSCore
     static func setTags(_ tags: [String: String])
     static func removeTag(_ tag: String)
     static func removeTags(_ tags: [String])
-    static func getTag(_ tag: String)
     // Outcomes
     static func setOutcome(_ name: String)
     static func setUniqueOutcome(_ name: String)
@@ -218,11 +217,6 @@ extension OneSignalUserManagerImpl: OSUser {
 
     public static func removeTags(_ tags: [String]) {
         user.removeTags(tags)
-    }
-
-    // TODO: No tag getter?
-    public static func getTag(_ tag: String) {
-        user.getTag(tag)
     }
 
     public static func setOutcome(_ name: String) {
