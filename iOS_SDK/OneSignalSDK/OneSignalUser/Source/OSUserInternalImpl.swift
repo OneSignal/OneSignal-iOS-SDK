@@ -46,7 +46,6 @@ protocol OSUserInternal {
     func setTags(_ tags: [String: String])
     func removeTag(_ tag: String)
     func removeTags(_ tags: [String])
-    func getTag(_ tag: String)
     // Outcomes
     func setOutcome(_ name: String)
     func setUniqueOutcome(_ name: String)
@@ -149,10 +148,6 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     func removeTags(_ tags: [String]) {
         print("🔥 OSUserInternalImpl removeTags() called")
         // TODO: Implementation
-    }
-
-    func getTag(_ tag: String) {
-        print("🔥 OSUserInternalImpl getTag() called")
     }
 
     // MARK: - Outcomes
