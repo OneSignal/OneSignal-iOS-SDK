@@ -294,7 +294,12 @@ typedef void (^OSFailureBlock)(NSError* error);
 #pragma mark User Model - User Identity 🔥
 + (Class<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;
-+ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token;
++ (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
+NS_SWIFT_NAME(login(externalId:token:));
++ (void)loginWithAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId
+NS_SWIFT_NAME(login(aliasLabel:aliasId:));
++ (void)loginWithAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId withToken:(NSString * _Nullable)token
+NS_SWIFT_NAME(login(aliasLabel:aliasId:token:));
 + (void)logout;
 
 #pragma mark Initialization
