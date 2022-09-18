@@ -97,6 +97,12 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     func addAlias(label: String, id: String) {
         // Don't let them use `onesignal_id` as an alias label
         // Don't let them use `external_id` either??
+        guard label != OS_ONESIGNAL_ID else {
+            // log error
+            print("🔥 OSUserInternal addAlias: Cannot use onesignal_id as a label")
+            return
+        }
+
         print("🔥 OSUserInternalImpl addAlias() called")
         identityModel.addAlias(label: label, id: id)
     }
