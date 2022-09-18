@@ -64,7 +64,12 @@ class UserModelSwiftTests: XCTestCase {
 
         // User Identity
         OneSignal.login("foo")
-        OneSignal.login("foo", withToken: "someToken")
+        OneSignal.login(externalId: "foo", token: "someToken")
+        OneSignal.login(externalId: "foo", token: nil)
+        OneSignal.login(aliasLabel: "foo", aliasId: "bar")
+        OneSignal.login(aliasLabel: "foo", aliasId: "bar", token: "someToken")
+        OneSignal.login(aliasLabel: "foo", aliasId: "bar", token: nil)
+        OneSignal.logout()
 
         // Aliases
         OneSignal.User.addAlias(label: "foo", id: "bar")
@@ -156,5 +161,15 @@ class UserModelSwiftTests: XCTestCase {
 
         // Sleep to allow the flush to be called 1 time.
         Thread.sleep(forTimeInterval: 6)
+    }
+
+    /**
+     Test login and logout and creation of guest users.
+     */
+    func testLoginLogout() throws {
+        // A guest user is created when OneSignal.User is accessed
+        OneSignal.User.addEmail("test@email.com")
+
+        // ... and more to be added
     }
 }
