@@ -303,6 +303,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
 #pragma mark User Model
 
+#define OS_ONESIGNAL_ID                                                     @"onesignal_id"
 #define OS_EXTERNAL_ID                                                      @"external_id"
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
