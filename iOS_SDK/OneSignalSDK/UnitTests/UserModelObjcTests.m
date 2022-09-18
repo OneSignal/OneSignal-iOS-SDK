@@ -64,6 +64,11 @@
     // User Identity
     [OneSignal login:@"foo"];
     [OneSignal login:@"foo" withToken:@"someToken"];
+    [OneSignal login:@"foo" withToken:nil];
+    [OneSignal loginWithAliasLabel:@"foo" withAliasId:@"bar"];
+    [OneSignal loginWithAliasLabel:@"foo" withAliasId:@"bar" withToken:@"someToken"];
+    [OneSignal loginWithAliasLabel:@"foo" withAliasId:@"bar" withToken:nil];
+    [OneSignal logout];
 
     // Aliases
     [OneSignal.User addAliasWithLabel:@"foo" id:@"foo1"];
@@ -153,6 +158,16 @@
     
     // Sleep to allow the flush to be called 1 time.
     [NSThread sleepForTimeInterval:6.0f];
+}
+
+/**
+ Test login and logout and creation of guest users.
+ */
+- (void)testLoginLogout {
+    // A guest user is created when OneSignal.User is accessed
+    [OneSignal.User addEmail:@"test@email.com"];
+    
+    // ... and more to be added
 }
 
 @end
