@@ -137,7 +137,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         // Create new user
-        // TODO: Remove/take care of the old user's information.
+
+        // Notify that the user will change so model stores, etc can clear their cache.
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
         let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
@@ -154,7 +156,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     @objc
     public static func logout() {
-        // TODO: Clear the models cache
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
         _user = nil
     }
 
@@ -175,7 +177,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
     }
-
 }
 
 extension OneSignalUserManagerImpl: OSUser {
