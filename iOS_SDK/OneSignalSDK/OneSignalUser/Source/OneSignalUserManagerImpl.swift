@@ -34,7 +34,7 @@ import OneSignalOSCore
  */
 @objc protocol OneSignalUserManager {
     static var User: OSUser.Type { get }
-    static func login(externalId: String?, withToken: String?)
+    static func login(aliasLabel: String, aliasId: String, token: String?)
     static func logout()
 }
 
@@ -81,7 +81,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return user
         }
 
-        let user = _login(externalId: nil, withToken: nil)
+        // There is no user instance, initialize a "guest user"
+        let user = _login(aliasLabel: nil, aliasId: nil, token: nil)
         _user = user
         return user
     }
@@ -117,19 +118,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     @objc
-    public static func login(externalId: String?, withToken: String?) {
-       _ = _login(externalId: externalId, withToken: withToken)
+    public static func login(aliasLabel: String, aliasId: String, token: String?) {
+        print("🔥 OneSignalUserManagerImpl login(label: \(aliasLabel), id: \(aliasId)) called")
+        _ = _login(aliasLabel: aliasLabel, aliasId: aliasId, token: token)
     }
 
-    private static func _login(externalId: String?, withToken: String?) -> OSUserInternal {
-        print("🔥 OneSignalUserManagerImpl login() called")
+    private static func _login(aliasLabel: String?, aliasId: String?, token: String?) -> OSUserInternal {
+        print("🔥 OneSignalUserManagerImpl private _login(label: \(aliasLabel), id: \(aliasId)) called")
         startModelStoreListenersAndExecutors()
 
         // If have token, validate token. Account for this being a requirement.
 
         // Check if the existing user is the same one being logged in. If so, return.
-        if let user = _user {
-            guard (user.identityModel.externalId != externalId) || externalId == nil else {
+        if let user = _user, let label = aliasLabel {
+            guard user.identityModel.aliases[label] != aliasId else {
                 return user
             }
         }
@@ -137,7 +139,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Create new user
         // TODO: Remove/take care of the old user's information.
 
-        let identityModel = OSIdentityModel(externalId: externalId, changeNotifier: OSEventProducer())
+        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
