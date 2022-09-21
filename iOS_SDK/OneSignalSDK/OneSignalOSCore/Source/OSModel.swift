@@ -70,5 +70,6 @@ open class OSModel: NSObject, NSCoding {
     open func hydrateModel(_ response: [String: String]) {
         // TODO: Log as an error.
         print("Error: Function must be overridden.")
+        fatalError("hydrateModel(response:) has not been implemented")
     }
 }

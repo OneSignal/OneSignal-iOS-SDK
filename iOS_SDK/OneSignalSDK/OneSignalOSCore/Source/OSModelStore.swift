@@ -61,7 +61,8 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
     public func add(id: String, model: TModel) {
         print("🔥 OSModelStore add with model \(model)")
-
+        // TODO: Check if we are adding the same model?
+            // For example, calling addEmail multiple times with the same email
         models[id] = model
 
         // persist the models (including new model) to storage
@@ -75,8 +76,10 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         }
     }
 
-    func remove(_ id: String) {
+    public func remove(_ id: String) {
         print("🔥 OSModelStore remove with model \(id)")
+        // TODO: Nothing will happen if model doesn't exist in the store
+            // Determine if that's correct behavior or if we should still create an Operation
         if let model = models[id] {
             models.removeValue(forKey: id)
 

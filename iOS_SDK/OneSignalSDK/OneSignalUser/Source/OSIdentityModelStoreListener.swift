@@ -29,8 +29,6 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-// MARK: - Identity Model Store Listener
-
 class OSIdentityModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSIdentityModel>
 
