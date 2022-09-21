@@ -581,17 +581,26 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 #pragma mark User Model 🔥
 
 #pragma mark User Model - User Identity 🔥
-// TODO: UM Actual implementations
+
 + (Class<OSUser>)User {
     return [OneSignalUserManagerImpl User];
 }
 
 + (void)login:(NSString * _Nonnull)externalId {
-    [OneSignalUserManagerImpl loginWithExternalId:externalId withToken:nil];
+    [OneSignalUserManagerImpl loginWithAliasLabel:OS_EXTERNAL_ID aliasId:externalId token:nil];
+    // refine Swift name for Obj-C? But doesn't matter as much since this isn't public API
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
-    [OneSignalUserManagerImpl loginWithExternalId:externalId withToken:token];
+    [OneSignalUserManagerImpl loginWithAliasLabel:OS_EXTERNAL_ID aliasId:externalId token:token];
+}
+
++ (void)loginWithAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId {
+    [OneSignalUserManagerImpl loginWithAliasLabel:aliasLabel aliasId:aliasId token:nil];
+}
+
++ (void)loginWithAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId withToken:(NSString * _Nullable)token {
+    [OneSignalUserManagerImpl loginWithAliasLabel:aliasLabel aliasId:aliasId token:token];
 }
 
 + (void)logout {
