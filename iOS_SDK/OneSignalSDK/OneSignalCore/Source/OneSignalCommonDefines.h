@@ -303,6 +303,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
 #pragma mark User Model
 
+#define OS_ONESIGNAL_ID                                                     @"onesignal_id"
+#define OS_EXTERNAL_ID                                                      @"external_id"
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
 #define OS_PROPERTIES_MODEL_KEY                                             @"OS_PROPERTIES_MODEL_KEY"
@@ -316,5 +318,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY                            @"OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY                          @"OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY"
+
+#define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
 
 #endif /* OneSignalCommonDefines_h */

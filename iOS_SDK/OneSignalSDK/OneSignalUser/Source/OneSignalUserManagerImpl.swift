@@ -34,7 +34,7 @@ import OneSignalOSCore
  */
 @objc protocol OneSignalUserManager {
     static var User: OSUser.Type { get }
-    static func login(externalId: String?, withToken: String?)
+    static func login(aliasLabel: String, aliasId: String, token: String?)
     static func logout()
 }
 
@@ -53,7 +53,6 @@ import OneSignalOSCore
     static func setTags(_ tags: [String: String])
     static func removeTag(_ tag: String)
     static func removeTags(_ tags: [String])
-    static func getTag(_ tag: String)
     // Outcomes
     static func setOutcome(_ name: String)
     static func setUniqueOutcome(_ name: String)
@@ -81,7 +80,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return user
         }
 
-        let user = _login(externalId: nil, withToken: nil)
+        // There is no user instance, initialize a "guest user"
+        let user = _login(aliasLabel: nil, aliasId: nil, token: nil)
         _user = user
         return user
     }
@@ -117,27 +117,30 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     @objc
-    public static func login(externalId: String?, withToken: String?) {
-       _ = _login(externalId: externalId, withToken: withToken)
+    public static func login(aliasLabel: String, aliasId: String, token: String?) {
+        print("🔥 OneSignalUserManagerImpl login(label: \(aliasLabel), id: \(aliasId)) called")
+        _ = _login(aliasLabel: aliasLabel, aliasId: aliasId, token: token)
     }
 
-    private static func _login(externalId: String?, withToken: String?) -> OSUserInternal {
-        print("🔥 OneSignalUserManagerImpl login() called")
+    private static func _login(aliasLabel: String?, aliasId: String?, token: String?) -> OSUserInternal {
+        print("🔥 OneSignalUserManagerImpl private _login(label: \(aliasLabel), id: \(aliasId)) called")
         startModelStoreListenersAndExecutors()
 
         // If have token, validate token. Account for this being a requirement.
 
         // Check if the existing user is the same one being logged in. If so, return.
-        if let user = _user {
-            guard (user.identityModel.externalId != externalId) || externalId == nil else {
+        if let user = _user, let label = aliasLabel {
+            guard user.identityModel.aliases[label] != aliasId else {
                 return user
             }
         }
 
         // Create new user
-        // TODO: Remove/take care of the old user's information.
 
-        let identityModel = OSIdentityModel(externalId: externalId, changeNotifier: OSEventProducer())
+        // Notify that the user will change so model stores, etc can clear their cache.
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+
+        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
@@ -152,7 +155,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     @objc
     public static func logout() {
-        // TODO: Clear the models cache
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
         _user = nil
     }
 
@@ -173,7 +176,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
     }
-
 }
 
 extension OneSignalUserManagerImpl: OSUser {
@@ -215,11 +217,6 @@ extension OneSignalUserManagerImpl: OSUser {
 
     public static func removeTags(_ tags: [String]) {
         user.removeTags(tags)
-    }
-
-    // TODO: No tag getter?
-    public static func getTag(_ tag: String) {
-        user.getTag(tag)
     }
 
     public static func setOutcome(_ name: String) {

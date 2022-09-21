@@ -44,6 +44,15 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             // log error
             self.models = [:]
         }
+        super.init()
+
+        // register as user observer
+        NotificationCenter.default.addObserver(self, selector: #selector(self.clearModelsFromCache),
+                                               name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
     }
 
     public func getModels() -> [String: TModel] {
@@ -83,8 +92,10 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         }
     }
 
-    func clear() { // TODO: Prefer to use an observer pattern like `onUserChanged`
-        // remove models from the cache
+    @objc func clearModelsFromCache() {
+        print("🔥 OSModelStore \(self.storeKey): clearModelsFromCache() called.")
+        // Clear the models cache when ON_OS_USER_WILL_CHANGE
+        OneSignalUserDefaults.initShared().removeValue(forKey: self.storeKey)
     }
 }
 
