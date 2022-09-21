@@ -29,8 +29,6 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-// MARK: - Properties Model Store Listener
-
 class OSPropertiesModelStoreListener: OSModelStoreListener {
     var store: OSModelStore<OSPropertiesModel>
 
