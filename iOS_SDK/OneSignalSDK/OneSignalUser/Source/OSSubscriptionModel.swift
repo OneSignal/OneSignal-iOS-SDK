@@ -29,17 +29,19 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
+// MARK: - Push Subscription Specific
+
 @objc public protocol OSPushSubscriptionObserver { //  weak reference?
     @objc func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState)
 }
 
 @objc
 public class OSPushSubscriptionState: NSObject {
-    @objc public let subscriptionId: UUID?
-    @objc public let token: UUID?
+    @objc public let subscriptionId: String?
+    @objc public let token: String?
     @objc public let enabled: Bool
 
-    init(subscriptionId: UUID?, token: UUID?, enabled: Bool) {
+    init(subscriptionId: String?, token: String?, enabled: Bool) {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled
@@ -49,29 +51,39 @@ public class OSPushSubscriptionState: NSObject {
 /**
  This is the push subscription interface exposed to the public.
  */
-@objc public protocol OSPushSubscriptionInterface { // TODO: Renaming of this protocol?
-    var subscriptionId: UUID? { get }
-    var token: UUID? { get }
-    var enabled: Bool { get set }
+@objc public protocol OSPushSubscription {
+    static var subscriptionId: String? { get }
+    static var token: String? { get }
+    static var enabled: Bool { get set }
+}
+
+// MARK: - Subscription Model
+
+enum OSSubscriptionType: String {
+    case push, email, sms
 }
 
 /**
- Internal push subscription model that implements the public-facing OSUser protocol.
+ Internal subscription model.
  */
-class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
-    @objc public private(set) var subscriptionId: UUID?
-    @objc public private(set) var token: UUID?
-    @objc public var enabled = false { // this should default to false when first created
-        didSet {
+class OSSubscriptionModel: OSModel {
+    var type: OSSubscriptionType
+    var address: String? // This is token on push subs so must remain Optional
+    var subscriptionId: String? // Where from
+    var enabled: Bool {
+        didSet { // TODO: Revisit this
             didSetEnabledHelper(oldValue: oldValue, newValue: enabled)
         }
     }
 
+    /**
+     This helper function is for the enabled property of push subscriptions, in order to address observers.
+     */
     func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
         // TODO: UM name and scope of function
         // TODO: UM update model, add operation to backend
-        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: oldValue)
-        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.token, enabled: newValue)
+        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: oldValue)
+        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: newValue)
 
         // use hydrating bool to determine calling self.set
         self.set(property: "enabled", oldValue: oldValue, newValue: newValue)
@@ -79,25 +91,40 @@ class OSPushSubscriptionModel: OSModel, OSPushSubscriptionInterface {
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
 
-    // When this PushSubscription is initialized, it will not have a subscriptionId until a request to the backend is made.
-    init(token: UUID?, enabled: Bool?) {
-        self.token = token
-        self.enabled = enabled ?? false
-        // TODO: What should be the id of this model?
-        super.init(changeNotifier: OSEventProducer())
+    // When a Subscription is initialized, it will not have a subscriptionId until a request to the backend is made.
+    init(type: OSSubscriptionType, address: String?, enabled: Bool, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        self.type = type
+        self.address = address
+        self.enabled = enabled
+        super.init(changeNotifier: changeNotifier)
     }
 
     override func encode(with coder: NSCoder) {
         super.encode(with: coder)
+        coder.encode(type.rawValue, forKey: "type") // Encodes as String
+        coder.encode(address, forKey: "address")
         coder.encode(subscriptionId, forKey: "subscriptionId")
-        coder.encode(token, forKey: "token")
         coder.encode(enabled, forKey: "enabled")
     }
 
     required init?(coder: NSCoder) {
+        guard
+            let rawType = coder.decodeObject(forKey: "type") as? String,
+            let type = OSSubscriptionType(rawValue: rawType)
+        else {
+            // TODO: Log error
+            return nil
+        }
+        self.type = type
+        self.address = coder.decodeObject(forKey: "address") as? String
+        self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
+        self.enabled = (coder.decodeObject(forKey: "enabled") != nil) // TODO: Not correct!
         super.init(coder: coder)
-        subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? UUID
-        token = coder.decodeObject(forKey: "token") as? UUID
-        enabled = (coder.decodeObject(forKey: "enabled") != nil) // TODO: Not correct!
+    }
+
+    public override func hydrateModel(_ response: [String: String]) {
+        print("🔥 OSSubscriptionModel hydrateModel()")
+        // TODO: Update Model properties with the response
+        // What does it look like to hydrate an email or SMS model
     }
 }
