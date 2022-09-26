@@ -42,7 +42,7 @@ import OneSignalOSCore
  This is the user interface exposed to the public.
  */
 @objc public protocol OSUser {
-    static var pushSubscription: OSPushSubscriptionInterface { get }
+    static var pushSubscription: OSPushSubscription.Type { get }
     // Aliases
     static func addAlias(label: String, id: String)
     static func addAliases(_ aliases: [String: String])
@@ -70,7 +70,16 @@ import OneSignalOSCore
     static func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    static func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool)
+    static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
+}
+
+/**
+ This is the push subscription interface exposed to the public.
+ */
+@objc public protocol OSPushSubscription {
+    static var subscriptionId: String? { get }
+    static var token: String? { get }
+    static var enabled: Bool { get set }
 }
 
 @objc
@@ -88,17 +97,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     private static var _user: OSUserInternal?
 
-    // has Identity and Properties Model Stores
+    // has Identity, Properties, and Subscription Model Stores
     static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
     static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
+    static let subscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_SUBSCRIPTION_MODEL_STORE_KEY)
 
     // TODO: UM, and Model Store Listeners: where do they live? Here for now.
     static let identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
     static let propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
+    static let subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
 
     // has Property and Identity operation executors
     static let propertyExecutor = OSPropertyOperationExecutor()
     static let identityExecutor = OSIdentityOperationExecutor()
+    static let subscriptionExecutor = OSSubscriptionOperationExecutor()
 
     static func start() {
         // TODO: Finish implementation
@@ -110,10 +122,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Model store listeners subscribe to their models. TODO: Where should these live?
         identityModelStoreListener.start()
         propertiesModelStoreListener.start()
+        subscriptionModelStoreListener.start()
 
         // Setup the executors
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
+        OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
     }
 
     @objc
@@ -146,10 +160,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
 
-        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false)
-        // TODO: Add push subscription to store
+        // TODO: Push Subscription logic
+            // If and how the push subscription moves to the new user?
+            // Add the push sub to the store w/o creating a Delta?
+        let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer()
+        )
 
-        self._user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
+        self._user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
     }
 
@@ -160,21 +177,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     static func loadUserFromCache() {
-        // Corrupted state if one exists without the other.
-        guard !identityModelStore.getModels().isEmpty &&
-                !propertiesModelStore.getModels().isEmpty // TODO: Check pushSubscriptionModel as well.
+        print("🔥 OneSignalUserManagerImpl loadUserFromCache()")
+        // Corrupted state if any exists without the others
+        guard let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
+              let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
+              let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]
         else {
             return
         }
 
-        // TODO: Need to load any SMS and emails subs too
+        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        startModelStoreListenersAndExecutors()
 
-        // There is a user in the cache
-        let identityModel = identityModelStore.getModels().first!.value
-        let propertiesModel = propertiesModelStore.getModels().first!.value
-        let pushSubscription = OSPushSubscriptionModel(token: nil, enabled: false) // TODO: Modify to get from cache.
-
-        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscription: pushSubscription)
     }
 }
 
@@ -183,8 +197,8 @@ extension OneSignalUserManagerImpl: OSUser {
         return self
     }
 
-    public static var pushSubscription: OSPushSubscriptionInterface {
-        return user.pushSubscription
+    public static var pushSubscription: OSPushSubscription.Type {
+        return self
     }
 
     public static func addAlias(label: String, id: String) {
@@ -232,19 +246,45 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func addEmail(_ email: String) {
-        user.addEmail(email)
+        // Check if is valid email?
+        // Check if this email already exists on this User?
+        // Need to access `user` to login a guest user if none
+        _ = user
+        let model = OSSubscriptionModel(
+            type: .email,
+            address: email,
+            enabled: true,
+            changeNotifier: OSEventProducer()
+        )
+        self.subscriptionModelStore.add(id: email, model: model)
     }
 
     public static func removeEmail(_ email: String) {
-        user.removeEmail(email)
+        // Check if is valid email?
+        // Need to access `user` to login a guest user if none
+        _ = user
+        self.subscriptionModelStore.remove(email)
     }
 
     public static func addSmsNumber(_ number: String) {
-        user.addSmsNumber(number)
+        // Check if is valid SMS?
+        // Check if this SMS already exists on this User?
+        // Need to access `user` to login a guest user if none
+        _ = user
+        let model = OSSubscriptionModel(
+            type: .sms,
+            address: number,
+            enabled: true,
+            changeNotifier: OSEventProducer()
+        )
+        self.subscriptionModelStore.add(id: number, model: model)
     }
 
     public static func removeSmsNumber(_ number: String) {
-        user.removeSmsNumber(number)
+        // Check if is valid SMS?
+        // Need to access `user` to login a guest user if none
+        _ = user
+        self.subscriptionModelStore.remove(number)
     }
 
     public static func setTrigger(key: String, value: String) {
@@ -263,7 +303,26 @@ extension OneSignalUserManagerImpl: OSUser {
         user.removeTriggers(triggers)
     }
 
-    public static func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
+    public static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
         user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
+    }
+}
+
+extension OneSignalUserManagerImpl: OSPushSubscription {
+    public static var subscriptionId: String? {
+        user.pushSubscriptionModel.subscriptionId
+    }
+
+    public static var token: String? {
+        user.pushSubscriptionModel.address
+    }
+
+    public static var enabled: Bool {
+        get {
+            user.pushSubscriptionModel.enabled
+        }
+        set {
+            user.pushSubscriptionModel.enabled = newValue
+        }
     }
 }
