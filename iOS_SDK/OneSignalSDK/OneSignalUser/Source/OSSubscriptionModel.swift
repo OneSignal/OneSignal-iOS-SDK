@@ -109,7 +109,7 @@ class OSSubscriptionModel: OSModel {
         self.type = type
         self.address = coder.decodeObject(forKey: "address") as? String
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
-        self.enabled = (coder.decodeObject(forKey: "enabled") != nil) // TODO: Not correct!
+        self.enabled = coder.decodeBool(forKey: "enabled")
         super.init(coder: coder)
     }
 
