@@ -168,7 +168,17 @@ class UserModelSwiftTests: XCTestCase {
     func testLoginLogout() throws {
         // A guest user is created when OneSignal.User is accessed
         OneSignal.User.addEmail("test@email.com")
-
         // ... and more to be added
+    }
+
+    /**
+     Test email and sms subscriptions. 2 Deltas are created for each add.
+     */
+    func testEmailAndSmsSubscriptions() throws {
+        OneSignal.User.addEmail("test@example.com")
+        OneSignal.User.addSmsNumber("+15551231234")
+
+        // Sleep to allow the flush to be called 1 time.
+        Thread.sleep(forTimeInterval: 6)
     }
 }
