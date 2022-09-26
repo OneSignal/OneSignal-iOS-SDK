@@ -48,15 +48,6 @@ public class OSPushSubscriptionState: NSObject {
     }
 }
 
-/**
- This is the push subscription interface exposed to the public.
- */
-@objc public protocol OSPushSubscription {
-    static var subscriptionId: String? { get }
-    static var token: String? { get }
-    static var enabled: Bool { get set }
-}
-
 // MARK: - Subscription Model
 
 enum OSSubscriptionType: String {
