@@ -30,7 +30,7 @@ import Foundation
 open class OSDelta: NSObject, NSCoding {
     // TODO: Maybe need to include the old value as well. For caching, need to deal with nil old values.
     let name: String
-    public let deltaId: UUID
+    public let deltaId: String
     let timestamp: Date
     let model: OSModel
     let property: String
@@ -38,7 +38,7 @@ open class OSDelta: NSObject, NSCoding {
 
     public init(name: String, model: OSModel, property: String, value: Any?) {
         self.name = name
-        self.deltaId = UUID()
+        self.deltaId = UUID().uuidString
         self.timestamp = Date()
         self.model = model
         self.property = property
@@ -56,7 +56,7 @@ open class OSDelta: NSObject, NSCoding {
 
     public required init?(coder: NSCoder) {
         guard let name = coder.decodeObject(forKey: "name") as? String,
-              let deltaId = coder.decodeObject(forKey: "deltaId") as? UUID,
+              let deltaId = coder.decodeObject(forKey: "deltaId") as? String,
               let timestamp = coder.decodeObject(forKey: "timestamp") as? Date,
               let model = coder.decodeObject(forKey: "model") as? OSModel,
               let property = coder.decodeObject(forKey: "property") as? String,
