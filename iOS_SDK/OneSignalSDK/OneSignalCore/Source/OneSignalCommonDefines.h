@@ -309,15 +309,22 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
 #define OS_PROPERTIES_MODEL_KEY                                             @"OS_PROPERTIES_MODEL_KEY"
 #define OS_PROPERTIES_MODEL_STORE_KEY                                       @"OS_PROPERTIES_MODEL_STORE_KEY"
+#define OS_PUSH_SUBSCRIPTION_MODEL_KEY                                      @"OS_PUSH_SUBSCRIPTION_MODEL_KEY"
+#define OS_SUBSCRIPTION_MODEL_STORE_KEY                                     @"OS_SUBSCRIPTION_MODEL_STORE_KEY"
 
 #define OS_UPDATE_IDENTITY_DELTA                                            @"OS_UPDATE_IDENTITY_DELTA"
 #define OS_UPDATE_PROPERTIES_DELTA                                          @"OS_UPDATE_PROPERTIES_DELTA"
+#define OS_ADD_SUBSCRIPTION_DELTA                                           @"OS_ADD_SUBSCRIPTION_DELTA"
+#define OS_REMOVE_SUBSCRIPTION_DELTA                                        @"OS_REMOVE_SUBSCRIPTION_DELTA"
+
 
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY                            @"OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY                          @"OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY                            @"OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY                        @"OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY"
 
 #define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
 
