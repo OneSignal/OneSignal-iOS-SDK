@@ -166,14 +166,20 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer()
         )
 
-        self._user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
     }
 
     @objc
     public static func logout() {
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+        // Login a guest user
         _user = nil
+        createUserIfNil()
+    }
+
+    static func createUserIfNil() {
+        _ = self.user
     }
 
     static func loadUserFromCache() {
@@ -188,7 +194,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         startModelStoreListenersAndExecutors()
-
     }
 }
 
@@ -248,8 +253,7 @@ extension OneSignalUserManagerImpl: OSUser {
     public static func addEmail(_ email: String) {
         // Check if is valid email?
         // Check if this email already exists on this User?
-        // Need to access `user` to login a guest user if none
-        _ = user
+        createUserIfNil()
         let model = OSSubscriptionModel(
             type: .email,
             address: email,
@@ -261,16 +265,14 @@ extension OneSignalUserManagerImpl: OSUser {
 
     public static func removeEmail(_ email: String) {
         // Check if is valid email?
-        // Need to access `user` to login a guest user if none
-        _ = user
+        createUserIfNil()
         self.subscriptionModelStore.remove(email)
     }
 
     public static func addSmsNumber(_ number: String) {
         // Check if is valid SMS?
         // Check if this SMS already exists on this User?
-        // Need to access `user` to login a guest user if none
-        _ = user
+        createUserIfNil()
         let model = OSSubscriptionModel(
             type: .sms,
             address: number,
@@ -282,8 +284,7 @@ extension OneSignalUserManagerImpl: OSUser {
 
     public static func removeSmsNumber(_ number: String) {
         // Check if is valid SMS?
-        // Need to access `user` to login a guest user if none
-        _ = user
+        createUserIfNil()
         self.subscriptionModelStore.remove(number)
     }
 
