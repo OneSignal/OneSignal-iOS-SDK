@@ -47,6 +47,8 @@
         // However some requests want to load non-JSON data like HTML
         // In those cases, `dataRequest` should be true
         self.dataRequest = false;
+        
+        self.timestamp = [NSDate date];
     }
     
     return self;
