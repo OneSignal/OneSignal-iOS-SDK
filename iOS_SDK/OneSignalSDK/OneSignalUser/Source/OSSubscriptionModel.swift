@@ -77,7 +77,7 @@ class OSSubscriptionModel: OSModel {
         _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: newValue)
 
         // use hydrating bool to determine calling self.set
-        self.set(property: "enabled", oldValue: oldValue, newValue: newValue)
+        self.set(property: "enabled", newValue: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
