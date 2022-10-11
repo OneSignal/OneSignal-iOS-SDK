@@ -33,7 +33,7 @@ import OneSignalOSCore
  This is the user interface exposed to the public.
  */
 protocol OSUserInternal {
-    var pushSubscription: OSPushSubscriptionInterface { get }
+    var pushSubscriptionModel: OSSubscriptionModel { get }
     var identityModel: OSIdentityModel { get }
     var propertiesModel: OSPropertiesModel { get }
     // Aliases
@@ -50,12 +50,7 @@ protocol OSUserInternal {
     func setOutcome(_ name: String)
     func setUniqueOutcome(_ name: String)
     func setOutcome(name: String, value: Float)
-    // Email
-    func addEmail(_ email: String)
-    func removeEmail(_ email: String)
-    // SMS
-    func addSmsNumber(_ number: String)
-    func removeSmsNumber(_ number: String)
+    // Email and SMS are handled by the UserManager
     // Triggers
     func setTrigger(key: String, value: String)
     func setTriggers(_ triggers: [String: String])
@@ -63,7 +58,7 @@ protocol OSUserInternal {
     func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool)
+    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
 }
 
 /**
@@ -74,21 +69,20 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     var identityModel: OSIdentityModel
     var propertiesModel: OSPropertiesModel
-    var pushSubscription: OSPushSubscriptionInterface
-    // TODO: email, sms subscriptions
+    var pushSubscriptionModel: OSSubscriptionModel
 
     // Sessions will be outside this?
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: UUID, token: UUID, enabled: Bool) {
-        pushSubscription = OSPushSubscriptionModel(token: token, enabled: enabled)
+    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
+        pushSubscriptionModel = OSSubscriptionModel(type: .push, address: token, enabled: enabled, changeNotifier: OSEventProducer())
         print("🔥 OSUserInternalImpl has set pushSubcription for testing")
     }
 
-    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscription: OSPushSubscriptionModel) {
+    init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel) {
         self.identityModel = identityModel
         self.propertiesModel = propertiesModel
-        self.pushSubscription = pushSubscription
+        self.pushSubscriptionModel = pushSubscriptionModel
     }
 
     // MARK: - Aliases
@@ -162,26 +156,6 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     func setOutcome(name: String, value: Float) {
         print("🔥 OSUserInternalImpl setOutcomeWithValue() called")
-    }
-
-    // MARK: - Email
-
-    func addEmail(_ email: String) {
-        print("🔥 OSUserInternalImpl addEmail() called")
-    }
-
-    func removeEmail(_ email: String) {
-        print("🔥 OSUserInternalImpl removeEmail() called")
-    }
-
-    // MARK: - SMS
-
-    func addSmsNumber(_ number: String) {
-        print("🔥 OSUserInternalImpl addSmsNumber() called")
-    }
-
-    func removeSmsNumber(_ number: String) {
-        print("🔥 OSUserInternalImpl removeSmsNumber() called")
     }
 
     // MARK: - Triggers

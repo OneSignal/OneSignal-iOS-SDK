@@ -169,4 +169,15 @@
     // ... and more to be added
 }
 
+/**
+ Test email and sms subscriptions. 2 Deltas are created for each add.
+ */
+- (void)testEmailAndSmsSubscriptions {
+    [OneSignal.User addEmail:@"test@example.com"];
+    [OneSignal.User addSmsNumber:@"+15551231234"];
+    
+    // Sleep to allow the flush to be called 1 time.
+    [NSThread sleepForTimeInterval:6.0f];
+}
+
 @end
