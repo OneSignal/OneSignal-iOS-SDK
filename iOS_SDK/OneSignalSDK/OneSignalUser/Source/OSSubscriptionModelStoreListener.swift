@@ -29,27 +29,32 @@ import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
-class OSIdentityModelStoreListener: OSModelStoreListener {
-    var store: OSModelStore<OSIdentityModel>
+class OSSubscriptionModelStoreListener: OSModelStoreListener {
+    var store: OSModelStore<OSSubscriptionModel>
 
-    required init(store: OSModelStore<OSIdentityModel>) {
+    required init(store: OSModelStore<OSSubscriptionModel>) {
         self.store = store
     }
 
-    func getAddModelDelta(_ model: OSIdentityModel) -> OSDelta? {
-        return nil
+    func getAddModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
+        return OSDelta(
+            name: OS_ADD_SUBSCRIPTION_DELTA,
+            model: model,
+            property: model.type.rawValue, // push, email, sms
+            value: model.address
+        )
     }
 
-    func getRemoveModelDelta(_ model: OSIdentityModel) -> OSDelta? {
-        return nil
+    func getRemoveModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
+        return OSDelta(
+            name: OS_REMOVE_SUBSCRIPTION_DELTA,
+            model: model,
+            property: model.type.rawValue, // push, email, sms
+            value: model.address
+        )
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        return OSDelta(
-            name: OS_UPDATE_IDENTITY_DELTA,
-            model: args.model,
-            property: args.property,
-            value: args.newValue
-        )
+        return nil
     }
 }
