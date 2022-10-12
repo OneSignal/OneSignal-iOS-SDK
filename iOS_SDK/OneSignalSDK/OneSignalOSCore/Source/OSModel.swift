@@ -29,7 +29,7 @@ import Foundation
 
 @objc
 open class OSModel: NSObject, NSCoding {
-    public var changeNotifier: OSEventProducer<OSModelChangedHandler>? // MUST set after initWithCoder
+    public var changeNotifier: OSEventProducer<OSModelChangedHandler>
     private var hydrating = false // TODO: Starts out false?
 
     public init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
@@ -40,16 +40,11 @@ open class OSModel: NSObject, NSCoding {
     }
 
     public required init?(coder: NSCoder) {
+        self.changeNotifier = OSEventProducer()
     }
 
     // We can add operation name to this... , such as enum of "updated", "deleted", "added"
     public func set<T>(property: String, newValue: T) {
-        guard let changeNotifier = self.changeNotifier else {
-            // TODO: Log an Error, that we have a model that doesn't have a changenotif set on it
-            print("🔥 OSModel changeNotifier is not set!")
-            return
-        }
-
         let changeArgs = OSModelChangedArgs(model: self, property: property, newValue: newValue)
 
         changeNotifier.fire { modelChangeHandler in
