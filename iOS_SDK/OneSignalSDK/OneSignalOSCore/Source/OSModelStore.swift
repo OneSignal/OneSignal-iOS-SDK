@@ -47,7 +47,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         super.init()
 
         // register as user observer
-        NotificationCenter.default.addObserver(self, selector: #selector(self.clearModelsFromCache),
+        NotificationCenter.default.addObserver(self, selector: #selector(self.removeModelsFromUserDefaults),
                                                name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
     }
 
@@ -95,10 +95,25 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         }
     }
 
-    @objc func clearModelsFromCache() {
-        print("🔥 OSModelStore \(self.storeKey): clearModelsFromCache() called.")
-        // Clear the models cache when ON_OS_USER_WILL_CHANGE
+    /**
+     We remove this store's models from UserDefaults but not from the store itself.
+     We may still need references to model(s) in this store!
+     */
+    @objc func removeModelsFromUserDefaults() {
+        print("🔥 OSModelStore \(self.storeKey): removeModelsFromUserDefaults() called.")
+        // Clear the UserDefaults models cache when OS_ON_USER_WILL_CHANGE
+
         OneSignalUserDefaults.initShared().removeValue(forKey: self.storeKey)
+    }
+
+    /**
+     We clear this store's models but not from the UserDefaults cache.
+     When the User changes, the Subscription Model Store must remove all models.
+     In contrast, it is not necessary for the Identity or Properties Model Stores to do so.
+     */
+    public func clearModelsFromStore() {
+        print("🔥 OSModelStore \(self.storeKey): clearModelsFromStore() called.")
+        self.models = [:]
     }
 }
 
