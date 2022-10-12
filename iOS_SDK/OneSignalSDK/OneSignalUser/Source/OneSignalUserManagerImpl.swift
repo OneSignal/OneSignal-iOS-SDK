@@ -150,9 +150,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         // Create new user
-
-        // Notify that the user will change so model stores, etc can clear their cache.
-        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+        prepareForNewUser()
 
         let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
@@ -170,9 +168,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return self.user
     }
 
+    /**
+     The SDK needs to have a user at all times, so this method will create a new anonymous user.
+     */
     @objc
     public static func logout() {
-        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+        prepareForNewUser()
         // Login a guest user
         _user = nil
         createUserIfNil()
@@ -180,6 +181,17 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     static func createUserIfNil() {
         _ = self.user
+    }
+
+    /**
+     Notifies observers that the user will be changed. Responses include model stores clearing their User Defaults
+     and the operation repo flushing the current (soon to be old) user's operations.
+     */
+    static func prepareForNewUser() {
+        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+
+        // This store MUST be cleared, Identity and Properties do not.
+        subscriptionModelStore.clearModelsFromStore()
     }
 
     static func loadUserFromCache() {
