@@ -209,8 +209,8 @@ typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define OS_CHANNELS @[OS_PUSH, OS_EMAIL, OS_SMS]
 
 // OneSignal API Client Defines
-typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
-#define OS_API_CLIENT_STRINGS @[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE"]
+typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTPMethod;
+#define OS_API_CLIENT_STRINGS @[@"GET", @"POST", @"HEAD", @"PUT", @"DELETE", @"OPTIONS", @"CONNECT", @"TRACE", @"PATCH"]
 #define httpMethodString(enum) [OS_API_CLIENT_STRINGS objectAtIndex:enum]
 
 // Notification types
@@ -305,6 +305,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 
 #define OS_ONESIGNAL_ID                                                     @"onesignal_id"
 #define OS_EXTERNAL_ID                                                      @"external_id"
+
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
 #define OS_PROPERTIES_MODEL_KEY                                             @"OS_PROPERTIES_MODEL_KEY"
@@ -312,19 +313,23 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;
 #define OS_PUSH_SUBSCRIPTION_MODEL_KEY                                      @"OS_PUSH_SUBSCRIPTION_MODEL_KEY"
 #define OS_SUBSCRIPTION_MODEL_STORE_KEY                                     @"OS_SUBSCRIPTION_MODEL_STORE_KEY"
 
-#define OS_UPDATE_IDENTITY_DELTA                                            @"OS_UPDATE_IDENTITY_DELTA"
+#define OS_ADD_ALIAS_DELTA                                                  @"OS_ADD_ALIAS_DELTA"
+#define OS_REMOVE_ALIAS_DELTA                                               @"OS_REMOVE_ALIAS_DELTA"
+
 #define OS_UPDATE_PROPERTIES_DELTA                                          @"OS_UPDATE_PROPERTIES_DELTA"
+
 #define OS_ADD_SUBSCRIPTION_DELTA                                           @"OS_ADD_SUBSCRIPTION_DELTA"
 #define OS_REMOVE_SUBSCRIPTION_DELTA                                        @"OS_REMOVE_SUBSCRIPTION_DELTA"
-
+#define OS_UPDATE_SUBSCRIPTION_DELTA                                        @"OS_UPDATE_SUBSCRIPTION_DELTA"
 
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
+
 #define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"
-#define OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY                            @"OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY"
+#define OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY                              @"OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
-#define OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY                          @"OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY"
+#define OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY                            @"OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY"
 #define OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY                            @"OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY"
-#define OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY                        @"OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY"
+#define OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY                          @"OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY"
 
 #define OS_ON_USER_WILL_CHANGE                                              @"OS_ON_USER_WILL_CHANGE"
 
