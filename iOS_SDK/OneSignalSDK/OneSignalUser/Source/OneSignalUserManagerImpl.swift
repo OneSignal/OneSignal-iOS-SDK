@@ -219,7 +219,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func addAlias(label: String, id: String) {
-        user.addAlias(label: label, id: id)
+        user.addAliases([label: id])
     }
 
     public static func addAliases(_ aliases: [String: String]) {
@@ -227,7 +227,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func removeAlias(_ label: String) {
-        user.removeAlias(label)
+        user.removeAliases([label])
     }
 
     public static func removeAliases(_ labels: [String]) {
@@ -235,7 +235,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func setTag(key: String, value: String) {
-        user.setTag(key: key, value: value)
+        user.setTags([key: value])
     }
 
     public static func setTags(_ tags: [String: String]) {
@@ -243,7 +243,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func removeTag(_ tag: String) {
-        user.removeTag(tag)
+        user.removeTags([tag])
     }
 
     public static func removeTags(_ tags: [String]) {
