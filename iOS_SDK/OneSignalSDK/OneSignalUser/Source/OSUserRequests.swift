@@ -262,7 +262,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(type: OSSubscriptionType, address: String, enabled: Bool, modelToUpdate: OSSubscriptionModel, identityModel: OSIdentityModel) {
+    init(type: OSSubscriptionType, address: String?, enabled: Bool, modelToUpdate: OSSubscriptionModel, identityModel: OSIdentityModel) {
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
         super.init()
