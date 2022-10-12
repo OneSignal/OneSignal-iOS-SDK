@@ -55,6 +55,11 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
     }
 
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
-        return nil
+        return OSDelta(
+            name: OS_UPDATE_SUBSCRIPTION_DELTA,
+            model: args.model,
+            property: args.property,
+            value: args.newValue
+        )
     }
 }
