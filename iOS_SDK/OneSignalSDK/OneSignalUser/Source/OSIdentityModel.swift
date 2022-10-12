@@ -42,15 +42,12 @@ class OSIdentityModel: OSModel {
 
     // MARK: - Initialization
 
-    // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
     override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
     }
 
     override func encode(with coder: NSCoder) {
         super.encode(with: coder)
-        coder.encode(onesignalId, forKey: "onesignalId")
-        coder.encode(externalId, forKey: "externalId")
         coder.encode(aliases, forKey: "aliases")
     }
 
