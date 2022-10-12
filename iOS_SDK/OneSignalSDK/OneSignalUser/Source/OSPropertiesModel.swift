@@ -32,15 +32,11 @@ class OSPropertiesModel: OSModel {
     var language: String? {
         didSet {
             print("🔥 didSet OSPropertiesModel.language from \(oldValue) to \(language).")
-            self.set(property: "language", oldValue: oldValue, newValue: language)
+            self.set(property: "language", newValue: language)
         }
     }
-    var tags: [String: String] = [:] {
-        didSet {
-            print("🔥 didSet OSPropertiesModel.tags from \(oldValue) to \(tags).")
-            self.set(property: "tags", oldValue: oldValue, newValue: tags)
-        }
-    }
+
+    var tags: [String: String] = [:]
 
     // ... and more ...
 
@@ -68,6 +64,26 @@ class OSPropertiesModel: OSModel {
         self.tags = tags
 
         // ... and more
+    }
+
+    // MARK: - Tag Methods
+
+    func setTags(_ tags: [String: String]) {
+        print("🔥 OSPropertiesModel.setTags \(tags).")
+        for (key, value) in tags {
+            self.tags[key] = value
+        }
+        self.set(property: "tags", newValue: tags)
+    }
+
+    func removeTags(_ tags: [String]) {
+        print("🔥 OSPropertiesModel.removeTags \(tags).")
+        var tagsToSend: [String: String] = [:]
+        for tag in tags {
+            self.tags.removeValue(forKey: tag)
+            tagsToSend[tag] = ""
+        }
+        self.set(property: "aliases", newValue: tagsToSend)
     }
 
     public override func hydrateModel(_ response: [String: String]) {
