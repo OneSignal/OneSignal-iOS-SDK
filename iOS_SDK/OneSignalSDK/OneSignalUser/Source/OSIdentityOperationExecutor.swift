@@ -25,17 +25,16 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalOSCore
 import OneSignalCore
 
 class OSIdentityOperationExecutor: OSOperationExecutor {
-    var supportedDeltas: [String] = [OS_UPDATE_IDENTITY_DELTA]
+    var supportedDeltas: [String] = [OS_ADD_ALIAS_DELTA, OS_REMOVE_ALIAS_DELTA]
     var deltaQueue: [OSDelta] = []
-    var operationQueue: [OSOperation] = []
+    var requestQueue: [OneSignalRequest] = []
 
-    func start() {
-        // Read unfinished deltas and operations from cache, if any...
+    init() {
+        // Read unfinished deltas and requests from cache, if any...
 
         if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
@@ -43,8 +42,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             // log error
         }
 
-        if let operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY, defaultValue: []) as? [OSOperation] {
-            self.operationQueue = operationQueue
+        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OneSignalRequest] {
+            self.requestQueue = requestQueue
         } else {
             // log error
         }
@@ -63,46 +62,104 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         if deltaQueue.isEmpty {
             return
         }
-        // TODO: Implementation
+
         for delta in deltaQueue {
-            // Remove the delta from the cache when it becomes an Operation
-            // Optimize when it is cached.
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
-            // enqueueOperation(operation)
+            guard let model = delta.model as? OSIdentityModel,
+                  let aliases = delta.value as? [String: String]
+            else {
+                // Log error
+                continue
+            }
+
+            switch delta.name {
+            case OS_ADD_ALIAS_DELTA:
+                let request = OSRequestAddAliases(aliases: aliases, identityModel: model)
+                enqueueRequest(request)
+
+            case OS_REMOVE_ALIAS_DELTA:
+                if let label = aliases.first?.key {
+                    let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
+                    enqueueRequest(request)
+                }
+                // Log error
+
+            default:
+                // Log error
+                print("🔥 OSIdentityOperationExecutor met incompatible OSDelta type.")
+            }
         }
+
         self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
-        processOperationQueue()
+
+        // persist executor's requests (including new request) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
+
+        processRequestQueue()
     }
 
-    func enqueueOperation(_ operation: OSOperation) {
-        print("🔥 OSIdentityOperationExecutor enqueueOperation: \(operation)")
-        operationQueue.append(operation)
-
-        // persist executor's operations (including new operation) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY, withValue: self.operationQueue)
+    func enqueueRequest(_ request: OneSignalRequest) {
+        print("🔥 OSIdentityOperationExecutor enqueueRequest: \(request)")
+        requestQueue.append(request)
     }
 
-    func processOperationQueue() {
-        if operationQueue.isEmpty {
+    func processRequestQueue() {
+        if requestQueue.isEmpty {
             return
         }
-        for operation in operationQueue {
-            executeOperation(operation)
+
+        for request in requestQueue {
+            if request.isKind(of: OSRequestAddAliases.self), let addAliasesRequest = request as? OSRequestAddAliases {
+                executeAddAliasesRequest(addAliasesRequest)
+            } else if request.isKind(of: OSRequestRemoveAlias.self), let removeAliasRequest = request as? OSRequestRemoveAlias {
+                executeRemoveAliasRequest(removeAliasRequest)
+            } else {
+                // Log Error
+            }
         }
-        self.operationQueue = [] // TODO: Check that we can simply clear all the operations in the operationQueue
     }
 
-    func executeOperation(_ operation: OSOperation) {
-        // Execute the operation
-        // Mock a response
-        let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
+    func executeAddAliasesRequest(_ request: OSRequestAddAliases) {
+        print("🔥 OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
+        OneSignalClient.shared().execute(request) { result in
+            print("🔥 OSIdentityOperationExecutor executed request SUCCESS block: \(result)")
+            // Mock a response
+            let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
-        // On success, remove operation from cache, and hydrate model
-        // TODO: May need to remove this operation from the operationQueue too
-        // For example, if app restarts and we read in operations between sending this off and getting the response
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_OPERATION_QUEUE_KEY, withValue: self.operationQueue)
+            // On success, remove request from cache, and hydrate model
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
 
-        operation.model.hydrate(response)
-        // On failure, retry logic, but order of operations matters
+            // instead: modelstore.hydratewithresponse with modelid passed in.. request.modeltoupdate.modelId
+                // store can determine if modelid is same, then hydrate or do nothign
+            request.identityModel.hydrate(response)
+
+        } onFailure: { error in
+            print("🔥 OSIdentityOperationExecutor executed request ERROR block: \(error)")
+            // On failure, retry logic, but order of operations matters
+        }
+    }
+
+    func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias) {
+        print("🔥 OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
+        OneSignalClient.shared().execute(request) { result in
+            print("🔥 OSIdentityOperationExecutor executed request SUCCESS block: \(result)")
+
+            // Mock a response
+            let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
+
+            // On success, remove request from cache, and hydrate model
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+
+            request.identityModel.hydrate(response)
+
+        } onFailure: { error in
+            print("🔥 OSIdentityOperationExecutor executed request ERROR block: \(error)")
+            // On failure, retry logic, but order of operations matters
+        }
     }
 }
