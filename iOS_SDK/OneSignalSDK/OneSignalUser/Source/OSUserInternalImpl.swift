@@ -37,14 +37,10 @@ protocol OSUserInternal {
     var identityModel: OSIdentityModel { get }
     var propertiesModel: OSPropertiesModel { get }
     // Aliases
-    func addAlias(label: String, id: String)
     func addAliases(_ aliases: [String: String])
-    func removeAlias(_ label: String)
     func removeAliases(_ labels: [String])
     // Tags
-    func setTag(key: String, value: String)
     func setTags(_ tags: [String: String])
-    func removeTag(_ tag: String)
     func removeTags(_ tags: [String])
     // Outcomes
     func setOutcome(_ name: String)
@@ -87,61 +83,47 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     // MARK: - Aliases
 
-    func addAlias(label: String, id: String) {
-        // Don't let them use `onesignal_id` as an alias label
-        // Don't let them use `external_id` either??
-        guard label != OS_ONESIGNAL_ID else {
+    /**
+     Prohibit the use of `OS_ONESIGNAL_ID` as an alias label.
+     Prohibit the setting of aliases to the empty string (users should use removeAlias methods instead).
+     */
+    func addAliases(_ aliases: [String: String]) {
+        // TODO: Don't allow `external_id` either??
+        // Decide if the non-offending aliases should still be added.
+        print("🔥 OSUserInternalImpl addAliases() called")
+        guard aliases[OS_ONESIGNAL_ID] == nil,
+              !aliases.values.contains("")
+        else {
             // log error
-            print("🔥 OSUserInternal addAlias: Cannot use onesignal_id as a label")
+            print("🔥 OSUserInternal addAliases: Cannot use \(OS_ONESIGNAL_ID) as a alias label")
             return
         }
-
-        print("🔥 OSUserInternalImpl addAlias() called")
-        identityModel.addAlias(label: label, id: id)
+        identityModel.addAliases(aliases)
     }
 
-    func addAliases(_ aliases: [String: String]) {
-        // Don't let them use `onesignal_id` as an alias label
-        // Don't let them use `external_id` either??
-        print("🔥 OSUserInternalImpl addAliases() called")
-        // Don't make separate calls resulting in many deltas
-        for alias in aliases {
-            addAlias(label: alias.key, id: alias.value)
-        }
-    }
-
-    func removeAlias(_ label: String) {
-        print("🔥 OSUserInternalImpl removeAlias() called")
-        self.identityModel.removeAlias(label)
-    }
-
+    /**
+     Prohibit the removal of `OS_ONESIGNAL_ID`.
+     */
     func removeAliases(_ labels: [String]) {
         print("🔥 OSUserInternalImpl removeAliases() called")
-        for label in labels {
-            removeAlias(label)
+        guard !labels.contains(OS_ONESIGNAL_ID) else {
+            // log error
+            print("🔥 OSUserInternal removeAliases: Cannot use \(OS_ONESIGNAL_ID) as a alias label")
+            return
         }
+        identityModel.removeAliases(labels)
     }
 
     // MARK: - Tags
 
-    func setTag(key: String, value: String) {
-        print("🔥 OSUserInternalImpl sendTag() called")
-        self.propertiesModel.tags[key] = value
-    }
-
     func setTags(_ tags: [String: String]) {
-        print("🔥 OSUserInternalImpl sendTags() called")
-        // TODO: Implementation
-    }
-
-    func removeTag(_ tag: String) {
-        print("🔥 OSUserInternalImpl removeTag() called")
-        // TODO: Implementation
+        print("🔥 OSUserInternalImpl setTags() called")
+        propertiesModel.setTags(tags)
     }
 
     func removeTags(_ tags: [String]) {
         print("🔥 OSUserInternalImpl removeTags() called")
-        // TODO: Implementation
+        propertiesModel.removeTags(tags)
     }
 
     // MARK: - Outcomes

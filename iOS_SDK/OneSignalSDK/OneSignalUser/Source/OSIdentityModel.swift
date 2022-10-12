@@ -65,22 +65,22 @@ class OSIdentityModel: OSModel {
 
     // MARK: - Alias Methods
 
-    func addAlias(label: String, id: String) {
-        // Don't let them use `onesignal_id` as an alias label
-        // Don't let them use `external_id` either?
-        print("🔥 OSIdentityModel.addAlias \(label) : \(id).")
-        let oldValue: String? = aliases[label]
-        aliases[label] = id
-        self.set(property: "aliases", oldValue: ["label": label, "id": oldValue], newValue: ["label": label, "id": id])
+    func addAliases(_ aliases: [String: String]) {
+        print("🔥 OSIdentityModel.addAliases \(aliases).")
+        for (label, id) in aliases {
+            self.aliases[label] = id
+        }
+        self.set(property: "aliases", newValue: aliases)
     }
 
-    func removeAlias(_ label: String) {
-        print("🔥 OSIdentityModel.removeAlias \(label).")
-        // TODO: create a delta even if this alias does not exist locally.
-        if let oldValue = aliases.removeValue(forKey: label) {
-            // Cannot encode a nil value
-            self.set(property: label, oldValue: oldValue, newValue: "")
+    func removeAliases(_ labels: [String]) {
+        print("🔥 OSIdentityModel.removeAliases \(labels).")
+        var aliasesToSend: [String: String] = [:]
+        for label in labels {
+            self.aliases.removeValue(forKey: label)
+            aliasesToSend[label] = ""
         }
+        self.set(property: "aliases", newValue: aliasesToSend)
     }
 
     public override func hydrateModel(_ response: [String: String]) {
