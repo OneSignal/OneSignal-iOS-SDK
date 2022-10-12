@@ -43,6 +43,12 @@ public class OSOperationRepo: NSObject {
     // TODO: This should come from a config, plist, method, remote params
     var pollIntervalSeconds = 5
 
+    override init() {
+        super.init()
+        // register as user observer
+        NotificationCenter.default.addObserver(self, selector: #selector(self.flushDeltaQueue),
+                                               name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+    }
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
      If everything starts up on initialize(), order can matter, ideally not but it can.
@@ -88,8 +94,8 @@ public class OSOperationRepo: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
-    func flushDeltaQueue() {
-        print("🔥 OSOperationRepo flushDeltaQueue")
+    @objc func flushDeltaQueue() {
+        print("🔥 OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
         if deltaQueue.isEmpty {
             return
         }
