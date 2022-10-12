@@ -46,6 +46,11 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         }
         super.init()
 
+        // listen for changes to the models
+        for model in self.models.values {
+            model.changeNotifier.subscribe(self)
+        }
+
         // register as user observer
         NotificationCenter.default.addObserver(self, selector: #selector(self.removeModelsFromUserDefaults),
                                                name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
@@ -69,7 +74,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
         // listen for changes to this model
-        model.changeNotifier?.subscribe(self)
+        model.changeNotifier.subscribe(self)
 
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
@@ -87,7 +92,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
             // no longer listen for changes to this model
-            model.changeNotifier?.unsubscribe(self)
+            model.changeNotifier.unsubscribe(self)
 
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
