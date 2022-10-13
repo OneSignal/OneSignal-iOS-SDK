@@ -90,6 +90,7 @@
     [OneSignal setLocationShared:true];
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
+    [UnitTestCommonMethods runLongBackgroundThreads];
     // Last location should exist since we are sharing location
     XCTAssertTrue([OneSignalLocation lastLocation]);
 }
@@ -108,6 +109,7 @@
     XCTAssertFalse([OneSignalLocation lastLocation]);
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
+    [UnitTestCommonMethods runLongBackgroundThreads];
     // Last location should exist since we are sharing location
     XCTAssertTrue([OneSignalLocation lastLocation]);
 }
@@ -144,6 +146,7 @@
     XCTAssertFalse([OneSignalLocation lastLocation]);
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
+    [UnitTestCommonMethods runLongBackgroundThreads];
     // Last location should exist since we are sharing location
     XCTAssertTrue([OneSignalLocation lastLocation]);
 }
