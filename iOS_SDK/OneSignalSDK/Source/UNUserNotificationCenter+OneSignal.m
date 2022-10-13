@@ -301,37 +301,13 @@ void finishProcessingNotification(UNNotification *notification,
     completionHandler(completionHandlerOptions);
 }
 
-// Apple's docs - Called to let your app know which action was selected by the user for a given notification.
-- (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
-         didReceiveNotificationResponse:(UNNotificationResponse *)response
-                  withCompletionHandler:(void(^)())completionHandler {
-    [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
-    // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
-        SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-            initWithTarget:self
-            withYourSelector:@selector(
-                onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
-            )
-            withOriginalSelector:@selector(
-                userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
-            )
-        ];
-        if (forwarder.hasReceiver) {
-            [forwarder invokeWithArgs:@[center, response, completionHandler]];
-        } else {
-            completionHandler();
-        }
-        return;
-    }
-    
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
-    
-    [OneSignalUNUserNotificationCenter processiOS10Open:response];
-    
++ (void)forwardReceivedNotificationResponseWithCenter:(UNUserNotificationCenter *)center
+                       didReceiveNotificationResponse:(UNNotificationResponse *)response
+                                      OneSignalCenter:(id)instance
+                                withCompletionHandler:(void(^)())completionHandler {
     // Call orginal selector if one was set.
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-        initWithTarget:self
+        initWithTarget:instance
         withYourSelector:@selector(
             onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:
         )
@@ -356,6 +332,25 @@ void finishProcessingNotification(UNNotification *notification,
     }
     else
         completionHandler();
+}
+
+
+// Apple's docs - Called to let your app know which action was selected by the user for a given notification.
+- (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
+         didReceiveNotificationResponse:(UNNotificationResponse *)response
+                  withCompletionHandler:(void(^)())completionHandler {
+    [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
+    // return if the user has not granted privacy permissions or if not a OneSignal payload
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+        [OneSignalUNUserNotificationCenter forwardReceivedNotificationResponseWithCenter:center didReceiveNotificationResponse:response OneSignalCenter:self withCompletionHandler:completionHandler];
+        return;
+    }
+    
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
+    
+    [OneSignalUNUserNotificationCenter processiOS10Open:response];
+    
+    [OneSignalUNUserNotificationCenter forwardReceivedNotificationResponseWithCenter:center didReceiveNotificationResponse:response OneSignalCenter:self withCompletionHandler:completionHandler];
 }
 
 + (BOOL)isDismissEvent:(UNNotificationResponse *)response {
