@@ -4,15 +4,95 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Resources/Info.plist</key>
+		<key>Headers/OSCachedUniqueOutcome.h</key>
 		<data>
-		7RIBRvN0F6mSzaSuVMYCo+hTT7E=
+		QQP7NOxbPFL98LkulmK/wbUMQvU=
+		</data>
+		<key>Headers/OSChannelTracker.h</key>
+		<data>
+		ArLQCzgIq/OhHDNMS3QUpcgiIqU=
+		</data>
+		<key>Headers/OSInAppMessageOutcome.h</key>
+		<data>
+		3xT4e/4T3OhG7IenJ42EGs9MroU=
+		</data>
+		<key>Headers/OSIndirectInfluence.h</key>
+		<data>
+		hwbzVrvNLt3XPES9eE8prBs5T+0=
+		</data>
+		<key>Headers/OSInfluence.h</key>
+		<data>
+		JhZlas0LGEFoQfTqv25sUlZznns=
+		</data>
+		<key>Headers/OSInfluenceDataDefines.h</key>
+		<data>
+		GeTi9WmITIbwf/P/2HBBYvfi2xM=
+		</data>
+		<key>Headers/OSInfluenceDataRepository.h</key>
+		<data>
+		zEIQwZXZL2ANP3t0dT4rkZ8FCpA=
+		</data>
+		<key>Headers/OSOutcomeEvent.h</key>
+		<data>
+		PPHv3rveisEsvRH9qzs+jrf85lc=
+		</data>
+		<key>Headers/OSOutcomeEventParams.h</key>
+		<data>
+		lJiE/gYGGmN5fH+SaaqT5vfHPog=
+		</data>
+		<key>Headers/OSOutcomeEventsCache.h</key>
+		<data>
+		xJtU7JLpDgHjBUbaiE8SnnXGCiQ=
+		</data>
+		<key>Headers/OSOutcomeEventsFactory.h</key>
+		<data>
+		b6vJ4AsamqL5CARZVfsSVEQNG68=
+		</data>
+		<key>Headers/OSOutcomeEventsRepository.h</key>
+		<data>
+		o/1Eb25yqP71kTECIELL9hYSsm8=
+		</data>
+		<key>Headers/OSOutcomeSource.h</key>
+		<data>
+		xCZ3YOQZkpvFUCcVdbyctku3KLQ=
+		</data>
+		<key>Headers/OSOutcomeSourceBody.h</key>
+		<data>
+		Z+APpNEoh0EeAHT5zbazL/Ctm3c=
+		</data>
+		<key>Headers/OSSessionManager.h</key>
+		<data>
+		b2/LI60ct+svisyN/9N4P5hk3zc=
+		</data>
+		<key>Headers/OSTrackerFactory.h</key>
+		<data>
+		4sUyvIDmirrXETvMsEpZ29aR1pI=
+		</data>
+		<key>Headers/OneSignalOutcomeEventsController.h</key>
+		<data>
+		sD4f/g7VkNo0X2aZKE5/DVsacj4=
+		</data>
+		<key>Headers/OneSignalOutcomes.h</key>
+		<data>
+		sW/MH6o2HgmQVEWrbtmDRuL4+dA=
+		</data>
+		<key>Info.plist</key>
+		<data>
+		8NkcyOVdSHyhBCKOIiz0+jraMKc=
+		</data>
+		<key>Modules/module.modulemap</key>
+		<data>
+		W87fybpsrxqJLygJ5rCH+jsvEik=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Headers/OSCachedUniqueOutcome.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			QQP7NOxbPFL98LkulmK/wbUMQvU=
+			</data>
 			<key>hash2</key>
 			<data>
 			totu1nQ6/x4iFLCj1sa0l/+/yxIYwiM3vG0tUTwmaqs=
@@ -20,6 +100,10 @@
 		</dict>
 		<key>Headers/OSChannelTracker.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			ArLQCzgIq/OhHDNMS3QUpcgiIqU=
+			</data>
 			<key>hash2</key>
 			<data>
 			y+P1oKzfvURE+SVKSVr4j6/jH8DgujNwXv1hKuO1EAE=
@@ -27,6 +111,10 @@
 		</dict>
 		<key>Headers/OSInAppMessageOutcome.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			3xT4e/4T3OhG7IenJ42EGs9MroU=
+			</data>
 			<key>hash2</key>
 			<data>
 			6kjvfIl+pf/78MxrtV/Sqy17OmVUmw8+rYEgjDHXNWE=
@@ -34,6 +122,10 @@
 		</dict>
 		<key>Headers/OSIndirectInfluence.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			hwbzVrvNLt3XPES9eE8prBs5T+0=
+			</data>
 			<key>hash2</key>
 			<data>
 			n3sfj9ffeEbvDhJzT28iKptXmEQRbSVWSvDeMisJmsc=
@@ -41,6 +133,10 @@
 		</dict>
 		<key>Headers/OSInfluence.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			JhZlas0LGEFoQfTqv25sUlZznns=
+			</data>
 			<key>hash2</key>
 			<data>
 			tjQiNzfx4rDkTwjfykGUHZYyZQOTnKPILoqHIDd/2ic=
@@ -48,6 +144,10 @@
 		</dict>
 		<key>Headers/OSInfluenceDataDefines.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			GeTi9WmITIbwf/P/2HBBYvfi2xM=
+			</data>
 			<key>hash2</key>
 			<data>
 			iQMoFhEUbxG3EpUfUTH/khO6IrPhWKvvXnku47XTZdc=
@@ -55,6 +155,10 @@
 		</dict>
 		<key>Headers/OSInfluenceDataRepository.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			zEIQwZXZL2ANP3t0dT4rkZ8FCpA=
+			</data>
 			<key>hash2</key>
 			<data>
 			knk1+sZ0qZOmSkq4A3Ej5R1dtUJ+36O8oS7eBPIwo/s=
@@ -62,6 +166,10 @@
 		</dict>
 		<key>Headers/OSOutcomeEvent.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			PPHv3rveisEsvRH9qzs+jrf85lc=
+			</data>
 			<key>hash2</key>
 			<data>
 			dEM+sqMVSwAGR7Se/gj9TDcGizX0trTRktNyjvxHp/M=
@@ -69,6 +177,10 @@
 		</dict>
 		<key>Headers/OSOutcomeEventParams.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			lJiE/gYGGmN5fH+SaaqT5vfHPog=
+			</data>
 			<key>hash2</key>
 			<data>
 			1ba84vOacDL3dvfPb9QuuJrPbNIKMtO5uAFP8fQXVQg=
@@ -76,6 +188,10 @@
 		</dict>
 		<key>Headers/OSOutcomeEventsCache.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			xJtU7JLpDgHjBUbaiE8SnnXGCiQ=
+			</data>
 			<key>hash2</key>
 			<data>
 			N6az4wqlL4oB+ugOXVU1xgJMCuABHcDKVi5XAV6e/GU=
@@ -83,6 +199,10 @@
 		</dict>
 		<key>Headers/OSOutcomeEventsFactory.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			b6vJ4AsamqL5CARZVfsSVEQNG68=
+			</data>
 			<key>hash2</key>
 			<data>
 			B9zLkhrLlC2+UdJh/XfEHYstpiw8n4y2rH/kdw/ob5A=
@@ -90,6 +210,10 @@
 		</dict>
 		<key>Headers/OSOutcomeEventsRepository.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			o/1Eb25yqP71kTECIELL9hYSsm8=
+			</data>
 			<key>hash2</key>
 			<data>
 			REkrumsrQPze19CbYkIMpr/Xb0y8y6i4Ytyk9J30qMY=
@@ -97,6 +221,10 @@
 		</dict>
 		<key>Headers/OSOutcomeSource.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			xCZ3YOQZkpvFUCcVdbyctku3KLQ=
+			</data>
 			<key>hash2</key>
 			<data>
 			W8Ekd6VjML7ZnahaytXqSaHRU+B6kBF5OakKQOrQstQ=
@@ -104,6 +232,10 @@
 		</dict>
 		<key>Headers/OSOutcomeSourceBody.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			Z+APpNEoh0EeAHT5zbazL/Ctm3c=
+			</data>
 			<key>hash2</key>
 			<data>
 			X1aTd7m6pBhX97KiK9OYccGmdoBVHXFdtNIUegnZ+2s=
@@ -111,6 +243,10 @@
 		</dict>
 		<key>Headers/OSSessionManager.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			b2/LI60ct+svisyN/9N4P5hk3zc=
+			</data>
 			<key>hash2</key>
 			<data>
 			PqGFeWJieWBjFVlo9hW6K3zw3EROosJ9GekCpVrw87U=
@@ -118,6 +254,10 @@
 		</dict>
 		<key>Headers/OSTrackerFactory.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			4sUyvIDmirrXETvMsEpZ29aR1pI=
+			</data>
 			<key>hash2</key>
 			<data>
 			e38XG+rnmKSpSyDmrN4/Mc4+zLBKKWQ6+gexB9VHFKg=
@@ -125,6 +265,10 @@
 		</dict>
 		<key>Headers/OneSignalOutcomeEventsController.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			sD4f/g7VkNo0X2aZKE5/DVsacj4=
+			</data>
 			<key>hash2</key>
 			<data>
 			2LLCLqre2Yz61h0Ir/t5whNSGEa/8+9QKJx8WZ/15CQ=
@@ -132,6 +276,10 @@
 		</dict>
 		<key>Headers/OneSignalOutcomes.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			sW/MH6o2HgmQVEWrbtmDRuL4+dA=
+			</data>
 			<key>hash2</key>
 			<data>
 			GFLvc7yAjjvzpcTn4DOvrAd+0+BacOygATaFNR719s0=
@@ -139,38 +287,35 @@
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			W87fybpsrxqJLygJ5rCH+jsvEik=
+			</data>
 			<key>hash2</key>
 			<data>
 			71NgarV0pwtZTDET32aMQ3/vjxGUawYZx/s2o2jI064=
 			</data>
 		</dict>
-		<key>Resources/Info.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			JtRSHteH8g9MQ6tJ8aE6APFmk9HCgyTXBABdxioDWKs=
-			</data>
-		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>
-		<key>^Resources/</key>
+		<key>^.*</key>
 		<true/>
-		<key>^Resources/.*\.lproj/</key>
+		<key>^.*\.lproj/</key>
 		<dict>
 			<key>optional</key>
 			<true/>
 			<key>weight</key>
 			<real>1000</real>
 		</dict>
-		<key>^Resources/.*\.lproj/locversion.plist$</key>
+		<key>^.*\.lproj/locversion.plist$</key>
 		<dict>
 			<key>omit</key>
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
 		</dict>
-		<key>^Resources/Base\.lproj/</key>
+		<key>^Base\.lproj/</key>
 		<dict>
 			<key>weight</key>
 			<real>1010</real>
@@ -192,15 +337,27 @@
 			<key>weight</key>
 			<real>2000</real>
 		</dict>
-		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
-		</dict>
 		<key>^.*</key>
 		<true/>
+		<key>^.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
+		</dict>
 		<key>^Info\.plist$</key>
 		<dict>
 			<key>omit</key>
@@ -214,37 +371,6 @@
 			<true/>
 			<key>weight</key>
 			<real>20</real>
-		</dict>
-		<key>^Resources/</key>
-		<dict>
-			<key>weight</key>
-			<real>20</real>
-		</dict>
-		<key>^Resources/.*\.lproj/</key>
-		<dict>
-			<key>optional</key>
-			<true/>
-			<key>weight</key>
-			<real>1000</real>
-		</dict>
-		<key>^Resources/.*\.lproj/locversion.plist$</key>
-		<dict>
-			<key>omit</key>
-			<true/>
-			<key>weight</key>
-			<real>1100</real>
-		</dict>
-		<key>^Resources/Base\.lproj/</key>
-		<dict>
-			<key>weight</key>
-			<real>1010</real>
-		</dict>
-		<key>^[^/]+$</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^embedded\.provisionprofile$</key>
 		<dict>

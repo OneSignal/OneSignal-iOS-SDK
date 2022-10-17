@@ -4,15 +4,91 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Resources/Info.plist</key>
+		<key>Headers/NSString+OneSignal.h</key>
 		<data>
-		Q7l41Oj78GJnspnyeHrURECn+AY=
+		/HTg8wbY+rfIy9/kCShHF2Oev6Y=
+		</data>
+		<key>Headers/NSURL+OneSignal.h</key>
+		<data>
+		RUcvMsE7Pj+BUpa1H4SgBH/O/EQ=
+		</data>
+		<key>Headers/OSJSONHandling.h</key>
+		<data>
+		91d8OZhU9KOTu2qY+EdAF+M47+E=
+		</data>
+		<key>Headers/OSMacros.h</key>
+		<data>
+		7HmaM9ljZnw77iovX0v/wnb3bX0=
+		</data>
+		<key>Headers/OSNotification+Internal.h</key>
+		<data>
+		hwttm7oX6fN2cgP1Z4laQAKP49Q=
+		</data>
+		<key>Headers/OSNotification.h</key>
+		<data>
+		O/8gkRAMw3nV6j7znZxoXDKCi3o=
+		</data>
+		<key>Headers/OSNotificationClasses.h</key>
+		<data>
+		iNvshoGLl4IEMy2K1Lq2stVxdB4=
+		</data>
+		<key>Headers/OSPrivacyConsentController.h</key>
+		<data>
+		//dQV0JwOyLrzhcfN4IkI2abbFM=
+		</data>
+		<key>Headers/OSRequests.h</key>
+		<data>
+		AR5Sc+CHZpqT5yvSRTYyHuLBEjc=
+		</data>
+		<key>Headers/OneSignalClient.h</key>
+		<data>
+		TAYBk2YV4sw9wzS85jL0QtcAen0=
+		</data>
+		<key>Headers/OneSignalCommonDefines.h</key>
+		<data>
+		1zACUpSBEO5xbOW0kywT1dIFjqs=
+		</data>
+		<key>Headers/OneSignalCore.h</key>
+		<data>
+		T109aNL3gpg8ZtBUTteB6+7IuQ8=
+		</data>
+		<key>Headers/OneSignalCoreHelper.h</key>
+		<data>
+		xQeNeuYQWybV7qex/9h0H2mvUqI=
+		</data>
+		<key>Headers/OneSignalLog.h</key>
+		<data>
+		oEEDkA6eBW5XOmDs86IVGRpm28k=
+		</data>
+		<key>Headers/OneSignalRequest.h</key>
+		<data>
+		/uBkuxddG/dPmbTbANavHELydCw=
+		</data>
+		<key>Headers/OneSignalTrackFirebaseAnalytics.h</key>
+		<data>
+		oUxC/1Bnj1fAEZ+hPm30tS5H+f0=
+		</data>
+		<key>Headers/OneSignalUserDefaults.h</key>
+		<data>
+		ZvwZZD2HkwwG1wOkh8jGhnl2lTY=
+		</data>
+		<key>Info.plist</key>
+		<data>
+		7We/EPMX/OOfVQwuOMivTfZbjFE=
+		</data>
+		<key>Modules/module.modulemap</key>
+		<data>
+		UwBMj9m72xH28UG69kKWlAJjycc=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
 		<key>Headers/NSString+OneSignal.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			/HTg8wbY+rfIy9/kCShHF2Oev6Y=
+			</data>
 			<key>hash2</key>
 			<data>
 			qBhBU+sclS17YY3HDiZmbgqnTFtSJWm7tX4ThKcr3cM=
@@ -20,6 +96,10 @@
 		</dict>
 		<key>Headers/NSURL+OneSignal.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			RUcvMsE7Pj+BUpa1H4SgBH/O/EQ=
+			</data>
 			<key>hash2</key>
 			<data>
 			DC9WcVr/94eTh7NHtwKhA8C2fPJVJfY0nn9A6fuHGhA=
@@ -27,6 +107,10 @@
 		</dict>
 		<key>Headers/OSJSONHandling.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			91d8OZhU9KOTu2qY+EdAF+M47+E=
+			</data>
 			<key>hash2</key>
 			<data>
 			kwMvLl1JtYBgIUz5NHRrummY0mdnyAPM2lP6HtOGETw=
@@ -34,6 +118,10 @@
 		</dict>
 		<key>Headers/OSMacros.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			7HmaM9ljZnw77iovX0v/wnb3bX0=
+			</data>
 			<key>hash2</key>
 			<data>
 			aKanW/TgpNzztpIpYJVbnxfUUFcNJAolzoX8n0+EwJc=
@@ -41,6 +129,10 @@
 		</dict>
 		<key>Headers/OSNotification+Internal.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			hwttm7oX6fN2cgP1Z4laQAKP49Q=
+			</data>
 			<key>hash2</key>
 			<data>
 			bz9UK/DGxP8LAEzMdBiUj0l9UsfhSo11AUAW6X1NfNQ=
@@ -48,6 +140,10 @@
 		</dict>
 		<key>Headers/OSNotification.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			O/8gkRAMw3nV6j7znZxoXDKCi3o=
+			</data>
 			<key>hash2</key>
 			<data>
 			JOArzkdx1cCGHN5R6ITF+D2e8x/s5HVzQNEl26Gxdfg=
@@ -55,6 +151,10 @@
 		</dict>
 		<key>Headers/OSNotificationClasses.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			iNvshoGLl4IEMy2K1Lq2stVxdB4=
+			</data>
 			<key>hash2</key>
 			<data>
 			TfTvbYwUILlXsIfPJ92tgrhSS23UTibhhKt6j4Q984U=
@@ -62,6 +162,10 @@
 		</dict>
 		<key>Headers/OSPrivacyConsentController.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			//dQV0JwOyLrzhcfN4IkI2abbFM=
+			</data>
 			<key>hash2</key>
 			<data>
 			Nl0w50EzXPgal1ghTEM3QIoYLzOYHH195NTzq3Zlvmo=
@@ -69,6 +173,10 @@
 		</dict>
 		<key>Headers/OSRequests.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			AR5Sc+CHZpqT5yvSRTYyHuLBEjc=
+			</data>
 			<key>hash2</key>
 			<data>
 			GmdFYLP8Zwsod7m7aemuj8E4msAflq+RJTLAA2Y/hpY=
@@ -76,6 +184,10 @@
 		</dict>
 		<key>Headers/OneSignalClient.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			TAYBk2YV4sw9wzS85jL0QtcAen0=
+			</data>
 			<key>hash2</key>
 			<data>
 			cbF3Wa3Lqa0Wb2275ot3ploX1KXQ+znQBiBOu0TzV6M=
@@ -83,6 +195,10 @@
 		</dict>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			1zACUpSBEO5xbOW0kywT1dIFjqs=
+			</data>
 			<key>hash2</key>
 			<data>
 			dDY0rLG0wLeCOep8YRI/Z7yi+CPUbsOHg8cBoDRuJTU=
@@ -90,6 +206,10 @@
 		</dict>
 		<key>Headers/OneSignalCore.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			T109aNL3gpg8ZtBUTteB6+7IuQ8=
+			</data>
 			<key>hash2</key>
 			<data>
 			uLAWfHauq9MJASOHxa8O6emo1oXTfJcLShIdOAUxG88=
@@ -97,6 +217,10 @@
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			xQeNeuYQWybV7qex/9h0H2mvUqI=
+			</data>
 			<key>hash2</key>
 			<data>
 			vK6D0j+ZbW5ycXiO3jb9aLvluPdvyYGxCSFl1gkVp14=
@@ -104,6 +228,10 @@
 		</dict>
 		<key>Headers/OneSignalLog.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			oEEDkA6eBW5XOmDs86IVGRpm28k=
+			</data>
 			<key>hash2</key>
 			<data>
 			fXXHmsA5in9ZjZz8sHnl3WaN/xiOjw63toiJ0AzJTE4=
@@ -111,6 +239,10 @@
 		</dict>
 		<key>Headers/OneSignalRequest.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			/uBkuxddG/dPmbTbANavHELydCw=
+			</data>
 			<key>hash2</key>
 			<data>
 			69iw4bnJGwQNk11KAchyrRMPCM6Rf4C9Wvn+HMnTCXc=
@@ -118,6 +250,10 @@
 		</dict>
 		<key>Headers/OneSignalTrackFirebaseAnalytics.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			oUxC/1Bnj1fAEZ+hPm30tS5H+f0=
+			</data>
 			<key>hash2</key>
 			<data>
 			VCgGIHlXYAQKerOcmqkIesJ+B+oWLXQya/3m1cYjnKc=
@@ -125,6 +261,10 @@
 		</dict>
 		<key>Headers/OneSignalUserDefaults.h</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			ZvwZZD2HkwwG1wOkh8jGhnl2lTY=
+			</data>
 			<key>hash2</key>
 			<data>
 			QIYtzchiCKQguyJOSY6PEhV0H98JRi2PdXSBmZxxLN4=
@@ -132,38 +272,35 @@
 		</dict>
 		<key>Modules/module.modulemap</key>
 		<dict>
+			<key>hash</key>
+			<data>
+			UwBMj9m72xH28UG69kKWlAJjycc=
+			</data>
 			<key>hash2</key>
 			<data>
 			K44cM22FGB3rV1SaGqR0xQQBO01/YgeIVYiCCcvFnOU=
 			</data>
 		</dict>
-		<key>Resources/Info.plist</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			H0SzbJMJcykDh9rfyWY0to4oWl4ZTGvvPdEcalAcBXw=
-			</data>
-		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>
-		<key>^Resources/</key>
+		<key>^.*</key>
 		<true/>
-		<key>^Resources/.*\.lproj/</key>
+		<key>^.*\.lproj/</key>
 		<dict>
 			<key>optional</key>
 			<true/>
 			<key>weight</key>
 			<real>1000</real>
 		</dict>
-		<key>^Resources/.*\.lproj/locversion.plist$</key>
+		<key>^.*\.lproj/locversion.plist$</key>
 		<dict>
 			<key>omit</key>
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
 		</dict>
-		<key>^Resources/Base\.lproj/</key>
+		<key>^Base\.lproj/</key>
 		<dict>
 			<key>weight</key>
 			<real>1010</real>
@@ -185,15 +322,27 @@
 			<key>weight</key>
 			<real>2000</real>
 		</dict>
-		<key>^(Frameworks|SharedFrameworks|PlugIns|Plug-ins|XPCServices|Helpers|MacOS|Library/(Automator|Spotlight|LoginItems))/</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
-		</dict>
 		<key>^.*</key>
 		<true/>
+		<key>^.*\.lproj/</key>
+		<dict>
+			<key>optional</key>
+			<true/>
+			<key>weight</key>
+			<real>1000</real>
+		</dict>
+		<key>^.*\.lproj/locversion.plist$</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>1100</real>
+		</dict>
+		<key>^Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
+		</dict>
 		<key>^Info\.plist$</key>
 		<dict>
 			<key>omit</key>
@@ -207,37 +356,6 @@
 			<true/>
 			<key>weight</key>
 			<real>20</real>
-		</dict>
-		<key>^Resources/</key>
-		<dict>
-			<key>weight</key>
-			<real>20</real>
-		</dict>
-		<key>^Resources/.*\.lproj/</key>
-		<dict>
-			<key>optional</key>
-			<true/>
-			<key>weight</key>
-			<real>1000</real>
-		</dict>
-		<key>^Resources/.*\.lproj/locversion.plist$</key>
-		<dict>
-			<key>omit</key>
-			<true/>
-			<key>weight</key>
-			<real>1100</real>
-		</dict>
-		<key>^Resources/Base\.lproj/</key>
-		<dict>
-			<key>weight</key>
-			<real>1010</real>
-		</dict>
-		<key>^[^/]+$</key>
-		<dict>
-			<key>nested</key>
-			<true/>
-			<key>weight</key>
-			<real>10</real>
 		</dict>
 		<key>^embedded\.provisionprofile$</key>
 		<dict>
