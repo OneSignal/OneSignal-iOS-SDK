@@ -2787,7 +2787,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
 				PRODUCT_NAME = OneSignal;
@@ -2836,6 +2836,7 @@
 				ONESIGNAL_MACH_O_TYPE = mh_dylib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2849,6 +2850,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2946,7 +2948,7 @@
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
 				PRODUCT_NAME = OneSignal;
@@ -2995,6 +2997,7 @@
 				ONESIGNAL_MACH_O_TYPE = mh_dylib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -3008,6 +3011,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -3115,7 +3119,7 @@
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
 				PRODUCT_NAME = OneSignal;
@@ -3174,6 +3178,7 @@
 				ONESIGNAL_MACH_O_TYPE = mh_dylib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug 64 bit";
@@ -3192,6 +3197,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug 64 bit";
@@ -3210,6 +3216,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug 64 bit";
@@ -3320,7 +3327,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3385,7 +3392,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3450,7 +3457,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3506,7 +3513,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3568,7 +3575,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3622,7 +3629,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3682,7 +3689,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3736,7 +3743,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3796,7 +3803,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -3817,6 +3824,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -3830,6 +3838,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -3936,7 +3945,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.onesignal.OneSignal-Dynamic";
 				PRODUCT_NAME = OneSignal;
@@ -3990,6 +3999,7 @@
 				ONESIGNAL_MACH_O_TYPE = mh_dylib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release 64 bit";
@@ -4003,6 +4013,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release 64 bit";
@@ -4016,6 +4027,7 @@
 				ONESIGNAL_MACH_O_TYPE = staticlib;
 				ONESIGNAL_OUTPUT_NAME = OneSignal;
 				ONESIGNAL_TARGET_NAME = OneSignalFramework;
+				OTHER_CFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release 64 bit";
@@ -4113,7 +4125,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -4172,7 +4184,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalExtension;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -4231,7 +4243,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "-fembed-bitcode";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOutcomes;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
