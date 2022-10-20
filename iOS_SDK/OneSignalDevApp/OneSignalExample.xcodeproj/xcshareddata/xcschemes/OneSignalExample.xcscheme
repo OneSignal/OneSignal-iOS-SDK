@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1200"
-   version = "1.3">
+   LastUpgradeVersion = "0820"
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -14,10 +14,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEF5CCF02539321A0003E9CC"
-               BuildableName = "UnitTestApp.app"
-               BlueprintName = "UnitTestApp"
-               ReferencedContainer = "container:OneSignal.xcodeproj">
+               BlueprintIdentifier = "9112E8811E724C320022A1CB"
+               BuildableName = "OneSignalExample.app"
+               BlueprintName = "OneSignalExample"
+               ReferencedContainer = "container:OneSignalExample.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "911E2CB91E398AB3003112A4"
+               BuildableName = "UnitTests.xctest"
+               BlueprintName = "UnitTests"
+               ReferencedContainer = "container:../OneSignalSDK/OneSignal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -26,16 +40,24 @@
       buildConfiguration = "Debug 64 bit"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      codeCoverageEnabled = "YES">
+      <AdditionalOptions>
+         <AdditionalOption
+            key = "MallocScribble"
+            value = ""
+            isEnabled = "YES">
+         </AdditionalOption>
+      </AdditionalOptions>
       <Testables>
          <TestableReference
-            skipped = "NO">
+            skipped = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "911E2CB91E398AB3003112A4"
                BuildableName = "UnitTests.xctest"
                BlueprintName = "UnitTests"
-               ReferencedContainer = "container:OneSignal.xcodeproj">
+               ReferencedContainer = "container:../OneSignalSDK/OneSignal.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -54,15 +76,32 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DEF5CCF02539321A0003E9CC"
-            BuildableName = "UnitTestApp.app"
-            BlueprintName = "UnitTestApp"
-            ReferencedContainer = "container:OneSignal.xcodeproj">
+            BlueprintIdentifier = "9112E8811E724C320022A1CB"
+            BuildableName = "OneSignalExample.app"
+            BlueprintName = "OneSignalExample"
+            ReferencedContainer = "container:OneSignalExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-FIRAnalyticsDebugEnabled"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
+      <AdditionalOptions>
+         <AdditionalOption
+            key = "MallocScribble"
+            value = ""
+            isEnabled = "YES">
+         </AdditionalOption>
+      </AdditionalOptions>
+      <LocationScenarioReference
+         identifier = "San Francisco, CA, USA"
+         referenceType = "1">
+      </LocationScenarioReference>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Release 64 bit"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
@@ -71,10 +110,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DEF5CCF02539321A0003E9CC"
-            BuildableName = "UnitTestApp.app"
-            BlueprintName = "UnitTestApp"
-            ReferencedContainer = "container:OneSignal.xcodeproj">
+            BlueprintIdentifier = "9112E8811E724C320022A1CB"
+            BuildableName = "OneSignalExample.app"
+            BlueprintName = "OneSignalExample"
+            ReferencedContainer = "container:OneSignalExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -82,7 +121,7 @@
       buildConfiguration = "Debug 64 bit">
    </AnalyzeAction>
    <ArchiveAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Release 64 bit"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
