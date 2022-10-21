@@ -31,6 +31,7 @@
 #import <UIKit/UIKit.h>
 #import <OneSignal/OneSignal.h>
 
+
 @interface ViewController : UIViewController <OSInAppMessageDelegate>
 
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicatorView;
@@ -64,6 +65,5 @@
 @property (weak, nonatomic) IBOutlet UITextView *result;
 @property (weak, nonatomic) IBOutlet UITextField *tagKey;
 @property (weak, nonatomic) IBOutlet UITextField *tagValue;
-
 @end
 
