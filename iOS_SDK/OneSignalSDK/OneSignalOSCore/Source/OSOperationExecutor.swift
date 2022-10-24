@@ -32,7 +32,6 @@ public protocol OSOperationExecutor {
     var deltaQueue: [OSDelta] { get }
     var requestQueue: [OneSignalRequest] { get }
 
-    func start()
     func enqueueDelta(_ delta: OSDelta)
     func cacheDeltaQueue()
     func processDeltaQueue()
