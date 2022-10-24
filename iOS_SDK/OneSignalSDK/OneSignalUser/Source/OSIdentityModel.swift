@@ -42,8 +42,10 @@ class OSIdentityModel: OSModel {
 
     // MARK: - Initialization
 
-    override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+    // Initialize with aliases, if any
+    init(aliases: [String: String]?, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
+        self.aliases = aliases ?? [:]
     }
 
     override func encode(with coder: NSCoder) {
@@ -55,7 +57,7 @@ class OSIdentityModel: OSModel {
         super.init(coder: coder)
         guard let aliases = coder.decodeObject(forKey: "aliases") as? [String: String] else {
             // log error
-            return
+            return nil
         }
         self.aliases = aliases
     }
@@ -83,7 +85,6 @@ class OSIdentityModel: OSModel {
     public override func hydrateModel(_ response: [String: String]) {
         print("🔥 OSIdentityModel hydrateModel()")
         // TODO: Update Model properties with the response
-        // Flesh out implementation and how to parse the response, deleted aliases...
         for property in response {
             if property.key != "external_id" && property.key != "onesignal_id" {
                 aliases[property.key] = property.value
