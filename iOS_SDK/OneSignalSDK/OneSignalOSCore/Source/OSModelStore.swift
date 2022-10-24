@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalCore
 
 open class OSModelStore<TModel: OSModel>: NSObject {
@@ -58,6 +57,14 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
     deinit {
         NotificationCenter.default.removeObserver(self, name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+    }
+
+    /**
+     Uses the ID that is used a key to store models in the store's models dictionary.
+     Examples:  "person@example.com" for a subscription model or `OS_IDENTITY_MODEL_KEY` for an identity model.
+     */
+    public func getModel(key: String) -> TModel? {
+        return self.models[key]
     }
 
     public func getModels() -> [String: TModel] {

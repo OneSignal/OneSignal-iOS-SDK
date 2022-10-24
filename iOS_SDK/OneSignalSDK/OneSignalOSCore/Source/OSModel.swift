@@ -29,18 +29,26 @@ import Foundation
 
 @objc
 open class OSModel: NSObject, NSCoding {
+    public let modelId: String
     public var changeNotifier: OSEventProducer<OSModelChangedHandler>
     private var hydrating = false // TODO: Starts out false?
 
     public init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+        self.modelId = UUID().uuidString
         self.changeNotifier = changeNotifier
     }
 
     open func encode(with coder: NSCoder) {
+        coder.encode(modelId, forKey: "modelId")
     }
 
     public required init?(coder: NSCoder) {
+        guard let modelId = coder.decodeObject(forKey: "modelId") as? String else {
+            // log error
+            return nil
+        }
         self.changeNotifier = OSEventProducer()
+        self.modelId = modelId
     }
 
     // We can add operation name to this... , such as enum of "updated", "deleted", "added"
@@ -63,7 +71,7 @@ open class OSModel: NSObject, NSCoding {
     }
 
     open func hydrateModel(_ response: [String: String]) {
-        // TODO: Log as an error.
+        // Log as an error.
         print("Error: Function must be overridden.")
         fatalError("hydrateModel(response:) has not been implemented")
     }
