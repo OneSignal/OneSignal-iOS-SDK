@@ -25,17 +25,16 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalOSCore
 import OneSignalCore
 
 class OSSubscriptionOperationExecutor: OSOperationExecutor {
-    var supportedDeltas: [String] = [OS_ADD_SUBSCRIPTION_DELTA, OS_REMOVE_SUBSCRIPTION_DELTA]
+    var supportedDeltas: [String] = [OS_ADD_SUBSCRIPTION_DELTA, OS_REMOVE_SUBSCRIPTION_DELTA, OS_UPDATE_SUBSCRIPTION_DELTA]
     var deltaQueue: [OSDelta] = []
-    var operationQueue: [OSOperation] = []
+    var requestQueue: [OneSignalRequest] = []
 
-    func start() {
-        // Read unfinished deltas and operations from cache, if any...
+    init() {
+        // Read unfinished deltas and requests from cache, if any...
 
         if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
@@ -43,8 +42,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             // log error
         }
 
-        if let operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY, defaultValue: []) as? [OSOperation] {
-            self.operationQueue = operationQueue
+        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OneSignalRequest] {
+            self.requestQueue = requestQueue
         } else {
             // log error
         }
@@ -63,48 +62,133 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         if deltaQueue.isEmpty {
             return
         }
-        // TODO: Implementation
+
         for delta in deltaQueue {
-            // Remove the delta from the cache when it becomes an Operation
-            // Optimize when it is cached.
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
-            // enqueueOperation(operation)
+            guard let model = delta.model as? OSSubscriptionModel else {
+                // Log error
+                continue
+            }
+
+            switch delta.name {
+            case OS_ADD_SUBSCRIPTION_DELTA:
+                let request = OSRequestCreateSubscription(
+                    subscriptionModel: model,
+                    identityModel: OneSignalUserManagerImpl.user.identityModel // TODO: Make sure this is ok
+                )
+                enqueueRequest(request)
+
+            case OS_REMOVE_SUBSCRIPTION_DELTA:
+                let request = OSRequestDeleteSubscription(
+                    subscriptionModel: model
+                )
+                enqueueRequest(request)
+
+            case OS_UPDATE_SUBSCRIPTION_DELTA:
+                guard let value = delta.value else {
+                    continue
+                }
+                let request = OSRequestUpdateSubscription(
+                    subscriptionObject: [delta.property: value],
+                    subscriptionModel: model
+                )
+                enqueueRequest(request)
+
+            default:
+                // Log error
+                print("🔥 OSSubscriptionOperationExecutor met incompatible OSDelta type.")
+            }
         }
+
         self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
-        processOperationQueue()
+
+        // persist executor's requests (including new request) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
+
+        processRequestQueue()
     }
 
-    func enqueueOperation(_ operation: OSOperation) {
-        print("🔥 OSSubscriptionOperationExecutor enqueueOperation: \(operation)")
-        operationQueue.append(operation)
-
-        // persist executor's operations (including new operation) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY, withValue: self.operationQueue)
+    func enqueueRequest(_ request: OneSignalRequest) {
+        print("🔥 OSSubscriptionOperationExecutor enqueueRequest: \(request)")
+        requestQueue.append(request)
     }
 
-    func processOperationQueue() {
-        if self.operationQueue.isEmpty {
+    func processRequestQueue() {
+        if requestQueue.isEmpty {
             return
         }
-        for operation in self.operationQueue {
-            executeOperation(operation)
+
+        for request in requestQueue {
+            if request.isKind(of: OSRequestCreateSubscription.self), let createSubscriptionRequest = request as? OSRequestCreateSubscription {
+                executeCreateSubscriptionRequest(createSubscriptionRequest)
+            } else if request.isKind(of: OSRequestDeleteSubscription.self), let deleteSubscriptionRequest = request as? OSRequestDeleteSubscription {
+                executeDeleteSubscriptionRequest(deleteSubscriptionRequest)
+            } else if request.isKind(of: OSRequestUpdateSubscription.self), let updateSubscriptionRequest = request as? OSRequestUpdateSubscription {
+                executeUpdateSubscriptionRequest(updateSubscriptionRequest)
+            } else {
+                // Log Error
+            }
         }
-        self.operationQueue = [] // TODO: Check that we can simply clear all the ops in the operationQueue
     }
 
-    func executeOperation(_ operation: OSOperation) {
-        // Execute the operation
-        // Mock a response
+    func executeCreateSubscriptionRequest(_ request: OSRequestCreateSubscription) {
+        guard request.prepareForExecution() else {
+            return
+        }
+        print("🔥 OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
+        OneSignalClient.shared().execute(request) { result in
+            print("🔥 OSSubscriptionOperationExecutor executed request SUCCESS block: \(result)")
 
-        let response = ["??": "??"]
+            // Mock a response
+            let response = ["id": UUID().uuidString, "type": "SMS", "enabled": "true"]
 
-        // On success, remove operation from cache, and hydrate model
-        // TODO: May need to remove this operation from the operationQueue too
-        // For example, if app restarts and we read in operations between sending this off and getting the response
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_OPERATION_QUEUE_KEY, withValue: self.operationQueue)
+            // On success, remove request from cache, and hydrate model
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            request.subscriptionModel.hydrate(response)
 
-        operation.model.hydrate(response)
+        } onFailure: { error in
+            print("🔥 OSSubscriptionOperationExecutor executed request ERROR block: \(error)")
+            // On failure, retry logic, but order of operations matters
+        }
+    }
 
-        // On failure, retry logic
+    func executeDeleteSubscriptionRequest(_ request: OSRequestDeleteSubscription) {
+        guard request.prepareForExecution() else {
+            return
+        }
+
+        // This request can be executed as-is.
+        print("🔥 OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
+        OneSignalClient.shared().execute(request) { result in
+            print("🔥 OSSubscriptionOperationExecutor executed request SUCCESS block: \(result)")
+
+            // On success, remove request from cache. No model hydration occurs.
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+
+        } onFailure: { error in
+            print("🔥 OSSubscriptionOperationExecutor executed request ERROR block: \(error)")
+            // On failure, retry logic, but order of operations matters
+        }
+    }
+
+    func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription) {
+        print("🔥 OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
+        OneSignalClient.shared().execute(request) { result in
+            print("🔥 OSSubscriptionOperationExecutor executed request SUCCESS block: \(result)")
+
+            // On success, remove request from cache. No model hydration occurs.
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+
+        } onFailure: { error in
+            print("🔥 OSSubscriptionOperationExecutor executed request ERROR block: \(error)")
+            // On failure, retry logic, but order of operations matters
+        }
     }
 }

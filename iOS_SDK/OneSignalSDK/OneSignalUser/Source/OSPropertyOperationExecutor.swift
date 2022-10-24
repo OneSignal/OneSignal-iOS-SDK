@@ -25,17 +25,16 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalOSCore
 import OneSignalCore
 
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
-    var operationQueue: [OSOperation] = []
+    var requestQueue: [OneSignalRequest] = []
 
-    func start() {
-        // Read unfinished deltas and operations from cache, if any...
+    init() {
+        // Read unfinished deltas and requests from cache, if any...
 
         if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
@@ -43,8 +42,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             // log error
         }
 
-        if let operationQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY, defaultValue: []) as? [OSOperation] {
-            self.operationQueue = operationQueue
+        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OneSignalRequest] {
+            self.requestQueue = requestQueue
         } else {
             // log error
         }
@@ -63,48 +62,68 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         if deltaQueue.isEmpty {
             return
         }
-        // TODO: Implementation
+
         for delta in deltaQueue {
-            // Remove the delta from the cache when it becomes an Operation
-            // Optimize when it is cached.
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
-            // enqueueOperation(operation)
+            guard let model = delta.model as? OSPropertiesModel else {
+                // Log error
+                continue
+            }
+
+            let request = OSRequestUpdateProperties(
+                properties: [delta.property: delta.value ?? ""], // Sort this out.
+                deltas: nil,
+                refreshDeviceMetadata: false, // Sort this out.
+                modelToUpdate: model,
+                identityModel: OneSignalUserManagerImpl.user.identityModel // TODO: Make sure this is ok
+            )
+            enqueueRequest(request)
         }
         self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
-        processOperationQueue()
+
+        // persist executor's requests (including new request) to storage
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
+        processRequestQueue()
     }
 
-    func enqueueOperation(_ operation: OSOperation) {
-        print("🔥 OSPropertyOperationExecutor enqueueOperation: \(operation)")
-        operationQueue.append(operation)
-
-        // persist executor's operations (including new operation) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY, withValue: self.operationQueue)
+    func enqueueRequest(_ request: OneSignalRequest) {
+        print("🔥 OSPropertyOperationExecutor enqueueRequest: \(request)")
+        requestQueue.append(request)
     }
 
-    func processOperationQueue() {
-        if self.operationQueue.isEmpty {
+    func processRequestQueue() {
+        if requestQueue.isEmpty {
             return
         }
-        for operation in self.operationQueue {
-            executeOperation(operation)
+
+        for request in requestQueue {
+            if let updatePropertiesRequest = request as? OSRequestUpdateProperties {
+                executeUpdatePropertiesRequest(updatePropertiesRequest)
+            }
         }
-        self.operationQueue = [] // TODO: Check that we can simply clear all the ops in the operationQueue
     }
 
-    func executeOperation(_ operation: OSOperation) {
-        // Execute the operation
-        // Mock a response
+    func executeUpdatePropertiesRequest(_ request: OSRequestUpdateProperties) {
+        guard request.prepareForExecution() else {
+            return
+        }
+        print("🔥 OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
+        OneSignalClient.shared().execute(request) { result in
+            print("🔥 OSPropertyOperationExecutor executed request SUCCESS block: \(result)")
+            // Mock a response
+            let response = ["language": "en"]
 
-        let response = ["language": "en"]
+            // On success, remove request from cache, and hydrate model
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
 
-        // On success, remove operation from cache, and hydrate model
-        // TODO: May need to remove this operation from the operationQueue too
-        // For example, if app restarts and we read in operations between sending this off and getting the response
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_OPERATION_QUEUE_KEY, withValue: self.operationQueue)
+            request.modelToUpdate.hydrate(response)
 
-        operation.model.hydrate(response)
-
-        // On failure, retry logic
+        } onFailure: { error in
+            print("🔥 OSPropertyOperationExecutor executed request ERROR block: \(error)")
+            // On failure, retry logic, but order of operations matters
+        }
     }
 }

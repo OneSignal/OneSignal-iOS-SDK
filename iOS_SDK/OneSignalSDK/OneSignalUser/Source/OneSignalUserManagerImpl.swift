@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
@@ -34,7 +33,7 @@ import OneSignalOSCore
  */
 @objc protocol OneSignalUserManager {
     static var User: OSUser.Type { get }
-    static func login(aliasLabel: String, aliasId: String, token: String?)
+    static func login(externalId: String, token: String?)
     static func logout()
 }
 
@@ -59,10 +58,10 @@ import OneSignalOSCore
     static func setOutcome(name: String, value: Float)
     // Email
     static func addEmail(_ email: String)
-    static func removeEmail(_ email: String)
+    static func removeEmail(_ email: String) -> Bool
     // SMS
     static func addSmsNumber(_ number: String)
-    static func removeSmsNumber(_ number: String)
+    static func removeSmsNumber(_ number: String) -> Bool
     // Triggers
     static func setTrigger(key: String, value: String)
     static func setTriggers(_ triggers: [String: String])
@@ -85,24 +84,30 @@ import OneSignalOSCore
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     static var user: OSUserInternal {
+        if !hasCalledStart {
+            start()
+        }
+
         if let user = _user {
             return user
         }
 
         // There is no user instance, initialize a "guest user"
-        let user = _login(aliasLabel: nil, aliasId: nil, token: nil)
+        let user = _login(externalId: nil, token: nil)
         _user = user
         return user
     }
 
     private static var _user: OSUserInternal?
 
+    // Track if start() has been called because it should only be called once.
+    private static var hasCalledStart = false
+
     // has Identity, Properties, and Subscription Model Stores
     static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
     static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
     static let subscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_SUBSCRIPTION_MODEL_STORE_KEY)
 
-    // TODO: UM, and Model Store Listeners: where do they live? Here for now.
     static let identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
     static let propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
     static let subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
@@ -112,88 +117,152 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     static let identityExecutor = OSIdentityOperationExecutor()
     static let subscriptionExecutor = OSSubscriptionOperationExecutor()
 
-    static func start() {
-        // TODO: Finish implementation
-        // startModelStoreListenersAndExecutors() moves here after this start() method is hooked up.
-        loadUserFromCache() // TODO: Revisit when to load user from the cache.
-    }
+    // TODO: Call this function around app init
+    /**
+     This method is called around app init, and should only be called once. Use flag `hasCalledStart` to track.
+     If `.user` is accessed and we have not called this method yet, we will call this method first.
+     */
+    public static func start() {
+        guard !hasCalledStart else {
+            return
+        }
+        hasCalledStart = true
 
-    static func startModelStoreListenersAndExecutors() {
-        // Model store listeners subscribe to their models. TODO: Where should these live?
+        print("🔥 OneSignalUserManagerImpl start()")
+
+        // Load user from cache, if any
+        // Corrupted state if any of these models exist without the others
+        if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
+           let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
+           let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
+            _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        }
+
+        // Model store listeners subscribe to their models
         identityModelStoreListener.start()
         propertiesModelStoreListener.start()
         subscriptionModelStoreListener.start()
 
         // Setup the executors
+        OSUserExecutor.start()
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
     }
 
     @objc
-    public static func login(aliasLabel: String, aliasId: String, token: String?) {
-        print("🔥 OneSignalUserManagerImpl login(label: \(aliasLabel), id: \(aliasId)) called")
-        _ = _login(aliasLabel: aliasLabel, aliasId: aliasId, token: token)
+    public static func login(externalId: String, token: String?) {
+        guard externalId != "" else {
+            // Log error
+            return
+        }
+        print("🔥 OneSignalUserManagerImpl login(\(externalId)) called")
+        _ = _login(externalId: externalId, token: token)
     }
 
-    private static func _login(aliasLabel: String?, aliasId: String?, token: String?) -> OSUserInternal {
-        print("🔥 OneSignalUserManagerImpl private _login(label: \(aliasLabel), id: \(aliasId)) called")
-        startModelStoreListenersAndExecutors()
-
-        // If have token, validate token. Account for this being a requirement.
-
+    private static func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
         // Check if the existing user is the same one being logged in. If so, return.
-        if let user = _user, let label = aliasLabel {
-            guard user.identityModel.aliases[label] != aliasId else {
+        if let user = _user {
+            guard user.identityModel.externalId != externalId || externalId == nil else {
                 return user
             }
         }
 
-        // Create new user
+        prepareForNewUser()
 
-        // Notify that the user will change so model stores, etc can clear their cache.
+        let newUser = setNewInternalUser(externalId)
+
+        OSUserExecutor.createUser(newUser)
+        return self.user
+    }
+
+    /**
+     The current user in the SDK is an anonymous user, and we are logging in with an externalId.
+     
+     There are two scenarios addressed:
+     1. This externalId already exists on another user. We create a new SDK user and fetch that user's information.
+     2. This externalId doesn't exist on any users. We successfully identify the user, but we still create a new SDK user and fetch to update it.
+     */
+    private static func identifyUser(externalId: String, currentUser: OSUserInternal) {
+        // Get the identity model of the current user
+        let identityModelToIdentify = user.identityModel
+
+        // Immediately drop the old user and set a new user in the SDK
+        prepareForNewUser()
+        let newUser = setNewInternalUser(externalId)
+
+        // Now proceed to identify the previous user
+        OSUserExecutor.identifyUser(
+            externalId: externalId,
+            identityModelToIdentify: identityModelToIdentify,
+            identityModelToUpdate: newUser.identityModel
+        )
+    }
+
+    private static func _login(externalId: String?, token: String?) -> OSUserInternal {
+        print("🔥 OneSignalUserManagerImpl private _login(\(externalId)) called")
+
+        // If have token, validate token. Account for this being a requirement.
+
+        // Logging into an identified user from an anonymous user
+        if let externalId = externalId,
+           let user = _user,
+           user.isAnonymous {
+            identifyUser(externalId: externalId, currentUser: user)
+            return self.user
+        }
+
+        // Logging into anon -> anon, identified -> anon, or identified -> identified
+        return createNewUser(externalId: externalId, token: token)
+    }
+
+    /**
+     The SDK needs to have a user at all times, so this method will create a new anonymous user.
+     */
+    @objc
+    public static func logout() {
+        _user = nil
+        createUserIfNil()
+    }
+
+    private static func createUserIfNil() {
+        _ = self.user
+    }
+
+    /**
+     Notifies observers that the user will be changed. Responses include model stores clearing their User Defaults
+     and the operation repo flushing the current (soon to be old) user's operations.
+     */
+    private static func prepareForNewUser() {
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
-        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
+        // This store MUST be cleared, Identity and Properties do not.
+        subscriptionModelStore.clearModelsFromStore()
+    }
+
+    /**
+     Creates and sets a blank new SDK user with the provided externalId, if any.
+     */
+    private static func setNewInternalUser(_ externalId: String?) -> OSUserInternal {
+        let aliases: [String: String]?
+        if let externalIdToUse = externalId {
+            aliases = [OS_EXTERNAL_ID: externalIdToUse]
+        } else {
+            aliases = nil
+        }
+
+        let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
         self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
 
         // TODO: Push Subscription logic
-            // If and how the push subscription moves to the new user?
-            // Add the push sub to the store w/o creating a Delta?
-        let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer()
-        )
+
+        let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer())
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
-    }
-
-    @objc
-    public static func logout() {
-        NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
-        // Login a guest user
-        _user = nil
-        createUserIfNil()
-    }
-
-    static func createUserIfNil() {
-        _ = self.user
-    }
-
-    static func loadUserFromCache() {
-        print("🔥 OneSignalUserManagerImpl loadUserFromCache()")
-        // Corrupted state if any exists without the others
-        guard let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
-              let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
-              let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]
-        else {
-            return
-        }
-
-        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
-        startModelStoreListenersAndExecutors()
     }
 }
 
@@ -207,7 +276,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func addAlias(label: String, id: String) {
-        user.addAlias(label: label, id: id)
+        user.addAliases([label: id])
     }
 
     public static func addAliases(_ aliases: [String: String]) {
@@ -215,7 +284,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func removeAlias(_ label: String) {
-        user.removeAlias(label)
+        user.removeAliases([label])
     }
 
     public static func removeAliases(_ labels: [String]) {
@@ -223,7 +292,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func setTag(key: String, value: String) {
-        user.setTag(key: key, value: value)
+        user.setTags([key: value])
     }
 
     public static func setTags(_ tags: [String: String]) {
@@ -231,7 +300,7 @@ extension OneSignalUserManagerImpl: OSUser {
     }
 
     public static func removeTag(_ tag: String) {
-        user.removeTag(tag)
+        user.removeTags([tag])
     }
 
     public static func removeTags(_ tags: [String]) {
@@ -263,10 +332,15 @@ extension OneSignalUserManagerImpl: OSUser {
         self.subscriptionModelStore.add(id: email, model: model)
     }
 
-    public static func removeEmail(_ email: String) {
+    /**
+     If this email doesn't already exist on the user, it cannot be removed.
+     This will be a no-op and no request will be made.
+     Error handling needs to be implemented in the future.
+     */
+    public static func removeEmail(_ email: String) -> Bool {
         // Check if is valid email?
         createUserIfNil()
-        self.subscriptionModelStore.remove(email)
+        return self.subscriptionModelStore.remove(email)
     }
 
     public static func addSmsNumber(_ number: String) {
@@ -282,10 +356,15 @@ extension OneSignalUserManagerImpl: OSUser {
         self.subscriptionModelStore.add(id: number, model: model)
     }
 
-    public static func removeSmsNumber(_ number: String) {
+    /**
+     If this email doesn't already exist on the user, it cannot be removed.
+     This will be a no-op and no request will be made.
+     Error handling needs to be implemented in the future.
+     */
+    public static func removeSmsNumber(_ number: String) -> Bool {
         // Check if is valid SMS?
         createUserIfNil()
-        self.subscriptionModelStore.remove(number)
+        return self.subscriptionModelStore.remove(number)
     }
 
     public static func setTrigger(key: String, value: String) {
@@ -325,5 +404,12 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         set {
             user.pushSubscriptionModel.enabled = newValue
         }
+    }
+
+    static func setPushToken(_ token: String) {
+        createUserIfNil()
+        user.pushSubscriptionModel.address = token
+        // Communicate to OSUserExecutor to make any pending CreateUser requests waiting on token
+        OSUserExecutor.executePendingRequests()
     }
 }

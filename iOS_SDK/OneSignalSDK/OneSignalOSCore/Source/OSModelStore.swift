@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalCore
 
 open class OSModelStore<TModel: OSModel>: NSObject {
@@ -46,13 +45,26 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         }
         super.init()
 
+        // listen for changes to the models
+        for model in self.models.values {
+            model.changeNotifier.subscribe(self)
+        }
+
         // register as user observer
-        NotificationCenter.default.addObserver(self, selector: #selector(self.clearModelsFromCache),
+        NotificationCenter.default.addObserver(self, selector: #selector(self.removeModelsFromUserDefaults),
                                                name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self, name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+    }
+
+    /**
+     Uses the ID that is used a key to store models in the store's models dictionary.
+     Examples:  "person@example.com" for a subscription model or `OS_IDENTITY_MODEL_KEY` for an identity model.
+     */
+    public func getModel(key: String) -> TModel? {
+        return self.models[key]
     }
 
     public func getModels() -> [String: TModel] {
@@ -61,7 +73,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
     public func add(id: String, model: TModel) {
         print("🔥 OSModelStore add with model \(model)")
-        // TODO: Check if we are adding the same model?
+        // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
         models[id] = model
 
@@ -69,17 +81,20 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
         // listen for changes to this model
-        model.changeNotifier?.subscribe(self)
+        model.changeNotifier.subscribe(self)
 
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
         }
     }
 
-    public func remove(_ id: String) {
+    /**
+     Returns false if this model does not exist in the store.
+     This can happen if remove email or SMS is called and it doesn't exist in the store.
+     */
+    public func remove(_ id: String) -> Bool {
         print("🔥 OSModelStore remove with model \(id)")
         // TODO: Nothing will happen if model doesn't exist in the store
-            // Determine if that's correct behavior or if we should still create an Operation
         if let model = models[id] {
             models.removeValue(forKey: id)
 
@@ -87,18 +102,35 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
 
             // no longer listen for changes to this model
-            model.changeNotifier?.unsubscribe(self)
+            model.changeNotifier.unsubscribe(self)
 
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
             }
+            return true
         }
+        return false
     }
 
-    @objc func clearModelsFromCache() {
-        print("🔥 OSModelStore \(self.storeKey): clearModelsFromCache() called.")
-        // Clear the models cache when ON_OS_USER_WILL_CHANGE
+    /**
+     We remove this store's models from UserDefaults but not from the store itself.
+     We may still need references to model(s) in this store!
+     */
+    @objc func removeModelsFromUserDefaults() {
+        print("🔥 OSModelStore \(self.storeKey): removeModelsFromUserDefaults() called.")
+        // Clear the UserDefaults models cache when OS_ON_USER_WILL_CHANGE
+
         OneSignalUserDefaults.initShared().removeValue(forKey: self.storeKey)
+    }
+
+    /**
+     We clear this store's models but not from the UserDefaults cache.
+     When the User changes, the Subscription Model Store must remove all models.
+     In contrast, it is not necessary for the Identity or Properties Model Stores to do so.
+     */
+    public func clearModelsFromStore() {
+        print("🔥 OSModelStore \(self.storeKey): clearModelsFromStore() called.")
+        self.models = [:]
     }
 }
 

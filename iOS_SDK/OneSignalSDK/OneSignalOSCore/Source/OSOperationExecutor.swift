@@ -25,19 +25,17 @@
  THE SOFTWARE.
  */
 
-import Foundation
+import OneSignalCore
 
 public protocol OSOperationExecutor {
     var supportedDeltas: [String] { get }
     var deltaQueue: [OSDelta] { get }
-    var operationQueue: [OSOperation] { get }
+    var requestQueue: [OneSignalRequest] { get }
 
-    func start()
     func enqueueDelta(_ delta: OSDelta)
     func cacheDeltaQueue()
     func processDeltaQueue()
 
-    func enqueueOperation(_ operation: OSOperation)
-    func processOperationQueue()
-    func executeOperation(_ operation: OSOperation)
+    func enqueueRequest(_ request: OneSignalRequest)
+    func processRequestQueue()
 }
