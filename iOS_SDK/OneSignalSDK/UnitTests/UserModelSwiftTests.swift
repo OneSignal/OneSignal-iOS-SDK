@@ -66,9 +66,6 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.login("foo")
         OneSignal.login(externalId: "foo", token: "someToken")
         OneSignal.login(externalId: "foo", token: nil)
-        OneSignal.login(aliasLabel: "foo", aliasId: "bar")
-        OneSignal.login(aliasLabel: "foo", aliasId: "bar", token: "someToken")
-        OneSignal.login(aliasLabel: "foo", aliasId: "bar", token: nil)
         OneSignal.logout()
 
         // Aliases
