@@ -70,7 +70,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             }
 
             let request = OSRequestUpdateProperties(
-                properties: [delta.property: delta.value ?? ""], // Sort this out.
+                properties: [delta.property: delta.value],
                 deltas: nil,
                 refreshDeviceMetadata: false, // Sort this out.
                 modelToUpdate: model,
