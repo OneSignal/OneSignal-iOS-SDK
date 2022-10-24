@@ -58,10 +58,10 @@ import OneSignalOSCore
     static func setOutcome(name: String, value: Float)
     // Email
     static func addEmail(_ email: String)
-    static func removeEmail(_ email: String)
+    static func removeEmail(_ email: String) -> Bool
     // SMS
     static func addSmsNumber(_ number: String)
-    static func removeSmsNumber(_ number: String)
+    static func removeSmsNumber(_ number: String) -> Bool
     // Triggers
     static func setTrigger(key: String, value: String)
     static func setTriggers(_ triggers: [String: String])
@@ -277,10 +277,15 @@ extension OneSignalUserManagerImpl: OSUser {
         self.subscriptionModelStore.add(id: email, model: model)
     }
 
-    public static func removeEmail(_ email: String) {
+    /**
+     If this email doesn't already exist on the user, it cannot be removed.
+     This will be a no-op and no request will be made.
+     Error handling needs to be implemented in the future.
+     */
+    public static func removeEmail(_ email: String) -> Bool {
         // Check if is valid email?
         createUserIfNil()
-        self.subscriptionModelStore.remove(email)
+        return self.subscriptionModelStore.remove(email)
     }
 
     public static func addSmsNumber(_ number: String) {
@@ -296,10 +301,15 @@ extension OneSignalUserManagerImpl: OSUser {
         self.subscriptionModelStore.add(id: number, model: model)
     }
 
-    public static func removeSmsNumber(_ number: String) {
+    /**
+     If this email doesn't already exist on the user, it cannot be removed.
+     This will be a no-op and no request will be made.
+     Error handling needs to be implemented in the future.
+     */
+    public static func removeSmsNumber(_ number: String) -> Bool {
         // Check if is valid SMS?
         createUserIfNil()
-        self.subscriptionModelStore.remove(number)
+        return self.subscriptionModelStore.remove(number)
     }
 
     public static func setTrigger(key: String, value: String) {

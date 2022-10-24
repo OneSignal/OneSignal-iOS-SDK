@@ -88,10 +88,13 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         }
     }
 
-    public func remove(_ id: String) {
+    /**
+     Returns false if this model does not exist in the store.
+     This can happen if remove email or SMS is called and it doesn't exist in the store.
+     */
+    public func remove(_ id: String) -> Bool {
         print("🔥 OSModelStore remove with model \(id)")
         // TODO: Nothing will happen if model doesn't exist in the store
-            // Determine if that's correct behavior or if we should still create an Operation
         if let model = models[id] {
             models.removeValue(forKey: id)
 
@@ -104,7 +107,9 @@ open class OSModelStore<TModel: OSModel>: NSObject {
             self.changeSubscription.fire { modelStoreListener in
                 modelStoreListener.onRemoved(model)
             }
+            return true
         }
+        return false
     }
 
     /**
