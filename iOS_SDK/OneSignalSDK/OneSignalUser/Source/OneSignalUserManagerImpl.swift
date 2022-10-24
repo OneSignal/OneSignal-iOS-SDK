@@ -84,6 +84,10 @@ import OneSignalOSCore
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     static var user: OSUserInternal {
+        if !hasCalledStart {
+            start()
+        }
+
         if let user = _user {
             return user
         }
@@ -95,6 +99,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private static var _user: OSUserInternal?
+
+    // Track if start() has been called because it should only be called once.
+    private static var hasCalledStart = false
 
     // has Identity, Properties, and Subscription Model Stores
     static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
@@ -110,19 +117,34 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     static let identityExecutor = OSIdentityOperationExecutor()
     static let subscriptionExecutor = OSSubscriptionOperationExecutor()
 
-    static func start() {
-        // TODO: Finish implementation
-        // startModelStoreListenersAndExecutors() moves here after this start() method is hooked up.
-        loadUserFromCache() // TODO: Revisit when to load user from the cache.
-    }
+    // TODO: Call this function around app init
+    /**
+     This method is called around app init, and should only be called once. Use flag `hasCalledStart` to track.
+     If `.user` is accessed and we have not called this method yet, we will call this method first.
+     */
+    public static func start() {
+        guard !hasCalledStart else {
+            return
+        }
+        hasCalledStart = true
 
-    static func startModelStoreListenersAndExecutors() {
-        // Model store listeners subscribe to their models. TODO: Where should these live?
+        print("🔥 OneSignalUserManagerImpl start()")
+
+        // Load user from cache, if any
+        // Corrupted state if any of these models exist without the others
+        if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
+           let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
+           let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
+            _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        }
+
+        // Model store listeners subscribe to their models
         identityModelStoreListener.start()
         propertiesModelStoreListener.start()
         subscriptionModelStoreListener.start()
 
         // Setup the executors
+        OSUserExecutor.start()
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
@@ -196,19 +218,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         subscriptionModelStore.clearModelsFromStore()
     }
 
-    static func loadUserFromCache() {
-        print("🔥 OneSignalUserManagerImpl loadUserFromCache()")
-        // Corrupted state if any exists without the others
-        guard let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
-              let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
-              let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY]
-        else {
-            return
-        }
-
-        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
-        startModelStoreListenersAndExecutors()
-    }
 }
 
 extension OneSignalUserManagerImpl: OSUser {
