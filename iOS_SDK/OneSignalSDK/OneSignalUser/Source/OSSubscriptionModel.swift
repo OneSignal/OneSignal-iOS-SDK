@@ -103,7 +103,7 @@ class OSSubscriptionModel: OSModel {
             let rawType = coder.decodeObject(forKey: "type") as? String,
             let type = OSSubscriptionType(rawValue: rawType)
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
         self.type = type

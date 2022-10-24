@@ -66,7 +66,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
     public func add(id: String, model: TModel) {
         print("🔥 OSModelStore add with model \(model)")
-        // TODO: Check if we are adding the same model?
+        // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
         models[id] = model
 
