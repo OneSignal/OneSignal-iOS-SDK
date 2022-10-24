@@ -53,7 +53,7 @@ extension OSModelStoreListener {
     public func onAdded(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onAdded() with model \(model)")
         guard let addedModel = model as? Self.TModel else {
-            // TODO: log error
+            // log error
             return
         }
         if let delta = getAddModelDelta(addedModel) {
@@ -71,7 +71,7 @@ extension OSModelStoreListener {
     public func onRemoved(_ model: OSModel) {
         print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
         guard let removedModel = model as? Self.TModel else {
-            // TODO: log error
+            // log error
             return
         }
         if let delta = getRemoveModelDelta(removedModel) {
