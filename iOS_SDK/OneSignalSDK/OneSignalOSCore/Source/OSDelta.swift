@@ -28,7 +28,6 @@
 import Foundation
 
 open class OSDelta: NSObject, NSCoding {
-    // TODO: Maybe need to include the old value as well. For caching, need to deal with nil old values.
     public let name: String
     public let deltaId: String
     public let timestamp: Date
@@ -62,7 +61,7 @@ open class OSDelta: NSObject, NSCoding {
               let property = coder.decodeObject(forKey: "property") as? String,
               let value = coder.decodeObject(forKey: "value")
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
 

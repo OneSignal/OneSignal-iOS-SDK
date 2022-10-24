@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
@@ -102,7 +101,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
     static let subscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_SUBSCRIPTION_MODEL_STORE_KEY)
 
-    // TODO: UM, and Model Store Listeners: where do they live? Here for now.
     static let identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
     static let propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
     static let subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)

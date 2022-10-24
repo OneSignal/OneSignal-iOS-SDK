@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-import Foundation
 import OneSignalCore
 import OneSignalOSCore
 
