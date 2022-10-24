@@ -33,7 +33,7 @@ import OneSignalOSCore
  */
 @objc protocol OneSignalUserManager {
     static var User: OSUser.Type { get }
-    static func login(aliasLabel: String, aliasId: String, token: String?)
+    static func login(externalId: String, token: String?)
     static func logout()
 }
 
@@ -89,7 +89,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         // There is no user instance, initialize a "guest user"
-        let user = _login(aliasLabel: nil, aliasId: nil, token: nil)
+        let user = _login(externalId: nil, token: nil)
         _user = user
         return user
     }
@@ -129,9 +129,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     @objc
-    public static func login(aliasLabel: String, aliasId: String, token: String?) {
-        print("🔥 OneSignalUserManagerImpl login(label: \(aliasLabel), id: \(aliasId)) called")
-        _ = _login(aliasLabel: aliasLabel, aliasId: aliasId, token: token)
+    public static func login(externalId: String, token: String?) {
+        guard externalId != "" else {
+            // Log error
+            return
+        }
+        print("🔥 OneSignalUserManagerImpl login(\(externalId)) called")
+        _ = _login(externalId: externalId, token: token)
     }
 
     private static func _login(aliasLabel: String?, aliasId: String?, token: String?) -> OSUserInternal {
