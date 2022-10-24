@@ -3111,7 +3111,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = (
 					"$(ARCHS_STANDARD)",
-					armv7s,
 					x86_64h,
 					x86_64,
 				);
@@ -3273,7 +3272,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = (
 					"$(ARCHS_STANDARD)",
-					armv7s,
 					x86_64h,
 					x86_64,
 				);
@@ -3436,7 +3434,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = (
 					"$(ARCHS_STANDARD)",
-					armv7s,
 					x86_64h,
 					x86_64,
 				);
