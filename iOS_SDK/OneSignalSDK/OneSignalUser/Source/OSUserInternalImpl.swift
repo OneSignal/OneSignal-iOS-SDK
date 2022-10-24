@@ -32,6 +32,7 @@ import OneSignalOSCore
  This is the user interface exposed to the public.
  */
 protocol OSUserInternal {
+    var isAnonymous: Bool { get }
     var pushSubscriptionModel: OSSubscriptionModel { get }
     var identityModel: OSIdentityModel { get }
     var propertiesModel: OSPropertiesModel { get }
@@ -53,13 +54,19 @@ protocol OSUserInternal {
     func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
+    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel
 }
 
 /**
  Internal user object that implements the OSUserInternal protocol.
  */
 class OSUserInternalImpl: NSObject, OSUserInternal {
+    // TODO: Determine if having any alias should return true
+    // Is an anon user who has added aliases, still an anon user?
+    var isAnonymous: Bool {
+        return identityModel.externalId == nil
+    }
+
     var triggers: [String: String] = [:] // TODO: update to include bool, number...
 
     var identityModel: OSIdentityModel
@@ -69,9 +76,10 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     // Sessions will be outside this?
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
+    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel {
         pushSubscriptionModel = OSSubscriptionModel(type: .push, address: token, enabled: enabled, changeNotifier: OSEventProducer())
         print("🔥 OSUserInternalImpl has set pushSubcription for testing")
+        return pushSubscriptionModel
     }
 
     init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel) {
@@ -83,31 +91,33 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     // MARK: - Aliases
 
     /**
-     Prohibit the use of `OS_ONESIGNAL_ID` as an alias label.
-     Prohibit the setting of aliases to the empty string (users should use removeAlias methods instead).
+     Prohibit the use of `onesignal_id` and `external_id`as alias label.
+     Prohibit the setting of aliases to the empty string (users should use `removeAlias` methods instead).
      */
     func addAliases(_ aliases: [String: String]) {
-        // TODO: Don't allow `external_id` either??
         // Decide if the non-offending aliases should still be added.
         print("🔥 OSUserInternalImpl addAliases() called")
         guard aliases[OS_ONESIGNAL_ID] == nil,
+              aliases[OS_EXTERNAL_ID] == nil,
               !aliases.values.contains("")
         else {
             // log error
-            print("🔥 OSUserInternal addAliases: Cannot use \(OS_ONESIGNAL_ID) as a alias label")
+            print("🔥 OSUserInternal addAliases: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label. Or, cannot use empty string as an alias ID.")
             return
         }
         identityModel.addAliases(aliases)
     }
 
     /**
-     Prohibit the removal of `OS_ONESIGNAL_ID`.
+     Prohibit the removal of `onesignal_id` and `external_id`.
      */
     func removeAliases(_ labels: [String]) {
         print("🔥 OSUserInternalImpl removeAliases() called")
-        guard !labels.contains(OS_ONESIGNAL_ID) else {
+        guard !labels.contains(OS_ONESIGNAL_ID),
+              !labels.contains(OS_EXTERNAL_ID)
+        else {
             // log error
-            print("🔥 OSUserInternal removeAliases: Cannot use \(OS_ONESIGNAL_ID) as a alias label")
+            print("🔥 OSUserInternal removeAliases: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label.")
             return
         }
         identityModel.removeAliases(labels)
