@@ -79,10 +79,10 @@ public class OSOperationRepo: NSObject {
      Add and start an executor.
      */
     public func addExecutor(_ executor: OSOperationExecutor) {
+        print("🔥 OSOperationRepo addExecutor: \(executor)")
         executors.append(executor)
         for delta in executor.supportedDeltas {
             deltasToExecutorMap[delta] = executor
-            executor.start()
         }
     }
 
