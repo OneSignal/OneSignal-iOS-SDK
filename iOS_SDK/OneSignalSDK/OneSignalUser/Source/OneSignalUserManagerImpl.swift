@@ -160,36 +160,60 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _ = _login(externalId: externalId, token: token)
     }
 
-    private static func _login(aliasLabel: String?, aliasId: String?, token: String?) -> OSUserInternal {
-        print("🔥 OneSignalUserManagerImpl private _login(label: \(aliasLabel), id: \(aliasId)) called")
-        startModelStoreListenersAndExecutors()
-
-        // If have token, validate token. Account for this being a requirement.
-
+    private static func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
         // Check if the existing user is the same one being logged in. If so, return.
-        if let user = _user, let label = aliasLabel {
-            guard user.identityModel.aliases[label] != aliasId else {
+        if let user = _user {
+            guard user.identityModel.externalId != externalId || externalId == nil else {
                 return user
             }
         }
 
-        // Create new user
         prepareForNewUser()
 
-        let identityModel = OSIdentityModel(changeNotifier: OSEventProducer())
-        self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
+        let newUser = setNewInternalUser(externalId)
 
-        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
-
-        // TODO: Push Subscription logic
-            // If and how the push subscription moves to the new user?
-            // Add the push sub to the store w/o creating a Delta?
-        let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer()
-        )
-
-        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        OSUserExecutor.createUser(newUser)
         return self.user
+    }
+
+    /**
+     The current user in the SDK is an anonymous user, and we are logging in with an externalId.
+     
+     There are two scenarios addressed:
+     1. This externalId already exists on another user. We create a new SDK user and fetch that user's information.
+     2. This externalId doesn't exist on any users. We successfully identify the user, but we still create a new SDK user and fetch to update it.
+     */
+    private static func identifyUser(externalId: String, currentUser: OSUserInternal) {
+        // Get the identity model of the current user
+        let identityModelToIdentify = user.identityModel
+
+        // Immediately drop the old user and set a new user in the SDK
+        prepareForNewUser()
+        let newUser = setNewInternalUser(externalId)
+
+        // Now proceed to identify the previous user
+        OSUserExecutor.identifyUser(
+            externalId: externalId,
+            identityModelToIdentify: identityModelToIdentify,
+            identityModelToUpdate: newUser.identityModel
+        )
+    }
+
+    private static func _login(externalId: String?, token: String?) -> OSUserInternal {
+        print("🔥 OneSignalUserManagerImpl private _login(\(externalId)) called")
+
+        // If have token, validate token. Account for this being a requirement.
+
+        // Logging into an identified user from an anonymous user
+        if let externalId = externalId,
+           let user = _user,
+           user.isAnonymous {
+            identifyUser(externalId: externalId, currentUser: user)
+            return self.user
+        }
+
+        // Logging into anon -> anon, identified -> anon, or identified -> identified
+        return createNewUser(externalId: externalId, token: token)
     }
 
     /**
@@ -197,13 +221,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      */
     @objc
     public static func logout() {
-        prepareForNewUser()
-        // Login a guest user
         _user = nil
         createUserIfNil()
     }
 
-    static func createUserIfNil() {
+    private static func createUserIfNil() {
         _ = self.user
     }
 
@@ -211,13 +233,37 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      Notifies observers that the user will be changed. Responses include model stores clearing their User Defaults
      and the operation repo flushing the current (soon to be old) user's operations.
      */
-    static func prepareForNewUser() {
+    private static func prepareForNewUser() {
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
         // This store MUST be cleared, Identity and Properties do not.
         subscriptionModelStore.clearModelsFromStore()
     }
 
+    /**
+     Creates and sets a blank new SDK user with the provided externalId, if any.
+     */
+    private static func setNewInternalUser(_ externalId: String?) -> OSUserInternal {
+        let aliases: [String: String]?
+        if let externalIdToUse = externalId {
+            aliases = [OS_EXTERNAL_ID: externalIdToUse]
+        } else {
+            aliases = nil
+        }
+
+        let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
+        self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
+
+        let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
+        self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
+
+        // TODO: Push Subscription logic
+
+        let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer())
+
+        _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+        return self.user
+    }
 }
 
 extension OneSignalUserManagerImpl: OSUser {
@@ -337,8 +383,8 @@ extension OneSignalUserManagerImpl: OSUser {
         user.removeTriggers(triggers)
     }
 
-    public static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
-        user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
+    static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel {
+        return user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
     }
 }
 
@@ -358,5 +404,12 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         set {
             user.pushSubscriptionModel.enabled = newValue
         }
+    }
+
+    static func setPushToken(_ token: String) {
+        createUserIfNil()
+        user.pushSubscriptionModel.address = token
+        // Communicate to OSUserExecutor to make any pending CreateUser requests waiting on token
+        OSUserExecutor.executePendingRequests()
     }
 }
