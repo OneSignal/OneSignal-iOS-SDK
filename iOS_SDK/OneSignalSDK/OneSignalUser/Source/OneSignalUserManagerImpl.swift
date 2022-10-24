@@ -383,8 +383,8 @@ extension OneSignalUserManagerImpl: OSUser {
         user.removeTriggers(triggers)
     }
 
-    static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel {
-        return user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
+    public static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
+        user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
     }
 }
 
