@@ -27,23 +27,189 @@
 
 import OneSignalCore
 
+/**
+ Involved in the login process and responsible for Identify User and Create User.
+ */
+class OSUserExecutor {
+    static var requestQueue: [OSUserRequest] = []
+
+    static func start() {
+        // Read unfinished requests from cache, if any...
+        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSUserRequest] {
+            self.requestQueue = requestQueue
+        } else {
+            // log error
+        }
+    }
+
+    static func executePendingRequests() {
+        for request in requestQueue {
+            // Return as soon as we reach an un-executable request
+            if !request.prepareForExecution() {
+                return
+            }
+            // This request is Identify User
+            if request.isKind(of: OSRequestIdentifyUser.self), let identifyUserRequest = request as? OSRequestIdentifyUser {
+                executeIdentifyUserRequest(identifyUserRequest)
+            } else {
+                // Log Error
+            }
+            // Remove the request from queue and cache
+            requestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+        }
+    }
+
+    // We will pass minimal properties to this request
+    static func createUser(_ user: OSUserInternal) {
+        let request = OSRequestCreateUser(identityModel: user.identityModel, pushSubscriptionModel: user.pushSubscriptionModel)
+
+        // Currently there are no requirements needed before sending this request
+
+        OneSignalClient.shared().execute(request) { _ in
+            // On success, check if the current user is the same as the one in the request
+            // If user has changed, don't hydrate, except for push subscription
+            OneSignalUserManagerImpl.user.pushSubscriptionModel.hydrate(["subscription_id": "0123456789"]) // Mocked
+
+            let modelInStore = OneSignalUserManagerImpl.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
+
+            guard modelInStore?.modelId == request.identityModel.modelId else {
+                return
+            }
+
+            // hydrate identity, properties, subscriptions
+
+            executePendingRequests()
+        } onFailure: { _ in
+            // Depending on error, Client is responsible for retrying.
+            // executePendingRequests() ?
+        }
+    }
+
+    static func identifyUser(externalId: String, identityModelToIdentify: OSIdentityModel, identityModelToUpdate: OSIdentityModel) {
+        let request = OSRequestIdentifyUser(
+            aliasLabel: OS_EXTERNAL_ID,
+            aliasId: externalId,
+            identityModelToIdentify: identityModelToIdentify,
+            identityModelToUpdate: identityModelToUpdate
+        )
+
+        guard request.prepareForExecution() else {
+            // Missing onesignal_id
+            // This request still stays in the queue and cache
+            requestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            return
+        }
+
+        executeIdentifyUserRequest(request)
+    }
+
+    static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
+        OneSignalClient.shared().execute(request) { _ in
+            // the anonymous user has been identified, still need to Fetch User + Transfer Push Sub
+            fetchUserByExternalId(externalId: request.aliasId, identityModel: request.identityModelToUpdate)
+            transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
+            executePendingRequests() // TODO: Here or after fetch or after transfer?
+
+        } onFailure: { _ in
+            // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
+            // If 409:
+            fetchUserByExternalId(externalId: request.aliasId, identityModel: request.identityModelToUpdate)
+            // TODO: Link ^ to the new user
+            transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
+            executePendingRequests() // Here or after fetch or after transfer?
+
+            // If not 409, we retry, depending on what the error is?
+        }
+    }
+
+    static func transferPushSubscriptionTo(aliasLabel: String, aliasId: String, retainPreviousUser: Bool?) {
+        // TODO: Where to get pushSubscriptionModel for this request
+        let request = OSRequestTransferSubscription(
+            subscriptionModel: OneSignalUserManagerImpl.user.pushSubscriptionModel,
+            aliasLabel: aliasLabel,
+            aliasId: aliasId,
+            identityModel: nil,
+            retainPreviousUser: retainPreviousUser // Need to update logic to determine this, for now, default to true
+        )
+
+        guard request.prepareForExecution() else {
+            // Missing subscriptionId. This request still stays in the queue and cache
+            requestQueue.append(request)
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            return
+        }
+
+        executeTransferPushSubscriptionRequest(request)
+    }
+
+    static func executeTransferPushSubscriptionRequest(_ request: OSRequestTransferSubscription) {
+        OneSignalClient.shared().execute(request) { _ in
+            // ... hydrate with returned identity object?
+            executePendingRequests()
+
+        } onFailure: { _ in
+            // What happened? Client responsible for retrying.
+        }
+    }
+
+    static func fetchUserByExternalId(externalId: String, identityModel: OSIdentityModel) {
+        let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: OS_EXTERNAL_ID, aliasId: externalId)
+
+        guard request.prepareForExecution() else {
+            // This should not happen as we set the alias to use for the request path, log error
+            return
+        }
+
+        OneSignalClient.shared().execute(request) { _ in
+            // Hydrate (replace) models
+        } onFailure: { _ in
+            // What?
+        }
+    }
+}
+
+// MARK: - User Request Classes
+
 protocol OSUserRequest: OneSignalRequest, NSCoding {
     func prepareForExecution() -> Bool
 }
 
-// Confirm the type of the things in the parameters field
-// Don't hardcode strings?
+// TODO: Confirm the type of the things in the parameters field
+// TODO: Don't hardcode the strings?
 
-// Let's touch this later...
-class OSRequestCreateUser: OneSignalRequest, NSCoding {
-    // We need to pass in all 3 model types (?) even if we don't send them all, for hydration
-    init(identity: [String: String]?, properties: [String: Any]?, subscriptions: [[String: Any]]?) {
+/**
+ This request will be made with the minimum information needed. The payload will contain an externalId or no identities.
+ The push subscription may or may not have a token or suscriptionId already.
+ There will be no properties sent.
+ */
+class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
+    let identityModel: OSIdentityModel
+    let pushSubscriptionModel: OSSubscriptionModel
+
+    func prepareForExecution() -> Bool {
+        // The pushSub doesn't need to have a token.
+        return true
+    }
+
+    init(identityModel: OSIdentityModel, pushSubscriptionModel: OSSubscriptionModel) {
+        self.identityModel = identityModel
+        self.pushSubscriptionModel = pushSubscriptionModel
+
         super.init()
 
+        var pushSubscriptionObject: [String: Any] = [:]
+        pushSubscriptionObject["id"] = pushSubscriptionModel.subscriptionId
+        pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
+        pushSubscriptionObject["token"] = pushSubscriptionModel.address
+        // ... and more ? ...
+
         var params: [String: Any] = [:]
-        params["identity"] = identity
-        params["properties"] = properties
-        params["subscriptions"] = subscriptions
+        if let externalId = identityModel.externalId {
+            params["identity"] = [OS_EXTERNAL_ID: externalId]
+        }
+        params["subscriptions"] = pushSubscriptionObject
 
         self.parameters = params
         self.method = POST
@@ -51,18 +217,132 @@ class OSRequestCreateUser: OneSignalRequest, NSCoding {
     }
 
     func encode(with coder: NSCoder) {
-        //
+        coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(pushSubscriptionModel, forKey: "pushSubscriptionModel")
+        coder.encode(parameters, forKey: "parameters")
+        coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(path, forKey: "path")
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
-        //
+        guard
+            let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
+            let pushSubscriptionModel = coder.decodeObject(forKey: "pushSubscriptionModel") as? OSSubscriptionModel,
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let path = coder.decodeObject(forKey: "path") as? String,
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
+        else {
+            // Log error
+            return nil
+        }
+        self.identityModel = identityModel
+        self.pushSubscriptionModel = pushSubscriptionModel
+        super.init()
+        self.parameters = parameters
+        self.method = HTTPMethod(rawValue: rawMethod)
+        self.path = path
+        self.timestamp = timestamp
     }
 }
 
+/**
+ The `identityModelToIdentify` is used for the `onesignal_id` of the user we want to associate with this alias.
+ This request will tell us if we should continue with the previous user who is now identitfied, or to change users to the one this alias already exists on.
+ 
+ Note: The SDK needs an user to operate on before this request returns. However, at the time of this request's creation, the SDK does not know if there is already
+ an user associated with this alias. So, it creates a blank new user (whose identity model is passed in as `identityModelToUpdate`,
+ which is the model used to make a subsequent ``OSRequestFetchUser``).
+ */
+class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
+    let identityModelToIdentify: OSIdentityModel
+    let identityModelToUpdate: OSIdentityModel
+    let aliasLabel: String
+    let aliasId: String
+
+    // requires a onesignal_id to send this request
+    func prepareForExecution() -> Bool {
+        if let onesignalId = identityModelToIdentify.onesignalId {
+            self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
+            return true
+        } else {
+            // self.path is non-nil, so set to empty string
+            self.path = ""
+            return false
+        }
+    }
+
+    /**
+     - Parameters:
+        - aliasLabel: The alias label we want to identify this user with.
+        - aliasId: The alias ID we want to identify this user with.
+        - identityModelToIdentify: Belongs to the user we want to identify with this alias.
+        - identityModelToUpdate: Belongs to the user we want to send in the subsequent ``OSRequestFetchUser`` that is made when this request returns.
+     */
+    init(aliasLabel: String, aliasId: String, identityModelToIdentify: OSIdentityModel, identityModelToUpdate: OSIdentityModel) {
+        self.identityModelToIdentify = identityModelToIdentify
+        self.identityModelToUpdate = identityModelToUpdate
+        self.aliasLabel = aliasLabel
+        self.aliasId = aliasId
+        super.init()
+        self.parameters = ["identity": [aliasLabel: aliasId]]
+        self.method = POST
+        _ = prepareForExecution() // sets the path property
+    }
+
+    func encode(with coder: NSCoder) {
+        coder.encode(identityModelToIdentify, forKey: "identityModelToIdentify")
+        coder.encode(identityModelToUpdate, forKey: "identityModelToUpdate")
+        coder.encode(aliasLabel, forKey: "aliasLabel")
+        coder.encode(aliasId, forKey: "aliasId")
+        coder.encode(parameters, forKey: "parameters")
+        coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
+    }
+
+    required init?(coder: NSCoder) {
+        guard
+            let identityModelToIdentify = coder.decodeObject(forKey: "identityModelToIdentify") as? OSIdentityModel,
+            let identityModelToUpdate = coder.decodeObject(forKey: "identityModelToUpdate") as? OSIdentityModel,
+            let aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String,
+            let aliasId = coder.decodeObject(forKey: "aliasId") as? String,
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: [String: String]],
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
+        else {
+            // Log error
+            return nil
+        }
+        self.identityModelToIdentify = identityModelToIdentify
+        self.identityModelToUpdate = identityModelToUpdate
+        self.aliasLabel = aliasLabel
+        self.aliasId = aliasId
+        super.init()
+        self.timestamp = timestamp
+        self.parameters = parameters
+        self.method = HTTPMethod(rawValue: rawMethod)
+        _ = prepareForExecution()
+    }
+}
+
+/**
+ If an alias is passed in, it will be used to fetch the user. If not, then by default, use the `onesignal_id` in the `identityModel` to fetch the user.
+ The `identityModel` is also used to reference the user that is updated with the response.
+ */
 class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let identityModel: OSIdentityModel
+    let aliasLabel: String?
+    let aliasId: String?
 
     func prepareForExecution() -> Bool {
+        // If there is an alias, use that
+        if let aliasLabelToUse = aliasLabel,
+           let aliasIdToUse = aliasId {
+            self.path = "user/by/\(aliasLabelToUse)/\(aliasIdToUse)"
+            return true
+        }
+        // Otherwise, use the onesignal_id
         if let onesignalId = identityModel.onesignalId {
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
             return true
@@ -73,38 +353,48 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(identityModel: OSIdentityModel) {
+    init(identityModel: OSIdentityModel, aliasLabel: String?, aliasId: String?) {
         self.identityModel = identityModel
+        self.aliasLabel = aliasLabel
+        self.aliasId = aliasId
         super.init()
         self.method = GET
         _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
+        coder.encode(aliasLabel, forKey: "aliasLabel")
+        coder.encode(aliasId, forKey: "aliasId")
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
-            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
         self.identityModel = identityModel
+        self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
+        self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }
 
 class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
-    let modelToUpdate: OSIdentityModel
+    let identityModel: OSIdentityModel
 
+    // requires a `onesignal_id` to send this request
     func prepareForExecution() -> Bool {
-        if let onesignalId = modelToUpdate.onesignalId {
+        if let onesignalId = identityModel.onesignalId {
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
             return true
         } else {
@@ -114,43 +404,46 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(identity: [String: String], modelToUpdate: OSIdentityModel) {
-        self.modelToUpdate = modelToUpdate
+    init(aliases: [String: String], identityModel: OSIdentityModel) {
+        self.identityModel = identityModel
         super.init()
-        self.parameters = ["identity": identity]
+        self.parameters = ["identity": aliases]
         self.method = POST
         _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
-        coder.encode(modelToUpdate, forKey: "modelToUpdate")
+        coder.encode(identityModel, forKey: "identityModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
-            let modelToUpdate = coder.decodeObject(forKey: "modelToUpdate") as? OSIdentityModel,
+            let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let parameters = coder.decodeObject(forKey: "parameters") as? [String: [String: String]]
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: [String: String]],
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
-        self.modelToUpdate = modelToUpdate
+        self.identityModel = identityModel
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }
 
 class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     let labelToRemove: String
-    let modelToUpdate: OSIdentityModel
+    let identityModel: OSIdentityModel
 
     func prepareForExecution() -> Bool {
-        if let onesignalId = modelToUpdate.onesignalId {
+        if let onesignalId = identityModel.onesignalId {
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity/\(labelToRemove)"
             return true
         } else {
@@ -160,9 +453,9 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(labelToRemove: String, modelToUpdate: OSIdentityModel) {
+    init(labelToRemove: String, identityModel: OSIdentityModel) {
         self.labelToRemove = labelToRemove
-        self.modelToUpdate = modelToUpdate
+        self.identityModel = identityModel
         super.init()
         self.method = DELETE
         _ = prepareForExecution() // sets the path property
@@ -170,23 +463,26 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
 
     func encode(with coder: NSCoder) {
         coder.encode(labelToRemove, forKey: "labelToRemove")
-        coder.encode(modelToUpdate, forKey: "modelToUpdate")
+        coder.encode(identityModel, forKey: "identityModel")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
             let labelToRemove = coder.decodeObject(forKey: "labelToRemove") as? String,
-            let modelToUpdate = coder.decodeObject(forKey: "modelToUpdate") as? OSIdentityModel,
-            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32
+            let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
         self.labelToRemove = labelToRemove
-        self.modelToUpdate = modelToUpdate
+        self.identityModel = identityModel
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }
@@ -226,6 +522,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
@@ -233,9 +530,10 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
             let modelToUpdate = coder.decodeObject(forKey: "modelToUpdate") as? OSPropertiesModel,
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any]
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
         self.modelToUpdate = modelToUpdate
@@ -243,15 +541,20 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }
 
-// TODO: Address push token
+/**
+ Current uses of this request are for adding Email and SMS subscriptions. Push subscriptions won't be created using
+ this request because they will be created with ``OSRequestCreateUser``.
+ */
 class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
-    let modelToUpdate: OSSubscriptionModel
+    let subscriptionModel: OSSubscriptionModel
     let identityModel: OSIdentityModel
 
+    // Need the onesignal_id of the user
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId {
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscription"
@@ -262,17 +565,17 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(type: OSSubscriptionType, address: String?, enabled: Bool, modelToUpdate: OSSubscriptionModel, identityModel: OSIdentityModel) {
-        self.modelToUpdate = modelToUpdate
+    init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
+        self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
         super.init()
 
         var subscriptionParams: [String: Any] = [:]
-        subscriptionParams["type"] = type.rawValue
-        subscriptionParams["token"] = address
-        subscriptionParams["enabled"] = enabled
+        subscriptionParams["type"] = subscriptionModel.type.rawValue
+        subscriptionParams["token"] = subscriptionModel.address
+        subscriptionParams["enabled"] = subscriptionModel.enabled
 
-        // TODO: Add more to `subscriptionParams`
+        // TODO: Add more to `subscriptionParams`?
 
         self.parameters = ["subscription": subscriptionParams]
         self.method = POST
@@ -280,27 +583,117 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     }
 
     func encode(with coder: NSCoder) {
-        coder.encode(modelToUpdate, forKey: "modelToUpdate")
+        coder.encode(subscriptionModel, forKey: "subscriptionModel")
         coder.encode(identityModel, forKey: "identityModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
-            let modelToUpdate = coder.decodeObject(forKey: "modelToUpdate") as? OSSubscriptionModel,
+            let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
             let identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any]
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
-        self.modelToUpdate = modelToUpdate
+        self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
+        _ = prepareForExecution()
+    }
+}
+
+/**
+ Transfers the Subscription specified by the subscriptionId to the User identified by the identity in the payload.
+ Only one entry is allowed, `onesignal_id` or an Alias. We will not use the identityModel at all if there is an alias specified.
+ The anticipated usage of this request is only for push subscriptions.
+ */
+class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
+    let subscriptionModel: OSSubscriptionModel
+    let identityModel: OSIdentityModel?
+    let aliasLabel: String?
+    let aliasId: String?
+
+    // Need an alias and subscription_id
+    func prepareForExecution() -> Bool {
+        if let subscriptionId = subscriptionModel.subscriptionId {
+            self.path = "subscriptions/\(subscriptionId)/owner"
+            // Check alias pair
+            if let label = aliasLabel,
+               let id = aliasId {
+                // parameters should be set in init(), so not optional
+                self.parameters?["identity"] = [label: id]
+                return true
+            }
+            if let onesignalId = identityModel?.onesignalId {
+                self.parameters?["identity"] = [OS_ONESIGNAL_ID: onesignalId]
+                return true
+            } else {
+                return false
+            }
+        } else {
+            self.path = "" // self.path is non-nil, so set to empty string
+            return false
+        }
+    }
+
+    /**
+     Must pass either an `identityModel` or an Alias pair to identify the User.
+     If `retainPreviousUser` flag is not passed in, it defaults to `true`.
+     */
+    init(
+        subscriptionModel: OSSubscriptionModel,
+        aliasLabel: String?,
+        aliasId: String?,
+        identityModel: OSIdentityModel?,
+        retainPreviousUser: Bool?
+    ) {
+        self.subscriptionModel = subscriptionModel
+        self.identityModel = identityModel
+        self.aliasLabel = aliasLabel
+        self.aliasId = aliasId
+        super.init()
+        self.parameters = [OS_RETAIN_PREVIOUS_USER: retainPreviousUser ?? true]
+        self.method = PATCH
+        _ = prepareForExecution() // sets the path property
+    }
+
+    func encode(with coder: NSCoder) {
+        coder.encode(subscriptionModel, forKey: "subscriptionModel")
+        coder.encode(identityModel, forKey: "identityModel")
+        coder.encode(aliasLabel, forKey: "aliasLabel")
+        coder.encode(aliasId, forKey: "aliasId")
+        coder.encode(parameters, forKey: "parameters")
+        coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
+    }
+
+    required init?(coder: NSCoder) {
+        guard
+            let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
+        else {
+            // Log error
+            return nil
+        }
+        self.subscriptionModel = subscriptionModel
+        self.identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel
+        self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
+        self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
+        super.init()
+        self.parameters = parameters
+        self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }
@@ -309,10 +702,11 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
  Currently, only the Push Subscription will make this Update Request.
  */
 class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
-    let modelToUpdate: OSSubscriptionModel
+    let subscriptionModel: OSSubscriptionModel
 
+    // Need the subscription_id
     func prepareForExecution() -> Bool {
-        if let subscriptionId = modelToUpdate.subscriptionId {
+        if let subscriptionId = subscriptionModel.subscriptionId {
             self.path = "subscriptions/\(subscriptionId)"
             return true
         } else {
@@ -321,13 +715,14 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(subscriptionObject: [String: String], modelToUpdate: OSSubscriptionModel) {
-        self.modelToUpdate = modelToUpdate
+    init(subscriptionObject: [String: Any], subscriptionModel: OSSubscriptionModel) {
+        self.subscriptionModel = subscriptionModel
         super.init()
 
-        var subscriptionParams: [String: Any] = [:]
+        // Rename "address" key as "token", if it exists
+        var subscriptionParams = subscriptionObject
+        subscriptionParams.removeValue(forKey: "address")
         subscriptionParams["token"] = subscriptionObject["address"]
-        subscriptionParams["enabled"] = subscriptionObject["enabled"]
 
         self.parameters = ["subscription": subscriptionParams]
         self.method = PATCH
@@ -335,36 +730,42 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     }
 
     func encode(with coder: NSCoder) {
-        coder.encode(modelToUpdate, forKey: "modelToUpdate")
+        coder.encode(subscriptionModel, forKey: "subscriptionModel")
         coder.encode(parameters, forKey: "parameters")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
         guard
-            let modelToUpdate = coder.decodeObject(forKey: "modelToUpdate") as? OSSubscriptionModel,
+            let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
             let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
-            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any]
+            let parameters = coder.decodeObject(forKey: "parameters") as? [String: Any],
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
-        self.modelToUpdate = modelToUpdate
+        self.subscriptionModel = subscriptionModel
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }
 
-// TODO: Keep the a modelToUpdate to respond to request's response?
-// Note that the model has already been removed from the Model Store
-// If no subID exist, we wil Fetch User
+/**
+ Delete the subscription specified by the `subscriptionId` in the `subscriptionModel`.
+ Prior to the creation of this request, this model has already been removed from the model store.
+ - Remark: If this model did not already exist in the store, no request is created.
+ */
 class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
-    var subscriptionId: String?
+    let subscriptionModel: OSSubscriptionModel
 
+    // Need the subscription_id
     func prepareForExecution() -> Bool {
-        if let subscriptionId {
+        if let subscriptionId = subscriptionModel.subscriptionId {
             self.path = "subscriptions/\(subscriptionId)"
             return true
         } else {
@@ -374,25 +775,32 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
-    init(subscriptionId: String?) {
+    init(subscriptionModel: OSSubscriptionModel) {
+        self.subscriptionModel = subscriptionModel
         super.init()
-        self.subscriptionId = subscriptionId
         self.method = DELETE
         _ = prepareForExecution() // sets the path property
     }
 
     func encode(with coder: NSCoder) {
+        coder.encode(subscriptionModel, forKey: "subscriptionModel")
         coder.encode(method.rawValue, forKey: "method") // Encodes as String
+        coder.encode(timestamp, forKey: "timestamp")
     }
 
     required init?(coder: NSCoder) {
-        guard let rawMethod = coder.decodeObject(forKey: "method") as? UInt32
+        guard
+            let subscriptionModel = coder.decodeObject(forKey: "subscriptionModel") as? OSSubscriptionModel,
+            let rawMethod = coder.decodeObject(forKey: "method") as? UInt32,
+            let timestamp = coder.decodeObject(forKey: "timestamp") as? Date
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
+        self.subscriptionModel =  subscriptionModel
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
+        self.timestamp = timestamp
         _ = prepareForExecution()
     }
 }

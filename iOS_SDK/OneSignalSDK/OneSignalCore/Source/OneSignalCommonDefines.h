@@ -306,6 +306,8 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define OS_ONESIGNAL_ID                                                     @"onesignal_id"
 #define OS_EXTERNAL_ID                                                      @"external_id"
 
+#define OS_RETAIN_PREVIOUS_USER                                             @"retain_previous_user"
+
 #define OS_IDENTITY_MODEL_KEY                                               @"OS_IDENTITY_MODEL_KEY"
 #define OS_IDENTITY_MODEL_STORE_KEY                                         @"OS_IDENTITY_MODEL_STORE_KEY"
 #define OS_PROPERTIES_MODEL_KEY                                             @"OS_PROPERTIES_MODEL_KEY"
@@ -324,6 +326,7 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 
 #define OS_OPERATION_REPO_DELTA_QUEUE_KEY                                   @"OS_OPERATION_REPO_DELTA_QUEUE_KEY"
 
+#define OS_USER_EXECUTOR_REQUEST_QUEUE_KEY                                  @"OS_USER_EXECUTOR_REQUEST_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY                                @"OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY"
 #define OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY                              @"OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY"
 #define OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY                              @"OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY"
