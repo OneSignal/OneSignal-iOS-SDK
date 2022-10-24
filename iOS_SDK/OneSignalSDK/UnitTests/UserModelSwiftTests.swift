@@ -87,11 +87,11 @@ class UserModelSwiftTests: XCTestCase {
 
         // Email
         OneSignal.User.addEmail("person@example.com")
-        OneSignal.User.removeEmail("person@example.com")
+        _ = OneSignal.User.removeEmail("person@example.com")
 
         // SMS
         OneSignal.User.addSmsNumber("+15551231234")
-        OneSignal.User.removeSmsNumber("+15551231234")
+        _ = OneSignal.User.removeSmsNumber("+15551231234")
 
         // Triggers
         OneSignal.User.setTrigger(key: "foo", value: "bar")
