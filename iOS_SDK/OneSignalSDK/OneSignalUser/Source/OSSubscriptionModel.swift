@@ -51,7 +51,9 @@ public class OSPushSubscriptionState: NSObject {
 // MARK: - Subscription Model
 
 enum OSSubscriptionType: String {
-    case push, email, sms
+    case push = "iOSPush"
+    case email = "Email"
+    case sms = "SMS"
 }
 
 /**
@@ -62,7 +64,7 @@ class OSSubscriptionModel: OSModel {
     var address: String? // This is token on push subs so must remain Optional
     var subscriptionId: String? // Where from
     var enabled: Bool {
-        didSet { // TODO: Revisit this
+        didSet { // TODO: Revisit this for observers
             didSetEnabledHelper(oldValue: oldValue, newValue: enabled)
         }
     }
@@ -71,13 +73,10 @@ class OSSubscriptionModel: OSModel {
      This helper function is for the enabled property of push subscriptions, in order to address observers.
      */
     func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
-        // TODO: UM name and scope of function
-        // TODO: UM update model, add operation to backend
         _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: oldValue)
         _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: newValue)
 
-        // use hydrating bool to determine calling self.set
-        self.set(property: "enabled", oldValue: oldValue, newValue: newValue)
+        self.set(property: "enabled", newValue: newValue)
         // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
         print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
     }
@@ -103,7 +102,7 @@ class OSSubscriptionModel: OSModel {
             let rawType = coder.decodeObject(forKey: "type") as? String,
             let type = OSSubscriptionType(rawValue: rawType)
         else {
-            // TODO: Log error
+            // Log error
             return nil
         }
         self.type = type
@@ -116,6 +115,5 @@ class OSSubscriptionModel: OSModel {
     public override func hydrateModel(_ response: [String: String]) {
         print("🔥 OSSubscriptionModel hydrateModel()")
         // TODO: Update Model properties with the response
-        // What does it look like to hydrate an email or SMS model
     }
 }

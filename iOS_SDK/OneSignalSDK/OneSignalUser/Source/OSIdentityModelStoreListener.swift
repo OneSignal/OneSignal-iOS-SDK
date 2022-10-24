@@ -44,9 +44,22 @@ class OSIdentityModelStoreListener: OSModelStoreListener {
         return nil
     }
 
+    /**
+     Determines if this update is adding aliases or removing aliases.
+     */
     func getUpdateModelDelta(_ args: OSModelChangedArgs) -> OSDelta? {
+        // TODO: Let users call addAliases with "" IDs? If so, this will change...
+        guard
+            let aliasesDict = args.newValue as? [String: String],
+            let (_, id) = aliasesDict.first
+        else {
+            // Log error
+            return nil
+        }
+        let name = ( id == "" ) ? OS_REMOVE_ALIAS_DELTA : OS_ADD_ALIAS_DELTA
+
         return OSDelta(
-            name: OS_UPDATE_IDENTITY_DELTA,
+            name: name,
             model: args.model,
             property: args.property,
             value: args.newValue
