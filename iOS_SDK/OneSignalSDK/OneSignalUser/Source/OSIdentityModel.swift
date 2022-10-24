@@ -42,15 +42,14 @@ class OSIdentityModel: OSModel {
 
     // MARK: - Initialization
 
-    // We seem to lose access to this init() in superclass after adding init?(coder: NSCoder)
-    override init(changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+    // Initialize with aliases, if any
+    init(aliases: [String: String]?, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         super.init(changeNotifier: changeNotifier)
+        self.aliases = aliases ?? [:]
     }
 
     override func encode(with coder: NSCoder) {
         super.encode(with: coder)
-        coder.encode(onesignalId, forKey: "onesignalId")
-        coder.encode(externalId, forKey: "externalId")
         coder.encode(aliases, forKey: "aliases")
     }
 
@@ -58,35 +57,34 @@ class OSIdentityModel: OSModel {
         super.init(coder: coder)
         guard let aliases = coder.decodeObject(forKey: "aliases") as? [String: String] else {
             // log error
-            return
+            return nil
         }
         self.aliases = aliases
     }
 
     // MARK: - Alias Methods
 
-    func addAlias(label: String, id: String) {
-        // Don't let them use `onesignal_id` as an alias label
-        // Don't let them use `external_id` either?
-        print("🔥 OSIdentityModel.addAlias \(label) : \(id).")
-        let oldValue: String? = aliases[label]
-        aliases[label] = id
-        self.set(property: "aliases", oldValue: ["label": label, "id": oldValue], newValue: ["label": label, "id": id])
+    func addAliases(_ aliases: [String: String]) {
+        print("🔥 OSIdentityModel.addAliases \(aliases).")
+        for (label, id) in aliases {
+            self.aliases[label] = id
+        }
+        self.set(property: "aliases", newValue: aliases)
     }
 
-    func removeAlias(_ label: String) {
-        print("🔥 OSIdentityModel.removeAlias \(label).")
-        // TODO: create a delta even if this alias does not exist locally.
-        if let oldValue = aliases.removeValue(forKey: label) {
-            // Cannot encode a nil value
-            self.set(property: label, oldValue: oldValue, newValue: "")
+    func removeAliases(_ labels: [String]) {
+        print("🔥 OSIdentityModel.removeAliases \(labels).")
+        var aliasesToSend: [String: String] = [:]
+        for label in labels {
+            self.aliases.removeValue(forKey: label)
+            aliasesToSend[label] = ""
         }
+        self.set(property: "aliases", newValue: aliasesToSend)
     }
 
     public override func hydrateModel(_ response: [String: String]) {
         print("🔥 OSIdentityModel hydrateModel()")
         // TODO: Update Model properties with the response
-        // Flesh out implementation and how to parse the response, deleted aliases...
         for property in response {
             if property.key != "external_id" && property.key != "onesignal_id" {
                 aliases[property.key] = property.value

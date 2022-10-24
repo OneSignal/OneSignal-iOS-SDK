@@ -65,9 +65,7 @@
     [OneSignal login:@"foo"];
     [OneSignal login:@"foo" withToken:@"someToken"];
     [OneSignal login:@"foo" withToken:nil];
-    [OneSignal loginWithAliasLabel:@"foo" withAliasId:@"bar"];
-    [OneSignal loginWithAliasLabel:@"foo" withAliasId:@"bar" withToken:@"someToken"];
-    [OneSignal loginWithAliasLabel:@"foo" withAliasId:@"bar" withToken:nil];
+
     [OneSignal logout];
 
     // Aliases

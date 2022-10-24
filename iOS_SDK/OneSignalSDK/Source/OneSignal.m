@@ -617,20 +617,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)login:(NSString * _Nonnull)externalId {
-    [OneSignalUserManagerImpl loginWithAliasLabel:OS_EXTERNAL_ID aliasId:externalId token:nil];
+    [OneSignalUserManagerImpl loginWithExternalId:externalId token:nil];
     // refine Swift name for Obj-C? But doesn't matter as much since this isn't public API
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
-    [OneSignalUserManagerImpl loginWithAliasLabel:OS_EXTERNAL_ID aliasId:externalId token:token];
-}
-
-+ (void)loginWithAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId {
-    [OneSignalUserManagerImpl loginWithAliasLabel:aliasLabel aliasId:aliasId token:nil];
-}
-
-+ (void)loginWithAliasLabel:(NSString * _Nonnull)aliasLabel withAliasId:(NSString * _Nonnull)aliasId withToken:(NSString * _Nullable)token {
-    [OneSignalUserManagerImpl loginWithAliasLabel:aliasLabel aliasId:aliasId token:token];
+    [OneSignalUserManagerImpl loginWithExternalId:externalId token:token];
 }
 
 + (void)logout {
@@ -2568,8 +2560,11 @@ static NSString *_lastnonActiveMessageId;
         } onFailure:^(NSError *error) {
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
-    } else {
+    } else { // 💛 Look at this!
         [OneSignalClient.sharedClient executeRequest:[OSRequestCreateDevice withAppId:self.appId withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_EMAIL] withEmail:email withPlayerId:self.currentSubscriptionState.userId withEmailAuthHash:emailAuthToken withExternalUserId:[self existingPushExternalUserId] withExternalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
+            
+            NSLog(@"💛 setEmail Client request on success block");
+            [OneSignalUserManagerImpl loginWithExternalId:@"success" token:nil];
             
             let emailPlayerId = (NSString*)result[@"id"];
             
@@ -2584,6 +2579,9 @@ static NSString *_lastnonActiveMessageId;
                 [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Missing OneSignal Email Player ID"];
             }
         } onFailure:^(NSError *error) {
+            NSLog(@"💛 setEmail Client request on failure block");
+            [OneSignalUserManagerImpl loginWithExternalId:@"failed" token:nil];
+            
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     }
