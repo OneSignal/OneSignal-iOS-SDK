@@ -32,6 +32,9 @@ extension OneSignal {
     static var User: OSUser.Type {
         return OneSignal.__user()
     }
+    static var Notifications: OSNotifications.Type {
+        return OneSignal.__notifications()
+    }
 }
 
 // Non-class type 'OSPushSubscriptionTestObserver' cannot conform to class protocol 'OSPushSubscriptionObserver'
@@ -177,5 +180,17 @@ class UserModelSwiftTests: XCTestCase {
 
         // Sleep to allow the flush to be called 1 time.
         Thread.sleep(forTimeInterval: 6)
+    }
+    
+    /**
+     Temp test.
+     */
+    func testTempTester() throws {
+        OneSignal.Notifications.requestPermission { accepted in
+            print("🔥 promptForPushNotificationsWithUserResponse: \(accepted)")
+        }
+        OneSignal.Notifications.requestPermission({ accepted in
+            print("🔥 promptForPushNotificationsWithUserResponse: \(accepted)")
+        }, fallbackToSettings: true)
     }
 }
