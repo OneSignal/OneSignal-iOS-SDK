@@ -29,7 +29,7 @@
 
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
-#import "OneSignalHelper.h"
+#import "OneSignalUtils.h"
 #import "OneSignalWebView.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
@@ -216,7 +216,7 @@ static BOOL didEnterBackgroundTriggered = NO;
                                               emailUserId:[OneSignal mEmailUserId]
                                            emailAuthToken:[OneSignal mEmailAuthToken]
                                       externalIdAuthToken:[OneSignal mExternalIdAuthToken]
-                                                  netType:[OneSignalHelper getNetType]
+                                                  netType:[OneSignalUtils getNetType]
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];

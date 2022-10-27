@@ -32,7 +32,8 @@
 #import <Foundation/Foundation.h>
 #import <UserNotifications/UserNotifications.h>
 
-#import "OneSignalHelper.h"
+#import "OneSignalHelper.h" // Can we use OneSignalCoreHelper.dispatch_async_on_main_queue? If so, we can remove this import
+#import "OneSignalUtils.h"
 #import "OneSignalCommonDefines.h"
 
 @interface OneSignalNotificationSettingsIOS10 ()
@@ -87,11 +88,11 @@ static dispatch_queue_t serialQueue;
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
             
             // check if using provisional notifications
-            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
+            if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
                 status.notificationTypes += PROVISIONAL_UNAUTHORIZATIONOPTION;
             
             // also check if 'deliver quietly' is enabled.
-            if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
+            if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
                 status.notificationTypes += 16;
             
             self.useCachedStatus = true;
@@ -143,7 +144,7 @@ static dispatch_queue_t serialQueue;
     
     id responseBlock = ^(BOOL granted, NSError* error) {
         // Run callback on main / UI thread
-        [OneSignalHelper dispatch_async_on_main_queue: ^{
+        [OneSignalHelper dispatch_async_on_main_queue: ^{ // OneSignalCoreHelper.dispatch_async_on_main_queue ??
             OneSignal.currentPermissionState.provisional = false;
             OneSignal.currentPermissionState.accepted = granted;
             OneSignal.currentPermissionState.answeredPrompt = true;
@@ -155,7 +156,7 @@ static dispatch_queue_t serialQueue;
     
     UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     
-    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"12.0"] && [OneSignal providesAppNotificationSettings]) {
+    if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && [OneSignal providesAppNotificationSettings]) {
         options += PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION;
     }
     
@@ -167,7 +168,7 @@ static dispatch_queue_t serialQueue;
 
 - (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
     
-    if ([OneSignalHelper isIOSVersionLessThan:@"12.0"]) {
+    if ([OneSignalUtils isIOSVersionLessThan:@"12.0"]) {
         return;
     }
     
@@ -185,7 +186,7 @@ static dispatch_queue_t serialQueue;
     let options = PROVISIONAL_UNAUTHORIZATIONOPTION + DEFAULT_UNAUTHORIZATIONOPTIONS;
     
     id responseBlock = ^(BOOL granted, NSError *error) {
-        [OneSignalHelper dispatch_async_on_main_queue:^{
+        [OneSignalHelper dispatch_async_on_main_queue:^{  // OneSignalCoreHelper.dispatch_async_on_main_queue ??
             OneSignal.currentPermissionState.provisional = true;
             [OneSignal updateNotificationTypes: options];
             if (block)

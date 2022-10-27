@@ -60,15 +60,6 @@
 + (BOOL)isDisplayableNotification:(NSDictionary*)msg;
 + (BOOL)isOneSignalPayload:(NSDictionary *)payload;
 
-// - Networking
-+ (NSNumber*)getNetType;
-
-// Util
-+ (NSString *)getCurrentDeviceVersion;
-+ (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version;
-+ (BOOL)isIOSVersionLessThan:(NSString *)version;
-+ (NSString*)getDeviceVariant;
-
 // Threading
 + (void)runOnMainThread:(void(^)())block;
 + (void)dispatch_async_on_main_queue:(void(^)())block;

@@ -29,7 +29,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 #import "OneSignalLocation.h"
-#import "OneSignalHelper.h"
+#import "OneSignalUtils.h"
 #import "OneSignal.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalDialogController.h"
@@ -264,7 +264,7 @@ static OneSignalLocation* singleInstance = nil;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
                 [locationManager performSelector:NSSelectorFromString(@"requestAlwaysAuthorization")];
 #pragma clang diagnostic pop
-                if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
+                if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"9.0"])
                     [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
             }
             
@@ -399,7 +399,7 @@ static OneSignalLocation* singleInstance = nil;
         
         initialLocationSent = YES;
         
-        [OneSignal.stateSynchronizer sendLocation:lastLocation appId:[OneSignal appId] networkType:[OneSignalHelper getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)];
+        [OneSignal.stateSynchronizer sendLocation:lastLocation appId:[OneSignal appId] networkType:[OneSignalUtils getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)];
     }
     
 }
