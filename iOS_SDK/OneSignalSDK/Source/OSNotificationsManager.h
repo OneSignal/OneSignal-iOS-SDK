@@ -26,10 +26,10 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "OneSignalNotificationSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 // <- TODO: ^ this? And other items that should go here
-typedef void(^OSUserResponseBlock)(BOOL accepted);
 
 /**
  Public API.
