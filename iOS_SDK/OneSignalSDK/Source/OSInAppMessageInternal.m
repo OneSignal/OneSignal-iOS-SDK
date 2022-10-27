@@ -26,7 +26,7 @@
  */
 
 #import "OSInAppMessageInternal.h"
-#import "OneSignalHelper.h"
+#import "NSDateFormatter+OneSignal.h"
 #import "OneSignalCommonDefines.h"
 
 @implementation OSInAppMessage
