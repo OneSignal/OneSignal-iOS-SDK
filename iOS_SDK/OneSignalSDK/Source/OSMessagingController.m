@@ -27,6 +27,8 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h"
+#import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
+#import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalInternal.h"
 #import "OSInAppMessageAction.h"
