@@ -28,8 +28,6 @@
 #import "OneSignal.h"
 #import "OneSignalInternal.h"
 #import "OneSignalWebView.h"
-#import "UIApplication+OneSignal.h"
-#import "NSDateFormatter+OneSignal.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
