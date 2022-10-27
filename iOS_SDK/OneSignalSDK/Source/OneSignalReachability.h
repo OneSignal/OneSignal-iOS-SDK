@@ -29,6 +29,7 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
 
+// Remark: This file could move to Core
 
 typedef enum : NSInteger {
     NotReachable = 0,
