@@ -28,9 +28,37 @@
 #ifndef OneSignalNotificationSettings_h
 #define OneSignalNotificationSettings_h
 
-#import "OneSignal.h"
-
 #import <Foundation/Foundation.h>
+
+typedef void(^OSUserResponseBlock)(BOOL accepted);
+
+typedef NS_ENUM(NSInteger, OSNotificationPermission) {
+    // The user has not yet made a choice regarding whether your app can show notifications.
+    OSNotificationPermissionNotDetermined = 0,
+    
+    // The application is not authorized to post user notifications.
+    OSNotificationPermissionDenied,
+    
+    // The application is authorized to post user notifications.
+    OSNotificationPermissionAuthorized,
+    
+    // the application is only authorized to post Provisional notifications (direct to history)
+    OSNotificationPermissionProvisional,
+    
+    // the application is authorized to send notifications for 8 hours. Only used by App Clips.
+    OSNotificationPermissionEphemeral
+};
+
+// Permission Classes
+@interface OSPermissionState : NSObject
+
+@property (readonly, nonatomic) BOOL reachable;
+@property (readonly, nonatomic) BOOL hasPrompted;
+@property (readonly, nonatomic) BOOL providesAppNotificationSettings;
+@property (readonly, nonatomic) OSNotificationPermission status;
+- (NSDictionary* _Nonnull)toDictionary;
+
+@end
 
 @protocol OneSignalNotificationSettings <NSObject>
 
