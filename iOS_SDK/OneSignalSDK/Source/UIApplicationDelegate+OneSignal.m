@@ -35,7 +35,7 @@
 #import "OneSignalTracker.h"
 #import "OneSignalLocation.h"
 #import "OneSignalSelectorHelpers.h"
-#import "OneSignalHelper.h"
+#import "OneSignalUtils.h"
 #import "OSMessagingController.h"
 #import "SwizzlingForwarder.h"
 
@@ -121,7 +121,7 @@ static NSMutableSet<Class>* swizzledClasses;
 }
 
 + (void)swizzlePreiOS10Methods:(Class)delegateClass {
-    if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"10.0"])
+    if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"])
         return;
     
     injectSelector(
@@ -224,7 +224,7 @@ static NSMutableSet<Class>* swizzledClasses;
         //   - NOTE: We do not have the extra logic for the notifiation center or double tap home button cases
         //           of "inactive" on notification received the link above describes.
         //           Omiting that complex logic as iOS 9 usage stats are very low (12/11/2020) and these are rare cases.
-        if ([OneSignalHelper isIOSVersionLessThan:@"10.0"] && appState == UIApplicationStateInactive && isVisibleNotification) {
+        if ([OneSignalUtils isIOSVersionLessThan:@"10.0"] && appState == UIApplicationStateInactive && isVisibleNotification) {
             [OneSignal notificationReceived:userInfo wasOpened:YES];
         }
         else if (appState == UIApplicationStateActive && isVisibleNotification)

@@ -35,7 +35,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import "UncaughtExceptionHandler.h"
 #import "OneSignal.h"
-#import "OneSignalHelper.h"
+#import "OneSignalUtils.h"
 #import "OneSignalTracker.h"
 #import "OneSignalInternal.h"
 #import "NSString+OneSignal.h"
@@ -169,7 +169,7 @@
     NSLog(@"CHECKING LAST HTTP REQUEST");
     
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [OneSignalHelper getDeviceVariant];
+    let deviceModel = [OneSignalUtils getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"identifier"], UIApplicationOverrider.mockAPNSToken);
@@ -250,7 +250,7 @@
     [UnitTestCommonMethods runBackgroundThreads];
         
     // final value should be "Simulator iPhone" or "Simulator iPad"
-    let deviceModel = [OneSignalHelper getDeviceVariant];
+    let deviceModel = [OneSignalUtils getDeviceVariant];
     
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba");
     XCTAssertNil(OneSignalClientOverrider.lastHTTPRequest[@"identifier"]);
@@ -1947,7 +1947,7 @@ didReceiveRemoteNotification:userInfo
  (void (^)(UNNotificationContent * _Nonnull))contentHandler
  */
 -(void)testBuildOSRequest {
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:@{@"tag1" : @"test1", @"tag2" : @"test2"} networkType:[OneSignalUtils getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
     
     XCTAssert([request.parameters[@"app_id"] isEqualToString:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba"]);
     XCTAssert([request.parameters[@"tags"][@"tag1"] isEqualToString:@"test1"]);
@@ -1967,7 +1967,7 @@ didReceiveRemoteNotification:userInfo
     
     let invalidJson = @{@{@"invalid1" : @"invalid2"} : @"test"}; //Keys are required to be strings, this would crash the app if not handled appropriately
     
-    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OneSignalHelper getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
+    let request = [OSRequestSendTagsToServer withUserId:@"12345" appId:@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" tags:invalidJson networkType:[OneSignalUtils getNetType] withEmailAuthHashToken:nil withExternalIdAuthHashToken:nil];
     
     let urlRequest = request.urlRequest;
     
@@ -3096,13 +3096,13 @@ didReceiveRemoteNotification:userInfo
 
 
 - (void)testGetDeviceVariant {
-    var deviceModel = [OneSignalHelper getDeviceVariant];
+    var deviceModel = [OneSignalUtils getDeviceVariant];
     // Catalyst ("Mac")
     #if TARGET_OS_MACCATALYST
         XCTAssertEqualObjects(@"Mac", deviceModel);
     #elif TARGET_OS_SIMULATOR
         // Simulator iPhone
-        deviceModel = [OneSignalHelper getDeviceVariant];
+        deviceModel = [OneSignalUtils getDeviceVariant];
         XCTAssertEqualObjects(@"Simulator iPhone", deviceModel);
     #else
         // Real iPhone
