@@ -40,7 +40,7 @@
 }
 
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
-static BOOL waitingForApnsResponse = false;
+static BOOL _waitingForApnsResponse = false;
 
 // iOS version implementation
 static NSObject<OneSignalNotificationSettings> *_osNotificationSettings;
@@ -85,7 +85,7 @@ static OSPermissionState* _lastPermissionState;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptForPushNotificationsWithUserResponse:"])
         return;
     
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", waitingForApnsResponse]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", _waitingForApnsResponse]];
     
     self.currentPermissionState.hasPrompted = true;
     
@@ -143,9 +143,18 @@ static OSPermissionState* _lastPermissionState;
     }
 }
 
++ (BOOL)waitingForApnsResponse {
+    return _waitingForApnsResponse;
+}
 
 + (void)setWaitingForApnsResponse:(BOOL)value {
-    waitingForApnsResponse = value;
+    _waitingForApnsResponse = value;
+}
+
++ (void)clearStatics {
+    _waitingForApnsResponse = false;
+
+    // and more...
 }
 
 @end
