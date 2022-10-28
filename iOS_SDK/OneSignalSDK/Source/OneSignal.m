@@ -145,9 +145,6 @@ static OSFailureBlock pendingGetTagsFailureBlock;
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
 
-// UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
-static BOOL waitingForApnsResponse = false; // moved 🔔
-
 // Under Capabilities is "Background Modes" > "Remote notifications" enabled.
 static BOOL backgroundModesEnabled = false;
 
@@ -505,10 +502,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     mSDKType = type;
 }
 
-+ (void)setWaitingForApnsResponse:(BOOL)value { // moved 🔔
-    waitingForApnsResponse = value;
-}
-
 // Used for testing purposes to decrease the amount of time the
 // SDK will spend waiting for a response from APNS before it
 // gives up and registers with OneSignal anyways
@@ -525,10 +518,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     initDone = false;
     usesAutoPrompt = false;
     requestedProvisionalAuthorization = false;
-
+    
+    [OSNotificationsManager clearStatics];
     registeredWithApple = false;
     _osNotificationSettings = nil;
-    waitingForApnsResponse = false;
     waitingForOneSReg = false;
     isOnSessionSuccessfulForCurrentState = false;
     mLastNotificationTypes = -1;
@@ -1020,9 +1013,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 // iOS 9+, only tries to register for an APNs token
-+ (BOOL)registerForAPNsToken {
++ (BOOL)registerForAPNsToken { // TODO: Move to notifManager
     
-    if (waitingForApnsResponse)
+    if (OSNotificationsManager.waitingForApnsResponse)
         return true;
     
     id backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
@@ -1040,7 +1033,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Firing registerForRemoteNotifications"];
     
-    waitingForApnsResponse = true;
+    OSNotificationsManager.waitingForApnsResponse = true;
     [OneSignalHelper dispatch_async_on_main_queue:^{
         [[UIApplication sharedApplication] registerForRemoteNotifications];
     }];
@@ -1086,7 +1079,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptForPushNotificationsWithUserResponse:"])
         return;
     
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", waitingForApnsResponse]];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", OSNotificationsManager.waitingForApnsResponse]];
     
     self.currentPermissionState.hasPrompted = true;
     
@@ -1530,7 +1523,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
-    waitingForApnsResponse = false;
+    OSNotificationsManager.waitingForApnsResponse = false;
     
     if (err.code == 3000) {
         [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
@@ -1688,14 +1681,14 @@ static BOOL _trackedColdRestart = false;
 // But if APNS hasn't responded within 30 seconds (maxApnsWait),
 // we should continue and register the user.
 + (BOOL)shouldRegisterUserAfterDelay {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", waitingForApnsResponse]];
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", OSNotificationsManager.waitingForApnsResponse]];
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:initializationTime: %@", initializationTime]];
     
     // If there isn't an initializationTime yet then the SDK hasn't finished initializing so we should delay
     if (!initializationTime)
         return true;
     
-    if (!waitingForApnsResponse)
+    if (!OSNotificationsManager.waitingForApnsResponse)
         return false;
     
     return [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait;
@@ -2165,7 +2158,7 @@ static NSString *_lastnonActiveMessageId;
     if (mSubscriptionStatus < -9)
         return mSubscriptionStatus;
     
-    if (waitingForApnsResponse && !self.currentSubscriptionState.pushToken)
+    if (OSNotificationsManager.waitingForApnsResponse && !self.currentSubscriptionState.pushToken)
         return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
     OSPermissionState* permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
@@ -2231,7 +2224,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     }
 
-    waitingForApnsResponse = false;
+    OSNotificationsManager.waitingForApnsResponse = false;
 
     if (!appId)
         return;
