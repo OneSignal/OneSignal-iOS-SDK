@@ -203,13 +203,13 @@
 
 + (void)fireChangesObserver:(OSPermissionState*)state  {
     OSPermissionStateChanges* stateChanges = [OSPermissionStateChanges alloc];
-    stateChanges.from = OneSignal.lastPermissionState;
+    stateChanges.from = OSNotificationsManager.lastPermissionState;
     stateChanges.to = [state copy];
     
     BOOL hasReceiver = [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
     if (hasReceiver) {
-        OneSignal.lastPermissionState = [state copy];
-        [OneSignal.lastPermissionState persistAsFrom];
+        OSNotificationsManager.lastPermissionState = [state copy];
+        [OSNotificationsManager.lastPermissionState persistAsFrom];
     }
 }
 

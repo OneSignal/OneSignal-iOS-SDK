@@ -238,17 +238,6 @@ static NSObject<OneSignalNotificationSettings> *_osNotificationSettings; // move
     return _osNotificationSettings;
 }
 
-// static property def for previous OSSubscriptionState
-static OSPermissionState* _lastPermissionState; // moved 🔔
-+ (OSPermissionState*)lastPermissionState { // moved 🔔
-    if (!_lastPermissionState)
-        _lastPermissionState = [[OSPermissionState alloc] initAsFrom];
-    return _lastPermissionState;
-}
-+ (void)setLastPermissionState:(OSPermissionState *)lastPermissionState {
-    _lastPermissionState = lastPermissionState;
-}
-
 static OSEmailSubscriptionState* _currentEmailSubscriptionState;
 + (OSEmailSubscriptionState *)currentEmailSubscriptionState {
     if (!_currentEmailSubscriptionState) {
@@ -547,8 +536,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     mLastNotificationTypes = -1;
     
     _stateSynchronizer = nil;
-
-    _lastPermissionState = nil;
     
     _currentEmailSubscriptionState = nil;
     _lastEmailSubscriptionState = nil;
@@ -1236,7 +1223,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver addObserver:observer];
     
-    if ([OSNotificationsManager.currentPermissionState compare:self.lastPermissionState])
+    if ([OSNotificationsManager.currentPermissionState compare:OSNotificationsManager.lastPermissionState])
         [OSPermissionChangedInternalObserver fireChangesObserver:OSNotificationsManager.currentPermissionState];
 }
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {

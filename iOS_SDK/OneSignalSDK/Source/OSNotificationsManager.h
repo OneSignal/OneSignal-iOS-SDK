@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
 @property (class, readonly) OSPermissionState* _Nonnull currentPermissionState;
-
+@property (class) OSPermissionState* _Nonnull lastPermissionState;
 
 + (void)clearStatics; // Used by Unit Tests
 
