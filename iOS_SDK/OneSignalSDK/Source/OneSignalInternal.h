@@ -78,7 +78,6 @@
 @property (class, readonly) BOOL isRegisterUserSuccessful;
 
 @property (class) NSObject<OneSignalNotificationSettings>* _Nonnull osNotificationSettings;
-@property (class) OSPermissionState* _Nonnull currentPermissionState;
 
 @property (class) AppEntryAction appEntryState;
 @property (class) OSSessionManager* _Nonnull sessionManager;

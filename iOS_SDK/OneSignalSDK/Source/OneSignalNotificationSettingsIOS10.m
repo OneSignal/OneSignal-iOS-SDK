@@ -58,7 +58,7 @@ static dispatch_queue_t serialQueue;
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
     if (self.useCachedStatus) {
-        completionHandler(OneSignal.currentPermissionState);
+        completionHandler(OSNotificationsManager.currentPermissionState);
         return;
     }
     
@@ -66,7 +66,7 @@ static dispatch_queue_t serialQueue;
     // NOTE2: Apple runs the callback on a background serial queue
     dispatch_async(serialQueue, ^{
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings* settings) {
-            OSPermissionState* status = OneSignal.currentPermissionState;
+            OSPermissionState* status = OSNotificationsManager.currentPermissionState;
             
             //to avoid 'undeclared identifier' errors in older versions of Xcode,
             //we do not directly reference UNAuthorizationStatusProvisional (which is only available in iOS 12/Xcode 10
@@ -105,8 +105,8 @@ static dispatch_queue_t serialQueue;
 // used only in cases where UNUserNotificationCenter getNotificationSettingsWith...
 // callback does not get executed in a timely fashion. Rather than returning nil,
 - (OSPermissionState *)defaultPermissionState {
-    if (OneSignal.currentPermissionState != nil) {
-        return OneSignal.currentPermissionState;
+    if (OSNotificationsManager.currentPermissionState != nil) {
+        return OSNotificationsManager.currentPermissionState;
     }
     
     OSPermissionState *defaultState = [OSPermissionState new];
@@ -118,9 +118,9 @@ static dispatch_queue_t serialQueue;
 
 - (OSPermissionState*)getNotificationPermissionState {
     if (self.useCachedStatus)
-        return OneSignal.currentPermissionState;
+        return OSNotificationsManager.currentPermissionState;
     
-    __block OSPermissionState* returnStatus = OneSignal.currentPermissionState;
+    __block OSPermissionState* returnStatus = OSNotificationsManager.currentPermissionState;
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     dispatch_sync(serialQueue, ^{
         [self getNotificationPermissionState:^(OSPermissionState *status) {
@@ -145,9 +145,9 @@ static dispatch_queue_t serialQueue;
     id responseBlock = ^(BOOL granted, NSError* error) {
         // Run callback on main / UI thread
         [OneSignalHelper dispatch_async_on_main_queue: ^{ // OneSignalCoreHelper.dispatch_async_on_main_queue ??
-            OneSignal.currentPermissionState.provisional = false;
-            OneSignal.currentPermissionState.accepted = granted;
-            OneSignal.currentPermissionState.answeredPrompt = true;
+            OSNotificationsManager.currentPermissionState.provisional = false;
+            OSNotificationsManager.currentPermissionState.accepted = granted;
+            OSNotificationsManager.currentPermissionState.answeredPrompt = true;
             [OneSignal updateNotificationTypes: granted ? 15 : 0];
             if (completionHandler)
                 completionHandler(granted);
@@ -187,7 +187,7 @@ static dispatch_queue_t serialQueue;
     
     id responseBlock = ^(BOOL granted, NSError *error) {
         [OneSignalHelper dispatch_async_on_main_queue:^{  // OneSignalCoreHelper.dispatch_async_on_main_queue ??
-            OneSignal.currentPermissionState.provisional = true;
+            OSNotificationsManager.currentPermissionState.provisional = true;
             [OneSignal updateNotificationTypes: options];
             if (block)
                 block(granted);

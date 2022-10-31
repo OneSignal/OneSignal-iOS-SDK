@@ -238,18 +238,6 @@ static NSObject<OneSignalNotificationSettings> *_osNotificationSettings; // move
     return _osNotificationSettings;
 }
 
-// static property def for currentPermissionState
-static OSPermissionState* _currentPermissionState; // moved 🔔
-+ (OSPermissionState*)currentPermissionState { // moved 🔔
-    if (!_currentPermissionState) {
-        _currentPermissionState = [OSPermissionState alloc];
-        _currentPermissionState = [_currentPermissionState initAsTo];
-        [self lastPermissionState]; // Trigger creation
-        [_currentPermissionState.observable addObserver:[OSPermissionChangedInternalObserver alloc]];
-    }
-    return _currentPermissionState;
-}
-
 // static property def for previous OSSubscriptionState
 static OSPermissionState* _lastPermissionState; // moved 🔔
 + (OSPermissionState*)lastPermissionState { // moved 🔔
@@ -310,9 +298,11 @@ static OSSubscriptionState* _currentSubscriptionState;
 + (OSSubscriptionState*)currentSubscriptionState {
     if (!_currentSubscriptionState) {
         _currentSubscriptionState = [OSSubscriptionState alloc];
-        _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:self.currentPermissionState.accepted];
-        mLastNotificationTypes = _currentPermissionState.notificationTypes;
-        [self.currentPermissionState.observable addObserver:_currentSubscriptionState];
+        _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:OSNotificationsManager.currentPermissionState.accepted];
+        mLastNotificationTypes = OSNotificationsManager.currentPermissionState.notificationTypes;
+        // ^ It is actually `mLastNotificationTypes = _currentPermissionState.notificationTypes`
+        // Why is it inited here?
+        [OSNotificationsManager.currentPermissionState.observable addObserver:_currentSubscriptionState];
         [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
     }
     return _currentSubscriptionState;
@@ -559,7 +549,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _stateSynchronizer = nil;
 
     _lastPermissionState = nil;
-    _currentPermissionState = nil;
     
     _currentEmailSubscriptionState = nil;
     _lastEmailSubscriptionState = nil;
@@ -956,7 +945,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)initSettings:(NSDictionary*)settings {
-    registeredWithApple = self.currentPermissionState.accepted;
+    registeredWithApple = OSNotificationsManager.currentPermissionState.accepted;
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     // Check if disabled in-app launch url if passed a NO
@@ -974,7 +963,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-    if (usesAutoPrompt || (registeredWithApple && !self.currentPermissionState.ephemeral)) {
+    if (usesAutoPrompt || (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral)) {
         [self registerForPushNotifications];
     } else {
         [self checkProvisionalAuthorizationStatus];
@@ -1179,7 +1168,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 // the SDK will prompt the user to open notification Settings for this app
 + (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback {
     
-    if (self.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
+    if (OSNotificationsManager.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
 
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
@@ -1215,7 +1204,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", OSNotificationsManager.waitingForApnsResponse]];
     
-    self.currentPermissionState.hasPrompted = true;
+    OSNotificationsManager.currentPermissionState.hasPrompted = true;
     
     [self.osNotificationSettings promptForNotifications:block];
 }
@@ -1236,7 +1225,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     OSPermissionSubscriptionState* status = [OSPermissionSubscriptionState alloc];
     
     status.subscriptionStatus = self.currentSubscriptionState;
-    status.permissionStatus = self.currentPermissionState;
+    status.permissionStatus = OSNotificationsManager.currentPermissionState;
     status.emailSubscriptionStatus = self.currentEmailSubscriptionState;
     status.smsSubscriptionStatus = self.currentSMSSubscriptionState;
 
@@ -1247,8 +1236,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver addObserver:observer];
     
-    if ([self.currentPermissionState compare:self.lastPermissionState])
-        [OSPermissionChangedInternalObserver fireChangesObserver:self.currentPermissionState];
+    if ([OSNotificationsManager.currentPermissionState compare:self.lastPermissionState])
+        [OSPermissionChangedInternalObserver fireChangesObserver:OSNotificationsManager.currentPermissionState];
 }
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver removeObserver:observer];
@@ -2049,7 +2038,7 @@ static BOOL _trackedColdRestart = false;
     if (mSubscriptionStatus < -1)
         return NULL;
     
-    return self.currentPermissionState.accepted ? self.currentSubscriptionState.pushToken : NULL;
+    return OSNotificationsManager.currentPermissionState.accepted ? self.currentSubscriptionState.pushToken : NULL;
 }
 
 // Updates the server with the new user's notification setting or subscription status changes
