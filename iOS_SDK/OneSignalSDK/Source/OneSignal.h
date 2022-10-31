@@ -310,16 +310,17 @@ NS_SWIFT_NAME(login(externalId:token:));
 #pragma mark Public Handlers
 
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
-typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion); // Move -> NotifManager
+typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result); // Move -> NotifManager
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
 
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block; // Move -> NotifManager
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block; // Move -> NotifManager
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
 + (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
 #pragma mark Post Notification
+// TODO: These will be removed in User Model
 + (void)postNotification:(NSDictionary* _Nonnull)jsonData;
 + (void)postNotification:(NSDictionary* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 + (void)postNotificationWithJsonString:(NSString* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
@@ -349,15 +350,19 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 // TODO: UM observers are rescoped
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO: Move to Notifications namespace
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 
+// TODO: Moved to User.pushSubscription.
 + (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
 + (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
 
+// TODO: Remove for User Model
 + (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
 
+// TODO: Remove for User Model
 + (void)addSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer;
 + (void)removeSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer;
 NS_ASSUME_NONNULL_END

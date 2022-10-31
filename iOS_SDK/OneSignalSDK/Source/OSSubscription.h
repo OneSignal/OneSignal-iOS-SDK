@@ -65,6 +65,7 @@ typedef OSObservable<NSObject<OSSubscriptionStateObserver>*, OSSubscriptionState
 
 
 // Redefine OSSubscriptionState
+// OSSubscriptionState is an observer of the OSPermissionState
 @interface OSSubscriptionState () <OSPermissionStateObserver>
 
 @property (nonatomic) BOOL accpeted;
