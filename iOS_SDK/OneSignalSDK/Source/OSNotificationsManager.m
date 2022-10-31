@@ -154,6 +154,7 @@ static OSPermissionState* _lastPermissionState;
 + (void)clearStatics {
     _waitingForApnsResponse = false;
     _currentPermissionState = nil;
+    _lastPermissionState = nil;
 
     // and more...
 }
