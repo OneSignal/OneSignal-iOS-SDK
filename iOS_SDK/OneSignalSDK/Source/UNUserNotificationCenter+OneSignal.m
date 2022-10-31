@@ -147,14 +147,13 @@ static UNNotificationSettings* cachedUNNotificationSettings;
     
     //we don't want to modify these settings if the authorization is provisional (iOS 12 'Direct to History')
     if (notProvisionalRequest)
-        OneSignal.currentPermissionState.hasPrompted = true;
-    
+        OSNotificationsManager.currentPermissionState.hasPrompted = true;
     useCachedUNNotificationSettings = true;
     id wrapperBlock = ^(BOOL granted, NSError* error) {
         useCachedUNNotificationSettings = false;
         if (notProvisionalRequest) {
-            OneSignal.currentPermissionState.accepted = granted;
-            OneSignal.currentPermissionState.answeredPrompt = true;
+            OSNotificationsManager.currentPermissionState.accepted = granted;
+            OSNotificationsManager.currentPermissionState.answeredPrompt = true;
         }
         completionHandler(granted, error);
     };

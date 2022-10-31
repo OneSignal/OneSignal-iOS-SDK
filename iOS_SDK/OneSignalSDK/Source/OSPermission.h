@@ -83,7 +83,6 @@ typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*>
 @interface OneSignal (PermissionAdditions)
 
 @property (class) OSPermissionState* lastPermissionState;
-@property (class) OSPermissionState* currentPermissionState;
 
 // Used to manage observers added by the app developer.
 @property (class) ObserablePermissionStateChangesType* permissionStateChangesObserver;
