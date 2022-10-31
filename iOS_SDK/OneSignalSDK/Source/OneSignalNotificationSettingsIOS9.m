@@ -36,7 +36,7 @@
 }
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
-    OSPermissionState* status = OneSignal.currentPermissionState;
+    OSPermissionState* status = OSNotificationsManager.currentPermissionState;
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wdeprecated"
     status.notificationTypes = (int)UIApplication.sharedApplication.currentUserNotificationSettings.types;
@@ -87,8 +87,8 @@
         notificationPromptReponseCallback = nil;
     }
     
-    OneSignal.currentPermissionState.accepted = accepted;
-    OneSignal.currentPermissionState.answeredPrompt = true;
+    OSNotificationsManager.currentPermissionState.accepted = accepted;
+    OSNotificationsManager.currentPermissionState.answeredPrompt = true;
 }
 
 - (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {

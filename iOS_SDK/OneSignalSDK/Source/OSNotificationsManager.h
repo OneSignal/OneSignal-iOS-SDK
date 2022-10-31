@@ -44,10 +44,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OSNotificationsManager : NSObject <OSNotifications>
 
-@property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
-
 + (Class<OSNotifications>)Notifications;
-// expose properties like currentPermissionState here
+
+@property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
+@property (class, readonly) OSPermissionState* _Nonnull currentPermissionState;
+
 
 + (void)clearStatics; // Used by Unit Tests
 
