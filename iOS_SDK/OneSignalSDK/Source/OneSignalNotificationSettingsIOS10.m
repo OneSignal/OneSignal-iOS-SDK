@@ -33,7 +33,6 @@
 #import <UserNotifications/UserNotifications.h>
 
 #import "OneSignalHelper.h" // Can we use OneSignalCoreHelper.dispatch_async_on_main_queue? If so, we can remove this import
-#import "OneSignalUtils.h"
 #import "OneSignalCommonDefines.h"
 
 @interface OneSignalNotificationSettingsIOS10 ()
@@ -88,11 +87,11 @@ static dispatch_queue_t serialQueue;
                                      + (settings.lockScreenSetting == UNNotificationSettingEnabled ? 8 : 0);
             
             // check if using provisional notifications
-            if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
+            if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && settings.authorizationStatus == provisionalStatus)
                 status.notificationTypes += PROVISIONAL_UNAUTHORIZATIONOPTION;
             
             // also check if 'deliver quietly' is enabled.
-            if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
+            if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"] && settings.notificationCenterSetting == UNNotificationSettingEnabled)
                 status.notificationTypes += 16;
             
             self.useCachedStatus = true;
@@ -156,7 +155,7 @@ static dispatch_queue_t serialQueue;
     
     UNAuthorizationOptions options = (UNAuthorizationOptionAlert + UNAuthorizationOptionSound + UNAuthorizationOptionBadge);
     
-    if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && [OneSignal providesAppNotificationSettings]) {
+    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"] && [OneSignal providesAppNotificationSettings]) {
         options += PROVIDES_SETTINGS_UNAUTHORIZATIONOPTION;
     }
     
@@ -168,7 +167,7 @@ static dispatch_queue_t serialQueue;
 
 - (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
     
-    if ([OneSignalUtils isIOSVersionLessThan:@"12.0"]) {
+    if ([OSDeviceUtils isIOSVersionLessThan:@"12.0"]) {
         return;
     }
     

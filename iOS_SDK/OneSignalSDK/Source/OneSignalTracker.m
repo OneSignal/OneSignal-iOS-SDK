@@ -29,7 +29,6 @@
 
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
-#import "OneSignalUtils.h"
 #import "OneSignalWebView.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
@@ -183,7 +182,7 @@ static BOOL lastOnFocusWasToBackground = YES;
                                               emailUserId:[OneSignal mEmailUserId]
                                            emailAuthToken:[OneSignal mEmailAuthToken]
                                       externalIdAuthToken:[OneSignal mExternalIdAuthToken]
-                                                  netType:[OneSignalUtils getNetType]
+                                                  netType:[OSNetworkingUtils getNetType]
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];
