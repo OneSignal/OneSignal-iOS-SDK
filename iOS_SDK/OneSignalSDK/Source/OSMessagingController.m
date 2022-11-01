@@ -27,7 +27,6 @@
 
 #import "OSMessagingController.h"
 #import "OneSignalHelper.h" // need for displayWebView, which can be moved out in the future
-#import "OneSignalUtils.h"
 #import "UIApplication+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import "NSDateFormatter+OneSignal.h" // Previously imported via "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
@@ -125,11 +124,11 @@ static BOOL _isInAppMessagingPaused = false;
 + (BOOL)doesDeviceSupportIAM {
     // We do not support Mac Catalyst as it does not display correctly.
     // We could support in the future after we reslove the display issues.
-    if ([@"Mac" isEqualToString:[OneSignalUtils getDeviceVariant]])
+    if ([@"Mac" isEqualToString:[OSDeviceUtils getDeviceVariant]])
         return false;
     
     // Only support iOS 10 and newer due to Safari 9 WebView issues
-    return [OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"];
+    return [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"];
 }
 
 - (instancetype)init {

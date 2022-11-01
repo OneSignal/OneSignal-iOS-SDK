@@ -25,13 +25,10 @@
  THE SOFTWARE.
  */
 
-#import <sys/utsname.h>
-#import <UIKit/UIKit.h>
-#import <OneSignalCore/OSMacros.h>
+#import "OSNetworkingUtils.h"
 #import "OneSignalReachability.h"
-#import "OneSignalUtils.h"
 
-@implementation OneSignalUtils
+@implementation OSNetworkingUtils
 
 + (NSNumber *)getNetType {
     OneSignalReachability* reachability = [OneSignalReachability reachabilityForInternetConnection];
@@ -39,46 +36,6 @@
     if (status == ReachableViaWiFi)
         return @0;
     return @1;
-}
-
-+ (NSString *)getCurrentDeviceVersion {
-    return [[UIDevice currentDevice] systemVersion];
-}
- 
-+ (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version {
-    return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] != NSOrderedAscending;
-}
-
-+ (BOOL)isIOSVersionLessThan:(NSString *)version {
-    return [[self getCurrentDeviceVersion] compare:version options:NSNumericSearch] == NSOrderedAscending;
-}
-
-+ (NSString*)getSystemInfoMachine {
-    // e.g. @"x86_64" or @"iPhone9,3"
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    return [NSString stringWithCString:systemInfo.machine
-                                         encoding:NSUTF8StringEncoding];
-}
-
-// This will get real device model if it is a real iOS device (Example iPhone8,2)
-// If an iOS Simulator it will return "Simulator iPhone" or "Simulator iPad"
-// If a macOS Catalyst app, return "Mac"
-+ (NSString*)getDeviceVariant {
-    let systemInfoMachine = [self getSystemInfoMachine];
-
-    // x86_64 could mean an iOS Simulator or Catalyst app on macOS
-    #if TARGET_OS_MACCATALYST
-        return @"Mac";
-    #elif TARGET_OS_SIMULATOR
-        let model = UIDevice.currentDevice.model;
-        if (model) {
-            return [@"Simulator " stringByAppendingString:model];
-        } else {
-            return @"Simulator";
-        }
-    #endif
-    return systemInfoMachine;
 }
 
 @end

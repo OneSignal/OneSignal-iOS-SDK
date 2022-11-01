@@ -27,9 +27,7 @@
 
 #import "OSNotificationsManager.h"
 #import "OneSignalDialogController.h"
-#import "OneSignalHelper.h"
-#import "OneSignal.h"
-#import "OneSignalInternal.h"
+#import "OSPermission.h" // exposes extensions on OSPermissionState that are needed here
 
 #import "OneSignalNotificationSettingsIOS9.h"
 #import "OneSignalNotificationSettingsIOS10.h"
@@ -46,7 +44,7 @@ static BOOL _waitingForApnsResponse = false;
 static NSObject<OneSignalNotificationSettings> *_osNotificationSettings;
 + (NSObject<OneSignalNotificationSettings> *)osNotificationSettings {
     if (!_osNotificationSettings) {
-        if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
+        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
         } else {
             _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
@@ -128,7 +126,7 @@ static OSPermissionState* _lastPermissionState;
 + (void)presentAppSettings {
     
     //only supported in 10+
-    if ([OneSignalUtils isIOSVersionLessThan:@"10.0"])
+    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
         return;
     
     let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];

@@ -43,6 +43,10 @@
 #import "OSMacros.h"
 #import "OSJSONHandling.h"
 #import "OSPrivacyConsentController.h"
+// Should these two files be exposed here?
+// The only file currently not here that is used outside Core is SwizzlingForwarder
+#import "OSDeviceUtils.h"
+#import "OSNetworkingUtils.h"
 
 @interface OneSignalCore : NSObject
 
