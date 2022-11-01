@@ -27,17 +27,12 @@
 
 #import <Foundation/Foundation.h>
 
-// macros here?
+// NS_ASSUME_NONNULL_BEGIN
 
-@interface OneSignalUtils : NSObject
+@interface OSNetworkingUtils : NSObject
 
-// - Networking
-+ (NSNumber*)getNetType; // Remark: This can move to Core if OneSignalReachability moves to Core
-
-// - Util
-+ (NSString *)getCurrentDeviceVersion; // Remark: Not in Core due to dep. on UIKit
-+ (BOOL)isIOSVersionGreaterThanOrEqual:(NSString *)version; // Remark: Not in Core due to dep. on UIKit
-+ (BOOL)isIOSVersionLessThan:(NSString *)version; // Remark: Not in Core due to dep. on UIKit
-+ (NSString*)getDeviceVariant; // Remark: Not in Core due to dep. on UIKit
++ (NSNumber*)getNetType;
 
 @end
+
+// NS_ASSUME_NONNULL_END

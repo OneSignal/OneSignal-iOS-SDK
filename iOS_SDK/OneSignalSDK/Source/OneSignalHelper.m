@@ -29,7 +29,6 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
-#import "OneSignalReachability.h"
 #import "OneSignalHelper.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalExtension/OneSignalExtension.h>

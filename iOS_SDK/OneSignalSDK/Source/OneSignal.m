@@ -30,11 +30,9 @@
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
 #import "OneSignalLocation.h"
-#import "OneSignalReachability.h"
 #import "OneSignalJailbreakDetection.h"
 #import "OneSignalMobileProvision.h"
 #import "OneSignalHelper.h"
-#import "OneSignalUtils.h"
 #import "UNUserNotificationCenter+OneSignal.h"
 #import "OneSignalSelectorHelpers.h"
 #import "UIApplicationDelegate+OneSignal.h"
@@ -229,7 +227,7 @@ static NSString *pendingExternalUserIdHashToken;
 static NSObject<OneSignalNotificationSettings> *_osNotificationSettings; // moved 🔔
 + (NSObject<OneSignalNotificationSettings> *)osNotificationSettings { // moved 🔔
     if (!_osNotificationSettings) {
-        if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
+        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
         } else {
             _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
@@ -946,7 +944,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // Always NO, can be cleaned up in a future commit
     usesAutoPrompt = NO;
     
-    if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OneSignalUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
+    if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
         providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
@@ -989,7 +987,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
-    if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
+    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
         [self.osNotificationSettings registerForProvisionalAuthorization:block];
     else
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
@@ -1099,7 +1097,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)presentAppSettings {  // moved 🔔
     
     //only supported in 10+
-    if ([OneSignalUtils isIOSVersionLessThan:@"10.0"])
+    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
         return;
     
     let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
@@ -1375,7 +1373,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     NSArray* nowProcessingCallbacks = pendingSendTagCallbacks;
     pendingSendTagCallbacks = nil;
-    [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OneSignalUtils getNetType] processingCallbacks:nowProcessingCallbacks];
+    [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OSNetworkingUtils getNetType] processingCallbacks:nowProcessingCallbacks];
 }
 
 + (void)sendTag:(NSString*)key value:(NSString*)value {
@@ -1823,7 +1821,7 @@ static BOOL _trackedColdRestart = false;
     else if ([self mEmailAuthToken])
         userState.externalUserIdHash = [self mExternalIdAuthToken];
     
-    let deviceModel = [OneSignalUtils getDeviceVariant];
+    let deviceModel = [OSDeviceUtils getDeviceVariant];
     if (deviceModel)
         userState.deviceModel = deviceModel;
     
@@ -1835,7 +1833,7 @@ static BOOL _trackedColdRestart = false;
     if ([OneSignalJailbreakDetection isJailbroken])
         userState.isRooted = YES;
     
-    userState.netType = [OneSignalUtils getNetType];
+    userState.netType = [OSNetworkingUtils getNetType];
     
     if (!self.currentSubscriptionState.userId) {
         userState.sdkType = mSDKType;
@@ -2129,7 +2127,7 @@ static NSString *_lastnonActiveMessageId;
 
         // Call Action Block
         [OneSignal handleNotificationOpened:messageDict actionType:type];
-    } else if (isPreview && [OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
+    } else if (isPreview && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
         let notification = [OSNotification parseWithApns:messageDict];
         [OneSignalHelper handleIAMPreview:notification];
     }
@@ -2306,7 +2304,7 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
     
-    if ([OneSignalUtils isIOSVersionLessThan:@"10.0"])
+    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
         [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO withValue:true];
     
     BOOL startedRegister = [self registerForAPNsToken];
@@ -2359,7 +2357,7 @@ static NSString *_lastnonActiveMessageId;
     if (richData) {
         let osNotification = [OSNotification parseWithApns:userInfo];
         
-        if ([OneSignalUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
+        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
             startedBackgroundJob = true;
             [OneSignalHelper addNotificationRequest:osNotification completionHandler:completionHandler];
         } else {
