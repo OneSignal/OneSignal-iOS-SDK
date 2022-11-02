@@ -35,10 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Public API.
  */
-@protocol OSNotifications // <NSObject> ??
+@protocol OSNotifications <NSObject>
 
 + (void)requestPermission:(OSUserResponseBlock)block;
 + (void)requestPermission:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
++ (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
 // clearAll
 
 @end
@@ -58,14 +59,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)providesAppNotificationSettings;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
-+ (void)registerForAPNsToken;
++ (BOOL)registerForAPNsToken;
 
-+ (void)updateNotificationTypes:(int)notificationTypes;
+//+ (void)updateNotificationTypes:(int)notificationTypes;
 
 // Used to manage observers added by the app developer.
 @property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;
 
 @property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
+
+// TODO: This gets set by the user module's push sub
+@property (class, readwrite) BOOL pushDisabled;
 
 @end
 
