@@ -26,7 +26,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignalNotificationSettings.h"
+#import <OneSignalNotificationSettings.h>
+#import <OSPermission.h>
 
 NS_ASSUME_NONNULL_BEGIN
 // <- TODO: ^ this? And other items that should go here
@@ -47,10 +48,24 @@ NS_ASSUME_NONNULL_BEGIN
 + (Class<OSNotifications>)Notifications;
 
 @property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
-@property (class, readonly) OSPermissionState* _Nonnull currentPermissionState;
-@property (class) OSPermissionState* _Nonnull lastPermissionState;
+@property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
+@property (class) OSPermissionStateInternal* _Nonnull lastPermissionState;
 
 + (void)clearStatics; // Used by Unit Tests
+
+// Indicates if the app provides its own custom Notification customization settings UI
+// To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
++ (BOOL)providesAppNotificationSettings;
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView;
+
++ (void)registerForAPNsToken;
+
++ (void)updateNotificationTypes:(int)notificationTypes;
+
+// Used to manage observers added by the app developer.
+@property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;
+
+@property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
 
 @end
 
