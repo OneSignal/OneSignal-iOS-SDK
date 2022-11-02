@@ -115,54 +115,37 @@ static NSMutableSet<Class>* swizzledClasses;
         @selector(oneSignalApplicationWillTerminate:)
     );
     
-    [OneSignalAppDelegate swizzlePreiOS10Methods:delegateClass];
 
     [self setOneSignalDelegate:delegate];
 }
 
-+ (BOOL)swizzledClassInHeirarchy:(Class)delegateClass {
-    if ([swizzledClasses containsObject:delegateClass]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@", NSStringFromClass(delegateClass)]];
-        return true;
-    }
-    Class superClass = class_getSuperclass(delegateClass);
-    while(superClass) {
-        if ([swizzledClasses containsObject:superClass]) {
-            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"OneSignal already swizzled %@ in super class: %@", NSStringFromClass(delegateClass), NSStringFromClass(superClass)]];
-            return true;
-        }
-        superClass = class_getSuperclass(superClass);
-    }
-    return false;
-}
-
-+ (void)swizzlePreiOS10Methods:(Class)delegateClass {
-    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"])
-        return;
-    
-    injectSelector(
-        delegateClass,
-        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-        [OneSignalAppDelegate class],
-        @selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)
-    );
-    
-    // Starting with iOS 10 requestAuthorizationWithOptions has it's own callback
-    //   We also check the permssion status from applicationDidBecomeActive: each time.
-    injectSelector(
-        delegateClass,
-        @selector(application:didRegisterUserNotificationSettings:),
-        [OneSignalAppDelegate class],
-        @selector(oneSignalDidRegisterUserNotifications:settings:)
-    );
-    
-    injectSelector(
-        delegateClass,
-        @selector(application:didReceiveLocalNotification:),
-        [OneSignalAppDelegate class],
-        @selector(oneSignalLocalNotificationOpened:notification:)
-    );
-}
+//+ (void)swizzlePreiOS10Methods:(Class)delegateClass {
+//    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"])
+//        return;
+//
+//    injectSelector(
+//        delegateClass,
+//        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:),
+//        [OneSignalAppDelegate class],
+//        @selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)
+//    );
+//
+//    // Starting with iOS 10 requestAuthorizationWithOptions has it's own callback
+//    //   We also check the permssion status from applicationDidBecomeActive: each time.
+//    injectSelector(
+//        delegateClass,
+//        @selector(application:didRegisterUserNotificationSettings:),
+//        [OneSignalAppDelegate class],
+//        @selector(oneSignalDidRegisterUserNotifications:settings:)
+//    );
+//
+//    injectSelector(
+//        delegateClass,
+//        @selector(application:didReceiveLocalNotification:),
+//        [OneSignalAppDelegate class],
+//        @selector(oneSignalLocalNotificationOpened:notification:)
+//    );
+//}
 
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
@@ -198,19 +181,21 @@ static NSMutableSet<Class>* swizzledClasses;
     ];
     [forwarder invokeWithArgs:@[app, err]];
 }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-// iOS 9 Only
-- (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
-    [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterUserNotifications:settings:"];
-    
-    if ([OneSignal appId])
-        [OneSignal updateNotificationTypes:(int)notificationSettings.types];
-    
-    if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
-        [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
-}
-#pragma clang diagnostic pop
+
+//TODO: delete? iOS 9 only
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated"
+//// iOS 9 Only
+//- (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
+//    [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterUserNotifications:settings:"];
+//
+//    if ([OneSignal appId])
+//        [OneSignal updateNotificationTypes:(int)notificationSettings.types];
+//
+//    if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
+//        [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
+//}
+//#pragma clang diagnostic pop
 
 // Fires when a notication is opened or recieved while the app is in focus.
 //   - Also fires when the app is in the background and a notificaiton with content-available=1 is received.
@@ -283,32 +268,32 @@ static NSMutableSet<Class>* swizzledClasses;
     #pragma clang diagnostic pop
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-- (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
-#pragma clang diagnostic pop
-    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
-    
-    if ([OneSignal appId])
-        [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
-    
-    if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
-        [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    
-    completionHandler();
-}
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-- (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
-#pragma clang diagnostic pop
-    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:notification:"];
-    
-    if ([OneSignal appId])
-        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
-    
-    if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
-        [self oneSignalLocalNotificationOpened:application notification:notification];
-}
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated"
+//- (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
+//#pragma clang diagnostic pop
+//    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
+//
+//    if ([OneSignal appId])
+//        [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
+//
+//    if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
+//        [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+//
+//    completionHandler();
+//}
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wdeprecated"
+//- (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
+//#pragma clang diagnostic pop
+//    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:notification:"];
+//
+//    if ([OneSignal appId])
+//        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
+//
+//    if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
+//        [self oneSignalLocalNotificationOpened:application notification:notification];
+//}
 
 -(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
     [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
