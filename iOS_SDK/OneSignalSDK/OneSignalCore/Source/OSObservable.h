@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2021 OneSignal
+ * Copyright 2017 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,32 +25,19 @@
  * THE SOFTWARE.
  */
 
-#pragma clang diagnostic ignored "-Wnullability-completeness"
-#import <Foundation/Foundation.h>
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
-#import "OSNotification.h"
-#import "OSNotification+Internal.h"
-#import "OSNotificationClasses.h"
-#import "OneSignalLog.h"
-#import "NSURL+OneSignal.h"
-#import "NSString+OneSignal.h"
-#import "OSRequests.h"
-#import "OneSignalRequest.h"
-#import "OneSignalClient.h"
-#import "OneSignalCoreHelper.h"
-#import "OneSignalTrackFirebaseAnalytics.h"
-#import "OSMacros.h"
-#import "OSJSONHandling.h"
-#import "OSPrivacyConsentController.h"
-// Should these two files be exposed here?
-// The only file currently not here that is used outside Core is SwizzlingForwarder
-#import "OSDeviceUtils.h"
-#import "OSNetworkingUtils.h"
-#import "OSObservable.h"
-#import "OSDialogInstanceManager.h"
+#ifndef OSObservable_h
+#define OSObservable_h
 
-@interface OneSignalCore : NSObject
 
+@protocol OSObserver
+- (void)onChanged:(id)state;
 @end
 
+@interface OSObservable<__covariant ObserverType, __covariant ObjectType> : NSObject
+- (instancetype)initWithChangeSelector:(SEL)selector;
+- (void)addObserver:(ObserverType)observer;
+- (void)removeObserver:(ObserverType)observer;
+- (BOOL)notifyChange:(ObjectType)state;
+@end
+
+#endif /* OSObservable_h */
