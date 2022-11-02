@@ -1299,62 +1299,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 
-+ (void)postNotification:(NSDictionary*)jsonData {
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"postNotification:"])
-        return;
-    
-    [self postNotification:jsonData onSuccess:nil onFailure:nil];
-}
-
-+ (void)postNotification:(NSDictionary*)jsonData onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"postNotification:onSuccess:onFailure:"])
-        return;
-    
-    NSMutableDictionary *json = [jsonData mutableCopy];
-    
-    [OneSignal convertDatesToISO8061Strings:json]; //convert any dates to NSString's
-    
-    [OneSignalClient.sharedClient executeRequest:[OSRequestPostNotification withAppId:self.appId withJson:json] onSuccess:^(NSDictionary *result) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSData* jsonData = [NSJSONSerialization dataWithJSONObject:result options:0 error:nil];
-            NSString* jsonResultsString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            
-            [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat: @"HTTP create notification success %@", jsonResultsString]];
-            if (successBlock)
-                successBlock(result);
-        });
-    } onFailure:^(NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [OneSignal onesignalLog:ONE_S_LL_ERROR message: @"Create notification failed"];
-            [OneSignal onesignalLog:ONE_S_LL_INFO message:[NSString stringWithFormat: @"%@", error]];
-            if (failureBlock)
-                failureBlock(error);
-        });
-    }];
-}
-
-+ (void)postNotificationWithJsonString:(NSString*)jsonString onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"postNotificationWithJsonString:onSuccess:onFailure:"])
-        return;
-    
-    NSError* jsonError;
-    
-    NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary* jsonData = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-    if (jsonError == nil && jsonData != nil)
-        [self postNotification:jsonData onSuccess:successBlock onFailure:failureBlock];
-    else {
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"postNotification JSON Parse Error: %@", jsonError]];
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"postNotification JSON Parse Error, JSON: %@", jsonString]];
-    }
-}
-
 + (void)convertDatesToISO8061Strings:(NSMutableDictionary *)dictionary {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
