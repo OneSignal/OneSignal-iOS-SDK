@@ -424,32 +424,34 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)setUserId:(NSString *)userId {
     self.currentSubscriptionState.userId = userId;
 }
+//TODO: Delete with um
 // This is set to true even if register user fails
 + (void)registerUserFinished {
     _registerUserFinished = true;
 }
+//TODO: Delete with um
 // If successful then register user is also finished
 + (void)registerUserSuccessful {
     _registerUserSuccessful = true;
     [OneSignal registerUserFinished];
 }
-
+//TODO: Delete with um
 + (NSString *)mEmailAuthToken {
     return self.currentEmailSubscriptionState.emailAuthCode;
 }
-
+//TODO: Delete with um
 + (NSString *)mEmailUserId {
     return self.currentEmailSubscriptionState.emailUserId;
 }
-
+//TODO: Delete with um
 + (void)setEmailUserId:(NSString *)emailUserId {
     self.currentEmailSubscriptionState.emailUserId = emailUserId;
 }
-
+//TODO: Delete with um
 + (NSString *)mExternalIdAuthToken {
     return self.currentSubscriptionState.externalIdAuthCode;
 }
-
+//TODO: Delete with um
 + (void)saveEmailAddress:(NSString *)email withAuthToken:(NSString *)emailAuthToken userId:(NSString *)emailPlayerId {
     self.currentEmailSubscriptionState.emailAddress = email;
     self.currentEmailSubscriptionState.emailAuthCode = emailAuthToken;
@@ -461,15 +463,15 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentEmailSubscriptionState after saveEmailAddress: %@", self.currentEmailSubscriptionState.description]];
 }
 
-
+//TODO: Delete with um
 + (NSString *)getSMSAuthToken {
     return self.currentSMSSubscriptionState.smsAuthCode;
 }
-
+//TODO: Delete with um
 + (NSString *)getSMSUserId {
     return self.currentSMSSubscriptionState.smsUserId;
 }
-
+//TODO: Delete with um
 + (void)saveSMSNumber:(NSString *)smsNumber withAuthToken:(NSString *)smsAuthToken userId:(NSString *)smsPlayerId {
     [self.currentSMSSubscriptionState setSMSNumber:smsNumber];
     self.currentSMSSubscriptionState.smsAuthCode = smsAuthToken;
@@ -480,7 +482,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"CurrentSMSSubscriptionState after saveSMSNumber: %@", self.currentSMSSubscriptionState.description]];
 }
-
+//TODO: Delete with um
 + (void)saveExternalIdAuthToken:(NSString *)hashToken {
     self.currentSubscriptionState.externalIdAuthCode = hashToken;
     // Call persistAsFrom in order to save the externalIdAuthCode to NSUserDefaults
@@ -490,7 +492,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)setMSDKType:(NSString*)type {
     mSDKType = type;
 }
-
+//TODO: Delete with um
 // Used for testing purposes to decrease the amount of time the
 // SDK will spend waiting for a response from APNS before it
 // gives up and registers with OneSignal anyways
@@ -498,7 +500,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     reattemptRegistrationInterval = registrationDelay;
     maxApnsWait = apnsMaxWait;
 }
-
+//TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
     appId = nil;
     launchOptions = false;
@@ -552,7 +554,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     coldStartFromTapOnNotification = NO;
     return val;
 }
-
+//TODO: Delete with UM?
 + (BOOL)shouldDelaySubscriptionSettingsUpdate {
     return shouldDelaySubscriptionUpdate;
 }
@@ -671,116 +673,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 //    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
 //    appSettings = newSettings;
 }
-
-#pragma mark: LIVE ACTIVITIES
-
-
-+ (void)addPendingLiveActivityUpdate:(NSString * _Nonnull)activityId
-                           withToken:(NSString * _Nullable)token
-                             isEnter:(BOOL)isEnter
-                         withSuccess:(OSResultSuccessBlock _Nullable)successBlock
-                         withFailure:(OSFailureBlock _Nullable)failureBlock {
-    OSPendingLiveActivityUpdate *pendingLiveActivityUpdate = [[OSPendingLiveActivityUpdate alloc] initWith:activityId withToken:token isEnter:isEnter withSuccess:successBlock withFailure:failureBlock];
-    
-    if (!pendingLiveActivityUpdates) {
-        pendingLiveActivityUpdates = [NSMutableArray new];
-    }
-    [pendingLiveActivityUpdates addObject:pendingLiveActivityUpdate];
-}
-
-+ (void)executePendingLiveActivityUpdates {
-    if(pendingLiveActivityUpdates.count <= 0) {
-        return;
-    }
-    
-    OSPendingLiveActivityUpdate * updateToProcess = [pendingLiveActivityUpdates objectAtIndex:0];
-    [pendingLiveActivityUpdates removeObjectAtIndex: 0];
-    if (updateToProcess.isEnter) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:updateToProcess.activityId token:updateToProcess.token]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
-            [self executePendingLiveActivityUpdates];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
-            [self executePendingLiveActivityUpdates];
-        }];
-    } else {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:updateToProcess.activityId]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
-            [self executePendingLiveActivityUpdates];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
-            [self executePendingLiveActivityUpdates];
-        }];
-    }
-}
-
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token {
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
-}
-
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:onSuccess:onFailure:"]) {
-        if (failureBlock) {
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called enterLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-            failureBlock(error);
-        }
-        return;
-    }
-
-    
-    if(self.currentSubscriptionState.userId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId token:token]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock withResult:result];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        [self addPendingLiveActivityUpdate:activityId withToken:token isEnter:true withSuccess:successBlock withFailure:failureBlock];
-    }
-}
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId{
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self exitLiveActivity:activityId withSuccess:nil withFailure:nil];
-}
-
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
-
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"exitLiveActivity:onSuccess:onFailure:"]) {
-        if (failureBlock) {
-            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called exitLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
-            failureBlock(error);
-        }
-        return;
-    }
-    if(self.currentSubscriptionState.userId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId]
-                                           onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock withResult:result];
-        } onFailure:^(NSError *error) {
-            [self callFailureBlockOnMainThread:failureBlock withError:error];
-        }];
-    } else {
-        [self addPendingLiveActivityUpdate:activityId withToken:nil isEnter:false  withSuccess:successBlock withFailure:failureBlock];
-    }
-}
-
+//TODO: move to notifications
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
     [OneSignalHelper setNotificationWillShowInForegroundBlock:block];
 }
-
+//TODO: move to notifications
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)block {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Notification opened handler set successfully"];
     [OneSignalHelper setNotificationOpenedBlock:block];
@@ -947,7 +845,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         }];
     }
 }
-
+//TODO: move to notifications
 // Checks to see if we should register for APNS' new Provisional authorization
 // (also known as Direct to History).
 // This behavior is determined by the OneSignal Parameters request
@@ -966,7 +864,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [OSNotificationsManager.osNotificationSettings registerForProvisionalAuthorization:nil];
 }
-
+//TODO: move to core?
 + (void)setRequiresPrivacyConsent:(BOOL)required {
     let remoteParamController = [self getRemoteParamController];
 
@@ -1008,7 +906,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                 [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal has detected that your application delegate implements a deprecated method (%@). Please note that this method has been officially deprecated and the OneSignal SDK will no longer call it. You should use UNUserNotificationCenter instead", selectorName]];
     });
 }
-
+//TODO: move to core?
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
@@ -1066,87 +964,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         _didCallDownloadParameters = false;
     }];
 }
-
-//presents the settings page to control/customize push notification settings
-+ (void)presentAppSettings {  // moved 🔔
-    
-    //only supported in 10+
-    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
-        return;
-    
-    let url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-    
-    if (!url)
-        return;
-    
-    if ([[UIApplication sharedApplication] canOpenURL:url]) {
-        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-    } else {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
-    }
-}
-
-// iOS 9+, only tries to register for an APNs token
-//+ (BOOL)registerForAPNsToken { // TODO: Move to notifManager
-    
-//    if (OSNotificationsManager.waitingForApnsResponse)
-//        return true;
-//
-//    id backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
-//    backgroundModesEnabled = (backgroundModes && [backgroundModes containsObject:@"remote-notification"]);
-//
-//    // Only try to register for a pushToken if:
-//    //  - The user accepted notifications
-//    //  - "Background Modes" > "Remote Notifications" are enabled in Xcode
-//    if (![OSNotificationsManager.osNotificationSettings getNotificationPermissionState].accepted && !backgroundModesEnabled)
-//        return false;
-//
-//    // Don't attempt to register again if there was a non-recoverable error.
-//    if (mSubscriptionStatus < -9)
-//        return false;
-//
-//    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Firing registerForRemoteNotifications"];
-//
-//    OSNotificationsManager.waitingForApnsResponse = true;
-//    [OneSignalHelper dispatch_async_on_main_queue:^{
-//        [[UIApplication sharedApplication] registerForRemoteNotifications];
-//    }];
-//
-//    return true;
-//}
-
-// if user has disabled push notifications & fallback == true,
-// the SDK will prompt the user to open notification Settings for this app
-+ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback {
-    
-    if (OSNotificationsManager.currentPermissionState.hasPrompted == true && OSNotificationsManager.osNotificationSettings.getNotificationTypes == 0 && fallback) {
-        //show settings
-
-        let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
-        let localizedSettingsActionTitle = NSLocalizedString(@"Open Settings", @"A button allowing the user to open the Settings app");
-        let localizedCancelActionTitle = NSLocalizedString(@"Cancel", @"A button allowing the user to close the Settings prompt");
-        
-        //the developer can provide a custom message in Info.plist if they choose.
-        var localizedMessage = (NSString *)[[NSBundle mainBundle] objectForInfoDictionaryKey:FALLBACK_TO_SETTINGS_MESSAGE];
-        
-        if (!localizedMessage)
-            localizedMessage = NSLocalizedString(@"You currently have notifications turned off for this application. You can open Settings to re-enable them", @"A message explaining that users can open Settings to re-enable push notifications");
-        
-        
-        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
-            if (block)
-                block(false);
-            //completion is called on the main thread
-            if (tappedActionIndex > -1)
-                [self presentAppSettings];
-        }];
-        
-        return;
-    }
-    
-    [self promptForPushNotificationsWithUserResponse:block];
-}
-
+//TODO: delete with um?
 // This registers for a push token and prompts the user for notifiations permisions
 //    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
 + (void)registerForPushNotifications {
@@ -1155,10 +973,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"registerForPushNotifications:"])
         return;
     
-    [self promptForPushNotificationsWithUserResponse:nil];
+    [OSNotificationsManager requestPermission:nil];
 }
-
-
+//TODO: delete with um?
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState {
     OSPermissionSubscriptionState* status = [OSPermissionSubscriptionState alloc];
     
@@ -1169,7 +986,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
     return status;
 }
-
+//TODO: Move to notifications
 // onOSPermissionChanged should only fire if something changed.
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver addObserver:observer];
@@ -1177,6 +994,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if ([OSNotificationsManager.currentPermissionState compare:OSNotificationsManager.lastPermissionState])
         [OSPermissionChangedInternalObserver fireChangesObserver:OSNotificationsManager.currentPermissionState];
 }
+//TODO: Move to notifications
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
     [self.permissionStateChangesObserver removeObserver:observer];
 }
@@ -1189,33 +1007,33 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if ([self.currentSubscriptionState compare:self.lastSubscriptionState])
         [OSSubscriptionChangedInternalObserver fireChangesObserver:self.currentSubscriptionState];
 }
-
+//TODO: Move to UM
 + (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer {
     [self.subscriptionStateChangesObserver removeObserver:observer];
 }
-
+//TODO: Delete with um
 + (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer {
     [self.emailSubscriptionStateChangesObserver addObserver:observer];
     
     if ([self.currentEmailSubscriptionState compare:self.lastEmailSubscriptionState])
         [OSEmailSubscriptionChangedInternalObserver fireChangesObserver:self.currentEmailSubscriptionState];
 }
-
+//TODO: Delete with um
 + (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer {
     [self.emailSubscriptionStateChangesObserver removeObserver:observer];
 }
-
+//TODO: Delete with um
 + (void)addSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer {
     [self.smsSubscriptionStateChangesObserver addObserver:observer];
     
     if ([self.currentSMSSubscriptionState compare:self.lastSMSSubscriptionState])
         [OSSMSSubscriptionChangedInternalObserver fireChangesObserver:self.currentSMSSubscriptionState];
 }
-
+//TODO: Delete with um
 + (void)removeSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer {
     [self.smsSubscriptionStateChangesObserver removeObserver:observer];
 }
-
+//TODO: Delete with um
 + (void)sendTagsWithJsonString:(NSString*)jsonString {
     
     // return if the user has not granted privacy permissions
@@ -1233,7 +1051,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"sendTags JSON Parse Error, JSON: %@", jsonString]];
     }
 }
-
+//TODO: Delete with um
 + (void)sendTags:(NSDictionary*)keyValuePair {
     
     // return if the user has not granted privacy permissions
@@ -1242,7 +1060,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self sendTags:keyValuePair onSuccess:nil onFailure:nil];
 }
-
+//TODO: Delete with um
 + (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     // return if the user has not granted privacy permissions
@@ -1299,7 +1117,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
 }
-
+//TODO: move to um
 + (void)sendTagsOnBackground {
     if (!self.playerTags.tagsToSend || self.playerTags.tagsToSend.count <= 0 || !self.currentSubscriptionState.userId)
         return;
@@ -1309,7 +1127,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [self sendTagsToServer];
     }];
 }
-
+//TODO: Delete with um
 // Called only with a delay to batch network calls.
 + (void)sendTagsToServer {
     
@@ -1328,7 +1146,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     pendingSendTagCallbacks = nil;
     [OneSignal.stateSynchronizer sendTagsWithAppId:self.appId sendingTags:nowSendingTags networkType:[OSNetworkingUtils getNetType] processingCallbacks:nowProcessingCallbacks];
 }
-
+//TODO: Delete with um
 + (void)sendTag:(NSString*)key value:(NSString*)value {
     
     // return if the user has not granted privacy permissions
@@ -1337,7 +1155,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self sendTag:key value:value onSuccess:nil onFailure:nil];
 }
-
+//TODO: Delete with um
 + (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     // return if the user has not granted privacy permissions
@@ -1346,7 +1164,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self sendTags:[NSDictionary dictionaryWithObjectsAndKeys: value, key, nil] onSuccess:successBlock onFailure:failureBlock];
 }
-
+//TODO: move to internal um
 + (void)getTags:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     // return if the user has not granted privacy permissions
@@ -1365,7 +1183,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     } onFailure:failureBlock];
     
 }
-
+//TODO: move to internal um
 + (void)getTags:(OSResultSuccessBlock)successBlock {
     
     // return if the user has not granted privacy permissions
@@ -1374,8 +1192,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self getTags:successBlock onFailure:nil];
 }
-
-
+//TODO: Delete with um
 + (void)deleteTag:(NSString*)key onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     
     // return if the user has not granted privacy permissions
@@ -1384,7 +1201,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self deleteTags:@[key] onSuccess:successBlock onFailure:failureBlock];
 }
-
+//TODO: Delete with um
 + (void)deleteTag:(NSString*)key {
     
     // return if the user has not granted privacy permissions
@@ -1393,7 +1210,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self deleteTags:@[key] onSuccess:nil onFailure:nil];
 }
-
+//TODO: Delete with um
 + (void)deleteTags:(NSArray*)keys {
     
     // return if the user has not granted privacy permissions
@@ -1402,7 +1219,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [self deleteTags:keys onSuccess:nil onFailure:nil];
 }
-
+//TODO: Delete with um
 + (void)deleteTagsWithJsonString:(NSString*)jsonString {
     
     // return if the user has not granted privacy permissions
@@ -1420,7 +1237,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat: @"deleteTags JSON Parse Error, JSON: %@", jsonString]];
     }
 }
-
+//TODO: Delete with um
 + (void)deleteTags:(NSArray*)keys onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
     NSMutableDictionary* tags = [[NSMutableDictionary alloc] init];
     for (NSString* key in keys) {
@@ -1432,44 +1249,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self sendTags:tags onSuccess:successBlock onFailure:failureBlock];
 }
 
-
-+ (void)convertDatesToISO8061Strings:(NSMutableDictionary *)dictionary {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-    [dateFormatter setLocale:enUSPOSIXLocale];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
-    
-    for (NSString *key in dictionary.allKeys) {
-        id value = dictionary[key];
-        
-        if ([value isKindOfClass:[NSDate class]])
-            dictionary[key] = [dateFormatter stringFromDate:(NSDate *)value];
-    }
-}
-
-+ (NSString*)parseNSErrorAsJsonString:(NSError*)error {
-    NSString* jsonResponse;
-    
-    if (error.userInfo && error.userInfo[@"returned"]) {
-        @try {
-            NSData* jsonData = [NSJSONSerialization dataWithJSONObject:error.userInfo[@"returned"] options:0 error:nil];
-            jsonResponse = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        } @catch(NSException* e) {
-            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"%@", e]];
-            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"%@",  [NSThread callStackSymbols]]];
-            jsonResponse = @"{\"error\": \"Unknown error parsing error response.\"}";
-        }
-    }
-    else
-        jsonResponse = @"{\"error\": \"HTTP no response error\"}";
-    
-    return jsonResponse;
-}
-
 + (void)enableInAppLaunchURL:(BOOL)enable {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
-
+//TODO: Delete/move with um
 + (void)disablePush:(BOOL)disable {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"disablePush:"])
@@ -1526,7 +1309,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (BOOL)isLocationShared {
     return [[self getRemoteParamController] isLocationShared];
 }
-
+//TODO: move to um
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
     OSNotificationsManager.waitingForApnsResponse = false;
     
@@ -1544,6 +1327,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     }
 }
 
+// TODO: Move this to User Module to update push sub with the apns push token
 + (void)updateDeviceToken:(NSString*)deviceToken {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"updateDeviceToken:onSuccess:onFailure:"])
@@ -1560,6 +1344,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [self playerPutForPushTokenAndNotificationTypes];
 }
 
+// TODO: Move this to User Module to update push sub
 + (void)playerPutForPushTokenAndNotificationTypes {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT to updated pushToken and/or notificationTypes!"];
 
@@ -1573,35 +1358,41 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
       [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:nil];
 }
 
+// TODO: delete with um?
 // Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
 bool immediateOnSessionRetry = NO;
 + (void)setImmediateOnSessionRetry:(BOOL)retry {
     immediateOnSessionRetry = retry;
 }
 
+// TODO: delete with um?
 + (BOOL)isImmediatePlayerCreateOrOnSession {
     return !self.currentSubscriptionState.userId || immediateOnSessionRetry;
 }
 
+// TODO: delete with um?
 // True if we asked Apple for an APNS token the AppDelegate callback has not fired yet
 static BOOL waitingForOneSReg = false;
 // Esnure we call on_session only once while the app is infocus.
+// TODO: delete with um?
 static BOOL isOnSessionSuccessfulForCurrentState = false;
 + (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value {
     isOnSessionSuccessfulForCurrentState = value;
 }
 
+// TODO: delete with um?
 static BOOL _registerUserFinished = false;
 + (BOOL)isRegisterUserFinished {
     return _registerUserFinished || isOnSessionSuccessfulForCurrentState;
 }
 
+// TODO: delete with um?
 static BOOL _registerUserSuccessful = false;
 + (BOOL)isRegisterUserSuccessful {
     return _registerUserSuccessful || isOnSessionSuccessfulForCurrentState;
 }
 
-static BOOL _trackedColdRestart = false;
+// TODO: delete with um?
 + (BOOL)shouldRegisterNow {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1637,12 +1428,14 @@ static BOOL _trackedColdRestart = false;
     return delta >= minTimeThreshold;
 }
 
+// TODO: delete with um?
 + (void)registerUserAfterDelay {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registerUserAfterDelay"];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
 }
 
+// TODO: delete with um?
 + (void)registerUser {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1656,6 +1449,7 @@ static BOOL _trackedColdRestart = false;
     [self registerUserNow];
 }
 
+// TODO: delete with um?
 +(void)registerUserNow {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registerUserNow"];
     
@@ -1669,6 +1463,7 @@ static BOOL _trackedColdRestart = false;
 // We should delay registration if we are waiting on APNS
 // But if APNS hasn't responded within 30 seconds (maxApnsWait),
 // we should continue and register the user.
+// TODO: delete with um?
 + (BOOL)shouldRegisterUserAfterDelay {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", OSNotificationsManager.waitingForApnsResponse]];
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:initializationTime: %@", initializationTime]];
@@ -1683,6 +1478,7 @@ static BOOL _trackedColdRestart = false;
     return [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait;
 }
 
+// TODO: move to um properties
 + (OSUserState *)createUserState {
     let userState = [OSUserState new];
     userState.appId = appId;
@@ -1761,6 +1557,7 @@ static BOOL _trackedColdRestart = false;
     return userState;
 }
 
+// TODO: delete with um?
 + (void)registerUserInternal {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registerUserInternal"];
     _registerUserFinished = false;
@@ -1917,15 +1714,15 @@ static BOOL _trackedColdRestart = false;
     
     [OneSignal.stateSynchronizer sendPurchases:purchases appId:self.appId];
 }
-
+//TODO: move to notifications
 static NSString *_lastAppActiveMessageId;
 + (void)setLastAppActiveMessageId:(NSString*)value { _lastAppActiveMessageId = value; }
-
+//TODO: move to notifications
 static NSString *_lastnonActiveMessageId;
 + (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
 
-
+//TODO: move to notifications
 // Entry point for the following:
 //  - 1. (iOS all) - Opening notifications
 //  - 2. Notification received
@@ -1975,7 +1772,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignalHelper handleIAMPreview:notification];
     }
 }
-
+//TODO: move to notifications
 + (NSString*)checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {
     if (customDict && customDict[@"i"]) {
         NSString* currentNotificationId = customDict[@"i"];
@@ -1985,7 +1782,7 @@ static NSString *_lastnonActiveMessageId;
     }
     return nil;
 }
-
+//TODO: move to notifications
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion {
     // check to make sure the app is in focus and it's a OneSignal notification
     if (![OneSignalHelper isOneSignalPayload:payload]
@@ -2002,7 +1799,7 @@ static NSString *_lastnonActiveMessageId;
     }
     [OneSignalHelper handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion];
 }
-
+//TODO: move to notifications
 + (void)handleNotificationOpened:(NSDictionary*)messageDict
                       actionType:(OSNotificationActionType)actionType {
     
@@ -2047,7 +1844,7 @@ static NSString *_lastnonActiveMessageId;
 
     [OneSignalHelper handleNotificationAction:actionType actionID:actionID];
 }
-
+//TODO: move to core?
 + (void)launchWebURL:(NSString*)openUrl {
     
     NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
@@ -2060,7 +1857,7 @@ static NSString *_lastnonActiveMessageId;
     }
     
 }
-
+//TODO: move to um or notifications
 + (void)submitNotificationOpened:(NSString*)messageId {
     
     // return if the user has not granted privacy permissions
@@ -2083,7 +1880,7 @@ static NSString *_lastnonActiveMessageId;
         [standardUserDefaults saveStringForKey:OSUD_LAST_MESSAGE_OPENED withValue:messageId];
     }
 }
-    
+//TODO: move to notifications
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened {
     
     NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
@@ -2106,7 +1903,7 @@ static NSString *_lastnonActiveMessageId;
 
     return wasBadgeSet;
 }
-
+//TODO: move to um?
 + (void)setSubscriptionErrorStatus:(int)errorType {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"setSubscriptionErrorStatus: %d", errorType]];
     
@@ -2117,6 +1914,7 @@ static NSString *_lastnonActiveMessageId;
         [self registerUser];
 }
 
+//TODO: Move to Notifications
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app
                               deviceToken:(NSData *)inDeviceToken {
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -2138,7 +1936,8 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal updateDeviceToken:parsedDeviceToken];
 }
-    
+ 
+//TODO: Move to Notifications
 + (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     var startedBackgroundJob = false;
     
@@ -2177,29 +1976,6 @@ static NSString *_lastnonActiveMessageId;
     return startedBackgroundJob;
 }
 
-// iOS 9 - Entry point when OneSignal action button notification is displayed or opened.
-+ (void)processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier {
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    if (!notification.userInfo)
-        return;
-
-    let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:notification.userInfo identifier:identifier];
-    
-    if (!userInfo)
-        return;
-    
-    let isActive = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-
-    [OneSignal notificationReceived:userInfo wasOpened:YES];
-    
-    // Notification Tapped or notification Action Tapped
-    if (!isActive)
-        [self handleNotificationOpened:userInfo
-                            actionType:OSNotificationActionTypeActionTaken];
-}
-
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     return [OneSignalNotificationServiceExtensionHandler
@@ -2225,7 +2001,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 #pragma mark Email
-
+//TODO: delete with um
 + (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
     if (failureBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -2233,23 +2009,15 @@ static NSString *_lastnonActiveMessageId;
         });
     }
 }
-
-+ (void)callSuccessBlockOnMainThread:(OSResultSuccessBlock)successBlock withResult:(NSDictionary *)result{
-    if (successBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            successBlock(result);
-        });
-    }
-}
-
-+ (void)callEmailSuccessBlockOnMainThread:(OSEmailSuccessBlock)successBlock {
+//TODO: delete with um
++ (void)callSuccessBlockOnMainThread:(OSEmailSuccessBlock)successBlock {
     if (successBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
             successBlock();
         });
     }
 }
-
+//TODO: delete with um
 + (void)setEmail:(NSString * _Nonnull)email {
 
     // return if the user has not granted privacy permissions
@@ -2258,7 +2026,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setEmail:email withSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
 
     // return if the user has not granted privacy permissions
@@ -2267,7 +2035,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setEmail:email withEmailAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken {
 
     // return if the user has not granted privacy permissions
@@ -2276,7 +2044,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setEmail:email withEmailAuthHashToken:hashToken withSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
 
     // Return if the user has not granted privacy permissions
@@ -2355,7 +2123,7 @@ static NSString *_lastnonActiveMessageId;
         }];
     }
 }
-
+//TODO: delete with um
 + (void)logoutEmail {
     
     // return if the user has not granted privacy permissions
@@ -2364,7 +2132,7 @@ static NSString *_lastnonActiveMessageId;
     
     [self logoutEmailWithSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock {
     
     // return if the user has not granted privacy permissions
@@ -2389,7 +2157,7 @@ static NSString *_lastnonActiveMessageId;
         [self callFailureBlockOnMainThread:failureBlock withError:error];
     }];
 }
-
+//TODO: delete with um
 + (void)emailChangedWithNewEmailPlayerId:(NSString * _Nullable)emailPlayerId {
     //make sure that the email player ID has changed otherwise there's no point in this request
     if ([self.currentEmailSubscriptionState.emailUserId isEqualToString:emailPlayerId])
@@ -2413,7 +2181,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 #pragma mark SMS
-
+//TODO: delete with um
 + (void)setSMSNumber:(NSString *)smsNumber {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:"])
@@ -2421,7 +2189,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setSMSNumber:smsNumber withSMSAuthHashToken:nil withSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)setSMSNumber:(NSString *)smsNumber withSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSuccess:withFailure:"])
@@ -2429,7 +2197,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setSMSNumber:smsNumber withSMSAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (void)setSMSNumber:(NSString *)smsNumber withSMSAuthHashToken:(NSString *)hashToken {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSMSAuthHashToken:"])
@@ -2437,7 +2205,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setSMSNumber:smsNumber withSMSAuthHashToken:hashToken withSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)setSMSNumber:(NSString *)smsNumber withSMSAuthHashToken:(NSString *)hashToken withSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setSMSNumber:withSMSAuthHashToken:withSuccess:withFailure:"])
@@ -2485,7 +2253,7 @@ static NSString *_lastnonActiveMessageId;
     
     [self.stateSynchronizer setSMSNumber:smsNumber withSMSAuthHashToken:hashToken withAppId:self.appId withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (void)logoutSMSNumber {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutSMSNumber"])
@@ -2493,7 +2261,7 @@ static NSString *_lastnonActiveMessageId;
     
     [self logoutSMSNumberWithSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)logoutSMSNumberWithSuccess:(OSSMSSuccessBlock)successBlock withFailure:(OSSMSFailureBlock)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"logoutSMSNumberWithSuccess:withFailure:"])
@@ -2509,7 +2277,7 @@ static NSString *_lastnonActiveMessageId;
     
     [self.stateSynchronizer logoutSMSWithAppId:self.appId withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: move to sessions/onfocus
 + (NSDate *)sessionLaunchTime {
     return sessionLaunchTime;
 }
@@ -2572,7 +2340,7 @@ static NSString *_lastnonActiveMessageId;
 
     return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
 }
-
+//TODO: delete with um
 + (void)setLanguage:(NSString * _Nonnull)language {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
@@ -2586,7 +2354,7 @@ static NSString *_lastnonActiveMessageId;
     if (language)
         [self setLanguageOnServer:language WithSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setLanguage"])
@@ -2596,7 +2364,7 @@ static NSString *_lastnonActiveMessageId;
     if (languageContext.language)
         [self setLanguageOnServer:language WithSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (void)setLanguageOnServer:(NSString * _Nonnull)language WithSuccess:(OSUpdateLanguageSuccessBlock)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock {
     
     if ([language isEqualToString:@""]) {
@@ -2618,7 +2386,7 @@ static NSString *_lastnonActiveMessageId;
             failureBlock([NSError errorWithDomain:@"com.onesignal.language" code:0 userInfo:@{@"error" : @"Network Error"}]);
     }];
 }
-
+//TODO: delete with um
 + (void)setExternalUserId:(NSString * _Nonnull)externalId {
 
     // return if the user has not granted privacy permissions
@@ -2627,7 +2395,7 @@ static NSString *_lastnonActiveMessageId;
     
     [self setExternalUserId:externalId withSuccess:nil withFailure:nil];
 }
-
+//TODO: delete with um
 + (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withSuccess:withFailure:"])
@@ -2635,7 +2403,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setExternalUserId:externalId withExternalIdAuthHashToken:nil withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"setExternalUserId:withExternalIdAuthHashToken:withSuccess:withFailure:"])
@@ -2667,7 +2435,7 @@ static NSString *_lastnonActiveMessageId;
 
     [[self stateSynchronizer] setExternalUserId:externalId withExternalIdAuthHashToken:hashToken withAppId:appId withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (void)removeExternalUserId {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId"])
@@ -2675,7 +2443,7 @@ static NSString *_lastnonActiveMessageId;
 
     [self setExternalUserId:@""];
 }
-
+//TODO: delete with um
 + (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeExternalUserId:"])
@@ -2683,15 +2451,15 @@ static NSString *_lastnonActiveMessageId;
 
     [self setExternalUserId:@"" withSuccess:successBlock withFailure:failureBlock];
 }
-
+//TODO: delete with um
 + (NSString*)existingPushExternalUserId {
     return [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EXTERNAL_USER_ID defaultValue:@""];
 }
-
+//TODO: delete with um
 + (NSString*)existingEmailExternalUserId {
     return [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_EMAIL_EXTERNAL_USER_ID defaultValue:@""];
 }
-
+//TODO: delete with um
 + (BOOL)shouldUpdateExternalUserId:(NSString*)externalId withRequests:(NSDictionary*)requests {
     // If we are not making a request to email user, no need to validate that external user id
     bool updateExternalUserId = ![self.existingPushExternalUserId isEqualToString:externalId]
@@ -2800,10 +2568,12 @@ static NSString *_lastnonActiveMessageId;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
 #pragma mark Logging
+//TODO: delete with um
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
     [OneSignalLog setLogLevel:logLevel];
     _visualLogLevel = visualLogLevel;
 }
+//TODO: delete with um
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
     [OneSignalLog onesignalLog:logLevel message:message];
     NSString* levelString;
