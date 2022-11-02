@@ -70,7 +70,7 @@
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
-		3C44647D29099F2500D27612 /* OSNotificationsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C44647B29099F2500D27612 /* OSNotificationsManager.h */; };
+		3C44647D29099F2500D27612 /* OSNotificationsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C44647B29099F2500D27612 /* OSNotificationsManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C44647E29099F2500D27612 /* OSNotificationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C44647C29099F2500D27612 /* OSNotificationsManager.m */; };
 		3C44647F29099F2500D27612 /* OSNotificationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C44647C29099F2500D27612 /* OSNotificationsManager.m */; };
 		3C4464802909A00E00D27612 /* OSNotificationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C44647C29099F2500D27612 /* OSNotificationsManager.m */; };
@@ -273,7 +273,7 @@
 		91B6EA431E85D38F00B5CF01 /* OSObservable.m in Sources */ = {isa = PBXBuildFile; fileRef = 91B6EA401E85D38F00B5CF01 /* OSObservable.m */; };
 		91B6EA451E86555200B5CF01 /* OSObservable.h in Headers */ = {isa = PBXBuildFile; fileRef = 91B6EA441E85D3D600B5CF01 /* OSObservable.h */; };
 		91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */; };
-		91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F58D791E7C7D3F0017D24D /* OneSignalNotificationSettings.h */; };
+		91F58D7A1E7C7D3F0017D24D /* OneSignalNotificationSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F58D791E7C7D3F0017D24D /* OneSignalNotificationSettings.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91F58D7D1E7C7F330017D24D /* OneSignalNotificationSettingsIOS10.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F58D7C1E7C7F330017D24D /* OneSignalNotificationSettingsIOS10.m */; };
 		91F58D7F1E7C7F5F0017D24D /* OneSignalNotificationSettingsIOS10.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F58D7E1E7C7F5F0017D24D /* OneSignalNotificationSettingsIOS10.h */; };
 		91F58D811E7C80C30017D24D /* OneSignalNotificationSettingsIOS9.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F58D801E7C80C30017D24D /* OneSignalNotificationSettingsIOS9.h */; };
