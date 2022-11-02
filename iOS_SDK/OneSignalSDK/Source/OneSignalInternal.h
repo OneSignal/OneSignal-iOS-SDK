@@ -54,8 +54,6 @@
 
 @interface OneSignal (OneSignalInternal)
 
-+ (void)updateNotificationTypes:(int)notificationTypes;
-+ (BOOL)registerForAPNsToken;
 + (BOOL)shouldPromptToShowURL;
 + (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value;
 + (BOOL)shouldRegisterNow;
@@ -64,9 +62,6 @@
 
 + (NSDate *_Nonnull)sessionLaunchTime;
 
-// Indicates if the app provides its own custom Notification customization settings UI
-// To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
-+ (BOOL)providesAppNotificationSettings;
 
 + (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
 
@@ -76,8 +71,6 @@
 @property (class, readonly) BOOL isRegisterUserFinished;
 //Indicates that registering the user was successful
 @property (class, readonly) BOOL isRegisterUserSuccessful;
-
-@property (class) NSObject<OneSignalNotificationSettings>* _Nonnull osNotificationSettings;
 
 @property (class) AppEntryAction appEntryState;
 @property (class) OSSessionManager* _Nonnull sessionManager;

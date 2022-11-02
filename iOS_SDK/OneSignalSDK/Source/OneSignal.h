@@ -47,6 +47,7 @@
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
+#import <OneSignalNotifications/OneSignalNotifications.h>
 #import "OSNotificationsManager.h"
 
 #pragma clang diagnostic push
@@ -114,14 +115,6 @@
 - (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
 @end
 
-@interface OSPermissionStateChanges : NSObject
-
-@property (readonly, nonnull) OSPermissionState* to;
-@property (readonly, nonnull) OSPermissionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
-
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
@@ -163,10 +156,6 @@
 @property (readonly, nonnull) OSSMSSubscriptionState* to;
 @property (readonly, nonnull) OSSMSSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
 @end
 
 @protocol OSSubscriptionObserver <NSObject>
