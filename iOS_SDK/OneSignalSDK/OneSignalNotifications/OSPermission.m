@@ -26,19 +26,19 @@
  */
 
 #import "OSPermission.h"
-#import "OneSignalHelper.h"
-#import "OneSignalInternal.h"
+#import <OneSignalCore/OneSignalCore.h>
+#import "OSNotificationsManager.h"
 
-@implementation OSPermissionState
+@implementation OSPermissionStateInternal
 
-- (ObserablePermissionStateType*)observable {
+- (ObservablePermissionStateType*)observable {
     if (!_observable)
         _observable = [OSObservable new];
     return _observable;
 }
 
 - (instancetype)initAsTo {
-    [OneSignal.osNotificationSettings getNotificationPermissionState];
+    [OSNotificationsManager.osNotificationSettings getNotificationPermissionState];
     
     return self;
 }
@@ -67,7 +67,7 @@
 
 
 - (instancetype)copyWithZone:(NSZone*)zone {
-    OSPermissionState* copy = [[self class] new];
+    OSPermissionStateInternal* copy = [[self class] new];
     
     if (copy) {
         copy->_hasPrompted = _hasPrompted;
@@ -175,7 +175,7 @@
     return @"NotDetermined";
 }
 
-- (BOOL)compare:(OSPermissionState*)from {
+- (BOOL)compare:(OSPermissionStateInternal*)from {
     return self.accepted != from.accepted ||
            self.ephemeral != from.ephemeral ||
            self.answeredPrompt != from.answeredPrompt ||
@@ -197,16 +197,16 @@
 
 @implementation OSPermissionChangedInternalObserver
 
-- (void)onChanged:(OSPermissionState*)state {
+- (void)onChanged:(OSPermissionStateInternal*)state {
     [OSPermissionChangedInternalObserver fireChangesObserver:state];
 }
 
-+ (void)fireChangesObserver:(OSPermissionState*)state  {
-    OSPermissionStateChanges* stateChanges = [OSPermissionStateChanges alloc];
++ (void)fireChangesObserver:(OSPermissionStateInternal*)state  {
+    OSPermissionStateChangesInternal* stateChanges = [OSPermissionStateChangesInternal new];
     stateChanges.from = OSNotificationsManager.lastPermissionState;
     stateChanges.to = [state copy];
     
-    BOOL hasReceiver = [OneSignal.permissionStateChangesObserver notifyChange:stateChanges];
+    BOOL hasReceiver = [OSNotificationsManager.permissionStateChangesObserver notifyChange:stateChanges];
     if (hasReceiver) {
         OSNotificationsManager.lastPermissionState = [state copy];
         [OSNotificationsManager.lastPermissionState persistAsFrom];
@@ -227,3 +227,7 @@
 }
 
 @end
+
+@implementation OSPermissionStateChangesInternal
+@end
+

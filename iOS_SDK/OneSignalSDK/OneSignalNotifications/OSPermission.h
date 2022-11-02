@@ -25,12 +25,13 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettings_h
-#define OneSignalNotificationSettings_h
-
 #import <Foundation/Foundation.h>
 
-typedef void(^OSUserResponseBlock)(BOOL accepted);
+#import <OneSignalCore/OSObservable.h>
+
+// Redefines are done so we can make properites writeable and backed internal variables accesiable to the SDK.
+// Basicly the C# equivlent of a public gettter with an internal/protected settter.
+
 
 typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     // The user has not yet made a choice regarding whether your app can show notifications.
@@ -60,16 +61,63 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @end
 
-@protocol OneSignalNotificationSettings <NSObject>
+@protocol OSPermissionStateObserver<NSObject>
+- (void)onChanged:(OSPermissionState*)state;
+@end
 
-- (int) getNotificationTypes;
-- (OSPermissionState*)getNotificationPermissionState;
-- (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionState))completionHandler;
-- (void)promptForNotifications:(OSUserResponseBlock)block;
-- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
-// Only used for iOS 9
-- (void)onNotificationPromptResponse:(int)notificationTypes;
+typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> ObservablePermissionStateType;
+
+
+// Redefine OSPermissionState
+@interface OSPermissionStateInternal : NSObject {
+@protected BOOL _hasPrompted;
+@protected BOOL _answeredPrompt;
+}
+@property (readwrite, nonatomic) BOOL hasPrompted;
+@property (readwrite, nonatomic) BOOL providesAppNotificationSettings;
+@property (readwrite, nonatomic) BOOL answeredPrompt;
+@property (readwrite, nonatomic) BOOL accepted;
+@property (readwrite, nonatomic) BOOL provisional; //internal flag
+@property (readwrite, nonatomic) BOOL ephemeral;
+@property (readwrite, nonatomic) BOOL reachable;
+@property (readonly, nonatomic) OSNotificationPermission status;
+@property int notificationTypes;
+
+@property (nonatomic) ObservablePermissionStateType* observable;
+
+- (void) persistAsFrom;
+
+- (instancetype)initAsTo;
+- (instancetype)initAsFrom;
+
+- (BOOL)compare:(OSPermissionState*)from;
 
 @end
 
-#endif /* OneSignaNotificationSettings_h */
+@interface OSPermissionStateChanges : NSObject
+
+@property (readwrite, nonnull) OSPermissionState* to;
+@property (readwrite, nonnull) OSPermissionState* from;
+- (NSDictionary* _Nonnull)toDictionary;
+
+@end
+
+@interface OSPermissionStateChangesInternal : NSObject
+
+@property (readwrite) OSPermissionStateInternal* to;
+@property (readwrite) OSPermissionStateInternal* from;
+
+@end
+
+@protocol OSPermissionObserver <NSObject>
+- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
+@end
+
+typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChangesInternal*> ObservablePermissionStateChangesType;
+
+
+@interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>
++ (void)fireChangesObserver:(OSPermissionStateInternal*)state;
+@end
+
+
