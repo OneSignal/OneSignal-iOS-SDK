@@ -285,4 +285,22 @@ API_AVAILABLE(macos(10.4), ios(2.0));
     return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
++ (NSString*)parseNSErrorAsJsonString:(NSError*)error {
+    NSString* jsonResponse;
+    
+    if (error.userInfo && error.userInfo[@"returned"]) {
+        @try {
+            NSData* jsonData = [NSJSONSerialization dataWithJSONObject:error.userInfo[@"returned"] options:0 error:nil];
+            jsonResponse = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        } @catch(NSException* e) {
+            jsonResponse = @"{\"error\": \"Unknown error parsing error response.\"}";
+        }
+    }
+    else
+        jsonResponse = @"{\"error\": \"HTTP no response error\"}";
+    
+    return jsonResponse;
+}
+
+
 @end
