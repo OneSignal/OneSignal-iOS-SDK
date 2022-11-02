@@ -182,9 +182,28 @@
            self.hasPrompted != from.hasPrompted;
 }
 
+- (OSPermissionState *)getExternalState {
+    return [[OSPermissionState alloc] initWithStatus:self.status reachable:self.reachable hasPrompted:self.hasPrompted provisional:self.provisional providesAppNotificationSettings:self.providesAppNotificationSettings];
+}
+
 - (NSString*)description {
     static NSString* format = @"<OSPermissionState: hasPrompted: %d, status: %@, provisional: %d>";
     return [NSString stringWithFormat:format, self.hasPrompted, self.statusAsString, self.provisional];
+}
+
+
+
+@end
+
+@implementation OSPermissionState
+    
+- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
+    _status = status;
+    _reachable = reachable;
+    _hasPrompted = hasPrompted;
+    _providesAppNotificationSettings = providesAppNotificationSettings;
+    _provisional = provisional;
+    return self;
 }
 
 - (NSDictionary*)toDictionary {
@@ -194,7 +213,6 @@
 }
 
 @end
-
 @implementation OSPermissionChangedInternalObserver
 
 - (void)onChanged:(OSPermissionStateInternal*)state {
@@ -202,9 +220,9 @@
 }
 
 + (void)fireChangesObserver:(OSPermissionStateInternal*)state  {
-    OSPermissionStateChangesInternal* stateChanges = [OSPermissionStateChangesInternal new];
-    stateChanges.from = OSNotificationsManager.lastPermissionState;
-    stateChanges.to = [state copy];
+    OSPermissionState *externalToState = [state getExternalState];
+    OSPermissionState *externalFromState = [OSNotificationsManager.lastPermissionState getExternalState];
+    OSPermissionStateChanges* stateChanges = [[OSPermissionStateChanges alloc] initAsTo:externalToState from:externalFromState];
     
     BOOL hasReceiver = [OSNotificationsManager.permissionStateChangesObserver notifyChange:stateChanges];
     if (hasReceiver) {
@@ -226,8 +244,10 @@
     return @{@"from": [_from toDictionary], @"to": [_to toDictionary]};
 }
 
-@end
+- (instancetype)initAsTo:(OSPermissionState *)to from:(OSPermissionState *)from {
+    _to = to;
+    _from = from;
+    return self;
+}
 
-@implementation OSPermissionStateChangesInternal
 @end
-
