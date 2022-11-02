@@ -621,14 +621,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self init];
 }
 
-+ (BOOL)shouldSuppressURL {
-    // if the plist key does not exist default to false
-    // the plist value specifies whether the user wants to open an url using default browser or OSWebView
-    NSDictionary *bundleDict = [[NSBundle mainBundle] infoDictionary];
-    BOOL shouldSuppress = [bundleDict[ONESIGNAL_SUPRESS_LAUNCH_URLS] boolValue];
-    return shouldSuppress ?: false;
-}
-
 + (void)setLaunchURLsInApp:(BOOL)launchInApp {
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
@@ -642,16 +634,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 //    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
 //    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
 //    appSettings = newSettings;
-}
-//TODO: move to notifications
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
-    [OneSignalHelper setNotificationWillShowInForegroundBlock:block];
-}
-//TODO: move to notifications
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock)block {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Notification opened handler set successfully"];
-    [OneSignalHelper setNotificationOpenedBlock:block];
 }
 
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
@@ -1680,136 +1662,7 @@ static BOOL _registerUserSuccessful = false;
     
     [OneSignal.stateSynchronizer sendPurchases:purchases appId:self.appId];
 }
-//TODO: move to notifications
-static NSString *_lastAppActiveMessageId;
-+ (void)setLastAppActiveMessageId:(NSString*)value { _lastAppActiveMessageId = value; }
-//TODO: move to notifications
-static NSString *_lastnonActiveMessageId;
-+ (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
-
-//TODO: move to notifications
-// Entry point for the following:
-//  - 1. (iOS all) - Opening notifications
-//  - 2. Notification received
-//    - 2A. iOS 9  - Notification received while app is in focus.
-//    - 2B. iOS 10 - Notification received/displayed while app is in focus.
-// isActive is not always true for when the application is on foreground, we need differentiation
-// between foreground and isActive
-+ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened {
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    if (!appId)
-        return;
-    
-    // This method should not continue to be executed for non-OS push notifications
-    if (![OneSignalHelper isOneSignalPayload:messageDict])
-        return;
-    
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"notificationReceived called! opened: %@", opened ? @"YES" : @"NO"]];
-    
-    NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
-    
-    // Should be called first, other methods relay on this global state below.
-    [OneSignalHelper lastMessageReceived:messageDict];
-    
-    BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
-
-    if (opened) {
-        // Prevent duplicate calls
-        let newId = [self checkForProcessedDups:customDict lastMessageId:_lastnonActiveMessageId];
-        if ([@"dup" isEqualToString:newId]) {
-            [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Duplicate notif received. Not calling opened handler."];
-            return;
-        }
-        if (newId)
-            _lastnonActiveMessageId = newId;
-        //app was in background / not running and opened due to a tap on a notification or an action check what type
-        OSNotificationActionType type = OSNotificationActionTypeOpened;
-
-        if (messageDict[@"custom"][@"a"][@"actionSelected"] || messageDict[@"actionSelected"])
-            type = OSNotificationActionTypeActionTaken;
-
-        // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict actionType:type];
-    } else if (isPreview && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
-        let notification = [OSNotification parseWithApns:messageDict];
-        [OneSignalHelper handleIAMPreview:notification];
-    }
-}
-//TODO: move to notifications
-+ (NSString*)checkForProcessedDups:(NSDictionary*)customDict lastMessageId:(NSString*)lastMessageId {
-    if (customDict && customDict[@"i"]) {
-        NSString* currentNotificationId = customDict[@"i"];
-        if ([currentNotificationId isEqualToString:lastMessageId])
-            return @"dup";
-        return customDict[@"i"];
-    }
-    return nil;
-}
-//TODO: move to notifications
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion {
-    // check to make sure the app is in focus and it's a OneSignal notification
-    if (![OneSignalHelper isOneSignalPayload:payload]
-        || UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-        completion([OSNotification new]);
-        return;
-    }
-    //Only call the willShowInForegroundHandler for notifications not preview IAMs
-
-    OSNotification *osNotification = [OSNotification parseWithApns:payload];
-    if ([osNotification additionalData][ONESIGNAL_IAM_PREVIEW]) {
-        completion(nil);
-        return;
-    }
-    [OneSignalHelper handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion];
-}
-//TODO: move to notifications
-+ (void)handleNotificationOpened:(NSDictionary*)messageDict
-                      actionType:(OSNotificationActionType)actionType {
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"handleNotificationOpened:actionType:"])
-        return;
-
-    OSNotification *notification = [OSNotification parseWithApns:messageDict];
-    if ([OneSignalHelper handleIAMPreview:notification])
-        return;
-
-    NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
-    // Notify backend that user opened the notification
-    NSString* messageId = [customDict objectForKey:@"i"];
-    [OneSignal submitNotificationOpened:messageId];
-    
-    let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
-    
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
-                                     isActive ? @"YES" : @"NO", messageId]];
-
-    if (![OneSignal shouldSuppressURL]) {
-        // Try to fetch the open url to launch
-        [OneSignal launchWebURL:notification.launchURL];
-    }
-        
-    [self clearBadgeCount:true];
-    
-    NSString* actionID = NULL;
-    if (actionType == OSNotificationActionTypeActionTaken) {
-        actionID = messageDict[@"custom"][@"a"][@"actionSelected"];
-        if(!actionID)
-            actionID = messageDict[@"actionSelected"];
-    }
-    
-    // Call Action Block
-    [OneSignalHelper lastMessageReceived:messageDict];
-    if (!isActive) {
-        OneSignal.appEntryState = NOTIFICATION_CLICK;
-        [[OSSessionManager sharedSessionManager] onDirectInfluenceFromNotificationOpen:_appEntryState withNotificationId:messageId];
-    }
-
-    [OneSignalHelper handleNotificationAction:actionType actionID:actionID];
-}
 //TODO: move to core?
 + (void)launchWebURL:(NSString*)openUrl {
     
@@ -1901,45 +1754,6 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     [OneSignal updateDeviceToken:parsedDeviceToken];
-}
- 
-//TODO: Move to Notifications
-+ (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    var startedBackgroundJob = false;
-    
-    NSDictionary* richData = nil;
-    // TODO: Look into why the userInfo payload would be different here for displaying vs opening....
-    // Check for buttons or attachments pre-2.4.0 version
-    if ((userInfo[@"os_data"][@"buttons"] && [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSDictionary class]]) || userInfo[@"at"] || userInfo[@"o"])
-        richData = userInfo;
-
-    // Generate local notification for action button and/or attachments.
-    if (richData) {
-        let osNotification = [OSNotification parseWithApns:userInfo];
-        
-        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
-            startedBackgroundJob = true;
-            [OneSignalHelper addNotificationRequest:osNotification completionHandler:completionHandler];
-        } else {
-            let notification = [OneSignalHelper prepareUILocalNotification:osNotification];
-            [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-        }
-    }
-    // Method was called due to a tap on a notification - Fire open notification
-    else if (application.applicationState == UIApplicationStateActive) {
-        [OneSignalHelper lastMessageReceived:userInfo];
-
-        if ([OneSignalHelper isDisplayableNotification:userInfo]) {
-             [OneSignal notificationReceived:userInfo wasOpened:YES];
-        }
-        return startedBackgroundJob;
-    }
-    // content-available notification received in the background
-    else {
-        [OneSignalHelper lastMessageReceived:userInfo];
-    }
-    
-    return startedBackgroundJob;
 }
 
 // Called from the app's Notification Service Extension
