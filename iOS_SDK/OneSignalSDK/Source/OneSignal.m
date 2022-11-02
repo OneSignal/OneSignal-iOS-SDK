@@ -192,18 +192,6 @@ static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
 static NSString *pendingExternalUserIdHashToken;
 
-// iOS version implementation TODO: um
-//static NSObject<OneSignalNotificationSettings> *_osNotificationSettings; // moved 🔔
-//+ (NSObject<OneSignalNotificationSettings> *)osNotificationSettings { // moved 🔔
-//    if (!_osNotificationSettings) {
-//        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
-//            _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-//        } else {
-//            _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
-//        }
-//    }
-//    return _osNotificationSettings;
-//}
 
 static OSEmailSubscriptionState* _currentEmailSubscriptionState;
 + (OSEmailSubscriptionState *)currentEmailSubscriptionState {
@@ -285,8 +273,8 @@ static OSStateSynchronizer *_stateSynchronizer;
 }
 
 // static property def to add developer's OSPermissionStateChanges observers to.
-static ObserablePermissionStateChangesType* _permissionStateChangesObserver;
-+ (ObserablePermissionStateChangesType*)permissionStateChangesObserver {
+static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
++ (ObservablePermissionStateChangesType*)permissionStateChangesObserver {
     if (!_permissionStateChangesObserver)
         _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
@@ -497,7 +485,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [OSNotificationsManager clearStatics];
     registeredWithApple = false;
-    _osNotificationSettings = nil;
     waitingForOneSReg = false;
     isOnSessionSuccessfulForCurrentState = false;
     mLastNotificationTypes = -1;
@@ -653,7 +640,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // This allows this method to have an effect after init is called
     [self enableInAppLaunchURL:launchInApp];
 }
-
+// TODO: um
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
     [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
 //    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
@@ -824,7 +811,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (self.currentSubscriptionState.userId)
         [self registerUser];
     else {
-        [self.osNotificationSettings getNotificationPermissionState:^(OSPermissionState *state) {
+        [OSNotificationsManager.osNotificationSettings getNotificationPermissionState:^(OSPermissionStateInternal *state) {
             if (state.answeredPrompt)
                 [self registerUser];
             else
@@ -849,12 +836,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     requestedProvisionalAuthorization = true;
     
-    [self.osNotificationSettings registerForProvisionalAuthorization:nil];
+    [OSNotificationsManager.osNotificationSettings registerForProvisionalAuthorization:nil];
 }
 
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
     if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
-        [self.osNotificationSettings registerForProvisionalAuthorization:block];
+        [OSNotificationsManager.osNotificationSettings registerForProvisionalAuthorization:block];
     else
         [OneSignal onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
 }
@@ -990,7 +977,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // Only try to register for a pushToken if:
     //  - The user accepted notifications
     //  - "Background Modes" > "Remote Notifications" are enabled in Xcode
-    if (![self.osNotificationSettings getNotificationPermissionState].accepted && !backgroundModesEnabled)
+    if (![OSNotificationsManager.osNotificationSettings getNotificationPermissionState].accepted && !backgroundModesEnabled)
         return false;
     
     // Don't attempt to register again if there was a non-recoverable error.
@@ -1011,7 +998,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 // the SDK will prompt the user to open notification Settings for this app
 + (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback {
     
-    if (OSNotificationsManager.currentPermissionState.hasPrompted == true && self.osNotificationSettings.getNotificationTypes == 0 && fallback) {
+    if (OSNotificationsManager.currentPermissionState.hasPrompted == true && OSNotificationsManager.osNotificationSettings.getNotificationTypes == 0 && fallback) {
         //show settings
 
         let localizedTitle = NSLocalizedString(@"Open Settings", @"A title saying that the user can open iOS Settings");
@@ -1049,7 +1036,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     OSNotificationsManager.currentPermissionState.hasPrompted = true;
     
-    [self.osNotificationSettings promptForNotifications:block];
+    [OSNotificationsManager.osNotificationSettings promptForNotifications:block];
 }
 
 // This registers for a push token and prompts the user for notifiations permisions
@@ -2127,7 +2114,7 @@ static NSString *_lastnonActiveMessageId;
     if (OSNotificationsManager.waitingForApnsResponse && !self.currentSubscriptionState.pushToken)
         return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
-    OSPermissionState* permissionStatus = [self.osNotificationSettings getNotificationPermissionState];
+    OSPermissionStateInternal* permissionStatus = [OSNotificationsManager.osNotificationSettings getNotificationPermissionState];
     
     //only return the error statuses if not provisional
     if (!permissionStatus.provisional && !permissionStatus.hasPrompted)
@@ -2165,7 +2152,7 @@ static NSString *_lastnonActiveMessageId;
     
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startedRegister: %d", startedRegister]];
     
-    [self.osNotificationSettings onNotificationPromptResponse:notificationTypes];
+    [OSNotificationsManager.osNotificationSettings onNotificationPromptResponse:notificationTypes];
     
     if (mSubscriptionStatus == -2)
         return;
