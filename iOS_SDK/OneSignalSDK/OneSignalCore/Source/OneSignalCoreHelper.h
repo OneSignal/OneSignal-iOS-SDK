@@ -37,4 +37,5 @@
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
 + (NSString*)trimURLSpacing:(NSString*)url;
++ (NSString*)parseNSErrorAsJsonString:(NSError*)error;
 @end
