@@ -210,7 +210,6 @@ static LanguageContext* languageContext;
 
 int mLastNotificationTypes = -1;
 
-BOOL disableBadgeClearing = NO;
 BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
 
@@ -732,7 +731,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (userInfo)
         coldStartFromTapOnNotification = YES;
 
-    [self clearBadgeCount:false];
+    [OSNotificationsManager clearBadgeCount:false];
 
     if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
         trackIAPPurchase = [OneSignalTrackIAP new];
@@ -1733,29 +1732,7 @@ static BOOL _registerUserSuccessful = false;
         [standardUserDefaults saveStringForKey:OSUD_LAST_MESSAGE_OPENED withValue:messageId];
     }
 }
-//TODO: move to notifications
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened {
-    
-    NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
-    
-    if (disableBadgeNumber)
-        disableBadgeClearing = [disableBadgeNumber boolValue];
-    else
-        disableBadgeClearing = NO;
-    
-    if (disableBadgeClearing)
-        return false;
-    
-    bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
-    
-    if (fromNotifOpened || wasBadgeSet) {
-        [OneSignalHelper runOnMainThread:^{
-            [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-        }];
-    }
 
-    return wasBadgeSet;
-}
 //TODO: move to um?
 + (void)setSubscriptionErrorStatus:(int)errorType {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"setSubscriptionErrorStatus: %d", errorType]];

@@ -86,6 +86,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion;
 + (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID;
 
++ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
+
 @end
 
 NS_ASSUME_NONNULL_END // <- TODO: this?
