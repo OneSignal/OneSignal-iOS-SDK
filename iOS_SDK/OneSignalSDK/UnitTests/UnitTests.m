@@ -2293,7 +2293,7 @@ didReceiveRemoteNotification:userInfo
  */
 - (void)testOpenNotificationSettings {
     OneSignalHelperOverrider.mockIOSVersion = 10;
-    [[OneSignalDialogController sharedInstance] clearQueue];
+    [[OSDialogInstanceManager sharedInstance] clearQueue];
 
     //set up the test so that the user has declined the prompt.
     //we can then call prompt with Settings fallback.
