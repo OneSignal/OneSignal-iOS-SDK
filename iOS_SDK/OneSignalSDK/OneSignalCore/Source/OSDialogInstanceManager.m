@@ -15,7 +15,7 @@ static NSObject<OSDialogPresenter> *_sharedInstance;
     _sharedInstance = instance;
 }
 
-+ (NSObject<OSDialogPresenter> *)sharedInstance {
++ (NSObject<OSDialogPresenter> * _Nullable)sharedInstance {
     return _sharedInstance;
 }
 
