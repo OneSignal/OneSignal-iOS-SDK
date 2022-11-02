@@ -8,3 +8,5 @@
 
 #import <Foundation/Foundation.h>
 
+#import "OSNotificationsManager.h"
+#import "OSPermission.h"

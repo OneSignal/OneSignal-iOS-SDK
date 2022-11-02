@@ -26,11 +26,8 @@
  */
 
 #import "OSNotificationsManager.h"
-#import "OneSignalDialogController.h"
-#import "OSPermission.h" // exposes extensions on OSPermissionState that are needed here
-
-#import "OneSignalNotificationSettingsIOS9.h"
-#import "OneSignalNotificationSettingsIOS10.h"
+#import <OneSignalCore/OneSignalCore.h>
+#import <UIKit/UIKit.h>
 
 @implementation OSNotificationsManager
 + (Class<OSNotifications>)Notifications {
@@ -39,25 +36,29 @@
 
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
 static BOOL _waitingForApnsResponse = false;
+static BOOL _providesAppNotificationSettings = false;
 
 // iOS version implementation
-static NSObject<OneSignalNotificationSettings> *_osNotificationSettings;
-+ (NSObject<OneSignalNotificationSettings> *)osNotificationSettings {
+static OneSignalNotificationSettings *_osNotificationSettings;
++ (OneSignalNotificationSettings *)osNotificationSettings {
     if (!_osNotificationSettings) {
-        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
-            _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-        } else {
-            _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
-        }
+        _osNotificationSettings = [OneSignalNotificationSettings new];
     }
     return _osNotificationSettings;
 }
 
+static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
++ (ObservablePermissionStateChangesType*)permissionStateChangesObserver {
+    if (!_permissionStateChangesObserver)
+        _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
+    return _permissionStateChangesObserver;
+}
+
 // static property def for currentPermissionState
-static OSPermissionState* _currentPermissionState;
-+ (OSPermissionState*)currentPermissionState {
+static OSPermissionStateInternal* _currentPermissionState;
++ (OSPermissionStateInternal*)currentPermissionState {
     if (!_currentPermissionState) {
-        _currentPermissionState = [OSPermissionState alloc];
+        _currentPermissionState = [OSPermissionStateInternal alloc];
         _currentPermissionState = [_currentPermissionState initAsTo];
         [self lastPermissionState]; // Trigger creation
         [_currentPermissionState.observable addObserver:[OSPermissionChangedInternalObserver alloc]];
@@ -66,14 +67,14 @@ static OSPermissionState* _currentPermissionState;
 }
 
 // static property def for previous OSPermissionState
-static OSPermissionState* _lastPermissionState;
-+ (OSPermissionState*)lastPermissionState {
+static OSPermissionStateInternal* _lastPermissionState;
++ (OSPermissionStateInternal*)lastPermissionState {
     if (!_lastPermissionState)
-        _lastPermissionState = [[OSPermissionState alloc] initAsFrom];
+        _lastPermissionState = [[OSPermissionStateInternal alloc] initAsFrom];
     return _lastPermissionState;
 }
 
-+ (void)setLastPermissionState:(OSPermissionState *)lastPermissionState {
++ (void)setLastPermissionState:(OSPermissionStateInternal *)lastPermissionState {
     _lastPermissionState = lastPermissionState;
 }
 
@@ -107,8 +108,11 @@ static OSPermissionState* _lastPermissionState;
         if (!localizedMessage)
             localizedMessage = NSLocalizedString(@"You currently have notifications turned off for this application. You can open Settings to re-enable them", @"A message explaining that users can open Settings to re-enable push notifications");
         
+        /*
+         Provide a protocol for this and inject it rather than referencing dialogcontroller directly. This is is because it uses UIApplication sharedApplication
+         */
         
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
+        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
             if (block)
                 block(false);
             //completion is called on the main thread
@@ -120,6 +124,18 @@ static OSPermissionState* _lastPermissionState;
     }
     
     [self requestPermission:block];
+}
+
+// iOS 12+ only
+// A boolean indicating if the app provides its own custom Notifications Settings UI
+// If this is set to TRUE via the kOSSettingsKeyProvidesAppNotificationSettings init
+// parameter, the SDK will request authorization from the User Notification Center
++ (BOOL)providesAppNotificationSettings {
+    return _providesAppNotificationSettings;
+}
+
++ (void)setProvidesNotificationSettingsView:(BOOL)providesView {
+    _providesAppNotificationSettings = providesView;
 }
 
 //presents the settings page to control/customize push notification settings
@@ -139,6 +155,14 @@ static OSPermissionState* _lastPermissionState;
     } else {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Unable to open settings for this application"];
     }
+}
+
++ (void)registerForAPNsToken {
+        //TODO: implement
+}
+
++ (void)updateNotificationTypes:(int)notificationTypes {
+    //TODO: implement
 }
 
 + (BOOL)waitingForApnsResponse {

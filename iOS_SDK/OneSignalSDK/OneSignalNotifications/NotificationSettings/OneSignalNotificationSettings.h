@@ -25,14 +25,24 @@
  * THE SOFTWARE.
  */
 
-#ifndef OneSignalNotificationSettingsIOS9_h
-#define OneSignalNotificationSettingsIOS9_h
+#ifndef OneSignalNotificationSettings_h
+#define OneSignalNotificationSettings_h
 
-#import "OneSignalNotificationSettings.h"
+#import <Foundation/Foundation.h>
+#import <OSPermission.h>
 
-// Used for iOS 9
-@interface OneSignalNotificationSettingsIOS9 : NSObject <OneSignalNotificationSettings>
+typedef void(^OSUserResponseBlock)(BOOL accepted);
 
+@interface OneSignalNotificationSettings : NSObject
+- (int) getNotificationTypes;
+- (OSPermissionStateInternal*)getNotificationPermissionState;
+- (void)getNotificationPermissionState:(void (^)(OSPermissionStateInternal *subscriptionState))completionHandler;
+- (void)promptForNotifications:(OSUserResponseBlock)block;
+- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
+// Only used for iOS 9
+- (void)onNotificationPromptResponse:(int)notificationTypes;
++(dispatch_queue_t)getQueue;
 @end
 
-#endif /* OneSignalNotificationSettingsIOS9_h */
+
+#endif /* OneSignaNotificationSettings_h */
