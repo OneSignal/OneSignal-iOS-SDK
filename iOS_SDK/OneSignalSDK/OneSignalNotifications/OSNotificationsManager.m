@@ -103,6 +103,7 @@ static NSDictionary* _lastMessageReceived;
 static NSString *_lastMessageID = @"";
 static NSString *_lastMessageIdFromAction;
 static UIBackgroundTaskIdentifier _mediaBackgroundTask;
+static BOOL _disableBadgeClearing = NO;
 
 static NSString *_appId;
 + (void)setAppId:(NSString *)appId {
@@ -518,6 +519,29 @@ static NSString *_lastnonActiveMessageId;
 //    }
 
     [self handleNotificationAction:actionType actionID:actionID];
+}
+
++ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened {
+    
+    NSNumber *disableBadgeNumber = [[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_DISABLE_BADGE_CLEARING];
+    
+    if (disableBadgeNumber)
+        _disableBadgeClearing = [disableBadgeNumber boolValue];
+    else
+        _disableBadgeClearing = NO;
+    
+    if (_disableBadgeClearing)
+        return false;
+    
+    bool wasBadgeSet = [UIApplication sharedApplication].applicationIconBadgeNumber > 0;
+    
+    if (fromNotifOpened || wasBadgeSet) {
+        [OneSignalCoreHelper runOnMainThread:^{
+            [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+        }];
+    }
+
+    return wasBadgeSet;
 }
 
 + (BOOL)handleIAMPreview:(OSNotification *)notification {
