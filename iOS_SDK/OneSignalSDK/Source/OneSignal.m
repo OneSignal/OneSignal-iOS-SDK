@@ -41,9 +41,8 @@
 #import "OSMigrationController.h"
 #import "OSRemoteParamController.h"
 
-#import "OneSignalNotificationSettings.h"
-#import "OneSignalNotificationSettingsIOS10.h"
-#import "OneSignalNotificationSettingsIOS9.h"
+#import <OneSignalNotifications/OneSignalNotifications.h>
+
 // TODO: ^ if no longer support ios 9 + 10 after user model, need to address all stuffs
 
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
@@ -223,18 +222,18 @@ static BOOL performedOnSessionRequest = false;
 static NSString *pendingExternalUserId;
 static NSString *pendingExternalUserIdHashToken;
 
-// iOS version implementation
-static NSObject<OneSignalNotificationSettings> *_osNotificationSettings; // moved 🔔
-+ (NSObject<OneSignalNotificationSettings> *)osNotificationSettings { // moved 🔔
-    if (!_osNotificationSettings) {
-        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
-            _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
-        } else {
-            _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
-        }
-    }
-    return _osNotificationSettings;
-}
+// iOS version implementation TODO: um
+//static NSObject<OneSignalNotificationSettings> *_osNotificationSettings; // moved 🔔
+//+ (NSObject<OneSignalNotificationSettings> *)osNotificationSettings { // moved 🔔
+//    if (!_osNotificationSettings) {
+//        if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
+//            _osNotificationSettings = [OneSignalNotificationSettingsIOS10 new];
+//        } else {
+//            _osNotificationSettings = [OneSignalNotificationSettingsIOS9 new];
+//        }
+//    }
+//    return _osNotificationSettings;
+//}
 
 static OSEmailSubscriptionState* _currentEmailSubscriptionState;
 + (OSEmailSubscriptionState *)currentEmailSubscriptionState {
@@ -686,9 +685,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
-    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
-    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
-    appSettings = newSettings;
+    [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
+//    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
+//    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
+//    appSettings = newSettings;
 }
 
 #pragma mark: LIVE ACTIVITIES
@@ -1112,14 +1112,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     }
 }
 
-// iOS 12+ only
-// A boolean indicating if the app provides its own custom Notifications Settings UI
-// If this is set to TRUE via the kOSSettingsKeyProvidesAppNotificationSettings init
-// parameter, the SDK will request authorization from the User Notification Center
-+ (BOOL)providesAppNotificationSettings {
-    return providesAppNotificationSettings;
-}
-
 // iOS 9+, only tries to register for an APNs token
 + (BOOL)registerForAPNsToken { // TODO: Move to notifManager
     
@@ -1167,7 +1159,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
             localizedMessage = NSLocalizedString(@"You currently have notifications turned off for this application. You can open Settings to re-enable them", @"A message explaining that users can open Settings to re-enable push notifications");
         
         
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
+        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:localizedTitle withMessage:localizedMessage withActions:@[localizedSettingsActionTitle] cancelTitle:localizedCancelActionTitle withActionCompletion:^(int tappedActionIndex) {
             if (block)
                 block(false);
             //completion is called on the main thread
@@ -3036,7 +3028,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
             break;
     }
     if (logLevel <= _visualLogLevel) {
-        [[OneSignalDialogController sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
     }
 }
 
@@ -3121,6 +3113,8 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
     [self setupUNUserNotificationCenterDelegate];
     [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
+    
+    [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController new]];
 }
 
 /*

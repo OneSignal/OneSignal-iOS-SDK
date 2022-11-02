@@ -289,7 +289,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)showLocationSettingsAlertController {
     [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManager permissionStatus kCLAuthorizationStatusDenied fallaback to settings"];
-    [[OneSignalDialogController sharedInstance] presentDialogWithTitle:@"Location Not Available" withMessage:@"You have previously denied sharing your device location. Please go to settings to enable." withActions:@[@"Open Settings"] cancelTitle:@"Cancel" withActionCompletion:^(int tappedActionIndex) {
+    [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:@"Location Not Available" withMessage:@"You have previously denied sharing your device location. Please go to settings to enable." withActions:@[@"Open Settings"] cancelTitle:@"Cancel" withActionCompletion:^(int tappedActionIndex) {
         if (tappedActionIndex > -1) {
             [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManage open settings option click"];
             #pragma clang diagnostic push

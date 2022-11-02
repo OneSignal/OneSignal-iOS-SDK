@@ -723,7 +723,7 @@ static BOOL _isInAppMessagingPaused = false;
     let message = NSLocalizedString(@"Looks like this app doesn't have location services configured. Please see OneSignal docs for more information.", @"An alert message indicating that the application is not configured to use have location services.");
     let title = NSLocalizedString(@"Location Not Available", @"An alert title indicating that the location service is unavailable.");
     let okAction = NSLocalizedString(@"OK", @"Allows the user to acknowledge and dismiss the alert");
-    [[OneSignalDialogController sharedInstance] presentDialogWithTitle:title withMessage:message withActions:nil cancelTitle:okAction withActionCompletion:^(int tappedActionIndex) {
+    [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:title withMessage:message withActions:nil cancelTitle:okAction withActionCompletion:^(int tappedActionIndex) {
         //completion is called on the main thread
         [self handlePromptActions:_currentPromptActions withMessage:_currentInAppMessage];
     }];
