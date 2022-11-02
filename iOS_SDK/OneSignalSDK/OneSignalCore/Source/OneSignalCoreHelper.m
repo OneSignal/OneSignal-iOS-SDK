@@ -302,5 +302,98 @@ API_AVAILABLE(macos(10.4), ios(2.0));
     return jsonResponse;
 }
 
+// Prevent the OSNotification blocks from firing if we receive a Non-OneSignal remote push
++ (BOOL)isOneSignalPayload:(NSDictionary *)payload {
+    if (!payload)
+        return NO;
+    return payload[@"custom"][@"i"] || payload[@"os_data"][@"i"];
+}
+
+
++ (NSMutableDictionary*)formatApsPayloadIntoStandard:(NSDictionary*)remoteUserInfo identifier:(NSString*)identifier {
+    NSMutableDictionary* userInfo, *customDict, *additionalData, *optionsDict;
+    BOOL is2dot4Format = false;
+    
+    if (remoteUserInfo[@"os_data"]) {
+        userInfo = [remoteUserInfo mutableCopy];
+        additionalData = [NSMutableDictionary dictionary];
+        
+        if (remoteUserInfo[@"os_data"][@"buttons"]) {
+            
+            is2dot4Format = [userInfo[@"os_data"][@"buttons"] isKindOfClass:[NSArray class]];
+            if (is2dot4Format)
+                optionsDict = userInfo[@"os_data"][@"buttons"];
+            else
+                optionsDict = userInfo[@"os_data"][@"buttons"][@"o"];
+        }
+    }
+    else if (remoteUserInfo[@"custom"]) {
+        userInfo = [remoteUserInfo mutableCopy];
+        customDict = [userInfo[@"custom"] mutableCopy];
+        if (customDict[@"a"])
+            additionalData = [[NSMutableDictionary alloc] initWithDictionary:customDict[@"a"]];
+        else
+            additionalData = [[NSMutableDictionary alloc] init];
+        optionsDict = userInfo[@"o"];
+    }
+    else {
+        return nil;
+    }
+    
+    if (optionsDict) {
+        NSMutableArray* buttonArray = [[NSMutableArray alloc] init];
+        for (NSDictionary* button in optionsDict) {
+            [buttonArray addObject: @{@"text" : button[@"n"],
+                                      @"id" : (button[@"i"] ? button[@"i"] : button[@"n"])}];
+        }
+        additionalData[@"actionButtons"] = buttonArray;
+    }
+    
+    if (![@"com.apple.UNNotificationDefaultActionIdentifier" isEqualToString:identifier])
+        additionalData[@"actionSelected"] = identifier;
+    
+    if ([additionalData count] == 0)
+        additionalData = nil;
+    else if (remoteUserInfo[@"os_data"]) {
+        [userInfo addEntriesFromDictionary:additionalData];
+        if (!is2dot4Format && userInfo[@"os_data"][@"buttons"])
+            userInfo[@"aps"] = @{@"alert" : userInfo[@"os_data"][@"buttons"][@"m"]};
+    }
+    
+    else {
+        customDict[@"a"] = additionalData;
+        userInfo[@"custom"] = customDict;
+        
+        if (userInfo[@"m"])
+            userInfo[@"aps"] = @{@"alert" : userInfo[@"m"]};
+    }
+    
+    return userInfo;
+}
+
++ (BOOL)isDisplayableNotification:(NSDictionary*)msg {
+    if ([self isRemoteSilentNotification:msg]) {
+        return false;
+    }
+    return msg[@"aps"][@"alert"] != nil;
+}
+
++ (BOOL)isRemoteSilentNotification:(NSDictionary*)msg {
+    //no alert, sound, or badge payload
+    if(msg[@"badge"] || msg[@"aps"][@"badge"] || msg[@"m"] || msg[@"o"] || msg[@"s"] || (msg[@"title"] && [msg[@"title"] length] > 0) || msg[@"sound"] || msg[@"aps"][@"sound"] || msg[@"aps"][@"alert"] || msg[@"os_data"][@"buttons"])
+        return false;
+    return true;
+}
+
++(NSString*)randomStringWithLength:(int)length {
+    let letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let randomString = [[NSMutableString alloc] initWithCapacity:length];
+    for(var i = 0; i < length; i++) {
+        let ln = (uint32_t)letters.length;
+        let rand = arc4random_uniform(ln);
+        [randomString appendFormat:@"%C", [letters characterAtIndex:rand]];
+    }
+    return randomString;
+}
 
 @end

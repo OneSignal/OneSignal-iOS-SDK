@@ -294,13 +294,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 
 #pragma mark Public Handlers
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion); // Move -> NotifManager
-typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result); // Move -> NotifManager
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
-
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block; // Move -> NotifManager
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block; // Move -> NotifManager
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
 + (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
