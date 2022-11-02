@@ -155,7 +155,7 @@ static BOOL didEnterBackgroundTriggered = NO;
         return;
     
     // If badge was set, clear it on the server as well.
-    if (wasBadgeSet) //TODO: Move to Notifications
+    if (wasBadgeSet) //TODO: Delete with um
         [OneSignal.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
 }
 
