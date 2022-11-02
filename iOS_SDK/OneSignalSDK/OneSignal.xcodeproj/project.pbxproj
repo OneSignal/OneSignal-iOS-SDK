@@ -538,7 +538,6 @@
 		DEF7842F2912DEBA00A1F3A5 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
 		DEF784302912DEBA00A1F3A5 /* OneSignalNotifications.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEF784382912E15000A1F3A5 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
-		DEF7843D2912E16400A1F3A5 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
 		DEF784422912E16F00A1F3A5 /* OneSignalCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17E627026B95002D3A5D /* OneSignalCore.framework */; };
 		DEF784492912E23A00A1F3A5 /* OSNotificationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF784472912E23A00A1F3A5 /* OSNotificationsManager.m */; };
 		DEF7844A2912E23A00A1F3A5 /* OSNotificationsManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF784482912E23A00A1F3A5 /* OSNotificationsManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -552,6 +551,7 @@
 		DEF784612912F5E100A1F3A5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784602912F5E000A1F3A5 /* UIKit.framework */; };
 		DEF784642912FA5100A1F3A5 /* OSDialogInstanceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF784632912FA5100A1F3A5 /* OSDialogInstanceManager.m */; };
 		DEF784652912FB2200A1F3A5 /* OSDialogInstanceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF784622912F79700A1F3A5 /* OSDialogInstanceManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DEF7846B2913176800A1F3A5 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -653,19 +653,19 @@
 			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
 			remoteInfo = OneSignalNotifications;
 		};
-		DEF7843F2912E16400A1F3A5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
-			remoteInfo = OneSignalNotifications;
-		};
 		DEF784442912E16F00A1F3A5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DE7D17E527026B95002D3A5D;
 			remoteInfo = OneSignalCore;
+		};
+		DEF7846D2913176800A1F3A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
+			remoteInfo = OneSignalNotifications;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1162,7 +1162,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEF7843D2912E16400A1F3A5 /* OneSignalNotifications.framework in Frameworks */,
+				DEF7846B2913176800A1F3A5 /* OneSignalNotifications.framework in Frameworks */,
 				DEA98C1C28C90EE6000C6856 /* OneSignalOSCore.framework in Frameworks */,
 				DEA98C1928C90EE5000C6856 /* OneSignalCore.framework in Frameworks */,
 			);
@@ -2315,7 +2315,7 @@
 			dependencies = (
 				DE69E1B0282ED8F20090BB3D /* PBXTargetDependency */,
 				DE12F3F5289B28C4002F63AA /* PBXTargetDependency */,
-				DEF784402912E16400A1F3A5 /* PBXTargetDependency */,
+				DEF7846E2913176800A1F3A5 /* PBXTargetDependency */,
 			);
 			name = OneSignalUser;
 			productName = OneSignalUser;
@@ -3111,15 +3111,15 @@
 			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
 			targetProxy = DEF7843A2912E15000A1F3A5 /* PBXContainerItemProxy */;
 		};
-		DEF784402912E16400A1F3A5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
-			targetProxy = DEF7843F2912E16400A1F3A5 /* PBXContainerItemProxy */;
-		};
 		DEF784452912E16F00A1F3A5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
 			targetProxy = DEF784442912E16F00A1F3A5 /* PBXContainerItemProxy */;
+		};
+		DEF7846E2913176800A1F3A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
+			targetProxy = DEF7846D2913176800A1F3A5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
