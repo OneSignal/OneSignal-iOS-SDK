@@ -282,11 +282,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel; // TODO: UM split up into 2?
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
 
-#pragma mark Prompt For Push
 
-+ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block; // moved 🔔
-+ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback; // moved 🔔
-+ (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
 + (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
