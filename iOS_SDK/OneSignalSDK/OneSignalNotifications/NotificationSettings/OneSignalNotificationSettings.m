@@ -148,7 +148,8 @@ static dispatch_queue_t serialQueue;
             OSNotificationsManager.currentPermissionState.provisional = false;
             OSNotificationsManager.currentPermissionState.accepted = granted;
             OSNotificationsManager.currentPermissionState.answeredPrompt = true;
-            [OSNotificationsManager updateNotificationTypes: granted ? 15 : 0];
+            //TODO: Update User Module to update notification types
+            //[OSNotificationsManager updateNotificationTypes: granted ? 15 : 0];
             if (completionHandler)
                 completionHandler(granted);
         }];
@@ -189,7 +190,8 @@ static dispatch_queue_t serialQueue;
     id responseBlock = ^(BOOL granted, NSError *error) {
         [OneSignalCoreHelper dispatch_async_on_main_queue:^{  // OneSignalCoreHelper.dispatch_async_on_main_queue ??
             OSNotificationsManager.currentPermissionState.provisional = true;
-            [OSNotificationsManager updateNotificationTypes: options];
+            //TODO: Update User Module to update notification types
+            //[OSNotificationsManager updateNotificationTypes: options];
             if (block)
                 block(granted);
         }];
