@@ -63,8 +63,6 @@
 + (NSDate *_Nonnull)sessionLaunchTime;
 
 
-+ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
-
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
 //Indicates we have attempted to register the user and it has succeeded or failed
