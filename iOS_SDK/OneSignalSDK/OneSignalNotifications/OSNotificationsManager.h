@@ -28,15 +28,22 @@
 #import <Foundation/Foundation.h>
 #import <OneSignalNotificationSettings.h>
 #import <OSPermission.h>
+#import <OneSignalCore/OneSignalCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 // <- TODO: ^ this? And other items that should go here
 
+
+// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
+typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
+typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
 /**
  Public API.
  */
 @protocol OSNotifications <NSObject>
 
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block; // Move -> NotifManager
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block; // Move -> NotifManager
 + (void)requestPermission:(OSUserResponseBlock)block;
 + (void)requestPermission:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
@@ -47,6 +54,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OSNotificationsManager : NSObject <OSNotifications>
 
 + (Class<OSNotifications>)Notifications;
+
++ (void)setAppId:(NSString *)appId;
 
 @property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
@@ -69,7 +78,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
 
 // TODO: This gets set by the user module's push sub
-@property (class, readwrite) BOOL pushDisabled;
++ (void)setPushDisabled:(BOOL)disabled;
+
+// - Notification Opened
++ (void)lastMessageReceived:(NSDictionary*)message;
+
++ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion;
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID;
 
 @end
 

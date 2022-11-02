@@ -377,10 +377,10 @@ void finishProcessingNotification(UNNotification *notification,
     if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
         return;
     
-    if (![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo])
+    if (![OneSignalCoreHelper isOneSignalPayload:response.notification.request.content.userInfo])
         return;
     
-    let userInfo = [OneSignalHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
+    let userInfo = [OneSignalCoreHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
 
     [OneSignal notificationReceived:userInfo wasOpened:YES];
