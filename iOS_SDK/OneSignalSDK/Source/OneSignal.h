@@ -304,11 +304,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
 + (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
-#pragma mark Post Notification
-// TODO: These will be removed in User Model
-+ (void)postNotification:(NSDictionary* _Nonnull)jsonData;
-+ (void)postNotification:(NSDictionary* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)postNotificationWithJsonString:(NSString* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 
 #pragma mark Location
 // - Request and track user's location
