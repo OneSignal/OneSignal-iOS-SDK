@@ -303,6 +303,7 @@ withSMSAuthHashToken:(NSString *)hashToken
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:nil onFailure:nil];
 }
 
+//TODO: Move to UM or notifications?
 - (void)sendBadgeCount:(NSNumber *)badgeCount appId:(NSString *)appId {
     let stateSyncronizer = [self getStateSynchronizers];
     let requests = [NSMutableDictionary new];

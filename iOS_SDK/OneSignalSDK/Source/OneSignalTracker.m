@@ -43,7 +43,6 @@
 
 + (void)registerUser;
 + (BOOL)sendNotificationTypesUpdate;
-+ (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
@@ -117,13 +116,13 @@ static BOOL lastOnFocusWasToBackground = YES;
         [OneSignal receivedInAppMessageJson:nil];
     }
     
-    let wasBadgeSet = [OneSignal clearBadgeCount:false];
+    let wasBadgeSet = [OSNotificationsManager clearBadgeCount:false];
     
     if (![OneSignal mUserId])
         return;
     
     // If badge was set, clear it on the server as well.
-    if (wasBadgeSet)
+    if (wasBadgeSet) //TODO: Move to Notifications
         [OneSignal.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
 }
 
