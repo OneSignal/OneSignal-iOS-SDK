@@ -70,6 +70,7 @@ import OneSignalOSCore
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
+    // TODO: Add setLanguage
 }
 
 /**
