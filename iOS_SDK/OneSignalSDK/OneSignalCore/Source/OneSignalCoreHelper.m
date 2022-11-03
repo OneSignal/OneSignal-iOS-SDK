@@ -385,15 +385,31 @@ API_AVAILABLE(macos(10.4), ios(2.0));
     return true;
 }
 
-+(NSString*)randomStringWithLength:(int)length {
-    let letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let randomString = [[NSMutableString alloc] initWithCapacity:length];
-    for(var i = 0; i < length; i++) {
-        let ln = (uint32_t)letters.length;
-        let rand = arc4random_uniform(ln);
++ (NSString *)randomStringWithLength:(int)length {
+    NSString * letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    NSMutableString *randomString = [[NSMutableString alloc] initWithCapacity:length];
+    for(int i = 0; i < length; i++) {
+        uint32_t ln = (uint32_t)letters.length;
+        uint32_t rand = arc4random_uniform(ln);
         [randomString appendFormat:@"%C", [letters characterAtIndex:rand]];
     }
     return randomString;
 }
+
++ (BOOL)verifyURL:(NSString *)urlString {
+    if (urlString) {
+        NSURL* url = [NSURL URLWithString:urlString];
+        if (url)
+            return YES;
+    }
+    
+    return NO;
+}
+
++ (BOOL)isWWWScheme:(NSURL*)url {
+    NSString* urlScheme = [url.scheme lowercaseString];
+    return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
+}
+
 
 @end

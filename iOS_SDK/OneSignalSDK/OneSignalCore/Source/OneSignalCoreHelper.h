@@ -43,4 +43,6 @@
 + (BOOL)isRemoteSilentNotification:(NSDictionary*)msg;
 + (BOOL)isDisplayableNotification:(NSDictionary*)msg;
 + (NSString*)randomStringWithLength:(int)length;
++ (BOOL)verifyURL:(NSString *)urlString;
++ (BOOL)isWWWScheme:(NSURL*)url;
 @end
