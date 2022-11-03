@@ -41,6 +41,8 @@
 #import "OSPlayerTags.h"
 #import "OSSMSSubscription.h"
 
+//TODO: Clean this up with UM
+
 // Permission + Subscription - Redefine OSPermissionSubscriptionState
 @interface OSPermissionSubscriptionState : NSObject
 
