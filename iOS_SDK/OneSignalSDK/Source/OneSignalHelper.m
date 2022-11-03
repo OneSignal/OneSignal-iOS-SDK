@@ -36,8 +36,6 @@
 #import "OneSignalInternal.h"
 #import "OneSignalDialogController.h"
 #import "OSMessagingController.h"
-#import "OneSignalNotificationCategoryController.h"
-#import "OSNotification+OneSignal.h"
 
 #define NOTIFICATION_TYPE_ALL 7
 #pragma clang diagnostic push
@@ -66,48 +64,6 @@ OneSignalWebView *webVC;
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleNameKey];
 }
 
-// For iOS 9
-+ (UILocalNotification*)createUILocalNotification:(OSNotification*)osNotification {
-    let notification = [UILocalNotification new];
-    
-    let category = [UIMutableUserNotificationCategory new];
-    [category setIdentifier:@"__dynamic__"];
-    
-    NSMutableArray* actionArray = [NSMutableArray new];
-    for (NSDictionary* button in osNotification.actionButtons) {
-        let action = [UIMutableUserNotificationAction new];
-        action.title = button[@"text"];
-        action.identifier = button[@"id"];
-        action.activationMode = UIUserNotificationActivationModeForeground;
-        action.destructive = false;
-        action.authenticationRequired = false;
-        
-        [actionArray addObject:action];
-        // iOS 8 shows notification buttons in reverse in all cases but alerts.
-        //   This flips it so the frist button is on the left.
-        if (actionArray.count == 2)
-            [category setActions:@[actionArray[1], actionArray[0]]
-                      forContext:UIUserNotificationActionContextMinimal];
-    }
-    
-    [category setActions:actionArray forContext:UIUserNotificationActionContextDefault];
-    
-    var currentCategories = [[[UIApplication sharedApplication] currentUserNotificationSettings] categories];
-    if (currentCategories)
-        currentCategories = [currentCategories setByAddingObject:category];
-    else
-        currentCategories = [NSSet setWithObject:category];
-    
-    let notificationSettings = [UIUserNotificationSettings
-                                settingsForTypes:NOTIFICATION_TYPE_ALL
-                                categories:currentCategories];
-    
-    [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
-    notification.category = [category identifier];
-    
-    return notification;
-}
-
 //Shared instance as OneSignal is delegate CLLocationManagerDelegate
 static OneSignal* singleInstance = nil;
 + (OneSignal*)sharedInstance {
@@ -134,7 +90,7 @@ static OneSignal* singleInstance = nil;
         
         [OneSignalHelper dispatch_async_on_main_queue: ^{
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                if (inAppLaunch && [self isWWWScheme:url]) {
+                if (inAppLaunch && [OneSignalCoreHelper isWWWScheme:url]) {
                     if (!webVC)
                         webVC = [[OneSignalWebView alloc] init];
                     webVC.url = url;
