@@ -106,8 +106,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 }
 - (NSDictionary*)toDictionary {
     return @{@"permissionStatus": [_permissionStatus toDictionary],
-             @"subscriptionStatus": [_subscriptionStatus toDictionary],
-             @"emailSubscriptionStatus" : [_emailSubscriptionStatus toDictionary]
+             @"subscriptionStatus": [_subscriptionStatus toDictionary]
              };
 }
 @end
@@ -148,20 +147,6 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 static NSString* mSDKType = @"native";
 static BOOL coldStartFromTapOnNotification = NO;
 static BOOL shouldDelaySubscriptionUpdate = false;
-
-/*
-    if setEmail: was called before the device was registered (push playerID = nil),
-    then the call to setEmail: also gets delayed
-    this property stores the parameters so that once registration is complete
-    we can finish setEmail:
-*/
-static OneSignalSetEmailParameters *delayedEmailParameters;
-static OneSignalSetSMSParameters *_delayedSMSParameters;
-+ (OneSignalSetSMSParameters *)delayedSMSParameters {
-    return _delayedSMSParameters;
-}
-static OneSignalSetExternalIdParameters *delayedExternalIdParameters;
-static OneSignalSetLanguageParameters *delayedLanguageParameters;
 
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
@@ -487,7 +472,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _registerUserFinished = false;
     _registerUserSuccessful = false;
     
-    _delayedSMSParameters = nil;
     
     [OSSessionManager resetSharedSessionManager];
 }
@@ -839,22 +823,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
             self.currentEmailSubscriptionState.requiresEmailAuth = [result[IOS_REQUIRES_EMAIL_AUTHENTICATION] boolValue];
-            
-            // checks if a call to setEmail: was delayed due to missing 'requiresEmailAuth' parameter
-            if (delayedEmailParameters && self.currentSubscriptionState.userId) {
-                [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
-                delayedEmailParameters = nil;
-            }
         }
         
         if (result[IOS_REQUIRES_SMS_AUTHENTICATION]) {
             self.currentSMSSubscriptionState.requiresSMSAuth = [result[IOS_REQUIRES_SMS_AUTHENTICATION] boolValue];
-            
-            // checks if a call to setSMSNumber: was delayed due to missing 'requiresSMSAuth' parameter
-            if (_delayedSMSParameters && self.currentSubscriptionState.userId) {
-                [self setSMSNumber:_delayedSMSParameters.smsNumber withSMSAuthHashToken:_delayedSMSParameters.authToken withSuccess:_delayedSMSParameters.successBlock withFailure:_delayedSMSParameters.failureBlock];
-                _delayedSMSParameters = nil;
-            }
         }
         
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION])
@@ -879,13 +851,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
-        
-        // Checks if a call to setExternalUserId: was delayed due to missing 'require_user_id_auth' parameter
-        // If at this point we don't have user Id, then under register user the delayedExternalIdParameters will be used
-        if (delayedExternalIdParameters && self.currentSubscriptionState.userId) {
-            [self setExternalUserId:delayedExternalIdParameters.externalId withExternalIdAuthHashToken:delayedExternalIdParameters.authToken withSuccess:delayedExternalIdParameters.successBlock withFailure:delayedExternalIdParameters.failureBlock];
-            delayedExternalIdParameters = nil;
-        }
+
     } onFailure:^(NSError *error) {
         _didCallDownloadParameters = false;
     }];
@@ -1293,29 +1259,6 @@ static BOOL _registerUserSuccessful = false;
         
         //update push player id
         if (results.count > 0 && results[@"push"][@"id"]) {
-            if (delayedEmailParameters) {
-                // Call to setEmail: was delayed because the push player_id did not exist yet
-                [self setEmail:delayedEmailParameters.email withEmailAuthHashToken:delayedEmailParameters.authToken withSuccess:delayedEmailParameters.successBlock withFailure:delayedEmailParameters.failureBlock];
-                delayedEmailParameters = nil;
-            }
-            
-            if (delayedExternalIdParameters) {
-                // Call to setExternalUserId: was delayed because the push player_id did not exist yet
-                [self setExternalUserId:delayedExternalIdParameters.externalId withExternalIdAuthHashToken:delayedExternalIdParameters.authToken withSuccess:delayedExternalIdParameters.successBlock withFailure:delayedExternalIdParameters.failureBlock];
-                delayedExternalIdParameters = nil;
-            }
-            
-            if (_delayedSMSParameters) {
-                // Call to setSMSNumber: was delayed because the push player_id did not exist yet
-                [self setSMSNumber:_delayedSMSParameters.smsNumber withSMSAuthHashToken:_delayedSMSParameters.authToken withSuccess:_delayedSMSParameters.successBlock withFailure:_delayedSMSParameters.failureBlock];
-                _delayedSMSParameters = nil;
-            }
-            
-            if (delayedLanguageParameters) {
-                // Call to setLanguage: was delayed because the push player_id did not exist yet
-                [self setLanguage:delayedLanguageParameters.language withSuccess:delayedLanguageParameters.successBlock withFailure:delayedLanguageParameters.failureBlock];
-                delayedLanguageParameters = nil;
-            }
             
             if (nowProcessingCallbacks) {
                 for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
