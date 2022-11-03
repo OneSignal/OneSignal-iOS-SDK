@@ -132,19 +132,6 @@
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
-@interface OSEmailSubscriptionState : NSObject
-@property (readonly, nonatomic, nullable) NSString *emailUserId; // The new Email user ID
-@property (readonly, nonatomic, nullable) NSString *emailAddress;
-@property (readonly, nonatomic) BOOL isSubscribed;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@interface OSEmailSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSEmailSubscriptionState* to;
-@property (readonly, nonnull) OSEmailSubscriptionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
 @interface OSSMSSubscriptionState : NSObject
 @property (readonly, nonatomic, nullable) NSString* smsUserId;
 @property (readonly, nonatomic, nullable) NSString *smsNumber;
