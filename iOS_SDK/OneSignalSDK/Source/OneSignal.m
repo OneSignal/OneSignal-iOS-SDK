@@ -64,10 +64,6 @@
 
 #import <UserNotifications/UserNotifications.h>
 
-#import "OneSignalSetEmailParameters.h"
-#import "OneSignalSetSMSParameters.h"
-#import "OneSignalSetExternalIdParameters.h"
-#import "OneSignalSetLanguageParameters.h"
 #import "DelayedConsentInitializationParameters.h"
 #import "OneSignalDialogController.h"
 
@@ -173,51 +169,6 @@ static BOOL providesAppNotificationSettings = false;
 
 static BOOL performedOnSessionRequest = false;
 
-
-static OSEmailSubscriptionState* _currentEmailSubscriptionState;
-+ (OSEmailSubscriptionState *)currentEmailSubscriptionState {
-    if (!_currentEmailSubscriptionState) {
-        _currentEmailSubscriptionState = [[OSEmailSubscriptionState alloc] init];
-
-        [_currentEmailSubscriptionState.observable addObserver:[OSEmailSubscriptionChangedInternalObserver alloc]];
-    }
-    return _currentEmailSubscriptionState;
-}
-
-static OSEmailSubscriptionState *_lastEmailSubscriptionState;
-+ (OSEmailSubscriptionState *)lastEmailSubscriptionState {
-    if (!_lastEmailSubscriptionState) {
-        _lastEmailSubscriptionState = [[OSEmailSubscriptionState alloc] init];
-    }
-    return _lastEmailSubscriptionState;
-}
-
-+ (void)setLastEmailSubscriptionState:(OSEmailSubscriptionState *)lastEmailSubscriptionState {
-    _lastEmailSubscriptionState = lastEmailSubscriptionState;
-}
-
-static OSSMSSubscriptionState* _currentSMSSubscriptionState;
-+ (OSSMSSubscriptionState *)currentSMSSubscriptionState {
-    if (!_currentSMSSubscriptionState) {
-        _currentSMSSubscriptionState = [[OSSMSSubscriptionState alloc] init];
-        
-        [_currentSMSSubscriptionState.observable addObserver:[OSSMSSubscriptionChangedInternalObserver alloc]];
-    }
-    return _currentSMSSubscriptionState;
-}
-
-static OSSMSSubscriptionState *_lastSMSSubscriptionState;
-+ (OSSMSSubscriptionState *)lastSMSSubscriptionState {
-    if (!_lastSMSSubscriptionState) {
-        _lastSMSSubscriptionState = [[OSSMSSubscriptionState alloc] init];
-    }
-    return _lastSMSSubscriptionState;
-}
-
-+ (void)setLastSMSSubscriptionState:(OSSMSSubscriptionState *)lastSMSSubscriptionState {
-    _lastSMSSubscriptionState = lastSMSSubscriptionState;
-}
-
 // static property def for current OSSubscriptionState
 static OSSubscriptionState* _currentSubscriptionState;
 + (OSSubscriptionState*)currentSubscriptionState {
@@ -266,20 +217,6 @@ static ObservableSubscriptionStateChangesType* _subscriptionStateChangesObserver
     if (!_subscriptionStateChangesObserver)
         _subscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSSubscriptionChanged:)];
     return _subscriptionStateChangesObserver;
-}
-
-static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChangesObserver;
-+ (ObservableEmailSubscriptionStateChangesType *)emailSubscriptionStateChangesObserver {
-    if (!_emailSubscriptionStateChangesObserver)
-        _emailSubscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSEmailSubscriptionChanged:)];
-    return _emailSubscriptionStateChangesObserver;
-}
-
-static ObservableSMSSubscriptionStateChangesType* _smsSubscriptionStateChangesObserver;
-+ (ObservableSMSSubscriptionStateChangesType *)smsSubscriptionStateChangesObserver {
-    if (!_smsSubscriptionStateChangesObserver)
-        _smsSubscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSSMSSubscriptionChanged:)];
-    return _smsSubscriptionStateChangesObserver;
 }
 
 static OSPlayerTags *_playerTags;
@@ -416,12 +353,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     _stateSynchronizer = nil;
     
-    _currentEmailSubscriptionState = nil;
-    _lastEmailSubscriptionState = nil;
     _lastSubscriptionState = nil;
     _currentSubscriptionState = nil;
-    _currentSMSSubscriptionState = nil;
-    _lastSMSSubscriptionState = nil;
     
     _permissionStateChangesObserver = nil;
     
@@ -433,8 +366,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
-    pendingExternalUserId = nil;
-    pendingExternalUserIdHashToken = nil;
 
     _outcomeEventFactory = nil;
     _outcomeEventsController = nil;
@@ -791,13 +722,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
-        if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
-            self.currentEmailSubscriptionState.requiresEmailAuth = [result[IOS_REQUIRES_EMAIL_AUTHENTICATION] boolValue];
-        }
-        
-        if (result[IOS_REQUIRES_SMS_AUTHENTICATION]) {
-            self.currentSMSSubscriptionState.requiresSMSAuth = [result[IOS_REQUIRES_SMS_AUTHENTICATION] boolValue];
-        }
         
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION])
             requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
@@ -843,8 +767,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     status.subscriptionStatus = self.currentSubscriptionState;
     status.permissionStatus = OSNotificationsManager.currentPermissionState;
-    status.emailSubscriptionStatus = self.currentEmailSubscriptionState;
-    status.smsSubscriptionStatus = self.currentSMSSubscriptionState;
 
     return status;
 }
@@ -1406,24 +1328,6 @@ static BOOL _registerUserSuccessful = false;
     return [OneSignalNotificationServiceExtensionHandler
             serviceExtensionTimeWillExpireRequest:request
             withMutableNotificationContent:replacementContent];
-}
-
-#pragma mark Email
-//TODO: delete with um
-+ (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
-    if (failureBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            failureBlock(error);
-        });
-    }
-}
-//TODO: delete with um
-+ (void)callSuccessBlockOnMainThread:(OSEmailSuccessBlock)successBlock {
-    if (successBlock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            successBlock();
-        });
-    }
 }
 
 //TODO: move to sessions/onfocus
