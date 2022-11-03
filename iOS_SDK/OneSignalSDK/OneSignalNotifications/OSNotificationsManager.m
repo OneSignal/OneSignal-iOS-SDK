@@ -106,9 +106,24 @@ static NSString *_lastMessageIdFromAction;
 static UIBackgroundTaskIdentifier _mediaBackgroundTask;
 static BOOL _disableBadgeClearing = NO;
 
+
+static BOOL _coldStartFromTapOnNotification = NO;
+// Set to false as soon as it's read.
++ (BOOL)getColdStartFromTapOnNotification {
+    BOOL val = _coldStartFromTapOnNotification;
+    _coldStartFromTapOnNotification = NO;
+    return val;
+}
++ (void)setColdStartFromTapOnNotification:(BOOL)coldStartFromTapOnNotification {
+    _coldStartFromTapOnNotification = coldStartFromTapOnNotification;
+}
+
 static NSString *_appId;
 + (void)setAppId:(NSString *)appId {
     _appId = appId;
+}
++ (NSString *_Nullable)getAppId {
+    return _appId;
 }
 
 static int mLastNotificationTypes = -1;
@@ -283,6 +298,23 @@ static BOOL _pushDisabled = false;
     return true;
 }
 
++ (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
+    OSNotificationsManager.waitingForApnsResponse = false;
+    
+    if (err.code == 3000) {
+        //[OneSignal setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED]; TODO: Send to UM
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"ERROR! 'Push Notifications' capability missing! Add the capability in Xcode under 'Target' -> '<MyAppName(MainTarget)>' -> 'Signing & Capabilities' then click the '+ Capability' button."];
+    }
+    else if (err.code == 3010) {
+        //[OneSignal setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED]; TODO: Send to UM
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
+    }
+    else {
+        // [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR]; TODO: Send to UM
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
+    }
+}
+
 //    User just responed to the iOS native notification permission prompt.
 //    Also extra calls to registerUserNotificationSettings will fire this without prompting again.
 //+ (void)updateNotificationTypes:(int)notificationTypes {
@@ -380,15 +412,12 @@ static BOOL _pushDisabled = false;
     // and more...
 }
 
-//TODO: move to notifications
 static NSString *_lastAppActiveMessageId;
 + (void)setLastAppActiveMessageId:(NSString*)value { _lastAppActiveMessageId = value; }
-//TODO: move to notifications
 static NSString *_lastnonActiveMessageId;
 + (void)setLastnonActiveMessageId:(NSString*)value { _lastnonActiveMessageId = value; }
 
 
-//TODO: move to notifications
 // Entry point for the following:
 //  - 1. (iOS all) - Opening notifications
 //  - 2. Notification received
@@ -404,7 +433,7 @@ static NSString *_lastnonActiveMessageId;
         return;
     
     // This method should not continue to be executed for non-OS push notifications
-    if (![OneSignalCoreHelper isOneSignalPayload:messageDict]) //TODO: move from oshelper
+    if (![OneSignalCoreHelper isOneSignalPayload:messageDict])
         return;
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"notificationReceived called! opened: %@", opened ? @"YES" : @"NO"]];
@@ -412,7 +441,7 @@ static NSString *_lastnonActiveMessageId;
     NSDictionary* customDict = [messageDict objectForKey:@"os_data"] ?: [messageDict objectForKey:@"custom"];
     
     // Should be called first, other methods relay on this global state below.
-    //[OneSignalHelper lastMessageReceived:messageDict]; //TODO: move from OShelper
+    [self lastMessageReceived:messageDict];
     
     BOOL isPreview = [[OSNotification parseWithApns:messageDict] additionalData][ONESIGNAL_IAM_PREVIEW] != nil;
 
@@ -451,7 +480,7 @@ static NSString *_lastnonActiveMessageId;
 
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion {
     // check to make sure the app is in focus and it's a OneSignal notification
-    if (![OneSignalCoreHelper isOneSignalPayload:payload] // TODO: move from OSHelper
+    if (![OneSignalCoreHelper isOneSignalPayload:payload]
         || UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
         completion([OSNotification new]);
         return;
@@ -463,7 +492,7 @@ static NSString *_lastnonActiveMessageId;
         completion(nil);
         return;
     }
-    [self handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion]; // TODO: move from OSHelper
+    [self handleWillShowInForegroundHandlerForNotification:osNotification  completion:completion];
 }
 
 

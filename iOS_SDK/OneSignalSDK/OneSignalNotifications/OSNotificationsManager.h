@@ -29,10 +29,7 @@
 #import <OneSignalNotificationSettings.h>
 #import <OSPermission.h>
 #import <OneSignalCore/OneSignalCore.h>
-
-NS_ASSUME_NONNULL_BEGIN
-// <- TODO: ^ this? And other items that should go here
-
+#import <UIKit/UIKit.h>
 
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
@@ -55,7 +52,10 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 + (Class<OSNotifications>)Notifications;
 
++ (void)setColdStartFromTapOnNotification:(BOOL)coldStartFromTapOnNotification;
++ (BOOL)getColdStartFromTapOnNotification;
 + (void)setAppId:(NSString *)appId;
++ (NSString *_Nullable)getAppId;
 
 @property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
@@ -88,6 +88,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 
++ (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
++ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
++ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion;
++ (void)handleDidFailRegisterForRemoteNotification:(NSError*)err;
 @end
-
-NS_ASSUME_NONNULL_END // <- TODO: this?
