@@ -96,7 +96,7 @@ static NSMutableSet<Class>* swizzledClasses;
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
-    //[OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken]; //TODO: This will live in the User module to update the push sub
+    [OSNotificationsManager didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self

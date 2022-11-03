@@ -268,10 +268,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 // TODO: UM observers are rescoped
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO: Move to Notifications namespace
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-
 // TODO: Moved to User.pushSubscription.
 + (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
 + (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
