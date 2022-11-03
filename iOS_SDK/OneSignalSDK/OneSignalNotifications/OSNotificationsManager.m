@@ -31,6 +31,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import "OSNotification+OneSignal.h"
 #import <OneSignalExtension/OneSignalAttachmentHandler.h>
+#import "OneSignalWebViewManager.h"
 
 @implementation OSNotificationOpenedResult
 @synthesize notification = _notification, action = _action;
@@ -434,7 +435,7 @@ static NSString *_lastnonActiveMessageId;
         [self handleNotificationOpened:messageDict actionType:type];
     } else if (isPreview && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"]) {
         let notification = [OSNotification parseWithApns:messageDict];
-        //[OneSignalHelper handleIAMPreview:notification]; //setup a notification center notif for this
+        //[OneSignalHelper handleIAMPreview:notification]; //TODO: setup a notification center notif for this
     }
 }
 
@@ -499,7 +500,7 @@ static NSString *_lastnonActiveMessageId;
 
     if (![self shouldSuppressURL]) {
         // Try to fetch the open url to launch
-        [OneSignal launchWebURL:notification.launchURL]; //TODO: where should this live?
+        [self launchWebURL:notification.launchURL]; //TODO: where should this live?
     }
         
     [self clearBadgeCount:true];
@@ -519,6 +520,47 @@ static NSString *_lastnonActiveMessageId;
 //    }
 
     [self handleNotificationAction:actionType actionID:actionID];
+}
+
++ (void)launchWebURL:(NSString*)openUrl {
+    
+    NSString* toOpenUrl = [OneSignalCoreHelper trimURLSpacing:openUrl];
+    
+    if (toOpenUrl && [OneSignalCoreHelper verifyURL:toOpenUrl]) {
+        NSURL *url = [NSURL URLWithString:toOpenUrl];
+        // Give the app resume animation time to finish when tapping on a notification from the notification center.
+        // Isn't a requirement but improves visual flow.
+        [self performSelector:@selector(displayWebView:) withObject:url afterDelay:0.5];
+    }
+    
+}
+
++ (void)displayWebView:(NSURL*)url {
+    // Check if in-app or safari
+    __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false];
+    
+    // If the URL contains itunes.apple.com, it's an app store link
+    // that should be opened using sharedApplication openURL
+    if ([[url absoluteString] rangeOfString:@"itunes.apple.com"].location != NSNotFound) {
+        inAppLaunch = NO;
+    }
+    
+    __block let openUrlBlock = ^void(BOOL shouldOpen) {
+        if (!shouldOpen)
+            return;
+        
+        [OneSignalCoreHelper dispatch_async_on_main_queue: ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if (inAppLaunch && [OneSignalCoreHelper isWWWScheme:url]) {
+                    [OneSignalWebViewManager displayWebView: url];
+                } else {
+                    // Keep dispatch_async. Without this the url can take an extra 2 to 10 secounds to open.
+                    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+                }
+            });
+        }];
+    };
+    openUrlBlock(true);
 }
 
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened {
