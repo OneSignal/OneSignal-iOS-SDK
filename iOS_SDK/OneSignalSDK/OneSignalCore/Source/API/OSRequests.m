@@ -393,51 +393,6 @@
 }
 
 @end
-//TODO: Delete with um
-@implementation OSRequestBadgeCount
-
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         badgeCount:(NSNumber * _Nonnull)badgeCount
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash
-                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken {
-    return [self withUserId:userId appId:appId badgeCount:badgeCount authToken:emailAuthHash authTokenKey:@"email_auth_hash" externalIdAuthToken:externalIdAuthToken];
-}
-
-+ (instancetype)withUserId:(NSString *)userId
-                     appId:(NSString *)appId
-                badgeCount:(NSNumber *)badgeCount
-              smsAuthToken:(NSString *)smsAuthToken
-       externalIdAuthToken:(NSString *)externalIdAuthToken {
-    return [self withUserId:userId appId:appId badgeCount:badgeCount authToken:smsAuthToken authTokenKey:@"sms_auth_hash" externalIdAuthToken:externalIdAuthToken];
-}
-
-+ (instancetype)withUserId:(NSString *)userId
-                     appId:(NSString *)appId
-                badgeCount:(NSNumber *)badgeCount
-                 authToken:(NSString *)authToken
-              authTokenKey:(NSString *)authTokenKey
-       externalIdAuthToken:(NSString *)externalIdAuthToken {
-    let request = [OSRequestBadgeCount new];
-    
-    let params = [NSMutableDictionary new];
-    params[@"app_id"] = appId;
-    params[@"badgeCount"] = badgeCount;
-    
-    if (authToken && authToken.length > 0 && authTokenKey)
-        params[authTokenKey] = authToken;
-    
-    if (externalIdAuthToken && externalIdAuthToken.length > 0)
-        params[@"external_user_id_auth_hash"] = externalIdAuthToken;
-    
-    request.parameters = params;
-    request.method = PUT;
-    request.path = [NSString stringWithFormat:@"players/%@", userId];
-    
-    return request;
-}
-
-@end
 
 @implementation OSRequestUpdateExternalUserId
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString *)userId appId:(NSString *)appId {

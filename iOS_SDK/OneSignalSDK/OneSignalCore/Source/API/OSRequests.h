@@ -113,20 +113,6 @@ NS_ASSUME_NONNULL_END
                 externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 @end
 
-@interface OSRequestBadgeCount : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         badgeCount:(NSNumber * _Nonnull)badgeCount
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash
-                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         badgeCount:(NSNumber * _Nonnull)badgeCount
-                       smsAuthToken:(NSString * _Nullable)smsAuthToken
-                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-@end
-
 @interface OSRequestUpdateExternalUserId : OneSignalRequest
 + (instancetype _Nonnull)withUserId:(NSString * _Nullable)externalId withUserIdHashToken:(NSString * _Nullable)hashToken withOneSignalUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId;
 
