@@ -27,7 +27,7 @@
 
 #import "OneSignal.h"
 #import "OneSignalInternal.h"
-#import "OneSignalWebView.h"
+#import <OneSignalNotifications/OneSignalNotifications.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -42,9 +42,6 @@
 + (void)clearCachedMedia;
 + (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotification*)notification;
 
-// - Notifications
-+ (BOOL)verifyURL:(NSString*)urlString;
-
 // Threading
 + (void)runOnMainThread:(void(^)())block;
 + (void)dispatch_async_on_main_queue:(void(^)())block;
@@ -54,7 +51,6 @@
 + (BOOL) isValidEmail:(NSString*)email;
 + (NSString*)hashUsingSha1:(NSString*)string;
 + (NSString*)hashUsingMD5:(NSString*)string;
-+ (NSString*)trimURLSpacing:(NSString*)url;
 + (BOOL)isTablet;
 
 #pragma clang diagnostic pop

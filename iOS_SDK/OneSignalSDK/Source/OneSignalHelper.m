@@ -118,21 +118,6 @@ static OneSignal* singleInstance = nil;
     return singleInstance;
 }
 
-+ (BOOL)verifyURL:(NSString *)urlString {
-    if (urlString) {
-        NSURL* url = [NSURL URLWithString:urlString];
-        if (url)
-            return YES;
-    }
-    
-    return NO;
-}
-
-+ (BOOL)isWWWScheme:(NSURL*)url {
-    NSString* urlScheme = [url.scheme lowercaseString];
-    return [urlScheme isEqualToString:@"http"] || [urlScheme isEqualToString:@"https"];
-}
-
 + (void)displayWebView:(NSURL*)url {
     // Check if in-app or safari
     __block BOOL inAppLaunch = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL defaultValue:false];
@@ -210,13 +195,6 @@ static OneSignal* singleInstance = nil;
     for (int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
         [output appendFormat:@"%02x", digest[i]];
     return output;
-}
-
-+ (NSString*)trimURLSpacing:(NSString*)url {
-    if (!url)
-        return url;
-    
-    return [url stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
 + (BOOL)isTablet {
