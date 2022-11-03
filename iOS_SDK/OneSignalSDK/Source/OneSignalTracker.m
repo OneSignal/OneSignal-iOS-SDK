@@ -120,10 +120,6 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     if (![OneSignal mUserId])
         return;
-    
-    // If badge was set, clear it on the server as well.
-    if (wasBadgeSet) //TODO: Delete with um
-        [OneSignal.stateSynchronizer sendBadgeCount:@0 appId:[OneSignal appId]];
 }
 
 + (void)applicationBackgrounded {
