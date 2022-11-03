@@ -583,7 +583,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     //  NOTE: launchOptions may be nil if tapping on a notification's action button.
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if (userInfo)
-        //coldStartFromTapOnNotification = YES; //TODO: Pass this into the Notifications Module
+        [OSNotificationsManager setColdStartFromTapOnNotification:YES];
 
     [OSNotificationsManager clearBadgeCount:false];
 
@@ -1604,19 +1604,21 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
     }
 
     // Swizzle - UIApplication delegate
+    //TODO: do the equivalent in the notificaitons module
     injectSelector(
         [UIApplication class],
         @selector(setDelegate:),
         [OneSignalAppDelegate class],
         @selector(setOneSignalDelegate:)
    );
+    //TODO: This swizzling is done from notifications module
     injectSelector(
         [UIApplication class],
         @selector(setApplicationIconBadgeNumber:),
         [OneSignalAppDelegate class],
         @selector(onesignalSetApplicationIconBadgeNumber:)
     );
-    
+    //TODO: Do this in the notifications module
     [self setupUNUserNotificationCenterDelegate];
     [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
