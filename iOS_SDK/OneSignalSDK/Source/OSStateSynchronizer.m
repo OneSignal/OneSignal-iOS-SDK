@@ -60,19 +60,13 @@ THE SOFTWARE.
 
 @implementation OSStateSynchronizer
 
-- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState
-               withEmailSubscriptionState:(OSEmailSubscriptionState *)emailSubscriptionState
-               withSMSSubscriptionState:(OSSMSSubscriptionState * _Nonnull)smsSubscriptionState {
+- (instancetype)initWithSubscriptionState:(OSSubscriptionState *)subscriptionState {
     self = [super init];
     if (self) {
         _userStateSynchronizers = @{
             OS_PUSH  : [[OSUserStatePushSynchronizer alloc] initWithSubscriptionState:subscriptionState],
-            OS_EMAIL : [[OSUserStateEmailSynchronizer alloc] initWithEmailSubscriptionState:emailSubscriptionState withSubcriptionState:subscriptionState],
-            OS_SMS   : [[OSUserStateSMSSynchronizer alloc] initWithSMSSubscriptionState:smsSubscriptionState withSubcriptionState:subscriptionState]
         };
         _currentSubscriptionState = subscriptionState;
-        _currentEmailSubscriptionState = emailSubscriptionState;
-        _currentSMSSubscriptionState = smsSubscriptionState;
     }
     return self;
 }
