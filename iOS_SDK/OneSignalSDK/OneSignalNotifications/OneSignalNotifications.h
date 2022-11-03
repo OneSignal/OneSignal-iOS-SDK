@@ -10,3 +10,5 @@
 
 #import "OSNotificationsManager.h"
 #import "OSPermission.h"
+#import "OneSignalWebView.h"
+#import "OneSignalWebViewManager.h"
