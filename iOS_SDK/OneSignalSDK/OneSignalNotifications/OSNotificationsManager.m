@@ -298,6 +298,28 @@ static BOOL _pushDisabled = false;
     return true;
 }
 
++ (void)didRegisterForRemoteNotifications:(UIApplication *)app
+                              deviceToken:(NSData *)inDeviceToken {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+
+    let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
+
+    [OneSignalLog onesignalLog:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
+
+    if (!parsedDeviceToken) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Unable to convert APNS device token to a string"];
+        return;
+    }
+
+    self.waitingForApnsResponse = false;
+
+    if (!_appId)
+        return;
+    
+    //[OneSignal updateDeviceToken:parsedDeviceToken]; TODO: Send to UM
+}
+
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
     OSNotificationsManager.waitingForApnsResponse = false;
     
@@ -313,6 +335,18 @@ static BOOL _pushDisabled = false;
         // [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR]; TODO: Send to UM
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
+}
+
+// onOSPermissionChanged should only fire if something changed.
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
+    [_permissionStateChangesObserver addObserver:observer];
+    
+    if ([self.currentPermissionState compare:self.lastPermissionState])
+        [OSPermissionChangedInternalObserver fireChangesObserver:self.currentPermissionState];
+}
+
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
+    [_permissionStateChangesObserver removeObserver:observer];
 }
 
 //    User just responed to the iOS native notification permission prompt.

@@ -44,6 +44,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)requestPermission:(OSUserResponseBlock)block;
 + (void)requestPermission:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 // clearAll
 
 @end
@@ -66,6 +68,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 // Indicates if the app provides its own custom Notification customization settings UI
 // To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
 + (BOOL)providesAppNotificationSettings;
+/* Used to determine if the app is able to present it's own customized Notification Settings view (iOS 12+) */
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 + (BOOL)registerForAPNsToken;
@@ -91,5 +94,6 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 + (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion;
++ (void)didRegisterForRemoteNotifications:(UIApplication *)app deviceToken:(NSData *)inDeviceToken;
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err;
 @end

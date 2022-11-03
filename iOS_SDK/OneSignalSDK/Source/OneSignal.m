@@ -92,9 +92,6 @@ NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
-/* Used to determine if the app is able to present it's own customized Notification Settings view (iOS 12+) */
-NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKeyProvidesAppNotificationSettings";
-
 @implementation OSPermissionSubscriptionState
 - (NSString*)description {
     static NSString* format = @"<OSPermissionSubscriptionState:\npermissionStatus: %@,\nsubscriptionStatus: %@\n>";
@@ -189,13 +186,10 @@ static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
 static LanguageContext* languageContext;
 
-int mLastNotificationTypes = -1;
-
 BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
 
 static BOOL requiresUserIdAuth = false;
-static BOOL providesAppNotificationSettings = false;
 
 static BOOL performedOnSessionRequest = false;
 
@@ -205,8 +199,6 @@ static OSSubscriptionState* _currentSubscriptionState;
     if (!_currentSubscriptionState) {
         _currentSubscriptionState = [OSSubscriptionState alloc];
         _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:OSNotificationsManager.currentPermissionState.accepted];
-        mLastNotificationTypes = OSNotificationsManager.currentPermissionState.notificationTypes;
-        // ^ It is actually `mLastNotificationTypes = _currentPermissionState.notificationTypes`
         // Why is it inited here?
         [OSNotificationsManager.currentPermissionState.observable addObserver:_currentSubscriptionState];
         [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
@@ -513,10 +505,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 // TODO: um
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
-    [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
-//    NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
-//    newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
-//    appSettings = newSettings;
+    if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
+        [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
+    }
 }
 
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
@@ -658,9 +649,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // Always NO, can be cleaned up in a future commit
     usesAutoPrompt = NO;
     
-    if (settings[kOSSettingsKeyProvidesAppNotificationSettings] && [settings[kOSSettingsKeyProvidesAppNotificationSettings] isKindOfClass:[NSNumber class]] && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"])
-        providesAppNotificationSettings = [settings[kOSSettingsKeyProvidesAppNotificationSettings] boolValue];
-    
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
     if (usesAutoPrompt || (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral)) {
         [self registerForPushNotifications];
@@ -785,7 +773,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [OSNotificationsManager requestPermission:nil];
 }
-//TODO: delete with um?
+//TODO: delete with um
 + (OSPermissionSubscriptionState*)getPermissionSubscriptionState {
     OSPermissionSubscriptionState* status = [OSPermissionSubscriptionState alloc];
     
@@ -793,18 +781,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     status.permissionStatus = OSNotificationsManager.currentPermissionState;
 
     return status;
-}
-//TODO: Move to notifications
-// onOSPermissionChanged should only fire if something changed.
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    [self.permissionStateChangesObserver addObserver:observer];
-    
-    if ([OSNotificationsManager.currentPermissionState compare:OSNotificationsManager.lastPermissionState])
-        [OSPermissionChangedInternalObserver fireChangesObserver:OSNotificationsManager.currentPermissionState];
-}
-//TODO: Move to notifications
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer {
-    [self.permissionStateChangesObserver removeObserver:observer];
 }
 
 // onOSSubscriptionChanged should only fire if something changed.
@@ -823,6 +799,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)enableInAppLaunchURL:(BOOL)enable {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
+
 //TODO: Delete/move with um
 + (void)disablePush:(BOOL)disable {
     // return if the user has not granted privacy permissions
@@ -1074,7 +1051,6 @@ static BOOL _registerUserSuccessful = false;
     userState.language = [languageContext language];
     
     let notificationTypes = [self getNotificationTypes];
-    mLastNotificationTypes = notificationTypes;
     userState.notificationTypes = [NSNumber numberWithInt:notificationTypes];
     
     let CTTelephonyNetworkInfoClass = NSClassFromString(@"CTTelephonyNetworkInfo");
@@ -1246,7 +1222,7 @@ static BOOL _registerUserSuccessful = false;
     [OneSignal.stateSynchronizer sendPurchases:purchases appId:self.appId];
 }
 
-//TODO: move to core?
+//TODO: consolidate in one place. Where???
 + (void)launchWebURL:(NSString*)openUrl {
     
     NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
@@ -1294,29 +1270,6 @@ static BOOL _registerUserSuccessful = false;
         [self registerUser];
 }
 
-//TODO: Move to Notifications
-+ (void)didRegisterForRemoteNotifications:(UIApplication *)app
-                              deviceToken:(NSData *)inDeviceToken {
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-
-    let parsedDeviceToken = [NSString hexStringFromData:inDeviceToken];
-
-    [OneSignal onesignalLog:ONE_S_LL_INFO message: [NSString stringWithFormat:@"Device Registered with Apple: %@", parsedDeviceToken]];
-
-    if (!parsedDeviceToken) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Unable to convert APNS device token to a string"];
-        return;
-    }
-
-    OSNotificationsManager.waitingForApnsResponse = false;
-
-    if (!appId)
-        return;
-    
-    [OneSignal updateDeviceToken:parsedDeviceToken];
-}
-
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
     return [OneSignalNotificationServiceExtensionHandler
@@ -1332,7 +1285,6 @@ static BOOL _registerUserSuccessful = false;
             withMutableNotificationContent:replacementContent
             withContentHandler:contentHandler];
 }
-
 
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)serviceExtensionTimeWillExpireRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
@@ -1641,7 +1593,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
     if (!NSClassFromString(@"UNUserNotificationCenter"))
         return;
 
-    [OneSignalUNUserNotificationCenter setup];
+    //[OneSignalUNUserNotificationCenter setup]; TODO: do this is notifications
 }
 
 +(BOOL) shouldDisableBasedOnProcessArguments {
