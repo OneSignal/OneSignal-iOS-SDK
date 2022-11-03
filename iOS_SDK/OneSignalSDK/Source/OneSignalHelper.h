@@ -40,7 +40,6 @@
 
 // - iOS 10
 + (void)clearCachedMedia;
-+ (UNNotificationRequest*)prepareUNNotificationRequest:(OSNotification*)notification;
 
 // Threading
 + (void)runOnMainThread:(void(^)())block;

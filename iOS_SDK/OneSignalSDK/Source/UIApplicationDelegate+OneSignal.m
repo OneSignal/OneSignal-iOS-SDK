@@ -29,7 +29,6 @@
 #import <UIKit/UIKit.h>
 
 #import "UIApplicationDelegate+OneSignal.h"
-#import "OSNotification+Internal.h"
 #import "OneSignal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
@@ -41,7 +40,6 @@
 @end
 
 // This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
-//   - UNUserNotificationCenter is used for iOS 10
 //   - Orignal implementations are called so other plugins and the developers AppDelegate is still called.
 
 @implementation OneSignalAppDelegate
