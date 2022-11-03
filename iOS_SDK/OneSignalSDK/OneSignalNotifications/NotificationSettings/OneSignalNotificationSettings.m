@@ -176,7 +176,6 @@ static dispatch_queue_t serialQueue;
     OSPermissionStateInternal *state = [self getNotificationPermissionState];
     
     //don't register for provisional if the user has already accepted the prompt
-    // TODO: generate external version here!
     if (state.status != OSNotificationPermissionNotDetermined || state.answeredPrompt) {
         if (block)
             block(true);
