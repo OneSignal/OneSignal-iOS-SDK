@@ -293,6 +293,17 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
+
+#pragma mark Live Activity
+typedef void (^OSLiveActivitySuccessBlock)();
+typedef void (^OSLiveActivityFailureBlock)(NSError *error);
+
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nullable)token;
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nullable)token withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;
+
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId;
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;
+
 #pragma mark Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
