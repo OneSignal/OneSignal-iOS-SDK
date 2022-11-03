@@ -35,6 +35,7 @@
 #import "OneSignalLog.h"
 #import "NSURL+OneSignal.h"
 #import "NSString+OneSignal.h"
+#import "NSDateFormatter+OneSignal.h" // check
 #import "OSRequests.h"
 #import "OneSignalRequest.h"
 #import "OneSignalClient.h"
