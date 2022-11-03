@@ -113,7 +113,7 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 @implementation OneSignal
 
 static NSString* mSDKType = @"native";
-static BOOL coldStartFromTapOnNotification = NO;
+
 static BOOL shouldDelaySubscriptionUpdate = false;
 
 static NSMutableArray* pendingSendTagCallbacks;
@@ -377,12 +377,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OSSessionManager resetSharedSessionManager];
 }
 
-// Set to false as soon as it's read.
-+ (BOOL)coldStartFromTapOnNotification {
-    BOOL val = coldStartFromTapOnNotification;
-    coldStartFromTapOnNotification = NO;
-    return val;
-}
 //TODO: Delete with UM?
 + (BOOL)shouldDelaySubscriptionSettingsUpdate {
     return shouldDelaySubscriptionUpdate;
@@ -559,7 +553,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     //  NOTE: launchOptions may be nil if tapping on a notification's action button.
     NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     if (userInfo)
-        coldStartFromTapOnNotification = YES;
+        //coldStartFromTapOnNotification = YES; //TODO: Pass this into the Notifications Module
 
     [OSNotificationsManager clearBadgeCount:false];
 
@@ -855,23 +849,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (BOOL)isLocationShared {
     return [[self getRemoteParamController] isLocationShared];
-}
-//TODO: move to um
-+ (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
-    OSNotificationsManager.waitingForApnsResponse = false;
-    
-    if (err.code == 3000) {
-        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"ERROR! 'Push Notifications' capability missing! Add the capability in Xcode under 'Target' -> '<MyAppName(MainTarget)>' -> 'Signing & Capabilities' then click the '+ Capability' button."];
-    }
-    else if (err.code == 3010) {
-        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
-    }
-    else {
-        [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR];
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
-    }
 }
 
 // TODO: Move this to User Module to update push sub with the apns push token

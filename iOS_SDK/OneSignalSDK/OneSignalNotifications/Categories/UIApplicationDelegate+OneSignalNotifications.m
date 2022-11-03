@@ -27,32 +27,19 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-
-#import "UIApplicationDelegate+OneSignal.h"
+#import "OneSignalNotifications.h"
+#import "UIApplicationDelegate+OneSignalNotifications.h"
 #import "OSNotification+Internal.h"
-#import "OneSignal.h"
 #import "OneSignalCommonDefines.h"
-#import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
 #import "SwizzlingForwarder.h"
-
-@interface OneSignal (UN_extra)
-+ (void) didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken;
-+ (void) handleDidFailRegisterForRemoteNotification:(NSError*)error;
-+ (NSString*) appId;
-+ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
-+ (BOOL) receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
-+ (void) processLocalActionBasedNotification:(UILocalNotification*) notification identifier:(NSString*)identifier;
-#pragma clang diagnostic pop
-@end
+#import "OSNotificationsManager.h"
 
 // This class hooks into the UIApplicationDelegate selectors to receive iOS 9 and older events.
 //   - UNUserNotificationCenter is used for iOS 10
 //   - Orignal implementations are called so other plugins and the developers AppDelegate is still called.
 
-@implementation OneSignalAppDelegate
+@implementation OneSignalNotificationsAppDelegate
 
 + (void) oneSignalLoadedTagSelector {}
 
@@ -63,7 +50,7 @@
 static NSMutableSet<Class>* swizzledClasses;
 
 - (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
-    [OneSignalAppDelegate traceCall:@"setOneSignalDelegate:"];
+    [OneSignalNotificationsAppDelegate traceCall:@"setOneSignalDelegate:"];
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
     
     if (swizzledClasses == nil)
@@ -77,7 +64,7 @@ static NSMutableSet<Class>* swizzledClasses;
     }
     [swizzledClasses addObject:delegateClass];
     
-    Class newClass = [OneSignalAppDelegate class];
+    Class newClass = [OneSignalNotificationsAppDelegate class];
     
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
@@ -102,51 +89,14 @@ static NSMutableSet<Class>* swizzledClasses;
         newClass,
         @selector(oneSignalDidRegisterForRemoteNotifications:deviceToken:)
     );
-    
-    // Used to track how long the app has been closed
-    injectSelector(
-        delegateClass,
-        @selector(applicationWillTerminate:),
-        newClass,
-        @selector(oneSignalApplicationWillTerminate:)
-    );
-    
 
     [self setOneSignalDelegate:delegate];
 }
 
-//+ (void)swizzlePreiOS10Methods:(Class)delegateClass {
-//    if ([OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"10.0"])
-//        return;
-//
-//    injectSelector(
-//        delegateClass,
-//        @selector(application:handleActionWithIdentifier:forLocalNotification:completionHandler:),
-//        [OneSignalAppDelegate class],
-//        @selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)
-//    );
-//
-//    // Starting with iOS 10 requestAuthorizationWithOptions has it's own callback
-//    //   We also check the permssion status from applicationDidBecomeActive: each time.
-//    injectSelector(
-//        delegateClass,
-//        @selector(application:didRegisterUserNotificationSettings:),
-//        [OneSignalAppDelegate class],
-//        @selector(oneSignalDidRegisterUserNotifications:settings:)
-//    );
-//
-//    injectSelector(
-//        delegateClass,
-//        @selector(application:didReceiveLocalNotification:),
-//        [OneSignalAppDelegate class],
-//        @selector(oneSignalLocalNotificationOpened:notification:)
-//    );
-//}
-
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
-    [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
+    [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];
     
-    [OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken];
+    //[OneSignal didRegisterForRemoteNotifications:app deviceToken:inDeviceToken]; //TODO: This will live in the User module to update the push sub
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -161,10 +111,10 @@ static NSMutableSet<Class>* swizzledClasses;
 }
 
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
-    [OneSignalAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
+    [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
-    if ([OneSignal appId])
-        [OneSignal handleDidFailRegisterForRemoteNotification:err];
+    if ([OSNotificationsManager getAppId])
+        [OSNotificationsManager handleDidFailRegisterForRemoteNotification:err];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
@@ -178,28 +128,13 @@ static NSMutableSet<Class>* swizzledClasses;
     [forwarder invokeWithArgs:@[app, err]];
 }
 
-//TODO: delete? iOS 9 only
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Wdeprecated"
-//// iOS 9 Only
-//- (void)oneSignalDidRegisterUserNotifications:(UIApplication*)application settings:(UIUserNotificationSettings*)notificationSettings {
-//    [OneSignalAppDelegate traceCall:@"oneSignalDidRegisterUserNotifications:settings:"];
-//
-//    if ([OneSignal appId])
-//        [OneSignal updateNotificationTypes:(int)notificationSettings.types];
-//
-//    if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
-//        [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];
-//}
-//#pragma clang diagnostic pop
-
 // Fires when a notication is opened or recieved while the app is in focus.
 //   - Also fires when the app is in the background and a notificaiton with content-available=1 is received.
 // NOTE: completionHandler must only be called once!
 //          iOS 10 - This crashes the app if it is called twice! Crash will happen when the app is resumed.
 //          iOS 9  - Does not have this issue.
 - (void) oneSignalReceiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult)) completionHandler {
-    [OneSignalAppDelegate traceCall:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
+    [OneSignalNotificationsAppDelegate traceCall:@"oneSignalReceiveRemoteNotification:UserInfo:fetchCompletionHandler:"];
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
         initWithTarget:self
         withYourSelector:@selector(
@@ -212,7 +147,7 @@ static NSMutableSet<Class>* swizzledClasses;
 
     BOOL startedBackgroundJob = false;
     
-    if ([OneSignal appId]) {
+    if ([OSNotificationsManager getAppId]) {
         let appState = [UIApplication sharedApplication].applicationState;
         let isVisibleNotification = userInfo[@"aps"][@"alert"] != nil;
         
@@ -222,12 +157,12 @@ static NSMutableSet<Class>* swizzledClasses;
         //           of "inactive" on notification received the link above describes.
         //           Omiting that complex logic as iOS 9 usage stats are very low (12/11/2020) and these are rare cases.
         if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"] && appState == UIApplicationStateInactive && isVisibleNotification) {
-            [OneSignal notificationReceived:userInfo wasOpened:YES];
+            [OSNotificationsManager notificationReceived:userInfo wasOpened:YES];
         }
         else if (appState == UIApplicationStateActive && isVisibleNotification)
-            [OneSignal notificationReceived:userInfo wasOpened:NO];
+            [OSNotificationsManager notificationReceived:userInfo wasOpened:NO];
         else
-            startedBackgroundJob = [OneSignal receiveRemoteNotification:application UserInfo:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
+            startedBackgroundJob = [OSNotificationsManager receiveRemoteNotification:application UserInfo:userInfo completionHandler:forwarder.hasReceiver ? nil : completionHandler];
     }
     
     if (forwarder.hasReceiver) {
@@ -235,7 +170,7 @@ static NSMutableSet<Class>* swizzledClasses;
         return;
     }
     
-    [OneSignalAppDelegate
+    [OneSignalNotificationsAppDelegate
         forwardToDepercatedApplication:application
         didReceiveRemoteNotification:userInfo];
     
@@ -255,7 +190,7 @@ static NSMutableSet<Class>* swizzledClasses;
     
     // Make sure we don't forward to this depreated selector on cold start
     // from a notification open, since iOS itself doesn't call this either
-    if ([[OneSignal valueForKey:@"coldStartFromTapOnNotification"] boolValue])
+    if ([OSNotificationsManager getColdStartFromTapOnNotification])
         return;
     
     #pragma clang diagnostic push
@@ -264,53 +199,8 @@ static NSMutableSet<Class>* swizzledClasses;
     #pragma clang diagnostic pop
 }
 
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Wdeprecated"
-//- (void) oneSignalLocalNotificationOpened:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void(^)()) completionHandler {
-//#pragma clang diagnostic pop
-//    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:"];
-//
-//    if ([OneSignal appId])
-//        [OneSignal processLocalActionBasedNotification:notification identifier:identifier];
-//
-//    if ([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:handleActionWithIdentifier:forLocalNotification:completionHandler:)])
-//        [self oneSignalLocalNotificationOpened:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-//
-//    completionHandler();
-//}
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Wdeprecated"
-//- (void)oneSignalLocalNotificationOpened:(UIApplication*)application notification:(UILocalNotification*)notification {
-//#pragma clang diagnostic pop
-//    [OneSignalAppDelegate traceCall:@"oneSignalLocalNotificationOpened:notification:"];
-//
-//    if ([OneSignal appId])
-//        [OneSignal processLocalActionBasedNotification:notification identifier:@"__DEFAULT__"];
-//
-//    if([self respondsToSelector:@selector(oneSignalLocalNotificationOpened:notification:)])
-//        [self oneSignalLocalNotificationOpened:application notification:notification];
-//}
-
--(void)oneSignalApplicationWillTerminate:(UIApplication *)application {
-    [OneSignalAppDelegate traceCall:@"oneSignalApplicationWillTerminate:"];
-    
-    if ([OneSignal appId])
-        [OneSignalTracker onFocus:YES];
-    
-    SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
-        initWithTarget:self
-        withYourSelector:@selector(
-            oneSignalApplicationWillTerminate:
-        )
-        withOriginalSelector:@selector(
-            applicationWillTerminate:
-        )
-    ];
-    [forwarder invokeWithArgs:@[application]];
-}
-
 // Used to log all calls, also used in unit tests to observer
-// the OneSignalAppDelegate selectors get called.
+// the OneSignalNotificationsAppDelegate selectors get called.
 +(void) traceCall:(NSString*)selector {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:selector];
 }

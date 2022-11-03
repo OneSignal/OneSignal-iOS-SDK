@@ -25,12 +25,10 @@
  * THE SOFTWARE.
  */
 
-#ifndef UNUserNotificationCenter_OneSignal_h
-#define UNUserNotificationCenter_OneSignal_h
+#ifndef UNUserNotificationCenter_OneSignalNotifications_h
+#define UNUserNotificationCenter_OneSignalNotifications_h
 
-#import "OneSignal.h"
-
-@interface OneSignalUNUserNotificationCenter : NSObject
+@interface OneSignalNotificationsUNUserNotificationCenter : NSObject
 + (void)setup;
 + (void)swizzleSelectors;
 + (void)swizzleSelectorsOnDelegate:(id)delegate;
@@ -53,4 +51,4 @@
 @end
 
 
-#endif /* UNUserNotificationCenter_OneSignal_h */
+#endif /* UNUserNotificationCenter_OneSignalNotifications_h */

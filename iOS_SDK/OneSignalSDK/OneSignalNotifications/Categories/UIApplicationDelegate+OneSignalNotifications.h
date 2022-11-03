@@ -1,7 +1,7 @@
 /**
  * Modified MIT License
  *
- * Copyright 2021 OneSignal
+ * Copyright 2016 OneSignal
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,33 +25,11 @@
  * THE SOFTWARE.
  */
 
-#pragma clang diagnostic ignored "-Wnullability-completeness"
-#import <Foundation/Foundation.h>
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
-#import "OSNotification.h"
-#import "OSNotification+Internal.h"
-#import "OSNotificationClasses.h"
-#import "OneSignalLog.h"
-#import "NSURL+OneSignal.h"
-#import "NSString+OneSignal.h"
-#import "NSDateFormatter+OneSignal.h"
-#import "OSRequests.h"
-#import "OneSignalRequest.h"
-#import "OneSignalClient.h"
-#import "OneSignalCoreHelper.h"
-#import "OneSignalTrackFirebaseAnalytics.h"
-#import "OSMacros.h"
-#import "OSJSONHandling.h"
-#import "OSPrivacyConsentController.h"
-#import "OSDeviceUtils.h"
-#import "OSNetworkingUtils.h"
-#import "OSObservable.h"
-#import "OSDialogInstanceManager.h"
-#import "SwizzlingForwarder.h"
-#import "OneSignalSelectorHelpers.h"
+#ifndef UIApplicationDelegate_OneSignalNotifications_h
+#define UIApplicationDelegate_OneSignalNotifications_h
+@interface OneSignalNotificationsAppDelegate : NSObject
 
-@interface OneSignalCore : NSObject
++ (void)traceCall:(NSString*)selector;
 
 @end
-
+#endif /* UIApplicationDelegate_OneSignalNotifications_h */

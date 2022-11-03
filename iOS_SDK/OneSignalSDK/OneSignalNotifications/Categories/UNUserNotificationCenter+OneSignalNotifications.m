@@ -29,14 +29,10 @@
 #import <UIKit/UIKit.h>
 #import <UserNotifications/UserNotifications.h>
 
-#import "UNUserNotificationCenter+OneSignal.h"
-#import "OneSignal.h"
-#import "OneSignalInternal.h"
-#import "OneSignalHelper.h"
-#import "OneSignalSelectorHelpers.h"
-#import "UIApplicationDelegate+OneSignal.h"
-#import "OneSignalCommonDefines.h"
-#import "SwizzlingForwarder.h"
+#import "UNUserNotificationCenter+OneSignalNotifications.h"
+#import "UIApplicationDelegate+OneSignalNotifications.h"
+#import "OSNotificationsManager.h"
+#import <OneSignalCore/OneSignalCore.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
@@ -44,11 +40,6 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 typedef void (^OSUNNotificationCenterCompletionHandler)(UNNotificationPresentationOptions options);
-
-@interface OneSignal (UN_extra)
-+ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completionHandler;
-@end
 
 @interface OSUNUserNotificationCenterDelegate : NSObject
 + (OSUNUserNotificationCenterDelegate*)sharedInstance;
@@ -76,18 +67,18 @@ static OSUNUserNotificationCenterDelegate* singleInstance = nil;
 //       This ensures we don't produce any side effects to standard iOS API selectors.
 //       The `callLegacyAppDeletegateSelector` selector below takes care of this backwards compatibility handling.
 
-@implementation OneSignalUNUserNotificationCenter
+@implementation OneSignalNotificationsUNUserNotificationCenter
 
 + (void)setup {
-    [OneSignalUNUserNotificationCenter swizzleSelectors];
-    [OneSignalUNUserNotificationCenter registerDelegate];
+    [OneSignalNotificationsUNUserNotificationCenter swizzleSelectors];
+    [OneSignalNotificationsUNUserNotificationCenter registerDelegate];
 }
 
 + (void)swizzleSelectors {
     injectSelector(
         [UNUserNotificationCenter class],
         @selector(setDelegate:),
-        [OneSignalUNUserNotificationCenter class],
+        [OneSignalNotificationsUNUserNotificationCenter class],
         @selector(setOneSignalUNDelegate:)
    );
     
@@ -96,13 +87,13 @@ static OSUNUserNotificationCenterDelegate* singleInstance = nil;
     injectSelector(
         [UNUserNotificationCenter class],
         @selector(requestAuthorizationWithOptions:completionHandler:),
-        [OneSignalUNUserNotificationCenter class],
+        [OneSignalNotificationsUNUserNotificationCenter class],
         @selector(onesignalRequestAuthorizationWithOptions:completionHandler:)
     );
     injectSelector(
         [UNUserNotificationCenter class],
         @selector(getNotificationSettingsWithCompletionHandler:),
-        [OneSignalUNUserNotificationCenter class],
+        [OneSignalNotificationsUNUserNotificationCenter class],
         @selector(onesignalGetNotificationSettingsWithCompletionHandler:)
    );
 }
@@ -197,9 +188,9 @@ static NSMutableSet<Class>* swizzledClasses;
     }
     [swizzledClasses addObject:delegateClass];
 
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignalUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OneSignalNotificationsUNUserNotificationCenter setOneSignalUNDelegate Fired!"];
 
-    [OneSignalUNUserNotificationCenter swizzleSelectorsOnDelegate:delegate];
+    [OneSignalNotificationsUNUserNotificationCenter swizzleSelectorsOnDelegate:delegate];
 
     // Call orignal iOS implemenation
     [self setOneSignalUNDelegate:delegate];
@@ -210,13 +201,13 @@ static NSMutableSet<Class>* swizzledClasses;
     injectSelector(
         delegateUNClass,
         @selector(userNotificationCenter:willPresentNotification:withCompletionHandler:),
-        [OneSignalUNUserNotificationCenter class],
+        [OneSignalNotificationsUNUserNotificationCenter class],
         @selector(onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:)
     );
     injectSelector(
         delegateUNClass,
         @selector(userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:),
-        [OneSignalUNUserNotificationCenter class],
+        [OneSignalNotificationsUNUserNotificationCenter class],
         @selector(onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:)
     );
 }
@@ -239,7 +230,7 @@ static NSMutableSet<Class>* swizzledClasses;
         return true;
     } else {
         // call a legacy AppDelegate selector
-        [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
+        [OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:notification
                                                 isTextReply:false
                                            actionIdentifier:nil
                                                    userText:nil
@@ -256,47 +247,47 @@ static NSMutableSet<Class>* swizzledClasses;
                 willPresentNotification:(UNNotification *)notification
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
     
-    [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:"];
+    [OneSignalNotificationsUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler:"];
     
     // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:notification.request.content.userInfo]) {
-        BOOL hasReceiver = [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalCoreHelper isOneSignalPayload:notification.request.content.userInfo]) {
+        BOOL hasReceiver = [OneSignalNotificationsUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:self completionHandler:completionHandler];
         if (!hasReceiver) {
             completionHandler(7);
         }
         return;
     }
 
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired! %@", notification.request.content.body]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"onesignalUserNotificationCenter:willPresentNotification:withCompletionHandler: Fired! %@", notification.request.content.body]];
     
-    [OneSignal handleWillPresentNotificationInForegroundWithPayload:notification.request.content.userInfo withCompletion:^(OSNotification *responseNotif) {
+    [OSNotificationsManager handleWillPresentNotificationInForegroundWithPayload:notification.request.content.userInfo withCompletion:^(OSNotification *responseNotif) {
         UNNotificationPresentationOptions displayType = responseNotif != nil ? (UNNotificationPresentationOptions)7 : (UNNotificationPresentationOptions)0;
         finishProcessingNotification(notification, center, displayType, completionHandler, self);
     }];
 }
 
-// To avoid a crash caused by using the swizzled OneSignalUNUserNotificationCenter type this is implemented as a C function
+// To avoid a crash caused by using the swizzled OneSignalNotificationsUNUserNotificationCenter type this is implemented as a C function
 void finishProcessingNotification(UNNotification *notification,
                                   UNUserNotificationCenter *center,
                                   UNNotificationPresentationOptions displayType,
                                   OSUNNotificationCenterCompletionHandler completionHandler,
-                                  OneSignalUNUserNotificationCenter *instance) {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"finishProcessingNotification: Fired!"];
+                                  OneSignalNotificationsUNUserNotificationCenter *instance) {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"finishProcessingNotification: Fired!"];
     NSUInteger completionHandlerOptions = displayType;
     
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Notification display type: %lu", (unsigned long)displayType]];
     
-    if ([OneSignal appId])
-        [OneSignal notificationReceived:notification.request.content.userInfo wasOpened:NO];
+    if ([OSNotificationsManager getAppId])
+        [OSNotificationsManager notificationReceived:notification.request.content.userInfo wasOpened:NO];
 
     
-    [OneSignalUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:instance completionHandler:completionHandler];
+    [OneSignalNotificationsUNUserNotificationCenter forwardNotificationWithCenter:center notification:notification OneSignalCenter:instance completionHandler:completionHandler];
     
     // Calling completionHandler for the following reasons:
     //   App dev may have not implented userNotificationCenter:willPresentNotification.
     //   App dev may have implemented this selector but forgot to call completionHandler().
     // Note - iOS only uses the first call to completionHandler().
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"finishProcessingNotification: call completionHandler with options: %lu",(unsigned long)completionHandlerOptions]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"finishProcessingNotification: call completionHandler with options: %lu",(unsigned long)completionHandlerOptions]];
     completionHandler(completionHandlerOptions);
 }
 
@@ -304,9 +295,9 @@ void finishProcessingNotification(UNNotification *notification,
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
                   withCompletionHandler:(void(^)())completionHandler {
-    [OneSignalUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
+    [OneSignalNotificationsUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
     // return if the user has not granted privacy permissions or if not a OneSignal payload
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalCoreHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
         SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
             initWithTarget:self
             withYourSelector:@selector(
@@ -324,9 +315,9 @@ void finishProcessingNotification(UNNotification *notification,
         return;
     }
     
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler: Fired!"];
     
-    [OneSignalUNUserNotificationCenter processiOS10Open:response];
+    [OneSignalNotificationsUNUserNotificationCenter processiOS10Open:response];
     
     // Call orginal selector if one was set.
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
@@ -343,10 +334,10 @@ void finishProcessingNotification(UNNotification *notification,
     }
     // Or call a legacy AppDelegate selector
     //  - If not a dismiss event as their isn't a iOS 9 selector for it.
-    else if (![OneSignalUNUserNotificationCenter isDismissEvent:response]) {
+    else if (![OneSignalNotificationsUNUserNotificationCenter isDismissEvent:response]) {
         BOOL isTextReply = [response isKindOfClass:NSClassFromString(@"UNTextInputNotificationResponse")];
         NSString* userText = isTextReply ? [response valueForKey:@"userText"] : nil;
-        [OneSignalUNUserNotificationCenter callLegacyAppDeletegateSelector:response.notification
+        [OneSignalNotificationsUNUserNotificationCenter callLegacyAppDeletegateSelector:response.notification
                                                 isTextReply:isTextReply
                                            actionIdentifier:response.actionIdentifier
                                                    userText:userText
@@ -362,10 +353,10 @@ void finishProcessingNotification(UNNotification *notification,
 }
 
 + (void)processiOS10Open:(UNNotificationResponse*)response {
-    if (![OneSignal appId])
+    if (![OSNotificationsManager getAppId])
         return;
     
-    if ([OneSignalUNUserNotificationCenter isDismissEvent:response])
+    if ([OneSignalNotificationsUNUserNotificationCenter isDismissEvent:response])
         return;
     
     if (![OneSignalCoreHelper isOneSignalPayload:response.notification.request.content.userInfo])
@@ -374,7 +365,7 @@ void finishProcessingNotification(UNNotification *notification,
     let userInfo = [OneSignalCoreHelper formatApsPayloadIntoStandard:response.notification.request.content.userInfo
                                                       identifier:response.actionIdentifier];
 
-    [OneSignal notificationReceived:userInfo wasOpened:YES];
+    [OSNotificationsManager notificationReceived:userInfo wasOpened:YES];
 }
 
 // Calls depercated pre-iOS 10 selector if one is set on the AppDelegate.
@@ -392,7 +383,7 @@ void finishProcessingNotification(UNNotification *notification,
                                userText:(NSString*)userText
                 fromPresentNotification:(BOOL)fromPresentNotification
                   withCompletionHandler:(void(^)())completionHandler {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"callLegacyAppDeletegateSelector:withCompletionHandler: Fired!"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"callLegacyAppDeletegateSelector:withCompletionHandler: Fired!"];
     
     UIApplication *sharedApp = [UIApplication sharedApplication];
     
@@ -440,7 +431,7 @@ void finishProcessingNotification(UNNotification *notification,
 // Used to log all calls, also used in unit tests to observer
 // the OneSignalUserNotificationCenter selectors get called.
 +(void) traceCall:(NSString*)selector {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:selector];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:selector];
 }
 
 @end
