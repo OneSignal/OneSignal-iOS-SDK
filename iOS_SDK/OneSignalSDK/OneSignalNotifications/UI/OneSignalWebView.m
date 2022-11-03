@@ -27,8 +27,7 @@
 
 #import <UIKit/UIKit.h>
 #import "OneSignalWebView.h"
-#import "OneSignal.h"
-#import "OneSignalHelper.h"
+#import <OneSignalCore/OneSignalCore.h>
 
 
 @implementation OneSignalWebView
@@ -144,14 +143,14 @@ UIViewController *viewControllerForPresentation;
 - (void)clearWebView {
     [_webView loadHTMLString:@"" baseURL:nil];
     if (viewControllerForPresentation) {
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"clearing web view"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"clearing web view"];
         [viewControllerForPresentation.view removeFromSuperview];
     }
         
 }
 
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"presentation controller did dismiss webview"];
     [self clearWebView];
 }
 
