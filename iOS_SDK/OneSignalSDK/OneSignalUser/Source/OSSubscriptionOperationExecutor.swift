@@ -84,11 +84,8 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
                 enqueueRequest(request)
 
             case OS_UPDATE_SUBSCRIPTION_DELTA:
-                guard let value = delta.value else {
-                    continue
-                }
                 let request = OSRequestUpdateSubscription(
-                    subscriptionObject: [delta.property: value],
+                    subscriptionObject: [delta.property: delta.value],
                     subscriptionModel: model
                 )
                 enqueueRequest(request)

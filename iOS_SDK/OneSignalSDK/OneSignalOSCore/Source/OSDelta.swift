@@ -33,9 +33,9 @@ open class OSDelta: NSObject, NSCoding {
     public let timestamp: Date
     public let model: OSModel
     public let property: String
-    public let value: Any?
+    public let value: Any
 
-    public init(name: String, model: OSModel, property: String, value: Any?) {
+    public init(name: String, model: OSModel, property: String, value: Any) {
         self.name = name
         self.deltaId = UUID().uuidString
         self.timestamp = Date()
