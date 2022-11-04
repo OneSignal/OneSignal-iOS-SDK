@@ -45,6 +45,7 @@
 #import "OneSignalNotificationSettings.h"
 #import "OneSignalNotificationSettingsIOS10.h"
 #import "OneSignalNotificationSettingsIOS9.h"
+// TODO: ^ if no longer support ios 9 + 10 after user model, need to address all stuffs
 
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OneSignalExtension/OneSignalExtension.h"
