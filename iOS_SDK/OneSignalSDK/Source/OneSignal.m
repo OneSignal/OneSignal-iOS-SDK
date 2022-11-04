@@ -664,6 +664,33 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appSettings = newSettings;
 }
 
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nullable)token {
+    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
+}
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nullable)token withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock{
+    
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId token:token]
+    onSuccess:^(NSDictionary *result) {
+        [self callSuccessBlockOnMainThread:successBlock];
+    } onFailure:^(NSError *error) {
+        [self callFailureBlockOnMainThread:failureBlock withError:error];
+    }];
+}
+
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId{
+    [self exitLiveActivity:activityId withSuccess:nil withFailure:nil];
+}
+
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock{
+
+    [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId]
+    onSuccess:^(NSDictionary *result) {
+        [self callSuccessBlockOnMainThread:successBlock];
+    } onFailure:^(NSError *error) {
+        [self callFailureBlockOnMainThread:failureBlock withError:error];
+    }];
+}
+
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Notification will show in foreground handler set successfully"];
     [OneSignalHelper setNotificationWillShowInForegroundBlock:block];
