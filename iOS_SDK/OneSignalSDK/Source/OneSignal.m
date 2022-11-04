@@ -409,20 +409,20 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 #pragma mark User Model - User Identity 🔥
 
 + (Class<OSUser>)User {
-    return [OneSignalUserManagerImpl User];
+    return [OneSignalUserManagerImpl.sharedInstance User];
 }
 
 + (void)login:(NSString * _Nonnull)externalId {
-    [OneSignalUserManagerImpl loginWithExternalId:externalId token:nil];
+    [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:nil];
     // refine Swift name for Obj-C? But doesn't matter as much since this isn't public API
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
-    [OneSignalUserManagerImpl loginWithExternalId:externalId token:token];
+    [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:token];
 }
 
 + (void)logout {
-    [OneSignalUserManagerImpl logout];
+    [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
 #pragma mark User Model - Notifications namespace 🔥

@@ -69,9 +69,9 @@ class OSUserExecutor {
         OneSignalClient.shared().execute(request) { _ in
             // On success, check if the current user is the same as the one in the request
             // If user has changed, don't hydrate, except for push subscription
-            OneSignalUserManagerImpl.user.pushSubscriptionModel.hydrate(["subscription_id": "0123456789"]) // Mocked
+            OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(["subscription_id": "0123456789"]) // Mocked
 
-            let modelInStore = OneSignalUserManagerImpl.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
+            let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
 
             guard modelInStore?.modelId == request.identityModel.modelId else {
                 return
@@ -127,7 +127,7 @@ class OSUserExecutor {
     static func transferPushSubscriptionTo(aliasLabel: String, aliasId: String, retainPreviousUser: Bool?) {
         // TODO: Where to get pushSubscriptionModel for this request
         let request = OSRequestTransferSubscription(
-            subscriptionModel: OneSignalUserManagerImpl.user.pushSubscriptionModel,
+            subscriptionModel: OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel,
             aliasLabel: aliasLabel,
             aliasId: aliasId,
             identityModel: nil,

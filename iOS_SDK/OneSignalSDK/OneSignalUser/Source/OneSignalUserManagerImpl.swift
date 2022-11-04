@@ -32,44 +32,44 @@ import OneSignalOSCore
  Public-facing API to access the User Manager.
  */
 @objc protocol OneSignalUserManager {
-    static var User: OSUser.Type { get }
-    static func login(externalId: String, token: String?)
-    static func logout()
+    var User: OSUser { get }
+    func login(externalId: String, token: String?)
+    func logout()
 }
 
 /**
  This is the user interface exposed to the public.
  */
 @objc public protocol OSUser {
-    static var pushSubscription: OSPushSubscription.Type { get }
+    var pushSubscription: OSPushSubscription { get }
     // Aliases
-    static func addAlias(label: String, id: String)
-    static func addAliases(_ aliases: [String: String])
-    static func removeAlias(_ label: String)
-    static func removeAliases(_ labels: [String])
+    func addAlias(label: String, id: String)
+    func addAliases(_ aliases: [String: String])
+    func removeAlias(_ label: String)
+    func removeAliases(_ labels: [String])
     // Tags
-    static func setTag(key: String, value: String)
-    static func setTags(_ tags: [String: String])
-    static func removeTag(_ tag: String)
-    static func removeTags(_ tags: [String])
+    func setTag(key: String, value: String)
+    func setTags(_ tags: [String: String])
+    func removeTag(_ tag: String)
+    func removeTags(_ tags: [String])
     // Outcomes
-    static func setOutcome(_ name: String)
-    static func setUniqueOutcome(_ name: String)
-    static func setOutcome(name: String, value: Float)
+    func setOutcome(_ name: String)
+    func setUniqueOutcome(_ name: String)
+    func setOutcome(name: String, value: Float)
     // Email
-    static func addEmail(_ email: String)
-    static func removeEmail(_ email: String) -> Bool
+    func addEmail(_ email: String)
+    func removeEmail(_ email: String) -> Bool
     // SMS
-    static func addSmsNumber(_ number: String)
-    static func removeSmsNumber(_ number: String) -> Bool
+    func addSmsNumber(_ number: String)
+    func removeSmsNumber(_ number: String) -> Bool
     // Triggers
-    static func setTrigger(key: String, value: String)
-    static func setTriggers(_ triggers: [String: String])
-    static func removeTrigger(_ trigger: String)
-    static func removeTriggers(_ triggers: [String])
+    func setTrigger(key: String, value: String)
+    func setTriggers(_ triggers: [String: String])
+    func removeTrigger(_ trigger: String)
+    func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
-    static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
+    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
     // TODO: Add setLanguage
 }
 
@@ -77,18 +77,15 @@ import OneSignalOSCore
  This is the push subscription interface exposed to the public.
  */
 @objc public protocol OSPushSubscription {
-    static var subscriptionId: String? { get }
-    static var token: String? { get }
-    static var enabled: Bool { get set }
+    var subscriptionId: String? { get }
+    var token: String? { get }
+    var enabled: Bool { get set }
 }
 
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
-    static var user: OSUserInternal {
-        if !hasCalledStart {
-            start()
-        }
-
+    @objc public static let sharedInstance = OneSignalUserManagerImpl().start()
+    var user: OSUserInternal {
         if let user = _user {
             return user
         }
@@ -99,36 +96,30 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return user
     }
 
-    private static var _user: OSUserInternal?
-
-    // Track if start() has been called because it should only be called once.
-    private static var hasCalledStart = false
+    private var _user: OSUserInternal?
 
     // has Identity, Properties, and Subscription Model Stores
-    static let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
-    static let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
-    static let subscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_SUBSCRIPTION_MODEL_STORE_KEY)
+    let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
+    let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
+    let subscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_SUBSCRIPTION_MODEL_STORE_KEY)
 
-    static let identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
-    static let propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
-    static let subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
-
+    // These must be initialized in init()
+    let identityModelStoreListener: OSIdentityModelStoreListener
+    let propertiesModelStoreListener: OSPropertiesModelStoreListener
+    let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
+    
     // has Property and Identity operation executors
-    static let propertyExecutor = OSPropertyOperationExecutor()
-    static let identityExecutor = OSIdentityOperationExecutor()
-    static let subscriptionExecutor = OSSubscriptionOperationExecutor()
+    let propertyExecutor = OSPropertyOperationExecutor()
+    let identityExecutor = OSIdentityOperationExecutor()
+    let subscriptionExecutor = OSSubscriptionOperationExecutor()
 
-    // TODO: Call this function around app init
-    /**
-     This method is called around app init, and should only be called once. Use flag `hasCalledStart` to track.
-     If `.user` is accessed and we have not called this method yet, we will call this method first.
-     */
-    public static func start() {
-        guard !hasCalledStart else {
-            return
-        }
-        hasCalledStart = true
+    private override init() {
+        self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
+        self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
+        self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
+    }
 
+    private func start() -> OneSignalUserManagerImpl {
         print("🔥 OneSignalUserManagerImpl start()")
 
         // Load user from cache, if any
@@ -149,10 +140,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
+        return self
     }
 
     @objc
-    public static func login(externalId: String, token: String?) {
+    public func login(externalId: String, token: String?) {
         guard externalId != "" else {
             // Log error
             return
@@ -161,7 +153,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _ = _login(externalId: externalId, token: token)
     }
 
-    private static func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
+    private func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
         // Check if the existing user is the same one being logged in. If so, return.
         if let user = _user {
             guard user.identityModel.externalId != externalId || externalId == nil else {
@@ -184,7 +176,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      1. This externalId already exists on another user. We create a new SDK user and fetch that user's information.
      2. This externalId doesn't exist on any users. We successfully identify the user, but we still create a new SDK user and fetch to update it.
      */
-    private static func identifyUser(externalId: String, currentUser: OSUserInternal) {
+    private func identifyUser(externalId: String, currentUser: OSUserInternal) {
         // Get the identity model of the current user
         let identityModelToIdentify = user.identityModel
 
@@ -200,7 +192,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         )
     }
 
-    private static func _login(externalId: String?, token: String?) -> OSUserInternal {
+    private func _login(externalId: String?, token: String?) -> OSUserInternal {
         print("🔥 OneSignalUserManagerImpl private _login(\(externalId)) called")
 
         // If have token, validate token. Account for this being a requirement.
@@ -221,12 +213,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      The SDK needs to have a user at all times, so this method will create a new anonymous user.
      */
     @objc
-    public static func logout() {
+    public func logout() {
         _user = nil
         createUserIfNil()
     }
 
-    private static func createUserIfNil() {
+    private func createUserIfNil() {
         _ = self.user
     }
 
@@ -234,7 +226,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      Notifies observers that the user will be changed. Responses include model stores clearing their User Defaults
      and the operation repo flushing the current (soon to be old) user's operations.
      */
-    private static func prepareForNewUser() {
+    private func prepareForNewUser() {
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
         // This store MUST be cleared, Identity and Properties do not.
@@ -244,7 +236,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     /**
      Creates and sets a blank new SDK user with the provided externalId, if any.
      */
-    private static func setNewInternalUser(_ externalId: String?) -> OSUserInternal {
+    private func setNewInternalUser(_ externalId: String?) -> OSUserInternal {
         let aliases: [String: String]?
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]
@@ -268,59 +260,59 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 }
 
 extension OneSignalUserManagerImpl: OSUser {
-    public static var User: OSUser.Type {
+    public var User: OSUser {
         return self
     }
 
-    public static var pushSubscription: OSPushSubscription.Type {
+    public var pushSubscription: OSPushSubscription {
         return self
     }
 
-    public static func addAlias(label: String, id: String) {
+    public func addAlias(label: String, id: String) {
         user.addAliases([label: id])
     }
 
-    public static func addAliases(_ aliases: [String: String]) {
+    public func addAliases(_ aliases: [String: String]) {
         user.addAliases(aliases)
     }
 
-    public static func removeAlias(_ label: String) {
+    public func removeAlias(_ label: String) {
         user.removeAliases([label])
     }
 
-    public static func removeAliases(_ labels: [String]) {
+    public func removeAliases(_ labels: [String]) {
         user.removeAliases(labels)
     }
 
-    public static func setTag(key: String, value: String) {
+    public func setTag(key: String, value: String) {
         user.setTags([key: value])
     }
 
-    public static func setTags(_ tags: [String: String]) {
+    public func setTags(_ tags: [String: String]) {
         user.setTags(tags)
     }
 
-    public static func removeTag(_ tag: String) {
+    public func removeTag(_ tag: String) {
         user.removeTags([tag])
     }
 
-    public static func removeTags(_ tags: [String]) {
+    public func removeTags(_ tags: [String]) {
         user.removeTags(tags)
     }
 
-    public static func setOutcome(_ name: String) {
+    public func setOutcome(_ name: String) {
         user.setOutcome(name)
     }
 
-    public static func setUniqueOutcome(_ name: String) {
+    public func setUniqueOutcome(_ name: String) {
         user.setUniqueOutcome(name)
     }
 
-    public static func setOutcome(name: String, value: Float) {
+    public func setOutcome(name: String, value: Float) {
         user.setOutcome(name: name, value: value)
     }
 
-    public static func addEmail(_ email: String) {
+    public func addEmail(_ email: String) {
         // Check if is valid email?
         // Check if this email already exists on this User?
         createUserIfNil()
@@ -338,13 +330,13 @@ extension OneSignalUserManagerImpl: OSUser {
      This will be a no-op and no request will be made.
      Error handling needs to be implemented in the future.
      */
-    public static func removeEmail(_ email: String) -> Bool {
+    public func removeEmail(_ email: String) -> Bool {
         // Check if is valid email?
         createUserIfNil()
         return self.subscriptionModelStore.remove(email)
     }
 
-    public static func addSmsNumber(_ number: String) {
+    public func addSmsNumber(_ number: String) {
         // Check if is valid SMS?
         // Check if this SMS already exists on this User?
         createUserIfNil()
@@ -362,43 +354,43 @@ extension OneSignalUserManagerImpl: OSUser {
      This will be a no-op and no request will be made.
      Error handling needs to be implemented in the future.
      */
-    public static func removeSmsNumber(_ number: String) -> Bool {
+    public func removeSmsNumber(_ number: String) -> Bool {
         // Check if is valid SMS?
         createUserIfNil()
         return self.subscriptionModelStore.remove(number)
     }
 
-    public static func setTrigger(key: String, value: String) {
+    public func setTrigger(key: String, value: String) {
         user.setTrigger(key: key, value: value)
     }
 
-    public static func setTriggers(_ triggers: [String: String]) {
+    public func setTriggers(_ triggers: [String: String]) {
         user.setTriggers(triggers)
     }
 
-    public static func removeTrigger(_ trigger: String) {
+    public func removeTrigger(_ trigger: String) {
         user.removeTrigger(trigger)
     }
 
-    public static func removeTriggers(_ triggers: [String]) {
+    public func removeTriggers(_ triggers: [String]) {
         user.removeTriggers(triggers)
     }
 
-    public static func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
+    public func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
         user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
     }
 }
 
 extension OneSignalUserManagerImpl: OSPushSubscription {
-    public static var subscriptionId: String? {
+    public var subscriptionId: String? {
         user.pushSubscriptionModel.subscriptionId
     }
 
-    public static var token: String? {
+    public var token: String? {
         user.pushSubscriptionModel.address
     }
 
-    public static var enabled: Bool {
+    public var enabled: Bool {
         get {
             user.pushSubscriptionModel.enabled
         }
@@ -407,7 +399,7 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         }
     }
 
-    static func setPushToken(_ token: String) {
+    func setPushToken(_ token: String) {
         createUserIfNil()
         user.pushSubscriptionModel.address = token
         // Communicate to OSUserExecutor to make any pending CreateUser requests waiting on token
