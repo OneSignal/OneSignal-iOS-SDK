@@ -74,7 +74,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 deltas: nil,
                 refreshDeviceMetadata: false, // Sort this out.
                 modelToUpdate: model,
-                identityModel: OneSignalUserManagerImpl.user.identityModel // TODO: Make sure this is ok
+                identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
             )
             enqueueRequest(request)
         }
