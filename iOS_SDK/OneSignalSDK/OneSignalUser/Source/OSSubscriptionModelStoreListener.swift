@@ -45,6 +45,9 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
         )
     }
 
+    /**
+     The `property` and `value` is not needed for a remove operation, so just pass in some model data as placeholders.
+     */
     func getRemoveModelDelta(_ model: OSSubscriptionModel) -> OSDelta? {
         return OSDelta(
             name: OS_REMOVE_SUBSCRIPTION_DELTA,
