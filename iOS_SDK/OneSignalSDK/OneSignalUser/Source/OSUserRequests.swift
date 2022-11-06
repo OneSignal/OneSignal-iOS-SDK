@@ -109,6 +109,7 @@ class OSUserExecutor {
         OneSignalClient.shared().execute(request) { _ in
             // the anonymous user has been identified, still need to Fetch User + Transfer Push Sub
             fetchUserByExternalId(externalId: request.aliasId, identityModel: request.identityModelToUpdate)
+            // TODO: Don't need to transfer push sub, confirm.
             transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
             executePendingRequests() // TODO: Here or after fetch or after transfer?
 

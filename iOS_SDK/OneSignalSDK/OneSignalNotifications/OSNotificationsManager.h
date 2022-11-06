@@ -34,13 +34,14 @@
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+
 /**
  Public API.
  */
 @protocol OSNotifications <NSObject>
 
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block; // Move -> NotifManager
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block; // Move -> NotifManager
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)requestPermission:(OSUserResponseBlock)block;
 + (void)requestPermission:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
