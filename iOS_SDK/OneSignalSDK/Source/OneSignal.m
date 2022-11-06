@@ -1259,7 +1259,7 @@ static BOOL _registerUserSuccessful = false;
     }
 }
 
-//TODO: move to um?
+// TODO: Move to OSNotificationsManager instead of User Module, because the errors are beyond the scope of just the push subscription
 + (void)setSubscriptionErrorStatus:(int)errorType {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"setSubscriptionErrorStatus: %d", errorType]];
     

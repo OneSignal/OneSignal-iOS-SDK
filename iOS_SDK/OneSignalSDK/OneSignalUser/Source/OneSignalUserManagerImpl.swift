@@ -62,6 +62,7 @@ import OneSignalOSCore
     // SMS
     func addSmsNumber(_ number: String)
     func removeSmsNumber(_ number: String) -> Bool
+    // TODO: Remove triggers from User Module
     // Triggers
     func setTrigger(key: String, value: String)
     func setTriggers(_ triggers: [String: String])
@@ -205,7 +206,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return self.user
         }
 
-        // Logging into anon -> anon, identified -> anon, or identified -> identified
+        // Logging into anon -> anon, identified -> anon, identified -> identified, or nil -> any user
         return createNewUser(externalId: externalId, token: token)
     }
 
