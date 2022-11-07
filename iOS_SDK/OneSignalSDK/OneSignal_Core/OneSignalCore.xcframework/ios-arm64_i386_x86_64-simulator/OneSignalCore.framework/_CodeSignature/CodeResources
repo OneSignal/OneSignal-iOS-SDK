@@ -46,7 +46,7 @@
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		fRkuK8n4cqoGLUlDRq8xc4VIB2I=
+		ajVYzXVC9IkL7oyHfc0J2laVSRk=
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
@@ -74,7 +74,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		mal+9YL1kecErsfLDrmJsGNbIV8=
+		BN843dUegzo7RmIO7U53A1Ph2sI=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -197,11 +197,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			fRkuK8n4cqoGLUlDRq8xc4VIB2I=
+			ajVYzXVC9IkL7oyHfc0J2laVSRk=
 			</data>
 			<key>hash2</key>
 			<data>
-			VyQrw0aZfryMun+rTRzxcBMdeAGvVlMz9eh/amNmqoE=
+			xoVJg4l8E0EvDm79sRT+FChpAE7ID0av1BwIlp6PuuM=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCore.h</key>
