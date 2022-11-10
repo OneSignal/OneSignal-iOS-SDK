@@ -317,7 +317,7 @@ static BOOL _pushDisabled = false;
     if (!_appId)
         return;
     
-    //[OneSignal updateDeviceToken:parsedDeviceToken]; TODO: Send to UM
+    [self.delegate setPushToken:parsedDeviceToken];
 }
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {

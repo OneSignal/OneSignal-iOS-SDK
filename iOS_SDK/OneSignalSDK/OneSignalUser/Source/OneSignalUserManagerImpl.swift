@@ -27,6 +27,7 @@
 
 import OneSignalCore
 import OneSignalOSCore
+import OneSignalNotifications
 
 /**
  Public-facing API to access the User Manager.
@@ -123,6 +124,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     private func start() -> OneSignalUserManagerImpl {
         print("🔥 OneSignalUserManagerImpl start()")
+
+        OSNotificationsManager.delegate = self
 
         // Load user from cache, if any
         // Corrupted state if any of these models exist without the others
@@ -414,10 +417,18 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
     }
 }
 
-    func setPushToken(_ token: String) {
-        createUserIfNil()
-        user.pushSubscriptionModel.address = token
-        // Communicate to OSUserExecutor to make any pending CreateUser requests waiting on token
-        OSUserExecutor.executePendingRequests()
+extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
+    // doesnt need to live on push sub model, only sent to backend
+    // check if this affects the subscription observers or permission observers
+    public func updateNotificationTypes(_ notificationTypes: Int32) {
+        user.pushSubscriptionModel.notificationTypes = Int(notificationTypes)
+    }
+
+    public func setPushToken(_ pushToken: String) {
+        user.pushSubscriptionModel.address = pushToken
+    }
+
+    public func setAccepted(_ inAccepted: Bool) {
+        user.pushSubscriptionModel._accepted = inAccepted
     }
 }

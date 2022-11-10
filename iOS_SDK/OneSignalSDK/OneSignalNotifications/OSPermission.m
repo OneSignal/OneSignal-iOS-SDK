@@ -229,6 +229,8 @@
         OSNotificationsManager.lastPermissionState = [state copy];
         [OSNotificationsManager.lastPermissionState persistAsFrom];
     }
+    // Update the push subscription's _accepted property
+    [OSNotificationsManager.delegate setAccepted:state.accepted];
 }
 
 @end
