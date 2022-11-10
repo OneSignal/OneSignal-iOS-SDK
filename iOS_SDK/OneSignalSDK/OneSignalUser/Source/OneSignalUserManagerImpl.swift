@@ -271,9 +271,22 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
 
         // TODO: Push Subscription logic
-
-        let pushSubscription = OSSubscriptionModel(type: .push, address: nil, enabled: false, changeNotifier: OSEventProducer())
-
+        // Should we set it up with push sub information we already know
+        // Or start with a blank push sub (no subscription_id) and hydrate subscription_id from server response
+        // TODO: We will have to save subscription_id and push_token to user defaults when we get them
+        let sharedUserDefaults = OneSignalUserDefaults.initShared()
+        let _accepted = OSNotificationsManager.currentPermissionState.accepted
+        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
+        let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
+        // let _isPushDisabled = standardUserDefaults.keyExists(OSUD_USER_SUBSCRIPTION_TO)
+        
+        let pushSubscription = OSSubscriptionModel(type: .push,
+                                                      address: token,
+                                                      subscriptionId: subscriptionId,
+                                                      accepted: _accepted,
+                                                      isDisabled: false,
+                                                      changeNotifier: OSEventProducer())
+        
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
     }
