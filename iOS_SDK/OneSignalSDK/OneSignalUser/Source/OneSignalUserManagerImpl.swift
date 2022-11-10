@@ -320,7 +320,9 @@ extension OneSignalUserManagerImpl: OSUser {
         let model = OSSubscriptionModel(
             type: .email,
             address: email,
-            enabled: true,
+            subscriptionId: nil,
+            accepted: true,
+            isDisabled: false,
             changeNotifier: OSEventProducer()
         )
         self.subscriptionModelStore.add(id: email, model: model)
@@ -344,7 +346,9 @@ extension OneSignalUserManagerImpl: OSUser {
         let model = OSSubscriptionModel(
             type: .sms,
             address: number,
-            enabled: true,
+            subscriptionId: nil,
+            accepted: true,
+            isDisabled: false,
             changeNotifier: OSEventProducer()
         )
         self.subscriptionModelStore.add(id: number, model: model)

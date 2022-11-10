@@ -61,31 +61,94 @@ enum OSSubscriptionType: String {
  */
 class OSSubscriptionModel: OSModel {
     var type: OSSubscriptionType
-    var address: String? // This is token on push subs so must remain Optional
-    var subscriptionId: String? // Where from
-    var enabled: Bool {
-        didSet { // TODO: Revisit this for observers
-            didSetEnabledHelper(oldValue: oldValue, newValue: enabled)
+    var address: String? { // This is token on push subs so must remain Optional
+        didSet {
+            guard address != oldValue else {
+                return
+            }
+            self.set(property: "address", newValue: address)
+            
+            guard self.type == .push else {
+                return
+            }
+            
+            // Cache the push token as it persists across users on the device?
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_TOKEN_TO, withValue: address)
+
+            // TODO: When token changes, notification_types does too
+            // OSNotificationsManager.recalculateNotificationTypes()
+            firePushSubscriptionChanged(.address(oldValue))
+        }
+    }
+    
+    // Set via server response
+    var subscriptionId: String? {
+        didSet {
+            guard subscriptionId != oldValue else {
+                return
+            }
+            self.set(property: "subscriptionId", newValue: subscriptionId)
+            
+            guard self.type == .push else {
+                return
+            }
+
+            // Cache the subscriptionId as it persists across users on the device??
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PLAYER_ID_TO, withValue: subscriptionId)
+            
+            // TODO: update notification_types here?
+
+            firePushSubscriptionChanged(.subscriptionId(oldValue))
         }
     }
 
-    /**
-     This helper function is for the enabled property of push subscriptions, in order to address observers.
-     */
-    func didSetEnabledHelper(oldValue: Bool, newValue: Bool) {
-        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: oldValue)
-        _ = OSPushSubscriptionState(subscriptionId: self.subscriptionId, token: self.address, enabled: newValue)
-
-        self.set(property: "enabled", newValue: newValue)
-        // TODO: UM trigger observers.onOSPushSubscriptionChanged(previous: oldState, current: newState)
-        print("🔥 didSet pushSubscription.enabled from \(oldValue) to \(newValue)")
+    var enabled: Bool { // Note: This behaves like the current `isSubscribed`
+        get {
+            return calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
+        }
     }
+    
+    // Push Subscription Only
+    var notificationTypes: Int?
+    
+    // This is set by the permission state changing
+    // Defaults to true for email & SMS, defaults to false for push
+    var _accepted: Bool {
+        didSet {
+            guard self.type == .push && _accepted != oldValue else {
+                return
+            }
+            
+            // TODO: update notification_types here?
 
-    // When a Subscription is initialized, it will not have a subscriptionId until a request to the backend is made.
-    init(type: OSSubscriptionType, address: String?, enabled: Bool, changeNotifier: OSEventProducer<OSModelChangedHandler>) {
+            firePushSubscriptionChanged(.accepted(oldValue))
+        }
+    }
+    
+    // Set by the app developer when they set User.pushSubscription.enabled
+    // TODO: update notification_types here?
+    var _isDisabled: Bool { // Default to false for all subscriptions
+        didSet {
+            guard self.type == .push && _isDisabled != oldValue else {
+                return
+            }
+            firePushSubscriptionChanged(.isDisabled(oldValue))
+        }
+    }
+    
+    // When a Subscription is initialized, it may not have a subscriptionId until a request to the backend is made.
+    init(type: OSSubscriptionType,
+         address: String?,
+         subscriptionId: String?,
+         accepted: Bool,
+         isDisabled: Bool,
+         changeNotifier: OSEventProducer<OSModelChangedHandler>)
+    {
         self.type = type
         self.address = address
-        self.enabled = enabled
+        self.subscriptionId = subscriptionId
+        _accepted = accepted
+        _isDisabled = isDisabled
         super.init(changeNotifier: changeNotifier)
     }
 
@@ -94,7 +157,8 @@ class OSSubscriptionModel: OSModel {
         coder.encode(type.rawValue, forKey: "type") // Encodes as String
         coder.encode(address, forKey: "address")
         coder.encode(subscriptionId, forKey: "subscriptionId")
-        coder.encode(enabled, forKey: "enabled")
+        coder.encode(_accepted, forKey: "_accepted")
+        coder.encode(_isDisabled, forKey: "_isDisabled")
     }
 
     required init?(coder: NSCoder) {
@@ -108,7 +172,8 @@ class OSSubscriptionModel: OSModel {
         self.type = type
         self.address = coder.decodeObject(forKey: "address") as? String
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
-        self.enabled = coder.decodeBool(forKey: "enabled")
+        self._accepted = coder.decodeBool(forKey: "_accepted")
+        self._isDisabled = coder.decodeBool(forKey: "_isDisabled")
         super.init(coder: coder)
     }
 
