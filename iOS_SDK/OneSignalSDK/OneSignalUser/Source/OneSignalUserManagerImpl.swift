@@ -80,7 +80,8 @@ import OneSignalOSCore
 @objc public protocol OSPushSubscription {
     var subscriptionId: String? { get }
     var token: String? { get }
-    var enabled: Bool { get set }
+    var enabled: Bool { get }
+    func enable(_ enable: Bool) -> Bool
 }
 
 @objc
@@ -395,14 +396,23 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         user.pushSubscriptionModel.address
     }
 
+    /**
+     Get the `enabled` state.
+     */
     public var enabled: Bool {
         get {
             user.pushSubscriptionModel.enabled
         }
-        set {
-            user.pushSubscriptionModel.enabled = newValue
-        }
     }
+    
+    /**
+     Set the `enabled` state. After being set, we return the `enabled` state, as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
+     */
+    public func enable(_ enable: Bool) -> Bool {
+        user.pushSubscriptionModel._isDisabled = !enable
+        return user.pushSubscriptionModel.enabled
+    }
+}
 
     func setPushToken(_ token: String) {
         createUserIfNil()
