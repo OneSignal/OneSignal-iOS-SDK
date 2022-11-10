@@ -83,6 +83,8 @@ import OneSignalNotifications
     var token: String? { get }
     var enabled: Bool { get }
     func enable(_ enable: Bool) -> Bool
+    func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState
+    func removeObserver(_ observer: OSPushSubscriptionObserver)
 }
 
 @objc
@@ -100,6 +102,19 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private var _user: OSUserInternal?
+
+    // Push Subscription
+    private var _pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges>?
+    var pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges> {
+        if let observer = _pushSubscriptionStateChangesObserver {
+            return observer
+        }
+        let pushSubscriptionStateChangesObserver = OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges>(change: #selector(OSPushSubscriptionObserver.onOSPushSubscriptionChanged(stateChanges:)))
+        _pushSubscriptionStateChangesObserver = pushSubscriptionStateChangesObserver
+
+        // TODO: What's going on, fix this.
+        return pushSubscriptionStateChangesObserver ?? OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges>(change: #selector(OSPushSubscriptionObserver.onOSPushSubscriptionChanged(stateChanges:)))
+    }
 
     // has Identity, Properties, and Subscription Model Stores
     let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
@@ -391,6 +406,16 @@ extension OneSignalUserManagerImpl: OSUser {
 }
 
 extension OneSignalUserManagerImpl: OSPushSubscription {
+    
+    public func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState {
+        self.pushSubscriptionStateChangesObserver.addObserver(observer)
+        return user.pushSubscriptionModel.currentPushSubscriptionState
+    }
+    
+    public func removeObserver(_ observer: OSPushSubscriptionObserver) {
+        self.pushSubscriptionStateChangesObserver.removeObserver(observer)
+    }
+    
     public var subscriptionId: String? {
         user.pushSubscriptionModel.subscriptionId
     }
