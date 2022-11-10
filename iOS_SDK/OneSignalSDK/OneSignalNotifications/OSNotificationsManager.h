@@ -51,7 +51,19 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 @end
 
+
+@protocol OneSignalNotificationsDelegate <NSObject>
+
+- (void)updateNotificationTypes:(int)notificationTypes;
+- (void)setPushToken:(NSString * _Nonnull)pushToken;
+- (void)setAccepted:(BOOL)inAccepted;
+
+@end
+
+
 @interface OSNotificationsManager : NSObject <OSNotifications>
+
+@property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
 
 + (Class<OSNotifications>)Notifications;
 
