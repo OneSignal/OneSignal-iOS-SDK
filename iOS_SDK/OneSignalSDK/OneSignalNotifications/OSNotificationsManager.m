@@ -185,6 +185,14 @@ static BOOL _pushDisabled = false;
     _lastPermissionState = lastPermissionState;
 }
 
++ (BOOL)permission {
+    return self.currentPermissionState.reachable;
+}
+
++ (BOOL)canRequestPermission {
+    return !self.currentPermissionState.hasPrompted;
+}
+
 + (void)requestPermission:(OSUserResponseBlock)block {
     NSLog(@"🔥 requestPermission:(OSUserResponseBlock)block called");
     // return if the user has not granted privacy permissions

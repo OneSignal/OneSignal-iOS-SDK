@@ -39,7 +39,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
  Public API.
  */
 @protocol OSNotifications <NSObject>
-
++ (BOOL)permission;
++ (BOOL)canRequestPermission;
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)requestPermission:(OSUserResponseBlock)block;
