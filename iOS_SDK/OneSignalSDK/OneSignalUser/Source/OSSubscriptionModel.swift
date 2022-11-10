@@ -182,3 +182,25 @@ class OSSubscriptionModel: OSModel {
         // TODO: Update Model properties with the response
     }
 }
+
+// Push Subscription related
+extension OSSubscriptionModel {
+    // Only used for the push subscription model
+    var currentPushSubscriptionState: OSPushSubscriptionState {
+        return OSPushSubscriptionState(subscriptionId: self.subscriptionId,
+                                       token: self.address,
+                                       enabled: self.enabled
+        )
+    }
+    
+    func calculateIsSubscribed(subscriptionId: String?, address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
+        return (self.subscriptionId != nil) && (self.address != nil) && _accepted && _isDisabled
+    }
+    
+    enum OSPushPropertyChanged {
+        case subscriptionId(String?)
+        case accepted(Bool)
+        case isDisabled(Bool)
+        case address(String?)
+    }
+}
