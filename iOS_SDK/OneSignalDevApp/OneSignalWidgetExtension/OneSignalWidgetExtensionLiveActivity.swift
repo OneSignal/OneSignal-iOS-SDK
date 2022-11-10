@@ -33,7 +33,7 @@ struct OneSignalWidgetExtensionLiveActivity: Widget {
                 }
                 Spacer()
             }
-            .activitySystemActionForegroundColor(.white)
+            .activitySystemActionForegroundColor(.black)
             .activityBackgroundTint(.white)
         } dynamicIsland: { context in
             DynamicIsland {
