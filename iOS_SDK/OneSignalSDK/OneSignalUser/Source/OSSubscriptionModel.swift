@@ -32,7 +32,7 @@ import OneSignalOSCore
 // MARK: - Push Subscription Specific
 
 @objc public protocol OSPushSubscriptionObserver { //  weak reference?
-    @objc func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState)
+    @objc func onOSPushSubscriptionChanged(stateChanges: OSPushSubscriptionStateChanges)
 }
 
 @objc
@@ -45,6 +45,18 @@ public class OSPushSubscriptionState: NSObject {
         self.subscriptionId = subscriptionId
         self.token = token
         self.enabled = enabled
+    }
+}
+
+@objc
+public class OSPushSubscriptionStateChanges: NSObject {
+    @objc public let to: OSPushSubscriptionState
+    @objc public let from: OSPushSubscriptionState
+    // TODO: Add a toDictionary or jsonRepresentation method
+
+    init(to: OSPushSubscriptionState, from: OSPushSubscriptionState) {
+        self.to = to
+        self.from = from
     }
 }
 
@@ -202,5 +214,39 @@ extension OSSubscriptionModel {
         case accepted(Bool)
         case isDisabled(Bool)
         case address(String?)
+    }
+    
+    func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
+        var prevIsEnabled = true
+        var prevSubscriptionState = OSPushSubscriptionState(subscriptionId: "", token: "", enabled: true)
+        
+        switch changedProperty {
+        case .subscriptionId(let oldValue):
+            prevIsEnabled = calculateIsSubscribed(subscriptionId: oldValue, address: address, accepted: _accepted, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: oldValue, token: address, enabled: prevIsEnabled)
+        case .accepted(let oldValue):
+            prevIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: oldValue, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsEnabled)
+        case .isDisabled(let oldValue):
+            prevIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: oldValue)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsEnabled)
+        case .address(let oldValue):
+            prevIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: oldValue, enabled: prevIsEnabled)
+        }
+        
+        let newIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
+        
+        if (prevIsEnabled != newIsEnabled) {
+            self.set(property: "enabled", newValue: newIsEnabled)
+        }
+        
+        let newSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: newIsEnabled)
+
+        let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
+        
+        // TODO: Don't fire observer until server is udated
+        print("🔥 firePushSubscriptionChanged from \(prevSubscriptionState) to \(newSubscriptionState)")
+        OneSignalUserManagerImpl.sharedInstance.pushSubscriptionStateChangesObserver.notifyChange(stateChanges)
     }
 }
