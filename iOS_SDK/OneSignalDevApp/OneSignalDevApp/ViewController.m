@@ -51,6 +51,25 @@
 
     self.infoLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.infoLabel.numberOfLines = 0;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)appDidBecomeActive:(NSNotification *)notification {
+    NSLog(@"did become active notification");
+}
+
+- (void)appWillEnterForeground:(NSNotification *)notification {
+    NSLog(@"will enter foreground notification");
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    if (@available(iOS 11.0, *)) {
+        [self setNeedsUpdateOfScreenEdgesDeferringSystemGestures];
+    } else {
+        // Fallback on earlier versions
+    }
 }
 
 - (void)changeAnimationState:(BOOL)animating {
@@ -241,6 +260,10 @@
             [self.view endEditing:YES];
         });
     }];
+}
+
+- (UIRectEdge)preferredScreenEdgesDeferringSystemGestures {
+    return UIRectEdgeBottom;
 }
 
 @end
