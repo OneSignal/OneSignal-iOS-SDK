@@ -593,16 +593,19 @@ static BOOL _isInAppMessagingPaused = false;
 
         // Add current dismissed messageId to seenInAppMessages set and save it to NSUserDefaults
         if (self.isInAppMessageShowing) {
-            if (displayed) {
-                [self onDidDismissInAppMessage:message];
-            }
             OSInAppMessageInternal *showingIAM = self.messageDisplayQueue.firstObject;
             [self.seenInAppMessages addObject:showingIAM.messageId];
             [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_SEEN_SET_KEY withValue:self.seenInAppMessages];
             [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Dismissing IAM save seenInAppMessages: %@", _seenInAppMessages]];
             // Remove dismissed IAM from messageDisplayQueue
             [self.messageDisplayQueue removeObjectAtIndex:0];
+            if (self.messageDisplayQueue.count < 1) {
+                [self hideWindow];
+            }
             [self persistInAppMessageForRedisplay:showingIAM];
+            if (displayed) {
+                [self onDidDismissInAppMessage:message];
+            }
         }
         // Reset the IAM viewController to prepare for next IAM if one exists
         self.viewController = nil;
