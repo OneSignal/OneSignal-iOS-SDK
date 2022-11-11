@@ -30,6 +30,7 @@
 
 #import "ViewController.h"
 #import "AppDelegate.h"
+#import "OneSignalExample-Swift.h"
 
 @implementation ViewController
 
@@ -241,6 +242,10 @@
             [self.view endEditing:YES];
         });
     }];
+}
+
+- (IBAction)startLiveActivity:(id)sender {
+    [LiveActivityController createActivity];
 }
 
 @end
