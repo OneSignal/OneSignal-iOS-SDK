@@ -228,6 +228,9 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 #define ERROR_PUSH_NEVER_PROMPTED          -18
 #define ERROR_PUSH_PROMPT_NEVER_ANSWERED   -19
 
+#define DISABLED_FROM_REST_API_DEFAULT_REASON   -30
+#define NOTIFICATION_TYPE_DEFAULT               -99
+
 #define AUTH_STATUS_EPHEMERAL 4 //UNAuthorizationStatusEphemeral
 
 // 1 week in seconds
