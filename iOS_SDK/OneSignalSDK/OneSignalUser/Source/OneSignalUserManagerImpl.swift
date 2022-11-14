@@ -181,9 +181,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             }
         }
 
+        let pushSubscriptionModel = subscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
 
-        let newUser = setNewInternalUser(externalId)
+        let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
 
         OSUserExecutor.createUser(newUser)
         return self.user
@@ -201,8 +202,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let identityModelToIdentify = user.identityModel
 
         // Immediately drop the old user and set a new user in the SDK
+        let pushSubscriptionModel = subscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
-        let newUser = setNewInternalUser(externalId)
+        let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
 
         // Now proceed to identify the previous user
         OSUserExecutor.identifyUser(
@@ -256,7 +258,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     /**
      Creates and sets a blank new SDK user with the provided externalId, if any.
      */
-    private func setNewInternalUser(_ externalId: String?) -> OSUserInternal {
+    private func setNewInternalUser(externalId: String?, pushSubscriptionModel: OSSubscriptionModel?) -> OSUserInternal {
         let aliases: [String: String]?
         if let externalIdToUse = externalId {
             aliases = [OS_EXTERNAL_ID: externalIdToUse]
@@ -270,25 +272,28 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
         self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
 
-        // TODO: Push Subscription logic
-        // Should we set it up with push sub information we already know
-        // Or start with a blank push sub (no subscription_id) and hydrate subscription_id from server response
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
-        let sharedUserDefaults = OneSignalUserDefaults.initShared()
-        let _accepted = OSNotificationsManager.currentPermissionState.accepted
-        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
-        let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
-        // let _isPushDisabled = standardUserDefaults.keyExists(OSUD_USER_SUBSCRIPTION_TO)
 
-        let pushSubscription = OSSubscriptionModel(type: .push,
-                                                      address: token,
-                                                      subscriptionId: subscriptionId,
-                                                      accepted: _accepted,
-                                                      isDisabled: false,
-                                                      changeNotifier: OSEventProducer())
+        var pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
+
+        subscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
+    }
+    
+    func createDefaultPushSubscription() -> OSSubscriptionModel {
+        let sharedUserDefaults = OneSignalUserDefaults.initShared()
+        let _accepted = OSNotificationsManager.currentPermissionState.accepted
+        let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
+        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
+        
+        return OSSubscriptionModel(type: .push,
+                                   address: token,
+                                   subscriptionId: subscriptionId,
+                                   accepted: _accepted,
+                                   isDisabled: false,
+                                   changeNotifier: OSEventProducer())
     }
 }
 
