@@ -47,17 +47,28 @@ public class OSPushSubscriptionState: NSObject {
         self.token = token
         self.enabled = enabled
     }
+
+    func toDictionary() -> NSDictionary {
+        return [
+            "subscriptionId": subscriptionId,
+            "token": token,
+            "enabled": enabled
+        ]
+    }
 }
 
 @objc
 public class OSPushSubscriptionStateChanges: NSObject {
     @objc public let to: OSPushSubscriptionState
     @objc public let from: OSPushSubscriptionState
-    // TODO: Add a toDictionary or jsonRepresentation method
 
     init(to: OSPushSubscriptionState, from: OSPushSubscriptionState) {
         self.to = to
         self.from = from
+    }
+
+    func toDictionary() -> NSDictionary {
+        return ["from": from.toDictionary(), "to": to.toDictionary()]
     }
 }
 
