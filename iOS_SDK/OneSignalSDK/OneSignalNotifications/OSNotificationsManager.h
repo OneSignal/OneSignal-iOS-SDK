@@ -87,6 +87,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 + (BOOL)registerForAPNsToken;
 
++ (int)getNotificationTypes:(BOOL)pushDisabled;
 + (void)updateNotificationTypes:(int)notificationTypes;
 
 // Used to manage observers added by the app developer.
