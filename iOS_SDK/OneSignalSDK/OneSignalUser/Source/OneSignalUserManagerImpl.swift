@@ -447,11 +447,11 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
     }
 
     /**
-     Set the `enabled` state. After being set, we return the `enabled` state, as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
+     Set the `enabled` state. After being set, we retur whether this was successful  as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
      */
     public func enable(_ enable: Bool) -> Bool {
         user.pushSubscriptionModel._isDisabled = !enable
-        return user.pushSubscriptionModel.enabled
+        return user.pushSubscriptionModel.enabled != enable
     }
 }
 
