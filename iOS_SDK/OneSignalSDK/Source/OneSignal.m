@@ -770,26 +770,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
 
-//TODO: Delete/move with um
-+ (void)disablePush:(BOOL)disable {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"disablePush:"])
-        return;
-
-    NSString* value = nil;
-    if (disable)
-        value = @"no";
-    
-    [OneSignalUserDefaults.initStandard saveObjectForKey:OSUD_USER_SUBSCRIPTION_TO withValue:value];
-    
-    shouldDelaySubscriptionUpdate = true;
-    
-    self.currentSubscriptionState.isPushDisabled = disable;
-    
-    if (appId)
-        [OneSignal sendNotificationTypesUpdate];
-}
-
 + (void)setLocationShared:(BOOL)enable {
     let remoteController = [self getRemoteParamController];
     
@@ -1223,17 +1203,6 @@ static BOOL _registerUserSuccessful = false;
                                            onFailure:nil];
         [standardUserDefaults saveStringForKey:OSUD_LAST_MESSAGE_OPENED withValue:messageId];
     }
-}
-
-// TODO: Move to OSNotificationsManager instead of User Module, because the errors are beyond the scope of just the push subscription
-+ (void)setSubscriptionErrorStatus:(int)errorType {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"setSubscriptionErrorStatus: %d", errorType]];
-    
-    mSubscriptionStatus = errorType;
-    if (self.currentSubscriptionState.userId)
-        [self sendNotificationTypesUpdate];
-    else
-        [self registerUser];
 }
 
 // Called from the app's Notification Service Extension
