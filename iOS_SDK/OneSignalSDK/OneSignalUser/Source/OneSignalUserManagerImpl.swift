@@ -125,7 +125,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let identityModelStoreListener: OSIdentityModelStoreListener
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
-    
+
     // has Property and Identity operation executors
     let propertyExecutor = OSPropertyOperationExecutor()
     let identityExecutor = OSIdentityOperationExecutor()
@@ -279,14 +279,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
         // let _isPushDisabled = standardUserDefaults.keyExists(OSUD_USER_SUBSCRIPTION_TO)
-        
+
         let pushSubscription = OSSubscriptionModel(type: .push,
                                                       address: token,
                                                       subscriptionId: subscriptionId,
                                                       accepted: _accepted,
                                                       isDisabled: false,
                                                       changeNotifier: OSEventProducer())
-        
+
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
     }
@@ -419,16 +419,16 @@ extension OneSignalUserManagerImpl: OSUser {
 }
 
 extension OneSignalUserManagerImpl: OSPushSubscription {
-    
+
     public func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState {
         self.pushSubscriptionStateChangesObserver.addObserver(observer)
         return user.pushSubscriptionModel.currentPushSubscriptionState
     }
-    
+
     public func removeObserver(_ observer: OSPushSubscriptionObserver) {
         self.pushSubscriptionStateChangesObserver.removeObserver(observer)
     }
-    
+
     public var subscriptionId: String? {
         user.pushSubscriptionModel.subscriptionId
     }
@@ -445,7 +445,7 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
             user.pushSubscriptionModel.enabled
         }
     }
-    
+
     /**
      Set the `enabled` state. After being set, we return the `enabled` state, as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
      */
