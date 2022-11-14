@@ -55,7 +55,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 @protocol OneSignalNotificationsDelegate <NSObject>
 
-- (void)updateNotificationTypes:(int)notificationTypes;
+- (void)setNotificationTypes:(int)notificationTypes;
 - (void)setPushToken:(NSString * _Nonnull)pushToken;
 - (void)setAccepted:(BOOL)inAccepted;
 
@@ -87,7 +87,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 + (BOOL)registerForAPNsToken;
 
-//+ (void)updateNotificationTypes:(int)notificationTypes;
++ (void)updateNotificationTypes:(int)notificationTypes;
 
 // Used to manage observers added by the app developer.
 @property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;

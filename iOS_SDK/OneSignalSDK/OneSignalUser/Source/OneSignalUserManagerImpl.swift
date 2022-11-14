@@ -458,7 +458,7 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
 extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
     // doesnt need to live on push sub model, only sent to backend
     // check if this affects the subscription observers or permission observers
-    public func updateNotificationTypes(_ notificationTypes: Int32) {
+    public func setNotificationTypes(_ notificationTypes: Int32) {
         user.pushSubscriptionModel.notificationTypes = Int(notificationTypes)
     }
 
