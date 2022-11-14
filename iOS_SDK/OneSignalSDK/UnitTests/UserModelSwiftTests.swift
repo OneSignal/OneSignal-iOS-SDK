@@ -181,7 +181,7 @@ class UserModelSwiftTests: XCTestCase {
         // Sleep to allow the flush to be called 1 time.
         Thread.sleep(forTimeInterval: 6)
     }
-    
+
     /**
      Temp test.
      */
