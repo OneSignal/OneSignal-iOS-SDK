@@ -100,12 +100,7 @@ class OSSubscriptionModel: OSModel {
             // Cache the push token as it persists across users on the device?
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_TOKEN_TO, withValue: address)
 
-            // TODO: When token changes, notification_types does too (WIP)
-            // - If notificationTypes = -99 or > 0, that's fine, no change needed for it.
-            // - Otherwise set it to -99
-            if notificationTypes < 1 {
-                notificationTypes = Int(NOTIFICATION_TYPE_DEFAULT)
-            }
+            updateNotificationTypes()
 
             firePushSubscriptionChanged(.address(oldValue))
         }
@@ -126,9 +121,6 @@ class OSSubscriptionModel: OSModel {
             // Cache the subscriptionId as it persists across users on the device??
             OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PLAYER_ID_TO, withValue: subscriptionId)
 
-            // Update notification_types
-            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
-
             firePushSubscriptionChanged(.subscriptionId(oldValue))
         }
     }
@@ -148,23 +140,10 @@ class OSSubscriptionModel: OSModel {
             }
 
             // If _isDisabled is set, this supersedes as the value to send to server.
-            if _isDisabled && notificationTypes != Int(DISABLED_FROM_REST_API_DEFAULT_REASON) {
+            if _isDisabled && notificationTypes != -2 {
                 return
             }
-            // TODO: Validate `enabled`?
-            // - `enabled = true` then `notification_types` must be; `null`, `-99`, or a positive number.
-            // - `enabled = false` then `notification_types` must be; `null`, `-99`, or a value `0` or less.
-            if enabled {
-                guard notificationTypes == -1 || notificationTypes == Int(NOTIFICATION_TYPE_DEFAULT) || notificationTypes > 0 else {
-                    // Log error
-                    return
-                }
-            } else {
-                guard notificationTypes == -1 || notificationTypes == Int(NOTIFICATION_TYPE_DEFAULT) || notificationTypes < 1 else {
-                    // Log error
-                    return
-                }
-            }
+
             self.set(property: "notificationTypes", newValue: notificationTypes)
         }
     }
@@ -176,7 +155,7 @@ class OSSubscriptionModel: OSModel {
             guard self.type == .push && _accepted != oldValue else {
                 return
             }
-
+            updateNotificationTypes()
             firePushSubscriptionChanged(.accepted(oldValue))
         }
     }
@@ -187,8 +166,7 @@ class OSSubscriptionModel: OSModel {
             guard self.type == .push && _isDisabled != oldValue else {
                 return
             }
-            notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
-
+            updateNotificationTypes()
             firePushSubscriptionChanged(.isDisabled(oldValue))
         }
     }
@@ -199,8 +177,7 @@ class OSSubscriptionModel: OSModel {
          subscriptionId: String?,
          accepted: Bool,
          isDisabled: Bool,
-         changeNotifier: OSEventProducer<OSModelChangedHandler>)
-    {
+         changeNotifier: OSEventProducer<OSModelChangedHandler>) {
         self.type = type
         self.address = address
         self.subscriptionId = subscriptionId
@@ -250,8 +227,19 @@ extension OSSubscriptionModel {
         )
     }
 
+    // Calculates if the device is currently able to receive a push notification.
     func calculateIsSubscribed(subscriptionId: String?, address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
         return (self.subscriptionId != nil) && (self.address != nil) && _accepted && _isDisabled
+    }
+
+    // Calculates if push notifications are enabled on the device.
+    // Does not consider the existence of the subscription_id, as we send this in the request to create a push subscription.
+    func calculateIsEnabled(address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
+        return (self.address != nil) && _accepted && _isDisabled
+    }
+
+    func updateNotificationTypes() {
+        notificationTypes = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
     }
 
     enum OSPushPropertyChanged {
@@ -262,42 +250,41 @@ extension OSSubscriptionModel {
     }
 
     func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
+        var prevIsSubscribed = true
         var prevIsEnabled = true
         var prevSubscriptionState = OSPushSubscriptionState(subscriptionId: "", token: "", enabled: true)
 
         switch changedProperty {
         case .subscriptionId(let oldValue):
-            prevIsEnabled = calculateIsSubscribed(subscriptionId: oldValue, address: address, accepted: _accepted, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: oldValue, token: address, enabled: prevIsEnabled)
+            prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
+            prevIsSubscribed = calculateIsSubscribed(subscriptionId: oldValue, address: address, accepted: _accepted, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: oldValue, token: address, enabled: prevIsSubscribed)
 
         case .accepted(let oldValue):
-            prevIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: oldValue, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsEnabled)
+            prevIsEnabled = calculateIsEnabled(address: address, accepted: oldValue, isDisabled: _isDisabled)
+            prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: oldValue, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsSubscribed)
 
         case .isDisabled(let oldValue):
-            prevIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: oldValue)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsEnabled)
+            prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: oldValue)
+            prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: oldValue)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsSubscribed)
 
         case .address(let oldValue):
-            prevIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: oldValue, enabled: prevIsEnabled)
+            prevIsEnabled = calculateIsEnabled(address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
+            prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: oldValue, enabled: prevIsSubscribed)
         }
 
-        let newIsEnabled = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
+        let newIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
+
+        let newIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
 
         if prevIsEnabled != newIsEnabled {
             self.set(property: "enabled", newValue: newIsEnabled)
-            // TODO: `enabled` has changed, update notification_types
-            // If true: notification_types > 0 (otherwise default value of -99)
-            let types = Int(OSNotificationsManager.getNotificationTypes(_isDisabled))
-            if newIsEnabled && types < 1 { // This shouldn't be possible
-                notificationTypes = Int(NOTIFICATION_TYPE_DEFAULT)
-            } else {
-                notificationTypes = types
-            }
         }
 
-        let newSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: newIsEnabled)
+        let newSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: newIsSubscribed)
 
         let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
 

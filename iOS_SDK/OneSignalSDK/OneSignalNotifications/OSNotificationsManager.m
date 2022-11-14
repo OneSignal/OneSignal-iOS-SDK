@@ -390,7 +390,7 @@ static BOOL _pushDisabled = false;
 // Accounts for manual disabling by the app developer
 + (int)getNotificationTypes:(BOOL)pushDisabled {
     if (pushDisabled) {
-        return DISABLED_FROM_REST_API_DEFAULT_REASON;
+        return -2;
     }
     
     return [self getNotificationTypes];
