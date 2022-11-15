@@ -186,7 +186,6 @@ static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
 static LanguageContext* languageContext;
 
-BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
 
 static BOOL requiresUserIdAuth = false;
@@ -366,7 +365,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     hasSetLaunchOptions = false;
     initDone = false;
     usesAutoPrompt = false;
-    requestedProvisionalAuthorization = false;
     
     [OSNotificationsManager clearStatics];
     registeredWithApple = false;
@@ -653,7 +651,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (usesAutoPrompt || (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral)) {
         [self registerForPushNotifications];
     } else {
-        [self checkProvisionalAuthorizationStatus];
+        [OSNotificationsManager checkProvisionalAuthorizationStatus];
         [OSNotificationsManager registerForAPNsToken];
     }
 
@@ -668,25 +666,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         }];
     }
 }
-//TODO: move to notifications
-// Checks to see if we should register for APNS' new Provisional authorization
-// (also known as Direct to History).
-// This behavior is determined by the OneSignal Parameters request
-+ (void)checkProvisionalAuthorizationStatus {
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    BOOL usesProvisional = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION defaultValue:false];
-    
-    // if iOS parameters for this app have never downloaded, this method
-    // should return
-    if (!usesProvisional || requestedProvisionalAuthorization)
-        return;
-    
-    requestedProvisionalAuthorization = true;
-    
-    [OSNotificationsManager.osNotificationSettings registerForProvisionalAuthorization:nil];
-}
+
 //TODO: move to core?
 + (void)setRequiresPrivacyConsent:(BOOL)required {
     let remoteParamController = [self getRemoteParamController];
@@ -741,7 +721,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
             
-            [self checkProvisionalAuthorizationStatus];
+            [OSNotificationsManager checkProvisionalAuthorizationStatus];
         }
 
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])

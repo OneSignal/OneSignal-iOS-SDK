@@ -95,6 +95,8 @@
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
 static BOOL _waitingForApnsResponse = false;
 static BOOL _providesAppNotificationSettings = false;
+BOOL requestedProvisionalAuthorization = false;
+
 static int mSubscriptionStatus = -1;
 
 static NSMutableArray<OSNotificationOpenedResult*> *_unprocessedOpenedNotifis;
@@ -244,6 +246,25 @@ static NSString *_pushSubscriptionId;
         [self.osNotificationSettings registerForProvisionalAuthorization:block];
     else
         [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
+}
+
+// Checks to see if we should register for APNS' new Provisional authorization
+// (also known as Direct to History).
+// This behavior is determined by the OneSignal Parameters request
++ (void)checkProvisionalAuthorizationStatus {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
+    BOOL usesProvisional = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION defaultValue:false];
+    
+    // if iOS parameters for this app have never downloaded, this method
+    // should return
+    if (!usesProvisional || requestedProvisionalAuthorization)
+        return;
+    
+    requestedProvisionalAuthorization = true;
+    
+    [self.osNotificationSettings registerForProvisionalAuthorization:nil];
 }
 
 // iOS 12+ only
@@ -431,6 +452,7 @@ static NSString *_pushSubscriptionId;
     _waitingForApnsResponse = false;
     _currentPermissionState = nil;
     _lastPermissionState = nil;
+    requestedProvisionalAuthorization = false;
 
     // and more...
 }
