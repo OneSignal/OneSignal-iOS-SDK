@@ -232,8 +232,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSNotifications>)Notifications NS_REFINED_FOR_SWIFT;
 
 #pragma mark Initialization
-+ (void)setAppId:(NSString* _Nonnull)newAppId; // TODO: UM renamed to just 1 method: initialize()
-+ (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
