@@ -111,4 +111,5 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion;
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app deviceToken:(NSData *)inDeviceToken;
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err;
++ (void)checkProvisionalAuthorizationStatus;
 @end
