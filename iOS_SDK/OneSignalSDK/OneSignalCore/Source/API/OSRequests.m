@@ -500,11 +500,11 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
                      token:(NSString * _Nullable)token {
     let request = [OSRequestLiveActivityEnter new];
     let params = [NSMutableDictionary new];
-    params[@"subscription_id"] = appId; // pre-5.X.X
     params[@"push_token"] = token;
+    params[@"subscription_id"] = userId; // pre-5.X.X subscription_id = player_id = userId
     request.parameters = params;
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/enter", appId, activityId];
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token", appId, activityId];
     return request;
 }
 @end
@@ -514,11 +514,8 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
                      appId:(NSString * _Nonnull)appId
                 activityId:(NSString * _Nonnull)activityId{
     let request = [OSRequestLiveActivityExit new];
-    let params = [NSMutableDictionary new];
-    params[@"subscription_id"] = appId; // pre-5.X.X
-    request.parameters = params;
-    request.method = POST;
-    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/exit", appId, activityId];
+    request.method = DELETE;
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, activityId, userId];
     return request;
 }
 @end
