@@ -73,8 +73,6 @@
 @property (class) AppEntryAction appEntryState;
 @property (class) OSSessionManager* _Nonnull sessionManager;
 
-+ (OSPermissionSubscriptionState*_Nonnull)getPermissionSubscriptionState;
-
 + (OSPlayerTags *_Nonnull)getPlayerTags;
 
 @end
