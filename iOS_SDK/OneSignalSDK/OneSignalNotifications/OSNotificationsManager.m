@@ -167,9 +167,9 @@ static OSPermissionStateInternal* _lastPermissionState;
 
 static NSString *_pushToken;
 
-static BOOL _pushDisabled = false;
-+ (void)setPushDisabled:(BOOL)disabled {
-    _pushDisabled = disabled;
+static NSString *_pushSubscriptionId;
++ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
+    _pushSubscriptionId = pushSubscriptionId;
 }
 
 + (void)resetLocals {
@@ -197,7 +197,7 @@ static BOOL _pushDisabled = false;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptForPushNotificationsWithUserResponse:"])
         return;
     
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", _waitingForApnsResponse]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"requestPermission Called"]];
     
     self.currentPermissionState.hasPrompted = true;
     
@@ -322,7 +322,8 @@ static BOOL _pushDisabled = false;
 
     if (!_appId)
         return;
-    
+
+    _pushToken = parsedDeviceToken;
     [self.delegate setPushToken:parsedDeviceToken];
 }
 
@@ -542,7 +543,7 @@ static NSString *_lastnonActiveMessageId;
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
-    //[OneSignal submitNotificationOpened:messageId]; // TODO: either handle here or have UM handle it
+    [self submitNotificationOpened:messageId];
     
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
     
@@ -571,6 +572,28 @@ static NSString *_lastnonActiveMessageId;
 //    }
 
     [self handleNotificationAction:actionType actionID:actionID];
+}
+
++ (void)submitNotificationOpened:(NSString*)messageId {
+    // return if the user has not granted privacy permissions
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
+    //Keep track of the Id for the last message sent
+    NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
+    //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
+    if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:_pushSubscriptionId
+                                                                                             appId:_appId
+                                                                                         wasOpened:YES
+                                                                                         messageId:messageId
+                                                                                    withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
+                                           onSuccess:nil
+                                           onFailure:nil];
+        [standardUserDefaults saveStringForKey:OSUD_LAST_MESSAGE_OPENED withValue:messageId];
+    }
 }
 
 + (void)launchWebURL:(NSString*)openUrl {

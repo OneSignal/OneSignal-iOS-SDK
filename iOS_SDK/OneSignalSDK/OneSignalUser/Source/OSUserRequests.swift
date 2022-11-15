@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalNotifications
 
 /**
  Involved in the login process and responsible for Identify User and Create User.
@@ -70,6 +71,7 @@ class OSUserExecutor {
             // On success, check if the current user is the same as the one in the request
             // If user has changed, don't hydrate, except for push subscription
             OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(["subscription_id": "0123456789"]) // Mocked
+            OSNotificationsManager.setPushSubscriptionId("some_mocked_subscription_id")
 
             let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
 
