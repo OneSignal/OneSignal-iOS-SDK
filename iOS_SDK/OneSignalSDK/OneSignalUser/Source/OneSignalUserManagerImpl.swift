@@ -103,6 +103,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     private var _user: OSUserInternal?
 
+    @objc public var requiresUserAuth = false
+
     // Push Subscription
     private var _pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges>?
     var pushSubscriptionStateChangesObserver: OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges> {
@@ -281,13 +283,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
     }
-    
+
     func createDefaultPushSubscription() -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
         let _accepted = OSNotificationsManager.currentPermissionState.accepted
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
         let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
-        
+
         return OSSubscriptionModel(type: .push,
                                    address: token,
                                    subscriptionId: subscriptionId,
