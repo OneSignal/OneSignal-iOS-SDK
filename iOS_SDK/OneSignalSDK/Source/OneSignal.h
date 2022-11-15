@@ -298,8 +298,8 @@ typedef void (^OSFailureBlock)(NSError* error);
 typedef void (^OSLiveActivitySuccessBlock)();
 typedef void (^OSLiveActivityFailureBlock)(NSError *error);
 
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nullable)token;
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nullable)token withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token;
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;
 
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId;
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;

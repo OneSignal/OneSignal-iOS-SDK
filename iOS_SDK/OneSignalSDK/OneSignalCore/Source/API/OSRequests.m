@@ -512,7 +512,7 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
 @implementation OSRequestLiveActivityExit
 + (instancetype)withUserId:(NSString * _Nonnull)userId
                      appId:(NSString * _Nonnull)appId
-                activityId:(NSString * _Nonnull)activityId{
+                activityId:(NSString * _Nonnull)activityId {
     let request = [OSRequestLiveActivityExit new];
     request.method = DELETE;
     request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, activityId, userId];

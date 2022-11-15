@@ -110,7 +110,6 @@
 
     testAction = testBridgeEvent.userAction;
     testAction.firstClick = true;
-    
 }
 
 /*
