@@ -124,10 +124,6 @@ DelayedConsentInitializationParameters *_delayedInitParameters;
 static NSString* appId;
 static NSDictionary* launchOptions;
 static NSDictionary* appSettings;
-// Make sure launchOptions have been set
-// We need this BOOL because launchOptions can be null so simply null checking
-//  won't validate whether or not launchOptions have been set
-static BOOL hasSetLaunchOptions = false;
 // Ensure we only initlize the SDK once even if the public method is called more
 // Called after successfully calling setAppId and setLaunchOptions
 static BOOL initDone = false;
@@ -281,7 +277,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appId = nil;
     launchOptions = false;
     appSettings = nil;
-    hasSetLaunchOptions = false;
     initDone = false;
     usesAutoPrompt = false;
     
@@ -343,15 +338,22 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 /*
+ This is should be set from all OneSignal entry points.
+ */
++ (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions {
+    [self setAppId:newAppId];
+    [self setLaunchOptions:launchOptions];
+    [self init];
+}
+
+/*
  1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application
- This is should be set from all OneSignal entry points
  */
 + (void)setAppId:(nonnull NSString*)newAppId {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
         return;
     } else if (appId && ![newAppId isEqualToString:appId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
@@ -360,15 +362,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     }
 
     appId = newAppId;
-
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
-    if (!hasSetLaunchOptions) {
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
-        return;
-    }
-
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setAppId(id) successful and launchOptions are set, initializing OneSignal..."];
-    [self init];
 }
 
 /*
@@ -376,13 +369,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Sets the iOS sepcific app settings
  Method must be called to successfully init OneSignal
  */
-+ (void)initWithLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
++ (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
-    hasSetLaunchOptions = true;
 
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(id) finished, checking if appId has been set before proceeding...!"];
     if (!appId || appId.length == 0) {
         // Read from .plist if not passed in with this method call
         appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
@@ -405,7 +396,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     }
 
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
-    [self init];
 }
 
 + (void)setLaunchURLsInApp:(BOOL)launchInApp {
@@ -606,10 +596,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     if (!granted || !delayedInitializationForPrivacyConsent || _delayedInitParameters == nil)
         return;
-    // Try to init again using delayed params (order does not matter)
-    [self setAppId:_delayedInitParameters.appId];
-    [self initWithLaunchOptions:_delayedInitParameters.launchOptions];
-
+    // Try to init again using delayed params
+    [self initialize:_delayedInitParameters.appId withLaunchOptions:_delayedInitParameters.launchOptions];
     delayedInitializationForPrivacyConsent = false;
     _delayedInitParameters = nil;
 }
