@@ -92,46 +92,6 @@ NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
-@implementation OSPermissionSubscriptionState
-- (NSString*)description {
-    static NSString* format = @"<OSPermissionSubscriptionState:\npermissionStatus: %@,\nsubscriptionStatus: %@\n>";
-    return [NSString stringWithFormat:format, _permissionStatus, _subscriptionStatus];
-}
-- (NSDictionary*)toDictionary {
-    return @{@"permissionStatus": [_permissionStatus toDictionary],
-             @"subscriptionStatus": [_subscriptionStatus toDictionary]
-             };
-}
-@end
-
-@interface OSPendingLiveActivityUpdate: NSObject
-    @property NSString* token;
-    @property NSString* activityId;
-    @property BOOL isEnter;
-    @property OSResultSuccessBlock successBlock;
-    @property OSFailureBlock failureBlock;
-    - (id)initWith:(NSString * _Nonnull)activityId
-         withToken:(NSString * _Nonnull)token
-           isEnter:(BOOL)isEnter
-       withSuccess:(OSResultSuccessBlock _Nullable)successBlock
-       withFailure:(OSFailureBlock _Nullable)failureBlock;
-@end
-@implementation OSPendingLiveActivityUpdate
-
-- (id)initWith:(NSString *)activityId
-     withToken:(NSString *)token
-       isEnter:(BOOL)isEnter
-   withSuccess:(OSResultSuccessBlock)successBlock
-   withFailure:(OSFailureBlock)failureBlock {
-    self.token = token;
-    self.activityId = activityId;
-    self.isEnter = isEnter;
-    self.successBlock = successBlock;
-    self.failureBlock = failureBlock;
-    return self;
-};
-@end
-
 @interface OneSignal (SessionStatusDelegate)
 @end
 
@@ -192,31 +152,6 @@ static BOOL requiresUserIdAuth = false;
 
 static BOOL performedOnSessionRequest = false;
 
-// static property def for current OSSubscriptionState
-static OSSubscriptionState* _currentSubscriptionState;
-+ (OSSubscriptionState*)currentSubscriptionState {
-    if (!_currentSubscriptionState) {
-        _currentSubscriptionState = [OSSubscriptionState alloc];
-        _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:OSNotificationsManager.currentPermissionState.accepted];
-        // Why is it inited here?
-        [OSNotificationsManager.currentPermissionState.observable addObserver:_currentSubscriptionState];
-        [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
-    }
-    return _currentSubscriptionState;
-}
-
-static OSSubscriptionState* _lastSubscriptionState;
-+ (OSSubscriptionState*)lastSubscriptionState {
-    if (!_lastSubscriptionState) {
-        _lastSubscriptionState = [OSSubscriptionState alloc];
-        _lastSubscriptionState = [_lastSubscriptionState initAsFrom];
-    }
-    return _lastSubscriptionState;
-}
-+ (void)setLastSubscriptionState:(OSSubscriptionState*)lastSubscriptionState {
-    _lastSubscriptionState = lastSubscriptionState;
-}
-
 static OSStateSynchronizer *_stateSynchronizer;
 + (OSStateSynchronizer*)stateSynchronizer {
     if (!_stateSynchronizer)
@@ -231,13 +166,6 @@ static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
     if (!_permissionStateChangesObserver)
         _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
-}
-
-static ObservableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
-+ (ObservableSubscriptionStateChangesType*)subscriptionStateChangesObserver {
-    if (!_subscriptionStateChangesObserver)
-        _subscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSSubscriptionChanged:)];
-    return _subscriptionStateChangesObserver;
 }
 
 static OSPlayerTags *_playerTags;
