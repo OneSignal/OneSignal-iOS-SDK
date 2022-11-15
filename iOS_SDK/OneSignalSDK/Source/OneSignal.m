@@ -92,18 +92,6 @@ NSString* const kOSSettingsKeyInAppLaunchURL = @"kOSSettingsKeyInAppLaunchURL";
 /* Omit no appId error logging, for use with wrapper SDKs. */
 NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoAppIdLogging";
 
-@implementation OSPermissionSubscriptionState
-- (NSString*)description {
-    static NSString* format = @"<OSPermissionSubscriptionState:\npermissionStatus: %@,\nsubscriptionStatus: %@\n>";
-    return [NSString stringWithFormat:format, _permissionStatus, _subscriptionStatus];
-}
-- (NSDictionary*)toDictionary {
-    return @{@"permissionStatus": [_permissionStatus toDictionary],
-             @"subscriptionStatus": [_subscriptionStatus toDictionary]
-             };
-}
-@end
-
 @interface OneSignal (SessionStatusDelegate)
 @end
 
@@ -162,31 +150,6 @@ static BOOL requiresUserIdAuth = false;
 
 static BOOL performedOnSessionRequest = false;
 
-// static property def for current OSSubscriptionState
-static OSSubscriptionState* _currentSubscriptionState;
-+ (OSSubscriptionState*)currentSubscriptionState {
-    if (!_currentSubscriptionState) {
-        _currentSubscriptionState = [OSSubscriptionState alloc];
-        _currentSubscriptionState = [_currentSubscriptionState initAsToWithPermision:OSNotificationsManager.currentPermissionState.accepted];
-        // Why is it inited here?
-        [OSNotificationsManager.currentPermissionState.observable addObserver:_currentSubscriptionState];
-        [_currentSubscriptionState.observable addObserver:[OSSubscriptionChangedInternalObserver alloc]];
-    }
-    return _currentSubscriptionState;
-}
-
-static OSSubscriptionState* _lastSubscriptionState;
-+ (OSSubscriptionState*)lastSubscriptionState {
-    if (!_lastSubscriptionState) {
-        _lastSubscriptionState = [OSSubscriptionState alloc];
-        _lastSubscriptionState = [_lastSubscriptionState initAsFrom];
-    }
-    return _lastSubscriptionState;
-}
-+ (void)setLastSubscriptionState:(OSSubscriptionState*)lastSubscriptionState {
-    _lastSubscriptionState = lastSubscriptionState;
-}
-
 static OSStateSynchronizer *_stateSynchronizer;
 + (OSStateSynchronizer*)stateSynchronizer {
     if (!_stateSynchronizer)
@@ -201,13 +164,6 @@ static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
     if (!_permissionStateChangesObserver)
         _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
-}
-
-static ObservableSubscriptionStateChangesType* _subscriptionStateChangesObserver;
-+ (ObservableSubscriptionStateChangesType*)subscriptionStateChangesObserver {
-    if (!_subscriptionStateChangesObserver)
-        _subscriptionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSSubscriptionChanged:)];
-    return _subscriptionStateChangesObserver;
 }
 
 static OSPlayerTags *_playerTags;
