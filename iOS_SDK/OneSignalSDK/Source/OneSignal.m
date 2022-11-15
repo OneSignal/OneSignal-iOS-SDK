@@ -349,14 +349,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)setMSDKType:(NSString*)type {
     mSDKType = type;
 }
-//TODO: Delete with um
-// Used for testing purposes to decrease the amount of time the
-// SDK will spend waiting for a response from APNS before it
-// gives up and registers with OneSignal anyways
-+ (void)setDelayIntervals:(NSTimeInterval)apnsMaxWait withRegistrationDelay:(NSTimeInterval)registrationDelay {
-    reattemptRegistrationInterval = registrationDelay;
-    maxApnsWait = apnsMaxWait;
-}
+
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
     appId = nil;
@@ -395,11 +388,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     
     [OSSessionManager resetSharedSessionManager];
-}
-
-//TODO: Delete with UM?
-+ (BOOL)shouldDelaySubscriptionSettingsUpdate {
-    return shouldDelaySubscriptionUpdate;
 }
 
 #pragma mark User Model 🔥
@@ -501,7 +489,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // This allows this method to have an effect after init is called
     [self enableInAppLaunchURL:launchInApp];
 }
-// TODO: um
+
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView {
     if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
@@ -649,7 +637,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
     if (usesAutoPrompt || (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral)) {
-        [self registerForPushNotifications];
+        [OSNotificationsManager requestPermission:nil];
     } else {
         [OSNotificationsManager checkProvisionalAuthorizationStatus];
         [OSNotificationsManager registerForAPNsToken];
@@ -742,39 +730,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         _didCallDownloadParameters = false;
     }];
 }
-//TODO: delete with um?
-// This registers for a push token and prompts the user for notifiations permisions
-//    Will trigger didRegisterForRemoteNotificationsWithDeviceToken on the AppDelegate when APNs responses.
-+ (void)registerForPushNotifications {
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"registerForPushNotifications:"])
-        return;
-    
-    [OSNotificationsManager requestPermission:nil];
-}
-//TODO: delete with um
-+ (OSPermissionSubscriptionState*)getPermissionSubscriptionState {
-    OSPermissionSubscriptionState* status = [OSPermissionSubscriptionState alloc];
-    
-    status.subscriptionStatus = self.currentSubscriptionState;
-    status.permissionStatus = OSNotificationsManager.currentPermissionState;
-
-    return status;
-}
-
-// onOSSubscriptionChanged should only fire if something changed.
-// TODO: UM rename to addPushSubscriptionObserver, and connect functionality
-+ (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer {
-    [self.subscriptionStateChangesObserver addObserver:observer];
-    
-    if ([self.currentSubscriptionState compare:self.lastSubscriptionState])
-        [OSSubscriptionChangedInternalObserver fireChangesObserver:self.currentSubscriptionState];
-}
-//TODO: Move to UM
-+ (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer {
-    [self.subscriptionStateChangesObserver removeObserver:observer];
-}
 
 + (void)enableInAppLaunchURL:(BOOL)enable {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
@@ -816,37 +771,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (BOOL)isLocationShared {
     return [[self getRemoteParamController] isLocationShared];
-}
-
-// TODO: Move this to User Module to update push sub with the apns push token
-+ (void)updateDeviceToken:(NSString*)deviceToken {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"updateDeviceToken:onSuccess:onFailure:"])
-        return;
-    
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"updateDeviceToken:onSuccess:onFailure:"];
-
-    let isPushTokenDifferent = ![deviceToken isEqualToString:self.currentSubscriptionState.pushToken];
-    self.currentSubscriptionState.pushToken = deviceToken;
-
-    if ([self shouldRegisterNow])
-        [self registerUser];
-    else if (isPushTokenDifferent)
-        [self playerPutForPushTokenAndNotificationTypes];
-}
-
-// TODO: Move this to User Module to update push sub
-+ (void)playerPutForPushTokenAndNotificationTypes {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal PUT to updated pushToken and/or notificationTypes!"];
-
-      let request = [OSRequestUpdateDeviceToken
-          withUserId:self.currentSubscriptionState.userId
-          appId:self.appId
-          deviceToken:self.currentSubscriptionState.pushToken
-          notificationTypes:@([self getNotificationTypes])
-          externalIdAuthToken:[self mExternalIdAuthToken]
-      ];
-      [OneSignalClient.sharedClient executeRequest:request onSuccess:nil onFailure:nil];
 }
 
 // TODO: delete with um?
