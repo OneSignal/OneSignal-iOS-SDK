@@ -327,6 +327,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
+    // TODO: Need to await download iOS params
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:token];
 }
 
@@ -631,9 +632,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _didCallDownloadParameters = true;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         
-        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION])
+        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
             requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-
+            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = requiresUserIdAuth;
+        }
+        
         if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
             
