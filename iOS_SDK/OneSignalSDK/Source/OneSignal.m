@@ -531,13 +531,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         // Remove player_id from both standard and shared NSUserDefaults
         [standardUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
         [sharedUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
+        // TODO: Clear all cached data, is it sufficient to call logout
+        [self logout];
     }
     
     // Always save appId and player_id as it will not be present on shared if:
     //   - Updating from an older SDK
     //   - Updating to an app that didn't have App Groups setup before
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
-    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PLAYER_ID_TO withValue:self.currentSubscriptionState.userId];
     
     // Invalid app ids reaching here will cause failure
     if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
