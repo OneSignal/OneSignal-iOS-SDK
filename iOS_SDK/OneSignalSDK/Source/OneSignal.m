@@ -374,6 +374,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
     launchOptions = newLaunchOptions;
 
+    // TODO: Ask about this, if needed anymore. Prefer to remove.
+    // Getting from plist has existed since at least v1.11.0
     if (!appId || appId.length == 0) {
         // Read from .plist if not passed in with this method call
         appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
@@ -434,15 +436,22 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         delayedInitializationForPrivacyConsent = true;
         _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
         // Init was not successful, set appId back to nil
+        // TODO: Why does this behave this way? Can we move this check earlier into setAppId?
+        // ... Perhaps because we need the appId and launchOptions to make the _delayedInitParameters
         appId = nil;
         return;
     }
     
+    // TODO: Language move to user?
     languageContext = [LanguageContext new];
 
     [OneSignalCacheCleaner cleanCachedUserData];
+    
+    // TODO: Ask if we still need this, as it causes questions in wrappers. Can we remove?
     [OneSignal checkIfApplicationImplementsDeprecatedMethods];
 
+    // TODO: can we do this check earlier, preferably in setAppId
+    // Not if we don't want to make all these changes and then hit the requiresPrivacyConsent blocker
     let success = [self handleAppIdChange:appId];
     if (!success)
         return;
@@ -457,12 +466,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     if (initDone)
         return;
 
+    // TODO: Questions about this initializationTime, shouldRegisterUserAfterDelay will always be true on the first pass of this init() method
     initializationTime = [NSDate date];
 
     // Outcomes init
     _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:[OSSessionManager sharedSessionManager] outcomeEventsFactory:_outcomeEventFactory];
 
+    // TODO: Do we pass location to user module?
     if (appId && [self isLocationShared])
        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
 
@@ -537,6 +548,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)initSettings:(NSDictionary*)settings {
+    // TODO: Ask about this boolean being set here, and this method in general.
     registeredWithApple = OSNotificationsManager.currentPermissionState.accepted;
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
@@ -552,7 +564,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     usesAutoPrompt = NO;
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
-    if (usesAutoPrompt || (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral)) {
+    if (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral) {
         [OSNotificationsManager requestPermission:nil];
     } else {
         [OSNotificationsManager checkProvisionalAuthorizationStatus];
@@ -648,6 +660,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)enableInAppLaunchURL:(BOOL)enable {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
 }
+
+#pragma mark Location
 
 + (void)setLocationShared:(BOOL)enable {
     let remoteController = [self getRemoteParamController];
