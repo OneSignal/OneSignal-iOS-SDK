@@ -273,14 +273,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (BOOL)isLocationShared;
 
 #pragma mark Permission, Subscription, and Email Observers
-// TODO: UM observers are rescoped
-NS_ASSUME_NONNULL_BEGIN
-
-// TODO: Moved to User.pushSubscription.
-+ (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
-
-NS_ASSUME_NONNULL_END
 
 #pragma mark In-App Messaging
 + (BOOL)isInAppMessagingPaused;
