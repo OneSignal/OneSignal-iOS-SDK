@@ -95,8 +95,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 @property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
 
-// TODO: This gets set by the user module's push sub
-+ (void)setPushDisabled:(BOOL)disabled;
+// This is set by the user module
++ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId;
 
 // - Notification Opened
 + (void)lastMessageReceived:(NSDictionary*)message;

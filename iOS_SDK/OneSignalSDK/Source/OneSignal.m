@@ -1181,29 +1181,6 @@ static BOOL _registerUserSuccessful = false;
     }
     
 }
-//TODO: move to um or notifications
-+ (void)submitNotificationOpened:(NSString*)messageId {
-    
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
-    //Keep track of the Id for the last message sent
-    NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
-    //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
-    if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:self.currentSubscriptionState.userId
-                                                                                             appId:self.appId
-                                                                                         wasOpened:YES
-                                                                                         messageId:messageId
-                                                                                    withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
-                                           onSuccess:nil
-                                           onFailure:nil];
-        [standardUserDefaults saveStringForKey:OSUD_LAST_MESSAGE_OPENED withValue:messageId];
-    }
-}
 
 // Called from the app's Notification Service Extension
 + (UNMutableNotificationContent*)didReceiveNotificationExtensionRequest:(UNNotificationRequest*)request withMutableNotificationContent:(UNMutableNotificationContent*)replacementContent {
