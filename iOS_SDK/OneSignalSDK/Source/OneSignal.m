@@ -256,17 +256,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)setUserId:(NSString *)userId {
     self.currentSubscriptionState.userId = userId;
 }
-//TODO: Delete with um
-// This is set to true even if register user fails
-+ (void)registerUserFinished {
-    _registerUserFinished = true;
-}
-//TODO: Delete with um
-// If successful then register user is also finished
-+ (void)registerUserSuccessful {
-    _registerUserSuccessful = true;
-    [OneSignal registerUserFinished];
-}
 
 + (void)setMSDKType:(NSString*)type {
     mSDKType = type;
@@ -282,8 +271,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [OSNotificationsManager clearStatics];
     registeredWithApple = false;
-    waitingForOneSReg = false;
-    isOnSessionSuccessfulForCurrentState = false;
     
     _stateSynchronizer = nil;
     
@@ -303,10 +290,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
     _outcomeEventFactory = nil;
     _outcomeEventsController = nil;
-    
-    _registerUserFinished = false;
-    _registerUserSuccessful = false;
-    
     
     [OSSessionManager resetSharedSessionManager];
 }
@@ -705,126 +688,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return [[self getRemoteParamController] isLocationShared];
 }
 
-// TODO: delete with um?
-// Set to yes whenever a high priority registration fails ... need to make the next one a high priority to disregard the timer delay
-bool immediateOnSessionRetry = NO;
-+ (void)setImmediateOnSessionRetry:(BOOL)retry {
-    immediateOnSessionRetry = retry;
-}
-
-// TODO: delete with um?
-+ (BOOL)isImmediatePlayerCreateOrOnSession {
-    return !self.currentSubscriptionState.userId || immediateOnSessionRetry;
-}
-
-// TODO: delete with um?
-// True if we asked Apple for an APNS token the AppDelegate callback has not fired yet
-static BOOL waitingForOneSReg = false;
-// Esnure we call on_session only once while the app is infocus.
-// TODO: delete with um?
-static BOOL isOnSessionSuccessfulForCurrentState = false;
-+ (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value {
-    isOnSessionSuccessfulForCurrentState = value;
-}
-
-// TODO: delete with um?
-static BOOL _registerUserFinished = false;
-+ (BOOL)isRegisterUserFinished {
-    return _registerUserFinished || isOnSessionSuccessfulForCurrentState;
-}
-
-// TODO: delete with um?
-static BOOL _registerUserSuccessful = false;
-+ (BOOL)isRegisterUserSuccessful {
-    return _registerUserSuccessful || isOnSessionSuccessfulForCurrentState;
-}
-
-// TODO: delete with um?
-+ (BOOL)shouldRegisterNow {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return false;
-    
-    // Don't make a 2nd on_session if have in inflight one
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"shouldRegisterNow:waitingForOneSReg: %d", waitingForOneSReg]];
-    if (waitingForOneSReg)
-        return false;
-
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"shouldRegisterNow:isImmediatePlayerCreateOrOnSession: %d", [self isImmediatePlayerCreateOrOnSession]]];
-    if ([self isImmediatePlayerCreateOrOnSession])
-        return true;
-
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"shouldRegisterNow:isOnSessionSuccessfulForCurrentState: %d", isOnSessionSuccessfulForCurrentState]];
-    if (isOnSessionSuccessfulForCurrentState)
-        return false;
-    
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
-    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
-
-    if (lastTimeClosed == 0) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"shouldRegisterNow: lastTimeClosed: default."];
-        return true;
-    }
-
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldRegisterNow: lastTimeClosed: %f", lastTimeClosed]];
-
-    // Make sure last time we closed app was more than 30 secs ago
-    const int minTimeThreshold = 30;
-    NSTimeInterval delta = now - lastTimeClosed;
-    
-    return delta >= minTimeThreshold;
-}
-
-// TODO: delete with um?
-+ (void)registerUserAfterDelay {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registerUserAfterDelay"];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-    [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
-}
-
-// TODO: delete with um?
-+ (void)registerUser {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-
-    if ([self shouldRegisterUserAfterDelay]) {
-        [self registerUserAfterDelay];
-        return;
-    }
-
-    [self registerUserNow];
-}
-
-// TODO: delete with um?
-+(void)registerUserNow {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registerUserNow"];
-    
-    // Run on the main queue as it is possible for this to be called from multiple queues.
-    // Also some of the code in the method is not thread safe such as _outcomeEventsController.
-    [OneSignalHelper dispatch_async_on_main_queue:^{
-        [self registerUserInternal];
-    }];
-}
-
-// We should delay registration if we are waiting on APNS
-// But if APNS hasn't responded within 30 seconds (maxApnsWait),
-// we should continue and register the user.
-// TODO: delete with um?
-+ (BOOL)shouldRegisterUserAfterDelay {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", OSNotificationsManager.waitingForApnsResponse]];
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:initializationTime: %@", initializationTime]];
-    
-    // If there isn't an initializationTime yet then the SDK hasn't finished initializing so we should delay
-    if (!initializationTime)
-        return true;
-    
-    if (!OSNotificationsManager.waitingForApnsResponse)
-        return false;
-    
-    return [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait;
-}
-
 // TODO: move to um properties
 + (OSUserState *)createUserState {
     let userState = [OSUserState new];
@@ -897,104 +760,6 @@ static BOOL _registerUserSuccessful = false;
         [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Not sending location with 'on_session' request payload, setLocationShared is false or lastLocation is null"];
     
     return userState;
-}
-
-// TODO: delete with um?
-+ (void)registerUserInternal {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"registerUserInternal"];
-    _registerUserFinished = false;
-    _registerUserSuccessful = false;
-
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    // Make sure we only call create or on_session once per open of the app.
-    if (![self shouldRegisterNow])
-        return;
-
-    [_outcomeEventsController clearOutcomes];
-    [[OSSessionManager sharedSessionManager] restartSessionIfNeeded:_appEntryState];
-
-    [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
-    
-    waitingForOneSReg = true;
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
-    
-    NSArray* nowProcessingCallbacks;
-    let userState = [self createUserState];
-    if (userState.tags) {
-        [self.playerTags addTags:userState.tags];
-        [self.playerTags saveTagsToUserDefaults];
-        [self.playerTags setTagsToSend: nil];
-        
-        nowProcessingCallbacks = pendingSendTagCallbacks;
-        pendingSendTagCallbacks = nil;
-    }
-
-    // Clear last location after attaching data to user state or not
-    [OneSignalLocation clearLastLocation];
-    sessionLaunchTime = [NSDate date];
-    
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
-    [self.stateSynchronizer registerUserWithState:userState withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
-        immediateOnSessionRetry = NO;
-        waitingForOneSReg = false;
-        isOnSessionSuccessfulForCurrentState = true;
-        pendingExternalUserId = nil;
-        pendingExternalUserIdHashToken = nil;
-        
-        //update push player id
-        if (results.count > 0 && results[@"push"][@"id"]) {
-            
-            if (nowProcessingCallbacks) {
-                for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                    if (callbackSet.successBlock)
-                        callbackSet.successBlock(userState.tags);
-                }
-            }
-            
-            if (self.playerTags.tagsToSend) {
-                [self performSelector:@selector(sendTagsToServer) withObject:nil afterDelay:5];
-            }
-                
-            // Try to send location
-            [OneSignalLocation sendLocation];
-            
-            if (emailToSet) {
-                [OneSignal setEmail:emailToSet];
-                emailToSet = nil;
-            }
-
-            [self sendNotificationTypesUpdate];
-            
-            if (pendingGetTagsSuccessBlock) {
-                [OneSignal getTags:pendingGetTagsSuccessBlock onFailure:pendingGetTagsFailureBlock];
-                pendingGetTagsSuccessBlock = nil;
-                pendingGetTagsFailureBlock = nil;
-            }
-            
-        }
-        
-        if (results[@"push"][@"in_app_messages"]) {
-            [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
-        }
-    } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-        waitingForOneSReg = false;
-        
-        // If the failed registration is priority, force the next one to be a high priority
-        immediateOnSessionRetry = YES;
-        
-        let error = (NSError *)(errors[@"push"] ?: errors[@"email"]);
-        
-        if (nowProcessingCallbacks) {
-            for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
-                if (callbackSet.failureBlock)
-                    callbackSet.failureBlock(error);
-            }
-        }
-        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
-    }];
 }
 
 // TODO: new IAM server call
