@@ -144,7 +144,7 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
                          activityId:(NSString * _Nonnull)activityId
-                              token:(NSString * _Nullable)token;
+                              token:(NSString * _Nonnull)token;
 @end
 
 @interface OSRequestLiveActivityExit: OneSignalRequest

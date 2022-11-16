@@ -497,7 +497,7 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
 + (instancetype)withUserId:(NSString * _Nonnull)userId
                      appId:(NSString * _Nonnull)appId
                 activityId:(NSString * _Nonnull)activityId
-                     token:(NSString * _Nullable)token {
+                     token:(NSString * _Nonnull)token {
     let request = [OSRequestLiveActivityEnter new];
     let params = [NSMutableDictionary new];
     params[@"push_token"] = token;

@@ -712,14 +712,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
                          withFailure:(OSFailureBlock _Nullable)failureBlock {
     OSPendingLiveActivityUpdate *pendingLiveActivityUpdate = [[OSPendingLiveActivityUpdate alloc] initWith:activityId withToken:token isEnter:isEnter withSuccess:successBlock withFailure:failureBlock];
     
-    if (!pendingLiveActivityUpdates){
+    if (!pendingLiveActivityUpdates) {
         pendingLiveActivityUpdates = [NSMutableArray new];
     }
     [pendingLiveActivityUpdates addObject:pendingLiveActivityUpdate];
 }
 
-+ (void)executePendingLiveActivityUpdates{
-    if(pendingLiveActivityUpdates.count <= 0){
++ (void)executePendingLiveActivityUpdates {
+    if(pendingLiveActivityUpdates.count <= 0) {
         return;
     }
     
