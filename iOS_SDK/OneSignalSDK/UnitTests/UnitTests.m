@@ -3463,6 +3463,50 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, testEnterLiveActivityCorrectURL);
 }
 
+- (void)testPendingLiveActivityUpdates {
+    
+    NSString *testAppId = @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba";
+    NSString *testLiveActivity = @"onesignal-01012022";
+    NSString *testLiveActivityToken = @"8076f335e7a8f865607949b02e95ba49268cf98a633f3963256e53172c19f299d312f09950d25c4e711260a65157446aba0b47d6120d53d67f6f6946b706f9ce4a0c883d3e0b1391f67fe4a8cc2ca381";
+    NSString *testUserId = @"1234";
+    
+    [OneSignal enterLiveActivity:testLiveActivity
+                       withToken:testLiveActivityToken
+                     withSuccess:nil
+                     withFailure:nil];
+    
+    [OneSignal exitLiveActivity:testLiveActivity
+                    withSuccess:nil
+                    withFailure:nil];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //check to make sure the OSRequestEnterLiveActivity HTTP call was made, and was formatted correctly
+    OneSignalRequest *enterRequest = OneSignalClientOverrider.executedRequests[OneSignalClientOverrider.executedRequests.count-2];
+    XCTAssertTrue([NSStringFromClass([OSRequestLiveActivityEnter class]) isEqualToString:NSStringFromClass([enterRequest class])]);
+    XCTAssertEqual(enterRequest.parameters[@"push_token"],testLiveActivityToken);
+    XCTAssertEqual(enterRequest.parameters[@"subscription_id"], testUserId);
+    
+    let testEnterLiveActivityCorrectURL = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token",
+                                           testAppId,
+                                           testLiveActivity];
+    
+    XCTAssertEqualObjects(enterRequest.path, testEnterLiveActivityCorrectURL);
+    
+    //check to make sure the OSRequestExitLiveActivity HTTP call was made, and was formatted correctly
+    XCTAssertTrue([NSStringFromClass([OSRequestLiveActivityExit class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    
+    let testExitLiveActivityCorrectURL = [NSString stringWithFormat:@"https://api.onesignal.com/apps/%@/live_activities/%@/token/%@",
+                                          testAppId,
+                                          testLiveActivity,
+                                          testUserId];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, testExitLiveActivityCorrectURL);
+    
+}
+
 - (void)testExitLiveActivity {
     
     NSString *testAppId = @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba";
@@ -3474,6 +3518,31 @@ didReceiveRemoteNotification:userInfo
     [OneSignal exitLiveActivity:testLiveActivity
                     withSuccess:nil
                     withFailure:nil];
+    
+    [UnitTestCommonMethods runBackgroundThreads];
+    
+    //check to make sure the OSRequestExitLiveActivity HTTP call was made, and was formatted correctly
+    XCTAssertTrue([NSStringFromClass([OSRequestLiveActivityExit class]) isEqualToString:OneSignalClientOverrider.lastHTTPRequestType]);
+    
+    let testExitLiveActivityCorrectURL = [NSString stringWithFormat:@"https://api.onesignal.com/apps/%@/live_activities/%@/token/%@",
+                                          testAppId,
+                                          testLiveActivity,
+                                          testUserId];
+    
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastUrl, testExitLiveActivityCorrectURL);
+
+}
+- (void)testExitLiveActivityEarly {
+    
+    NSString *testAppId = @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba";
+    NSString *testLiveActivity = @"onesignal-01012022";
+    NSString *testUserId = @"1234";
+    
+    [OneSignal exitLiveActivity:testLiveActivity
+                    withSuccess:nil
+                    withFailure:nil];
+    
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     [UnitTestCommonMethods runBackgroundThreads];
     

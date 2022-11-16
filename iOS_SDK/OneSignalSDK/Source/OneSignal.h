@@ -295,14 +295,11 @@ typedef void (^OSFailureBlock)(NSError* error);
 
 
 #pragma mark Live Activity
-typedef void (^OSLiveActivitySuccessBlock)();
-typedef void (^OSLiveActivityFailureBlock)(NSError *error);
-
 + (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token;
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
 
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId;
-+ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSLiveActivitySuccessBlock _Nullable)successBlock withFailure:(OSLiveActivityFailureBlock _Nullable)failureBlock;
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
 
 #pragma mark Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel;
