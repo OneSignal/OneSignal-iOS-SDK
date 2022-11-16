@@ -111,6 +111,34 @@ NSString* const kOSSettingsKeyProvidesAppNotificationSettings = @"kOSSettingsKey
 }
 @end
 
+@interface OSPendingLiveActivityUpdate: NSObject
+    @property NSString* token;
+    @property NSString* activityId;
+    @property BOOL isEnter;
+    @property OSResultSuccessBlock successBlock;
+    @property OSFailureBlock failureBlock;
+    - (id)initWith:(NSString * _Nonnull)activityId
+         withToken:(NSString * _Nonnull)token
+           isEnter:(BOOL)isEnter
+       withSuccess:(OSResultSuccessBlock _Nullable)successBlock
+       withFailure:(OSFailureBlock _Nullable)failureBlock;
+@end
+@implementation OSPendingLiveActivityUpdate
+
+- (id)initWith:(NSString *)activityId
+     withToken:(NSString *)token
+       isEnter:(BOOL)isEnter
+   withSuccess:(OSResultSuccessBlock)successBlock
+   withFailure:(OSFailureBlock)failureBlock {
+    self.token = token;
+    self.activityId = activityId;
+    self.isEnter = isEnter;
+    self.successBlock = successBlock;
+    self.failureBlock = failureBlock;
+    return self;
+};
+@end
+
 @interface OneSignal (SessionStatusDelegate)
 @end
 
@@ -137,6 +165,8 @@ static OneSignalSetLanguageParameters *delayedLanguageParameters;
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
+
+static NSMutableArray* pendingLiveActivityUpdates;
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
@@ -662,6 +692,110 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyProvidesAppNotificationSettings] = providesView ? @true : @false;
     appSettings = newSettings;
+}
+
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token {
+    
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
+        return;
+    
+    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
+}
+
+#pragma mark: LIVE ACTIVITIES
+
+
++ (void)addPendingLiveActivityUpdate:(NSString * _Nonnull)activityId
+                           withToken:(NSString * _Nullable)token
+                             isEnter:(BOOL)isEnter
+                         withSuccess:(OSResultSuccessBlock _Nullable)successBlock
+                         withFailure:(OSFailureBlock _Nullable)failureBlock {
+    OSPendingLiveActivityUpdate *pendingLiveActivityUpdate = [[OSPendingLiveActivityUpdate alloc] initWith:activityId withToken:token isEnter:isEnter withSuccess:successBlock withFailure:failureBlock];
+    
+    if (!pendingLiveActivityUpdates) {
+        pendingLiveActivityUpdates = [NSMutableArray new];
+    }
+    [pendingLiveActivityUpdates addObject:pendingLiveActivityUpdate];
+}
+
++ (void)executePendingLiveActivityUpdates {
+    if(pendingLiveActivityUpdates.count <= 0) {
+        return;
+    }
+    
+    OSPendingLiveActivityUpdate * updateToProcess = [pendingLiveActivityUpdates objectAtIndex:0];
+    [pendingLiveActivityUpdates removeObjectAtIndex: 0];
+    if (updateToProcess.isEnter) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:updateToProcess.activityId token:updateToProcess.token]
+                                           onSuccess:^(NSDictionary *result) {
+            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
+            [self executePendingLiveActivityUpdates];
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
+            [self executePendingLiveActivityUpdates];
+        }];
+    } else {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:updateToProcess.activityId]
+                                           onSuccess:^(NSDictionary *result) {
+            [self callSuccessBlockOnMainThread:updateToProcess.successBlock withResult:result];
+            [self executePendingLiveActivityUpdates];
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:updateToProcess.failureBlock withError:error];
+            [self executePendingLiveActivityUpdates];
+        }];
+    }
+}
+
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
+    
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:onSuccess:onFailure:"]) {
+        if (failureBlock) {
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called enterLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
+            failureBlock(error);
+        }
+        return;
+    }
+
+    
+    if(self.currentSubscriptionState.userId) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId token:token]
+                                           onSuccess:^(NSDictionary *result) {
+            [self callSuccessBlockOnMainThread:successBlock withResult:result];
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
+        }];
+    } else {
+        [self addPendingLiveActivityUpdate:activityId withToken:token isEnter:true withSuccess:successBlock withFailure:failureBlock];
+    }
+}
+
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId{
+    
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
+        return;
+    
+    [self exitLiveActivity:activityId withSuccess:nil withFailure:nil];
+}
+
++ (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
+
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"exitLiveActivity:onSuccess:onFailure:"]) {
+        if (failureBlock) {
+            NSError *error = [NSError errorWithDomain:@"com.onesignal.tags" code:0 userInfo:@{@"error" : @"Your application has called exitLiveActivity:onSuccess:onFailure: before the user granted privacy permission. Please call `consentGranted(bool)` in order to provide user privacy consent"}];
+            failureBlock(error);
+        }
+        return;
+    }
+    if(self.currentSubscriptionState.userId) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId]
+                                           onSuccess:^(NSDictionary *result) {
+            [self callSuccessBlockOnMainThread:successBlock withResult:result];
+        } onFailure:^(NSError *error) {
+            [self callFailureBlockOnMainThread:failureBlock withError:error];
+        }];
+    } else {
+        [self addPendingLiveActivityUpdate:activityId withToken:nil isEnter:false  withSuccess:successBlock withFailure:failureBlock];
+    }
 }
 
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock)block {
@@ -1209,7 +1343,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sendTagsToServer) object:nil];
     
-    // Can't send tags yet as their isn't a player_id.
+    // Can't send tags yet as there isn't a player_id.
     //   tagsToSend will be sent with the POST create player call later in this case.
     if (self.currentSubscriptionState.userId)
        [OneSignalHelper performSelector:@selector(sendTagsToServer) onMainThreadOnObject:self withObject:nil afterDelay:5];
@@ -1840,7 +1974,7 @@ static BOOL _trackedColdRestart = false;
                 pendingGetTagsSuccessBlock = nil;
                 pendingGetTagsFailureBlock = nil;
             }
-            
+            [self executePendingLiveActivityUpdates];
         }
         
         if (results[@"push"][@"in_app_messages"]) {
@@ -2303,7 +2437,15 @@ static NSString *_lastnonActiveMessageId;
     }
 }
 
-+ (void)callSuccessBlockOnMainThread:(OSEmailSuccessBlock)successBlock {
++ (void)callSuccessBlockOnMainThread:(OSResultSuccessBlock)successBlock withResult:(NSDictionary *)result{
+    if (successBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            successBlock(result);
+        });
+    }
+}
+
++ (void)callEmailSuccessBlockOnMainThread:(OSEmailSuccessBlock)successBlock {
     if (successBlock) {
         dispatch_async(dispatch_get_main_queue(), ^{
             successBlock();
@@ -2386,7 +2528,7 @@ static NSString *_lastnonActiveMessageId;
     // Since developers may be making UI changes when this call finishes, we will call callbacks on the main thread.
     if (self.currentEmailSubscriptionState.emailUserId) {
         [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentEmailSubscriptionState.emailUserId appId:self.appId deviceToken:email withParentId:nil emailAuthToken:emailAuthToken email:nil externalIdAuthToken:[self mExternalIdAuthToken]] onSuccess:^(NSDictionary *result) {
-            [self callSuccessBlockOnMainThread:successBlock];
+            [self callEmailSuccessBlockOnMainThread:successBlock];
         } onFailure:^(NSError *error) {
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
@@ -2398,7 +2540,7 @@ static NSString *_lastnonActiveMessageId;
             if (emailPlayerId) {
                 [OneSignal saveEmailAddress:email withAuthToken:emailAuthToken userId:emailPlayerId];
                 [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateDeviceToken withUserId:self.currentSubscriptionState.userId appId:self.appId deviceToken:nil withParentId:self.currentEmailSubscriptionState.emailUserId emailAuthToken:hashToken email:email externalIdAuthToken:[self mExternalIdAuthToken] ] onSuccess:^(NSDictionary *result) {
-                    [self callSuccessBlockOnMainThread:successBlock];
+                    [self callEmailSuccessBlockOnMainThread:successBlock];
                 } onFailure:^(NSError *error) {
                     [self callFailureBlockOnMainThread:failureBlock withError:error];
                 }];
@@ -2439,7 +2581,7 @@ static NSString *_lastnonActiveMessageId;
         [OneSignalUserDefaults.initStandard removeValueForKey:OSUD_EMAIL_PLAYER_ID];
         [OneSignal saveEmailAddress:nil withAuthToken:nil userId:nil];
         
-        [self callSuccessBlockOnMainThread:successBlock];
+        [self callEmailSuccessBlockOnMainThread:successBlock];
     } onFailure:^(NSError *error) {
         [self callFailureBlockOnMainThread:failureBlock withError:error];
     }];

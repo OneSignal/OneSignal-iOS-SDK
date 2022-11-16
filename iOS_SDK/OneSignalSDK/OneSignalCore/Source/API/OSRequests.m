@@ -492,3 +492,30 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
     return request;
 }
 @end
+
+@implementation OSRequestLiveActivityEnter
++ (instancetype)withUserId:(NSString * _Nonnull)userId
+                     appId:(NSString * _Nonnull)appId
+                activityId:(NSString * _Nonnull)activityId
+                     token:(NSString * _Nonnull)token {
+    let request = [OSRequestLiveActivityEnter new];
+    let params = [NSMutableDictionary new];
+    params[@"push_token"] = token;
+    params[@"subscription_id"] = userId; // pre-5.X.X subscription_id = player_id = userId
+    request.parameters = params;
+    request.method = POST;
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token", appId, activityId];
+    return request;
+}
+@end
+
+@implementation OSRequestLiveActivityExit
++ (instancetype)withUserId:(NSString * _Nonnull)userId
+                     appId:(NSString * _Nonnull)appId
+                activityId:(NSString * _Nonnull)activityId {
+    let request = [OSRequestLiveActivityExit new];
+    request.method = DELETE;
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, activityId, userId];
+    return request;
+}
+@end
