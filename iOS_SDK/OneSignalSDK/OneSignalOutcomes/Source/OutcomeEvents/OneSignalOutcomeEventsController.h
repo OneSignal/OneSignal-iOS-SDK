@@ -37,6 +37,7 @@
                            outcomeEventsFactory:(OSOutcomeEventsFactory *_Nonnull)outcomeEventsFactory;
 
 - (void)clearOutcomes;
+- (void)cleanUniqueOutcomeNotifications;
 
 - (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *_Nonnull)outcomes
                           appId:(NSString * _Nonnull)appId

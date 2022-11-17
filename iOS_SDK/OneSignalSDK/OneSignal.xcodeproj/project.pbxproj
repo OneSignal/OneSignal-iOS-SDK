@@ -242,9 +242,6 @@
 		918CB0301E73388E0067130F /* OneSignal.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 912411F01E73342200E41FD7 /* OneSignal.h */; };
 		91C7725E1E7CCE1000D612D0 /* OneSignalInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 91C7725D1E7CCE1000D612D0 /* OneSignalInternal.h */; };
 		91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 91F60F7C1E80E4E400706E60 /* UncaughtExceptionHandler.m */; };
-		9D1BD96D237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D1BD96C237B57CA00A064F7 /* OneSignalCacheCleaner.m */; };
-		9D1BD96E237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D1BD96C237B57CA00A064F7 /* OneSignalCacheCleaner.m */; };
-		9D1BD96F237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D1BD96C237B57CA00A064F7 /* OneSignalCacheCleaner.m */; };
 		9D3300F523145AF3000F0A83 /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
 		9D3300F623145AF3000F0A83 /* OneSignalViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */; };
 		9D3300FA23149DAE000F0A83 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D3300F923149DAE000F0A83 /* CoreGraphics.framework */; };
@@ -920,8 +917,6 @@
 		9D1BD95F2379E7C300A064F7 /* OSOutcomeEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSOutcomeEvent.m; sourceTree = "<group>"; };
 		9D1BD966237A28EE00A064F7 /* OSCachedUniqueOutcome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSCachedUniqueOutcome.h; sourceTree = "<group>"; };
 		9D1BD967237A28FC00A064F7 /* OSCachedUniqueOutcome.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSCachedUniqueOutcome.m; sourceTree = "<group>"; };
-		9D1BD96B237B57B400A064F7 /* OneSignalCacheCleaner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalCacheCleaner.h; sourceTree = "<group>"; };
-		9D1BD96C237B57CA00A064F7 /* OneSignalCacheCleaner.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalCacheCleaner.m; sourceTree = "<group>"; };
 		9D3300F223145AF3000F0A83 /* OneSignalViewHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneSignalViewHelper.m; sourceTree = "<group>"; };
 		9D3300F423145AF3000F0A83 /* OneSignalViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneSignalViewHelper.h; sourceTree = "<group>"; };
 		9D3300F923149DAE000F0A83 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -1515,8 +1510,6 @@
 				DE16C14324D3724700670EFA /* OneSignalLifecycleObserver.m */,
 				CAB4112720852E48005A70D1 /* DelayedConsentInitializationParameters.h */,
 				CAB4112820852E48005A70D1 /* DelayedConsentInitializationParameters.m */,
-				9D1BD96B237B57B400A064F7 /* OneSignalCacheCleaner.h */,
-				9D1BD96C237B57CA00A064F7 /* OneSignalCacheCleaner.m */,
 				912411F41E73342200E41FD7 /* OneSignalHelper.h */,
 				912411F51E73342200E41FD7 /* OneSignalHelper.m */,
 				9D3300F423145AF3000F0A83 /* OneSignalViewHelper.h */,
@@ -2675,7 +2668,6 @@
 				CA8E19062193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
 				7AAA60682485D0420004FADE /* OSMigrationController.m in Sources */,
 				DE7D18DF2703B49B002D3A5D /* OSFocusRequests.m in Sources */,
-				9D1BD96D237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */,
 				7A674F1B2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */,
 				7A5E721025A66E1600CB5605 /* OSUserStatePushSynchronizer.m in Sources */,
 				DE16C14424D3724700670EFA /* OneSignalLifecycleObserver.m in Sources */,
@@ -2755,7 +2747,6 @@
 				7AECE59723674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				7A5E71FD25A66DEC00CB5605 /* OSUserStateSynchronizer.m in Sources */,
 				CA8E19072193C76D009DA223 /* OSInAppMessagingHelpers.m in Sources */,
-				9D1BD96E237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */,
 				DE7D18E02703B49B002D3A5D /* OSFocusRequests.m in Sources */,
 				7AAA60692485D0420004FADE /* OSMigrationController.m in Sources */,
 				7A5E721125A66E1600CB5605 /* OSUserStatePushSynchronizer.m in Sources */,
@@ -2805,7 +2796,6 @@
 				7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */,
 				7ABAF9E324606E940074DFA0 /* OutcomeV2Tests.m in Sources */,
 				DE7D18E72703B510002D3A5D /* OSLocationRequests.m in Sources */,
-				9D1BD96F237B57CA00A064F7 /* OneSignalCacheCleaner.m in Sources */,
 				CACBAA99218A6243000ACAA5 /* OSMessagingController.m in Sources */,
 				91F60F7D1E80E4E400706E60 /* UncaughtExceptionHandler.m in Sources */,
 				CA4743A02190FEA80020DC8C /* OSTrigger.m in Sources */,
