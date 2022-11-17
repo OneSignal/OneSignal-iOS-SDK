@@ -214,8 +214,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
 
-+ (void)disablePush:(BOOL)disable;
-
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
@@ -239,9 +237,6 @@ NS_SWIFT_NAME(login(externalId:token:));
 #pragma mark Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel; // TODO: UM split up into 2?
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
-
-
-+ (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
 + (void)setPrivacyConsent:(BOOL)granted;
