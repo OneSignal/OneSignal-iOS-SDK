@@ -418,80 +418,131 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
+#pragma mark Initialization
+
++ (void)initInAppLaunchURLSettings:(NSDictionary*)settings {
+    // TODO: Make booleans on the class instead of as keys in a dictionary
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    // Check if disabled in-app launch url if passed a NO
+    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
+        
+        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
+    
+    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
+        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
+        
+        [self enableInAppLaunchURL:true];
+    }
+}
+
++ (void)startOutcomes {
+    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc]
+                            initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]];
+    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc]
+                                initWithSessionManager:[OSSessionManager sharedSessionManager]
+                                outcomeEventsFactory:_outcomeEventFactory];
+    [_outcomeEventsController cleanUniqueOutcomeNotifications];
+    [_outcomeEventsController clearOutcomes];
+}
+
++ (void)startLocation {
+    // TODO: Do we pass location to user module?
+    if (appId && [self isLocationShared]) {
+        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
+    }
+    // Clear last location after attaching data to user state or not
+    [OneSignalLocation clearLastLocation];
+}
+
++ (void)startTrackFirebaseAnalytics {
+    if ([OneSignalTrackFirebaseAnalytics libraryExists]) {
+        [OneSignalTrackFirebaseAnalytics init];
+        [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
+    }
+}
+
++ (void)startTrackIAP {
+    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
+        trackIAPPurchase = [OneSignalTrackIAP new];
+}
+
++ (void)startLifecycleObserver {
+    [OneSignalLifecycleObserver registerLifecycleObserver];
+}
+
++ (void)startTrackingSession {
+    [[OSSessionManager sharedSessionManager] restartSessionIfNeeded:_appEntryState];
+    sessionLaunchTime = [NSDate date];
+}
+
++ (void)startUserManager {
+    [OneSignalUserManagerImpl sharedInstance];
+}
+
++ (void)delayInitializationForPrivacyConsent {
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+    delayedInitializationForPrivacyConsent = true;
+    _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
+    // Init was not successful, set appId back to nil
+    appId = nil;
+}
+
 /*
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
+    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
+    
+    // TODO: We moved this check to the top of this method, we should test this.
+    if (initDone) {
+        return;
+    }
+    
     [[OSMigrationController new] migrate];
+    
+    [self registerForAPNsToken];
+    
+    // Wrapper SDK's call init twice and pass null as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
+    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
+        [self downloadIOSParamsWithAppId:appId];
+    
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
+    
     if ([self requiresPrivacyConsent]) {
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
-        delayedInitializationForPrivacyConsent = true;
-        _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
-        // Init was not successful, set appId back to nil
-        // TODO: Why does this behave this way? Can we move this check earlier into setAppId?
-        // ... Perhaps because we need the appId and launchOptions to make the _delayedInitParameters
-        appId = nil;
+        [self delayInitializationForPrivacyConsent];
         return;
     }
     
     // TODO: Language move to user?
     languageContext = [LanguageContext new];
-
-    [OneSignalCacheCleaner cleanCachedUserData];
     
-    // TODO: Ask if we still need this, as it causes questions in wrappers. Can we remove?
-    [OneSignal checkIfApplicationImplementsDeprecatedMethods];
-
-    // TODO: can we do this check earlier, preferably in setAppId
-    // Not if we don't want to make all these changes and then hit the requiresPrivacyConsent blocker
-    let success = [self handleAppIdChange:appId];
-    if (!success)
+    [self initInAppLaunchURLSettings:appSettings];
+    
+    // Invalid app ids reaching here will cause failure
+    if (![self isValidAppId:appId])
         return;
 
-    // Wrapper SDK's call init twice and pass null as the appId on the first call
-    //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
-
-    [self initSettings:appSettings];
-
-    if (initDone)
-        return;
-
-    // TODO: Questions about this initializationTime, shouldRegisterUserAfterDelay will always be true on the first pass of this init() method
-    initializationTime = [NSDate date];
-
-    // Outcomes init
-    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc] initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] initWithSessionManager:[OSSessionManager sharedSessionManager] outcomeEventsFactory:_outcomeEventFactory];
-
-    // TODO: Do we pass location to user module?
-    if (appId && [self isLocationShared])
-       [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
-
+    // TODO: Consider the implications of `registerUserInternal` previously running on the main_queue
+    // Some of its calls have been moved into `init` here below
     /*
-     * No need to call the handleNotificationOpened:userInfo as it will be called from one of the following selectors
-     *  - application:didReceiveRemoteNotification:fetchCompletionHandler
-     *  - userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler (iOS10)
+     // Run on the main queue as it is possible for this to be called from multiple queues.
+     // Also some of the code in the method is not thread safe such as _outcomeEventsController.
+     [OneSignalHelper dispatch_async_on_main_queue:^{
+         [self registerUserInternal];
+     }];
      */
-
-    // Cold start from tap on a remote notification
-    //  NOTE: launchOptions may be nil if tapping on a notification's action button.
-    NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-    if (userInfo)
-        [OSNotificationsManager setColdStartFromTapOnNotification:YES];
-
+    
+    // Get IAMs
     [OSNotificationsManager clearBadgeCount:false];
-
-    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
-        trackIAPPurchase = [OneSignalTrackIAP new];
-
-    if ([OneSignalTrackFirebaseAnalytics libraryExists])
-        [OneSignalTrackFirebaseAnalytics init];
-
-    [OneSignalLifecycleObserver registerLifecycleObserver];
+    [self startOutcomes];
+    [self startLocation];
+    [self startTrackingSession];
+    [self startTrackIAP];
+    [self startTrackFirebaseAnalytics];
+    [self startLifecycleObserver];
+    [self startUserManager];
 
     initDone = true;
 }
@@ -534,21 +585,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
 }
 
-+ (void)initSettings:(NSDictionary*)settings {
-    // TODO: Ask about this boolean being set here, and this method in general.
++ (void)registerForAPNsToken {
     registeredWithApple = OSNotificationsManager.currentPermissionState.accepted;
-    
-    let standardUserDefaults = OneSignalUserDefaults.initStandard;
-    // Check if disabled in-app launch url if passed a NO
-    if (settings[kOSSettingsKeyInAppLaunchURL] && [settings[kOSSettingsKeyInAppLaunchURL] isKindOfClass:[NSNumber class]])
-        [self enableInAppLaunchURL:[settings[kOSSettingsKeyInAppLaunchURL] boolValue]];
-    else if (![standardUserDefaults keyExists:OSUD_NOTIFICATION_OPEN_LAUNCH_URL]) {
-        // Only need to default to true if the app doesn't already have this setting saved in NSUserDefaults
-        [self enableInAppLaunchURL:true];
-    }
-    
-    // Always NO, can be cleaned up in a future commit
-    usesAutoPrompt = NO;
     
     // Register with Apple's APNS server if we registed once before or if auto-prompt hasn't been disabled.
     if (registeredWithApple && !OSNotificationsManager.currentPermissionState.ephemeral) {
@@ -556,17 +594,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     } else {
         [OSNotificationsManager checkProvisionalAuthorizationStatus];
         [OSNotificationsManager registerForAPNsToken];
-    }
-
-    if (self.currentSubscriptionState.userId)
-        [self registerUser];
-    else {
-        [OSNotificationsManager.osNotificationSettings getNotificationPermissionState:^(OSPermissionStateInternal *state) {
-            if (state.answeredPrompt)
-                [self registerUser];
-            else
-                [self registerUserAfterDelay];
-        }];
     }
 }
 
