@@ -345,7 +345,7 @@ static NSString *_pushSubscriptionId;
         return;
 
     _pushToken = parsedDeviceToken;
-    [self.delegate setPushToken:parsedDeviceToken];
+    [self sendPushTokenToDelegate];
 }
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
@@ -365,11 +365,15 @@ static NSString *_pushSubscriptionId;
     }
 }
 
++ (void)sendPushTokenToDelegate {
+    [self.delegate setPushToken:_pushToken];
+}
+
 + (void)setSubscriptionErrorStatus:(int)errorType {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"setSubscriptionErrorStatus: %d", errorType]];
     
     mSubscriptionStatus = errorType;
-    [self sendNotificationTypesUpdate];
+    [self sendNotificationTypesUpdateToDelegate];
 }
 
 // onOSPermissionChanged should only fire if something changed.
@@ -399,10 +403,10 @@ static NSString *_pushSubscriptionId;
     // TODO: Dropped support, can remove below?
     [self.osNotificationSettings onNotificationPromptResponse:notificationTypes]; // iOS 9 only
 
-    [self sendNotificationTypesUpdate];
+    [self sendNotificationTypesUpdateToDelegate];
 }
 
-+ (void)sendNotificationTypesUpdate {
++ (void)sendNotificationTypesUpdateToDelegate {
     // We don't delay observer update to wait until the OneSignal server is notified
     // TODO: We can do the above and delay observers until server is updated.
     [self.delegate setAccepted:[self getNotificationTypes] > 0];
