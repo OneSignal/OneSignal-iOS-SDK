@@ -141,7 +141,7 @@ static BOOL didEnterBackgroundTriggered = NO;
         [OneSignal registerUser];
     else {
         // This checks if notification permissions changed when app was backgrounded
-        [OSNotificationsManager sendNotificationTypesUpdate];
+        [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
         [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
         if (fromBackgroundedState) {
             // Use cached IAMs if app truly went into the background

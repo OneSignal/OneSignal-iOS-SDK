@@ -478,7 +478,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)startUserManager {
-    [OneSignalUserManagerImpl sharedInstance];
+    [OneSignalUserManagerImpl.sharedInstance start];
+    [OSNotificationsManager sendPushTokenToDelegate];
+    [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
 }
 
 + (void)delayInitializationForPrivacyConsent {
@@ -545,7 +547,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self startTrackIAP];
     [self startTrackFirebaseAnalytics];
     [self startLifecycleObserver];
-    [self startUserManager];
+    [self startUserManager]; // By here, app_id exists, and consent is granted.
 
     initDone = true;
 }

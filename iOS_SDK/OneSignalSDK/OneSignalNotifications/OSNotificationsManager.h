@@ -86,9 +86,11 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 + (BOOL)registerForAPNsToken;
++ (void)sendPushTokenToDelegate;
 
 + (int)getNotificationTypes:(BOOL)pushDisabled;
 + (void)updateNotificationTypes:(int)notificationTypes;
++ (void)sendNotificationTypesUpdateToDelegate;
 
 // Used to manage observers added by the app developer.
 @property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;

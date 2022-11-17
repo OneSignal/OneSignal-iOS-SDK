@@ -83,14 +83,20 @@ import OneSignalNotifications
     var token: String? { get }
     var enabled: Bool { get }
     func enable(_ enable: Bool) -> Bool
-    func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState
+    func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState?
     func removeObserver(_ observer: OSPushSubscriptionObserver)
 }
 
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
-    @objc public static let sharedInstance = OneSignalUserManagerImpl().start()
+    @objc public static let sharedInstance = OneSignalUserManagerImpl()
+    private var hasCalledStart = false
+
     var user: OSUserInternal {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return _mockUser
+        }
+        start()
         if let user = _user {
             return user
         }
@@ -102,6 +108,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private var _user: OSUserInternal?
+
+    // This is a user instance to operate on when there is no app_id and/or privacy consent yet, effectively no-op.
+    // The models are not added to any model stores.
+    private let _mockUser = OSUserInternalImpl(
+        identityModel: OSIdentityModel(aliases: nil, changeNotifier: OSEventProducer()),
+        propertiesModel: OSPropertiesModel(changeNotifier: OSEventProducer()),
+        pushSubscriptionModel: OSSubscriptionModel(type: .push, address: nil, subscriptionId: nil, accepted: false, isDisabled: true, changeNotifier: OSEventProducer()))
 
     @objc public var requiresUserAuth = false
 
@@ -139,7 +152,16 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
     }
 
-    private func start() -> OneSignalUserManagerImpl {
+    @objc
+    public func start() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        guard !hasCalledStart else {
+            return
+        }
+
+        hasCalledStart = true
         print("🔥 OneSignalUserManagerImpl start()")
 
         OSNotificationsManager.delegate = self
@@ -152,6 +174,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         }
 
+        // Creates an anonymous user if there isn't one in the cache
+        createUserIfNil()
+
         // Model store listeners subscribe to their models
         identityModelStoreListener.start()
         propertiesModelStoreListener.start()
@@ -162,11 +187,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
-        return self
     }
 
     @objc
     public func login(externalId: String, token: String?) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        start()
         guard externalId != "" else {
             // Log error
             return
@@ -176,6 +204,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private func createNewUser(externalId: String?, token: String?) -> OSUserInternal {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return _mockUser
+        }
+
         // Check if the existing user is the same one being logged in. If so, return.
         if let user = _user {
             guard user.identityModel.externalId != externalId || externalId == nil else {
@@ -200,8 +232,12 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      2. This externalId doesn't exist on any users. We successfully identify the user, but we still create a new SDK user and fetch to update it.
      */
     private func identifyUser(externalId: String, currentUser: OSUserInternal) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+
         // Get the identity model of the current user
-        let identityModelToIdentify = user.identityModel
+        let identityModelToIdentify = currentUser.identityModel
 
         // Immediately drop the old user and set a new user in the SDK
         let pushSubscriptionModel = subscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
@@ -217,6 +253,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private func _login(externalId: String?, token: String?) -> OSUserInternal {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return _mockUser
+        }
+
         print("🔥 OneSignalUserManagerImpl private _login(\(externalId)) called")
 
         // If have token, validate token. Account for this being a requirement.
@@ -243,6 +283,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private func createUserIfNil() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
         _ = self.user
     }
 
@@ -301,58 +344,96 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
 extension OneSignalUserManagerImpl: OSUser {
     public var User: OSUser {
+        start()
         return self
     }
 
     public var pushSubscription: OSPushSubscription {
+        start()
         return self
     }
 
     public func addAlias(label: String, id: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addAlias") else {
+            return
+        }
         user.addAliases([label: id])
     }
 
     public func addAliases(_ aliases: [String: String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addAliases") else {
+            return
+        }
         user.addAliases(aliases)
     }
 
     public func removeAlias(_ label: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeAlias") else {
+            return
+        }
         user.removeAliases([label])
     }
 
     public func removeAliases(_ labels: [String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeAliases") else {
+            return
+        }
         user.removeAliases(labels)
     }
 
     public func setTag(key: String, value: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTag") else {
+            return
+        }
         user.setTags([key: value])
     }
 
     public func setTags(_ tags: [String: String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTags") else {
+            return
+        }
         user.setTags(tags)
     }
 
     public func removeTag(_ tag: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTag") else {
+            return
+        }
         user.removeTags([tag])
     }
 
     public func removeTags(_ tags: [String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTags") else {
+            return
+        }
         user.removeTags(tags)
     }
 
     public func setOutcome(_ name: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setOutcome") else {
+            return
+        }
         user.setOutcome(name)
     }
 
     public func setUniqueOutcome(_ name: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setUniqueOutcome") else {
+            return
+        }
         user.setUniqueOutcome(name)
     }
 
     public func setOutcome(name: String, value: Float) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setOutcome") else {
+            return
+        }
         user.setOutcome(name: name, value: value)
     }
 
     public func addEmail(_ email: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addEmail") else {
+            return
+        }
         // Check if is valid email?
         // Check if this email already exists on this User?
         createUserIfNil()
@@ -373,12 +454,18 @@ extension OneSignalUserManagerImpl: OSUser {
      Error handling needs to be implemented in the future.
      */
     public func removeEmail(_ email: String) -> Bool {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeEmail") else {
+            return false
+        }
         // Check if is valid email?
         createUserIfNil()
         return self.subscriptionModelStore.remove(email)
     }
 
     public func addSmsNumber(_ number: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addSmsNumber") else {
+            return
+        }
         // Check if is valid SMS?
         // Check if this SMS already exists on this User?
         createUserIfNil()
@@ -399,35 +486,56 @@ extension OneSignalUserManagerImpl: OSUser {
      Error handling needs to be implemented in the future.
      */
     public func removeSmsNumber(_ number: String) -> Bool {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeSmsNumber") else {
+            return false
+        }
         // Check if is valid SMS?
         createUserIfNil()
         return self.subscriptionModelStore.remove(number)
     }
 
     public func setTrigger(key: String, value: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTrigger") else {
+            return
+        }
         user.setTrigger(key: key, value: value)
     }
 
     public func setTriggers(_ triggers: [String: String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTriggers") else {
+            return
+        }
         user.setTriggers(triggers)
     }
 
     public func removeTrigger(_ trigger: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTrigger") else {
+            return
+        }
         user.removeTrigger(trigger)
     }
 
     public func removeTriggers(_ triggers: [String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTriggers") else {
+            return
+        }
         user.removeTriggers(triggers)
     }
 
     public func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
         user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
     }
 }
 
 extension OneSignalUserManagerImpl: OSPushSubscription {
 
-    public func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState {
+    public func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState? {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addObserver") else {
+            return nil
+        }
         self.pushSubscriptionStateChangesObserver.addObserver(observer)
         return user.pushSubscriptionModel.currentPushSubscriptionState
     }
@@ -437,11 +545,17 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
     }
 
     public var subscriptionId: String? {
-        user.pushSubscriptionModel.subscriptionId
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "subscriptionId") else {
+            return nil
+        }
+        return user.pushSubscriptionModel.subscriptionId
     }
 
     public var token: String? {
-        user.pushSubscriptionModel.address
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "token") else {
+            return nil
+        }
+        return user.pushSubscriptionModel.address
     }
 
     /**
@@ -449,31 +563,49 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
      */
     public var enabled: Bool {
         get {
-            user.pushSubscriptionModel.enabled
+            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "enabled") else {
+                return false
+            }
+            return user.pushSubscriptionModel.enabled
         }
     }
 
     /**
-     Set the `enabled` state. After being set, we retur whether this was successful  as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
+     Set the `enabled` state. After being set, we return whether this was successful, as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
+     
+     - Returns: A boolean indicating if this method was successful.
      */
     public func enable(_ enable: Bool) -> Bool {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "enable") else {
+            return false
+        }
         user.pushSubscriptionModel._isDisabled = !enable
         return user.pushSubscriptionModel.enabled != enable
     }
 }
 
 extension OneSignalUserManagerImpl: OneSignalNotificationsDelegate {
-    // doesnt need to live on push sub model, only sent to backend
-    // check if this affects the subscription observers or permission observers
+    // While we await app_id and privacy consent, these methods are a no-op
+    // Once the UserManager is started in `init`, it calls these to set the state of the pushSubscriptionModel
+
     public func setNotificationTypes(_ notificationTypes: Int32) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
         user.pushSubscriptionModel.notificationTypes = Int(notificationTypes)
     }
 
     public func setPushToken(_ pushToken: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
         user.pushSubscriptionModel.address = pushToken
     }
 
     public func setAccepted(_ inAccepted: Bool) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
         user.pushSubscriptionModel._accepted = inAccepted
     }
 }
