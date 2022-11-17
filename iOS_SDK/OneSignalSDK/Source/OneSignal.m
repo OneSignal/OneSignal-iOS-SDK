@@ -264,6 +264,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 //TODO: This is related to unit tests and will change with um tests
 + (void)clearStatics {
     appId = nil;
+    [OneSignalConfigManager setAppId:nil];
     launchOptions = false;
     appSettings = nil;
     initDone = false;
@@ -348,13 +349,13 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 // TODO: For release, note this change in migration guide:
 // No longer reading appID from plist @"OneSignal_APPID" and @"GameThrive_APPID"
 + (void)setAppId:(nonnull NSString*)newAppId {
-    // TODO: Put app ID on core
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
         NSString* cachedAppId = [self getCachedAppId];
         if (cachedAppId) {
             appId = cachedAppId;
+            [OneSignalConfigManager setAppId:cachedAppId];
         } else {
             return;
         }
@@ -363,6 +364,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
         appId = newAppId;
+        [OneSignalConfigManager setAppId:newAppId];
     }
     [self handleAppIdChange:appId];
 }
@@ -483,6 +485,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
     // Init was not successful, set appId back to nil
     appId = nil;
+    [OneSignalConfigManager setAppId:nil];
 }
 
 /*

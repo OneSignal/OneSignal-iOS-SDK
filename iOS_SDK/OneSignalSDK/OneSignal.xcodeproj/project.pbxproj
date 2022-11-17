@@ -68,6 +68,8 @@
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
+		3C47A974292642B100312125 /* OneSignalConfigManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C47A972292642B100312125 /* OneSignalConfigManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */; };
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
@@ -730,6 +732,8 @@
 		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
+		3C47A972292642B100312125 /* OneSignalConfigManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalConfigManager.h; sourceTree = "<group>"; };
+		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
 		3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertyOperationExecutor.swift; sourceTree = "<group>"; };
@@ -1725,6 +1729,8 @@
 				454F94F41FAD2E5A00D74CCF /* OSNotification.m */,
 				454F94F61FAD2EC300D74CCF /* OSNotification+Internal.h */,
 				3CE8CC4C2911ADD1000DB0D3 /* OSDeviceUtils.h */,
+				3C47A972292642B100312125 /* OneSignalConfigManager.h */,
+				3C47A973292642B100312125 /* OneSignalConfigManager.m */,
 				3CE8CC4D2911ADD1000DB0D3 /* OSDeviceUtils.m */,
 				CA70E3382023F24500019273 /* OneSignalCommonDefines.h */,
 				7AD8DDE8234BD3CF00747A8A /* OneSignalUserDefaults.h */,
@@ -2160,6 +2166,7 @@
 				3CE8CC522911AE90000DB0D3 /* OSNetworkingUtils.h in Headers */,
 				DE971754274C48CF00FC409E /* OSPrivacyConsentController.h in Headers */,
 				3CE8CC4E2911ADD1000DB0D3 /* OSDeviceUtils.h in Headers */,
+				3C47A974292642B100312125 /* OneSignalConfigManager.h in Headers */,
 				DE7D183627027AA0002D3A5D /* OneSignalLog.h in Headers */,
 				DE7D182D270273B0002D3A5D /* OSNotification.h in Headers */,
 				DE7D183F27027F62002D3A5D /* NSString+OneSignal.h in Headers */,
@@ -2929,6 +2936,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */,
 				DE7D1874270375FF002D3A5D /* OSReattemptRequest.m in Sources */,
 				DE7D183427027A73002D3A5D /* OneSignalLog.m in Sources */,
 				DEF784642912FA5100A1F3A5 /* OSDialogInstanceManager.m in Sources */,
