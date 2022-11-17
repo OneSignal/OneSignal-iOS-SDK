@@ -111,7 +111,7 @@ static BOOL lastOnFocusWasToBackground = YES;
         [OneSignal registerUser];
     else {
         // This checks if notification permissions changed when app was backgrounded
-        [OSNotificationsManager sendNotificationTypesUpdate];
+        [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
         [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
         [OneSignal receivedInAppMessageJson:nil];
     }
