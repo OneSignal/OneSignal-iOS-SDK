@@ -502,6 +502,7 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
     let params = [NSMutableDictionary new];
     params[@"push_token"] = token;
     params[@"subscription_id"] = userId; // pre-5.X.X subscription_id = player_id = userId
+    params[@"device_type"] = @0;
     request.parameters = params;
     request.method = POST;
     request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token", appId, activityId];
