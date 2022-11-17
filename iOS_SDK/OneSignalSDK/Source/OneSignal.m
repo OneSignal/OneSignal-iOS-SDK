@@ -628,15 +628,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _delayedInitParameters = nil;
 }
 
-// the iOS SDK used to call these selectors as a convenience but has stopped due to concerns about private API usage
-// the SDK will now print warnings when a developer's app implements these selectors
-+ (void)checkIfApplicationImplementsDeprecatedMethods {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        for (NSString *selectorName in DEPRECATED_SELECTORS)
-            if ([[[UIApplication sharedApplication] delegate] respondsToSelector:NSSelectorFromString(selectorName)])
-                [OneSignal onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"OneSignal has detected that your application delegate implements a deprecated method (%@). Please note that this method has been officially deprecated and the OneSignal SDK will no longer call it. You should use UNUserNotificationCenter instead", selectorName]];
-    });
-}
 //TODO: move to core?
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
