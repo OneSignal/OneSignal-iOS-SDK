@@ -332,22 +332,49 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self init];
 }
 
++ (NSString * _Nullable)getCachedAppId {
+    let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
+    if (!prevAppId) {
+        [OneSignal onesignalLog:ONE_S_LL_INFO message:@"Waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
+    } else {
+        let logMessage = [NSString stringWithFormat:@"Initializing OneSignal with cached appId: '%@'.", prevAppId];
+        [OneSignal onesignalLog:ONE_S_LL_INFO message:logMessage];
+    }
+    return prevAppId;
+}
+
 /*
  1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application
  */
+// TODO: For release, note this change in migration guide:
+// No longer reading appID from plist @"OneSignal_APPID" and @"GameThrive_APPID"
 + (void)setAppId:(nonnull NSString*)newAppId {
+    // TODO: Put app ID on core
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
-        return;
+        NSString* cachedAppId = [self getCachedAppId];
+        if (cachedAppId) {
+            appId = cachedAppId;
+        } else {
+            return;
+        }
     } else if (appId && ![newAppId isEqualToString:appId])  {
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
+        appId = newAppId;
     }
+    [self handleAppIdChange:appId];
+}
 
-    appId = newAppId;
++ (BOOL)isValidAppId:(NSString*)appId {
+    if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
+        [OneSignal onesignalLog:ONE_S_LL_FATAL message:@"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n"];
+        return false;
+    }
+    return true;
 }
 
 /*
@@ -359,31 +386,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
-
-    // TODO: Ask about this, if needed anymore. Prefer to remove.
-    // Getting from plist has existed since at least v1.11.0
-    if (!appId || appId.length == 0) {
-        // Read from .plist if not passed in with this method call
-        appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
-        if (!appId) {
-
-            appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"GameThrive_APPID"];
-            if (!appId) {
-
-                let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
-                if (!prevAppId) {
-                    [OneSignal onesignalLog:ONE_S_LL_INFO message:@"launchOptions set, now waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
-                } else {
-                    let logMessage = [NSString stringWithFormat:@"launchOptions set, initializing OneSignal with cached appId: '%@'.", prevAppId];
-                    [OneSignal onesignalLog:ONE_S_LL_INFO message:logMessage];
-                    [self setAppId:prevAppId];
-                }
-                return;
-            }
-        }
-    }
-
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
+    
+    // Cold start from tap on a remote notification
+    //  NOTE: launchOptions may be nil if tapping on a notification's action button.
+    NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    if (userInfo)
+        [OSNotificationsManager setColdStartFromTapOnNotification:YES];
 }
 
 + (void)setLaunchURLsInApp:(BOOL)launchInApp {
@@ -492,7 +500,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     return [OneSignalUserDefaults appGroupName];
 }
 
-+ (BOOL)handleAppIdChange:(NSString*)appId {
++ (void)handleAppIdChange:(NSString*)appId {
     // TODO: Maybe in the future we can make a file with add app ids and validate that way?
     if ([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:appId] ||
         [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId]) {
@@ -524,14 +532,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     //   - Updating from an older SDK
     //   - Updating to an app that didn't have App Groups setup before
     [OneSignalUserDefaults.initShared saveStringForKey:OSUD_APP_ID withValue:appId];
-    
-    // Invalid app ids reaching here will cause failure
-    if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
-        [OneSignal onesignalLog:ONE_S_LL_FATAL message:@"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n"];
-       return false;
-    }
-    
-    return true;
 }
 
 + (void)initSettings:(NSDictionary*)settings {
