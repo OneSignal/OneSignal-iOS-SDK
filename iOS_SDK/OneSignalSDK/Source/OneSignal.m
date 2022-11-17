@@ -304,12 +304,20 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)login:(NSString * _Nonnull)externalId {
+    // return if no app_id / the user has not granted privacy permissions
+    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
+        return;
+    }
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:nil];
     // refine Swift name for Obj-C? But doesn't matter as much since this isn't public API
 }
 
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token {
     // TODO: Need to await download iOS params
+    // return if no app_id / the user has not granted privacy permissions
+    if ([OneSignalConfigManager shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:@"login"]) {
+        return;
+    }
     [OneSignalUserManagerImpl.sharedInstance loginWithExternalId:externalId token:token];
 }
 
