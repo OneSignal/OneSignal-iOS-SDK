@@ -73,7 +73,6 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setAppId:(NSString *)appId;
 + (NSString *_Nullable)getAppId;
 
-@property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
 @property (class) OSPermissionStateInternal* _Nonnull lastPermissionState;
 
