@@ -505,7 +505,10 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
     params[@"device_type"] = @0;
     request.parameters = params;
     request.method = POST;
-    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token", appId, activityId];
+    
+    NSString *urlSafeActivityId = [activityId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLUserAllowedCharacterSet]];
+    
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token", appId, urlSafeActivityId];
     return request;
 }
 @end
@@ -516,7 +519,11 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
                 activityId:(NSString * _Nonnull)activityId {
     let request = [OSRequestLiveActivityExit new];
     request.method = DELETE;
-    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, activityId, userId];
+    
+    NSString *urlSafeActivityId = [activityId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLUserAllowedCharacterSet]];
+    
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, urlSafeActivityId, userId];
+    
     return request;
 }
 @end
