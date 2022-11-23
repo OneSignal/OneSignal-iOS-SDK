@@ -46,7 +46,7 @@
 // "*" in comment line ending comment means the string value has not been changed
 // App
 
-#define ONESIGNAL_VERSION                                                   @"031202"
+#define ONESIGNAL_VERSION                                                   @"031203"
 
 #define OSUD_APP_ID                                                         @"GT_APP_ID"                                                        // * OSUD_APP_ID
 #define OSUD_REGISTERED_WITH_APPLE                                          @"GT_REGISTERED_WITH_APPLE"                                         // * OSUD_REGISTERED_WITH_APPLE
