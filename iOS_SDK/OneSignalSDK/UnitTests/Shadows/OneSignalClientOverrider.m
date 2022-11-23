@@ -217,7 +217,7 @@ static NSDictionary* remoteParams;
         if ([request.urlRequest.URL.absoluteString containsString:@"apps/"]) {
           NSArray *pathComponents = [request.urlRequest.URL.absoluteString componentsSeparatedByString:@"/"];
           NSUInteger x = [pathComponents indexOfObject:@"apps"] + 1; // Find the index that follows "apps" in the path
-            if ([pathComponents count] < x || [[pathComponents objectAtIndex:x] length] == 0 || [[pathComponents objectAtIndex:x] isEqual: @"(null)"]) {
+            if ([pathComponents count] <= x || [[pathComponents objectAtIndex:x] length] == 0 || [[pathComponents objectAtIndex:x] isEqual: @"(null)"]) {
                 _XCTPrimitiveFail(currentTestInstance, @"All request must include an app_id");
             }
         } else if (!parameters[@"app_id"]) {
