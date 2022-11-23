@@ -777,7 +777,7 @@ BOOL checkHttpHeaders(NSDictionary *additionalHeaders, NSDictionary *correct) {
     let correctUrl = correctUrlWithPath(testEnterLiveActivityUrlPath);
 
     XCTAssertTrue([correctUrl isEqualToString:request.urlRequest.URL.absoluteString]);
-    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"push_token" : testLiveActivityToken, @"subscription_id" : testUserId }));
+    XCTAssertTrue(checkHttpBody(request.urlRequest.HTTPBody, @{@"push_token" : testLiveActivityToken, @"subscription_id" : testUserId, @"device_type" : @0 }));
     
     XCTAssertEqualObjects(request.urlRequest.HTTPMethod, @"POST");
     XCTAssertEqualObjects(request.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/vnd.onesignal.v1+json");
