@@ -89,11 +89,10 @@
 }
 
 -(BOOL)missingAppId {
-
   if ([self.path containsString:@"apps/"]) {
     NSArray *pathComponents = [self.path componentsSeparatedByString:@"/"];
     NSUInteger x = [pathComponents indexOfObject:@"apps"] + 1; // Find the index that follows "apps" in the path
-    return ([pathComponents count] < x || [[pathComponents objectAtIndex:x] length] == 0);
+    return ([pathComponents count] < x || [[pathComponents objectAtIndex:x] length] == 0 || [[pathComponents objectAtIndex:x] isEqual: @"(null)"]);
   }
    
   return (self.parameters[@"app_id"] == nil || [self.parameters[@"app_id"] length] == 0);
