@@ -342,10 +342,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (NSString * _Nullable)getCachedAppId {
     let prevAppId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
     if (!prevAppId) {
-        [OneSignal onesignalLog:ONE_S_LL_INFO message:@"Waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
+        [OneSignalLog onesignalLog:ONE_S_LL_INFO message:@"Waiting for setAppId(appId) with a valid appId to complete OneSignal init!"];
     } else {
         let logMessage = [NSString stringWithFormat:@"Initializing OneSignal with cached appId: '%@'.", prevAppId];
-        [OneSignal onesignalLog:ONE_S_LL_INFO message:logMessage];
+        [OneSignalLog onesignalLog:ONE_S_LL_INFO message:logMessage];
     }
     return prevAppId;
 }
@@ -357,7 +357,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 // TODO: For release, note this change in migration guide:
 // No longer reading appID from plist @"OneSignal_APPID" and @"GameThrive_APPID"
 + (void)setAppId:(nonnull NSString*)newAppId {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setAppId(id) called with appId: %@!", newAppId]];
 
     if (!newAppId || newAppId.length == 0) {
         NSString* cachedAppId = [self getCachedAppId];
@@ -379,7 +379,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (BOOL)isValidAppId:(NSString*)appId {
     if (!appId || ![[NSUUID alloc] initWithUUIDString:appId]) {
-        [OneSignal onesignalLog:ONE_S_LL_FATAL message:@"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n"];
+        [OneSignalLog onesignalLog:ONE_S_LL_FATAL message:@"OneSignal AppId format is invalid.\nExample: 'b2f7f966-d8cc-11e4-bed1-df8f05be55ba'\n"];
         return false;
     }
     return true;
@@ -391,7 +391,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Method must be called to successfully init OneSignal
  */
 + (void)setLaunchOptions:(nullable NSDictionary*)newLaunchOptions {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
     
@@ -417,12 +417,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
 }
 
 + (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
     [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
@@ -490,7 +490,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)delayInitializationForPrivacyConsent {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
     delayedInitializationForPrivacyConsent = true;
     _delayedInitParameters = [[DelayedConsentInitializationParameters alloc] initWithLaunchOptions:launchOptions withAppId:appId];
     // Init was not successful, set appId back to nil
@@ -502,7 +502,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
     
     // TODO: We moved this check to the top of this method, we should test this.
     if (initDone) {
@@ -566,7 +566,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     // TODO: Maybe in the future we can make a file with add app ids and validate that way?
     if ([@"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" isEqualToString:appId] ||
         [@"5eb5a37e-b458-11e3-ac11-000c2940e62c" isEqualToString:appId]) {
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:@"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal Example AppID detected, please update to your app's id found on OneSignal.com"];
     }
 
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
@@ -617,7 +617,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
 
     if ([self requiresPrivacyConsent] && !required) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
         return;
     }
 
@@ -641,7 +641,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 //TODO: move to core?
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         
@@ -692,13 +692,13 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)startLocationSharedWithFlag:(BOOL)enable {
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startLocationSharedWithFlag called with status: %d", (int) enable]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startLocationSharedWithFlag called with status: %d", (int) enable]];
 
     let remoteController = [self getRemoteParamController];
     [remoteController saveLocationShared:enable];
 
     if (!enable) {
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"startLocationSharedWithFlag set false, clearing last location!"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startLocationSharedWithFlag set false, clearing last location!"];
         [OneSignalLocation clearLastLocation];
     }
 }
@@ -780,7 +780,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         userState.tags = self.playerTags.tagsToSend;
     
     if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
         let locationState = [OSLocationState new];
         locationState.latitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
         locationState.longitude = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
@@ -788,7 +788,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         locationState.accuracy = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->horizontalAccuracy];
         userState.locationState = locationState;
     } else
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"Not sending location with 'on_session' request payload, setLocationShared is false or lastLocation is null"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Not sending location with 'on_session' request payload, setLocationShared is false or lastLocation is null"];
     
     return userState;
 }
@@ -879,7 +879,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
 
     if (!key) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
         return;
     }
 
@@ -900,7 +900,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
 
     if (!key) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
         return;
     }
 
@@ -937,7 +937,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
     if (!_outcomeEventsController) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -954,7 +954,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
 
     if (!_outcomeEventsController) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -974,7 +974,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
 
     if (!_outcomeEventsController) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -994,7 +994,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         return;
 
     if (!_outcomeEventsController) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
@@ -1009,7 +1009,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
     if (!name || [name length] == 0) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
         return false;
     }
 
@@ -1018,51 +1018,17 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 
 + (BOOL)isValidOutcomeValue:(NSNumber *)value {
     if (!value || value.intValue <= 0) {
-        [OneSignal onesignalLog:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
         return false;
     }
 
     return true;
 }
 
-static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
-
 #pragma mark Logging
 //TODO: delete with um
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
-    [OneSignalLog setLogLevel:logLevel];
-    _visualLogLevel = visualLogLevel;
-}
-//TODO: delete with um
-+ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
-    [OneSignalLog onesignalLog:logLevel message:message];
-    NSString* levelString;
-    switch (logLevel) {
-        case ONE_S_LL_FATAL:
-            levelString = @"FATAL: ";
-            break;
-        case ONE_S_LL_ERROR:
-            levelString = @"ERROR: ";
-            break;
-        case ONE_S_LL_WARN:
-            levelString = @"WARNING: ";
-            break;
-        case ONE_S_LL_INFO:
-            levelString = @"INFO: ";
-            break;
-        case ONE_S_LL_DEBUG:
-            levelString = @"DEBUG: ";
-            break;
-        case ONE_S_LL_VERBOSE:
-            levelString = @"VERBOSE: ";
-            break;
-            
-        default:
-            break;
-    }
-    if (logLevel <= _visualLogLevel) {
-        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
-    }
+    [OneSignalLog setLogLevel:logLevel visualLevel:visualLogLevel];
 }
 
 @end
@@ -1101,10 +1067,10 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 + (void)load {
     
     if ([self shouldDisableBasedOnProcessArguments]) {
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"OneSignal method swizzling is disabled. Make sure the feature is enabled for production."];
         return;
     }
-    [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
     
     // Prevent Xcode storyboard rendering process from crashing with custom IBDesignable Views or from hostless unit tests or share-extension.
     // https://github.com/OneSignal/OneSignal-iOS-SDK/issues/160
@@ -1125,7 +1091,7 @@ static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
         @selector(oneSignalLoadedTagSelector:)
     );
     if (existing) {
-        [OneSignal onesignalLog:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
+        [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"Already swizzled UIApplication.setDelegate. Make sure the OneSignal library wasn't loaded into the runtime twice!"];
         return;
     }
 

@@ -120,7 +120,7 @@ THE SOFTWARE.
     }
 
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
-        [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"on_session result: %@", results]];
         [OneSignal registerUserSuccessful];
 
         // If the external user ID was sent as part of this request, we need to save it
@@ -163,7 +163,7 @@ THE SOFTWARE.
             // Player record was deleted so we should reset external user id
             let cachedPlayerId = [OneSignalUserDefaults.initStandard getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
             if (cachedPlayerId && ![results[OS_PUSH][@"id"] isEqualToString:cachedPlayerId]) {
-                [OneSignal onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat: @"Player id has changed. Clearing cached external user id"]];
+                [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat: @"Player id has changed. Clearing cached external user id"]];
                 [OneSignalUserDefaults.initStandard saveStringForKey:OSUD_EXTERNAL_USER_ID withValue:nil];
             }
 
@@ -176,7 +176,7 @@ THE SOFTWARE.
             successBlock(results);
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         for (NSString *key in @[OS_PUSH, OS_EMAIL])
-            [OneSignal onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Encountered error during %@ registration with OneSignal: %@", key, errors[key]]];
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat: @"Encountered error during %@ registration with OneSignal: %@", key, errors[key]]];
 
         [OneSignal registerUserFinished];
         if (failureBlock)
