@@ -70,7 +70,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // Example block for IAM action click handler
     id inAppMessagingActionClickBlock = ^(OSInAppMessageAction *action) {
         NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:message];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:message];
     };
 
     // Example setter for IAM action click handler using OneSignal public method
