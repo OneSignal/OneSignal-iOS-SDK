@@ -124,11 +124,7 @@ static BOOL didEnterBackgroundTriggered = NO;
 }
 
 + (void)applicationForegrounded {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
-
-    BOOL fromBackgroundedState = [self applicationForegroundedFromBackgroundedState];
-    [self resetBackgroundDetection];
-    
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
@@ -156,7 +152,7 @@ static BOOL didEnterBackgroundTriggered = NO;
 }
 
 + (void)applicationBackgrounded {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
     [self updateLastClosedTime];
     
@@ -175,13 +171,13 @@ static BOOL didEnterBackgroundTriggered = NO;
 }
 
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];
     let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
     
     if (!timeProcessor) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
     
