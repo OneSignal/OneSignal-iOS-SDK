@@ -216,16 +216,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _appEntryState = appEntryState;
 }
 
-static OSOutcomeEventsFactory *_outcomeEventFactory;
-+ (OSOutcomeEventsFactory *)outcomeEventFactory {
-    return _outcomeEventFactory;
-}
-
-static OneSignalOutcomeEventsController *_outcomeEventsController;
-+ (OneSignalOutcomeEventsController *)getOutcomeEventsController {
-    return _outcomeEventsController;
-}
-
 + (NSString*)appId {
     return appId;
 }
@@ -289,8 +279,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
 
-    _outcomeEventFactory = nil;
-    _outcomeEventsController = nil;
+    [OneSignalOutcomes clearStatics];
     
     [OSSessionManager resetSharedSessionManager];
 }
@@ -444,13 +433,11 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 + (void)startOutcomes {
-    _outcomeEventFactory = [[OSOutcomeEventsFactory alloc]
-                            initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]];
-    _outcomeEventsController = [[OneSignalOutcomeEventsController alloc]
-                                initWithSessionManager:[OSSessionManager sharedSessionManager]
-                                outcomeEventsFactory:_outcomeEventFactory];
-    [_outcomeEventsController cleanUniqueOutcomeNotifications];
-    [_outcomeEventsController clearOutcomes];
+    [OneSignalOutcomes start];
+    
+    // TODO: These should move out into another method that is called when new session is made.
+    [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications];
+    [OneSignalOutcomes.sharedController clearOutcomes];
 }
 
 + (void)startLocation {
@@ -936,12 +923,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  */
 
 + (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
-    if (!_outcomeEventsController) {
+    if (![OneSignalOutcomes sharedController]) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
-    [_outcomeEventsController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+    [OneSignalOutcomes.sharedController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 + (void)sendOutcome:(NSString * _Nonnull)name {
@@ -1036,8 +1023,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 @implementation OneSignal (SessionStatusDelegate)
 
 + (void)onSessionEnding:(NSArray<OSInfluence *> *)lastInfluences {
-    if (_outcomeEventsController)
-        [_outcomeEventsController clearOutcomes];
+    if ([OneSignalOutcomes sharedController])
+        [OneSignalOutcomes.sharedController clearOutcomes];
 
     [OneSignalTracker onSessionEnded:lastInfluences];
 }

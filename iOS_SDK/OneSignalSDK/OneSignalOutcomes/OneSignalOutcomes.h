@@ -42,6 +42,9 @@
 #import "OSOutcomeEventsRepository.h"
 
 @interface OneSignalOutcomes : NSObject
++ (OneSignalOutcomeEventsController * _Nullable)sharedController;
++ (void)start;
++ (void)clearStatics;
 + (void)migrate;
 @end
 
