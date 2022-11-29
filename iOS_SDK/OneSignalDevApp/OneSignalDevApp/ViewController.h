@@ -64,6 +64,8 @@
 @property (weak, nonatomic) IBOutlet UITextView *result;
 @property (weak, nonatomic) IBOutlet UITextField *tagKey;
 @property (weak, nonatomic) IBOutlet UITextField *tagValue;
+@property (weak, nonatomic) IBOutlet UITextField *enterLiveActivityId;
+@property (weak, nonatomic) IBOutlet UITextField *exitLiveActivityId;
 
 @end
 
