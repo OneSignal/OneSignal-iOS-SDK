@@ -282,13 +282,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 #pragma mark Outcomes
-// TODO: UM these are rescoped to user
-+ (void)sendOutcome:(NSString * _Nonnull)name;
-+ (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSSendOutcomeSuccess _Nullable)success;
++ (Class<OSSession>)Session;
 
 #pragma mark Extension
 // iOS 10 only
