@@ -383,24 +383,8 @@
                                                     <action selector="removeExternalUserId:" destination="BYZ-38-t0r" eventType="touchUpInside" id="F3N-HQ-tSv"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2zI-jA-a03">
-                                                <rect key="frame" x="92.666666666666686" y="1254" width="190" height="30"/>
-                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Start and Enter Live Activity"/>
-                                                <connections>
-                                                    <action selector="startAndEnterLiveActivity:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UFm-0m-lBD"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kB2-Ze-5kj">
-                                                <rect key="frame" x="131.66666666666666" y="1356" width="112" height="30"/>
-                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Exit Live Activity"/>
-                                                <connections>
-                                                    <action selector="exitLiveActivity:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VPX-h2-OtR"/>
-                                                </connections>
-                                            </button>
-                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Activity Id" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="GsB-Fb-v9k">
-                                                <rect key="frame" x="77.666666666666686" y="1292" width="220" height="34"/>
+                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Activity Id" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="GsB-Fb-v9k">
+                                                <rect key="frame" x="77.666666666666686" y="1250" width="220" height="34"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="220" id="7Zz-uY-NPn"/>
                                                     <constraint firstAttribute="height" constant="34" id="DwV-Rw-XRi"/>
@@ -408,16 +392,22 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
-                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="500" contentHorizontalAlignment="fill" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Exit Activity Id" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="qB2-T5-Vy3">
-                                                <rect key="frame" x="77.666666666666686" y="1394" width="220" height="34"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="220" id="2Bh-5i-PFk"/>
-                                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="220" id="54z-Va-wrM"/>
-                                                    <constraint firstAttribute="height" constant="34" id="Fz8-lQ-g5g"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits"/>
-                                            </textField>
+                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y7Z-Y9-shL">
+                                                <rect key="frame" x="90" y="1292" width="190" height="30"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Start and Enter Live Activity"/>
+                                                <connections>
+                                                    <action selector="startAndEnterLiveActivity:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tkZ-Lz-xwJ"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kB2-Ze-5kj">
+                                                <rect key="frame" x="131.66666666666666" y="1330" width="112" height="30"/>
+                                                <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <state key="normal" title="Exit Live Activity"/>
+                                                <connections>
+                                                    <action selector="exitLiveActivity:" destination="BYZ-38-t0r" eventType="touchUpInside" id="VPX-h2-OtR"/>
+                                                </connections>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -433,8 +423,10 @@
                                             <constraint firstAttribute="trailing" secondItem="f4C-he-vQl" secondAttribute="trailing" constant="47.333333333333258" id="4Zg-D3-gja"/>
                                             <constraint firstItem="Whw-1A-6W0" firstAttribute="top" secondItem="De4-AJ-nrw" secondAttribute="bottom" constant="8" id="5Lb-po-dWK"/>
                                             <constraint firstItem="De4-AJ-nrw" firstAttribute="leading" secondItem="6dV-2z-2jJ" secondAttribute="leading" constant="98" id="5kd-tw-qnK"/>
+                                            <constraint firstItem="kB2-Ze-5kj" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="6ID-N1-1k0"/>
                                             <constraint firstItem="Htv-x2-aPb" firstAttribute="baseline" secondItem="H3K-GA-smE" secondAttribute="baseline" constant="-1" id="7Fw-oC-CwE"/>
                                             <constraint firstAttribute="trailing" secondItem="knZ-rP-bRU" secondAttribute="trailing" constant="53" id="7H0-aQ-Ozl"/>
+                                            <constraint firstItem="Y7Z-Y9-shL" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="7Iq-On-J3R"/>
                                             <constraint firstItem="knZ-rP-bRU" firstAttribute="leading" secondItem="Xj9-lX-hR2" secondAttribute="trailing" constant="7.9999999999999716" id="7li-jl-GST"/>
                                             <constraint firstItem="9me-S6-lrh" firstAttribute="centerX" secondItem="OiG-L7-Ot2" secondAttribute="centerX" id="7s7-9s-hHJ"/>
                                             <constraint firstItem="YNF-Jm-wDq" firstAttribute="baseline" secondItem="UPh-ZU-o2e" secondAttribute="baseline" id="8BC-A8-M7X"/>
@@ -450,7 +442,6 @@
                                             <constraint firstItem="bmb-ib-r40" firstAttribute="trailing" secondItem="Whw-1A-6W0" secondAttribute="trailing" id="CD1-eI-6bV"/>
                                             <constraint firstItem="yRP-dg-rBy" firstAttribute="baseline" secondItem="H3K-GA-smE" secondAttribute="firstBaseline" id="DGT-HM-vmK"/>
                                             <constraint firstItem="lEs-as-Xak" firstAttribute="top" secondItem="OiG-L7-Ot2" secondAttribute="bottom" constant="8" id="DKU-uU-Zkx"/>
-                                            <constraint firstItem="kB2-Ze-5kj" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="DlL-wF-ZVF"/>
                                             <constraint firstItem="rIN-rI-IgX" firstAttribute="leading" secondItem="H3K-GA-smE" secondAttribute="leading" constant="-1" id="E4a-hE-QnV"/>
                                             <constraint firstItem="a9d-ER-L2X" firstAttribute="leading" secondItem="Htv-x2-aPb" secondAttribute="leading" constant="-71" id="E6e-OU-Jp2"/>
                                             <constraint firstItem="Xj9-lX-hR2" firstAttribute="top" secondItem="Ecj-vJ-K60" secondAttribute="bottom" constant="8" id="EMG-NT-GpX"/>
@@ -469,7 +460,6 @@
                                             <constraint firstItem="Ykz-Wq-cb5" firstAttribute="leading" secondItem="cWh-Hu-7CP" secondAttribute="leading" id="M9e-TJ-BPe"/>
                                             <constraint firstItem="H7c-2l-Pkl" firstAttribute="centerX" secondItem="gZI-5K-94s" secondAttribute="centerX" id="MBn-WB-mR7"/>
                                             <constraint firstItem="rIN-rI-IgX" firstAttribute="top" secondItem="Kp7-Oh-BQ1" secondAttribute="bottom" constant="8" id="NHd-4N-nPN"/>
-                                            <constraint firstItem="GsB-Fb-v9k" firstAttribute="top" secondItem="2zI-jA-a03" secondAttribute="bottom" constant="8" symbolic="YES" id="OIC-kz-g3D"/>
                                             <constraint firstItem="Ecj-vJ-K60" firstAttribute="centerX" secondItem="7au-a5-gty" secondAttribute="centerX" id="PGm-wr-BGa"/>
                                             <constraint firstItem="a9d-ER-L2X" firstAttribute="top" secondItem="Kp7-Oh-BQ1" secondAttribute="bottom" constant="8" id="Pjf-ZZ-uzK"/>
                                             <constraint firstItem="j3e-42-uww" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="Psf-g8-2Id"/>
@@ -479,7 +469,6 @@
                                             <constraint firstItem="9me-S6-lrh" firstAttribute="leading" secondItem="6dV-2z-2jJ" secondAttribute="leading" constant="15" id="RhG-Cc-xtn"/>
                                             <constraint firstItem="Kp7-Oh-BQ1" firstAttribute="top" secondItem="TVC-yc-aRa" secondAttribute="bottom" constant="8" id="RtD-xS-8z3"/>
                                             <constraint firstItem="UPh-ZU-o2e" firstAttribute="centerX" secondItem="wT0-PD-6z7" secondAttribute="centerX" constant="69" id="S3s-V0-UZ3"/>
-                                            <constraint firstItem="GsB-Fb-v9k" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="SSy-2y-6ck"/>
                                             <constraint firstItem="H3K-GA-smE" firstAttribute="baseline" secondItem="yRP-dg-rBy" secondAttribute="firstBaseline" id="Shu-w2-y8O"/>
                                             <constraint firstItem="j3e-42-uww" firstAttribute="top" secondItem="6dV-2z-2jJ" secondAttribute="top" constant="45" id="UGh-ZC-RhX"/>
                                             <constraint firstItem="Whm-aD-RCM" firstAttribute="leading" secondItem="Ecj-vJ-K60" secondAttribute="leading" constant="1" id="VOK-ev-RTV"/>
@@ -503,11 +492,12 @@
                                             <constraint firstItem="yRP-dg-rBy" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="d2m-Ge-buz"/>
                                             <constraint firstItem="Htv-x2-aPb" firstAttribute="trailing" secondItem="Ykz-Wq-cb5" secondAttribute="trailing" constant="5" id="dEk-7w-Ffq"/>
                                             <constraint firstItem="Htv-x2-aPb" firstAttribute="top" secondItem="H3K-GA-smE" secondAttribute="bottom" constant="8" id="dGl-mF-7SU"/>
-                                            <constraint firstItem="kB2-Ze-5kj" firstAttribute="top" secondItem="GsB-Fb-v9k" secondAttribute="bottom" constant="30" id="dco-o8-Zm8"/>
+                                            <constraint firstItem="kB2-Ze-5kj" firstAttribute="top" secondItem="Y7Z-Y9-shL" secondAttribute="bottom" constant="8" symbolic="YES" id="dyh-c7-WNE"/>
                                             <constraint firstItem="Xj9-lX-hR2" firstAttribute="bottom" secondItem="knZ-rP-bRU" secondAttribute="bottom" id="eA6-KM-ozQ"/>
                                             <constraint firstItem="XKn-G6-r2q" firstAttribute="top" secondItem="9Tw-qJ-FVq" secondAttribute="bottom" constant="16" id="eaR-Fk-W8s"/>
                                             <constraint firstItem="Whw-1A-6W0" firstAttribute="trailing" secondItem="9Tw-qJ-FVq" secondAttribute="trailing" id="fOR-cE-Zaa"/>
                                             <constraint firstItem="Whm-aD-RCM" firstAttribute="trailing" secondItem="Ecj-vJ-K60" secondAttribute="trailing" constant="1" id="gic-WK-yi1"/>
+                                            <constraint firstItem="GsB-Fb-v9k" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="h7K-ga-p4Q"/>
                                             <constraint firstItem="yRP-dg-rBy" firstAttribute="top" secondItem="6dV-2z-2jJ" secondAttribute="top" constant="244" id="hN8-d5-5HN"/>
                                             <constraint firstItem="A38-En-69W" firstAttribute="leading" secondItem="idh-ud-yeY" secondAttribute="leading" id="hOo-6r-9uP"/>
                                             <constraint firstItem="f4C-he-vQl" firstAttribute="centerY" secondItem="Whw-1A-6W0" secondAttribute="centerY" id="heW-SR-2Sr"/>
@@ -521,6 +511,7 @@
                                             <constraint firstItem="Kp7-Oh-BQ1" firstAttribute="centerX" secondItem="H3K-GA-smE" secondAttribute="centerX" constant="-48.5" id="mRt-AJ-OBk"/>
                                             <constraint firstItem="Xj9-lX-hR2" firstAttribute="leading" secondItem="Whw-1A-6W0" secondAttribute="leading" id="n0X-eM-041"/>
                                             <constraint firstItem="rIN-rI-IgX" firstAttribute="trailing" secondItem="knZ-rP-bRU" secondAttribute="trailing" constant="6" id="nL0-Rz-WtT"/>
+                                            <constraint firstItem="Y7Z-Y9-shL" firstAttribute="top" secondItem="GsB-Fb-v9k" secondAttribute="bottom" constant="8" symbolic="YES" id="nOp-HX-LeM"/>
                                             <constraint firstItem="rIN-rI-IgX" firstAttribute="top" secondItem="a9d-ER-L2X" secondAttribute="top" id="oL8-dE-buE"/>
                                             <constraint firstItem="OiG-L7-Ot2" firstAttribute="top" secondItem="srQ-s9-3O9" secondAttribute="bottom" constant="8" id="oXn-DO-iqu"/>
                                             <constraint firstItem="De4-AJ-nrw" firstAttribute="centerX" secondItem="XKn-G6-r2q" secondAttribute="centerX" id="oiz-Zf-GBx"/>
@@ -533,7 +524,6 @@
                                             <constraint firstItem="j3e-42-uww" firstAttribute="centerX" secondItem="05S-ud-V2e" secondAttribute="centerX" id="pbJ-aN-4Fd"/>
                                             <constraint firstItem="YNF-Jm-wDq" firstAttribute="centerX" secondItem="cWh-Hu-7CP" secondAttribute="centerX" constant="27.666666666666657" id="q7I-c6-oas"/>
                                             <constraint firstItem="udx-VH-OPB" firstAttribute="centerX" secondItem="Whm-aD-RCM" secondAttribute="centerX" id="r5m-4t-kSR"/>
-                                            <constraint firstItem="qB2-T5-Vy3" firstAttribute="top" secondItem="kB2-Ze-5kj" secondAttribute="bottom" constant="8" symbolic="YES" id="sDr-63-NGa"/>
                                             <constraint firstItem="9me-S6-lrh" firstAttribute="centerX" secondItem="TVC-yc-aRa" secondAttribute="centerX" id="t6f-LE-EDC"/>
                                             <constraint firstItem="gZI-5K-94s" firstAttribute="top" secondItem="wT0-PD-6z7" secondAttribute="bottom" constant="8" id="teY-sG-FWL"/>
                                             <constraint firstItem="Ecj-vJ-K60" firstAttribute="top" secondItem="bmb-ib-r40" secondAttribute="bottom" constant="8" id="uFL-iF-4YC"/>
@@ -541,12 +531,10 @@
                                             <constraint firstItem="f4C-he-vQl" firstAttribute="leading" secondItem="Whw-1A-6W0" secondAttribute="trailing" constant="14.000000000000028" id="v3X-2d-qte"/>
                                             <constraint firstItem="9Tw-qJ-FVq" firstAttribute="top" secondItem="Whw-1A-6W0" secondAttribute="bottom" constant="8" id="vNh-Vd-Dk8"/>
                                             <constraint firstItem="bmb-ib-r40" firstAttribute="top" secondItem="cWh-Hu-7CP" secondAttribute="bottom" constant="18" id="w2d-na-OzR"/>
-                                            <constraint firstItem="qB2-T5-Vy3" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="xTB-QS-VBC"/>
                                             <constraint firstItem="G56-cW-rWo" firstAttribute="leading" secondItem="A38-En-69W" secondAttribute="leading" id="xmz-74-IFS"/>
                                             <constraint firstItem="H7c-2l-Pkl" firstAttribute="top" secondItem="7ll-OX-6Qj" secondAttribute="bottom" constant="8" id="yIZ-wZ-mlm"/>
                                             <constraint firstItem="7au-a5-gty" firstAttribute="leading" secondItem="Xj9-lX-hR2" secondAttribute="leading" id="yYP-WY-7HX"/>
                                             <constraint firstItem="H3K-GA-smE" firstAttribute="leading" secondItem="UPh-ZU-o2e" secondAttribute="leading" constant="-2" id="z7c-kA-osH"/>
-                                            <constraint firstItem="2zI-jA-a03" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="zln-ZB-YKm"/>
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
@@ -569,12 +557,12 @@
                                 <constraints>
                                     <constraint firstItem="6dV-2z-2jJ" firstAttribute="centerX" secondItem="Dse-f7-S3F" secondAttribute="centerX" id="9wu-y5-PaY"/>
                                     <constraint firstAttribute="bottom" secondItem="6dV-2z-2jJ" secondAttribute="bottom" id="CCV-6M-FwM"/>
+                                    <constraint firstItem="GsB-Fb-v9k" firstAttribute="firstBaseline" secondItem="dwb-ii-4SV" secondAttribute="baseline" constant="30" id="Cen-pK-vO6"/>
                                     <constraint firstItem="dwb-ii-4SV" firstAttribute="top" secondItem="XKn-G6-r2q" secondAttribute="bottom" constant="10" id="D1g-J7-gjE"/>
                                     <constraint firstAttribute="trailing" secondItem="6dV-2z-2jJ" secondAttribute="trailing" id="P78-nE-6MM"/>
                                     <constraint firstItem="6dV-2z-2jJ" firstAttribute="leading" secondItem="Dse-f7-S3F" secondAttribute="leading" id="UTY-Ga-d6Q"/>
                                     <constraint firstItem="dwb-ii-4SV" firstAttribute="centerX" secondItem="6dV-2z-2jJ" secondAttribute="centerX" id="fi3-yq-hTu"/>
                                     <constraint firstItem="6dV-2z-2jJ" firstAttribute="top" secondItem="Dse-f7-S3F" secondAttribute="top" id="gvS-j5-Zt5"/>
-                                    <constraint firstItem="2zI-jA-a03" firstAttribute="top" secondItem="dwb-ii-4SV" secondAttribute="bottom" constant="8" symbolic="YES" id="izp-jh-tt3"/>
                                 </constraints>
                             </scrollView>
                         </subviews>
@@ -589,14 +577,13 @@
                     <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <size key="freeformSize" width="375" height="1500"/>
                     <connections>
+                        <outlet property="activityId" destination="GsB-Fb-v9k" id="lpX-8Q-mu6"/>
                         <outlet property="addTriggerButton" destination="79P-xw-1Q5" id="eNO-ar-yk2"/>
                         <outlet property="addTriggerKey" destination="Ykz-Wq-cb5" id="JiT-E7-Dof"/>
                         <outlet property="addTriggerValue" destination="G56-cW-rWo" id="sVO-uj-cMD"/>
                         <outlet property="appIdTextField" destination="TVC-yc-aRa" id="rpy-F9-eKJ"/>
                         <outlet property="consentSegmentedControl" destination="05S-ud-V2e" id="9HS-Rj-OmM"/>
                         <outlet property="emailTextField" destination="9me-S6-lrh" id="uDb-iR-fog"/>
-                        <outlet property="enterLiveActivityId" destination="GsB-Fb-v9k" id="qbL-uK-oDb"/>
-                        <outlet property="exitLiveActivityId" destination="qB2-T5-Vy3" id="a6O-cS-OBX"/>
                         <outlet property="externalUserIdTextField" destination="H7c-2l-Pkl" id="t1X-F3-GWv"/>
                         <outlet property="getTagsButton" destination="Htv-x2-aPb" id="EK5-1t-g6g"/>
                         <outlet property="getTriggerKey" destination="bmb-ib-r40" id="Sge-3X-okn"/>

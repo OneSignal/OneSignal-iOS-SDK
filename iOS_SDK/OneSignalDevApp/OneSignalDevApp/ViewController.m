@@ -246,11 +246,12 @@
 
 - (IBAction)startAndEnterLiveActivity:(id)sender {
     if (@available(iOS 13.0, *)) {
+        NSString *activityId = [self.activityId text];
         // Will not make a live activity if activityId is empty
-        if (self.enterLiveActivityId.text && self.enterLiveActivityId.text.length) {
+        if (activityId && activityId.length) {
             [LiveActivityController createActivityWithCompletionHandler:^(NSString * token) {
                 if(token){
-                    [OneSignal enterLiveActivity:self.enterLiveActivityId.text withToken:token];
+                    [OneSignal enterLiveActivity:activityId withToken:token];
                 }
             }];
         }
@@ -259,8 +260,8 @@
     }
 }
 - (IBAction)exitLiveActivity:(id)sender {
-    if (self.exitLiveActivityId.text && self.exitLiveActivityId.text.length) {
-        [OneSignal exitLiveActivity:self.enterLiveActivityId.text];
+    if (self.activityId.text && self.activityId.text.length) {
+        [OneSignal exitLiveActivity:self.activityId.text];
     }
    
 }

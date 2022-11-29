@@ -694,14 +694,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appSettings = newSettings;
 }
 
-+ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token {
-    
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
-        return;
-    
-    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
-}
-
 #pragma mark: LIVE ACTIVITIES
 
 
@@ -744,6 +736,14 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
             [self executePendingLiveActivityUpdates];
         }];
     }
+}
+
++ (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token {
+    
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"enterLiveActivity:"])
+        return;
+    
+    [self enterLiveActivity:activityId withToken:token withSuccess:nil withFailure:nil];
 }
 
 + (void)enterLiveActivity:(NSString * _Nonnull)activityId withToken:(NSString * _Nonnull)token withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock{
