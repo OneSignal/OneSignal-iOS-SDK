@@ -29,6 +29,22 @@
 
 @implementation OneSignalOutcomes
 
+static OneSignalOutcomeEventsController *_sharedController;
++ (OneSignalOutcomeEventsController *)sharedController {
+    return _sharedController;
+}
+
++ (void)start {
+    _sharedController = [[OneSignalOutcomeEventsController alloc]
+                         initWithSessionManager:[OSSessionManager sharedSessionManager]
+                         outcomeEventsFactory:[[OSOutcomeEventsFactory alloc]
+                                               initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]]];
+}
+
++ (void)clearStatics {
+    _sharedController = nil;
+}
+
 + (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
     [self saveCurrentSDKVersion];
