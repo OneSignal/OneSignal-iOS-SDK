@@ -304,4 +304,50 @@ Unique outcomes need to validate for UNATTRIBUTED and ATTRIBUTED sessions:
     [_outcomeEventsFactory.repository saveUnattributedUniqueOutcomeEventsSent:unattributedUniqueOutcomeEventsSentSet];
 }
 
+#pragma mark Session namespace methods forwarded here
+
+// TODO: Clean up successBlocks b/c no longer provided to end users
+
+- (void)addOutcome:(NSString * _Nonnull)name {
+    if (![self isValidOutcomeEntry:name]) {
+        return;
+    }
+    
+    [self sendOutcomeEvent:name appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+}
+
+- (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
+    if (![self isValidOutcomeEntry:name] || ![self isValidOutcomeValue:value]) {
+        return;
+    }
+
+    [self sendOutcomeEventWithValue:name value:value appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+}
+
+- (void)addUniqueOutcome:(NSString * _Nonnull)name {
+    if (![self isValidOutcomeEntry:name]) {
+        return;
+    }
+    
+    [self sendUniqueOutcomeEvent:name appId:[OneSignalConfigManager getAppId] deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:nil];
+}
+
+- (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {
+    if (!name || [name length] == 0) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome name must not be null or empty"];
+        return false;
+    }
+
+    return true;
+}
+
+- (BOOL)isValidOutcomeValue:(NSNumber *)value {
+    if (!value || value.intValue <= 0) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
+        return false;
+    }
+
+    return true;
+}
+
 @end
