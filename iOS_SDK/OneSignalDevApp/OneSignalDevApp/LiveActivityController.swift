@@ -21,22 +21,29 @@ struct OneSignalWidgetAttributes: ActivityAttributes {
 }
 @objc
 class LiveActivityController: NSObject {
+    // To aid in testing
+    static var counter = 0
+    @available(iOS 13.0, *)
     @objc
-    static func createActivity() {
+    static func createActivity() async -> String? {
         if #available(iOS 16.1, *) {
-            let attributes = OneSignalWidgetAttributes(title: "OneSignal Dev App Live Activity")
+            counter += 1;
+            let attributes = OneSignalWidgetAttributes(title: "#" + String(counter) + " OneSignal Dev App Live Activity")
             let contentState = OneSignalWidgetAttributes.ContentState(message: "Update this message through push or with Activity Kit")
             do {
-               
-                    let _ = try Activity<OneSignalWidgetAttributes>.request(
+                let activity = try Activity<OneSignalWidgetAttributes>.request(
                         attributes: attributes,
                         contentState: contentState,
                         pushType: .token)
+                for await data in activity.pushTokenUpdates {
+                    let myToken = data.map {String(format: "%02x", $0)}.joined()
+                    return myToken
+                }
             } catch (let error) {
                 print(error.localizedDescription)
+                return nil
             }
-        } else {
-            // Fallback on earlier versions
         }
+        return nil
     }
 }
