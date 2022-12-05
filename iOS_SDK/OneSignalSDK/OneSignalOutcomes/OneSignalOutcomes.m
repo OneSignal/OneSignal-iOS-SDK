@@ -29,6 +29,26 @@
 
 @implementation OneSignalOutcomes
 
++ (Class<OSSession>)Session {
+    return self;
+}
+
+static OneSignalOutcomeEventsController *_sharedController;
++ (OneSignalOutcomeEventsController *)sharedController {
+    return _sharedController;
+}
+
++ (void)start {
+    _sharedController = [[OneSignalOutcomeEventsController alloc]
+                         initWithSessionManager:[OSSessionManager sharedSessionManager]
+                         outcomeEventsFactory:[[OSOutcomeEventsFactory alloc]
+                                               initWithCache:[OSOutcomeEventsCache sharedOutcomeEventsCache]]];
+}
+
++ (void)clearStatics {
+    _sharedController = nil;
+}
+
 + (void)migrate {
     [self migrateToVersion_02_14_00_AndGreater];
     [self saveCurrentSDKVersion];
@@ -67,4 +87,43 @@
     let currentVersion = [ONESIGNAL_VERSION intValue];
     [OneSignalUserDefaults.initShared saveIntegerForKey:OSUD_CACHED_SDK_VERSION withValue:currentVersion];
 }
+
+#pragma mark Session namespace
+
++ (void)addOutcome:(NSString * _Nonnull)name {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addOutcome"]) {
+        return;
+    }
+    if (!_sharedController) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
+        return;
+    }
+    
+    [_sharedController addOutcome:name];
+}
+
++ (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addOutcomeWithValue"]) {
+        return;
+    }
+    if (!_sharedController) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
+        return;
+    }
+    
+    [_sharedController addOutcomeWithValue:name value:value];
+}
+
++ (void)addUniqueOutcome:(NSString * _Nonnull)name {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addUniqueOutcome"]) {
+        return;
+    }
+    if (!_sharedController) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to call OneSignal.Session before init. Make sure OneSignal init is called first."];
+        return;
+    }
+    
+    [_sharedController addUniqueOutcome:name];
+}
+
 @end

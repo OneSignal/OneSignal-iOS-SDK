@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2021 OneSignal
+ Copyright 2022 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -25,37 +25,32 @@
  THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
+#import "OneSignalConfigManager.h"
+#import "OSPrivacyConsentController.h"
+#import "OneSignalLog.h"
 
-#import "OSSessionManager.h"
-#import "OSInfluence.h"
-#import "OSIndirectInfluence.h"
-#import "OSInAppMessageOutcome.h"
-#import "OSOutcomeEvent.h"
-#import "OSInfluenceDataDefines.h"
-#import "OSOutcomeEventsCache.h"
-#import "OSCachedUniqueOutcome.h"
-#import "OneSignalOutcomeEventsController.h"
-#import "OSInfluenceDataRepository.h"
-#import "OSOutcomeEventsFactory.h"
-#import "OSTrackerFactory.h"
-#import "OSOutcomeEventsRepository.h"
-#import "OSFocusInfluenceParam.h"
+@implementation OneSignalConfigManager
 
-/**
- Public API for Session namespace.
- */
-@protocol OSSession <NSObject>
-+ (void)addOutcome:(NSString * _Nonnull)name;
-+ (void)addUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
+static NSString *_appId;
++ (void)setAppId:(NSString *)appId {
+    _appId = appId;
+}
++ (NSString *_Nullable)getAppId {
+    return _appId;
+}
+
++ (BOOL)shouldAwaitAppIdAndLogMissingPrivacyConsentForMethod:(NSString *)methodName {
+    BOOL shouldAwait = false;
+    if (!_appId) {
+        if (methodName) {
+            [OneSignalLog onesignalLog:ONE_S_LL_WARN message:[NSString stringWithFormat:@"Your application has called %@ before app ID has been set. Please call `initialize:appId withLaunchOptions:launchOptions` in order to set the app ID", methodName]];
+        }
+        shouldAwait = true;
+    }
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:methodName]) {
+        shouldAwait = true;
+    }
+    return shouldAwait;
+}
+
 @end
-
-@interface OneSignalOutcomes : NSObject <OSSession>
-+ (Class<OSSession>)Session;
-+ (OneSignalOutcomeEventsController * _Nullable)sharedController;
-+ (void)start;
-+ (void)clearStatics;
-+ (void)migrate;
-@end
-

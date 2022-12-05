@@ -29,10 +29,6 @@
 
 #import <OneSignalCore/OSObservable.h>
 
-// Redefines are done so we can make properites writeable and backed internal variables accesiable to the SDK.
-// Basicly the C# equivlent of a public gettter with an internal/protected settter.
-
-
 typedef NS_ENUM(NSInteger, OSNotificationPermission) {
     // The user has not yet made a choice regarding whether your app can show notifications.
     OSNotificationPermissionNotDetermined = 0,
@@ -52,7 +48,7 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 // Permission Classes
 @interface OSPermissionState : NSObject
-
+// TODO: Decide: remove/change properties after addition of canRequestPermission and permission boolean
 @property (readonly, nonatomic) BOOL reachable;
 @property (readonly, nonatomic) BOOL hasPrompted;
 @property (readonly, nonatomic) BOOL provisional;

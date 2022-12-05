@@ -55,7 +55,7 @@ THE SOFTWARE.
     let uniqueCacheOutcomeVersion = 21403;
     long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     if (sdkVersion < influenceVersion) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSIndirectNotification from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSIndirectInfluence class] forClassName:@"OSIndirectNotification"];
         NSArray<OSIndirectInfluence *> * indirectInfluenceData = [[OSInfluenceDataRepository sharedInfluenceDataRepository] lastNotificationsReceivedData];
@@ -66,7 +66,7 @@ THE SOFTWARE.
     }
     
     if (sdkVersion < uniqueCacheOutcomeVersion) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSUniqueOutcomeNotification from version: %ld", sdkVersion]];
         
         [NSKeyedUnarchiver setClass:[OSCachedUniqueOutcome class] forClassName:@"OSUniqueOutcomeNotification"];
         NSArray<OSCachedUniqueOutcome *> * attributedCacheUniqueOutcomeEvents = [[OSOutcomeEventsCache sharedOutcomeEventsCache] getAttributedUniqueOutcomeEventSent];
@@ -115,7 +115,7 @@ THE SOFTWARE.
     long sdkVersion = [OneSignalUserDefaults.initShared getSavedIntegerForKey:OSUD_CACHED_SDK_VERSION defaultValue:0];
     [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
     if (sdkVersion < nameChangeVersion) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Migrating OSInAppMessage from version: %ld", sdkVersion]];
 
         [NSKeyedUnarchiver setClass:[OSInAppMessageInternal class] forClassName:@"OSInAppMessage"];
         // Messages Array

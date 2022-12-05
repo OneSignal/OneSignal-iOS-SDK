@@ -38,9 +38,6 @@
 + (OneSignalWebView*)webVC;
 + (void) displayWebView:(NSURL*)url;
 
-// - iOS 10
-+ (void)clearCachedMedia;
-
 // Threading
 + (void)runOnMainThread:(void(^)())block;
 + (void)dispatch_async_on_main_queue:(void(^)())block;

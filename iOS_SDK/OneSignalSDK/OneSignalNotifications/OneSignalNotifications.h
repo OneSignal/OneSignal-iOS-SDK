@@ -8,10 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import <OSNotificationsManager.h>
-#import <OSPermission.h>
-#import <OneSignalWebView.h>
-#import <OneSignalWebViewManager.h>
+#import "OSNotificationsManager.h"
+#import "OSPermission.h"
+#import "OneSignalWebView.h"
+#import "OneSignalWebViewManager.h"
 
 @interface OneSignalNotifications
 @end
