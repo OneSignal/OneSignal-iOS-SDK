@@ -151,7 +151,7 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
 + (void)removeTriggerForKey:(NSString * _Nonnull)key;
 + (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
-// Clear all triggers, doesn't currently exist
++ (void)clearTriggers;
 // TODO: OneSignal.InAppMessages.Paused = true
 + (BOOL)isInAppMessagingPaused;
 + (void)pauseInAppMessages:(BOOL)pause;

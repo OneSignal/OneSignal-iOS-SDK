@@ -610,6 +610,11 @@ static BOOL _isInAppMessagingPaused = false;
     [self.triggerController removeTriggersForKeys:keys];
 }
 
+- (void)clearTriggers {
+    NSDictionary<NSString *, id> *allTriggers = [self getTriggers];
+    [self removeTriggersForKeys:allTriggers.allKeys];
+}
+
 - (NSDictionary<NSString *, id> *)getTriggers {
     return self.triggerController.getTriggers;
 }
@@ -983,6 +988,7 @@ static BOOL _isInAppMessagingPaused = false;
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {}
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
+- (void)clearTriggers {}
 - (NSDictionary<NSString *, id> *)getTriggers { return @{}; }
 - (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods
