@@ -443,20 +443,30 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     sessionLaunchTime = [NSDate date];
 
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal `create/on_session`"];
-    
-    // TODO: Get IAMs
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:[NSNumber numberWithInt:1] sessionTime:nil refreshDeviceMetadata:true];
+    
+    // TODO: Get IAMs
+    // Maybe it needs to listen to user did change as well, sub must be transferred already on backend
+    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+    if (subscriptionId) {
+        [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
+    } else {
+        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+    }
+    
+    // The below means there are NO IAMs until on_session returns
+    // because they can be ended, paused, or deleted from the server, or your segment has changed and you're no longer eligible
     
     // ^ Do the "on_session" call, send session_count++
     // on success:
     //    [OneSignalLocation sendLocation];
     //    [self executePendingLiveActivityUpdates];
-    //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
+    //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];  // go to controller
     
     // on failure:
-    //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+    //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache]; // go to controller
 }
 
 + (void)initInAppLaunchURLSettings:(NSDictionary*)settings {
@@ -738,26 +748,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (BOOL)isLocationShared {
     return [[self getRemoteParamController] isLocationShared];
-}
-
-// TODO: new IAM server call
-+ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
-    let messages = [NSMutableArray new];
-
-    if (messagesJson) {
-        for (NSDictionary *messageJson in messagesJson) {
-            let message = [OSInAppMessageInternal instanceWithJson:messageJson];
-            if (message) {
-                [messages addObject:message];
-            }
-        }
-
-        [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
-        return;
-    }
-
-    // Default is using cached IAMs in the messaging controller
-    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
 }
 
 + (void)sendPurchases:(NSArray*)purchases {
