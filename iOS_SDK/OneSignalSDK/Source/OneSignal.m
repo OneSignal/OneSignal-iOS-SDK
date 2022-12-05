@@ -786,9 +786,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 //TODO: consolidate in one place. Where???
 + (void)launchWebURL:(NSString*)openUrl {
     
-    NSString* toOpenUrl = [OneSignalHelper trimURLSpacing:openUrl];
+    NSString* toOpenUrl = [OneSignalCoreHelper trimURLSpacing:openUrl];
     
-    if (toOpenUrl && [OneSignalHelper verifyURL:toOpenUrl]) {
+    if (toOpenUrl && [OneSignalCoreHelper verifyURL:toOpenUrl]) {
         NSURL *url = [NSURL URLWithString:toOpenUrl];
         // Give the app resume animation time to finish when tapping on a notification from the notification center.
         // Isn't a requirement but improves visual flow.
