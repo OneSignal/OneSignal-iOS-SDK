@@ -571,6 +571,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     
     [[OSMigrationController new] migrate];
     
+    OSBackgroundTaskManager.delegate = [OSBackgroundTaskManagerImpl new];
+
     [self registerForAPNsToken];
     
     // Wrapper SDK's call init twice and pass null as the appId on the first call
@@ -580,9 +582,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
-    
-    OSBackgroundTaskManager.delegate = [OSBackgroundTaskManagerImpl new];
-    
+        
     if ([self requiresPrivacyConsent]) {
         [self delayInitializationForPrivacyConsent];
         return;
