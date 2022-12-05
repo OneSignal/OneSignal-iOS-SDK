@@ -76,6 +76,8 @@
 		3C47A974292642B100312125 /* OneSignalConfigManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C47A972292642B100312125 /* OneSignalConfigManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
+		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
+		3C789DBE293D8EAD004CF83D /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */; };
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
 		3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */; };
@@ -140,10 +142,6 @@
 		7A5E726225A66EA400CB5605 /* OSStateSynchronizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E726125A66EA400CB5605 /* OSStateSynchronizer.m */; };
 		7A5E726325A66EA400CB5605 /* OSStateSynchronizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E726125A66EA400CB5605 /* OSStateSynchronizer.m */; };
 		7A5E726425A66EA400CB5605 /* OSStateSynchronizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A5E726125A66EA400CB5605 /* OSStateSynchronizer.m */; };
-		7A600B42245378ED00514A53 /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; };
-		7A600B442453790700514A53 /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
-		7A600B452453790700514A53 /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
-		7A600B462453790700514A53 /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
 		7A65D62A246627AD007FF196 /* OSInAppMessageViewOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A65D629246627AD007FF196 /* OSInAppMessageViewOverrider.m */; };
 		7A674F192360D813001F9ACD /* OSBaseFocusTimeProcessor.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A674F182360D813001F9ACD /* OSBaseFocusTimeProcessor.h */; };
 		7A674F1B2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A674F1A2360D82E001F9ACD /* OSBaseFocusTimeProcessor.m */; };
@@ -1434,8 +1432,6 @@
 				7AECE59D23675F6300537907 /* OSFocusTimeProcessorFactory.m */,
 				7AFE856E2368DDC50091D6A5 /* OSFocusCallParams.h */,
 				7AFE856A2368DDB80091D6A5 /* OSFocusCallParams.m */,
-				7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */,
-				7A600B432453790700514A53 /* OSFocusInfluenceParam.m */,
 			);
 			name = OnFocus;
 			sourceTree = "<group>";
@@ -1926,6 +1922,8 @@
 				7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */,
 				7AF9865524452A8C00C36EAE /* OSInfluence.h */,
 				7AF9865724452A9600C36EAE /* OSInfluence.m */,
+				7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */,
+				7A600B432453790700514A53 /* OSFocusInfluenceParam.m */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -2109,7 +2107,6 @@
 				7A42742B25CDCA7800EE75FC /* OSSMSSubscription.h in Headers */,
 				7A674F192360D813001F9ACD /* OSBaseFocusTimeProcessor.h in Headers */,
 				CA36F35821C33A2500300C77 /* OSInAppMessageController.h in Headers */,
-				7A600B42245378ED00514A53 /* OSFocusInfluenceParam.h in Headers */,
 				CA1A6E6F20DC2E73001C41B9 /* OneSignalDialogRequest.h in Headers */,
 				7A42745425CDF05500EE75FC /* OSUserStateSMSSynchronizer.h in Headers */,
 				CAEA1C66202BB3C600FBFE9E /* OSEmailSubscription.h in Headers */,
@@ -2223,6 +2220,7 @@
 				DE7D18B127038164002D3A5D /* OSOutcomeEventsFactory.h in Headers */,
 				DE7D18CF270385E0002D3A5D /* OSOutcomesRequests.h in Headers */,
 				DE7D18C1270381A1002D3A5D /* OSOutcomeEventsV2Repository.h in Headers */,
+				3C789DBE293D8EAD004CF83D /* OSFocusInfluenceParam.h in Headers */,
 				DE7D18BD27038190002D3A5D /* OSOutcomeEventParams.h in Headers */,
 				DE7D18AF2703815D002D3A5D /* OSOutcomeEventsRepository.h in Headers */,
 				DE7D189C27038113002D3A5D /* OSInfluenceDataDefines.h in Headers */,
@@ -2675,7 +2673,6 @@
 				DE7D18E52703B510002D3A5D /* OSLocationRequests.m in Sources */,
 				7A1F2D8F2406EFC5007799A9 /* OSInAppMessageTag.m in Sources */,
 				7AF5174724FDC2C500B076BC /* OSRemoteParamController.m in Sources */,
-				7A600B442453790700514A53 /* OSFocusInfluenceParam.m in Sources */,
 				7A72EB0E23E252C200B4D50F /* OSInAppMessageDisplayStats.m in Sources */,
 				9124121E1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				A6B519A62669614A00AED40E /* LanguageContext.m in Sources */,
@@ -2759,7 +2756,6 @@
 				9124121F1E73342200E41FD7 /* OneSignalJailbreakDetection.m in Sources */,
 				7AA2848A2406FC6400C25D76 /* OSInAppMessageTag.m in Sources */,
 				7AF5174824FDC2C500B076BC /* OSRemoteParamController.m in Sources */,
-				7A600B452453790700514A53 /* OSFocusInfluenceParam.m in Sources */,
 				7A72EB0F23E252C700B4D50F /* OSInAppMessageDisplayStats.m in Sources */,
 				912412481E73369700E41FD7 /* OneSignalHelper.m in Sources */,
 				7A880F322404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */,
@@ -2892,7 +2888,6 @@
 				9D3300F623145AF3000F0A83 /* OneSignalViewHelper.m in Sources */,
 				A662399326850DDE00D52FD8 /* LanguageTest.m in Sources */,
 				DEA4B44E2888AF8900E9FE12 /* OneSignalUNUserNotificationCenterOverrider.m in Sources */,
-				7A600B462453790700514A53 /* OSFocusInfluenceParam.m in Sources */,
 				16664C4C25DDB195003B8A14 /* NSTimeZoneOverrider.m in Sources */,
 				4529DEF31FA8440A00CEAB1D /* UIAlertViewOverrider.m in Sources */,
 				7A93265325A8DD4300BBEC27 /* OSUserState.m in Sources */,
@@ -3020,6 +3015,7 @@
 				DE3CD300270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */,
 				DE7D18B82703817D002D3A5D /* OSCachedUniqueOutcome.m in Sources */,
 				DE7D18BE27038194002D3A5D /* OSOutcomeEventParams.m in Sources */,
+				3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */,
 				DE7D18C02703819D002D3A5D /* OSOutcomeEventsV1Repository.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
