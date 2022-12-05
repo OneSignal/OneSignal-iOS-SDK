@@ -172,8 +172,45 @@ static BOOL _isInAppMessagingPaused = false;
     [self evaluateMessages];
 }
 
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
+- (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
+
+    if (!subscriptionId) {
+        [self updateInAppMessagesFromCache];
+        return;
+    }
+    
+    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
+    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
+        if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
+            let messages = [NSMutableArray new];
+            
+            for (NSDictionary *messageJson in result[@"in_app_messages"]) {
+                let message = [OSInAppMessageInternal instanceWithJson:messageJson];
+                if (message) {
+                    [messages addObject:message];
+                }
+            }
+            
+            [self updateInAppMessagesFromServer:messages];
+            return;
+        }
+        
+        // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
+        // This is the existing implementation but it could mean this user has no IAMs?
+        
+        // Default is using cached IAMs in the messaging controller
+        [self updateInAppMessagesFromCache];
+        
+    } onFailure:^(NSError *error) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer failure"];
+        [self updateInAppMessagesFromCache];
+    }];
+}
+
+- (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromServer"];
     self.messages = newMessages;
     
     // Cache if messages passed in are not null, this method is called from on_session for
@@ -934,7 +971,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (instancetype)init { self = [super init]; return self; }
 - (BOOL)isInAppMessagingPaused { return false; }
 - (void)setInAppMessagingPaused:(BOOL)pause {}
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages {}
+- (void)getInAppMessagesFromServer {}
 - (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {}
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {}
 - (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message {}
