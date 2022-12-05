@@ -28,7 +28,7 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import "OSUnattributedFocusTimeProcessor.h"
-#import "OSStateSynchronizer.h"
+#import <OneSignalUser/OneSignalUser.h>
 
 @implementation OSUnattributedFocusTimeProcessor
 
@@ -71,21 +71,20 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    if (!params.userId)
-        return;
-    
+    // should dispatch_async?
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self beginBackgroundFocusTask];
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"beginBackgroundFocusTask start"];
-       
-        [OneSignal.stateSynchronizer sendOnFocusTime:@(totalTimeActive) params:params withSuccess:^(NSDictionary *result) {
-            [super saveUnsentActiveTime:0];
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed succeed, saveUnsentActiveTime with 0"];
-            [self endBackgroundFocusTask];
-        } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams unattributed failed, will retry on next open"];
-            [self endBackgroundFocusTask];
-        }];
+        [OSBackgroundTaskManager beginBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
+        
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSUnattributedFocusTimeProcessor:sendOnFocusCallWithParams start"];
+        
+        [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:nil sessionTime:@(totalTimeActive) refreshDeviceMetadata:false];
+        
+        // TODO: Can we get wait for onSuccess to call [super saveUnsentActiveTime:0]
+        // TODO: Revisit when we also test op repo flushing on backgrounding
+        // We could have callbacks from user module updateSessionTime and set to 0 when we get that callback
+        [super saveUnsentActiveTime:0];
+
+        [OSBackgroundTaskManager endBackgroundTask:UNATTRIBUTED_FOCUS_TASK];
     });
 }
 
