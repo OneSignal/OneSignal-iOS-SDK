@@ -41,7 +41,8 @@
 
 @interface OneSignal ()
 
-+ (void)registerUser;
++ (BOOL)shouldStartNewSession;
++ (void)startNewSession;
 + (BOOL)sendNotificationTypesUpdate;
 + (NSString*)mUserId;
 + (NSString *)mEmailUserId;
@@ -133,8 +134,8 @@ static BOOL didEnterBackgroundTriggered = NO;
     lastOpenedTime = [NSDate date].timeIntervalSince1970;
     
     // on_session tracking when resumming app.
-    if ([OneSignal shouldRegisterNow])
-        [OneSignal registerUser];
+    if ([OneSignal shouldStartNewSession])
+        [OneSignal startNewSession];
     else {
         // This checks if notification permissions changed when app was backgrounded
         [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
@@ -145,15 +146,11 @@ static BOOL didEnterBackgroundTriggered = NO;
         }
     }
     
-    let wasBadgeSet = [OSNotificationsManager clearBadgeCount:false];
-    
-    if (![OneSignal mUserId])
-        return;
+    [OSNotificationsManager clearBadgeCount:false];
 }
 
 + (void)applicationBackgrounded {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
-    [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
     [self updateLastClosedTime];
     
     let timeElapsed = [self getTimeFocusedElapsed];
@@ -172,6 +169,8 @@ static BOOL didEnterBackgroundTriggered = NO;
     [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
 
+// Note: This is not from app backgrounding
+// The on_focus call is made right away.
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];

@@ -424,6 +424,86 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 #pragma mark Initialization
 
++ (BOOL)shouldStartNewSession {
+    // return if the user has not granted privacy permissions
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return false;
+    
+    // TODO: There used to be many additional checks here but for now, let's omit. Consider adding them or variants later.
+    
+    // The SDK hasn't finished initializing yet, init() will start the new session
+    if (!initDone) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:initDone: %d", initDone]];
+        return false;
+    }
+    
+    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
+
+    if (lastTimeClosed == 0) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"shouldStartNewSession:lastTimeClosed: default."];
+        return true;
+    }
+
+    // Make sure last time we closed app was more than 30 secs ago
+    const int minTimeThreshold = 30;
+    NSTimeInterval delta = now - lastTimeClosed;
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSincelastClosed: %f", delta]];
+
+    return delta >= minTimeThreshold;
+}
+
++ (void)startNewSession:(BOOL)fromInit {
+    // If not called from init, need to check if we should start a new session
+    if (!fromInit && ![self shouldStartNewSession]) {
+        return;
+    }
+    
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startNewSession"];
+    
+    // Run on the main queue as it is possible for this to be called from multiple queues.
+    // Also some of the code in the method is not thread safe such as _outcomeEventsController.
+    [OneSignalHelper dispatch_async_on_main_queue:^{
+        [self startNewSessionInternal];
+    }];
+}
+
++ (void)startNewSessionInternal {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startNewSessionInternal"];
+    
+    // return if the user has not granted privacy permissions
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+
+    [OneSignalOutcomes.sharedController clearOutcomes];
+
+    [[OSSessionManager sharedSessionManager] restartSessionIfNeeded:_appEntryState];
+    
+    [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
+    
+    // Clear last location after attaching data to user state or not
+    [OneSignalLocation clearLastLocation];
+    [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
+
+    sessionLaunchTime = [NSDate date];
+
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal `create/on_session`"];
+    
+    // TODO: Get IAMs
+
+    // TODO: Figure out if Create User also sets session_count automatically on backend
+    [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:[NSNumber numberWithInt:1] sessionTime:nil refreshDeviceMetadata:true];
+    
+    // ^ Do the "on_session" call, send session_count++
+    // on success:
+    //    [OneSignalLocation sendLocation];
+    //    [self executePendingLiveActivityUpdates];
+    //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
+    
+    // on failure:
+    //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+}
+
 + (void)initInAppLaunchURLSettings:(NSDictionary*)settings {
     // TODO: Make booleans on the class instead of as keys in a dictionary
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
@@ -441,10 +521,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (void)startOutcomes {
     [OneSignalOutcomes start];
-    
-    // TODO: These should move out into another method that is called when new session is made.
     [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications];
-    [OneSignalOutcomes.sharedController clearOutcomes];
 }
 
 + (void)startLocation {
@@ -452,14 +529,11 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     if (appId && [self isLocationShared]) {
         [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
     }
-    // Clear last location after attaching data to user state or not
-    [OneSignalLocation clearLastLocation];
 }
 
 + (void)startTrackFirebaseAnalytics {
     if ([OneSignalTrackFirebaseAnalytics libraryExists]) {
         [OneSignalTrackFirebaseAnalytics init];
-        [OneSignalTrackFirebaseAnalytics trackInfluenceOpenEvent];
     }
 }
 
@@ -472,15 +546,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalLifecycleObserver registerLifecycleObserver];
 }
 
-+ (void)startTrackingSession {
-    [[OSSessionManager sharedSessionManager] restartSessionIfNeeded:_appEntryState];
-    sessionLaunchTime = [NSDate date];
-}
-
 + (void)startUserManager {
     [OneSignalUserManagerImpl.sharedInstance start];
     [OSNotificationsManager sendPushTokenToDelegate];
-    [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
 }
 
 + (void)delayInitializationForPrivacyConsent {
@@ -522,6 +590,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
     
+    // Now really initializing the SDK!
+
     // TODO: Language move to user?
     languageContext = [LanguageContext new];
     
@@ -541,16 +611,15 @@ static AppEntryAction _appEntryState = APP_CLOSE;
      }];
      */
     
-    // Get IAMs
     [OSNotificationsManager clearBadgeCount:false];
     [self startOutcomes];
     [self startLocation];
-    [self startTrackingSession];
     [self startTrackIAP];
     [self startTrackFirebaseAnalytics];
     [self startLifecycleObserver];
     [self startUserManager]; // By here, app_id exists, and consent is granted.
 
+    [self startNewSession:YES];
     initDone = true;
 }
 
