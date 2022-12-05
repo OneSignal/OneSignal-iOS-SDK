@@ -46,7 +46,7 @@
     
     self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) OneSignal.isLocationShared;
     
-    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal isInAppMessagingPaused];
+    self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal.InAppMessages paused];
 
     self.appIdTextField.text = [AppDelegate getOneSignalAppId];
 
@@ -68,7 +68,7 @@
     NSString *value = [self.addTriggerValue text];
 
     if (key && value && [key length] && [value length]) {
-        [OneSignal addTrigger:key withValue:value];
+        [OneSignal.InAppMessages addTrigger:key withValue:value];
     }
 }
 
@@ -76,17 +76,17 @@
     NSString *key = [self.removeTriggerKey text];
 
     if (key && [key length]) {
-        [OneSignal removeTriggerForKey:key];
+        [OneSignal.InAppMessages removeTriggerForKey:key];
     }
 }
 
 - (IBAction)getTriggersAction:(id)sender {
     NSString *key = [self.getTriggerKey text];
-
-    if (key && [key length]) {
-        id value = [OneSignal getTriggerValueForKey:key];
-        self.infoLabel.text = [NSString stringWithFormat:@"Key: %@ Value: %@", key, value];
-    }
+    // TODO: No more gets
+//    if (key && [key length]) {
+//        id value = [OneSignal.InAppMessages getTriggerValueForKey:key];
+//        self.infoLabel.text = [NSString stringWithFormat:@"Key: %@ Value: %@", key, value];
+//    }
 }
 
 - (IBAction)setEmailButton:(id)sender {
@@ -184,7 +184,7 @@
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller in app messaging paused: %i", (int) !sender.selectedSegmentIndex);
-    [OneSignal pauseInAppMessages:(bool) !sender.selectedSegmentIndex];
+    [OneSignal.InAppMessages paused:(bool) !sender.selectedSegmentIndex];
 }
 
 - (void)handleMessageAction:(NSString *)actionId {
