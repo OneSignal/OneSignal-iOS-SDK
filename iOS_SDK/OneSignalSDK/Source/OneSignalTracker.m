@@ -204,11 +204,6 @@ static BOOL didEnterBackgroundTriggered = NO;
     }
 
     return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal appId]
-                                                   userId:[OneSignal mUserId]
-                                              emailUserId:[OneSignal mEmailUserId]
-                                           emailAuthToken:[OneSignal mEmailAuthToken]
-                                      externalIdAuthToken:[OneSignal mExternalIdAuthToken]
-                                                  netType:[OSNetworkingUtils getNetType]
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];
