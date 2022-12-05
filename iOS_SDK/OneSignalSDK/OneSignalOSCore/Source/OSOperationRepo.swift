@@ -109,7 +109,7 @@ public class OSOperationRepo: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
-    @objc func flushDeltaQueue() {
+    @objc public func flushDeltaQueue() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
         }
