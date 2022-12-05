@@ -63,12 +63,6 @@ import OneSignalNotifications
     // SMS
     func addSmsNumber(_ number: String)
     func removeSmsNumber(_ number: String) -> Bool
-    // TODO: Remove triggers from User Module
-    // Triggers
-    func setTrigger(key: String, value: String)
-    func setTriggers(_ triggers: [String: String])
-    func removeTrigger(_ trigger: String)
-    func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
@@ -537,34 +531,6 @@ extension OneSignalUserManagerImpl: OSUser {
         // Check if is valid SMS?
         createUserIfNil()
         return self.subscriptionModelStore.remove(number)
-    }
-
-    public func setTrigger(key: String, value: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTrigger") else {
-            return
-        }
-        user.setTrigger(key: key, value: value)
-    }
-
-    public func setTriggers(_ triggers: [String: String]) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTriggers") else {
-            return
-        }
-        user.setTriggers(triggers)
-    }
-
-    public func removeTrigger(_ trigger: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTrigger") else {
-            return
-        }
-        user.removeTrigger(trigger)
-    }
-
-    public func removeTriggers(_ triggers: [String]) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTriggers") else {
-            return
-        }
-        user.removeTriggers(triggers)
     }
 
     public func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {

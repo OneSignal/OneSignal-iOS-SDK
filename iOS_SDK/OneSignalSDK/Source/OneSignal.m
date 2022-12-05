@@ -71,6 +71,7 @@
 #import "OSMessagingController.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageInternal.h"
+#import "OneSignalInAppMessaging.h"
 
 #import "OneSignalLifecycleObserver.h"
 
@@ -286,6 +287,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     return [OneSignalOutcomes Session];
 }
 
++ (Class<OSInAppMessages>)InAppMessages {
+    return [OneSignalInAppMessaging InAppMessages];
+}
+
 /*
  This is should be set from all OneSignal entry points.
  */
@@ -370,16 +375,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
-}
-
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
-}
-
-+ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
 #pragma mark Initialization
@@ -765,15 +760,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
 }
 
-// In-App Messaging Public Methods
-+ (void)pauseInAppMessages:(BOOL)pause {
-    [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
-}
-
-+ (BOOL)isInAppMessagingPaused {
-    return [OSMessagingController.sharedInstance isInAppMessagingPaused];
-}
-
 + (void)sendPurchases:(NSArray*)purchases {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -823,65 +809,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 //TODO: move to sessions/onfocus
 + (NSDate *)sessionLaunchTime {
     return sessionLaunchTime;
-}
-
-+ (void)addTrigger:(NSString *)key withValue:(id)value {
-
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
-        return;
-
-    if (!key) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
-        return;
-    }
-
-    [OSMessagingController.sharedInstance addTriggers:@{key : value}];
-}
-
-+ (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
-        return;
-
-    [OSMessagingController.sharedInstance addTriggers:triggers];
-}
-
-+ (void)removeTriggerForKey:(NSString *)key {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
-        return;
-
-    if (!key) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
-        return;
-    }
-
-    [OSMessagingController.sharedInstance removeTriggersForKeys:@[key]];
-}
-
-+ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
-        return;
-
-    [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
-}
-
-+ (NSDictionary<NSString *, id> *)getTriggers {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggers"])
-        return @{};
-
-    return [OSMessagingController.sharedInstance getTriggers];
-}
-
-+ (id)getTriggerValueForKey:(NSString *)key {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggerValueForKey:"])
-        return nil;
-
-    return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
 }
 
 /*
