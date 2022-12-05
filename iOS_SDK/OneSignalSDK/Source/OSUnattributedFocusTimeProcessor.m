@@ -26,37 +26,18 @@
  */
 #import <UIKit/UIKit.h>
 #import <OneSignalCore/OneSignalCore.h>
+#import <OneSignalOSCore/OneSignalOSCore.h>
 #import "OSUnattributedFocusTimeProcessor.h"
 #import "OSStateSynchronizer.h"
 
-@interface OneSignal ()
-+ (OSStateSynchronizer *)stateSynchronizer;
-@end
-
-@implementation OSUnattributedFocusTimeProcessor {
-    UIBackgroundTaskIdentifier focusBackgroundTask;
-}
+@implementation OSUnattributedFocusTimeProcessor
 
 static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
 
 - (instancetype)init {
     self = [super init];
-    focusBackgroundTask = UIBackgroundTaskInvalid;
+    [OSBackgroundTaskManager setTaskInvalid:UNATTRIBUTED_FOCUS_TASK];
     return self;
-}
-
-- (void)beginBackgroundFocusTask {
-    focusBackgroundTask = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
-        [self endBackgroundFocusTask];
-    }];
-}
-
-- (void)endBackgroundFocusTask {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
-                     message:[NSString stringWithFormat:@"OSUnattributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)focusBackgroundTask]];
-    [UIApplication.sharedApplication endBackgroundTask: focusBackgroundTask];
-    focusBackgroundTask = UIBackgroundTaskInvalid;
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"endBackgroundFocusTask called"];
 }
 
 - (int)getMinSessionTime {

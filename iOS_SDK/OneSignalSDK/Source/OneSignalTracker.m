@@ -139,6 +139,8 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
+    // user module let them know app is backgrounded
+    [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
 
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {

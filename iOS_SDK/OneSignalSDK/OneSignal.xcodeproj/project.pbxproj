@@ -68,6 +68,11 @@
 		3C2C7DC6288E00AA0020F9AE /* UserModelObjcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */; };
 		3C2C7DC8288F3C020020F9AE /* OSSubscriptionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */; };
 		3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */; };
+		3C448B9D2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C448B9B2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.h */; };
+		3C448B9E2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C448B9C2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m */; };
+		3C448B9F2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C448B9C2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m */; };
+		3C448BA02936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C448B9C2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m */; };
+		3C448BA22936B474002F96BC /* OSBackgroundTaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */; };
 		3C47A974292642B100312125 /* OneSignalConfigManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C47A972292642B100312125 /* OneSignalConfigManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3C47A975292642B100312125 /* OneSignalConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C47A973292642B100312125 /* OneSignalConfigManager.m */; };
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
@@ -732,6 +737,9 @@
 		3C2C7DC5288E00AA0020F9AE /* UserModelObjcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserModelObjcTests.m; sourceTree = "<group>"; };
 		3C2C7DC7288F3C020020F9AE /* OSSubscriptionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSSubscriptionModel.swift; sourceTree = "<group>"; };
 		3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSDelta.swift; sourceTree = "<group>"; };
+		3C448B9B2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSBackgroundTaskManagerImpl.h; sourceTree = "<group>"; };
+		3C448B9C2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSBackgroundTaskManagerImpl.m; sourceTree = "<group>"; };
+		3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSBackgroundTaskManager.swift; sourceTree = "<group>"; };
 		3C47A972292642B100312125 /* OneSignalConfigManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalConfigManager.h; sourceTree = "<group>"; };
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
@@ -1327,6 +1335,7 @@
 				3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */,
 				3CE5F9E2289D88DC004A156E /* OSModelStoreChangedHandler.swift */,
 				3C2D8A5828B4C4E300BE41F6 /* OSDelta.swift */,
+				3C448BA12936B474002F96BC /* OSBackgroundTaskManager.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1528,6 +1537,8 @@
 				912412051E73342200E41FD7 /* OneSignalTrackIAP.m */,
 				7A93269225AF4E6700BBEC27 /* OSPendingCallbacks.h */,
 				7A93269B25AF4F0200BBEC27 /* OSPendingCallbacks.m */,
+				3C448B9B2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.h */,
+				3C448B9C2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -2122,6 +2133,7 @@
 				7A5E725925A66E9800CB5605 /* OSStateSynchronizer.h in Headers */,
 				DE7D18E32703B503002D3A5D /* OSLocationRequests.h in Headers */,
 				7A93264825A8DD3600BBEC27 /* OSUserState.h in Headers */,
+				3C448B9D2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.h in Headers */,
 				7A72EB1223E252DD00B4D50F /* OSInAppMessageDisplayStats.h in Headers */,
 				912412151E73342200E41FD7 /* OneSignalHelper.h in Headers */,
 				CACBAAA0218A6243000ACAA5 /* OSInAppMessageInternal.h in Headers */,
@@ -2704,6 +2716,7 @@
 				CA7FC8A021927229002C4FD9 /* OSDynamicTriggerController.m in Sources */,
 				7AECE59623674AB700537907 /* OSUnattributedFocusTimeProcessor.m in Sources */,
 				7A93265125A8DD4300BBEC27 /* OSUserState.m in Sources */,
+				3C448B9E2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m in Sources */,
 				9129C6BE1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
 				7AECE59023674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
 				912412361E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
@@ -2722,6 +2735,7 @@
 				3C115165289A259500565C41 /* OneSignalOSCore.docc in Sources */,
 				3C115189289ADEA300565C41 /* OSModelStore.swift in Sources */,
 				3C115185289ADE4F00565C41 /* OSModel.swift in Sources */,
+				3C448BA22936B474002F96BC /* OSBackgroundTaskManager.swift in Sources */,
 				3C115187289ADE7700565C41 /* OSModelStoreListener.swift in Sources */,
 				3CE5F9E3289D88DC004A156E /* OSModelStoreChangedHandler.swift in Sources */,
 				3C2D8A5928B4C4E300BE41F6 /* OSDelta.swift in Sources */,
@@ -2785,6 +2799,7 @@
 				7A93269D25AF4F0200BBEC27 /* OSPendingCallbacks.m in Sources */,
 				DE20425F24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */,
 				9129C6BF1E89E7AB009CB6A0 /* OSSubscription.m in Sources */,
+				3C448B9F2936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m in Sources */,
 				912412371E73342200E41FD7 /* OneSignalTrackIAP.m in Sources */,
 				7A93265225A8DD4300BBEC27 /* OSUserState.m in Sources */,
 				7AECE59123674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
@@ -2827,6 +2842,7 @@
 				CAAE0DFD2195216900A57402 /* OneSignalOverrider.m in Sources */,
 				912412241E73342200E41FD7 /* OneSignalLocation.m in Sources */,
 				CA8E190B2194FE0B009DA223 /* OSMessagingControllerOverrider.m in Sources */,
+				3C448BA02936ADFD002F96BC /* OSBackgroundTaskManagerImpl.m in Sources */,
 				7A123295235DFE3B002B6CE3 /* OutcomeTests.m in Sources */,
 				7A4274A425D1C99600EE75FC /* SMSTests.m in Sources */,
 				CAB269E221B2038B00F8A43C /* OSInAppMessageBridgeEvent.m in Sources */,

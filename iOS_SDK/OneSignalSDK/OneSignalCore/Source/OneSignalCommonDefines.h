@@ -200,6 +200,11 @@ typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOT_ATTRIBUTED"] objectAtIndex:enum]
 
+// OneSignal Background Task Identifiers
+#define ATTRIBUTED_FOCUS_TASK           @"ATTRIBUTED_FOCUS_TASK"
+#define UNATTRIBUTED_FOCUS_TASK         @"UNATTRIBUTED_FOCUS_TASK"
+#define USER_MANAGER_BACKGROUND_TASK    @"USER_MANAGER_BACKGROUND_TASK"
+
 // OneSignal constants
 #define OS_PUSH @"push"
 #define OS_EMAIL @"email"
