@@ -78,6 +78,8 @@
 		3C4F9E4428A4466C009F453A /* OSOperationRepo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */; };
 		3C789DBD293C2206004CF83D /* OSFocusInfluenceParam.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A600B432453790700514A53 /* OSFocusInfluenceParam.m */; };
 		3C789DBE293D8EAD004CF83D /* OSFocusInfluenceParam.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A600B41245378ED00514A53 /* OSFocusInfluenceParam.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3C79BEB9293DC88F0034CB10 /* OneSignalInAppMessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C79BEB7293DC88F0034CB10 /* OneSignalInAppMessaging.h */; };
+		3C79BEBA293DC88F0034CB10 /* OneSignalInAppMessaging.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C79BEB8293DC88F0034CB10 /* OneSignalInAppMessaging.m */; };
 		3C8E6DF928A6D89E0031E48A /* OSOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */; };
 		3C8E6DFF28AB09AE0031E48A /* OSPropertyOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */; };
 		3C8E6E0128AC0BA10031E48A /* OSIdentityOperationExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */; };
@@ -694,6 +696,8 @@
 		3C47A972292642B100312125 /* OneSignalConfigManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalConfigManager.h; sourceTree = "<group>"; };
 		3C47A973292642B100312125 /* OneSignalConfigManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalConfigManager.m; sourceTree = "<group>"; };
 		3C4F9E4328A4466C009F453A /* OSOperationRepo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationRepo.swift; sourceTree = "<group>"; };
+		3C79BEB7293DC88F0034CB10 /* OneSignalInAppMessaging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OneSignalInAppMessaging.h; sourceTree = "<group>"; };
+		3C79BEB8293DC88F0034CB10 /* OneSignalInAppMessaging.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OneSignalInAppMessaging.m; sourceTree = "<group>"; };
 		3C8E6DF828A6D89E0031E48A /* OSOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6DFE28AB09AE0031E48A /* OSPropertyOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSPropertyOperationExecutor.swift; sourceTree = "<group>"; };
 		3C8E6E0028AC0BA10031E48A /* OSIdentityOperationExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSIdentityOperationExecutor.swift; sourceTree = "<group>"; };
@@ -1559,6 +1563,8 @@
 				CA7FC88F21925253002C4FD9 /* UI */,
 				CA7FC89C21926B6B002C4FD9 /* Controller */,
 				CA6B3CB621B5CF2600AA6A65 /* Model */,
+				3C79BEB7293DC88F0034CB10 /* OneSignalInAppMessaging.h */,
+				3C79BEB8293DC88F0034CB10 /* OneSignalInAppMessaging.m */,
 			);
 			name = InAppMessaging;
 			sourceTree = "<group>";
@@ -2011,6 +2017,7 @@
 				7AECE59423674AA700537907 /* OSAttributedFocusTimeProcessor.h in Headers */,
 				912412311E73342200E41FD7 /* OneSignalTracker.h in Headers */,
 				A63E9E4026742C1600EA273E /* LanguageProviderAppDefined.h in Headers */,
+				3C79BEB9293DC88F0034CB10 /* OneSignalInAppMessaging.h in Headers */,
 				9124123D1E73342200E41FD7 /* UIApplicationDelegate+OneSignal.h in Headers */,
 				7AF9865324451F3900C36EAE /* OSFocusCallParams.h in Headers */,
 				DE7D18DD2703B44B002D3A5D /* OSFocusRequests.h in Headers */,
@@ -2667,6 +2674,7 @@
 				7AECE59123674A9700537907 /* OSAttributedFocusTimeProcessor.m in Sources */,
 				CACBAA9E218A6243000ACAA5 /* OSInAppMessageView.m in Sources */,
 				CAB269DB21B0B6F000F8A43C /* OSInAppMessageAction.m in Sources */,
+				3C79BEBA293DC88F0034CB10 /* OneSignalInAppMessaging.m in Sources */,
 				CA1A6E6B20DC2E31001C41B9 /* OneSignalDialogController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -101,6 +101,8 @@
 
 @end
 
+// TODO: move these?
+
 @protocol OSInAppMessageDelegate <NSObject>
 @optional
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
@@ -113,6 +115,8 @@
 - (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
 - (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
 @end
+
+// TODO: Need to remove these too for user model
 
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
@@ -141,6 +145,22 @@ typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
 
+@protocol OSInAppMessages <NSObject>
+
++ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
++ (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
++ (void)removeTriggerForKey:(NSString * _Nonnull)key;
++ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
+// Clear all triggers, doesn't currently exist
+// TODO: OneSignal.InAppMessages.Paused = true
++ (BOOL)isInAppMessagingPaused;
++ (void)pauseInAppMessages:(BOOL)pause;
+
+typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
++ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
++ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
+
+@end
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
@@ -190,13 +210,6 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (BOOL)requiresPrivacyConsent;
 + (void)setRequiresPrivacyConsent:(BOOL)required;
 
-#pragma mark Public Handlers
-
-typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
-+ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
-
-
 #pragma mark Location
 // - Request and track user's location
 + (void)promptLocation;
@@ -206,15 +219,8 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 #pragma mark Permission, Subscription, and Email Observers
 
 #pragma mark In-App Messaging
-+ (BOOL)isInAppMessagingPaused;
-+ (void)pauseInAppMessages:(BOOL)pause;
-// TODO: UM triggers are rescoped to user
-+ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
-+ (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
-+ (void)removeTriggerForKey:(NSString * _Nonnull)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
-+ (NSDictionary<NSString *, id> * _Nonnull)getTriggers;
-+ (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
+
++ (Class<OSInAppMessages>)InAppMessages; // TODO: NS_REFINED_FOR_SWIFT
 
 #pragma mark Outcomes
 + (Class<OSSession>)Session;
