@@ -41,7 +41,7 @@
 }
 
 - (BOOL)hasMinSyncTime:(NSTimeInterval)activeTime {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor hasMinSyncTime getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"OSBaseFocusTimeProcessor hasMinSyncTime getMinSessionTime: %d activeTime: %f", [self getMinSessionTime], activeTime]];
     return activeTime >= [self getMinSessionTime];
 }
 
