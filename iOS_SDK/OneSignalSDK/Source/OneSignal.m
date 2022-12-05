@@ -1007,6 +1007,28 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalOutcomes.sharedController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
+// Returns if we can send this, meaning we have a subscription_id and onesignal_id
++ (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params {
+    if (![OneSignalOutcomes sharedController]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        return false;
+    }
+    
+    NSString* onesignalId = OneSignalUserManagerImpl.sharedInstance.onesignalId;
+    NSString* pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+    
+    if (!onesignalId || !pushSubscriptionId) {
+        return false;
+    }
+    
+    [OneSignalOutcomes.sharedController sendSessionEndOutcomes:totalTimeActive
+                                                         appId:appId
+                                            pushSubscriptionId:pushSubscriptionId
+                                                   onesignalId:onesignalId
+                                               influenceParams:params.influenceParams];
+    return true;
+}
+
 #pragma mark Logging
 //TODO: delete with um
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {

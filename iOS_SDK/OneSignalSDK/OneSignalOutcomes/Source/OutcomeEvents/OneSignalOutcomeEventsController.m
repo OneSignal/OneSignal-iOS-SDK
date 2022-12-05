@@ -34,6 +34,7 @@
 #import "OSOutcomeEventsRepository.h"
 #import "OSInfluenceDataDefines.h"
 #import "OSInAppMessageOutcome.h"
+#import "OSOutcomesRequests.h"
 
 @interface OneSignalOutcomeEventsController ()
 
@@ -101,6 +102,24 @@ NSMutableSet *unattributedUniqueOutcomeEventsSentSet;
         else
             [self sendOutcomeEvent:name appId:appId deviceType:deviceType successBlock:nil];
     }
+}
+
+- (void)sendSessionEndOutcomes:(NSNumber*)timeElapsed
+                         appId:(NSString * _Nonnull)appId
+            pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
+                   onesignalId:(NSString * _Nonnull)onesignalId
+               influenceParams:(NSArray<OSFocusInfluenceParam *> *)influenceParams {
+    // TODO: What to do onSuccess and onFailure
+    [OneSignalClient.sharedClient executeRequest:[OSRequestSendSessionEndOutcomes
+                                                  withActiveTime:timeElapsed
+                                                  appId:appId
+                                                  pushSubscriptionId:pushSubscriptionId
+                                                  onesignalId:onesignalId
+                                                  influenceParams:influenceParams] onSuccess:^(NSDictionary *result) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendSessionEndOutcomes attributed succeed"];
+    } onFailure:^(NSError *error) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendSessionEndOutcomes attributed failed"];
+    }];
 }
 
 - (void)sendUniqueOutcomeEvent:(NSString * _Nonnull)name

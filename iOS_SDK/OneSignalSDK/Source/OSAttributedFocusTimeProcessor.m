@@ -26,11 +26,11 @@
  */
 #import <UIKit/UIKit.h>
 #import <OneSignalCore/OneSignalCore.h>
+#import "OneSignal.h"
 #import "OSAttributedFocusTimeProcessor.h"
-#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
-+ (OSStateSynchronizer *)stateSynchronizer;
++ (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params;
 @end
 
 @implementation OSAttributedFocusTimeProcessor {
@@ -96,17 +96,16 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendBackgroundAttributedFocusPingWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
+    // should dispatch_async?
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"beginBackgroundAttributedFocusTask start"];
-
-        [OneSignal.stateSynchronizer sendOnFocusTime:totalTimeActive params:params withSuccess:^(NSDictionary *result) {
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSAttributedFocusTimeProcessor:sendBackgroundAttributedFocusPingWithParams start"];
+        
+        // TODO: Can we get wait for onSuccess to call [super saveUnsentActiveTime:0]
+        if ([OneSignal sendSessionEndOutcomes:totalTimeActive params:params]) {
             [super saveUnsentActiveTime:0];
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
-            [self endDelayBackgroundTask];
-        } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed failed, will retry on next open"];
-            [self endDelayBackgroundTask];
-        }];
+        }
+
+        [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
     });
 }
 
