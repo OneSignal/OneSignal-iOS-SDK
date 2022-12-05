@@ -45,7 +45,7 @@
         let result = accepted ? PERMISSION_GRANTED : PERMISSION_DENIED;
         completionHandler(result);
     };
-    [OneSignal promptForPushNotificationsWithUserResponse:acceptedCompletionHandler fallbackToSettings:YES];
+    [OSNotificationsManager requestPermission:acceptedCompletionHandler fallbackToSettings:YES];
 }
 
 - (NSString *)description {

@@ -30,8 +30,6 @@
 #import <WebKit/WebKit.h>
 #import "OSInAppMessageAction.h"
 #import "OneSignalViewHelper.h"
-#import "OSPlayerTags.h"
-
 
 @interface OSInAppMessageView () <UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate>
 
@@ -55,23 +53,25 @@
 }
 
 - (NSString *)getTagsString {
-    NSError *error;
-    OSPlayerTags *tags = [OneSignal getPlayerTags];
-    if (!tags.allTags || tags.allTags.count <= 0 ) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"[getTagsString] no tags found for the player"];
-        return nil;
-    }
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    NSString *jsonString;
-    if (!jsonData) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:
-         [NSString stringWithFormat:@"Error parsing tag dictionary to json: %@", error]];
-    } else {
-         jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
-    return jsonString;
+    // TODO: this
+//    NSError *error;
+//    OSPlayerTags *tags = [OneSignal getPlayerTags];
+//    if (!tags.allTags || tags.allTags.count <= 0 ) {
+//        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"[getTagsString] no tags found for the player"];
+//        return nil;
+//    }
+//    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tags.allTags
+//                                                       options:NSJSONWritingPrettyPrinted
+//                                                         error:&error];
+//    NSString *jsonString;
+//    if (!jsonData) {
+//        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:
+//         [NSString stringWithFormat:@"Error parsing tag dictionary to json: %@", error]];
+//    } else {
+//         jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+//    }
+//    return jsonString;
+    return @"todo";
 }
 
 - (NSString *)addTagsToHTML:(NSString *)html {
