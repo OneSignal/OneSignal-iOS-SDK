@@ -64,17 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-@interface OSRequestUpdateDeviceToken : OneSignalRequest
-// Push channel update device token
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier notificationTypes:(NSNumber * _Nullable)notificationTypes externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-
-// Email channel update device token
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier withParentId:(NSString * _Nullable)parentId emailAuthToken:(NSString * _Nullable)emailAuthHash email:(NSString * _Nullable)email externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-
-// SMS channel update device token
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId appId:(NSString * _Nonnull)appId deviceToken:(NSString * _Nullable)identifier smsAuthToken:(NSString * _Nullable)smsAuthToken externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-@end
-
 @interface OSRequestRegisterUser : OneSignalRequest
 + (instancetype _Nonnull)withData:(NSDictionary * _Nonnull)registrationData userId:(NSString * _Nullable)userId;
 @end
@@ -109,20 +98,6 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
                               appId:(NSString * _Nonnull)appId
                            language:(NSString * _Nonnull)language
-                       smsAuthToken:(NSString * _Nullable)smsAuthToken
-                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-@end
-
-@interface OSRequestBadgeCount : OneSignalRequest
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         badgeCount:(NSNumber * _Nonnull)badgeCount
-                     emailAuthToken:(NSString * _Nullable)emailAuthHash
-                externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
-
-+ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
-                              appId:(NSString * _Nonnull)appId
-                         badgeCount:(NSNumber * _Nonnull)badgeCount
                        smsAuthToken:(NSString * _Nullable)smsAuthToken
                 externalIdAuthToken:(NSString * _Nullable)externalIdAuthToken;
 @end

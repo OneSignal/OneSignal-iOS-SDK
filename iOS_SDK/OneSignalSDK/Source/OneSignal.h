@@ -47,6 +47,8 @@
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
+#import <OneSignalNotifications/OneSignalNotifications.h>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -112,42 +114,6 @@
 - (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
 @end
 
-typedef NS_ENUM(NSInteger, OSNotificationPermission) {
-    // The user has not yet made a choice regarding whether your app can show notifications.
-    OSNotificationPermissionNotDetermined = 0,
-    
-    // The application is not authorized to post user notifications.
-    OSNotificationPermissionDenied,
-    
-    // The application is authorized to post user notifications.
-    OSNotificationPermissionAuthorized,
-    
-    // the application is only authorized to post Provisional notifications (direct to history)
-    OSNotificationPermissionProvisional,
-    
-    // the application is authorized to send notifications for 8 hours. Only used by App Clips.
-    OSNotificationPermissionEphemeral
-};
-
-// Permission Classes
-@interface OSPermissionState : NSObject
-
-@property (readonly, nonatomic) BOOL reachable;
-@property (readonly, nonatomic) BOOL hasPrompted;
-@property (readonly, nonatomic) BOOL providesAppNotificationSettings;
-@property (readonly, nonatomic) OSNotificationPermission status;
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
-
-@interface OSPermissionStateChanges : NSObject
-
-@property (readonly, nonnull) OSPermissionState* to;
-@property (readonly, nonnull) OSPermissionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
-
 // Subscription Classes
 @interface OSSubscriptionState : NSObject
 
@@ -165,109 +131,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
-@interface OSEmailSubscriptionState : NSObject
-@property (readonly, nonatomic, nullable) NSString *emailUserId; // The new Email user ID
-@property (readonly, nonatomic, nullable) NSString *emailAddress;
-@property (readonly, nonatomic) BOOL isSubscribed;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@interface OSEmailSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSEmailSubscriptionState* to;
-@property (readonly, nonnull) OSEmailSubscriptionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@interface OSSMSSubscriptionState : NSObject
-@property (readonly, nonatomic, nullable) NSString* smsUserId;
-@property (readonly, nonatomic, nullable) NSString *smsNumber;
-@property (readonly, nonatomic) BOOL isSubscribed;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@interface OSSMSSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSSMSSubscriptionState* to;
-@property (readonly, nonnull) OSSMSSubscriptionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
-@end
-
 @protocol OSSubscriptionObserver <NSObject>
 - (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges* _Nonnull)stateChanges;
-@end
-
-@protocol OSEmailSubscriptionObserver <NSObject>
-- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges* _Nonnull)stateChanges;
-@end
-
-@protocol OSSMSSubscriptionObserver <NSObject>
-- (void)onOSSMSSubscriptionChanged:(OSSMSSubscriptionStateChanges* _Nonnull)stateChanges;
-@end
-
-@interface OSDeviceState : NSObject
-/**
- * Get the app's notification permission
- * @return false if the user disabled notifications for the app, otherwise true
- */
-@property (readonly) BOOL hasNotificationPermission;
-/**
- * Get whether the user is subscribed to OneSignal notifications or not
- * @return false if the user is not subscribed to OneSignal notifications, otherwise true
- */
-@property (readonly) BOOL isPushDisabled;
-/**
- * Get whether the user is subscribed
- * @return true if  isNotificationEnabled,  isUserSubscribed, getUserId and getPushToken are true, otherwise false
- */
-@property (readonly) BOOL isSubscribed;
-/**
- * Get  the user notification permision status
- * @return OSNotificationPermission
-*/
-@property (readonly) OSNotificationPermission notificationPermissionStatus;
-/**
- * Get user id from registration (player id)
- * @return user id if user is registered, otherwise null
- */
-@property (readonly, nullable) NSString* userId;
-/**
- * Get apple deice push token
- * @return push token if available, otherwise null
- */
-@property (readonly, nullable) NSString* pushToken;
-/**
- * Get the user email id
- * @return email id if user address was registered, otherwise null
- */
-@property (readonly, nullable) NSString* emailUserId;
-/**
- * Get the user email
- * @return email address if set, otherwise null
- */
-@property (readonly, nullable) NSString* emailAddress;
-
-@property (readonly) BOOL isEmailSubscribed;
-
-/**
- * Get the user sms id
- * @return sms id if user sms number was registered, otherwise null
- */
-@property (readonly, nullable) NSString* smsUserId;
-/**
- * Get the user sms number, number may start with + and continue with numbers or contain only numbers
- * e.g: +11231231231 or 11231231231
- * @return sms number if set, otherwise null
- */
-@property (readonly, nullable) NSString* smsNumber;
-
-@property (readonly) BOOL isSMSSubscribed;
-
-// Convert the class into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
 @end
 
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
@@ -284,8 +149,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
 
-+ (void)disablePush:(BOOL)disable;
-
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
@@ -298,47 +161,33 @@ typedef void (^OSFailureBlock)(NSError* error);
 NS_SWIFT_NAME(login(externalId:token:));
 + (void)logout;
 
+#pragma mark User Model - Notifications namespace 🔥
++ (Class<OSNotifications>)Notifications NS_REFINED_FOR_SWIFT;
+
 #pragma mark Initialization
-+ (void)setAppId:(NSString* _Nonnull)newAppId; // TODO: UM renamed to just 1 method: initialize()
-+ (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel; // TODO: UM split up into 2?
-+ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
-
-#pragma mark Prompt For Push
-typedef void(^OSUserResponseBlock)(BOOL accepted);
-
-+ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block;
-+ (void)promptForPushNotificationsWithUserResponse:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
-+ (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
-+ (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
 + (void)setPrivacyConsent:(BOOL)granted;
 // TODO: add getPrivacyConsent method
-// Tells your application if privacy consent is still needed from the current user
+/**
+ * Tells your application if privacy consent is still needed from the current device.
+ * Consent should be provided prior to the invocation of `initialize` to ensure compliance.
+ */
 + (BOOL)requiresPrivacyConsent;
 + (void)setRequiresPrivacyConsent:(BOOL)required;
 
 #pragma mark Public Handlers
 
-// If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
-typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
-typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
-
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
 + (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
-#pragma mark Post Notification
-+ (void)postNotification:(NSDictionary* _Nonnull)jsonData;
-+ (void)postNotification:(NSDictionary* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)postNotificationWithJsonString:(NSString* _Nonnull)jsonData onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
 
 #pragma mark Location
 // - Request and track user's location
@@ -346,102 +195,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (void)setLocationShared:(BOOL)enable;
 + (BOOL)isLocationShared;
 
-#pragma mark Tags
-// TODO: UM these are rescoped to user
-+ (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)sendTag:(NSString* _Nonnull)key value:(NSString* _Nonnull)value;
-+ (void)sendTags:(NSDictionary* _Nonnull)keyValuePair onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)sendTags:(NSDictionary* _Nonnull)keyValuePair;
-+ (void)sendTagsWithJsonString:(NSString* _Nonnull)jsonString;
-+ (void)getTags:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)getTags:(OSResultSuccessBlock _Nullable)successBlock;
-+ (void)deleteTag:(NSString* _Nonnull)key onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)deleteTag:(NSString* _Nonnull)key;
-+ (void)deleteTags:(NSArray* _Nonnull)keys onSuccess:(OSResultSuccessBlock _Nullable)successBlock onFailure:(OSFailureBlock _Nullable)failureBlock;
-+ (void)deleteTags:(NSArray<NSString *> *_Nonnull)keys;
-+ (void)deleteTagsWithJsonString:(NSString* _Nonnull)jsonString;
-
 #pragma mark Permission, Subscription, and Email Observers
-// TODO: UM observers are rescoped
-NS_ASSUME_NONNULL_BEGIN
-
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-
-+ (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
-
-+ (void)addEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
-+ (void)removeEmailSubscriptionObserver:(NSObject<OSEmailSubscriptionObserver>*)observer;
-
-+ (void)addSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer;
-+ (void)removeSMSSubscriptionObserver:(NSObject<OSSMSSubscriptionObserver>*)observer;
-NS_ASSUME_NONNULL_END
-
-#pragma mark Email
-// TODO: UM emails are rescoped to user
-// Typedefs defining completion blocks for email & simultaneous HTTP requests
-typedef void (^OSEmailFailureBlock)(NSError *error);
-typedef void (^OSEmailSuccessBlock)();
-
-// Allows you to set the email for this user.
-// Email Auth Token is a (recommended) optional parameter that should *NOT* be generated on the client.
-// For security purposes, the emailAuthToken should be generated by your backend server.
-// If you do not have a backend server for your application, use the version of thge setEmail: method without an emailAuthToken parameter.
-+ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken;
-+ (void)setEmail:(NSString * _Nonnull)email withEmailAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock;
-
-// Sets email without an authentication token
-+ (void)setEmail:(NSString * _Nonnull)email;
-+ (void)setEmail:(NSString * _Nonnull)email withSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock;
-
-// Logs the device out of the current email.
-+ (void)logoutEmail;
-+ (void)logoutEmailWithSuccess:(OSEmailSuccessBlock _Nullable)successBlock withFailure:(OSEmailFailureBlock _Nullable)failureBlock;
-
-#pragma mark SMS
-// TODO: UM SMS are rescoped to user
-// Typedefs defining completion blocks for SMS & simultaneous HTTP requests
-typedef void (^OSSMSFailureBlock)(NSError *error);
-typedef void (^OSSMSSuccessBlock)(NSDictionary *results);
-
-// Allows you to set the SMS for this user. SMS number may start with + and continue with numbers or contain only numbers
-// e.g: +11231231231 or 11231231231
-// SMS Auth Token is a (recommended) optional parameter that should *NOT* be generated on the client.
-// For security purposes, the smsAuthToken should be generated by your backend server.
-// If you do not have a backend server for your application, use the version of thge setSMSNumber: method without an smsAuthToken parameter.
-+ (void)setSMSNumber:(NSString * _Nonnull)smsNumber withSMSAuthHashToken:(NSString * _Nullable)hashToken;
-+ (void)setSMSNumber:(NSString * _Nonnull)smsNumber withSMSAuthHashToken:(NSString * _Nullable)hashToken withSuccess:(OSSMSSuccessBlock _Nullable)successBlock withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
-
-// Sets SMS without an authentication token
-+ (void)setSMSNumber:(NSString * _Nonnull)smsNumber;
-+ (void)setSMSNumber:(NSString * _Nonnull)smsNumber withSuccess:(OSSMSSuccessBlock _Nullable)successBlock withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
-
-// Logs the device out of the current sms number.
-+ (void)logoutSMSNumber;
-+ (void)logoutSMSNumberWithSuccess:(OSSMSSuccessBlock _Nullable)successBlock withFailure:(OSSMSFailureBlock _Nullable)failureBlock;
-
-#pragma mark Language
-// Typedefs defining completion blocks for updating language
-typedef void (^OSUpdateLanguageFailureBlock)(NSError *error);
-typedef void (^OSUpdateLanguageSuccessBlock)();
-
-// Language input ISO 639-1 code representation for user input language
-// TODO: UM these are rescoped to user
-+ (void)setLanguage:(NSString * _Nonnull)language;
-+ (void)setLanguage:(NSString * _Nonnull)language withSuccess:(OSUpdateLanguageSuccessBlock _Nullable)successBlock withFailure:(OSUpdateLanguageFailureBlock)failureBlock;
-
-#pragma mark External User Id
-// Typedefs defining completion blocks for updating the external user id
-typedef void (^OSUpdateExternalUserIdFailureBlock)(NSError *error);
-typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
-
-// TODO: UM remove these
-+ (void)setExternalUserId:(NSString * _Nonnull)externalId;
-+ (void)setExternalUserId:(NSString * _Nonnull)externalId withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
-+ (void)setExternalUserId:(NSString *)externalId withExternalIdAuthHashToken:(NSString *)hashToken withSuccess:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
-+ (void)removeExternalUserId;
-+ (void)removeExternalUserId:(OSUpdateExternalUserIdSuccessBlock _Nullable)successBlock withFailure:(OSUpdateExternalUserIdFailureBlock _Nullable)failureBlock;
 
 #pragma mark In-App Messaging
 + (BOOL)isInAppMessagingPaused;
@@ -455,13 +209,7 @@ typedef void (^OSUpdateExternalUserIdSuccessBlock)(NSDictionary *results);
 + (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 #pragma mark Outcomes
-// TODO: UM these are rescoped to user
-+ (void)sendOutcome:(NSString * _Nonnull)name;
-+ (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSSendOutcomeSuccess _Nullable)success;
++ (Class<OSSession>)Session;
 
 #pragma mark Extension
 // iOS 10 only

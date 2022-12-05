@@ -73,7 +73,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             case OS_ADD_SUBSCRIPTION_DELTA:
                 let request = OSRequestCreateSubscription(
                     subscriptionModel: model,
-                    identityModel: OneSignalUserManagerImpl.user.identityModel // TODO: Make sure this is ok
+                    identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
                 )
                 enqueueRequest(request)
 

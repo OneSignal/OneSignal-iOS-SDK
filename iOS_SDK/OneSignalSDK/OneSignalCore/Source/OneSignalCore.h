@@ -35,6 +35,7 @@
 #import "OneSignalLog.h"
 #import "NSURL+OneSignal.h"
 #import "NSString+OneSignal.h"
+#import "NSDateFormatter+OneSignal.h"
 #import "OSRequests.h"
 #import "OneSignalRequest.h"
 #import "OneSignalClient.h"
@@ -43,6 +44,13 @@
 #import "OSMacros.h"
 #import "OSJSONHandling.h"
 #import "OSPrivacyConsentController.h"
+#import "OSDeviceUtils.h"
+#import "OSNetworkingUtils.h"
+#import "OSObservable.h"
+#import "OSDialogInstanceManager.h"
+#import "SwizzlingForwarder.h"
+#import "OneSignalSelectorHelpers.h"
+#import "OneSignalConfigManager.h"
 
 @interface OneSignalCore : NSObject
 

@@ -178,4 +178,19 @@
     [NSThread sleepForTimeInterval:6.0f];
 }
 
+
+/**
+ Temp tester.
+ */
+- (void)testTempTester {
+
+    [OneSignal.Notifications requestPermission:^(BOOL accepted) {
+        NSLog(@"🔥 promptForPushNotificationsWithUserResponse: %d", accepted);
+    }];
+
+    [OneSignal.Notifications requestPermission:^(BOOL accepted) {
+        NSLog(@"🔥 promptForPushNotificationsWithUserResponse: %d", accepted);
+    } fallbackToSettings:true];
+}
+
 @end
