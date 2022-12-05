@@ -27,17 +27,16 @@
 
 #import <Foundation/Foundation.h>
 #import "OneSignalLog.h"
+#import "OSDialogInstanceManager.h"
 
 @implementation OneSignalLog
 
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
+static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel {
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
     _nsLogLevel = nsLogLevel;
-}
-
-+ (void) onesignal_Log:(ONE_S_LOG_LEVEL)logLevel message:(NSString*) message {
-    onesignal_Log(logLevel, message);
+    _visualLogLevel = visualLogLevel;
 }
 
 + (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message {
@@ -72,6 +71,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     if (logLevel <= _nsLogLevel)
         NSLog(@"%@", [levelString stringByAppendingString:message]);
+    
+    if (logLevel <= _visualLogLevel) {
+        [[OSDialogInstanceManager sharedInstance] presentDialogWithTitle:levelString withMessage:message withActions:nil cancelTitle:NSLocalizedString(@"Close", @"Close button") withActionCompletion:nil];
+    }
 }
 
 @end

@@ -73,7 +73,6 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setAppId:(NSString *)appId;
 + (NSString *_Nullable)getAppId;
 
-@property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
 @property (class) OSPermissionStateInternal* _Nonnull lastPermissionState;
 
@@ -86,9 +85,11 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 + (BOOL)registerForAPNsToken;
++ (void)sendPushTokenToDelegate;
 
 + (int)getNotificationTypes:(BOOL)pushDisabled;
 + (void)updateNotificationTypes:(int)notificationTypes;
++ (void)sendNotificationTypesUpdateToDelegate;
 
 // Used to manage observers added by the app developer.
 @property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;
@@ -111,4 +112,5 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion;
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app deviceToken:(NSData *)inDeviceToken;
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err;
++ (void)checkProvisionalAuthorizationStatus;
 @end
