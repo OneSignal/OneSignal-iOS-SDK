@@ -26,15 +26,14 @@
  */
 #import <UIKit/UIKit.h>
 #import <OneSignalCore/OneSignalCore.h>
+#import "OneSignal.h"
 #import "OSAttributedFocusTimeProcessor.h"
-#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
-+ (OSStateSynchronizer *)stateSynchronizer;
++ (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params;
 @end
 
 @implementation OSAttributedFocusTimeProcessor {
-    UIBackgroundTaskIdentifier delayBackgroundTask;
     NSTimer* restCallTimer;
 }
 
@@ -43,21 +42,8 @@ static let DELAY_TIME = 30;
 
 - (instancetype)init {
     self = [super init];
-    delayBackgroundTask = UIBackgroundTaskInvalid;
+    [OSBackgroundTaskManager setTaskInvalid:ATTRIBUTED_FOCUS_TASK];
     return self;
-}
-
-- (void)beginDelayBackgroundTask {
-    delayBackgroundTask = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
-        [self endDelayBackgroundTask];
-    }];
-}
-
-- (void)endDelayBackgroundTask {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
-                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)delayBackgroundTask]];
-    [UIApplication.sharedApplication endBackgroundTask:delayBackgroundTask];
-    delayBackgroundTask = UIBackgroundTaskInvalid;
 }
 
 - (int)getMinSessionTime {
@@ -87,10 +73,8 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    if (!params.userId)
-        return;
-    
-    [self beginDelayBackgroundTask];
+    [OSBackgroundTaskManager beginBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+
     if (params.onSessionEnded) {
         [self sendBackgroundAttributedFocusPingWithParams:params withTotalTimeActive:@(totalTimeActive)];
         return;
@@ -112,18 +96,15 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendBackgroundAttributedFocusPingWithParams:(OSFocusCallParams *)params withTotalTimeActive:(NSNumber*)totalTimeActive {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"beginBackgroundAttributedFocusTask start"];
+    
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSAttributedFocusTimeProcessor:sendBackgroundAttributedFocusPingWithParams start"];
+    // TODO: Can we get wait for onSuccess to call [super saveUnsentActiveTime:0]
+    // Need on failure an success to end background task
+    if ([OneSignal sendSessionEndOutcomes:totalTimeActive params:params]) {
+        [super saveUnsentActiveTime:0];
+    }
 
-        [OneSignal.stateSynchronizer sendOnFocusTime:totalTimeActive params:params withSuccess:^(NSDictionary *result) {
-            [super saveUnsentActiveTime:0];
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed succeed, saveUnsentActiveTime with 0"];
-            [self endDelayBackgroundTask];
-        } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-            [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"sendOnFocusCallWithParams attributed failed, will retry on next open"];
-            [self endDelayBackgroundTask];
-        }];
-    });
+    [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
 }
 
 - (void)cancelDelayedJob {
@@ -132,7 +113,7 @@ static let DELAY_TIME = 30;
     
     [restCallTimer invalidate];
     restCallTimer = nil;
-    [self endDelayBackgroundTask];
+    [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
 }
 
 @end

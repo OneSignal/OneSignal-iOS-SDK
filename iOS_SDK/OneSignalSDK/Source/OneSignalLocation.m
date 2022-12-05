@@ -32,15 +32,6 @@
 #import "OneSignal.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalDialogController.h"
-#import "OSStateSynchronizer.h"
-
-@interface OneSignal ()
-+ (NSString *)mEmailUserId;
-+ (NSString*)mUserId;
-+ (NSString *)mEmailAuthToken;
-+ (NSString *)mExternalIdAuthToken;
-+ (OSStateSynchronizer *)stateSynchronizer;
-@end
 
 @implementation OneSignalLocation
 
@@ -389,8 +380,9 @@ static OneSignalLocation* singleInstance = nil;
         return;
     
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
-        if (!lastLocation || ![OneSignal mUserId])
-            return;
+        // TODO: get the mUserId
+//        if (!lastLocation || ![OneSignal mUserId])
+//            return;
         
         //Fired from timer and not initial location fetched
         if (initialLocationSent && [UIApplication sharedApplication].applicationState != UIApplicationStateBackground)
@@ -398,7 +390,8 @@ static OneSignalLocation* singleInstance = nil;
         
         initialLocationSent = YES;
         
-        [OneSignal.stateSynchronizer sendLocation:lastLocation appId:[OneSignal appId] networkType:[OSNetworkingUtils getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)];
+        // TODO: sendLocation
+//        [OneSignal.stateSynchronizer sendLocation:lastLocation appId:[OneSignal appId] networkType:[OSNetworkingUtils getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)];
     }
     
 }

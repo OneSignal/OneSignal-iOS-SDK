@@ -127,3 +127,23 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
     }
 }
+
+extension OSPropertyOperationExecutor {
+    // TODO: We can make this go through the operation repo
+    func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool?, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel) {
+
+        var deltas: [String: NSNumber] = [:]
+        deltas["session_count"] = sessionCount
+        deltas["session_time"] = sessionTime
+
+        let request = OSRequestUpdateProperties(
+            properties: [:],
+            deltas: deltas,
+            refreshDeviceMetadata: refreshDeviceMetadata,
+            modelToUpdate: propertiesModel,
+            identityModel: identityModel)
+
+        enqueueRequest(request)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+    }
+}
