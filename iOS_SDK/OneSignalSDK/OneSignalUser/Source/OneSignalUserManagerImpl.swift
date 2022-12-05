@@ -353,6 +353,25 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 // MARK: - Sessions
 
 extension OneSignalUserManagerImpl {
+    @objc
+    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+
+        // Get the identity and properties model of the current user
+        let identityModel = user.identityModel
+        let propertiesModel = user.propertiesModel
+
+        propertyExecutor.updateSession(
+            sessionCount: sessionCount,
+            sessionTime: sessionTime,
+            refreshDeviceMetadata: refreshDeviceMetadata,
+            propertiesModel: propertiesModel,
+            identityModel: identityModel
+        )
+    }
+
     /**
      App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
      Need to consider app killed vs app backgrounded and handle gracefully.
