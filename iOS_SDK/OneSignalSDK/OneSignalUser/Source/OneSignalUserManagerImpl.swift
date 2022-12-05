@@ -343,6 +343,22 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 }
 
+// MARK: - Sessions
+
+extension OneSignalUserManagerImpl {
+    /**
+     App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
+     Need to consider app killed vs app backgrounded and handle gracefully.
+     */
+    @objc
+    public func runBackgroundTasks() {
+        OSBackgroundTaskManager.beginBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
+        // dispatch_async ?
+        OSOperationRepo.sharedInstance.flushDeltaQueue()
+        OSBackgroundTaskManager.endBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
+    }
+}
+
 extension OneSignalUserManagerImpl: OSUser {
     public var User: OSUser {
         start()

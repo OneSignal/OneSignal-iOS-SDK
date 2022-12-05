@@ -40,6 +40,7 @@
 #import "OneSignalCacheCleaner.h"
 #import "OSMigrationController.h"
 #import "OSRemoteParamController.h"
+#import "OSBackgroundTaskManagerImpl.h"
 
 #import <OneSignalNotifications/OneSignalNotifications.h>
 
@@ -513,6 +514,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     
     // using classes as delegates is not best practice. We should consider using a shared instance of a class instead
     [OSSessionManager sharedSessionManager].delegate = (id<SessionStatusDelegate>)self;
+    
+    OSBackgroundTaskManager.delegate = [OSBackgroundTaskManagerImpl new];
     
     if ([self requiresPrivacyConsent]) {
         [self delayInitializationForPrivacyConsent];

@@ -34,7 +34,6 @@
 @end
 
 @implementation OSAttributedFocusTimeProcessor {
-    UIBackgroundTaskIdentifier delayBackgroundTask;
     NSTimer* restCallTimer;
 }
 
@@ -43,21 +42,8 @@ static let DELAY_TIME = 30;
 
 - (instancetype)init {
     self = [super init];
-    delayBackgroundTask = UIBackgroundTaskInvalid;
+    [OSBackgroundTaskManager setTaskInvalid:ATTRIBUTED_FOCUS_TASK];
     return self;
-}
-
-- (void)beginDelayBackgroundTask {
-    delayBackgroundTask = [UIApplication.sharedApplication beginBackgroundTaskWithExpirationHandler:^{
-        [self endDelayBackgroundTask];
-    }];
-}
-
-- (void)endDelayBackgroundTask {
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
-                     message:[NSString stringWithFormat:@"OSAttributedFocusTimeProcessor:endDelayBackgroundTask:%lu", (unsigned long)delayBackgroundTask]];
-    [UIApplication.sharedApplication endBackgroundTask:delayBackgroundTask];
-    delayBackgroundTask = UIBackgroundTaskInvalid;
 }
 
 - (int)getMinSessionTime {
@@ -87,10 +73,8 @@ static let DELAY_TIME = 30;
 }
 
 - (void)sendOnFocusCallWithParams:(OSFocusCallParams *)params totalTimeActive:(NSTimeInterval)totalTimeActive {
-    if (!params.userId)
-        return;
-    
-    [self beginDelayBackgroundTask];
+    [OSBackgroundTaskManager beginBackgroundTask:ATTRIBUTED_FOCUS_TASK];
+
     if (params.onSessionEnded) {
         [self sendBackgroundAttributedFocusPingWithParams:params withTotalTimeActive:@(totalTimeActive)];
         return;
@@ -132,7 +116,7 @@ static let DELAY_TIME = 30;
     
     [restCallTimer invalidate];
     restCallTimer = nil;
-    [self endDelayBackgroundTask];
+    [OSBackgroundTaskManager endBackgroundTask:ATTRIBUTED_FOCUS_TASK];
 }
 
 @end
