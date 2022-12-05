@@ -184,7 +184,9 @@
 }
 
 - (void)executeRequest:(OneSignalRequest *)request onSuccess:(OSResultSuccessBlock)successBlock onFailure:(OSFailureBlock)failureBlock {
+    // If privacy consent is required but not yet given, any non-GET request should be blocked.
     if (request.method != GET && [OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to perform an HTTP request (%@) before the user provided privacy consent."];
         if (failureBlock) {
             failureBlock([self privacyConsentErrorWithRequestType:NSStringFromClass(request.class)]);
         }
