@@ -94,10 +94,11 @@
     [OneSignal.User removeSmsNumber:@"+15551231234"];
 
     // Triggers
-    [OneSignal.User setTriggerWithKey:@"foo" value:@"bar"];
-    [OneSignal.User setTriggers:@{@"foo": @"foo1", @"bar": @"bar2"}];
-    [OneSignal.User removeTrigger:@"foo"];
-    [OneSignal.User removeTriggers:@[@"foo", @"bar"]];
+    [OneSignal.InAppMessages addTrigger:@"foo" withValue:@"bar"];
+    [OneSignal.InAppMessages addTriggers:@{@"foo": @"foo1", @"bar": @"bar2"}];
+    [OneSignal.InAppMessages removeTriggerForKey:@"foo"];
+    [OneSignal.InAppMessages removeTriggersForKeys:@[@"foo", @"bar"]];
+    [OneSignal.InAppMessages clearTriggers];
 }
 
 /**
