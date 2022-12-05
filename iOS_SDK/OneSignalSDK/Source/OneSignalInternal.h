@@ -36,27 +36,9 @@
 #import "OneSignalNotificationSettings.h"
 
 #import "OSPermission.h"
-#import "OSSubscription.h"
-#import "OSEmailSubscription.h"
-#import "OSPlayerTags.h"
-#import "OSSMSSubscription.h"
-
-// Permission + Subscription - Redefine OSPermissionSubscriptionState
-@interface OSPermissionSubscriptionState : NSObject
-
-@property (readwrite) OSPermissionState* _Nonnull permissionStatus;
-@property (readwrite) OSSubscriptionState* _Nonnull subscriptionStatus;
-@property (readwrite) OSEmailSubscriptionState* _Nonnull emailSubscriptionStatus;
-@property (readwrite) OSSMSSubscriptionState* _Nonnull smsSubscriptionStatus;
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
 
 @interface OneSignal (OneSignalInternal)
 
-+ (void)updateNotificationTypes:(int)notificationTypes;
-+ (BOOL)registerForAPNsToken;
-+ (void)setWaitingForApnsResponse:(BOOL)value;
 + (BOOL)shouldPromptToShowURL;
 + (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value;
 + (BOOL)shouldRegisterNow;
@@ -65,11 +47,6 @@
 
 + (NSDate *_Nonnull)sessionLaunchTime;
 
-// Indicates if the app provides its own custom Notification customization settings UI
-// To enable this, set kOSSettingsKeyProvidesAppNotificationSettings to true in init.
-+ (BOOL)providesAppNotificationSettings;
-
-+ (NSString* _Nonnull)parseNSErrorAsJsonString:(NSError* _Nonnull)error;
 
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
@@ -78,20 +55,9 @@
 //Indicates that registering the user was successful
 @property (class, readonly) BOOL isRegisterUserSuccessful;
 
-@property (class) NSObject<OneSignalNotificationSettings>* _Nonnull osNotificationSettings;
-@property (class) OSPermissionState* _Nonnull currentPermissionState;
-
 @property (class) AppEntryAction appEntryState;
 @property (class) OSSessionManager* _Nonnull sessionManager;
 
-+ (OSPermissionSubscriptionState*_Nonnull)getPermissionSubscriptionState;
-
-+ (OSPlayerTags *_Nonnull)getPlayerTags;
-
-@end
-
-@interface OSDeviceState (OSDeviceStateInternal)
-- (instancetype _Nonnull)initWithSubscriptionState:(OSPermissionSubscriptionState *_Nonnull)state;
 @end
 
 #endif /* OneSignalInternal_h */

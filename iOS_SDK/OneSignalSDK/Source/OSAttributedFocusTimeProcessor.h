@@ -26,7 +26,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignalCommonDefines.h"
 #import "OSBaseFocusTimeProcessor.h"
 
 @interface OSAttributedFocusTimeProcessor : OSBaseFocusTimeProcessor
