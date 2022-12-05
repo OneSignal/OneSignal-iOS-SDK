@@ -86,6 +86,14 @@
     [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
 }
 
++ (void)clearTriggers {
+    // return if the user has not granted privacy permissions
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"clearTriggers:"])
+        return;
+    
+    [OSMessagingController.sharedInstance clearTriggers];
+}
+
 // TODO: Make into OneSignal.InAppMessages.Paused = true
 
 + (void)pauseInAppMessages:(BOOL)pause {
