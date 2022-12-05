@@ -77,6 +77,7 @@ static let UNATTRIBUTED_MIN_SESSION_TIME_SEC = 60;
         
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"OSUnattributedFocusTimeProcessor:sendOnFocusCallWithParams start"];
         
+        // updateSession can have a success fail block
         [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:nil sessionTime:@(totalTimeActive) refreshDeviceMetadata:false];
         
         // TODO: Can we get wait for onSuccess to call [super saveUnsentActiveTime:0]
