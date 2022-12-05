@@ -77,7 +77,7 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel {
-        pushSubscriptionModel = OSSubscriptionModel(type: .push, address: token, enabled: enabled, changeNotifier: OSEventProducer())
+        pushSubscriptionModel = OSSubscriptionModel(type: .push, address: token, subscriptionId: subscriptionId, accepted: true, isDisabled: false, changeNotifier: OSEventProducer())
         print("🔥 OSUserInternalImpl has set pushSubcription for testing")
         return pushSubscriptionModel
     }

@@ -50,6 +50,7 @@
 #import "OSDialogInstanceManager.h"
 #import "SwizzlingForwarder.h"
 #import "OneSignalSelectorHelpers.h"
+#import "OneSignalConfigManager.h"
 
 @interface OneSignalCore : NSObject
 

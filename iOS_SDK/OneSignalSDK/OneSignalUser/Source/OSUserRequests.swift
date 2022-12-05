@@ -26,6 +26,7 @@
  */
 
 import OneSignalCore
+import OneSignalNotifications
 
 /**
  Involved in the login process and responsible for Identify User and Create User.
@@ -69,9 +70,10 @@ class OSUserExecutor {
         OneSignalClient.shared().execute(request) { _ in
             // On success, check if the current user is the same as the one in the request
             // If user has changed, don't hydrate, except for push subscription
-            OneSignalUserManagerImpl.user.pushSubscriptionModel.hydrate(["subscription_id": "0123456789"]) // Mocked
+            OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(["subscription_id": "0123456789"]) // Mocked
+            OSNotificationsManager.setPushSubscriptionId("some_mocked_subscription_id")
 
-            let modelInStore = OneSignalUserManagerImpl.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
+            let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
 
             guard modelInStore?.modelId == request.identityModel.modelId else {
                 return
@@ -109,6 +111,7 @@ class OSUserExecutor {
         OneSignalClient.shared().execute(request) { _ in
             // the anonymous user has been identified, still need to Fetch User + Transfer Push Sub
             fetchUserByExternalId(externalId: request.aliasId, identityModel: request.identityModelToUpdate)
+            // TODO: Don't need to transfer push sub, confirm.
             transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
             executePendingRequests() // TODO: Here or after fetch or after transfer?
 
@@ -127,7 +130,7 @@ class OSUserExecutor {
     static func transferPushSubscriptionTo(aliasLabel: String, aliasId: String, retainPreviousUser: Bool?) {
         // TODO: Where to get pushSubscriptionModel for this request
         let request = OSRequestTransferSubscription(
-            subscriptionModel: OneSignalUserManagerImpl.user.pushSubscriptionModel,
+            subscriptionModel: OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel,
             aliasLabel: aliasLabel,
             aliasId: aliasId,
             identityModel: nil,
