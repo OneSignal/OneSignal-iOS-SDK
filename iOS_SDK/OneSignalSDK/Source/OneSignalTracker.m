@@ -33,11 +33,9 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSFocusTimeProcessorFactory.h"
-#import "OSBaseFocusTimeProcessor.h"
 #import "OSFocusCallParams.h"
 #import "OSFocusInfluenceParam.h"
 #import "OSMessagingController.h"
-#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
 
@@ -48,7 +46,6 @@
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (NSString *)mExternalIdAuthToken;
-+ (OSStateSynchronizer *)stateSynchronizer;
 
 @end
 
