@@ -125,3 +125,38 @@ NSString * const OUTCOME_SOURCE = @"source";
     return request;
 }
 @end
+
+@implementation OSRequestSendSessionEndOutcomes
+
++ (instancetype _Nonnull)withActiveTime:(NSNumber * _Nonnull)activeTime
+                                  appId:(NSString * _Nonnull)appId
+                     pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
+                            onesignalId:(NSString * _Nonnull)onesignalId
+                        influenceParams:(NSArray<OSFocusInfluenceParam *> * _Nonnull)influenceParams {
+    let request = [OSRequestSendSessionEndOutcomes new];
+    
+    let params = [NSMutableDictionary new];
+    params[@"app_id"] = appId;
+    params[@"id"] = @"os__session_duration";
+    params[@"session_time"] = activeTime;
+    params[@"subscription"] = @{@"id": pushSubscriptionId, @"type": @"iOSPush"};
+    params[@"onesignal_id"] = onesignalId;
+    
+    // TODO: Check params for "direct" + "notification_ids", should be filled by influenceParams
+    // params[@"direct"] = @(true);
+    // params[@"notification_ids"] = @"lorem";
+    if (influenceParams) {
+        for (OSFocusInfluenceParam *influenceParam in influenceParams) {
+            params[influenceParam.influenceKey] = influenceParam.influenceIds;
+            params[influenceParam.influenceDirectKey] = @(influenceParam.directInfluence);
+        }
+    }
+
+    request.parameters = params;
+    request.method = POST;
+    request.path = @"outcomes/measure";
+    
+    return request;
+}
+
+@end
