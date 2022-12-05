@@ -30,6 +30,7 @@
 #import "OSOutcomeEventsFactory.h"
 #import "OSInAppMessageOutcome.h"
 #import "OSOutcomeEvent.h"
+#import "OSFocusInfluenceParam.h"
 
 @interface OneSignalOutcomeEventsController : NSObject
 
@@ -46,5 +47,11 @@
 - (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *_Nonnull)outcomes
                           appId:(NSString * _Nonnull)appId
                      deviceType:(NSNumber * _Nonnull)deviceType;
+
+- (void)sendSessionEndOutcomes:(NSNumber*)timeElapsed
+                         appId:(NSString * _Nonnull)appId
+            pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
+                   onesignalId:(NSString * _Nonnull)onesignalId
+               influenceParams:(NSArray<OSFocusInfluenceParam *> *)influenceParams;
 
 @end

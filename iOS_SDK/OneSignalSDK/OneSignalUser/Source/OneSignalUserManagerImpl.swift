@@ -90,6 +90,11 @@ import OneSignalNotifications
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public static let sharedInstance = OneSignalUserManagerImpl()
+
+    @objc public var onesignalId: String? {
+        return _user?.identityModel.onesignalId
+    }
+
     private var hasCalledStart = false
 
     var user: OSUserInternal {
