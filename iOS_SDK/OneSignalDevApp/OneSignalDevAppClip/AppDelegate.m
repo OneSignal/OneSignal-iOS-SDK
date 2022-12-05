@@ -74,17 +74,20 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
-    [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
-    [OneSignal initWithLaunchOptions:launchOptions];
+    [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
 
-    [OneSignal addPermissionObserver:self];
-    [OneSignal addSubscriptionObserver:self];
-    [OneSignal addEmailSubscriptionObserver:self];
+//    [OneSignal addPermissionObserver:self];
+//    [OneSignal addSubscriptionObserver:self];
+//    [OneSignal addEmailSubscriptionObserver:self];
+    
+    [OneSignal.Notifications requestPermission:^(BOOL accepted) {
+        NSLog(@"OneSignal Demo App requestPermission: %d", accepted);
+    }];
     
     [OneSignal pauseInAppMessages:false];
     
-    [OneSignal setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
-    [OneSignal setNotificationOpenedHandler:openNotificationHandler];
+    [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
+    [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
@@ -105,7 +108,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 + (void) setOneSignalAppId:(NSString*)onesignalAppId {
     [[NSUserDefaults standardUserDefaults] setObject:onesignalAppId forKey:ONESIGNAL_APP_ID_KEY_FOR_TESTING];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    [OneSignal setAppId:onesignalAppId];
+    [OneSignal initialize:onesignalAppId withLaunchOptions:nil];
 }
 
 - (void) onOSPermissionChanged:(OSPermissionStateChanges*)stateChanges {
@@ -116,10 +119,6 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
     ViewController* mainController = (ViewController*) self.window.rootViewController;
     mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
-}
-
-- (void)onOSEmailSubscriptionChanged:(OSEmailSubscriptionStateChanges *)stateChanges {
-    NSLog(@"onOSEmailSubscriptionChanged: %@", stateChanges);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
