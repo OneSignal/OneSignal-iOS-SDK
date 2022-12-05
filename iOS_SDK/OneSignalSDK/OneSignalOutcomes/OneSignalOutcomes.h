@@ -40,6 +40,7 @@
 #import "OSOutcomeEventsFactory.h"
 #import "OSTrackerFactory.h"
 #import "OSOutcomeEventsRepository.h"
+#import "OSFocusInfluenceParam.h"
 
 /**
  Public API for Session namespace.
