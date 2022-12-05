@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message;
 - (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message;
 - (void)updateInAppMessagesFromCache;
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages;
+- (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
 - (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
 - (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 
