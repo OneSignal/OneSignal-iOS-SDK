@@ -45,7 +45,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
         let timeProcesor = [self.focusTimeProcessors objectForKey:key];
         [timeProcesor cancelDelayedJob];
     }
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"cancelFocusCall of %@", self.focusTimeProcessors]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"cancelFocusCall of %@", self.focusTimeProcessors]];
 }
 
 + (void)resetUnsentActiveTime {
@@ -54,7 +54,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
         [timeProcesor resetUnsentActiveTime];
     }
     
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", self.focusTimeProcessors]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"resetUnsentActiveTime of %@", self.focusTimeProcessors]];
 }
 
 + (OSBaseFocusTimeProcessor *)createTimeProcessorWithInfluences:(NSArray<OSInfluence *> *)lastInfluences focusEventType:(FocusEventType)focusEventType {
@@ -86,7 +86,7 @@ static NSDictionary<NSString*, OSBaseFocusTimeProcessor*> *_focusTimeProcessors;
         [self.focusTimeProcessors setValue:timeProcesor forKey:key];
     }
     
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG
                      message:[NSString stringWithFormat:@"TimeProcessor %@ for session attributed %d", timeProcesor, isAttributed]];
     
     return timeProcesor;
