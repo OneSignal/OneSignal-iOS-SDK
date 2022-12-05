@@ -90,6 +90,11 @@ import OneSignalNotifications
 @objc
 public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public static let sharedInstance = OneSignalUserManagerImpl()
+
+    @objc public var onesignalId: String? {
+        return _user?.identityModel.onesignalId
+    }
+
     private var hasCalledStart = false
 
     var user: OSUserInternal {
@@ -172,6 +177,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
            let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+
+            // TODO: Pull user data here in init or on every new session?
         }
 
         // Creates an anonymous user if there isn't one in the cache
@@ -340,6 +347,43 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                                    accepted: _accepted,
                                    isDisabled: false,
                                    changeNotifier: OSEventProducer())
+    }
+}
+
+// MARK: - Sessions
+
+extension OneSignalUserManagerImpl {
+    @objc
+    public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+
+        // Get the identity and properties model of the current user
+        let identityModel = user.identityModel
+        let propertiesModel = user.propertiesModel
+
+        propertyExecutor.updateSession(
+            sessionCount: sessionCount,
+            sessionTime: sessionTime,
+            refreshDeviceMetadata: refreshDeviceMetadata,
+            propertiesModel: propertiesModel,
+            identityModel: identityModel
+        )
+    }
+
+    /**
+     App has been backgrounded. Run background tasks such to flush  the operation repo and hydrating models.
+     Need to consider app killed vs app backgrounded and handle gracefully.
+     */
+    @objc
+    public func runBackgroundTasks() {
+        // TODO: Test background behavior
+        // Can't end background task until the server calls return
+        OSBackgroundTaskManager.beginBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
+        // dispatch_async ?
+        OSOperationRepo.sharedInstance.flushDeltaQueue()
+        OSBackgroundTaskManager.endBackgroundTask(USER_MANAGER_BACKGROUND_TASK)
     }
 }
 
