@@ -95,6 +95,8 @@
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
 static BOOL _waitingForApnsResponse = false;
 static BOOL _providesAppNotificationSettings = false;
+BOOL requestedProvisionalAuthorization = false;
+
 static int mSubscriptionStatus = -1;
 
 static NSMutableArray<OSNotificationOpenedResult*> *_unprocessedOpenedNotifis;
@@ -126,7 +128,6 @@ static NSString *_appId;
     return _appId;
 }
 
-static int mLastNotificationTypes = -1;
 + (void)setMSubscriptionStatus:(NSNumber*)status {
     mSubscriptionStatus = [status intValue];
 }
@@ -168,11 +169,10 @@ static OSPermissionStateInternal* _lastPermissionState;
 
 static NSString *_pushToken;
 
-static BOOL _pushDisabled = false;
-+ (void)setPushDisabled:(BOOL)disabled {
-    _pushDisabled = disabled;
+static NSString *_pushSubscriptionId;
++ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
+    _pushSubscriptionId = pushSubscriptionId;
 }
-
 
 + (void)resetLocals {
     _lastMessageReceived = nil;
@@ -185,13 +185,21 @@ static BOOL _pushDisabled = false;
     _lastPermissionState = lastPermissionState;
 }
 
++ (BOOL)permission {
+    return self.currentPermissionState.reachable;
+}
+
++ (BOOL)canRequestPermission {
+    return !self.currentPermissionState.hasPrompted;
+}
+
 + (void)requestPermission:(OSUserResponseBlock)block {
     NSLog(@"🔥 requestPermission:(OSUserResponseBlock)block called");
     // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptForPushNotificationsWithUserResponse:"])
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"requestPermission:"])
         return;
     
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerForPushNotifications Called:waitingForApnsResponse: %d", _waitingForApnsResponse]];
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"requestPermission Called"]];
     
     self.currentPermissionState.hasPrompted = true;
     
@@ -238,6 +246,25 @@ static BOOL _pushDisabled = false;
         [self.osNotificationSettings registerForProvisionalAuthorization:block];
     else
         [OneSignalLog onesignalLog:ONE_S_LL_WARN message:@"registerForProvisionalAuthorization is only available in iOS 12+."];
+}
+
+// Checks to see if we should register for APNS' new Provisional authorization
+// (also known as Direct to History).
+// This behavior is determined by the OneSignal Parameters request
++ (void)checkProvisionalAuthorizationStatus {
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
+    BOOL usesProvisional = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION defaultValue:false];
+    
+    // if iOS parameters for this app have never downloaded, this method
+    // should return
+    if (!usesProvisional || requestedProvisionalAuthorization)
+        return;
+    
+    requestedProvisionalAuthorization = true;
+    
+    [self.osNotificationSettings registerForProvisionalAuthorization:nil];
 }
 
 // iOS 12+ only
@@ -316,25 +343,37 @@ static BOOL _pushDisabled = false;
 
     if (!_appId)
         return;
-    
-    //[OneSignal updateDeviceToken:parsedDeviceToken]; TODO: Send to UM
+
+    _pushToken = parsedDeviceToken;
+    [self sendPushTokenToDelegate];
 }
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
     OSNotificationsManager.waitingForApnsResponse = false;
     
     if (err.code == 3000) {
-        //[OneSignal setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED]; TODO: Send to UM
+        [self setSubscriptionErrorStatus:ERROR_PUSH_CAPABLILITY_DISABLED];
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"ERROR! 'Push Notifications' capability missing! Add the capability in Xcode under 'Target' -> '<MyAppName(MainTarget)>' -> 'Signing & Capabilities' then click the '+ Capability' button."];
     }
     else if (err.code == 3010) {
-        //[OneSignal setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED]; TODO: Send to UM
+        [self setSubscriptionErrorStatus:ERROR_PUSH_SIMULATOR_NOT_SUPPORTED];
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error! iOS Simulator does not support push! Please test on a real iOS device. Error: %@", err]];
     }
     else {
-        // [OneSignal setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR]; TODO: Send to UM
+        [self setSubscriptionErrorStatus:ERROR_PUSH_UNKNOWN_APNS_ERROR];
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Error registering for Apple push notifications! Error: %@", err]];
     }
+}
+
++ (void)sendPushTokenToDelegate {
+    [self.delegate setPushToken:_pushToken];
+}
+
++ (void)setSubscriptionErrorStatus:(int)errorType {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"setSubscriptionErrorStatus: %d", errorType]];
+    
+    mSubscriptionStatus = errorType;
+    [self sendNotificationTypesUpdateToDelegate];
 }
 
 // onOSPermissionChanged should only fire if something changed.
@@ -350,62 +389,40 @@ static BOOL _pushDisabled = false;
 }
 
 //    User just responed to the iOS native notification permission prompt.
-//    Also extra calls to registerUserNotificationSettings will fire this without prompting again.
-//+ (void)updateNotificationTypes:(int)notificationTypes {
-//    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
-//    
-//    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
-//        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO withValue:true];
-//    
-//    BOOL startedRegister = [OSNotificationsManager registerForAPNsToken];
-//    
-//    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startedRegister: %d", startedRegister]];
-//    
-//    [self.osNotificationSettings onNotificationPromptResponse:notificationTypes];
-//    
-//    if (mSubscriptionStatus == -2)
-//        return;
-//    
-////    if (!startedRegister && [self shouldRegisterNow])
-////        [self registerUser];
-////    else
-//    [self sendNotificationTypesUpdate];
-//}
++ (void)updateNotificationTypes:(int)notificationTypes {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"updateNotificationTypes called: %d", notificationTypes]];
+    
+    // TODO: Dropped support, can remove below?
+    if ([OSDeviceUtils isIOSVersionLessThan:@"10.0"])
+        [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO withValue:true];
+    
+    BOOL startedRegister = [OSNotificationsManager registerForAPNsToken];
+    
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startedRegister: %d", startedRegister]];
+    
+    // TODO: Dropped support, can remove below?
+    [self.osNotificationSettings onNotificationPromptResponse:notificationTypes]; // iOS 9 only
 
-//// Updates the server with the new user's notification setting or subscription status changes
-//+ (BOOL)sendNotificationTypesUpdate {
-//
-//    // return if the user has not granted privacy permissions
-//    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-//        return false;
-//
-//    // User changed notification settings for the app.
-//    if ([self getNotificationTypes] != -1 && [OneSignalUserManagerImpl currentOneSignalId] && mLastNotificationTypes != [self getNotificationTypes]) {
-//        if (!_pushToken) {
-//            if ([OSNotificationsManager registerForAPNsToken])
-//                return true;
-//        }
-//
-//        mLastNotificationTypes = [self getNotificationTypes];
-//
-//        //delays observer update until the OneSignal server is notified
-//        //shouldDelaySubscriptionUpdate = true;
-//
-//        [OneSignalClient.sharedClient executeRequest:[OSRequestUpdateNotificationTypes withUserId:[OneSignalUserManagerImpl currentOneSignalId] appId:self.appId notificationTypes:@([self getNotificationTypes])] onSuccess:^(NSDictionary *result) {
-//
-//            //shouldDelaySubscriptionUpdate = false;
-//
-//            if (self.currentSubscriptionState.delayedObserverUpdate)
-//                [self.currentSubscriptionState setAccepted:[self getNotificationTypes] > 0];
-//
-//        } onFailure:nil];
-//
-//        return true;
-//    }
-//
-//    return false;
-//}
+    [self sendNotificationTypesUpdateToDelegate];
+}
 
++ (void)sendNotificationTypesUpdateToDelegate {
+    // We don't delay observer update to wait until the OneSignal server is notified
+    // TODO: We can do the above and delay observers until server is updated.
+    [self.delegate setAccepted:[self getNotificationTypes] > 0];
+    [self.delegate setNotificationTypes:[self getNotificationTypes]];
+}
+
+// Accounts for manual disabling by the app developer
++ (int)getNotificationTypes:(BOOL)pushDisabled {
+    if (pushDisabled) {
+        return -2;
+    }
+    
+    return [self getNotificationTypes];
+}
+
+// Device notification types, that doesn't account for manual disabling by the app developer
 + (int)getNotificationTypes {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message: [NSString stringWithFormat:@"getNotificationTypes:mSubscriptionStatus: %d", mSubscriptionStatus]];
     
@@ -423,9 +440,6 @@ static BOOL _pushDisabled = false;
     
     if (!permissionStatus.provisional && !permissionStatus.answeredPrompt)
         return ERROR_PUSH_PROMPT_NEVER_ANSWERED;
-    
-    if (_pushDisabled)
-        return -2;
 
     return permissionStatus.notificationTypes;
 }
@@ -442,6 +456,7 @@ static BOOL _pushDisabled = false;
     _waitingForApnsResponse = false;
     _currentPermissionState = nil;
     _lastPermissionState = nil;
+    requestedProvisionalAuthorization = false;
 
     // and more...
 }
@@ -554,7 +569,7 @@ static NSString *_lastnonActiveMessageId;
     NSDictionary* customDict = [messageDict objectForKey:@"custom"] ?: [messageDict objectForKey:@"os_data"];
     // Notify backend that user opened the notification
     NSString* messageId = [customDict objectForKey:@"i"];
-    //[OneSignal submitNotificationOpened:messageId]; // TODO: either handle here or have UM handle it
+    [self submitNotificationOpened:messageId];
     
     let isActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
     
@@ -583,6 +598,28 @@ static NSString *_lastnonActiveMessageId;
 //    }
 
     [self handleNotificationAction:actionType actionID:actionID];
+}
+
++ (void)submitNotificationOpened:(NSString*)messageId {
+    // return if the user has not granted privacy permissions
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
+        return;
+    
+    let standardUserDefaults = OneSignalUserDefaults.initStandard;
+    //(DUPLICATE Fix): Make sure we do not upload a notification opened twice for the same messageId
+    //Keep track of the Id for the last message sent
+    NSString* lastMessageId = [standardUserDefaults getSavedStringForKey:OSUD_LAST_MESSAGE_OPENED defaultValue:nil];
+    //Only submit request if messageId not nil and: (lastMessage is nil or not equal to current one)
+    if(messageId && (!lastMessageId || ![lastMessageId isEqualToString:messageId])) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestSubmitNotificationOpened withUserId:_pushSubscriptionId
+                                                                                             appId:_appId
+                                                                                         wasOpened:YES
+                                                                                         messageId:messageId
+                                                                                    withDeviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]]
+                                           onSuccess:nil
+                                           onFailure:nil];
+        [standardUserDefaults saveStringForKey:OSUD_LAST_MESSAGE_OPENED withValue:messageId];
+    }
 }
 
 + (void)launchWebURL:(NSString*)openUrl {

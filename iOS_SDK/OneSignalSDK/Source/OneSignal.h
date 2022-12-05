@@ -48,7 +48,6 @@
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
-#import "OSNotificationsManager.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -136,70 +135,6 @@
 - (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges* _Nonnull)stateChanges;
 @end
 
-// TODO: These are moved to user model
-@interface OSDeviceState : NSObject
-/**
- * Get the app's notification permission
- * @return false if the user disabled notifications for the app, otherwise true
- */
-@property (readonly) BOOL hasNotificationPermission;
-/**
- * Get whether the user is subscribed to OneSignal notifications or not
- * @return false if the user is not subscribed to OneSignal notifications, otherwise true
- */
-@property (readonly) BOOL isPushDisabled;
-/**
- * Get whether the user is subscribed
- * @return true if  isNotificationEnabled,  isUserSubscribed, getUserId and getPushToken are true, otherwise false
- */
-@property (readonly) BOOL isSubscribed;
-/**
- * Get  the user notification permision status
- * @return OSNotificationPermission
-*/
-@property (readonly) OSNotificationPermission notificationPermissionStatus;
-/**
- * Get user id from registration (player id)
- * @return user id if user is registered, otherwise null
- */
-@property (readonly, nullable) NSString* userId;
-/**
- * Get apple deice push token
- * @return push token if available, otherwise null
- */
-@property (readonly, nullable) NSString* pushToken;
-/**
- * Get the user email id
- * @return email id if user address was registered, otherwise null
- */
-@property (readonly, nullable) NSString* emailUserId;
-/**
- * Get the user email
- * @return email address if set, otherwise null
- */
-@property (readonly, nullable) NSString* emailAddress;
-
-@property (readonly) BOOL isEmailSubscribed;
-
-/**
- * Get the user sms id
- * @return sms id if user sms number was registered, otherwise null
- */
-@property (readonly, nullable) NSString* smsUserId;
-/**
- * Get the user sms number, number may start with + and continue with numbers or contain only numbers
- * e.g: +11231231231 or 11231231231
- * @return sms number if set, otherwise null
- */
-@property (readonly, nullable) NSString* smsNumber;
-
-@property (readonly) BOOL isSMSSubscribed;
-
-// Convert the class into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
-@end
-
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 
 /*Block for generic results on success and errors on failure*/
@@ -213,8 +148,6 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (NSString*)appId;
 + (NSString* _Nonnull)sdkVersionRaw;
 + (NSString* _Nonnull)sdkSemanticVersion;
-
-+ (void)disablePush:(BOOL)disable;
 
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
@@ -232,22 +165,20 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSNotifications>)Notifications NS_REFINED_FOR_SWIFT;
 
 #pragma mark Initialization
-+ (void)setAppId:(NSString* _Nonnull)newAppId; // TODO: UM renamed to just 1 method: initialize()
-+ (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)initialize:(nonnull NSString*)newAppId withLaunchOptions:(nullable NSDictionary*)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
 + (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel; // TODO: UM split up into 2?
-+ (void)onesignalLog:(ONE_S_LOG_LEVEL)logLevel message:(NSString* _Nonnull)message;
-
-
-+ (OSDeviceState*)getDeviceState;
 
 #pragma mark Privacy Consent
 + (void)setPrivacyConsent:(BOOL)granted;
 // TODO: add getPrivacyConsent method
-// Tells your application if privacy consent is still needed from the current user
+/**
+ * Tells your application if privacy consent is still needed from the current device.
+ * Consent should be provided prior to the invocation of `initialize` to ensure compliance.
+ */
 + (BOOL)requiresPrivacyConsent;
 + (void)setRequiresPrivacyConsent:(BOOL)required;
 
@@ -265,14 +196,6 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 + (BOOL)isLocationShared;
 
 #pragma mark Permission, Subscription, and Email Observers
-// TODO: UM observers are rescoped
-NS_ASSUME_NONNULL_BEGIN
-
-// TODO: Moved to User.pushSubscription.
-+ (void)addSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
-+ (void)removeSubscriptionObserver:(NSObject<OSPushSubscriptionObserver>*)observer;
-
-NS_ASSUME_NONNULL_END
 
 #pragma mark In-App Messaging
 + (BOOL)isInAppMessagingPaused;
@@ -286,13 +209,7 @@ NS_ASSUME_NONNULL_END
 + (id _Nullable)getTriggerValueForKey:(NSString * _Nonnull)key;
 
 #pragma mark Outcomes
-// TODO: UM these are rescoped to user
-+ (void)sendOutcome:(NSString * _Nonnull)name;
-+ (void)sendOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)sendUniqueOutcome:(NSString * _Nonnull)name onSuccess:(OSSendOutcomeSuccess _Nullable)success;
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
-+ (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value onSuccess:(OSSendOutcomeSuccess _Nullable)success;
++ (Class<OSSession>)Session;
 
 #pragma mark Extension
 // iOS 10 only

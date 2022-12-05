@@ -74,7 +74,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 deltas: nil,
                 refreshDeviceMetadata: false, // Sort this out.
                 modelToUpdate: model,
-                identityModel: OneSignalUserManagerImpl.user.identityModel // TODO: Make sure this is ok
+                identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
             )
             enqueueRequest(request)
         }
@@ -125,5 +125,25 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             print("🔥 OSPropertyOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
+    }
+}
+
+extension OSPropertyOperationExecutor {
+    // TODO: We can make this go through the operation repo
+    func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool?, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel) {
+
+        var deltas: [String: NSNumber] = [:]
+        deltas["session_count"] = sessionCount
+        deltas["session_time"] = sessionTime
+
+        let request = OSRequestUpdateProperties(
+            properties: [:],
+            deltas: deltas,
+            refreshDeviceMetadata: refreshDeviceMetadata,
+            modelToUpdate: propertiesModel,
+            identityModel: identityModel)
+
+        enqueueRequest(request)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
     }
 }

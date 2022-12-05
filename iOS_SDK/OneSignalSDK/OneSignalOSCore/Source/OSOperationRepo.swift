@@ -33,7 +33,8 @@ import OneSignalCore
  OSDeltas are enqueued when model store observers observe changes to their models, and sorted to their appropriate executors.
  */
 public class OSOperationRepo: NSObject {
-    public static let sharedInstance = OSOperationRepo().start()
+    public static let sharedInstance = OSOperationRepo()
+    private var hasCalledStart = false
 
     // Maps delta names to the interfaces for the operation executors
     var deltasToExecutorMap: [String: OSOperationExecutor] = [:]
@@ -43,19 +44,26 @@ public class OSOperationRepo: NSObject {
     // TODO: This should come from a config, plist, method, remote params
     var pollIntervalSeconds = 5
 
-    override init() {
-        super.init()
-        // register as user observer
-        NotificationCenter.default.addObserver(self, selector: #selector(self.flushDeltaQueue),
-                                               name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
-    }
     /**
      Initilize this Operation Repo. Read from the cache. Executors may not be available by this time.
      If everything starts up on initialize(), order can matter, ideally not but it can.
      Likely call init on this from oneSignal but exeuctors can come from diff modules.
      */
-    func start() -> OSOperationRepo {
+    public func start() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        guard !hasCalledStart else {
+            return
+        }
+        hasCalledStart = true
+
         print("🔥 OSOperationRepo start()")
+        // register as user observer
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(self.flushDeltaQueue),
+                                               name: Notification.Name(OS_ON_USER_WILL_CHANGE),
+                                               object: nil)
         // Read the Deltas from cache, if any...
         if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
             self.deltaQueue = deltaQueue
@@ -64,7 +72,6 @@ public class OSOperationRepo: NSObject {
         }
 
         pollFlushQueue()
-        return self
     }
 
     private func pollFlushQueue() {
@@ -79,6 +86,10 @@ public class OSOperationRepo: NSObject {
      Add and start an executor.
      */
     public func addExecutor(_ executor: OSOperationExecutor) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        start()
         print("🔥 OSOperationRepo addExecutor: \(executor)")
         executors.append(executor)
         for delta in executor.supportedDeltas {
@@ -87,6 +98,10 @@ public class OSOperationRepo: NSObject {
     }
 
     func enqueueDelta(_ delta: OSDelta) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        start()
         print("🔥 OSOperationRepo enqueueDelta: \(delta)")
         deltaQueue.append(delta)
 
@@ -94,7 +109,11 @@ public class OSOperationRepo: NSObject {
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_OPERATION_REPO_DELTA_QUEUE_KEY, withValue: self.deltaQueue)
     }
 
-    @objc func flushDeltaQueue() {
+    @objc public func flushDeltaQueue() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        start()
         print("🔥 OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
         if deltaQueue.isEmpty {
             return

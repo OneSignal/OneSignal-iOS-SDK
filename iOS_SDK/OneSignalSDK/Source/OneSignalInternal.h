@@ -36,21 +36,6 @@
 #import "OneSignalNotificationSettings.h"
 
 #import "OSPermission.h"
-#import "OSSubscription.h"
-#import "OSEmailSubscription.h"
-#import "OSPlayerTags.h"
-#import "OSSMSSubscription.h"
-
-//TODO: Clean this up with UM
-
-// Permission + Subscription - Redefine OSPermissionSubscriptionState
-@interface OSPermissionSubscriptionState : NSObject
-
-@property (readwrite) OSPermissionState* _Nonnull permissionStatus;
-@property (readwrite) OSSubscriptionState* _Nonnull subscriptionStatus;
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
 
 @interface OneSignal (OneSignalInternal)
 
@@ -73,14 +58,6 @@
 @property (class) AppEntryAction appEntryState;
 @property (class) OSSessionManager* _Nonnull sessionManager;
 
-+ (OSPermissionSubscriptionState*_Nonnull)getPermissionSubscriptionState;
-
-+ (OSPlayerTags *_Nonnull)getPlayerTags;
-
-@end
-
-@interface OSDeviceState (OSDeviceStateInternal)
-- (instancetype _Nonnull)initWithSubscriptionState:(OSPermissionSubscriptionState *_Nonnull)state;
 @end
 
 #endif /* OneSignalInternal_h */

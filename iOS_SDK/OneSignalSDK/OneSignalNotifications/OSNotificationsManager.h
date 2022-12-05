@@ -26,21 +26,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <OneSignalNotificationSettings.h>
-#import <OSPermission.h>
+#import "OneSignalNotificationSettings.h"
+#import "OSPermission.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import <UIKit/UIKit.h>
 
 // If the completion block is not called within 25 seconds of this block being called in notificationWillShowInForegroundHandler then the completion will be automatically fired.
 typedef void (^OSNotificationWillShowInForegroundBlock)(OSNotification * _Nonnull notification, OSNotificationDisplayResponse _Nonnull completion);
 typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull result);
+
 /**
  Public API.
  */
 @protocol OSNotifications <NSObject>
-
-+ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block; // Move -> NotifManager
-+ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block; // Move -> NotifManager
++ (BOOL)permission;
++ (BOOL)canRequestPermission;
++ (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
++ (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)requestPermission:(OSUserResponseBlock)block;
 + (void)requestPermission:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
@@ -50,7 +52,19 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 @end
 
+
+@protocol OneSignalNotificationsDelegate <NSObject>
+
+- (void)setNotificationTypes:(int)notificationTypes;
+- (void)setPushToken:(NSString * _Nonnull)pushToken;
+- (void)setAccepted:(BOOL)inAccepted;
+
+@end
+
+
 @interface OSNotificationsManager : NSObject <OSNotifications>
+
+@property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
 
 + (Class<OSNotifications>)Notifications;
 
@@ -59,7 +73,6 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setAppId:(NSString *)appId;
 + (NSString *_Nullable)getAppId;
 
-@property (class) BOOL waitingForApnsResponse; // After moving more methods and properties over, we may not need to expose this.
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
 @property (class) OSPermissionStateInternal* _Nonnull lastPermissionState;
 
@@ -72,16 +85,19 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 + (BOOL)registerForAPNsToken;
++ (void)sendPushTokenToDelegate;
 
-//+ (void)updateNotificationTypes:(int)notificationTypes;
++ (int)getNotificationTypes:(BOOL)pushDisabled;
++ (void)updateNotificationTypes:(int)notificationTypes;
++ (void)sendNotificationTypesUpdateToDelegate;
 
 // Used to manage observers added by the app developer.
 @property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;
 
 @property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
 
-// TODO: This gets set by the user module's push sub
-+ (void)setPushDisabled:(BOOL)disabled;
+// This is set by the user module
++ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId;
 
 // - Notification Opened
 + (void)lastMessageReceived:(NSDictionary*)message;
@@ -96,4 +112,5 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion;
 + (void)didRegisterForRemoteNotifications:(UIApplication *)app deviceToken:(NSData *)inDeviceToken;
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err;
++ (void)checkProvisionalAuthorizationStatus;
 @end
