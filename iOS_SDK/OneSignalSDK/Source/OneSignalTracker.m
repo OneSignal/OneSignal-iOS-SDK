@@ -33,21 +33,19 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
 #import "OSFocusTimeProcessorFactory.h"
-#import "OSBaseFocusTimeProcessor.h"
 #import "OSFocusCallParams.h"
 #import "OSFocusInfluenceParam.h"
 #import "OSMessagingController.h"
-#import "OSStateSynchronizer.h"
 
 @interface OneSignal ()
 
-+ (void)registerUser;
++ (BOOL)shouldStartNewSession;
++ (void)startNewSession;
 + (BOOL)sendNotificationTypesUpdate;
 + (NSString*)mUserId;
 + (NSString *)mEmailUserId;
 + (NSString *)mEmailAuthToken;
 + (NSString *)mExternalIdAuthToken;
-+ (OSStateSynchronizer *)stateSynchronizer;
 
 @end
 
@@ -124,11 +122,7 @@ static BOOL didEnterBackgroundTriggered = NO;
 }
 
 + (void)applicationForegrounded {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
-
-    BOOL fromBackgroundedState = [self applicationForegroundedFromBackgroundedState];
-    [self resetBackgroundDetection];
-    
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Foregrounded started"];
     [OSFocusTimeProcessorFactory cancelFocusCall];
     
     if (OneSignal.appEntryState != NOTIFICATION_CLICK)
@@ -137,8 +131,8 @@ static BOOL didEnterBackgroundTriggered = NO;
     lastOpenedTime = [NSDate date].timeIntervalSince1970;
     
     // on_session tracking when resumming app.
-    if ([OneSignal shouldRegisterNow])
-        [OneSignal registerUser];
+    if ([OneSignal shouldStartNewSession])
+        [OneSignal startNewSession];
     else {
         // This checks if notification permissions changed when app was backgrounded
         [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
@@ -149,15 +143,11 @@ static BOOL didEnterBackgroundTriggered = NO;
         }
     }
     
-    let wasBadgeSet = [OSNotificationsManager clearBadgeCount:false];
-    
-    if (![OneSignal mUserId])
-        return;
+    [OSNotificationsManager clearBadgeCount:false];
 }
 
 + (void)applicationBackgrounded {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
-    [OneSignal setIsOnSessionSuccessfulForCurrentState:false];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Application Backgrounded started"];
     [self updateLastClosedTime];
     
     let timeElapsed = [self getTimeFocusedElapsed];
@@ -172,16 +162,20 @@ static BOOL didEnterBackgroundTriggered = NO;
     
     if (timeProcessor)
         [timeProcessor sendOnFocusCall:focusCallParams];
+    // user module let them know app is backgrounded
+    [OneSignalUserManagerImpl.sharedInstance runBackgroundTasks];
 }
 
+// Note: This is not from app backgrounding
+// The on_focus call is made right away.
 + (void)onSessionEnded:(NSArray<OSInfluence *> *)lastInfluences {
-    [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded started"];
     let timeElapsed = [self getTimeFocusedElapsed];
     let focusCallParams = [self createFocusCallParams:lastInfluences onSessionEnded:true];
     let timeProcessor = [OSFocusTimeProcessorFactory createTimeProcessorWithInfluences:lastInfluences focusEventType:END_SESSION];
     
     if (!timeProcessor) {
-        [OneSignal onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
+        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"onSessionEnded no time processor to end"];
         return;
     }
     
@@ -206,11 +200,6 @@ static BOOL didEnterBackgroundTriggered = NO;
     }
 
     return [[OSFocusCallParams alloc] initWithParamsAppId:[OneSignal appId]
-                                                   userId:[OneSignal mUserId]
-                                              emailUserId:[OneSignal mEmailUserId]
-                                           emailAuthToken:[OneSignal mEmailAuthToken]
-                                      externalIdAuthToken:[OneSignal mExternalIdAuthToken]
-                                                  netType:[OSNetworkingUtils getNetType]
                                               timeElapsed:timeElapsed
                                           influenceParams:focusInfluenceParams
                                            onSessionEnded:onSessionEnded];

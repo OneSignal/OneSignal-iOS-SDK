@@ -1,7 +1,7 @@
 /*
  Modified MIT License
 
- Copyright 2021 OneSignal
+ Copyright 2022 OneSignal
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -26,36 +26,8 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "OneSignal.h"
 
-#import "OSSessionManager.h"
-#import "OSInfluence.h"
-#import "OSIndirectInfluence.h"
-#import "OSInAppMessageOutcome.h"
-#import "OSOutcomeEvent.h"
-#import "OSInfluenceDataDefines.h"
-#import "OSOutcomeEventsCache.h"
-#import "OSCachedUniqueOutcome.h"
-#import "OneSignalOutcomeEventsController.h"
-#import "OSInfluenceDataRepository.h"
-#import "OSOutcomeEventsFactory.h"
-#import "OSTrackerFactory.h"
-#import "OSOutcomeEventsRepository.h"
-#import "OSFocusInfluenceParam.h"
+@interface OSBackgroundTaskManagerImpl : NSObject <OSBackgroundTaskManagerDelegate>
 
-/**
- Public API for Session namespace.
- */
-@protocol OSSession <NSObject>
-+ (void)addOutcome:(NSString * _Nonnull)name;
-+ (void)addUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
 @end
-
-@interface OneSignalOutcomes : NSObject <OSSession>
-+ (Class<OSSession>)Session;
-+ (OneSignalOutcomeEventsController * _Nullable)sharedController;
-+ (void)start;
-+ (void)clearStatics;
-+ (void)migrate;
-@end
-
