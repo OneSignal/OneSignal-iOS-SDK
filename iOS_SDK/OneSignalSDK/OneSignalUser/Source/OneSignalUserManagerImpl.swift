@@ -151,6 +151,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
     }
 
+    // TODO: This method is called A LOT, check if all calls are needed.
     @objc
     public func start() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {

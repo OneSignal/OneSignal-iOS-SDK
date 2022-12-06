@@ -122,7 +122,7 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.InAppMessages.removeTrigger(forKey: "foo")
         OneSignal.InAppMessages.removeTriggers(forKeys: ["foo", "bar"])
         OneSignal.InAppMessages.clearTriggers()
-        
+
         OneSignal.InAppMessages.setInAppMessageClickHandler { action in
             NSLog("action \(action.description)")
         }

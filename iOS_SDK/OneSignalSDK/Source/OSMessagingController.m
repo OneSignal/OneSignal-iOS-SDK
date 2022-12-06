@@ -563,10 +563,11 @@ static BOOL _isInAppMessagingPaused = false;
  Checks if the IAM matches any triggers or if it exists in cached seenInAppMessages set
  */
 - (BOOL)shouldShowInAppMessage:(OSInAppMessageInternal *)message {
-    return ![self.seenInAppMessages containsObject:message.messageId] &&
-           [self.triggerController messageMatchesTriggers:message] &&
-           ![message isFinished] &&
-           OneSignal.isRegisterUserFinished;
+//    return ![self.seenInAppMessages containsObject:message.messageId] &&
+//           [self.triggerController messageMatchesTriggers:message] &&
+//           ![message isFinished] &&
+//           OneSignal.isRegisterUserFinished; // TODO: this crashes app
+    return true;
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
