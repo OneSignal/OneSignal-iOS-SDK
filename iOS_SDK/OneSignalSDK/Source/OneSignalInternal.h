@@ -42,8 +42,6 @@
 + (BOOL)shouldPromptToShowURL;
 + (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value;
 + (BOOL)shouldRegisterNow;
-+ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *_Nullable)messagesJson;
-+ (void)sendTagsOnBackground;
 
 + (NSDate *_Nonnull)sessionLaunchTime;
 
