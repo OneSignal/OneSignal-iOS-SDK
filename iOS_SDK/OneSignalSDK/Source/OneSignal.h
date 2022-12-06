@@ -152,9 +152,9 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)removeTriggerForKey:(NSString * _Nonnull)key;
 + (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
 + (void)clearTriggers;
-// TODO: OneSignal.InAppMessages.Paused = true
-+ (BOOL)isInAppMessagingPaused;
-+ (void)pauseInAppMessages:(BOOL)pause;
+// Allows Swift users to: OneSignal.InAppMessages.Paused = true
++ (BOOL)paused NS_REFINED_FOR_SWIFT;
++ (void)paused:(BOOL)pause NS_REFINED_FOR_SWIFT;
 
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
@@ -212,7 +212,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 
 #pragma mark In-App Messaging
 
-+ (Class<OSInAppMessages>)InAppMessages; // TODO: NS_REFINED_FOR_SWIFT
++ (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
 
 #pragma mark Outcomes
 + (Class<OSSession>)Session;
