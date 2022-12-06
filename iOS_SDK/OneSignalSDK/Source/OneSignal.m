@@ -250,7 +250,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 #pragma mark User Model - User Identity 🔥
 
-+ (Class<OSUser>)User {
++ (id<OSUser>)User {
     return [OneSignalUserManagerImpl.sharedInstance User];
 }
 
