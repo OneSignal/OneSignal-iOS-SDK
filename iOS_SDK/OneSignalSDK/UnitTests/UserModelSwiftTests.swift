@@ -32,8 +32,24 @@ extension OneSignal {
     static var User: OSUser.Type {
         return OneSignal.__user()
     }
+
     static var Notifications: OSNotifications.Type {
         return OneSignal.__notifications()
+    }
+
+    static var InAppMessages: OSInAppMessages.Type {
+        return __inAppMessages()
+    }
+}
+
+extension OSInAppMessages {
+    static var Paused: Bool {
+        get {
+            return __paused()
+        }
+        set {
+            __paused(newValue)
+        }
     }
 }
 
@@ -198,5 +214,9 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.Notifications.requestPermission({ accepted in
             print("🔥 promptForPushNotificationsWithUserResponse: \(accepted)")
         }, fallbackToSettings: true)
+
+        // IAM pausing
+        OneSignal.InAppMessages.Paused = true
+        let paused = OneSignal.InAppMessages.Paused
     }
 }

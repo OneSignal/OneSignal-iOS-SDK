@@ -192,6 +192,10 @@
     [OneSignal.Notifications requestPermission:^(BOOL accepted) {
         NSLog(@"🔥 promptForPushNotificationsWithUserResponse: %d", accepted);
     } fallbackToSettings:true];
+    
+    // IAM Pausing
+    [OneSignal.InAppMessages paused:true];
+    BOOL paused = [OneSignal.InAppMessages paused];
 }
 
 @end

@@ -94,13 +94,11 @@
     [OSMessagingController.sharedInstance clearTriggers];
 }
 
-// TODO: Make into OneSignal.InAppMessages.Paused = true
-
-+ (void)pauseInAppMessages:(BOOL)pause {
++ (void)paused:(BOOL)pause {
     [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
 }
 
-+ (BOOL)isInAppMessagingPaused {
++ (BOOL)paused {
     return [OSMessagingController.sharedInstance isInAppMessagingPaused];
 }
 
