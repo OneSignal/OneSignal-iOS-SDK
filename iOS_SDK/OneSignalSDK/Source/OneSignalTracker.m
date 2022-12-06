@@ -40,7 +40,7 @@
 @interface OneSignal ()
 
 + (BOOL)shouldStartNewSession;
-+ (void)startNewSession;
++ (void)startNewSession:(BOOL)fromInit;
 + (BOOL)sendNotificationTypesUpdate;
 + (NSString*)mUserId;
 + (NSString *)mEmailUserId;
@@ -106,12 +106,13 @@ static BOOL lastOnFocusWasToBackground = YES;
     
     // on_session tracking when resumming app.
     if ([OneSignal shouldStartNewSession])
-        [OneSignal startNewSession];
+        [OneSignal startNewSession:NO];
     else {
         // This checks if notification permissions changed when app was backgrounded
         [OSNotificationsManager sendNotificationTypesUpdateToDelegate];
         [[OSSessionManager sharedSessionManager] attemptSessionUpgrade:OneSignal.appEntryState];
-        [OneSignal receivedInAppMessageJson:nil];
+        // TODO: Here it used to call receivedInAppMessageJson with nil, this method no longer exists
+        // [OneSignal receivedInAppMessageJson:nil];
     }
     
     [OSNotificationsManager clearBadgeCount:false];

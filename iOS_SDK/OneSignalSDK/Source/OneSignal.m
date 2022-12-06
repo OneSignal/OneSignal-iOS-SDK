@@ -484,7 +484,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (void)startOutcomes {
     [OneSignalOutcomes start];
-    [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications];
+    [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications]; // TODO: should this actually be in new session instead of init
 }
 
 + (void)startLocation {
