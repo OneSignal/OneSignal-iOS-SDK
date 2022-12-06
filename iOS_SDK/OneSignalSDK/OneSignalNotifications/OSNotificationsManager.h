@@ -54,7 +54,8 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 
 @protocol OneSignalNotificationsDelegate <NSObject>
-
+// set delegate before user
+// can check responds to selector
 - (void)setNotificationTypes:(int)notificationTypes;
 - (void)setPushToken:(NSString * _Nonnull)pushToken;
 - (void)setAccepted:(BOOL)inAccepted;
