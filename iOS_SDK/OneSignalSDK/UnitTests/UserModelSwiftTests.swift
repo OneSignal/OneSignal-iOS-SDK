@@ -29,12 +29,16 @@ import XCTest
 
 // TODO: UM This goes elsewhere
 extension OneSignal {
-    static var User: OSUser.Type {
-        return OneSignal.__user()
+    static var User: OSUser {
+        return __user()
     }
 
     static var Notifications: OSNotifications.Type {
         return OneSignal.__notifications()
+    }
+
+    static var Session: OSSession.Type {
+        return __session()
     }
 
     static var InAppMessages: OSInAppMessages.Type {
