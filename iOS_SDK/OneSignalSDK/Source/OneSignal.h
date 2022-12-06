@@ -175,7 +175,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 #pragma mark User Model 🔥
 
 #pragma mark User Model - User Identity 🔥
-+ (Class<OSUser>)User NS_REFINED_FOR_SWIFT;
++ (id<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
 NS_SWIFT_NAME(login(externalId:token:));
@@ -215,7 +215,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
 
 #pragma mark Outcomes
-+ (Class<OSSession>)Session;
++ (Class<OSSession>)Session NS_REFINED_FOR_SWIFT;
 
 #pragma mark Extension
 // iOS 10 only
