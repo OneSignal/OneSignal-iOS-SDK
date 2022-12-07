@@ -332,9 +332,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
-        appId = newAppId;
-        [OneSignalConfigManager setAppId:newAppId];
     }
+    appId = newAppId;
+    [OneSignalConfigManager setAppId:newAppId];
     [self handleAppIdChange:appId];
 }
 
