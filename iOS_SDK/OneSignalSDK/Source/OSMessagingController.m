@@ -396,6 +396,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)loadTags {
     self.calledLoadTags = YES;
     // TODO: getTags
+    self.viewController.waitForTags = NO;
 //    [OneSignal getTags:^(NSDictionary *result) {
 //        if (self.viewController) {
 //            self.viewController.waitForTags = NO;
@@ -569,10 +570,10 @@ static BOOL _isInAppMessagingPaused = false;
  Checks if the IAM matches any triggers or if it exists in cached seenInAppMessages set
  */
 - (BOOL)shouldShowInAppMessage:(OSInAppMessageInternal *)message {
-//    return ![self.seenInAppMessages containsObject:message.messageId] &&
-//           [self.triggerController messageMatchesTriggers:message] &&
-//           ![message isFinished] &&
-//           OneSignal.isRegisterUserFinished; // TODO: this crashes app
+    return ![self.seenInAppMessages containsObject:message.messageId] &&
+           [self.triggerController messageMatchesTriggers:message] &&
+           ![message isFinished] &&
+           OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId != nil;
     return true;
 }
 
