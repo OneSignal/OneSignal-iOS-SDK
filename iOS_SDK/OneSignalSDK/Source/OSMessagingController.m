@@ -96,10 +96,11 @@ static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
     dispatch_once(&once, ^{
         // Make sure only devices with iOS 10 or newer can use IAMs
-        if ([self doesDeviceSupportIAM])
+        if ([self doesDeviceSupportIAM]) {
             sharedInstance = [OSMessagingController new];
-        else
+        } else {
             sharedInstance = [DummyOSMessagingController new];
+        }
     });
     return sharedInstance;
 }
@@ -107,6 +108,11 @@ static dispatch_once_t once;
 + (void)removeInstance {
     sharedInstance = nil;
     once = 0;
+}
+
++ (void)start {
+    OSMessagingController *shared = OSMessagingController.sharedInstance;
+    OSPushSubscriptionState *_ = [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -969,6 +975,21 @@ static BOOL _isInAppMessagingPaused = false;
         [self evaluateMessages];
     }
 }
+
+#pragma mark OSPushSubscriptionObserver Methods
+- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
+    if (stateChanges.to.subscriptionId == nil) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
+        return;
+    }
+    // Pull new IAMs when the subscription id changes to a new valid subscription id
+    if (stateChanges.from.subscriptionId != nil &&
+        [stateChanges.to.subscriptionId isEqualToString:stateChanges.from.subscriptionId]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
+        [self getInAppMessagesFromServer:stateChanges.to.subscriptionId];
+    }
+}
+
 @end
 
 @implementation DummyOSMessagingController

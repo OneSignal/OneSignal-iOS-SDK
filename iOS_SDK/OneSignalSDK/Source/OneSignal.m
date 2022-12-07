@@ -447,13 +447,11 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:[NSNumber numberWithInt:1] sessionTime:nil refreshDeviceMetadata:true];
     
-    // TODO: Get IAMs
-    // Maybe it needs to listen to user did change as well, sub must be transferred already on backend
+    // This is almost always going to be nil the first time.
+    // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
     NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
     if (subscriptionId) {
         [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
-    } else {
-        [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
     }
     
     // The below means there are NO IAMs until on_session returns
@@ -482,6 +480,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         
         [self enableInAppLaunchURL:true];
     }
+}
+
++ (void)startInAppMessages {
+    [OneSignalInAppMessaging start];
 }
 
 + (void)startOutcomes {
@@ -582,8 +584,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self startTrackIAP];
     [self startTrackFirebaseAnalytics];
     [self startLifecycleObserver];
+    //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
-
+    [self startInAppMessages];
     [self startNewSession:YES];
     initDone = true;
 }
