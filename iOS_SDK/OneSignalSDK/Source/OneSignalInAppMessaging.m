@@ -39,12 +39,12 @@
     [OSMessagingController start];
 }
 
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
++ (void)setClickHandler:(OSInAppMessageClickBlock)block {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
 }
 
-+ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
++ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
     [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }

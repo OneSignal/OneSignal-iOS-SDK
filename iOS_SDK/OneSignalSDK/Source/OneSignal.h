@@ -157,8 +157,8 @@ typedef void (^OSFailureBlock)(NSError* error);
 + (void)paused:(BOOL)pause NS_REFINED_FOR_SWIFT;
 
 typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock _Nullable)block;
-+ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
++ (void)setClickHandler:(OSInAppMessageClickBlock _Nullable)block;
++ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
 
 @end
 

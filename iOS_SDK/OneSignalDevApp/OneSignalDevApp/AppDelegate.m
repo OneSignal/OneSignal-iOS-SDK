@@ -74,7 +74,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     };
 
     // Example setter for IAM action click handler using OneSignal public method
-    [OneSignal.InAppMessages setInAppMessageClickHandler:inAppMessagingActionClickBlock];
+    [OneSignal.InAppMessages setClickHandler:inAppMessagingActionClickBlock];
     
     // OneSignal Init with app id and lauch options
     [OneSignal setLaunchURLsInApp:YES];
@@ -85,7 +85,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         NSLog(@"OneSignal Demo App requestPermission: %d", accepted);
     }];
     
-    [OneSignal.InAppMessages setInAppMessageLifecycleHandler:self];
+    [OneSignal.InAppMessages setLifecycleHandler:self];
     [OneSignal.InAppMessages paused:true];
 
     [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
