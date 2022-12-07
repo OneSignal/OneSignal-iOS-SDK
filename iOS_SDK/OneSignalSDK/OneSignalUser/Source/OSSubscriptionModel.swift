@@ -147,7 +147,7 @@ class OSSubscriptionModel: OSModel {
             self.set(property: "notificationTypes", newValue: notificationTypes)
         }
     }
-
+    // swiftlint:disable identifier_name
     // This is set by the permission state changing
     // Defaults to true for email & SMS, defaults to false for push
     var _accepted: Bool {

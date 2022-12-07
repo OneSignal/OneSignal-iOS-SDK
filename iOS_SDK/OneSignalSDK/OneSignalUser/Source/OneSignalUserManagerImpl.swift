@@ -33,6 +33,7 @@ import OneSignalNotifications
  Public-facing API to access the User Manager.
  */
 @objc protocol OneSignalUserManager {
+    // swiftlint:disable identifier_name
     var User: OSUser { get }
     func login(externalId: String, token: String?)
     func logout()
@@ -332,14 +333,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     func createDefaultPushSubscription() -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
-        let _accepted = OSNotificationsManager.currentPermissionState.accepted
+        let accepted = OSNotificationsManager.currentPermissionState.accepted
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
         let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
 
         return OSSubscriptionModel(type: .push,
                                    address: token,
                                    subscriptionId: subscriptionId,
-                                   accepted: _accepted,
+                                   accepted: accepted,
                                    isDisabled: false,
                                    changeNotifier: OSEventProducer())
     }
