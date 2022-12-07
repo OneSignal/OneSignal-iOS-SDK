@@ -344,6 +344,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                                    isDisabled: false,
                                    changeNotifier: OSEventProducer())
     }
+    
+    @objc
+    public func getTags() -> [String:String]? {
+        guard let user = _user else {
+            return nil
+        }
+        return user.propertiesModel.tags
+    }
 }
 
 // MARK: - Sessions
