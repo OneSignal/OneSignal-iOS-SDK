@@ -31,5 +31,6 @@
 @interface OneSignalInAppMessaging : NSObject <OSInAppMessages>
 
 + (Class<OSInAppMessages>)InAppMessages;
++ (void)start;
 
 @end
