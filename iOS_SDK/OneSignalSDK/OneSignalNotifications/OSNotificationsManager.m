@@ -88,8 +88,17 @@
 @end
 
 @implementation OSNotificationsManager
+
 + (Class<OSNotifications>)Notifications {
     return self;
+}
+
+static id<OneSignalNotificationsDelegate> _delegate;
++ (id<OneSignalNotificationsDelegate>)delegate {
+    return _delegate;
+}
++(void)setDelegate:(id<OneSignalNotificationsDelegate>)delegate {
+    _delegate = delegate;
 }
 
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
