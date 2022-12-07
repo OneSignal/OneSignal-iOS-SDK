@@ -34,6 +34,11 @@
     return self;
 }
 
++ (void)start {
+    // Initialize the shared instance and start observing the push subscription
+    [OSMessagingController start];
+}
+
 + (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
     [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
