@@ -26,7 +26,88 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
+
+#import <OneSignalOutcomes/OneSignalOutcomes.h>
+
+@interface OSInAppMessage : NSObject
+
+@property (strong, nonatomic, nonnull) NSString *messageId;
+
+// Convert the object into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
+
+@interface OSInAppMessageTag : NSObject
+
+@property (strong, nonatomic, nullable) NSDictionary *tagsToAdd;
+@property (strong, nonatomic, nullable) NSArray *tagsToRemove;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
+@interface OSInAppMessageAction : NSObject
+
+// The action name attached to the IAM action
+@property (strong, nonatomic, nullable) NSString *clickName;
+
+// The URL (if any) that should be opened when the action occurs
+@property (strong, nonatomic, nullable) NSURL *clickUrl;
+
+//UUID for the page in an IAM Carousel
+@property (strong, nonatomic, nullable) NSString *pageId;
+
+// Whether or not the click action is first click on the IAM
+@property (nonatomic) BOOL firstClick;
+
+// Whether or not the click action dismisses the message
+@property (nonatomic) BOOL closesMessage;
+
+// The outcome to send for this action
+@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
+
+// The tags to send for this action
+@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
+
+// Convert the class into a NSDictionary
+- (NSDictionary *_Nonnull)jsonRepresentation;
+
+@end
+
+// TODO: move these?
+
+@protocol OSInAppMessageDelegate <NSObject>
+@optional
+- (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
+@end
+
+@protocol OSInAppMessageLifecycleHandler <NSObject>
+@optional
+- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message;
+- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message;
+- (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
+- (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
+@end
+
+@protocol OSInAppMessages <NSObject>
+
++ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
++ (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
++ (void)removeTriggerForKey:(NSString * _Nonnull)key;
++ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
++ (void)clearTriggers;
+// Allows Swift users to: OneSignal.InAppMessages.Paused = true
++ (BOOL)paused NS_REFINED_FOR_SWIFT;
++ (void)paused:(BOOL)pause NS_REFINED_FOR_SWIFT;
+
+typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
++ (void)setClickHandler:(OSInAppMessageClickBlock _Nullable)block;
++ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
+
+@end
 
 @interface OneSignalInAppMessaging : NSObject <OSInAppMessages>
 
