@@ -55,6 +55,7 @@ typedef struct os_last_location {
 + (void)start;
 + (void)clearLastLocation;
 + (void)onFocus:(BOOL)isActive;
++ (void)startLocationSharedWithFlag:(BOOL)enable;
 @end
 
 #endif /* OneSignalLocation_h */
