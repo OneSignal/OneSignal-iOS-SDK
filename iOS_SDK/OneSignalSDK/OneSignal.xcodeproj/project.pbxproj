@@ -316,7 +316,7 @@
 		DE3784852888D00300453A8E /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; };
 		DE3784862888D00B00453A8E /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE69E19B282ED8060090BB3D /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DE3CD300270FA9F200A5BECD /* OneSignalOutcomes.m in Sources */ = {isa = PBXBuildFile; fileRef = DE3CD2FE270FA9F200A5BECD /* OneSignalOutcomes.m */; };
-		DE51DDE12941697A0073D5C4 /* OneSignalLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FA1E73342200E41FD7 /* OneSignalLocation.h */; };
+		DE51DDE12941697A0073D5C4 /* OneSignalLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 912411FA1E73342200E41FD7 /* OneSignalLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DE5EFECA24D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5EFEC924D8DBF70032632D /* OSInAppMessageViewControllerOverrider.m */; };
 		DE69E19F282ED8060090BB3D /* OneSignalUser.docc in Sources */ = {isa = PBXBuildFile; fileRef = DE69E19E282ED8060090BB3D /* OneSignalUser.docc */; };
 		DE69E1A0282ED8060090BB3D /* OneSignalUser.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69E19D282ED8060090BB3D /* OneSignalUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
