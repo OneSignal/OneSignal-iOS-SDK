@@ -77,8 +77,6 @@
 
 @end
 
-// TODO: move these?
-
 @protocol OSInAppMessageDelegate <NSObject>
 @optional
 - (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
