@@ -45,8 +45,8 @@ typedef struct os_last_location {
 @protocol OSLocation <NSObject>
 // - Request and track user's location
 + (void)requestPermission;
-+ (void)setLocationShared:(BOOL)enable;
-+ (BOOL)isLocationShared;
++ (void)setShared:(BOOL)enable;
++ (BOOL)isShared;
 @end
 
 @interface OneSignalLocation : NSObject<OSLocation>

@@ -88,12 +88,12 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (void)start {
-    if ([OneSignalConfigManager getAppId] != nil && [self isLocationShared]) {
+    if ([OneSignalConfigManager getAppId] != nil && [self isShared]) {
         [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
     }
 }
 
-+ (void)setLocationShared:(BOOL)enable {
++ (void)setShared:(BOOL)enable {
     //TODO: move remote params to core
 //    let remoteController = [self getRemoteParamController];
 //
@@ -129,7 +129,7 @@ static OneSignalLocation* singleInstance = nil;
     [OneSignalLocation getLocation:true fallbackToSettings:fallback withCompletionHandler:completionHandler];
 }
 
-+ (BOOL)isLocationShared {
++ (BOOL)isShared {
     //TODO: move remote params to core
     //return [[self getRemoteParamController] isLocationShared];
     return true;
@@ -368,7 +368,7 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
-    if (([OSPrivacyConsentController requiresUserPrivacyConsent] || ![OneSignalLocation isLocationShared]) && !fallbackToSettings) {
+    if (([OSPrivacyConsentController requiresUserPrivacyConsent] || ![OneSignalLocation isShared]) && !fallbackToSettings) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManagerDelegate clear Location listener due to permissions denied or location shared not available"];
         [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
         return;
