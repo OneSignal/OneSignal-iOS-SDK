@@ -49,6 +49,7 @@
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
 #import "OneSignalInAppMessaging.h"
+#import "OneSignalLocation.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
@@ -137,10 +138,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
 
 #pragma mark Location
-// - Request and track user's location
-+ (void)promptLocation;
-+ (void)setLocationShared:(BOOL)enable;
-+ (BOOL)isLocationShared;
++ (Class<OSLocation>)Location NS_REFINED_FOR_SWIFT;
 
 #pragma mark Outcomes
 + (Class<OSSession>)Session NS_REFINED_FOR_SWIFT;
