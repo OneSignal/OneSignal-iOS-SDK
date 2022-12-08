@@ -291,6 +291,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     return [OneSignalInAppMessaging InAppMessages];
 }
 
++ (Class<OSLocation>)Location {
+    return [OneSignalLocation Location];
+}
+
 /*
  This is should be set from all OneSignal entry points.
  */
@@ -493,9 +497,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (void)startLocation {
     // TODO: Do we pass location to user module?
-    if (appId && [self isLocationShared]) {
-        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
-    }
+    [OneSignalLocation start];
 }
 
 + (void)startTrackFirebaseAnalytics {
@@ -711,46 +713,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (void)enableInAppLaunchURL:(BOOL)enable {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
-}
-
-#pragma mark Location
-
-+ (void)setLocationShared:(BOOL)enable {
-    let remoteController = [self getRemoteParamController];
-    
-    // Already set by remote params
-    if ([remoteController hasLocationKey])
-        return;
-
-    [self startLocationSharedWithFlag:enable];
-}
-
-+ (void)startLocationSharedWithFlag:(BOOL)enable {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startLocationSharedWithFlag called with status: %d", (int) enable]];
-
-    let remoteController = [self getRemoteParamController];
-    [remoteController saveLocationShared:enable];
-
-    if (!enable) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startLocationSharedWithFlag set false, clearing last location!"];
-        [OneSignalLocation clearLastLocation];
-    }
-}
-
-+ (void)promptLocation {
-    [self promptLocationFallbackToSettings:false completionHandler:nil];
-}
-
-+ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
-        return;
-    
-    [OneSignalLocation getLocation:true fallbackToSettings:fallback withCompletionHandler:completionHandler];
-}
-
-+ (BOOL)isLocationShared {
-    return [[self getRemoteParamController] isLocationShared];
 }
 
 + (void)sendPurchases:(NSArray*)purchases {

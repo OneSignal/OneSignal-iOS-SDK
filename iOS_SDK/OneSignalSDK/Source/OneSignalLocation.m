@@ -29,9 +29,9 @@
 #import <CoreLocation/CoreLocation.h>
 
 #import "OneSignalLocation.h"
-#import "OneSignal.h"
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalDialogController.h"
+#import "OSRemoteParamController.h"
 
 @implementation OneSignalLocation
 
@@ -83,6 +83,59 @@ static OneSignalLocation* singleInstance = nil;
     return singleInstance;
 }
 
++ (Class<OSLocation>)Location {
+    return self;
+}
+
++ (void)start {
+    if ([OneSignalConfigManager getAppId] != nil && [self isLocationShared]) {
+        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
+    }
+}
+
++ (void)setLocationShared:(BOOL)enable {
+    //TODO: move remote params to core
+//    let remoteController = [self getRemoteParamController];
+//
+//    // Already set by remote params
+//    if ([remoteController hasLocationKey])
+//        return;
+//
+//    [self startLocationSharedWithFlag:enable];
+}
+
++ (void)startLocationSharedWithFlag:(BOOL)enable {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startLocationSharedWithFlag called with status: %d", (int) enable]];
+
+    //TODO: move remote params to core
+//    let remoteController = [self getRemoteParamController];
+//    [remoteController saveLocationShared:enable];
+
+    if (!enable) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startLocationSharedWithFlag set false, clearing last location!"];
+        [OneSignalLocation clearLastLocation];
+    }
+}
+
++ (void)requestPermission {
+    [self promptLocationFallbackToSettings:false completionHandler:nil];
+}
+
++ (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler {
+    // return if the user has not granted privacy permissions
+    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"promptLocation"])
+        return;
+    
+    [OneSignalLocation getLocation:true fallbackToSettings:fallback withCompletionHandler:completionHandler];
+}
+
++ (BOOL)isLocationShared {
+    //TODO: move remote params to core
+    //return [[self getRemoteParamController] isLocationShared];
+    return true;
+}
+
+
 + (os_last_location*)lastLocation {
     return lastLocation;
 }
@@ -117,7 +170,7 @@ static OneSignalLocation* singleInstance = nil;
 + (void)onFocus:(BOOL)isActive {
     
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresPrivacyConsent])
+    if ([OSPrivacyConsentController requiresUserPrivacyConsent])
         return;
     
     if (!locationManager || ![self started])
@@ -315,7 +368,7 @@ static OneSignalLocation* singleInstance = nil;
 
 - (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations {
     // return if the user has not granted privacy permissions or location shared is false
-    if (([OneSignal requiresPrivacyConsent] || ![OneSignal isLocationShared]) && !fallbackToSettings) {
+    if (([OSPrivacyConsentController requiresUserPrivacyConsent] || ![OneSignalLocation isLocationShared]) && !fallbackToSettings) {
         [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"CLLocationManagerDelegate clear Location listener due to permissions denied or location shared not available"];
         [OneSignalLocation sendAndClearLocationListener:PERMISSION_DENIED];
         return;
@@ -376,7 +429,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)sendLocation {
     // return if the user has not granted privacy permissions
-    if ([OneSignal requiresPrivacyConsent])
+    if ([OSPrivacyConsentController requiresUserPrivacyConsent])
         return;
     
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
