@@ -27,7 +27,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "OneSignalCommonDefines.h"
 
 #ifndef OneSignalLocation_h
 #define OneSignalLocation_h
@@ -43,18 +42,19 @@ typedef struct os_last_location {
     double horizontalAccuracy;
 } os_last_location;
 
-@interface OneSignalLocation : NSObject
+@protocol OSLocation <NSObject>
+// - Request and track user's location
++ (void)requestPermission;
++ (void)setShared:(BOOL)enable;
++ (BOOL)isShared;
+@end
 
+@interface OneSignalLocation : NSObject<OSLocation>
++ (Class<OSLocation>)Location;
 + (OneSignalLocation*) sharedInstance;
-+ (bool)started;
-+ (void)internalGetLocation:(bool)prompt fallbackToSettings:(BOOL)fallback;
-- (void)locationManager:(id)manager didUpdateLocations:(NSArray *)locations;
-+ (void)getLocation:(bool)prompt fallbackToSettings:(BOOL)fallback withCompletionHandler:(void (^)(PromptActionResult result))completionHandler;
-+ (void)sendLocation;
-+ (os_last_location*)lastLocation;
++ (void)start;
 + (void)clearLastLocation;
 + (void)onFocus:(BOOL)isActive;
-
 @end
 
 #endif /* OneSignalLocation_h */
