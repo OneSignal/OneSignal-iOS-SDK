@@ -141,8 +141,6 @@ static LanguageContext* languageContext;
 
 BOOL usesAutoPrompt = false;
 
-static BOOL requiresUserIdAuth = false;
-
 static BOOL performedOnSessionRequest = false;
 
 
@@ -657,41 +655,49 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     return [OSPrivacyConsentController getPrivacyConsent];
 }
 
-//TODO: move to core?
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
-    // TODO: This call shouldnt need userId
-//    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
-//
-//        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-//            requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-//            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = requiresUserIdAuth;
-//        }
-//
-//        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
-//            [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
-//
-//            [OSNotificationsManager checkProvisionalAuthorizationStatus];
-//        }
-//
-//        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
-//            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
-//
-//        //TODO: move all remote param logic to new OSRemoteParamController
-//        [[self getRemoteParamController] saveRemoteParams:result];
-//
-//        if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
-//            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:[result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE] boolValue]];
-//
-//        [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
-//        [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
-//
-//        _downloadedParameters = true;
-//
-//    } onFailure:^(NSError *error) {
-//        _didCallDownloadParameters = false;
-//    }];
+    // This will be nil unless we have a cached user
+    NSString *userId = OneSignalUserManagerImpl.sharedInstance.User.pushSubscription.subscriptionId;
+    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
+
+        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
+        }
+
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+            [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
+
+            [OSNotificationsManager checkProvisionalAuthorizationStatus];
+        }
+
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
+            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+
+        [[OSRemoteParamController sharedController] saveRemoteParams:result];
+        if ([[OSRemoteParamController sharedController] hasLocationKey]) {
+            BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
+            [OneSignalLocation startLocationSharedWithFlag:shared];
+        }
+        
+        if ([[OSRemoteParamController sharedController] hasPrivacyConsentKey]) {
+            BOOL required = [result[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
+            [[OSRemoteParamController sharedController] savePrivacyConsentRequired:required];
+            [OSPrivacyConsentController setRequiresPrivacyConsent:required];
+        }
+
+        if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
+            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:[result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE] boolValue]];
+
+        [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
+        [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
+
+        _downloadedParameters = true;
+
+    } onFailure:^(NSError *error) {
+        _didCallDownloadParameters = false;
+    }];
 }
 
 + (void)enableInAppLaunchURL:(BOOL)enable {
