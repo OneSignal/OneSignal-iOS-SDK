@@ -38,7 +38,6 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OSNotification+Internal.h"
 #import "OSMigrationController.h"
-#import "OSRemoteParamController.h"
 #import "OSBackgroundTaskManagerImpl.h"
 #import "OSFocusCallParams.h"
 
@@ -142,8 +141,6 @@ static LanguageContext* languageContext;
 
 BOOL usesAutoPrompt = false;
 
-static BOOL requiresUserIdAuth = false;
-
 static BOOL performedOnSessionRequest = false;
 
 
@@ -153,13 +150,6 @@ static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
     if (!_permissionStateChangesObserver)
         _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
-}
-
-static OSRemoteParamController* _remoteParamController;
-+ (OSRemoteParamController *)getRemoteParamController {
-    if (!_remoteParamController)
-        _remoteParamController = [OSRemoteParamController new];
-    return _remoteParamController;
 }
 
 /*
@@ -496,7 +486,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startLocation {
-    // TODO: Do we pass location to user module?
     [OneSignalLocation start];
 }
 
@@ -643,20 +632,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
 }
 
-//TODO: move to core?
 + (void)setRequiresPrivacyConsent:(BOOL)required {
-    let remoteParamController = [self getRemoteParamController];
-
-    // Already set by remote params
-    if ([remoteParamController hasPrivacyConsentKey])
-        return;
-
-    if ([self requiresPrivacyConsent] && !required) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
-        return;
-    }
-
-    [remoteParamController savePrivacyConsentRequired:required];
+    [OSPrivacyConsentController setRequiresPrivacyConsent:required];
 }
 
 + (BOOL)requiresPrivacyConsent {
@@ -674,41 +651,53 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _delayedInitParameters = nil;
 }
 
-//TODO: move to core?
++ (BOOL)getPrivacyConsent {
+    return [OSPrivacyConsentController getPrivacyConsent];
+}
+
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
-    // TODO: This call shouldnt need userId
-//    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
-//
-//        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
-//            requiresUserIdAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
-//            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = requiresUserIdAuth;
-//        }
-//
-//        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
-//            [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
-//
-//            [OSNotificationsManager checkProvisionalAuthorizationStatus];
-//        }
-//
-//        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
-//            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
-//
-//        //TODO: move all remote param logic to new OSRemoteParamController
-//        [[self getRemoteParamController] saveRemoteParams:result];
-//
-//        if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
-//            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:[result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE] boolValue]];
-//
-//        [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
-//        [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
-//
-//        _downloadedParameters = true;
-//
-//    } onFailure:^(NSError *error) {
-//        _didCallDownloadParameters = false;
-//    }];
+    // This will be nil unless we have a cached user
+    NSString *userId = OneSignalUserManagerImpl.sharedInstance.User.pushSubscription.subscriptionId;
+    [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
+
+        if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
+            OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
+        }
+
+        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+            [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
+
+            [OSNotificationsManager checkProvisionalAuthorizationStatus];
+        }
+
+        if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
+            [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+
+        [[OSRemoteParamController sharedController] saveRemoteParams:result];
+        if ([[OSRemoteParamController sharedController] hasLocationKey]) {
+            BOOL shared = [result[IOS_LOCATION_SHARED] boolValue];
+            [OneSignalLocation startLocationSharedWithFlag:shared];
+        }
+        
+        if ([[OSRemoteParamController sharedController] hasPrivacyConsentKey]) {
+            BOOL required = [result[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
+            [[OSRemoteParamController sharedController] savePrivacyConsentRequired:required];
+            [OSPrivacyConsentController setRequiresPrivacyConsent:required];
+        }
+
+        if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
+            [[OSOutcomeEventsCache sharedOutcomeEventsCache] saveOutcomesV2ServiceEnabled:[result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE] boolValue]];
+
+        [[OSTrackerFactory sharedTrackerFactory] saveInfluenceParams:result];
+        [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
+
+        _downloadedParameters = true;
+
+    } onFailure:^(NSError *error) {
+        _didCallDownloadParameters = false;
+    }];
 }
 
 + (void)enableInAppLaunchURL:(BOOL)enable {
