@@ -43,7 +43,7 @@
 
     // self.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) OneSignal.getDeviceState.isSubscribed;
     
-    self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) [OneSignal.Location isLocationShared];
+    self.locationSharedSegementedControl.selectedSegmentIndex = (NSInteger) [OneSignal.Location isShared];
     
     self.inAppMessagingSegmentedControl.selectedSegmentIndex = (NSInteger) ![OneSignal.InAppMessages paused];
 
@@ -138,7 +138,7 @@
 
 - (IBAction)locationSharedSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller location sharing status: %i", (int) sender.selectedSegmentIndex);
-    [OneSignal.Location setLocationShared:(bool) sender.selectedSegmentIndex];
+    [OneSignal.Location setShared:(bool) sender.selectedSegmentIndex];
 }
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {
