@@ -27,14 +27,14 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OSRemoteParamController.h"
-#import "OneSignalHelper.h"
-#import "OneSignal.h"
-
-@interface OneSignal ()
-
-+ (void)startLocationSharedWithFlag:(BOOL)enable;
-
-@end
+#import "OneSignalCommonDefines.h"
+#import "OneSignalUserDefaults.h"
+#import "OSPrivacyConsentController.h"
+//@interface OneSignal ()
+//
+//+ (void)startLocationSharedWithFlag:(BOOL)enable;
+//
+//@end
 
 @implementation OSRemoteParamController
 
@@ -42,14 +42,14 @@ THE SOFTWARE.
     _remoteParams = params;
     
     if ([self hasLocationKey]) {
-        let shared = [params[IOS_LOCATION_SHARED] boolValue];
-        [OneSignal startLocationSharedWithFlag:shared];
+        BOOL shared = [params[IOS_LOCATION_SHARED] boolValue];
+        //[OneSignal startLocationSharedWithFlag:shared];
     }
     
     if ([self hasPrivacyConsentKey]) {
-        let required = [params[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
+        BOOL required = [params[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
         [self savePrivacyConsentRequired:required];
-        [OneSignal setRequiresPrivacyConsent:required];
+        //[OneSignal setRequiresPrivacyConsent:required];
     }
 }
 
