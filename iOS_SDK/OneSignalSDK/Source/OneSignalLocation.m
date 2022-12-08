@@ -32,6 +32,8 @@
 #import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalDialogController.h"
 #import "OSRemoteParamController.h"
+#import "OSLocationRequests.h"
+#import <OneSignalUser/OneSignalUser-Swift.h>
 
 @implementation OneSignalLocation
 
@@ -94,22 +96,17 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (void)setShared:(BOOL)enable {
-    //TODO: move remote params to core
-//    let remoteController = [self getRemoteParamController];
-//
-//    // Already set by remote params
-//    if ([remoteController hasLocationKey])
-//        return;
-//
-//    [self startLocationSharedWithFlag:enable];
+    // Already set by remote params
+    if ([[OSRemoteParamController sharedController] hasLocationKey])
+        return;
+
+    [self startLocationSharedWithFlag:enable];
 }
 
 + (void)startLocationSharedWithFlag:(BOOL)enable {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"startLocationSharedWithFlag called with status: %d", (int) enable]];
 
-    //TODO: move remote params to core
-//    let remoteController = [self getRemoteParamController];
-//    [remoteController saveLocationShared:enable];
+    [[OSRemoteParamController sharedController] saveLocationShared:enable];
 
     if (!enable) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"startLocationSharedWithFlag set false, clearing last location!"];
@@ -130,9 +127,7 @@ static OneSignalLocation* singleInstance = nil;
 }
 
 + (BOOL)isShared {
-    //TODO: move remote params to core
-    //return [[self getRemoteParamController] isLocationShared];
-    return true;
+    return [[OSRemoteParamController sharedController] isLocationShared];
 }
 
 
@@ -433,9 +428,9 @@ static OneSignalLocation* singleInstance = nil;
         return;
     
     @synchronized(OneSignalLocation.mutexObjectForLastLocation) {
-        // TODO: get the mUserId
-//        if (!lastLocation || ![OneSignal mUserId])
-//            return;
+        NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+        if (!lastLocation || !userId)
+            return;
         
         //Fired from timer and not initial location fetched
         if (initialLocationSent && [UIApplication sharedApplication].applicationState != UIApplicationStateBackground)
@@ -443,10 +438,13 @@ static OneSignalLocation* singleInstance = nil;
         
         initialLocationSent = YES;
         
-        // TODO: sendLocation
-//        [OneSignal.stateSynchronizer sendLocation:lastLocation appId:[OneSignal appId] networkType:[OSNetworkingUtils getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive)];
+        OSRequestSendLocation *request = [OSRequestSendLocation withUserId:userId appId:[OneSignalConfigManager getAppId] location:lastLocation networkType:[OSNetworkingUtils getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:nil externalIdAuthToken:nil];
+        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalLocation sent location update"]];
+        } onFailure:^(NSError *error) {
+            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalLocation did fail to send location with error: %@", error]];
+        }];
     }
-    
 }
 
 
