@@ -33,6 +33,7 @@ import OneSignalNotifications
  Public-facing API to access the User Manager.
  */
 @objc protocol OneSignalUserManager {
+    // swiftlint:disable identifier_name
     var User: OSUser { get }
     func login(externalId: String, token: String?)
     func logout()
@@ -63,12 +64,6 @@ import OneSignalNotifications
     // SMS
     func addSmsNumber(_ number: String)
     func removeSmsNumber(_ number: String) -> Bool
-    // TODO: Remove triggers from User Module
-    // Triggers
-    func setTrigger(key: String, value: String)
-    func setTriggers(_ triggers: [String: String])
-    func removeTrigger(_ trigger: String)
-    func removeTriggers(_ triggers: [String])
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
@@ -157,6 +152,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
     }
 
+    // TODO: This method is called A LOT, check if all calls are needed.
     @objc
     public func start() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -337,16 +333,24 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
     func createDefaultPushSubscription() -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
-        let _accepted = OSNotificationsManager.currentPermissionState.accepted
+        let accepted = OSNotificationsManager.currentPermissionState.accepted
         let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
         let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
 
         return OSSubscriptionModel(type: .push,
                                    address: token,
                                    subscriptionId: subscriptionId,
-                                   accepted: _accepted,
+                                   accepted: accepted,
                                    isDisabled: false,
                                    changeNotifier: OSEventProducer())
+    }
+    
+    @objc
+    public func getTags() -> [String:String]? {
+        guard let user = _user else {
+            return nil
+        }
+        return user.propertiesModel.tags
     }
 }
 
@@ -537,34 +541,6 @@ extension OneSignalUserManagerImpl: OSUser {
         // Check if is valid SMS?
         createUserIfNil()
         return self.subscriptionModelStore.remove(number)
-    }
-
-    public func setTrigger(key: String, value: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTrigger") else {
-            return
-        }
-        user.setTrigger(key: key, value: value)
-    }
-
-    public func setTriggers(_ triggers: [String: String]) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTriggers") else {
-            return
-        }
-        user.setTriggers(triggers)
-    }
-
-    public func removeTrigger(_ trigger: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTrigger") else {
-            return
-        }
-        user.removeTrigger(trigger)
-    }
-
-    public func removeTriggers(_ triggers: [String]) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "removeTriggers") else {
-            return
-        }
-        user.removeTriggers(triggers)
     }
 
     public func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {

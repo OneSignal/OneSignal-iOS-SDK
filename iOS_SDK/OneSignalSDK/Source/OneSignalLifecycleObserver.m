@@ -93,7 +93,8 @@ static OneSignalLifecycleObserver* _instance = nil;
     
     if ([OneSignal appId]) {
         [OneSignalTracker onFocus:YES];
-        [OneSignal sendTagsOnBackground];
+        // TODO: Method no longer exists, transitions into flushing operation repo on backgrounding.
+        // [OneSignal sendTagsOnBackground];
     }
 }
 
