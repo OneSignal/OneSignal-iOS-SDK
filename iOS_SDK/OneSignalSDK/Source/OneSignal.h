@@ -48,73 +48,11 @@
 #import <OneSignalUser/OneSignalUser.h>
 #import <OneSignalOSCore/OneSignalOSCore.h>
 #import <OneSignalNotifications/OneSignalNotifications.h>
+#import "OneSignalInAppMessaging.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
-
-@interface OSInAppMessage : NSObject
-
-@property (strong, nonatomic, nonnull) NSString *messageId;
-
-// Convert the object into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
-@end
-
-
-@interface OSInAppMessageTag : NSObject
-
-@property (strong, nonatomic, nullable) NSDictionary *tagsToAdd;
-@property (strong, nonatomic, nullable) NSArray *tagsToRemove;
-
-// Convert the class into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
-@end
-
-@interface OSInAppMessageAction : NSObject
-
-// The action name attached to the IAM action
-@property (strong, nonatomic, nullable) NSString *clickName;
-
-// The URL (if any) that should be opened when the action occurs
-@property (strong, nonatomic, nullable) NSURL *clickUrl;
-
-//UUID for the page in an IAM Carousel
-@property (strong, nonatomic, nullable) NSString *pageId;
-
-// Whether or not the click action is first click on the IAM
-@property (nonatomic) BOOL firstClick;
-
-// Whether or not the click action dismisses the message
-@property (nonatomic) BOOL closesMessage;
-
-// The outcome to send for this action
-@property (strong, nonatomic, nullable) NSArray<OSInAppMessageOutcome *> *outcomes;
-
-// The tags to send for this action
-@property (strong, nonatomic, nullable) OSInAppMessageTag *tags;
-
-// Convert the class into a NSDictionary
-- (NSDictionary *_Nonnull)jsonRepresentation;
-
-@end
-
-// TODO: move these?
-
-@protocol OSInAppMessageDelegate <NSObject>
-@optional
-- (void)handleMessageAction:(OSInAppMessageAction * _Nonnull)action NS_SWIFT_NAME(handleMessageAction(action:));
-@end
-
-@protocol OSInAppMessageLifecycleHandler <NSObject>
-@optional
-- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message;
-- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message;
-- (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
-- (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
-@end
 
 // TODO: Need to remove these too for user model
 
@@ -144,23 +82,6 @@ typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 /*Block for generic results on success and errors on failure*/
 typedef void (^OSResultSuccessBlock)(NSDictionary* result);
 typedef void (^OSFailureBlock)(NSError* error);
-
-@protocol OSInAppMessages <NSObject>
-
-+ (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
-+ (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
-+ (void)removeTriggerForKey:(NSString * _Nonnull)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
-+ (void)clearTriggers;
-// Allows Swift users to: OneSignal.InAppMessages.Paused = true
-+ (BOOL)paused NS_REFINED_FOR_SWIFT;
-+ (void)paused:(BOOL)pause NS_REFINED_FOR_SWIFT;
-
-typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action);
-+ (void)setClickHandler:(OSInAppMessageClickBlock _Nullable)block;
-+ (void)setLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate;
-
-@end
 
 // ======= OneSignal Class Interface =========
 @interface OneSignal : NSObject
@@ -210,17 +131,16 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (BOOL)requiresPrivacyConsent;
 + (void)setRequiresPrivacyConsent:(BOOL)required;
 
+#pragma mark Permission, Subscription, and Email Observers
+
+#pragma mark In-App Messaging
++ (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
+
 #pragma mark Location
 // - Request and track user's location
 + (void)promptLocation;
 + (void)setLocationShared:(BOOL)enable;
 + (BOOL)isLocationShared;
-
-#pragma mark Permission, Subscription, and Email Observers
-
-#pragma mark In-App Messaging
-
-+ (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
 
 #pragma mark Outcomes
 + (Class<OSSession>)Session NS_REFINED_FOR_SWIFT;
