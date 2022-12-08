@@ -30,6 +30,8 @@ THE SOFTWARE.
 
 @interface OSRemoteParamController : NSObject
 
++ (OSRemoteParamController *)sharedController;
+
 @property (strong, nonatomic, readonly, nonnull) NSDictionary *remoteParams;
 
 - (void)saveRemoteParams:(NSDictionary *_Nonnull)params;
