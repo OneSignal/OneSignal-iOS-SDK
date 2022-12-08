@@ -31,8 +31,24 @@ THE SOFTWARE.
 #import "OneSignalUserDefaults.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalLog.h"
+#import "OSRemoteParamController.h"
 
 @implementation OSPrivacyConsentController
+
++ (void)setRequiresPrivacyConsent:(BOOL)required {
+    OSRemoteParamController *remoteParamController = [OSRemoteParamController sharedController];
+
+    // Already set by remote params
+    if ([remoteParamController hasPrivacyConsentKey])
+        return;
+
+    if ([self requiresUserPrivacyConsent] && !required) {
+        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
+        return;
+    }
+
+    [remoteParamController savePrivacyConsentRequired:required];
+}
 
 + (BOOL)requiresUserPrivacyConsent {
     BOOL shouldRequireUserConsent = [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT defaultValue:NO];
@@ -48,6 +64,12 @@ THE SOFTWARE.
 
 + (void)consentGranted:(BOOL)granted {
     [OneSignalUserDefaults.initStandard saveBoolForKey:GDPR_CONSENT_GRANTED withValue:granted];
+}
+
++ (BOOL)getPrivacyConsent {
+    // The default is the inverse of privacy consent required
+    BOOL defaultValue = ![OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT defaultValue:NO];
+    return [OneSignalUserDefaults.initStandard getSavedBoolForKey:GDPR_CONSENT_GRANTED defaultValue:defaultValue];
 }
 
 + (BOOL)shouldLogMissingPrivacyConsentErrorWithMethodName:(NSString *)methodName {
