@@ -9,6 +9,15 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessagingRequests.h"
 
+@implementation OSRequestGetInAppMessages
++ (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId {
+    let request = [OSRequestGetInAppMessages new];
+    request.method = GET;
+    request.path = [NSString stringWithFormat:@"subscriptions/%@/iams", subscriptionId];
+    return request;
+}
+@end
+
 @implementation OSRequestInAppMessageViewed
 + (instancetype _Nonnull)withAppId:(NSString * _Nonnull)appId
                       withPlayerId:(NSString * _Nonnull)playerId

@@ -29,11 +29,31 @@ import XCTest
 
 // TODO: UM This goes elsewhere
 extension OneSignal {
-    static var User: OSUser.Type {
-        return OneSignal.__user()
+    static var User: OSUser {
+        return __user()
     }
+
     static var Notifications: OSNotifications.Type {
         return OneSignal.__notifications()
+    }
+
+    static var Session: OSSession.Type {
+        return __session()
+    }
+
+    static var InAppMessages: OSInAppMessages.Type {
+        return __inAppMessages()
+    }
+}
+
+extension OSInAppMessages {
+    static var Paused: Bool {
+        get {
+            return __paused()
+        }
+        set {
+            __paused(newValue)
+        }
     }
 }
 
@@ -97,10 +117,16 @@ class UserModelSwiftTests: XCTestCase {
         _ = OneSignal.User.removeSmsNumber("+15551231234")
 
         // Triggers
-        OneSignal.User.setTrigger(key: "foo", value: "bar")
-        OneSignal.User.setTriggers(["foo": "foo1", "bar": "bar2"])
-        OneSignal.User.removeTrigger("foo")
-        OneSignal.User.removeTriggers(["foo", "bar"])
+        OneSignal.InAppMessages.addTrigger("foo", withValue: "bar")
+        OneSignal.InAppMessages.addTriggers(["foo": "foo1", "bar": "bar2"])
+        OneSignal.InAppMessages.removeTrigger(forKey: "foo")
+        OneSignal.InAppMessages.removeTriggers(forKeys: ["foo", "bar"])
+        OneSignal.InAppMessages.clearTriggers()
+
+        OneSignal.InAppMessages.setInAppMessageClickHandler { action in
+            NSLog("action \(action.description)")
+        }
+        OneSignal.InAppMessages.setInAppMessageLifecycleHandler(nil)
     }
 
     /**
@@ -192,5 +218,9 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.Notifications.requestPermission({ accepted in
             print("🔥 promptForPushNotificationsWithUserResponse: \(accepted)")
         }, fallbackToSettings: true)
+
+        // IAM pausing
+        OneSignal.InAppMessages.Paused = true
+        let paused = OneSignal.InAppMessages.Paused
     }
 }
