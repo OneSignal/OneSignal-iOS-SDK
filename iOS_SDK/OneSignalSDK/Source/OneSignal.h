@@ -124,7 +124,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 
 #pragma mark Privacy Consent
 + (void)setPrivacyConsent:(BOOL)granted;
-// TODO: add getPrivacyConsent method
++ (BOOL)getPrivacyConsent;
 /**
  * Tells your application if privacy consent is still needed from the current device.
  * Consent should be provided prior to the invocation of `initialize` to ensure compliance.

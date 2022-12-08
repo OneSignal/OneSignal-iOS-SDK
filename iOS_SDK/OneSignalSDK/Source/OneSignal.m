@@ -38,7 +38,6 @@
 #import "UIApplicationDelegate+OneSignal.h"
 #import "OSNotification+Internal.h"
 #import "OSMigrationController.h"
-#import "OSRemoteParamController.h"
 #import "OSBackgroundTaskManagerImpl.h"
 #import "OSFocusCallParams.h"
 
@@ -153,13 +152,6 @@ static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
     if (!_permissionStateChangesObserver)
         _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
-}
-
-static OSRemoteParamController* _remoteParamController;
-+ (OSRemoteParamController *)getRemoteParamController {
-    if (!_remoteParamController)
-        _remoteParamController = [OSRemoteParamController new];
-    return _remoteParamController;
 }
 
 /*
@@ -496,7 +488,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startLocation {
-    // TODO: Do we pass location to user module?
     [OneSignalLocation start];
 }
 
@@ -643,20 +634,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
 }
 
-//TODO: move to core?
 + (void)setRequiresPrivacyConsent:(BOOL)required {
-    let remoteParamController = [self getRemoteParamController];
-
-    // Already set by remote params
-    if ([remoteParamController hasPrivacyConsentKey])
-        return;
-
-    if ([self requiresPrivacyConsent] && !required) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
-        return;
-    }
-
-    [remoteParamController savePrivacyConsentRequired:required];
+    [OSPrivacyConsentController setRequiresPrivacyConsent:required];
 }
 
 + (BOOL)requiresPrivacyConsent {
@@ -672,6 +651,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self initialize:_delayedInitParameters.appId withLaunchOptions:_delayedInitParameters.launchOptions];
     delayedInitializationForPrivacyConsent = false;
     _delayedInitParameters = nil;
+}
+
++ (BOOL)getPrivacyConsent {
+    return [OSPrivacyConsentController getPrivacyConsent];
 }
 
 //TODO: move to core?

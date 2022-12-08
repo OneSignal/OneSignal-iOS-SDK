@@ -38,6 +38,11 @@ THE SOFTWARE.
 
 @implementation OSRemoteParamController
 
+static OSRemoteParamController *_sharedController;
++ (OSRemoteParamController *)sharedController {
+    return _sharedController;
+}
+
 - (void)saveRemoteParams:(NSDictionary *)params {
     _remoteParams = params;
     
@@ -49,7 +54,7 @@ THE SOFTWARE.
     if ([self hasPrivacyConsentKey]) {
         BOOL required = [params[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
         [self savePrivacyConsentRequired:required];
-        //[OneSignal setRequiresPrivacyConsent:required];
+        [OSPrivacyConsentController setRequiresPrivacyConsent:required];
     }
 }
 
