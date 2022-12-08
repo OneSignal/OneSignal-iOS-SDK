@@ -230,7 +230,10 @@
         [OSNotificationsManager.lastPermissionState persistAsFrom];
     }
     // Update the push subscription's _accepted property
-    [OSNotificationsManager.delegate setAccepted:state.accepted];
+    // TODO: This can be called before the User Manager has set itself as the delegate
+    if (OSNotificationsManager.delegate && [OSNotificationsManager.delegate respondsToSelector:@selector(setAccepted:)]) {
+        [OSNotificationsManager.delegate setAccepted:state.accepted];
+    }
 }
 
 @end

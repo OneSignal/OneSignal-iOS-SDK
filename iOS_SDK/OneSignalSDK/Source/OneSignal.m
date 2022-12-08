@@ -71,6 +71,7 @@
 #import "OSMessagingController.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageInternal.h"
+#import "OneSignalInAppMessaging.h"
 
 #import "OneSignalLifecycleObserver.h"
 
@@ -249,7 +250,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 #pragma mark User Model - User Identity 🔥
 
-+ (Class<OSUser>)User {
++ (id<OSUser>)User {
     return [OneSignalUserManagerImpl.sharedInstance User];
 }
 
@@ -282,6 +283,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (Class<OSSession>)Session {
     return [OneSignalOutcomes Session];
+}
+
++ (Class<OSInAppMessages>)InAppMessages {
+    return [OneSignalInAppMessaging InAppMessages];
 }
 
 /*
@@ -325,9 +330,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         // Pre-check on app id to make sure init of SDK is performed properly
         //     Usually when the app id is changed during runtime so that SDK is reinitialized properly
         initDone = false;
-        appId = newAppId;
-        [OneSignalConfigManager setAppId:newAppId];
     }
+    appId = newAppId;
+    [OneSignalConfigManager setAppId:newAppId];
     [self handleAppIdChange:appId];
 }
 
@@ -368,16 +373,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     if (providesView && [OSDeviceUtils isIOSVersionGreaterThanOrEqual:@"12.0"]) {
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
-}
-
-+ (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)block {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message click handler set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageClickHandler:block];
-}
-
-+ (void)setInAppMessageLifecycleHandler:(NSObject<OSInAppMessageLifecycleHandler> *_Nullable)delegate; {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"In app message delegate set successfully"];
-    [OSMessagingController.sharedInstance setInAppMessageDelegate:delegate];
 }
 
 #pragma mark Initialization
@@ -446,20 +441,28 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     sessionLaunchTime = [NSDate date];
 
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal `create/on_session`"];
-    
-    // TODO: Get IAMs
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:[NSNumber numberWithInt:1] sessionTime:nil refreshDeviceMetadata:true];
+    
+    // This is almost always going to be nil the first time.
+    // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id
+    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+    if (subscriptionId) {
+        [OSMessagingController.sharedInstance getInAppMessagesFromServer:subscriptionId];
+    }
+    
+    // The below means there are NO IAMs until on_session returns
+    // because they can be ended, paused, or deleted from the server, or your segment has changed and you're no longer eligible
     
     // ^ Do the "on_session" call, send session_count++
     // on success:
     //    [OneSignalLocation sendLocation];
     //    [self executePendingLiveActivityUpdates];
-    //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
+    //    [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];  // go to controller
     
     // on failure:
-    //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
+    //    [OSMessagingController.sharedInstance updateInAppMessagesFromCache]; // go to controller
 }
 
 + (void)initInAppLaunchURLSettings:(NSDictionary*)settings {
@@ -477,9 +480,13 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     }
 }
 
++ (void)startInAppMessages {
+    [OneSignalInAppMessaging start];
+}
+
 + (void)startOutcomes {
     [OneSignalOutcomes start];
-    [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications];
+    [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications]; // TODO: should this actually be in new session instead of init
 }
 
 + (void)startLocation {
@@ -575,8 +582,9 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self startTrackIAP];
     [self startTrackFirebaseAnalytics];
     [self startLifecycleObserver];
+    //TODO: Should these be started in Dependency order? e.g. IAM depends on User Manager shared instance
     [self startUserManager]; // By here, app_id exists, and consent is granted.
-
+    [self startInAppMessages];
     [self startNewSession:YES];
     initDone = true;
 }
@@ -743,35 +751,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     return [[self getRemoteParamController] isLocationShared];
 }
 
-// TODO: new IAM server call
-+ (void)receivedInAppMessageJson:(NSArray<NSDictionary *> *)messagesJson {
-    let messages = [NSMutableArray new];
-
-    if (messagesJson) {
-        for (NSDictionary *messageJson in messagesJson) {
-            let message = [OSInAppMessageInternal instanceWithJson:messageJson];
-            if (message) {
-                [messages addObject:message];
-            }
-        }
-
-        [OSMessagingController.sharedInstance updateInAppMessagesFromOnSession:messages];
-        return;
-    }
-
-    // Default is using cached IAMs in the messaging controller
-    [OSMessagingController.sharedInstance updateInAppMessagesFromCache];
-}
-
-// In-App Messaging Public Methods
-+ (void)pauseInAppMessages:(BOOL)pause {
-    [OSMessagingController.sharedInstance setInAppMessagingPaused:pause];
-}
-
-+ (BOOL)isInAppMessagingPaused {
-    return [OSMessagingController.sharedInstance isInAppMessagingPaused];
-}
-
 + (void)sendPurchases:(NSArray*)purchases {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -821,65 +800,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 //TODO: move to sessions/onfocus
 + (NSDate *)sessionLaunchTime {
     return sessionLaunchTime;
-}
-
-+ (void)addTrigger:(NSString *)key withValue:(id)value {
-
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTrigger:withValue:"])
-        return;
-
-    if (!key) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to set a trigger with a nil key."];
-        return;
-    }
-
-    [OSMessagingController.sharedInstance addTriggers:@{key : value}];
-}
-
-+ (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"addTriggers:"])
-        return;
-
-    [OSMessagingController.sharedInstance addTriggers:triggers];
-}
-
-+ (void)removeTriggerForKey:(NSString *)key {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
-        return;
-
-    if (!key) {
-        [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Attempted to remove a trigger with a nil key."];
-        return;
-    }
-
-    [OSMessagingController.sharedInstance removeTriggersForKeys:@[key]];
-}
-
-+ (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
-        return;
-
-    [OSMessagingController.sharedInstance removeTriggersForKeys:keys];
-}
-
-+ (NSDictionary<NSString *, id> *)getTriggers {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggers"])
-        return @{};
-
-    return [OSMessagingController.sharedInstance getTriggers];
-}
-
-+ (id)getTriggerValueForKey:(NSString *)key {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"getTriggerValueForKey:"])
-        return nil;
-
-    return [OSMessagingController.sharedInstance getTriggerValueForKey:key];
 }
 
 /*

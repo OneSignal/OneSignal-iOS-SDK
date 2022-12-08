@@ -96,10 +96,11 @@ static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
     dispatch_once(&once, ^{
         // Make sure only devices with iOS 10 or newer can use IAMs
-        if ([self doesDeviceSupportIAM])
+        if ([self doesDeviceSupportIAM]) {
             sharedInstance = [OSMessagingController new];
-        else
+        } else {
             sharedInstance = [DummyOSMessagingController new];
+        }
     });
     return sharedInstance;
 }
@@ -107,6 +108,11 @@ static dispatch_once_t once;
 + (void)removeInstance {
     sharedInstance = nil;
     once = 0;
+}
+
++ (void)start {
+    OSMessagingController *shared = OSMessagingController.sharedInstance;
+    OSPushSubscriptionState *_ = [OneSignalUserManagerImpl.sharedInstance addObserver:shared];
 }
 
 static BOOL _isInAppMessagingPaused = false;
@@ -172,8 +178,45 @@ static BOOL _isInAppMessagingPaused = false;
     [self evaluateMessages];
 }
 
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages {
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromOnSession"];
+- (void)getInAppMessagesFromServer:(NSString *)subscriptionId {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer"];
+
+    if (!subscriptionId) {
+        [self updateInAppMessagesFromCache];
+        return;
+    }
+    
+    OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
+    [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
+        if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
+            let messages = [NSMutableArray new];
+            
+            for (NSDictionary *messageJson in result[@"in_app_messages"]) {
+                let message = [OSInAppMessageInternal instanceWithJson:messageJson];
+                if (message) {
+                    [messages addObject:message];
+                }
+            }
+            
+            [self updateInAppMessagesFromServer:messages];
+            return;
+        }
+        
+        // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
+        // This is the existing implementation but it could mean this user has no IAMs?
+        
+        // Default is using cached IAMs in the messaging controller
+        [self updateInAppMessagesFromCache];
+        
+    } onFailure:^(NSError *error) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer failure"];
+        [self updateInAppMessagesFromCache];
+    }];
+}
+
+- (void)updateInAppMessagesFromServer:(NSArray<OSInAppMessageInternal *> *)newMessages {
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"updateInAppMessagesFromServer"];
     self.messages = newMessages;
     
     // Cache if messages passed in are not null, this method is called from on_session for
@@ -352,12 +395,10 @@ static BOOL _isInAppMessagingPaused = false;
 
 - (void)loadTags {
     self.calledLoadTags = YES;
-    // TODO: getTags
-//    [OneSignal getTags:^(NSDictionary *result) {
-//        if (self.viewController) {
-//            self.viewController.waitForTags = NO;
-//        }
-//    }];
+    // TODO: should we always pull new tags?
+    // For now we aren't pulling new tags and we are just using what is already on the user
+    // I am leaving the logic for waiting for tags to be pulled in case this changes
+    self.viewController.waitForTags = NO;
 }
 - (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId {
     if (message.isPreview) {
@@ -381,27 +422,26 @@ static BOOL _isInAppMessagingPaused = false;
     
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
     // Create the request and attach a payload to it
-    // TODO: withPlayerId gets ID from proper place
-//    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
-//                                                       withPlayerId:OneSignal.currentSubscriptionState.userId
-//                                                      withMessageId:message.messageId
-//                                                         withPageId:pageId
-//                                                       forVariantId:message.variantId];
-//
-//    [OneSignalClient.sharedClient executeRequest:metricsRequest
-//                                       onSuccess:^(NSDictionary *result) {
-//        NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, pageId, result];
-//                                           [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
-//                                            // If the post was successful, save the updated viewedPageIds set
-//                                            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY withValue:self.viewedPageIDs];
-//                                       }
-//                                       onFailure:^(NSError *error) {
-//        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error];
-//                                            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
-//                                            if (message) {
-//                                                [self.viewedPageIDs removeObject:messagePrefixedPageId];
-//                                            }
-//                                       }];
+    let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
+                                                       withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                      withMessageId:message.messageId
+                                                         withPageId:pageId
+                                                       forVariantId:message.variantId];
+
+    [OneSignalClient.sharedClient executeRequest:metricsRequest
+                                       onSuccess:^(NSDictionary *result) {
+        NSString *successMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, successful POST page impression update with result: %@", message.messageId, pageId, result];
+                                           [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
+                                            // If the post was successful, save the updated viewedPageIds set
+                                            [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_PAGE_IMPRESSIONED_SET_KEY withValue:self.viewedPageIDs];
+                                       }
+                                       onFailure:^(NSError *error) {
+        NSString *errorMessage = [NSString stringWithFormat:@"In App Message with message id: %@ and page id: %@, failed POST page impression update with error: %@", message.messageId, pageId, error];
+                                            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+                                            if (message) {
+                                                [self.viewedPageIDs removeObject:messagePrefixedPageId];
+                                            }
+                                       }];
 }
 
 - (BOOL)shouldSendImpression:(OSInAppMessageInternal *)message {
@@ -422,27 +462,26 @@ static BOOL _isInAppMessagingPaused = false;
     [self.impressionedInAppMessages addObject:message.messageId];
     
     // Create the request and attach a payload to it
-    // TODO: withPlayerId
-//    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.appId
-//                                                   withPlayerId:OneSignal.currentSubscriptionState.userId
-//                                                  withMessageId:message.messageId
-//                                                   forVariantId:message.variantId];
-//    
-//    [OneSignalClient.sharedClient executeRequest:metricsRequest
-//                                       onSuccess:^(NSDictionary *result) {
-//                                           NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST impression update with result: %@", message.messageId, result];
-//                                           [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
-//                                           
-//                                           // If the post was successful, save the updated impressionedInAppMessages set
-//                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_IMPRESSIONED_SET_KEY withValue:self.impressionedInAppMessages];
-//                                       }
-//                                       onFailure:^(NSError *error) {
-//                                           NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error];
-//                                           [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
-//                                           
-//                                           // If the post failed, remove the messageId from the impressionedInAppMessages set
-//                                           [self.impressionedInAppMessages removeObject:message.messageId];
-//                                       }];
+    let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.appId
+                                                   withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                  withMessageId:message.messageId
+                                                   forVariantId:message.variantId];
+    
+    [OneSignalClient.sharedClient executeRequest:metricsRequest
+                                       onSuccess:^(NSDictionary *result) {
+                                           NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST impression update with result: %@", message.messageId, result];
+                                           [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
+                                           
+                                           // If the post was successful, save the updated impressionedInAppMessages set
+                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_IMPRESSIONED_SET_KEY withValue:self.impressionedInAppMessages];
+                                       }
+                                       onFailure:^(NSError *error) {
+                                           NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST impression update with error: %@", message.messageId, error];
+                                           [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+                                           
+                                           // If the post failed, remove the messageId from the impressionedInAppMessages set
+                                           [self.impressionedInAppMessages removeObject:message.messageId];
+                                       }];
 }
 
 /*
@@ -529,7 +568,8 @@ static BOOL _isInAppMessagingPaused = false;
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
            ![message isFinished] &&
-           OneSignal.isRegisterUserFinished;
+           OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId != nil;
+    return true;
 }
 
 - (void)handleMessageActionWithURL:(OSInAppMessageAction *)action {
@@ -571,6 +611,11 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
     [self evaluateRedisplayedInAppMessages:keys];
     [self.triggerController removeTriggersForKeys:keys];
+}
+
+- (void)clearTriggers {
+    NSDictionary<NSString *, id> *allTriggers = [self getTriggers];
+    [self removeTriggersForKeys:allTriggers.allKeys];
 }
 
 - (NSDictionary<NSString *, id> *)getTriggers {
@@ -803,38 +848,36 @@ static BOOL _isInAppMessagingPaused = false;
     // Track clickId per IAM
     [message addClickId:clickId];
     
-    // TODO: withPlayerId
-//    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
-//                                                    withPlayerId:OneSignal.currentSubscriptionState.userId
-//                                                   withMessageId:message.messageId
-//                                                    forVariantId:message.variantId
-//                                                      withAction:action];
-//
-//   [OneSignalClient.sharedClient executeRequest:metricsRequest
-//                                      onSuccess:^(NSDictionary *result) {
-//                                          NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST click update for click id: %@, with result: %@", message.messageId, action.clickId,  result];
-//                                          [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
-//
-//                                          // Save the updated clickedClickIds since click was tracked successfully
-//                                          [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
-//                                      }
-//                                      onFailure:^(NSError *error) {
-//                                          NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];
-//                                          [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
-//
-//                                          // Remove clickId from local clickedClickIds since click was not tracked
-//                                          [self.clickedClickIds removeObject:action.clickId];
-//                                      }];
+    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
+                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                   withMessageId:message.messageId
+                                                    forVariantId:message.variantId
+                                                      withAction:action];
+
+   [OneSignalClient.sharedClient executeRequest:metricsRequest
+                                      onSuccess:^(NSDictionary *result) {
+                                          NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST click update for click id: %@, with result: %@", message.messageId, action.clickId,  result];
+                                          [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:successMessage];
+
+                                          // Save the updated clickedClickIds since click was tracked successfully
+                                          [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
+                                      }
+                                      onFailure:^(NSError *error) {
+                                          NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];
+                                          [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:errorMessage];
+
+                                          // Remove clickId from local clickedClickIds since click was not tracked
+                                          [self.clickedClickIds removeObject:action.clickId];
+                                      }];
 }
 
 - (void)sendTagCallWithAction:(OSInAppMessageAction *)action {
     if (action.tags) {
         OSInAppMessageTag *tag = action.tags;
-        // TODO: this
-//        if (tag.tagsToAdd)
-//            [OneSignal sendTags:tag.tagsToAdd];
-//        if (tag.tagsToRemove)
-//            [OneSignal deleteTags:tag.tagsToRemove];
+        if (tag.tagsToAdd)
+            [OneSignal.User setTags:tag.tagsToAdd];
+        if (tag.tagsToRemove)
+            [OneSignal.User removeTags:tag.tagsToRemove];
     }
 }
 
@@ -918,6 +961,21 @@ static BOOL _isInAppMessagingPaused = false;
         [self evaluateMessages];
     }
 }
+
+#pragma mark OSPushSubscriptionObserver Methods
+- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
+    if (stateChanges.to.subscriptionId == nil) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
+        return;
+    }
+    // Pull new IAMs when the subscription id changes to a new valid subscription id
+    if (stateChanges.from.subscriptionId != nil &&
+        [stateChanges.to.subscriptionId isEqualToString:stateChanges.from.subscriptionId]) {
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
+        [self getInAppMessagesFromServer:stateChanges.to.subscriptionId];
+    }
+}
+
 @end
 
 @implementation DummyOSMessagingController
@@ -926,7 +984,7 @@ static BOOL _isInAppMessagingPaused = false;
 - (instancetype)init { self = [super init]; return self; }
 - (BOOL)isInAppMessagingPaused { return false; }
 - (void)setInAppMessagingPaused:(BOOL)pause {}
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages {}
+- (void)getInAppMessagesFromServer {}
 - (void)setInAppMessageClickHandler:(OSInAppMessageClickBlock)actionClickBlock {}
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message {}
 - (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message {}
@@ -938,6 +996,7 @@ static BOOL _isInAppMessagingPaused = false;
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {}
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {}
+- (void)clearTriggers {}
 - (NSDictionary<NSString *, id> *)getTriggers { return @{}; }
 - (id)getTriggerValueForKey:(NSString *)key { return 0; }
 #pragma mark OSInAppMessageViewControllerDelegate Methods

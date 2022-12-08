@@ -28,8 +28,8 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageInternal.h"
 #import "OSInAppMessageViewController.h"
-#import "OneSignal.h"
 #import "OSTriggerController.h"
+#import <OneSignalUser/OneSignalUser.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate, OSMessagingControllerDelegate>
+@interface OSMessagingController : NSObject <OSInAppMessageViewControllerDelegate, OSTriggerControllerDelegate, OSMessagingControllerDelegate, OSPushSubscriptionObserver>
 
 @property (class, readonly) BOOL isInAppMessagingPaused;
 
@@ -48,11 +48,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL isInAppMessageShowing;
 
 + (OSMessagingController *)sharedInstance;
++ (void)start;
 + (void)removeInstance;
 - (void)presentInAppMessage:(OSInAppMessageInternal *)message;
 - (void)presentInAppPreviewMessage:(OSInAppMessageInternal *)message;
 - (void)updateInAppMessagesFromCache;
-- (void)updateInAppMessagesFromOnSession:(NSArray<OSInAppMessageInternal *> *)newMessages;
+- (void)getInAppMessagesFromServer:(NSString * _Nullable)subscriptionId;
 - (void)messageViewImpressionRequest:(OSInAppMessageInternal *)message;
 - (void)messageViewPageImpressionRequest:(OSInAppMessageInternal *)message withPageId:(NSString *)pageId;
 
@@ -60,6 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setInAppMessagingPaused:(BOOL)pause;
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers;
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys;
+- (void)clearTriggers;
 - (NSDictionary<NSString *, id> *)getTriggers;
 - (id)getTriggerValueForKey:(NSString *)key;
 

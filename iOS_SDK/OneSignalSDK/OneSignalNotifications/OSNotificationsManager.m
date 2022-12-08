@@ -88,8 +88,17 @@
 @end
 
 @implementation OSNotificationsManager
+
 + (Class<OSNotifications>)Notifications {
     return self;
+}
+
+static id<OneSignalNotificationsDelegate> _delegate;
++ (id<OneSignalNotificationsDelegate>)delegate {
+    return _delegate;
+}
++(void)setDelegate:(id<OneSignalNotificationsDelegate>)delegate {
+    _delegate = delegate;
 }
 
 // UIApplication-registerForRemoteNotifications has been called but a success or failure has not triggered yet.
@@ -366,7 +375,9 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)sendPushTokenToDelegate {
-    [self.delegate setPushToken:_pushToken];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(setPushToken:)]) {
+        [self.delegate setPushToken:_pushToken];
+    }
 }
 
 + (void)setSubscriptionErrorStatus:(int)errorType {
@@ -402,15 +413,20 @@ static NSString *_pushSubscriptionId;
     
     // TODO: Dropped support, can remove below?
     [self.osNotificationSettings onNotificationPromptResponse:notificationTypes]; // iOS 9 only
-
+    
+    // TODO: This can be called before the User Manager sets itself as the delegate
     [self sendNotificationTypesUpdateToDelegate];
 }
 
 + (void)sendNotificationTypesUpdateToDelegate {
     // We don't delay observer update to wait until the OneSignal server is notified
     // TODO: We can do the above and delay observers until server is updated.
-    [self.delegate setAccepted:[self getNotificationTypes] > 0];
-    [self.delegate setNotificationTypes:[self getNotificationTypes]];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(setAccepted:)]) {
+        [self.delegate setAccepted:[self getNotificationTypes] > 0];
+    }
+    if (self.delegate && [self.delegate respondsToSelector:@selector(setNotificationTypes:)]) {
+        [self.delegate setNotificationTypes:[self getNotificationTypes]];
+    }
 }
 
 // Accounts for manual disabling by the app developer
