@@ -51,6 +51,7 @@
 #import "SwizzlingForwarder.h"
 #import "OneSignalSelectorHelpers.h"
 #import "OneSignalConfigManager.h"
+#import "OSRemoteParamController.h"
 
 @interface OneSignalCore : NSObject
 
