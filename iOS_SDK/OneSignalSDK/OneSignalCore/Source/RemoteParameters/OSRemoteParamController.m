@@ -30,11 +30,6 @@ THE SOFTWARE.
 #import "OneSignalCommonDefines.h"
 #import "OneSignalUserDefaults.h"
 #import "OSPrivacyConsentController.h"
-//@interface OneSignal ()
-//
-//+ (void)startLocationSharedWithFlag:(BOOL)enable;
-//
-//@end
 
 @implementation OSRemoteParamController
 
@@ -45,17 +40,6 @@ static OSRemoteParamController *_sharedController;
 
 - (void)saveRemoteParams:(NSDictionary *)params {
     _remoteParams = params;
-    
-    if ([self hasLocationKey]) {
-        BOOL shared = [params[IOS_LOCATION_SHARED] boolValue];
-        //[OneSignal startLocationSharedWithFlag:shared];
-    }
-    
-    if ([self hasPrivacyConsentKey]) {
-        BOOL required = [params[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue];
-        [self savePrivacyConsentRequired:required];
-        [OSPrivacyConsentController setRequiresPrivacyConsent:required];
-    }
 }
 
 - (BOOL)hasLocationKey {
