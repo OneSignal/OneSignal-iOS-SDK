@@ -37,6 +37,9 @@ import OneSignalNotifications
     var User: OSUser { get }
     func login(externalId: String, token: String?)
     func logout()
+    // Location
+    func setLocation(latitude: Float, longitude: Float)
+    // Purchase Tracking
 }
 
 /**
@@ -54,10 +57,6 @@ import OneSignalNotifications
     func setTags(_ tags: [String: String])
     func removeTag(_ tag: String)
     func removeTags(_ tags: [String])
-    // Outcomes
-    func setOutcome(_ name: String)
-    func setUniqueOutcome(_ name: String)
-    func setOutcome(name: String, value: Float)
     // Email
     func addEmail(_ email: String)
     func removeEmail(_ email: String) -> Bool
@@ -352,6 +351,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         return user.propertiesModel.tags
     }
+    
+    @objc
+    public func setLocation(latitude: Float, longitude: Float) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLocation") else {
+            return
+        }
+        guard let user = _user else {
+            OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_DEBUG, message: "Failed to set location because User is nil")
+            return
+        }
+        user.setLocation(lat: latitude, long: longitude)
+    }
 }
 
 // MARK: - Sessions
@@ -456,27 +467,6 @@ extension OneSignalUserManagerImpl: OSUser {
             return
         }
         user.removeTags(tags)
-    }
-
-    public func setOutcome(_ name: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setOutcome") else {
-            return
-        }
-        user.setOutcome(name)
-    }
-
-    public func setUniqueOutcome(_ name: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setUniqueOutcome") else {
-            return
-        }
-        user.setUniqueOutcome(name)
-    }
-
-    public func setOutcome(name: String, value: Float) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setOutcome") else {
-            return
-        }
-        user.setOutcome(name: name, value: value)
     }
 
     public func addEmail(_ email: String) {

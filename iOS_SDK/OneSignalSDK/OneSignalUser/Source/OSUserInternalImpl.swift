@@ -42,16 +42,9 @@ protocol OSUserInternal {
     // Tags
     func setTags(_ tags: [String: String])
     func removeTags(_ tags: [String])
-    // Outcomes
-    func setOutcome(_ name: String)
-    func setUniqueOutcome(_ name: String)
-    func setOutcome(name: String, value: Float)
-    // Email and SMS are handled by the UserManager
-    // Triggers
-    func setTrigger(key: String, value: String)
-    func setTriggers(_ triggers: [String: String])
-    func removeTrigger(_ trigger: String)
-    func removeTriggers(_ triggers: [String])
+    // Location
+    func setLocation(lat:Float, long:Float)
+    // Purchase Tracking
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel
@@ -134,37 +127,12 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
         print("🔥 OSUserInternalImpl removeTags() called")
         propertiesModel.removeTags(tags)
     }
-
-    // MARK: - Outcomes
-
-    func setOutcome(_ name: String) {
-        print("🔥 OSUserInternalImpl sendOutcome() called")
-    }
-
-    func setUniqueOutcome(_ name: String) {
-        print("🔥 OSUserInternalImpl setUniqueOutcome() called")
-    }
-
-    func setOutcome(name: String, value: Float) {
-        print("🔥 OSUserInternalImpl setOutcomeWithValue() called")
-    }
-
-    // MARK: - Triggers
-
-    func setTrigger(key: String, value: String) {
-        // TODO: UM Value for trigger can be non-string
-        print("🔥 OSUserInternalImpl setTrigger() called")
-    }
-
-    func setTriggers(_ triggers: [String: String]) {
-        print("🔥 OSUserInternalImpl setTriggers() called")
-    }
-
-    func removeTrigger(_ trigger: String) {
-        print("🔥 OSUserInternalImpl removeTrigger() called")
-    }
-
-    func removeTriggers(_ triggers: [String]) {
-        print("🔥 OSUserInternalImpl removeTriggers() called")
+    
+    // MARK: - Location
+    
+    func setLocation(lat: Float, long: Float) {
+        print("🔥 OSUserInternalImpl setLocation() called")
+        propertiesModel.lat = lat
+        propertiesModel.long = long
     }
 }
