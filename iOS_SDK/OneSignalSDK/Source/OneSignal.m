@@ -779,9 +779,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 #pragma mark Logging
-//TODO: delete with um
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
-    [OneSignalLog setLogLevel:logLevel visualLevel:visualLogLevel];
++ (Class<OSDebug>)Debug {
+    return [OneSignalLog Debug];
 }
 
 @end
