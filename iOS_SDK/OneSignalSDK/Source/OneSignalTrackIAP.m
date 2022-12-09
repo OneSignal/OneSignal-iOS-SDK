@@ -50,6 +50,17 @@ NSMutableDictionary* skusToTrack;
     return (skPaymentQueue != nil && [skPaymentQueue respondsToSelector:@selector(canMakePayments)] && [skPaymentQueue performSelector:@selector(canMakePayments)]);
 }
 
+static OneSignalTrackIAP* singleInstance = nil;
++( OneSignalTrackIAP *)sharedInstance {
+    @synchronized( singleInstance ) {
+        if( !singleInstance ) {
+            singleInstance = [OneSignalTrackIAP new];
+        }
+    }
+    
+    return singleInstance;
+}
+
 - (id)init {
     self = [super init];
     
@@ -123,8 +134,9 @@ NSMutableDictionary* skusToTrack;
         }
     }
     
-    if ([arrayOfPruchases count] > 0)
-        [[OneSignal class] performSelector:@selector(sendPurchases:) withObject:arrayOfPruchases];
+    if ([arrayOfPruchases count] > 0) {
+        [OneSignalUserManagerImpl.sharedInstance sendPurchases:arrayOfPruchases];
+    }
 }
 
 #pragma clang diagnostic pop
