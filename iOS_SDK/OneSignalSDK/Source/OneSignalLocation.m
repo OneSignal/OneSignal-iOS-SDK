@@ -438,12 +438,9 @@ static OneSignalLocation* singleInstance = nil;
         
         initialLocationSent = YES;
         
-        OSRequestSendLocation *request = [OSRequestSendLocation withUserId:userId appId:[OneSignalConfigManager getAppId] location:lastLocation networkType:[OSNetworkingUtils getNetType] backgroundState:([UIApplication sharedApplication].applicationState != UIApplicationStateActive) emailAuthHashToken:nil externalIdAuthToken:nil];
-        [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalLocation sent location update"]];
-        } onFailure:^(NSError *error) {
-            [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"OneSignalLocation did fail to send location with error: %@", error]];
-        }];
+        CGFloat latitude = lastLocation->cords.latitude;
+        CGFloat longitude = lastLocation->cords.longitude;
+        [OneSignalUserManagerImpl.sharedInstance setLocationWithLatitude:latitude longitude:longitude];
     }
 }
 

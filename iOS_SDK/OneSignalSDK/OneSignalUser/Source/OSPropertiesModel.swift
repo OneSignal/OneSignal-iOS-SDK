@@ -31,14 +31,28 @@ import OneSignalOSCore
 class OSPropertiesModel: OSModel {
     var language: String? {
         didSet {
-            print("🔥 didSet OSPropertiesModel.language from \(oldValue) to \(language).")
+            print("🔥 didSet OSPropertiesModel.language from \(oldValue ?? "nil") to \(language ?? "nil").")
             self.set(property: "language", newValue: language)
+        }
+    }
+    
+    var lat: Float? {
+        didSet {
+            print("🔥 didSet OSPropertiesModel.lat from \(oldValue ?? 0) to \(lat ?? 0).")
+            self.set(property: "lat", newValue: lat)
+        }
+    }
+    
+    var long: Float? {
+        didSet {
+            print("🔥 didSet OSPropertiesModel.long from \(oldValue ?? 0) to \(long ?? 0).")
+            self.set(property: "long", newValue: long)
         }
     }
 
     var tags: [String: String] = [:]
 
-    // ... and more ...
+    // TODO: Purchase tracking
 
     // MARK: - Initialization
 
