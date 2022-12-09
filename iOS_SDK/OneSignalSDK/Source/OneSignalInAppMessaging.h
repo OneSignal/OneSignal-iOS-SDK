@@ -84,18 +84,18 @@
 
 @protocol OSInAppMessageLifecycleHandler <NSObject>
 @optional
-- (void)onWillDisplayInAppMessage:(OSInAppMessage *)message;
-- (void)onDidDisplayInAppMessage:(OSInAppMessage *)message;
-- (void)onWillDismissInAppMessage:(OSInAppMessage *)message;
-- (void)onDidDismissInAppMessage:(OSInAppMessage *)message;
+- (void)onWillDisplayInAppMessage:(OSInAppMessage *_Nonnull)message;
+- (void)onDidDisplayInAppMessage:(OSInAppMessage *_Nonnull)message;
+- (void)onWillDismissInAppMessage:(OSInAppMessage *_Nonnull)message;
+- (void)onDidDismissInAppMessage:(OSInAppMessage *_Nonnull)message;
 @end
 
 @protocol OSInAppMessages <NSObject>
 
 + (void)addTrigger:(NSString * _Nonnull)key withValue:(id _Nonnull)value;
 + (void)addTriggers:(NSDictionary<NSString *, id> * _Nonnull)triggers;
-+ (void)removeTriggerForKey:(NSString * _Nonnull)key;
-+ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys;
++ (void)removeTrigger:(NSString * _Nonnull)key;
++ (void)removeTriggers:(NSArray<NSString *> * _Nonnull)keys;
 + (void)clearTriggers;
 // Allows Swift users to: OneSignal.InAppMessages.Paused = true
 + (BOOL)paused NS_REFINED_FOR_SWIFT;
@@ -109,7 +109,7 @@ typedef void (^OSInAppMessageClickBlock)(OSInAppMessageAction * _Nonnull action)
 
 @interface OneSignalInAppMessaging : NSObject <OSInAppMessages>
 
-+ (Class<OSInAppMessages>)InAppMessages;
++ (Class<OSInAppMessages>_Nonnull)InAppMessages;
 + (void)start;
 
 @end

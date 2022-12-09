@@ -91,8 +91,8 @@
     // Triggers
     [OneSignal.InAppMessages addTrigger:@"foo" withValue:@"bar"];
     [OneSignal.InAppMessages addTriggers:@{@"foo": @"foo1", @"bar": @"bar2"}];
-    [OneSignal.InAppMessages removeTriggerForKey:@"foo"];
-    [OneSignal.InAppMessages removeTriggersForKeys:@[@"foo", @"bar"]];
+    [OneSignal.InAppMessages removeTrigger:@"foo"];
+    [OneSignal.InAppMessages removeTriggers:@[@"foo", @"bar"]];
     [OneSignal.InAppMessages clearTriggers];
 }
 
