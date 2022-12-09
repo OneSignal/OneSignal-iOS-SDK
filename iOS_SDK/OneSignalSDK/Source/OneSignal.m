@@ -133,7 +133,6 @@ static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
 
-static OneSignalTrackIAP* trackIAPPurchase;
 NSString* emailToSet;
 static LanguageContext* languageContext;
 
@@ -494,8 +493,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startTrackIAP {
-    if (!trackIAPPurchase && [OneSignalTrackIAP canTrack])
-        trackIAPPurchase = [OneSignalTrackIAP new];
+    if ([OneSignalTrackIAP canTrack])
+        [OneSignalTrackIAP sharedInstance]; // start observing purchases
 }
 
 + (void)startLifecycleObserver {
@@ -700,15 +699,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
 + (void)enableInAppLaunchURL:(BOOL)enable {
     [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_NOTIFICATION_OPEN_LAUNCH_URL withValue:enable];
-}
-
-+ (void)sendPurchases:(NSArray*)purchases {
-    // return if the user has not granted privacy permissions
-    if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
-        return;
-    
-    // TODO: sendPurchases
-//    [OneSignal.stateSynchronizer sendPurchases:purchases appId:self.appId];
 }
 
 //TODO: consolidate in one place. Where???
