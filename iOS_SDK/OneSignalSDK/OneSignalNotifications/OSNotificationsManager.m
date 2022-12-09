@@ -307,6 +307,10 @@ static NSString *_pushSubscriptionId;
     }
 }
 
++ (void)clearAll {
+    [self clearBadgeCount:false];
+}
+
 + (BOOL)registerForAPNsToken {
     if (self.waitingForApnsResponse)
         return true;

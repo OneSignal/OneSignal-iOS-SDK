@@ -54,8 +54,8 @@ import OneSignalNotifications
     func removeAlias(_ label: String)
     func removeAliases(_ labels: [String])
     // Tags
-    func setTag(key: String, value: String)
-    func setTags(_ tags: [String: String])
+    func addTag(key: String, value: String)
+    func addTags(_ tags: [String: String])
     func removeTag(_ tag: String)
     func removeTags(_ tags: [String])
     // Email
@@ -462,18 +462,18 @@ extension OneSignalUserManagerImpl: OSUser {
         user.removeAliases(labels)
     }
 
-    public func setTag(key: String, value: String) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTag") else {
+    public func addTag(key: String, value: String) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addTag") else {
             return
         }
-        user.setTags([key: value])
+        user.addTags([key: value])
     }
 
-    public func setTags(_ tags: [String: String]) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setTags") else {
+    public func addTags(_ tags: [String: String]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addTags") else {
             return
         }
-        user.setTags(tags)
+        user.addTags(tags)
     }
 
     public func removeTag(_ tag: String) {

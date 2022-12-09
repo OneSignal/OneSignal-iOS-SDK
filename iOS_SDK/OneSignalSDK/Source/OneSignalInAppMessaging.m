@@ -70,7 +70,7 @@
     [OSMessagingController.sharedInstance addTriggers:triggers];
 }
 
-+ (void)removeTriggerForKey:(NSString * _Nonnull)key {
++ (void)removeTrigger:(NSString * _Nonnull)key {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
         return;
@@ -83,7 +83,7 @@
     [OSMessagingController.sharedInstance removeTriggersForKeys:@[key]];
 }
 
-+ (void)removeTriggersForKeys:(NSArray<NSString *> * _Nonnull)keys {
++ (void)removeTriggers:(NSArray<NSString *> * _Nonnull)keys {
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"removeTriggerForKey:"])
         return;

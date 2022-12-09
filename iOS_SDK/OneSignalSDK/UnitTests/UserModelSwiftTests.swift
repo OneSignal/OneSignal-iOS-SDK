@@ -98,8 +98,8 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.User.removeAliases(["foo", "bar"])
 
         // Tags
-        OneSignal.User.setTag(key: "foo", value: "bar")
-        OneSignal.User.setTags(["foo": "foo1", "bar": "bar2"])
+        OneSignal.User.addTag(key: "foo", value: "bar")
+        OneSignal.User.addTags(["foo": "foo1", "bar": "bar2"])
         OneSignal.User.removeTag("foo")
         OneSignal.User.removeTags(["foo", "bar"])
 
@@ -177,7 +177,7 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.User.addAliases(["test1": "user1", "test2": "user2", "test3": "user3"])
         OneSignal.User.removeAliases(["test1", "label_01", "test2"])
 
-        OneSignal.User.setTag(key: "foo", value: "bar")
+        OneSignal.User.addTag(key: "foo", value: "bar")
 
         // Sleep to allow the flush to be called 1 time.
         Thread.sleep(forTimeInterval: 6)
