@@ -40,6 +40,7 @@ import OneSignalNotifications
     // Location
     func setLocation(latitude: Float, longitude: Float)
     // Purchase Tracking
+    func sendPurchases(_ purchases:[[String:AnyObject]])
 }
 
 /**
@@ -363,6 +364,27 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         user.setLocation(lat: latitude, long: longitude)
     }
+    
+    @objc
+    public func sendPurchases(_ purchases: [[String : AnyObject]]) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "sendPurchases") else {
+            return
+        }
+        guard let user = _user else {
+            OneSignalLog.onesignalLog(ONE_S_LOG_LEVEL.LL_DEBUG, message: "Failed to send purchases because User is nil")
+            return
+        }
+        // Get the identity and properties model of the current user
+        let identityModel = user.identityModel
+        let propertiesModel = user.propertiesModel
+        let propertiesDeltas = OSPropertiesDeltas(sessionTime: nil, sessionCount: nil, amountSpent: nil, purchases: purchases)
+        propertyExecutor.updateProperties(
+            propertiesDeltas: propertiesDeltas,
+            refreshDeviceMetadata: false,
+            propertiesModel: propertiesModel,
+            identityModel: identityModel
+        )
+    }
 }
 
 // MARK: - Sessions
@@ -377,10 +399,9 @@ extension OneSignalUserManagerImpl {
         // Get the identity and properties model of the current user
         let identityModel = user.identityModel
         let propertiesModel = user.propertiesModel
-
-        propertyExecutor.updateSession(
-            sessionCount: sessionCount,
-            sessionTime: sessionTime,
+        let propertiesDeltas = OSPropertiesDeltas(sessionTime: sessionTime, sessionCount: sessionCount, amountSpent: nil, purchases: nil)
+        propertyExecutor.updateProperties(
+            propertiesDeltas: propertiesDeltas,
             refreshDeviceMetadata: refreshDeviceMetadata,
             propertiesModel: propertiesModel,
             identityModel: identityModel

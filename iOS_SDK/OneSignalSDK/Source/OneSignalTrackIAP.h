@@ -27,6 +27,7 @@
 
 @interface OneSignalTrackIAP : NSObject
 + (BOOL)canTrack;
++ (OneSignalTrackIAP *)sharedInstance;
 - (id)init;
 @end
 
