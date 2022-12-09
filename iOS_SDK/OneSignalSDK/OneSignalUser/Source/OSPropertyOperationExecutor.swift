@@ -130,15 +130,11 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
 
 extension OSPropertyOperationExecutor {
     // TODO: We can make this go through the operation repo
-    func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool?, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel) {
-
-        var deltas: [String: NSNumber] = [:]
-        deltas["session_count"] = sessionCount
-        deltas["session_time"] = sessionTime
+    func updateProperties(propertiesDeltas: OSPropertiesDeltas, refreshDeviceMetadata: Bool?, propertiesModel: OSPropertiesModel, identityModel: OSIdentityModel) {
 
         let request = OSRequestUpdateProperties(
             properties: [:],
-            deltas: deltas,
+            deltas: propertiesDeltas.toDictionary(),
             refreshDeviceMetadata: refreshDeviceMetadata,
             modelToUpdate: propertiesModel,
             identityModel: identityModel)
