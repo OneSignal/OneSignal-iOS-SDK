@@ -100,7 +100,7 @@
     if (self.tagKey.text && self.tagKey.text.length
         && self.tagValue.text && self.tagValue.text.length) {
         NSLog(@"Sending tag with key: %@ value: %@", self.tagKey.text, self.tagValue.text);
-        [OneSignal.User setTagWithKey:self.tagKey.text value:self.tagValue.text];
+        [OneSignal.User addTagWithKey:self.tagKey.text value:self.tagValue.text];
     }
 }
 
@@ -110,7 +110,7 @@
 
 - (IBAction)sendTagsButton:(id)sender {
     NSLog(@"Sending tags %@", @{@"key1": @"value1", @"key2": @"value2"});
-    [OneSignal.User setTags:@{@"key1": @"value1", @"key2": @"value2"}];
+    [OneSignal.User addTags:@{@"key1": @"value1", @"key2": @"value2"}];
 }
 
 - (IBAction)promptPushAction:(UIButton *)sender {
