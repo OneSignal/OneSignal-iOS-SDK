@@ -80,11 +80,6 @@
     [OneSignal.User removeTag:@"foo"];
     [OneSignal.User removeTags:@[@"foo", @"bar"]];
 
-    // Outcomes
-    [OneSignal.User setOutcome:@"foo"];
-    [OneSignal.User setUniqueOutcome:@"foo"];
-    [OneSignal.User setOutcomeWithName:@"foo" value:4.5];
-
     // Email
     [OneSignal.User addEmail:@"person@example.com"];
     [OneSignal.User removeEmail:@"person@example.com"];
@@ -179,6 +174,12 @@
     [NSThread sleepForTimeInterval:6.0f];
 }
 
+/**
+ Test setLocation lat long
+ */
+- (void)testSetLocation {
+    [OneSignalUserManagerImpl.sharedInstance setLocationWithLatitude:37.5 longitude:122.3];
+}
 
 /**
  Temp tester.
