@@ -31,21 +31,18 @@ import OneSignalOSCore
 class OSPropertiesModel: OSModel {
     var language: String? {
         didSet {
-            print("🔥 didSet OSPropertiesModel.language from \(oldValue ?? "nil") to \(language ?? "nil").")
             self.set(property: "language", newValue: language)
         }
     }
     
     var lat: Float? {
         didSet {
-            print("🔥 didSet OSPropertiesModel.lat from \(oldValue ?? 0) to \(lat ?? 0).")
             self.set(property: "lat", newValue: lat)
         }
     }
     
     var long: Float? {
         didSet {
-            print("🔥 didSet OSPropertiesModel.long from \(oldValue ?? 0) to \(long ?? 0).")
             self.set(property: "long", newValue: long)
         }
     }
@@ -83,7 +80,6 @@ class OSPropertiesModel: OSModel {
     // MARK: - Tag Methods
 
     func setTags(_ tags: [String: String]) {
-        print("🔥 OSPropertiesModel.setTags \(tags).")
         for (key, value) in tags {
             self.tags[key] = value
         }
@@ -91,7 +87,6 @@ class OSPropertiesModel: OSModel {
     }
 
     func removeTags(_ tags: [String]) {
-        print("🔥 OSPropertiesModel.removeTags \(tags).")
         var tagsToSend: [String: String] = [:]
         for tag in tags {
             self.tags.removeValue(forKey: tag)
@@ -101,7 +96,6 @@ class OSPropertiesModel: OSModel {
     }
 
     public override func hydrateModel(_ response: [String: String]) {
-        print("🔥 OSPropertiesModel hydrateModel()")
         // TODO: Update Model properties with the response
     }
 }
