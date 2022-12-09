@@ -43,13 +43,12 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (BOOL)canRequestPermission;
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
-+ (void)requestPermission:(OSUserResponseBlock)block;
-+ (void)requestPermission:(OSUserResponseBlock)block fallbackToSettings:(BOOL)fallback;
-+ (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-// TODO: clearAll
-
++ (void)requestPermission:(OSUserResponseBlock _Nullable )block;
++ (void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback;
++ (void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable )block;
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer;
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer;
++ (void)clearAll;
 @end
 
 
@@ -67,11 +66,11 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
 
-+ (Class<OSNotifications>)Notifications;
++ (Class<OSNotifications> _Nonnull)Notifications;
 
 + (void)setColdStartFromTapOnNotification:(BOOL)coldStartFromTapOnNotification;
 + (BOOL)getColdStartFromTapOnNotification;
-+ (void)setAppId:(NSString *)appId;
++ (void)setAppId:(NSString *_Nullable)appId;
 + (NSString *_Nullable)getAppId;
 
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
@@ -93,25 +92,22 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)sendNotificationTypesUpdateToDelegate;
 
 // Used to manage observers added by the app developer.
-@property (class, readonly) ObservablePermissionStateChangesType* permissionStateChangesObserver;
+@property (class, readonly) ObservablePermissionStateChangesType* _Nullable permissionStateChangesObserver;
 
 @property (class, readonly) OneSignalNotificationSettings* _Nonnull osNotificationSettings;
 
 // This is set by the user module
-+ (void)setPushSubscriptionId:(NSString *)pushSubscriptionId;
++ (void)setPushSubscriptionId:(NSString *_Nullable)pushSubscriptionId;
 
-// - Notification Opened
-+ (void)lastMessageReceived:(NSDictionary*)message;
-
-+ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *)notification completion:(OSNotificationDisplayResponse)completion;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID;
++ (void)handleWillShowInForegroundHandlerForNotification:(OSNotification *_Nonnull)notification completion:(OSNotificationDisplayResponse _Nonnull)completion;
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString* _Nonnull)actionID;
 
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 
-+ (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
-+ (void)notificationReceived:(NSDictionary*)messageDict wasOpened:(BOOL)opened;
-+ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary *)payload withCompletion:(OSNotificationDisplayResponse)completion;
-+ (void)didRegisterForRemoteNotifications:(UIApplication *)app deviceToken:(NSData *)inDeviceToken;
-+ (void)handleDidFailRegisterForRemoteNotification:(NSError*)err;
++ (BOOL)receiveRemoteNotification:(UIApplication* _Nonnull)application UserInfo:(NSDictionary* _Nonnull)userInfo completionHandler:(void (^_Nonnull)(UIBackgroundFetchResult))completionHandler;
++ (void)notificationReceived:(NSDictionary* _Nonnull)messageDict wasOpened:(BOOL)opened;
++ (void)handleWillPresentNotificationInForegroundWithPayload:(NSDictionary * _Nonnull)payload withCompletion:(OSNotificationDisplayResponse _Nonnull)completion;
++ (void)didRegisterForRemoteNotifications:(UIApplication *_Nonnull)app deviceToken:(NSData *_Nonnull)inDeviceToken;
++ (void)handleDidFailRegisterForRemoteNotification:(NSError*_Nonnull)err;
 + (void)checkProvisionalAuthorizationStatus;
 @end
