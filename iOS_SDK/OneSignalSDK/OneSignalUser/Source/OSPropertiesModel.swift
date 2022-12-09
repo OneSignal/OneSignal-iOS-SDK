@@ -28,6 +28,22 @@
 import Foundation
 import OneSignalOSCore
 
+struct OSPropertiesDeltas {
+    let sessionTime: NSNumber?
+    let sessionCount: NSNumber?
+    let amountSpent: NSNumber?
+    let purchases: [[String:AnyObject]]?
+    
+    func toDictionary() -> [String:Any] {
+        var deltas = [String:Any]()
+        deltas["session_count"] = sessionCount
+        deltas["session_time"] = sessionTime
+        deltas["amountSpent"] = amountSpent
+        deltas["purchases"] = purchases
+        return deltas
+    }
+}
+
 class OSPropertiesModel: OSModel {
     var language: String? {
         didSet {
@@ -48,8 +64,6 @@ class OSPropertiesModel: OSModel {
     }
 
     var tags: [String: String] = [:]
-
-    // TODO: Purchase tracking
 
     // MARK: - Initialization
 
