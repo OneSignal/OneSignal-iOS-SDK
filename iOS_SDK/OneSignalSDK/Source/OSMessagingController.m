@@ -884,7 +884,7 @@ static BOOL _isInAppMessagingPaused = false;
     if (action.tags) {
         OSInAppMessageTag *tag = action.tags;
         if (tag.tagsToAdd)
-            [OneSignal.User setTags:tag.tagsToAdd];
+            [OneSignal.User addTags:tag.tagsToAdd];
         if (tag.tagsToRemove)
             [OneSignal.User removeTags:tag.tagsToRemove];
     }

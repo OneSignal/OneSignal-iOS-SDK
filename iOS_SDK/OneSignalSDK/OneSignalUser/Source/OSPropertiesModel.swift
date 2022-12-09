@@ -93,7 +93,7 @@ class OSPropertiesModel: OSModel {
 
     // MARK: - Tag Methods
 
-    func setTags(_ tags: [String: String]) {
+    func addTags(_ tags: [String: String]) {
         for (key, value) in tags {
             self.tags[key] = value
         }
