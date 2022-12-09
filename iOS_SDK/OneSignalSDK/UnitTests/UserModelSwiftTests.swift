@@ -61,10 +61,10 @@ extension OSInAppMessages {
 // ^ Cannot use a struct for an OSPushSubscriptionObserver
 
 class OSPushSubscriptionTestObserver: OSPushSubscriptionObserver {
-    func onOSPushSubscriptionChanged(previous: OSPushSubscriptionState, current: OSPushSubscriptionState) {
-        print("🔥 onOSPushSubscriptionChanged \(previous) -> \(current)")
-        // dump(previous) -> uncomment for more verbose log during testing
-        // dump(current) -> uncomment for more verbose log during testing
+    func onOSPushSubscriptionChanged(stateChanges: OneSignalUser.OSPushSubscriptionStateChanges) {
+        print("🔥 onOSPushSubscriptionChanged \(stateChanges.from) -> \(stateChanges.to)")
+        // dump(stateChanges.from) -> uncomment for more verbose log during testing
+        // dump(stateChanges.to) -> uncomment for more verbose log during testing
     }
 }
 
@@ -103,11 +103,6 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.User.removeTag("foo")
         OneSignal.User.removeTags(["foo", "bar"])
 
-        // Outcomes
-        OneSignal.User.setOutcome("foo")
-        OneSignal.User.setUniqueOutcome("foo")
-        OneSignal.User.setOutcome(name: "foo", value: 4.50)
-
         // Email
         OneSignal.User.addEmail("person@example.com")
         _ = OneSignal.User.removeEmail("person@example.com")
@@ -123,10 +118,10 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.InAppMessages.removeTriggers(forKeys: ["foo", "bar"])
         OneSignal.InAppMessages.clearTriggers()
 
-        OneSignal.InAppMessages.setInAppMessageClickHandler { action in
+        OneSignal.InAppMessages.setClickHandler { action in
             NSLog("action \(action.description)")
         }
-        OneSignal.InAppMessages.setInAppMessageLifecycleHandler(nil)
+        OneSignal.InAppMessages.setLifecycleHandler(nil)
     }
 
     /**
