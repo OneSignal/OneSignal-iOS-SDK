@@ -40,7 +40,7 @@ protocol OSUserInternal {
     func addAliases(_ aliases: [String: String])
     func removeAliases(_ labels: [String])
     // Tags
-    func setTags(_ tags: [String: String])
+    func addTags(_ tags: [String: String])
     func removeTags(_ tags: [String])
     // Location
     func setLocation(lat:Float, long:Float)
@@ -118,9 +118,9 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
     // MARK: - Tags
 
-    func setTags(_ tags: [String: String]) {
-        print("🔥 OSUserInternalImpl setTags() called")
-        propertiesModel.setTags(tags)
+    func addTags(_ tags: [String: String]) {
+        print("🔥 OSUserInternalImpl addTags() called")
+        propertiesModel.addTags(tags)
     }
 
     func removeTags(_ tags: [String]) {
