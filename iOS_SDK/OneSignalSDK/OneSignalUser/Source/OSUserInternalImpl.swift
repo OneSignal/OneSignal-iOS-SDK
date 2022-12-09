@@ -44,7 +44,6 @@ protocol OSUserInternal {
     func removeTags(_ tags: [String])
     // Location
     func setLocation(lat:Float, long:Float)
-    // Purchase Tracking
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel
@@ -54,6 +53,7 @@ protocol OSUserInternal {
  Internal user object that implements the OSUserInternal protocol.
  */
 class OSUserInternalImpl: NSObject, OSUserInternal {
+    
     // TODO: Determine if having any alias should return true
     // Is an anon user who has added aliases, still an anon user?
     var isAnonymous: Bool {
