@@ -75,8 +75,8 @@
     [OneSignal.User removeAliases:@[@"foo", @"bar"]];
 
     // Tags
-    [OneSignal.User setTagWithKey:@"foo" value:@"bar"];
-    [OneSignal.User setTags:@{@"foo": @"foo1", @"bar": @"bar2"}];
+    [OneSignal.User addTagWithKey:@"foo" value:@"bar"];
+    [OneSignal.User addTags:@{@"foo": @"foo1", @"bar": @"bar2"}];
     [OneSignal.User removeTag:@"foo"];
     [OneSignal.User removeTags:@[@"foo", @"bar"]];
 
@@ -147,7 +147,7 @@
     [OneSignal.User addAliases:@{@"test1": @"user1", @"test2": @"user2", @"test3": @"user3"}];
     [OneSignal.User removeAliases:@[@"test1", @"label_01", @"test2"]];
     
-    [OneSignal.User setTagWithKey:@"foo" value:@"bar"];
+    [OneSignal.User addTagWithKey:@"foo" value:@"bar"];
     
     // Sleep to allow the flush to be called 1 time.
     [NSThread sleepForTimeInterval:6.0f];
