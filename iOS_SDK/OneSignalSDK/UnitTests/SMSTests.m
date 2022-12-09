@@ -86,7 +86,8 @@
     self.ONESIGNAL_EXTERNAL_USER_ID = @"test_external_user_id";
     self.ONESIGNAL_EXTERNAL_USER_ID_HASH_TOKEN = @"test_external_user_id_hash_token";
     
-    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+    [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
+    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
 }
 
 /*
