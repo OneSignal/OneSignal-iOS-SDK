@@ -70,7 +70,7 @@
     NSString *key = [self.removeTriggerKey text];
 
     if (key && [key length]) {
-        [OneSignal.InAppMessages removeTriggerForKey:key];
+        [OneSignal.InAppMessages removeTrigger:key];
     }
 }
 

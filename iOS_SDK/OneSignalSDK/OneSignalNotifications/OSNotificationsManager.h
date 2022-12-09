@@ -48,7 +48,7 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 + (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block;
 + (void)addPermissionObserver:(NSObject<OSPermissionObserver>*)observer;
 + (void)removePermissionObserver:(NSObject<OSPermissionObserver>*)observer;
-// clearAll
+// TODO: clearAll
 
 @end
 
