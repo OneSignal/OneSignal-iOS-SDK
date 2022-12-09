@@ -34,8 +34,15 @@
 static ONE_S_LOG_LEVEL _nsLogLevel = ONE_S_LL_WARN;
 static ONE_S_LOG_LEVEL _visualLogLevel = ONE_S_LL_NONE;
 
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
++ (Class<OSDebug>)Debug {
+    return self;
+}
+
++ (void)setLogLevel:(ONE_S_LOG_LEVEL)nsLogLevel {
     _nsLogLevel = nsLogLevel;
+}
+
++ (void)setVisualLevel:(ONE_S_LOG_LEVEL)visualLogLevel {
     _visualLogLevel = visualLogLevel;
 }
 

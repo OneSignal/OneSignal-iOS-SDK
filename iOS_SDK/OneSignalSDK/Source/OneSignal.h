@@ -112,7 +112,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
 
 #pragma mark Logging
-+ (void)setLogLevel:(ONE_S_LOG_LEVEL)logLevel visualLevel:(ONE_S_LOG_LEVEL)visualLogLevel; // TODO: UM split up into 2?
++ (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;
 
 #pragma mark Privacy Consent
 + (void)setPrivacyConsent:(BOOL)granted;
