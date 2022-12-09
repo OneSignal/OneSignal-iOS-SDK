@@ -64,10 +64,11 @@ import OneSignalNotifications
     // SMS
     func addSmsNumber(_ number: String)
     func removeSmsNumber(_ number: String) -> Bool
+    // Language
+    func setLanguage(_ language: String?)
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
-    // TODO: Add setLanguage
 }
 
 /**
@@ -552,6 +553,13 @@ extension OneSignalUserManagerImpl: OSUser {
         // Check if is valid SMS?
         createUserIfNil()
         return self.subscriptionModelStore.remove(number)
+    }
+    
+    public func setLanguage(_ language: String?) {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLanguage") else {
+            return
+        }
+        user.setLanguage(language)
     }
 
     public func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
