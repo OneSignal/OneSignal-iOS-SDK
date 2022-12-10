@@ -44,6 +44,8 @@ protocol OSUserInternal {
     func removeTags(_ tags: [String])
     // Location
     func setLocation(lat:Float, long:Float)
+    // Language
+    func setLanguage(_ language: String?)
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel
@@ -134,5 +136,11 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
         print("🔥 OSUserInternalImpl setLocation() called")
         propertiesModel.lat = lat
         propertiesModel.long = long
+    }
+    
+    // MARK: - Language
+    
+    func setLanguage(_ language: String?) {
+        propertiesModel.language = language
     }
 }
