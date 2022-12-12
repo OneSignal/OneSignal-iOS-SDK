@@ -58,6 +58,7 @@
 		DEA226F9261F74060092FF58 /* OneSignal.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA22668261E62690092FF58 /* OneSignal.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEA4B4502888B01000E9FE12 /* OneSignalUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */; };
 		DEA4B4512888B01000E9FE12 /* OneSignalUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DEC08AFD2947CE3000C81DA3 /* SwiftTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC08AFC2947CE3000C81DA3 /* SwiftTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -183,6 +184,8 @@
 		DEA2266A261E62780092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA2266C261E627D0092FF58 /* OneSignal.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignal.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEA4B44F2888B01000E9FE12 /* OneSignalUser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = OneSignalUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEC08AFC2947CE3000C81DA3 /* SwiftTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftTest.swift; sourceTree = "<group>"; };
+		DEC08AFE2947CED000C81DA3 /* OneSignalExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OneSignalExample-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,6 +272,8 @@
 				9112E8931E724C320022A1CB /* LaunchScreen.storyboard */,
 				9112E8961E724C320022A1CB /* Info.plist */,
 				9112E8851E724C320022A1CB /* Supporting Files */,
+				DEC08AFC2947CE3000C81DA3 /* SwiftTest.swift */,
+				DEC08AFE2947CED000C81DA3 /* OneSignalExample-Bridging-Header.h */,
 			);
 			path = OneSignalDevApp;
 			sourceTree = "<group>";
@@ -511,6 +516,7 @@
 				9112E88D1E724C320022A1CB /* ViewController.m in Sources */,
 				9112E88A1E724C320022A1CB /* AppDelegate.m in Sources */,
 				9112E8871E724C320022A1CB /* main.m in Sources */,
+				DEC08AFD2947CE3000C81DA3 /* SwiftTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
