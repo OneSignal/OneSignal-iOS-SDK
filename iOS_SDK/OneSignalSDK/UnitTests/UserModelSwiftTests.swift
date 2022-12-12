@@ -114,8 +114,8 @@ class UserModelSwiftTests: XCTestCase {
         // Triggers
         OneSignal.InAppMessages.addTrigger("foo", withValue: "bar")
         OneSignal.InAppMessages.addTriggers(["foo": "foo1", "bar": "bar2"])
-        OneSignal.InAppMessages.removeTrigger(forKey: "foo")
-        OneSignal.InAppMessages.removeTriggers(forKeys: ["foo", "bar"])
+        OneSignal.InAppMessages.removeTrigger("foo")
+        OneSignal.InAppMessages.removeTriggers(["foo", "bar"])
         OneSignal.InAppMessages.clearTriggers()
 
         OneSignal.InAppMessages.setClickHandler { action in
@@ -217,5 +217,12 @@ class UserModelSwiftTests: XCTestCase {
         // IAM pausing
         OneSignal.InAppMessages.Paused = true
         let paused = OneSignal.InAppMessages.Paused
+    }
+    
+    func testJWTTokenExpired() {
+//        OneSignal.User.onJwtExpired { externalId, completion in
+//            let newToken = externalId + "newtokenbasedonexternalid"
+//            completion(newToken)
+//        }
     }
 }
