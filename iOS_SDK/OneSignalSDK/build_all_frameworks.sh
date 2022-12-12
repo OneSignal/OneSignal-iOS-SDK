@@ -40,11 +40,20 @@ create_xcframework() {
 ## BUILD ONESIGNAL CORE ##
 create_xcframework "OneSignal_Core" "OneSignalCore" "OneSignalCore"
 
+## BUILD ONESIGNAL CORE ##
+create_xcframework "OneSignal_OSCore" "OneSignalOSCore" "OneSignalOSCore"
+
 ## BUILD ONESIGNAL OUTCOMES ##
 create_xcframework "OneSignal_Outcomes" "OneSignalOutcomes" "OneSignalOutcomes"
 
 ## BUILD ONESIGNAL EXTENSION ##
 create_xcframework "OneSignal_Extension" "OneSignalExtension" "OneSignalExtension"
+
+## BUILD ONESIGNAL EXTENSION ##
+create_xcframework "OneSignal_Notifications" "OneSignalNotifications" "OneSignalNotifications"
+
+## BUILD ONESIGNAL USER ##
+create_xcframework "OneSignal_User" "OneSignalUser" "OneSignalUser"
 
 ## BUILD ONESIGNAL ##
 create_xcframework "OneSignal_XCFramework" "OneSignal" "OneSignalFramework"
