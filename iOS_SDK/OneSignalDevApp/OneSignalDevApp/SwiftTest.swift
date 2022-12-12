@@ -12,6 +12,9 @@ import OneSignal
 class SwiftTest: NSObject {
     func testSwiftUserModel() {
         //OneSignal.user()
+        OneSignal.User.onJwtExpired { externalId, completion in
+            completion("test")
+        }
         let token1 = OneSignal.User.pushSubscription.token
         let token = OneSignal.User.pushSubscription.token
     }

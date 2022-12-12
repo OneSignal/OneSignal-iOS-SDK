@@ -8,7 +8,9 @@
 
 import Foundation
 
-public extension OneSignal {
+typealias OneSignalSwift = OneSignal
+
+public extension OneSignalSwift {
     static var User: OSUser {
         return __user()
     }
