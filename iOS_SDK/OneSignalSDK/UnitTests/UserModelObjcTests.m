@@ -201,6 +201,8 @@
 
 - (void)testOnJwtExpired {
     // TODO: Fix autocompletion. It isn't auto completing parameter names which makes this unreadable
+    //typedef void (^OSJwtCompletionBlock)(NSString * _Nonnull newJwtToken);
+    //typedef void (^OSJwtExpiredHandler)(NSString * _Nonnull externalId, OSJwtCompletionBlock _Nonnull completion);
     [OneSignal.User onJwtExpiredWithExpiredHandler:^(NSString * _Nonnull externalId, void (^ _Nonnull completion)(NSString * _Nonnull)) {
         NSString *newToken = externalId;
         completion(newToken);

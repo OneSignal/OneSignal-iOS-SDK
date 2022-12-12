@@ -220,9 +220,9 @@ class UserModelSwiftTests: XCTestCase {
     }
     
     func testJWTTokenExpired() {
-//        OneSignal.User.onJwtExpired { externalId, completion in
-//            let newToken = externalId + "newtokenbasedonexternalid"
-//            completion(newToken)
-//        }
+        OneSignal.User.onJwtExpired { externalId, completion in
+            let newToken = externalId + "newtokenbasedonexternalid"
+            completion(newToken)
+        }
     }
 }
