@@ -304,6 +304,8 @@
 		DE20425E24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE20425F24E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
 		DE20426024E21C2C00350E4F /* UIApplication+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DE20425D24E21C2C00350E4F /* UIApplication+OneSignal.m */; };
+		DE2D8F452947D85800844084 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
+		DE2D8F4A2947D86200844084 /* OneSignalOutcomes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D188027037F43002D3A5D /* OneSignalOutcomes.framework */; };
 		DE367CC724EEF2BE00165207 /* OSInAppMessagePage.m in Sources */ = {isa = PBXBuildFile; fileRef = DE367CC624EEF2BE00165207 /* OSInAppMessagePage.m */; };
 		DE367CC824EEF2BE00165207 /* OSInAppMessagePage.m in Sources */ = {isa = PBXBuildFile; fileRef = DE367CC624EEF2BE00165207 /* OSInAppMessagePage.m */; };
 		DE367CC924EEF2BE00165207 /* OSInAppMessagePage.m in Sources */ = {isa = PBXBuildFile; fileRef = DE367CC624EEF2BE00165207 /* OSInAppMessagePage.m */; };
@@ -477,8 +479,6 @@
 		DEF7846B2913176800A1F3A5 /* OneSignalNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEF784292912DEB600A1F3A5 /* OneSignalNotifications.framework */; };
 		DEF7847229132AA700A1F3A5 /* OSNotification+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF7847029132AA700A1F3A5 /* OSNotification+OneSignal.h */; };
 		DEF7847329132AA700A1F3A5 /* OSNotification+OneSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF7847129132AA700A1F3A5 /* OSNotification+OneSignal.m */; };
-		DEF7847429132FB500A1F3A5 /* OneSignalExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; };
-		DEF7847529132FB500A1F3A5 /* OneSignalExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DE7D17F927026BA3002D3A5D /* OneSignalExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DEF784792914667A00A1F3A5 /* NSDateFormatter+OneSignal.h in Headers */ = {isa = PBXBuildFile; fileRef = DE9877292591654600DE07D5 /* NSDateFormatter+OneSignal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEF7847D29146B2700A1F3A5 /* OneSignalWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF7847B29146B2700A1F3A5 /* OneSignalWebView.m */; };
 		DEF7847E29146B2700A1F3A5 /* OneSignalWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = DEF7847C29146B2700A1F3A5 /* OneSignalWebView.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -516,6 +516,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3C115160289A259500565C41;
 			remoteInfo = OneSignalOSCore;
+		};
+		DE2D8F472947D85800844084 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D17F827026BA3002D3A5D;
+			remoteInfo = OneSignalExtension;
+		};
+		DE2D8F4C2947D86200844084 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE7D187F27037F43002D3A5D;
+			remoteInfo = OneSignalOutcomes;
 		};
 		DE69E1AF282ED8F20090BB3D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -608,13 +622,6 @@
 			remoteGlobalIDString = DEF784282912DEB600A1F3A5;
 			remoteInfo = OneSignalNotifications;
 		};
-		DEF7847629132FB500A1F3A5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 37747F8B19147D6400558FAD /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DE7D17F827026BA3002D3A5D;
-			remoteInfo = OneSignalExtension;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -640,17 +647,6 @@
 				DEA4B4632888C4DC00E9FE12 /* OneSignalOutcomes.framework in Embed Frameworks */,
 				DEA4B45D2888C1D000E9FE12 /* OneSignalCore.framework in Embed Frameworks */,
 				3C11518F289AF83600565C41 /* OneSignalOSCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DEF7847829132FB600A1F3A5 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				DEF7847529132FB500A1F3A5 /* OneSignalExtension.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1156,9 +1152,10 @@
 			files = (
 				DEF7848429146DA700A1F3A5 /* WebKit.framework in Frameworks */,
 				DEF7845F2912EA0D00A1F3A5 /* UserNotifications.framework in Frameworks */,
-				DEF7847429132FB500A1F3A5 /* OneSignalExtension.framework in Frameworks */,
 				DEF784612912F5E100A1F3A5 /* UIKit.framework in Frameworks */,
 				DEF784422912E16F00A1F3A5 /* OneSignalCore.framework in Frameworks */,
+				DE2D8F4A2947D86200844084 /* OneSignalOutcomes.framework in Frameworks */,
+				DE2D8F452947D85800844084 /* OneSignalExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2329,13 +2326,13 @@
 				DEF784252912DEB600A1F3A5 /* Sources */,
 				DEF784262912DEB600A1F3A5 /* Frameworks */,
 				DEF784272912DEB600A1F3A5 /* Resources */,
-				DEF7847829132FB600A1F3A5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DEF784452912E16F00A1F3A5 /* PBXTargetDependency */,
-				DEF7847729132FB500A1F3A5 /* PBXTargetDependency */,
+				DE2D8F482947D85800844084 /* PBXTargetDependency */,
+				DE2D8F4D2947D86200844084 /* PBXTargetDependency */,
 			);
 			name = OneSignalNotifications;
 			productName = OneSignalNotifications;
@@ -2931,6 +2928,16 @@
 			target = 3C115160289A259500565C41 /* OneSignalOSCore */;
 			targetProxy = DE12F3F4289B28C4002F63AA /* PBXContainerItemProxy */;
 		};
+		DE2D8F482947D85800844084 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D17F827026BA3002D3A5D /* OneSignalExtension */;
+			targetProxy = DE2D8F472947D85800844084 /* PBXContainerItemProxy */;
+		};
+		DE2D8F4D2947D86200844084 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE7D187F27037F43002D3A5D /* OneSignalOutcomes */;
+			targetProxy = DE2D8F4C2947D86200844084 /* PBXContainerItemProxy */;
+		};
 		DE69E1B0282ED8F20090BB3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE7D17E527026B95002D3A5D /* OneSignalCore */;
@@ -2996,11 +3003,6 @@
 			target = DEF784282912DEB600A1F3A5 /* OneSignalNotifications */;
 			targetProxy = DEF7846D2913176800A1F3A5 /* PBXContainerItemProxy */;
 		};
-		DEF7847729132FB500A1F3A5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = DE7D17F827026BA3002D3A5D /* OneSignalExtension */;
-			targetProxy = DEF7847629132FB500A1F3A5 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -3026,7 +3028,7 @@
 		3C115173289A259500565C41 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3059,7 +3061,7 @@
 				INFOPLIST_FILE = OneSignalOSCoreFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3079,7 +3081,7 @@
 		3C115174289A259500565C41 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3118,7 +3120,7 @@
 				INFOPLIST_FILE = OneSignalOSCoreFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3173,7 +3175,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_MASTER_OBJECT_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-all_load",
@@ -3209,11 +3211,7 @@
 		CA2951B82167F4120064227A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -3343,7 +3341,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_MASTER_OBJECT_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-all_load",
@@ -3379,11 +3377,7 @@
 		CA2951C42167FB950064227A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -3514,7 +3508,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_MASTER_OBJECT_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-all_load",
@@ -3550,6 +3544,7 @@
 		DE3D8F3A28C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -3568,7 +3563,7 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				INFOPLIST_FILE = OneSignalFramework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3712,6 +3707,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3749,7 +3745,7 @@
 				INFOPLIST_FILE = OneSignalCoreFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3771,6 +3767,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3806,7 +3803,7 @@
 				INFOPLIST_FILE = OneSignalExtensionFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3828,6 +3825,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3864,7 +3862,7 @@
 				INFOPLIST_FILE = OneSignalOutcomesFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2021 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3885,6 +3883,7 @@
 		DE3D8F4328C15839008C2BBF /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3920,7 +3919,7 @@
 				INFOPLIST_FILE = OneSignalUserFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -3944,6 +3943,7 @@
 		DE69E1A5282ED8070090BB3D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3976,7 +3976,7 @@
 				INFOPLIST_FILE = OneSignalUserFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3997,6 +3997,7 @@
 		DE69E1A6282ED8070090BB3D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4035,7 +4036,7 @@
 				INFOPLIST_FILE = OneSignalUserFramework/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Hiptic. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -4060,11 +4061,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4121,11 +4118,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4188,11 +4181,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4247,11 +4236,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4312,11 +4297,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4371,11 +4352,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
-				ARCHS = (
-					"$(ARCHS_STANDARD)",
-					x86_64h,
-					x86_64,
-				);
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -4461,8 +4438,10 @@
 		DECE6F5A28C903D7007058EE /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = OneSignalOSCoreFramework/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.OneSignalOSCore;
 				PRODUCT_NAME = OneSignalOSCore;
 				SWIFT_VERSION = 5.0;
@@ -4571,6 +4550,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -4624,6 +4604,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -4683,6 +4664,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
