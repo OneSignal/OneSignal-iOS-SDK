@@ -398,7 +398,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         guard let externalId = user.identityModel.externalId, let jwtExpiredHandler = self.jwtExpiredHandler else {
             return
         }
-        jwtExpiredHandler(externalId) { (newToken) -> Void in
+        jwtExpiredHandler(externalId) { [self] (newToken) -> Void in
             guard user.identityModel.externalId == externalId else {
                 return
             }
@@ -444,8 +444,7 @@ extension OneSignalUserManagerImpl {
 }
 
 extension OneSignalUserManagerImpl: OSUser {
-    
-    public func onJwtExpired(expiredHandler: @escaping (String, OSJwtCompletionBlock) -> Void) {
+    public func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler) {
         jwtExpiredHandler = expiredHandler
     }
     
