@@ -8,33 +8,32 @@
 
 import Foundation
 
-//import OneSignalFramework
-//import OneSignalUser
-//import OneSignalOutcomes
-//import OneSignalNotifications
-//
-//public extension OneSignalFramework.OneSignal {
-//    static var User: OSUser {
-//        return __user()
-//    }
-//    
-//    static var Notifications: OSNotifications.Type {
-//        return __notifications()
-//    }
-//    
-//    static var Session: OSSession.Type {
-//        return __session()
-//    }
-//    
-//    static var InAppMessages: OSInAppMessages.Type {
-//        return __inAppMessages()
-//    }
-//    
-//    static var Debug: OSDebug.Type {
-//        return __debug()
-//    }
-//    
-//    static var Location: OSLocation.Type {
-//        return __location()
-//    }
-//}
+import OneSignalUser
+import OneSignalOutcomes
+import OneSignalNotifications
+
+public extension OneSignalFramework.OneSignal {
+    static var User: OSUser {
+        return __user()
+    }
+
+    static var Notifications: OSNotifications.Type {
+        return __notifications()
+    }
+
+    static var Session: OSSession.Type {
+        return __session()
+    }
+
+    static var InAppMessages: OSInAppMessages.Type {
+        return __inAppMessages()
+    }
+
+    static var Debug: OSDebug.Type {
+        return __debug()
+    }
+
+    static var Location: OSLocation.Type {
+        return __location()
+    }
+}

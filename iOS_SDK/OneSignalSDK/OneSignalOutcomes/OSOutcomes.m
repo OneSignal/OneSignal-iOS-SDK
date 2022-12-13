@@ -27,7 +27,7 @@
 #import "OneSignalOutcomes.h"
 #import <OneSignalCore/OneSignalCore.h>
 
-@implementation OneSignalOutcomes
+@implementation OSOutcomes
 
 + (Class<OSSession>)Session {
     return self;
