@@ -26,8 +26,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignalNotificationSettings.h"
-#import "OSPermission.h"
+#import <OneSignalNotifications/OneSignalNotificationSettings.h>
+#import <OneSignalNotifications/OSPermission.h>
 #import <OneSignalCore/OneSignalCore.h>
 #import <UIKit/UIKit.h>
 

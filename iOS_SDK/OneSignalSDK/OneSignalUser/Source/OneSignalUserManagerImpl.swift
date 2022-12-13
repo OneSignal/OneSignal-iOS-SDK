@@ -262,7 +262,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             return _mockUser
         }
 
-        print("🔥 OneSignalUserManagerImpl private _login(\(externalId)) called")
+        print("🔥 OneSignalUserManagerImpl private _login(\(externalId ?? "nil")) called")
 
         // If have token, validate token. Account for this being a requirement.
 
@@ -324,7 +324,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
 
-        var pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
+        let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
 
         subscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
 

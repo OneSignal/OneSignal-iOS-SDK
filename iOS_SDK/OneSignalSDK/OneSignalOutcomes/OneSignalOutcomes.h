@@ -52,7 +52,7 @@
 @end
 
 @interface OSOutcomes : NSObject <OSSession>
-+ (Class<OSSession>)Session;
++ (Class<OSSession> _Nonnull)Session;
 + (OneSignalOutcomeEventsController * _Nullable)sharedController;
 + (void)start;
 + (void)clearStatics;

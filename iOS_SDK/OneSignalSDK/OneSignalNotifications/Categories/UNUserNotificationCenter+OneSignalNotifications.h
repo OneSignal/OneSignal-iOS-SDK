@@ -46,7 +46,7 @@
                   withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler;
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
-                  withCompletionHandler:(void(^)())completionHandler;
+                  withCompletionHandler:(void(^)(void))completionHandler;
 + (void)traceCall:(NSString*)selector;
 @end
 

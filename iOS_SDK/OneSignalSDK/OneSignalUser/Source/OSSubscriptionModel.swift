@@ -49,6 +49,8 @@ public class OSPushSubscriptionState: NSObject {
     }
 
     func toDictionary() -> NSDictionary {
+        let subscriptionId = self.subscriptionId ?? ""
+        let token = self.token ?? ""
         return [
             "subscriptionId": subscriptionId,
             "token": token,
