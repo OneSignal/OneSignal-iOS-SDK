@@ -56,6 +56,6 @@ create_xcframework "OneSignal_Notifications" "OneSignalNotifications" "OneSignal
 create_xcframework "OneSignal_User" "OneSignalUser" "OneSignalUser"
 
 ## BUILD ONESIGNAL ##
-create_xcframework "OneSignal_XCFramework" "OneSignal" "OneSignalFramework"
+create_xcframework "OneSignal_XCFramework" "OneSignalFramework" "OneSignalFramework"
 
 open "${WORKING_DIR}"

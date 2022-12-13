@@ -10,7 +10,7 @@
 
 #import "OneSignalMobileProvision.h"
 #import "TargetConditionals.h"
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OneSignalInternal.h"
 
 @implementation OneSignalMobileProvision
