@@ -12,7 +12,7 @@ import OneSignalUser
 import OneSignalOutcomes
 import OneSignalNotifications
 
-public extension OneSignalFramework.OneSignal {
+public extension OneSignal {
     static var User: OSUser {
         return __user()
     }
