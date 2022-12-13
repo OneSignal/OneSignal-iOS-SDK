@@ -73,7 +73,7 @@ UIViewController *viewControllerForPresentation;
     [_webView evaluateJavaScript:@"document.title" completionHandler:^(id _Nullable result, NSError * _Nullable error) {
         self.title = result;
         self.navigationController.title = self.title;
-        [_uiBusy stopAnimating];
+        [self->_uiBusy stopAnimating];
     }];
 }
 

@@ -6,9 +6,9 @@
 //  Copyright © 2022 Hiptic. All rights reserved.
 //
 
-#import "OneSignalWebView.h"
+#import <OneSignalNotifications/OneSignalWebView.h>
 
 @interface OneSignalWebViewManager : NSObject
 + (OneSignalWebView *_Nonnull)webVC;
-+ (void)displayWebView:(NSURL*)url;
++ (void)displayWebView:(NSURL*_Nonnull)url;
 @end
