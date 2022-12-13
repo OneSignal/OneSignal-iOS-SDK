@@ -132,7 +132,7 @@
 + (void)onNotificationReceived:(NSString *)receivedNotificationId withBlockingTask:(dispatch_semaphore_t)semaphore {
     if (receivedNotificationId && ![receivedNotificationId isEqualToString:@""]) {
         // If update was made without app being initialized/launched before -> migrate
-        [OneSignalOutcomes migrate];
+        [OSOutcomes migrate];
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"NSE request received, sessionManager: %@", [OSSessionManager sharedSessionManager]]];
         // Save received notification id
         [[OSSessionManager sharedSessionManager] onNotificationReceived:receivedNotificationId];

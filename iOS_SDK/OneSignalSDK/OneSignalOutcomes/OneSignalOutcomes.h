@@ -51,7 +51,7 @@
 + (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
 @end
 
-@interface OneSignalOutcomes : NSObject <OSSession>
+@interface OSOutcomes : NSObject <OSSession>
 + (Class<OSSession>)Session;
 + (OneSignalOutcomeEventsController * _Nullable)sharedController;
 + (void)start;
