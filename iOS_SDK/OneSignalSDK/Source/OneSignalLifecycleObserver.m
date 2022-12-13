@@ -27,7 +27,6 @@ THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "OneSignalLifecycleObserver.h"
-#import "OneSignal.h"
 #import "OneSignalInternal.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"

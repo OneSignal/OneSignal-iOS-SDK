@@ -25,7 +25,6 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
 #import "OSBaseFocusTimeProcessor.h"
 #import "OneSignalInternal.h"
 

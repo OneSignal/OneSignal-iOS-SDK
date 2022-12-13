@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
