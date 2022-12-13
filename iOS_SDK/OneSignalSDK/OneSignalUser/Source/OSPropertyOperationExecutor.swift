@@ -110,7 +110,6 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
         print("🔥 OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            print("🔥 OSPropertyOperationExecutor executed request SUCCESS block: \(result)")
             // Mock a response
             let response = ["language": "en"]
 
@@ -122,7 +121,6 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             request.modelToUpdate.hydrate(response)
 
         } onFailure: { error in
-            print("🔥 OSPropertyOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
     }

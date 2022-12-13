@@ -123,7 +123,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     func executeAddAliasesRequest(_ request: OSRequestAddAliases) {
         print("🔥 OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            print("🔥 OSIdentityOperationExecutor executed request SUCCESS block: \(result)")
             // Mock a response
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
@@ -137,7 +136,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
-            print("🔥 OSIdentityOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
     }
@@ -145,7 +143,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias) {
         print("🔥 OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            print("🔥 OSIdentityOperationExecutor executed request SUCCESS block: \(result)")
 
             // Mock a response
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
@@ -158,7 +155,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
-            print("🔥 OSIdentityOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
     }

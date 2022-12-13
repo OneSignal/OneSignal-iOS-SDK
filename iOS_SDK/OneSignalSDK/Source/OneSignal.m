@@ -96,8 +96,6 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 static NSString* mSDKType = @"native";
 
-static BOOL shouldDelaySubscriptionUpdate = false;
-
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
@@ -106,9 +104,6 @@ static NSMutableArray* pendingLiveActivityUpdates;
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
-
-// Under Capabilities is "Background Modes" > "Remote notifications" enabled.
-static BOOL backgroundModesEnabled = false;
 
 // Indicates if initialization of the SDK has been delayed until the user gives privacy consent
 static BOOL delayedInitializationForPrivacyConsent = false;

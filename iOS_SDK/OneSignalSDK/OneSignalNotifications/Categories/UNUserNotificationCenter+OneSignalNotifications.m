@@ -310,7 +310,7 @@ void finishProcessingNotification(UNNotification *notification,
 // Apple's docs - Called to let your app know which action was selected by the user for a given notification.
 - (void)onesignalUserNotificationCenter:(UNUserNotificationCenter *)center
          didReceiveNotificationResponse:(UNNotificationResponse *)response
-                  withCompletionHandler:(void(^)())completionHandler {
+                  withCompletionHandler:(void(^)(void))completionHandler {
     [OneSignalNotificationsUNUserNotificationCenter traceCall:@"onesignalUserNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:"];
     // return if the user has not granted privacy permissions or if not a OneSignal payload
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil] || ![OneSignalCoreHelper isOneSignalPayload:response.notification.request.content.userInfo]) {
@@ -414,7 +414,7 @@ void finishProcessingNotification(UNNotification *notification,
                        actionIdentifier:(NSString*)actionIdentifier
                                userText:(NSString*)userText
                 fromPresentNotification:(BOOL)fromPresentNotification
-                  withCompletionHandler:(void(^)())completionHandler {
+                  withCompletionHandler:(void(^)(void))completionHandler {
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"callLegacyAppDeletegateSelector:withCompletionHandler: Fired!"];
     
     UIApplication *sharedApp = [UIApplication sharedApplication];
