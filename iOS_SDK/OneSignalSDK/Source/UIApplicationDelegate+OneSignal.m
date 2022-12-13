@@ -29,7 +29,7 @@
 #import <UIKit/UIKit.h>
 
 #import "UIApplicationDelegate+OneSignal.h"
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OneSignalCommonDefines.h"
 #import "OneSignalTracker.h"
 #import "OneSignalSelectorHelpers.h"
