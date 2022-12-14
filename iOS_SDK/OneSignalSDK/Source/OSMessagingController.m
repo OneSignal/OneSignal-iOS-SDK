@@ -210,7 +210,7 @@ static BOOL _isInAppMessagingPaused = false;
         [self updateInAppMessagesFromCache];
         
     } onFailure:^(NSError *error) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer failure"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
         [self updateInAppMessagesFromCache];
     }];
 }
