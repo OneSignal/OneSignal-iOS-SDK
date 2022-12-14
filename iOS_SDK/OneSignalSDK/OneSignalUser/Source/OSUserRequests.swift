@@ -61,10 +61,32 @@ class OSUserExecutor {
         }
     }
     
-    static func parseCreateUserResponse(_ response: [AnyHashable:Any]) {
-        let subscriptionObject = parseSubscriptionObjectResponse(response)
-        let identityObject = parseIdentityObjectResponse(response)
-        let propertiesObject = parsePropertiesObjectResponse(response)
+    static func parseCreateUserResponse(response: [AnyHashable:Any], request: OSRequestCreateUser) {
+        // On success, check if the current user is the same as the one in the request
+        // If user has changed, don't hydrate, except for push subscription
+        let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
+
+        guard modelInStore?.modelId == request.identityModel.modelId else {
+            return
+        }
+        if let identityObject = parseIdentityObjectResponse(response) {
+            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
+        }
+        if let subscriptionObject = parseSubscriptionObjectResponse(response) {
+            for subModel in subscriptionObject {
+                if let subType = subModel["type"] as? String {
+                    if subType == "iOSPush" {
+                        OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
+                        if let subId = subModel["id"] as? String {
+                            OSNotificationsManager.setPushSubscriptionId(subId)
+                        }
+                    }
+                }
+            }
+        }
+        if let propertiesObject = parsePropertiesObjectResponse(response) {
+            OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
+        }
     }
     
     static func parseSubscriptionObjectResponse(_ response: [AnyHashable:Any]?) -> [[String:Any]]? {
@@ -88,34 +110,9 @@ class OSUserExecutor {
             return
         }
         OneSignalClient.shared().execute(request) { response in
-            // On success, check if the current user is the same as the one in the request
-            // If user has changed, don't hydrate, except for push subscription
-            let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
-
-            guard modelInStore?.modelId == request.identityModel.modelId else {
-                return
+            if let response = response {
+                parseCreateUserResponse(response: response, request: request)
             }
-            if let identityObject = parseIdentityObjectResponse(response) {
-                OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
-            }
-            if let subscriptionObject = parseSubscriptionObjectResponse(response) {
-                for subModel in subscriptionObject {
-                    if let subType = subModel["type"] as? String {
-                        if subType == "iOSPush" {
-                            OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
-                            if let subId = subModel["id"] as? String {
-                                OSNotificationsManager.setPushSubscriptionId(subId)
-                            }
-                        }
-                    }
-                }
-            }
-            if let propertiesObject = parsePropertiesObjectResponse(response) {
-                OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
-            }
-
-            // hydrate identity, properties, subscriptions
-
             executePendingRequests()
         } onFailure: { error in
             print("ECM test + \(error.debugDescription)")
