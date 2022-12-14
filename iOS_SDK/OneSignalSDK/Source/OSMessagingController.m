@@ -188,27 +188,28 @@ static BOOL _isInAppMessagingPaused = false;
     
     OSRequestGetInAppMessages *request = [OSRequestGetInAppMessages withSubscriptionId:subscriptionId];
     [OneSignalClient.sharedClient executeRequest:request onSuccess:^(NSDictionary *result) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
-        if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
-            let messages = [NSMutableArray new];
-            
-            for (NSDictionary *messageJson in result[@"in_app_messages"]) {
-                let message = [OSInAppMessageInternal instanceWithJson:messageJson];
-                if (message) {
-                    [messages addObject:message];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"getInAppMessagesFromServer success"];
+            if (result[@"in_app_messages"]) { // when there are no IAMs, will this still be there?
+                let messages = [NSMutableArray new];
+                
+                for (NSDictionary *messageJson in result[@"in_app_messages"]) {
+                    let message = [OSInAppMessageInternal instanceWithJson:messageJson];
+                    if (message) {
+                        [messages addObject:message];
+                    }
                 }
+                
+                [self updateInAppMessagesFromServer:messages];
+                return;
             }
             
-            [self updateInAppMessagesFromServer:messages];
-            return;
-        }
-        
-        // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
-        // This is the existing implementation but it could mean this user has no IAMs?
-        
-        // Default is using cached IAMs in the messaging controller
-        [self updateInAppMessagesFromCache];
-        
+            // TODO: Check this request and response. If no IAMs returned, should we really get from cache?
+            // This is the existing implementation but it could mean this user has no IAMs?
+            
+            // Default is using cached IAMs in the messaging controller
+            [self updateInAppMessagesFromCache];
+        });
     } onFailure:^(NSError *error) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"getInAppMessagesFromServer failure: %@", error.localizedDescription]];
         [self updateInAppMessagesFromCache];
