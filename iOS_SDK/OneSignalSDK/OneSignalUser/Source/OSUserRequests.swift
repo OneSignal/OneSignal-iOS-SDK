@@ -673,8 +673,8 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
 
     // Need an alias and subscription_id
     func prepareForExecution() -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId {
-            self.path = "subscriptions/\(subscriptionId)/owner"
+        if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
+            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)/owner"
             // Check alias pair
             if let label = aliasLabel,
                let id = aliasId {
@@ -756,8 +756,8 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
 
     // Need the subscription_id
     func prepareForExecution() -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId {
-            self.path = "subscriptions/\(subscriptionId)"
+        if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
+            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true
         } else {
             self.path = "" // self.path is non-nil, so set to empty string
@@ -815,8 +815,8 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
     // Need the subscription_id
     func prepareForExecution() -> Bool {
-        if let subscriptionId = subscriptionModel.subscriptionId {
-            self.path = "subscriptions/\(subscriptionId)"
+        if let subscriptionId = subscriptionModel.subscriptionId, let appId = OneSignalConfigManager.getAppId() {
+            self.path = "apps/\(appId)/subscriptions/\(subscriptionId)"
             return true
         } else {
             // self.path is non-nil, so set to empty string
