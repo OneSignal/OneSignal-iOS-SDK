@@ -109,7 +109,7 @@ class OSPropertiesModel: OSModel {
         self.set(property: "aliases", newValue: tagsToSend)
     }
 
-    public override func hydrateModel(_ response: [String: String]) {
+    public override func hydrateModel(_ response: [String: Any]) {
         // TODO: Update Model properties with the response
     }
 }

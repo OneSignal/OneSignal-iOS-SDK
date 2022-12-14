@@ -213,9 +213,32 @@ class OSSubscriptionModel: OSModel {
         super.init(coder: coder)
     }
 
-    public override func hydrateModel(_ response: [String: String]) {
+    public override func hydrateModel(_ response: [String: Any]) {
         print("🔥 OSSubscriptionModel hydrateModel()")
-        // TODO: Update Model properties with the response
+        for property in response {
+            switch property.key {
+            case "id":
+                self.subscriptionId = property.value as? String
+            case "type":
+                if let type = OSSubscriptionType(rawValue: property.value as? String ?? "") {
+                    self.type = type
+                }
+            case "token":
+                self.address = property.value as? String
+            case "enabled":
+                if let enabled = property.value as? Bool {
+                    if self.enabled != enabled {
+                        _isDisabled = enabled
+                    }
+                }
+            case "notification_types":
+                if let notificationTypes = property.value as? Int {
+                    self.notificationTypes = notificationTypes
+                }
+            default:
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "Unknown property on subscription model")
+            }
+        }
     }
 }
 

@@ -85,12 +85,17 @@ class OSIdentityModel: OSModel {
         self.set(property: "aliases", newValue: aliasesToSend)
     }
 
-    public override func hydrateModel(_ response: [String: String]) {
+    public override func hydrateModel(_ response: [String: Any]) {
         print("🔥 OSIdentityModel hydrateModel()")
         // TODO: Update Model properties with the response
         for property in response {
-            if property.key != "external_id" && property.key != "onesignal_id" {
-                aliases[property.key] = property.value
+            switch property.key {
+            case "external_id":
+                aliases[OS_EXTERNAL_ID] = property.value as? String
+            case "onesignal_id":
+                aliases[OS_ONESIGNAL_ID] = property.value as? String
+            default:
+                aliases[property.key] = property.value as? String
             }
         }
     }
