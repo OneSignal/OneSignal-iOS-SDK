@@ -91,7 +91,7 @@
 }
 
 -(BOOL)missingAppId {
-    return self.parameters[@"app_id"] == nil || [self.parameters[@"app_id"] length] == 0;
+    return (self.parameters[@"app_id"] == nil || [self.parameters[@"app_id"] length] == 0) && ![self.path containsString:@"apps/"];
 }
 
 -(void)attachBodyToRequest:(NSMutableURLRequest *)request withParameters:(NSDictionary *)parameters {
