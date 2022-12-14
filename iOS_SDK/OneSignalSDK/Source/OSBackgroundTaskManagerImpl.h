@@ -26,7 +26,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
 
 @interface OSBackgroundTaskManagerImpl : NSObject <OSBackgroundTaskManagerDelegate>
 

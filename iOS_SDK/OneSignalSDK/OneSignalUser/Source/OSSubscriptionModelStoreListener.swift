@@ -41,7 +41,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             name: OS_ADD_SUBSCRIPTION_DELTA,
             model: model,
             property: model.type.rawValue, // push, email, sms
-            value: model.address
+            value: model.address ?? ""
         )
     }
 
@@ -53,7 +53,7 @@ class OSSubscriptionModelStoreListener: OSModelStoreListener {
             name: OS_REMOVE_SUBSCRIPTION_DELTA,
             model: model,
             property: model.type.rawValue, // push, email, sms
-            value: model.address
+            value: model.address ?? ""
         )
     }
 

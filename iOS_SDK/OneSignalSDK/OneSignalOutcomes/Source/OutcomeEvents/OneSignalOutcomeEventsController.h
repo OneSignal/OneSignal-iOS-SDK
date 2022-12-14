@@ -48,10 +48,10 @@
                           appId:(NSString * _Nonnull)appId
                      deviceType:(NSNumber * _Nonnull)deviceType;
 
-- (void)sendSessionEndOutcomes:(NSNumber*)timeElapsed
+- (void)sendSessionEndOutcomes:(NSNumber* _Nonnull)timeElapsed
                          appId:(NSString * _Nonnull)appId
             pushSubscriptionId:(NSString * _Nonnull)pushSubscriptionId
                    onesignalId:(NSString * _Nonnull)onesignalId
-               influenceParams:(NSArray<OSFocusInfluenceParam *> *)influenceParams;
+               influenceParams:(NSArray<OSFocusInfluenceParam *> *_Nonnull)influenceParams;
 
 @end

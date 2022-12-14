@@ -27,33 +27,29 @@
 
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 #import <Foundation/Foundation.h>
-#import "OneSignalUserDefaults.h"
-#import "OneSignalCommonDefines.h"
-#import "OSNotification.h"
-#import "OSNotification+Internal.h"
-#import "OSNotificationClasses.h"
-#import "OneSignalLog.h"
-#import "NSURL+OneSignal.h"
-#import "NSString+OneSignal.h"
-#import "NSDateFormatter+OneSignal.h"
-#import "OSRequests.h"
-#import "OneSignalRequest.h"
-#import "OneSignalClient.h"
-#import "OneSignalCoreHelper.h"
-#import "OneSignalTrackFirebaseAnalytics.h"
-#import "OSMacros.h"
-#import "OSJSONHandling.h"
-#import "OSPrivacyConsentController.h"
-#import "OSDeviceUtils.h"
-#import "OSNetworkingUtils.h"
-#import "OSObservable.h"
-#import "OSDialogInstanceManager.h"
-#import "SwizzlingForwarder.h"
-#import "OneSignalSelectorHelpers.h"
-#import "OneSignalConfigManager.h"
-#import "OSRemoteParamController.h"
-
-@interface OneSignalCore : NSObject
-
-@end
+#import <OneSignalCore/OneSignalUserDefaults.h>
+#import <OneSignalCore/OneSignalCommonDefines.h>
+#import <OneSignalCore/OSNotification.h>
+#import <OneSignalCore/OSNotification+Internal.h>
+#import <OneSignalCore/OSNotificationClasses.h>
+#import <OneSignalCore/OneSignalLog.h>
+#import <OneSignalCore/NSURL+OneSignal.h>
+#import <OneSignalCore/NSString+OneSignal.h>
+#import <OneSignalCore/NSDateFormatter+OneSignal.h>
+#import <OneSignalCore/OSRequests.h>
+#import <OneSignalCore/OneSignalRequest.h>
+#import <OneSignalCore/OneSignalClient.h>
+#import <OneSignalCore/OneSignalCoreHelper.h>
+#import <OneSignalCore/OneSignalTrackFirebaseAnalytics.h>
+#import <OneSignalCore/OSMacros.h>
+#import <OneSignalCore/OSJSONHandling.h>
+#import <OneSignalCore/OSPrivacyConsentController.h>
+#import <OneSignalCore/OSDeviceUtils.h>
+#import <OneSignalCore/OSNetworkingUtils.h>
+#import <OneSignalCore/OSObservable.h>
+#import <OneSignalCore/OSDialogInstanceManager.h>
+#import <OneSignalCore/SwizzlingForwarder.h>
+#import <OneSignalCore/OneSignalSelectorHelpers.h>
+#import <OneSignalCore/OneSignalConfigManager.h>
+#import <OneSignalCore/OSRemoteParamController.h>
 

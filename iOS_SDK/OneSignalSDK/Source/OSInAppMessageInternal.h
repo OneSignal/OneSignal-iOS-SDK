@@ -28,8 +28,8 @@
 #import <Foundation/Foundation.h>
 #import "OSInAppMessagingDefines.h"
 #import "OSInAppMessageDisplayStats.h"
-#import "OneSignal.h"
 #import "OSTrigger.h"
+#import "OneSignalInAppMessaging.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
