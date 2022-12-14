@@ -115,9 +115,6 @@ public class OSOperationRepo: NSObject {
         }
         start()
         print("🔥 OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
-        if deltaQueue.isEmpty {
-            return
-        }
 
         var index = 0
         for delta in deltaQueue {

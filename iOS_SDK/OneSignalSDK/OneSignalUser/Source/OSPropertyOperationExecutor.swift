@@ -59,10 +59,6 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if deltaQueue.isEmpty {
-            return
-        }
-
         for delta in deltaQueue {
             guard let model = delta.model as? OSPropertiesModel else {
                 // Log error

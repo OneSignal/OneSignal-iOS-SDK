@@ -59,10 +59,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if deltaQueue.isEmpty {
-            return
-        }
-
         for delta in deltaQueue {
             guard let model = delta.model as? OSSubscriptionModel else {
                 // Log error
@@ -171,6 +167,10 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
     func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription) {
         print("🔥 OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
+        
+        guard request.prepareForExecution() else {
+            return
+        }
         OneSignalClient.shared().execute(request) { result in
 
             // On success, remove request from cache. No model hydration occurs.
