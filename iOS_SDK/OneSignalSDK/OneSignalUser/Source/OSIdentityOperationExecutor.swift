@@ -59,10 +59,6 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if deltaQueue.isEmpty {
-            return
-        }
-
         for delta in deltaQueue {
             guard let model = delta.model as? OSIdentityModel,
                   let aliases = delta.value as? [String: String]
