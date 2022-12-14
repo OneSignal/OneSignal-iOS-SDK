@@ -27,8 +27,9 @@
 
 #import <Foundation/Foundation.h>
 #import "OSInAppMessageLocationPrompt.h"
+#import "OneSignalLocation.h"
 
-@interface OneSignal ()
+@interface OneSignalLocation ()
 
 + (void)promptLocationFallbackToSettings:(BOOL)fallback completionHandler:(void (^)(PromptActionResult result))completionHandler;
 
@@ -46,7 +47,7 @@
 }
 
 - (void)handlePrompt:(void (^)(PromptActionResult result))completionHandler {
-    [OneSignal promptLocationFallbackToSettings:true completionHandler:completionHandler];
+    [OneSignalLocation promptLocationFallbackToSettings:true completionHandler:completionHandler];
 }
 
 - (NSString *)description {

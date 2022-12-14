@@ -31,7 +31,7 @@
 #ifndef OneSignalInternal_h
 #define OneSignalInternal_h
 
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OSObservable.h"
 #import "OneSignalNotificationSettings.h"
 

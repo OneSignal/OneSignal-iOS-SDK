@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 
 #ifndef OSPendingCallbacks_h
 #define OSPendingCallbacks_h

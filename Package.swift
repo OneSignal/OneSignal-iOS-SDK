@@ -4,25 +4,50 @@
 import PackageDescription
 
 let package = Package(
-    name: "OneSignal",
+    name: "OneSignalFramework",
     products: [
         .library(
-            name: "OneSignal",
-            targets: ["OneSignalWrapper"]),
+            name: "OneSignalFramework",
+            targets: ["OneSignalFrameworkWrapper"]),
         .library(
             name: "OneSignalExtension",
             targets: ["OneSignalExtensionWrapper"])
     ],
     targets: [
         .target(
-            name: "OneSignalWrapper",
+            name: "OneSignalFrameworkWrapper",
             dependencies: [
-                "OneSignal",
+                "OneSignalFramework",
+                "OneSignalUser",
+                "OneSignalNotifications",
+                "OneSignalExtension",
+                "OneSignalOutcomes",
+                "OneSignalOSCore",
+                "OneSignalCore"
+            ],
+            path: "OneSignalFrameworkWrapper"
+        ),
+        .target(
+            name: "OneSignalUserWrapper",
+            dependencies: [
+                "OneSignalUser",
+                "OneSignalNotifications",
+                "OneSignalExtension",
+                "OneSignalOutcomes",
+                "OneSignalOSCore",
+                "OneSignalCore"
+            ],
+            path: "OneSignalUserWrapper"
+        ),
+        .target(
+            name: "OneSignalNotificationsWrapper",
+            dependencies: [
+                "OneSignalNotifications",
                 "OneSignalExtension",
                 "OneSignalOutcomes",
                 "OneSignalCore"
             ],
-            path: "OneSignalWrapper"
+            path: "OneSignalNotificationsWrapper"
         ),
         .target(
             name: "OneSignalExtensionWrapper",
@@ -41,10 +66,28 @@ let package = Package(
             ],
             path: "OneSignalOutcomesWrapper"
         ),
+        .target(
+            name: "OneSignalOSCoreWrapper",
+            dependencies: [
+                "OneSignalOSCore",
+                "OneSignalCore"
+            ],
+            path: "OneSignalOSCoreWrapper"
+        ),
         .binaryTarget(
-          name: "OneSignal",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.12.7/OneSignal.xcframework.zip",
-          checksum: "26848c739578c43bd401898d0f913eb451856a57549a445ecbe688f1a0426548"
+          name: "OneSignalFramework",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalFramework.xcframework.zip",
+          checksum: "e9cf7ebef15ab8757e6e9c95d359998f018f4de381944f4cc62bc4c25d1cdb9d"
+        ),
+        .binaryTarget(
+          name: "OneSignalUser",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalUser.xcframework.zip",
+          checksum: "6378ad0fdba2e485274b87b192d0c6419f37e92bd33d9a2f7993b9c5e137b94f"
+        ),
+        .binaryTarget(
+          name: "OneSignalNotifications",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalNotifications.xcframework.zip",
+          checksum: "6378ad0fdba2e485274b87b192d0c6419f37e92bd33d9a2f7993b9c5e137b94f"
         ),
         .binaryTarget(
           name: "OneSignalExtension",
@@ -57,9 +100,14 @@ let package = Package(
           checksum: "f79b274f3c4e8372fbaad1a7c37bdfb1b0feb71721649900e35ab6c391718082"
         ),
         .binaryTarget(
+          name: "OneSignalOSCore",
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalOSCore.xcframework.zip",
+          checksum: "6378ad0fdba2e485274b87b192d0c6419f37e92bd33d9a2f7993b9c5e137b94f"
+        ),
+        .binaryTarget(
           name: "OneSignalCore",
-          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.12.7/OneSignalCore.xcframework.zip",
-          checksum: "1f51ffa939a5bb58b05f9a83be18e20a6d692182822a5a559396f0c567f8bde0"
+          url: "https://github.com/OneSignal/OneSignal-iOS-SDK/releases/download/3.11.2/OneSignalCore.xcframework.zip",
+          checksum: "6378ad0fdba2e485274b87b192d0c6419f37e92bd33d9a2f7993b9c5e137b94f"
         )
     ]
 )

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <OneSignal/OneSignal.h>
+#import <OneSignalFramework/OneSignalFramework.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSSubscriptionObserver>
 

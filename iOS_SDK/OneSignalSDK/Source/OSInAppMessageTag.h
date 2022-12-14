@@ -26,7 +26,8 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
+#import "OneSignalInAppMessaging.h"
 
 @interface OSInAppMessageTag () <OSJSONEncodable, OSJSONDecodable>
 
