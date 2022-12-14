@@ -13,7 +13,8 @@
 + (instancetype _Nonnull)withSubscriptionId:(NSString * _Nonnull)subscriptionId {
     let request = [OSRequestGetInAppMessages new];
     request.method = GET;
-    request.path = [NSString stringWithFormat:@"subscriptions/%@/iams", subscriptionId];
+    NSString *appId = [OneSignalConfigManager getAppId];
+    request.path = [NSString stringWithFormat:@"apps/%@/subscriptions/%@/iams", appId, subscriptionId];
     return request;
 }
 @end
