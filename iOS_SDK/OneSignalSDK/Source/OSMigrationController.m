@@ -28,7 +28,7 @@ THE SOFTWARE.
 #import <Foundation/Foundation.h>
 #import "OSMigrationController.h"
 #import <OneSignalOutcomes/OneSignalOutcomes.h>
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OSInAppMessagingDefines.h"
 #import "OneSignalHelper.h"
 #import "OSInAppMessageInternal.h"

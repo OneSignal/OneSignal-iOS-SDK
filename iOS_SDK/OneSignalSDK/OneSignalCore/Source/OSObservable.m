@@ -88,7 +88,7 @@ SEL changeSelector;
 
 - (void)callObserver:(id)observer withSelector:(SEL)selector withState:(id)state {
     [OneSignalCoreHelper dispatch_async_on_main_queue:^{
-        [observer performSelector:changeSelector withObject:state];
+        [observer performSelector:self->changeSelector withObject:state];
     }];
 }
 

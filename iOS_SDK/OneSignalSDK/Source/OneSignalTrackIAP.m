@@ -28,8 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import "OneSignalTrackIAP.h"
-#import "OneSignal.h"
-
+#import <OneSignalUser/OneSignalUser-Swift.h>
 @implementation OneSignalTrackIAP
 
 static Class skPaymentQueue;

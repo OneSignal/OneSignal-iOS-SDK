@@ -19,7 +19,7 @@ OneSignalWebView *_webVC;
     return _webVC;
 }
 
-+ (void)displayWebView:(NSURL *)url {
++ (void)displayWebView:(NSURL *_Nonnull)url {
     [self webVC].url = url;
     [[self webVC] showInApp];
 }

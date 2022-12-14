@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
+#import "OneSignalFramework.h"
 #import "OneSignalInternal.h"
 #import "OneSignalTracker.h"
 #import "OneSignalTrackIAP.h"
@@ -96,17 +96,12 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 static NSString* mSDKType = @"native";
 
-static BOOL shouldDelaySubscriptionUpdate = false;
-
 static NSMutableArray* pendingSendTagCallbacks;
 static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
-
-// Under Capabilities is "Background Modes" > "Remote notifications" enabled.
-static BOOL backgroundModesEnabled = false;
 
 // Indicates if initialization of the SDK has been delayed until the user gives privacy consent
 static BOOL delayedInitializationForPrivacyConsent = false;
@@ -230,7 +225,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
 
-    [OneSignalOutcomes clearStatics];
+    [OSOutcomes clearStatics];
     
     [OSSessionManager resetSharedSessionManager];
 }
@@ -271,7 +266,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (Class<OSSession>)Session {
-    return [OneSignalOutcomes Session];
+    return [OSOutcomes Session];
 }
 
 + (Class<OSInAppMessages>)InAppMessages {
@@ -421,7 +416,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
 
-    [OneSignalOutcomes.sharedController clearOutcomes];
+    [OSOutcomes.sharedController clearOutcomes];
 
     [[OSSessionManager sharedSessionManager] restartSessionIfNeeded:_appEntryState];
     
@@ -478,8 +473,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 }
 
 + (void)startOutcomes {
-    [OneSignalOutcomes start];
-    [OneSignalOutcomes.sharedController cleanUniqueOutcomeNotifications]; // TODO: should this actually be in new session instead of init
+    [OSOutcomes start];
+    [OSOutcomes.sharedController cleanUniqueOutcomeNotifications]; // TODO: should this actually be in new session instead of init
 }
 
 + (void)startLocation {
@@ -748,17 +743,17 @@ static AppEntryAction _appEntryState = APP_CLOSE;
  */
 
 + (void)sendClickActionOutcomes:(NSArray<OSInAppMessageOutcome *> *)outcomes {
-    if (![OneSignalOutcomes sharedController]) {
+    if (![OSOutcomes sharedController]) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return;
     }
 
-    [OneSignalOutcomes.sharedController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+    [OSOutcomes.sharedController sendClickActionOutcomes:outcomes appId:appId deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 // Returns if we can send this, meaning we have a subscription_id and onesignal_id
 + (BOOL)sendSessionEndOutcomes:(NSNumber*)totalTimeActive params:(OSFocusCallParams *)params {
-    if (![OneSignalOutcomes sharedController]) {
+    if (![OSOutcomes sharedController]) {
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
         return false;
     }
@@ -770,7 +765,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return false;
     }
     
-    [OneSignalOutcomes.sharedController sendSessionEndOutcomes:totalTimeActive
+    [OSOutcomes.sharedController sendSessionEndOutcomes:totalTimeActive
                                                          appId:appId
                                             pushSubscriptionId:pushSubscriptionId
                                                    onesignalId:onesignalId
@@ -788,8 +783,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 @implementation OneSignal (SessionStatusDelegate)
 
 + (void)onSessionEnding:(NSArray<OSInfluence *> *)lastInfluences {
-    if ([OneSignalOutcomes sharedController])
-        [OneSignalOutcomes.sharedController clearOutcomes];
+    if ([OSOutcomes sharedController])
+        [OSOutcomes.sharedController clearOutcomes];
 
     [OneSignalTracker onSessionEnded:lastInfluences];
 }

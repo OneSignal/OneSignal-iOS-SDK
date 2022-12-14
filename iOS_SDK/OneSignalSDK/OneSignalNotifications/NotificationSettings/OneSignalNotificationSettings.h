@@ -29,7 +29,7 @@
 #define OneSignalNotificationSettings_h
 
 #import <Foundation/Foundation.h>
-#import "OSPermission.h"
+#import <OneSignalNotifications/OSPermission.h>
 
 typedef void(^OSUserResponseBlock)(BOOL accepted);
 

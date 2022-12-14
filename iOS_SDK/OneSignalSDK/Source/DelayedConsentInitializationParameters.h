@@ -26,7 +26,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "OneSignal.h"
 
 @interface DelayedConsentInitializationParameters : NSObject
 

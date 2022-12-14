@@ -26,6 +26,9 @@
  */
 
 #import "OSBackgroundTaskManagerImpl.h"
+#import <OneSignalOSCore/OneSignalOSCore-Swift.h>
+#import <OneSignalCore/OneSignalCore.h>
+#import <UIKit/UIKit.h>
 
 @implementation OSBackgroundTaskManagerImpl
 

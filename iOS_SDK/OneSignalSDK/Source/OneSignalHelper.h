@@ -25,7 +25,6 @@
  * THE SOFTWARE.
  */
 
-#import "OneSignal.h"
 #import "OneSignalInternal.h"
 #import <OneSignalNotifications/OneSignalNotifications.h>
 

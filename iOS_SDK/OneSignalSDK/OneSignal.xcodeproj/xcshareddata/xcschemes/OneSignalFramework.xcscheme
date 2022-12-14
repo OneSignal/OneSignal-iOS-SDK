@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
-               BuildableName = "OneSignal.framework"
+               BuildableName = "OneSignalFramework.framework"
                BlueprintName = "OneSignalFramework"
                ReferencedContainer = "container:OneSignal.xcodeproj">
             </BuildableReference>
@@ -44,7 +44,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
-            BuildableName = "OneSignal.framework"
+            BuildableName = "OneSignalFramework.framework"
             BlueprintName = "OneSignalFramework"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>
@@ -60,7 +60,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "3E2400371D4FFC31008BDE70"
-            BuildableName = "OneSignal.framework"
+            BuildableName = "OneSignalFramework.framework"
             BlueprintName = "OneSignalFramework"
             ReferencedContainer = "container:OneSignal.xcodeproj">
          </BuildableReference>

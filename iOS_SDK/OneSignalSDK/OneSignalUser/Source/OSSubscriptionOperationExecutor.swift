@@ -135,7 +135,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
         print("🔥 OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            print("🔥 OSSubscriptionOperationExecutor executed request SUCCESS block: \(result)")
 
             // Mock a response
             let response = ["id": UUID().uuidString, "type": "SMS", "enabled": "true"]
@@ -147,7 +146,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             request.subscriptionModel.hydrate(response)
 
         } onFailure: { error in
-            print("🔥 OSSubscriptionOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
     }
@@ -160,7 +158,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         // This request can be executed as-is.
         print("🔥 OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            print("🔥 OSSubscriptionOperationExecutor executed request SUCCESS block: \(result)")
 
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
@@ -168,7 +165,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
 
         } onFailure: { error in
-            print("🔥 OSSubscriptionOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
     }
@@ -176,7 +172,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription) {
         print("🔥 OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            print("🔥 OSSubscriptionOperationExecutor executed request SUCCESS block: \(result)")
 
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
@@ -184,7 +179,6 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
 
         } onFailure: { error in
-            print("🔥 OSSubscriptionOperationExecutor executed request ERROR block: \(error)")
             // On failure, retry logic, but order of operations matters
         }
     }

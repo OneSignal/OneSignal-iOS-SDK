@@ -28,7 +28,7 @@
 #ifndef OSInAppMessagingPrompt_h
 #define OSInAppMessagingPrompt_h
 
-#import "OneSignal.h"
+#import <OneSignalCore/OneSignalCore.h>
 #import "OneSignalCommonDefines.h"
 
 #import <Foundation/Foundation.h>
