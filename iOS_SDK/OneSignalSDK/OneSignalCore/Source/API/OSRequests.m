@@ -367,6 +367,40 @@ NSString * const OS_USAGE_DATA = @"OS-Usage-Data";
     request.additionalHeaders = headers;
     return request;
 }
+
+@implementation OSRequestLiveActivityEnter
++ (instancetype)withUserId:(NSString * _Nonnull)userId
+                     appId:(NSString * _Nonnull)appId
+                activityId:(NSString * _Nonnull)activityId
+                     token:(NSString * _Nonnull)token {
+    let request = [OSRequestLiveActivityEnter new];
+    let params = [NSMutableDictionary new];
+    params[@"push_token"] = token;
+    params[@"subscription_id"] = userId; // pre-5.X.X subscription_id = player_id = userId
+    params[@"device_type"] = @0;
+    request.parameters = params;
+    request.method = POST;
+    
+    NSString *urlSafeActivityId = [activityId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLUserAllowedCharacterSet]];
+    
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token", appId, urlSafeActivityId];
+    return request;
+}
+@end
+
+@implementation OSRequestLiveActivityExit
++ (instancetype)withUserId:(NSString * _Nonnull)userId
+                     appId:(NSString * _Nonnull)appId
+                activityId:(NSString * _Nonnull)activityId {
+    let request = [OSRequestLiveActivityExit new];
+    request.method = DELETE;
+    
+    NSString *urlSafeActivityId = [activityId stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLUserAllowedCharacterSet]];
+    
+    request.path = [NSString stringWithFormat:@"apps/%@/live_activities/%@/token/%@", appId, urlSafeActivityId, userId];
+    
+    return request;
+}
 @end
 
 @implementation OSRequestLiveActivityEnter
