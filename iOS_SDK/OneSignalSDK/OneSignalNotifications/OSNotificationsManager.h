@@ -67,11 +67,9 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
 @property (class, weak, nonatomic, nullable) id<OneSignalNotificationsDelegate> delegate;
 
 + (Class<OSNotifications> _Nonnull)Notifications;
-
++ (void)start;
 + (void)setColdStartFromTapOnNotification:(BOOL)coldStartFromTapOnNotification;
 + (BOOL)getColdStartFromTapOnNotification;
-+ (void)setAppId:(NSString *_Nullable)appId;
-+ (NSString *_Nullable)getAppId;
 
 @property (class, readonly) OSPermissionStateInternal* _Nonnull currentPermissionState;
 @property (class) OSPermissionStateInternal* _Nonnull lastPermissionState;

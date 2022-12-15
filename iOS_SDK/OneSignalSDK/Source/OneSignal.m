@@ -844,23 +844,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
 
-    // Swizzle - UIApplication delegate
-    //TODO: do the equivalent in the notificaitons module
-    injectSelector(
-        [UIApplication class],
-        @selector(setDelegate:),
-        [OneSignalAppDelegate class],
-        @selector(setOneSignalDelegate:)
-   );
-    //TODO: This swizzling is done from notifications module
-    injectSelector(
-        [UIApplication class],
-        @selector(setApplicationIconBadgeNumber:),
-        [OneSignalAppDelegate class],
-        @selector(onesignalSetApplicationIconBadgeNumber:)
-    );
-    //TODO: Do this in the notifications module
-    [self setupUNUserNotificationCenterDelegate];
+    [OSNotificationsManager start];
+
     [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
     
@@ -875,14 +860,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalExtensionBadgeHandler updateCachedBadgeValue:badge];
     
     [self onesignalSetApplicationIconBadgeNumber:badge];
-}
-
-+(void)setupUNUserNotificationCenterDelegate {
-    // Swizzle - UNUserNotificationCenter delegate - iOS 10+
-    if (!NSClassFromString(@"UNUserNotificationCenter"))
-        return;
-
-    //[OneSignalUNUserNotificationCenter setup]; TODO: do this is notifications
 }
 
 +(BOOL) shouldDisableBasedOnProcessArguments {
