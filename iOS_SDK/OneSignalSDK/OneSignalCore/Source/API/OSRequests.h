@@ -115,5 +115,18 @@ NS_ASSUME_NONNULL_END
 + (instancetype _Nonnull)trackUsageData:(NSString * _Nonnull)osUsageData
                                      appId:(NSString * _Nonnull)appId;
 @end
+
+@interface OSRequestLiveActivityEnter: OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                         activityId:(NSString * _Nonnull)activityId
+                              token:(NSString * _Nonnull)token;
+@end
+
+@interface OSRequestLiveActivityExit: OneSignalRequest
++ (instancetype _Nonnull)withUserId:(NSString * _Nonnull)userId
+                              appId:(NSString * _Nonnull)appId
+                         activityId:(NSString * _Nonnull)activityId;
+@end
 #endif /* Requests_h */
 
