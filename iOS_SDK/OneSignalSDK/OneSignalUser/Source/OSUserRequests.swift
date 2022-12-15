@@ -61,12 +61,12 @@ class OSUserExecutor {
         }
     }
     
-    static func parseCreateUserResponse(response: [AnyHashable:Any], request: OSRequestCreateUser) {
+    static func parseFetchUserResponse(response: [AnyHashable:Any], identityModel: OSIdentityModel) {
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
 
-        guard modelInStore?.modelId == request.identityModel.modelId else {
+        guard modelInStore?.modelId == identityModel.modelId else {
             return
         }
         if let identityObject = parseIdentityObjectResponse(response) {
@@ -111,7 +111,7 @@ class OSUserExecutor {
         }
         OneSignalClient.shared().execute(request) { response in
             if let response = response {
-                parseCreateUserResponse(response: response, request: request)
+                parseFetchUserResponse(response: response, identityModel: request.identityModel)
             }
             executePendingRequests()
         } onFailure: { error in
@@ -198,8 +198,10 @@ class OSUserExecutor {
             return
         }
 
-        OneSignalClient.shared().execute(request) { _ in
-            // Hydrate (replace) models
+        OneSignalClient.shared().execute(request) { response in
+            if let response = response {
+                parseFetchUserResponse(response: response, identityModel: request.identityModel)
+            }
         } onFailure: { _ in
             // What?
         }
