@@ -106,15 +106,11 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         }
         print("🔥 OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            // Mock a response
-            let response = ["language": "en"]
 
             // On success, remove request from cache, and hydrate model
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.requestQueue.removeAll(where: { $0 == request})
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
-
-            request.modelToUpdate.hydrate(response)
 
         } onFailure: { error in
             // On failure, retry logic, but order of operations matters

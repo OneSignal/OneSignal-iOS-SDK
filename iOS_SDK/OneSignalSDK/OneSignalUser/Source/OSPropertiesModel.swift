@@ -27,6 +27,7 @@
 
 import Foundation
 import OneSignalOSCore
+import OneSignalCore
 
 struct OSPropertiesDeltas {
     let sessionTime: NSNumber?
@@ -110,6 +111,15 @@ class OSPropertiesModel: OSModel {
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
-        // TODO: Update Model properties with the response
+        for property in response {
+            switch property.key {
+            case "language":
+                self.language = property.value as? String
+            case "tags":
+                self.tags = property.value as? [String : String] ?? [:]
+            default:
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "Not hydrating properties model for property: \(property)")
+            }
+        }
     }
 }
