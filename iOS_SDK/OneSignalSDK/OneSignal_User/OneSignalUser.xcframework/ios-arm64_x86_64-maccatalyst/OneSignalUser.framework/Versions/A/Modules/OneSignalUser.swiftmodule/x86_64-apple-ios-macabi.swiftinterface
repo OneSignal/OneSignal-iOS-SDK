@@ -1,0 +1,114 @@
+// swift-interface-format-version: 1.0
+// swift-compiler-version: Apple Swift version 5.7.1 (swiftlang-5.7.1.135.2 clang-1400.0.29.51)
+// swift-module-flags: -target x86_64-apple-ios13.1-macabi -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name OneSignalUser
+// swift-module-flags-ignorable: -enable-bare-slash-regex
+import Foundation
+import OneSignalCore
+import OneSignalNotifications
+import OneSignalOSCore
+@_exported import OneSignalUser
+import Swift
+import _Concurrency
+import _StringProcessing
+@objc public protocol OSUser {
+  @objc var pushSubscription: OneSignalUser.OSPushSubscription { get }
+  @objc func addAlias(label: Swift.String, id: Swift.String)
+  @objc func addAliases(_ aliases: [Swift.String : Swift.String])
+  @objc func removeAlias(_ label: Swift.String)
+  @objc func removeAliases(_ labels: [Swift.String])
+  @objc func addTag(key: Swift.String, value: Swift.String)
+  @objc func addTags(_ tags: [Swift.String : Swift.String])
+  @objc func removeTag(_ tag: Swift.String)
+  @objc func removeTags(_ tags: [Swift.String])
+  @objc func addEmail(_ email: Swift.String)
+  @objc func removeEmail(_ email: Swift.String) -> Swift.Bool
+  @objc func addSmsNumber(_ number: Swift.String)
+  @objc func removeSmsNumber(_ number: Swift.String) -> Swift.Bool
+  @objc func setLanguage(_ language: Swift.String?)
+  typealias OSJwtCompletionBlock = (_ newJwtToken: Swift.String) -> Swift.Void
+  typealias OSJwtExpiredHandler = (_ externalId: Swift.String, _ completion: (_ newJwtToken: Swift.String) -> Swift.Void) -> Swift.Void
+  @objc func onJwtExpired(expiredHandler: @escaping Self.OSJwtExpiredHandler)
+  @objc func testCreatePushSubscription(subscriptionId: Swift.String, token: Swift.String, enabled: Swift.Bool)
+}
+@objc public protocol OSPushSubscription {
+  @objc var subscriptionId: Swift.String? { get }
+  @objc var token: Swift.String? { get }
+  @objc var enabled: Swift.Bool { get }
+  @objc func enable(_ enable: Swift.Bool) -> Swift.Bool
+  @objc func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver) -> OneSignalUser.OSPushSubscriptionState?
+  @objc func removeObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
+}
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class OneSignalUserManagerImpl : ObjectiveC.NSObject {
+  @objc public static let sharedInstance: OneSignalUser.OneSignalUserManagerImpl
+  @objc public var onesignalId: Swift.String? {
+    @objc get
+  }
+  @objc public var requiresUserAuth: Swift.Bool
+  @objc public func start()
+  @objc public func login(externalId: Swift.String, token: Swift.String?)
+  @objc public func logout()
+  @objc public func getTags() -> [Swift.String : Swift.String]?
+  @objc public func setLocation(latitude: Swift.Float, longitude: Swift.Float)
+  @objc public func sendPurchases(_ purchases: [[Swift.String : Swift.AnyObject]])
+  @objc deinit
+}
+extension OneSignalUser.OneSignalUserManagerImpl {
+  @objc dynamic public func updateSession(sessionCount: Foundation.NSNumber?, sessionTime: Foundation.NSNumber?, refreshDeviceMetadata: Swift.Bool)
+  @objc dynamic public func runBackgroundTasks()
+}
+extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSUser {
+  @objc dynamic public func onJwtExpired(expiredHandler: @escaping OneSignalUser.OneSignalUserManagerImpl.OSJwtExpiredHandler)
+  @objc dynamic public var User: OneSignalUser.OSUser {
+    @objc get
+  }
+  @objc dynamic public var pushSubscription: OneSignalUser.OSPushSubscription {
+    @objc get
+  }
+  @objc dynamic public func addAlias(label: Swift.String, id: Swift.String)
+  @objc dynamic public func addAliases(_ aliases: [Swift.String : Swift.String])
+  @objc dynamic public func removeAlias(_ label: Swift.String)
+  @objc dynamic public func removeAliases(_ labels: [Swift.String])
+  @objc dynamic public func addTag(key: Swift.String, value: Swift.String)
+  @objc dynamic public func addTags(_ tags: [Swift.String : Swift.String])
+  @objc dynamic public func removeTag(_ tag: Swift.String)
+  @objc dynamic public func removeTags(_ tags: [Swift.String])
+  @objc dynamic public func addEmail(_ email: Swift.String)
+  @objc dynamic public func removeEmail(_ email: Swift.String) -> Swift.Bool
+  @objc dynamic public func addSmsNumber(_ number: Swift.String)
+  @objc dynamic public func removeSmsNumber(_ number: Swift.String) -> Swift.Bool
+  @objc dynamic public func setLanguage(_ language: Swift.String?)
+  @objc dynamic public func testCreatePushSubscription(subscriptionId: Swift.String, token: Swift.String, enabled: Swift.Bool)
+}
+extension OneSignalUser.OneSignalUserManagerImpl : OneSignalUser.OSPushSubscription {
+  @objc dynamic public func addObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver) -> OneSignalUser.OSPushSubscriptionState?
+  @objc dynamic public func removeObserver(_ observer: OneSignalUser.OSPushSubscriptionObserver)
+  @objc dynamic public var subscriptionId: Swift.String? {
+    @objc get
+  }
+  @objc dynamic public var token: Swift.String? {
+    @objc get
+  }
+  @objc dynamic public var enabled: Swift.Bool {
+    @objc get
+  }
+  @objc dynamic public func enable(_ enable: Swift.Bool) -> Swift.Bool
+}
+extension OneSignalUser.OneSignalUserManagerImpl : OneSignalNotifications.OneSignalNotificationsDelegate {
+  @objc dynamic public func setNotificationTypes(_ notificationTypes: Swift.Int32)
+  @objc dynamic public func setPushToken(_ pushToken: Swift.String)
+  @objc dynamic public func setAccepted(_ inAccepted: Swift.Bool)
+}
+@objc public protocol OSPushSubscriptionObserver {
+  @objc func onOSPushSubscriptionChanged(stateChanges: OneSignalUser.OSPushSubscriptionStateChanges)
+}
+@_hasMissingDesignatedInitializers @objc public class OSPushSubscriptionState : ObjectiveC.NSObject {
+  @objc final public let subscriptionId: Swift.String?
+  @objc final public let token: Swift.String?
+  @objc final public let enabled: Swift.Bool
+  @objc deinit
+}
+@_hasMissingDesignatedInitializers @objc public class OSPushSubscriptionStateChanges : ObjectiveC.NSObject {
+  @objc final public let to: OneSignalUser.OSPushSubscriptionState
+  @objc final public let from: OneSignalUser.OSPushSubscriptionState
+  @objc deinit
+}
