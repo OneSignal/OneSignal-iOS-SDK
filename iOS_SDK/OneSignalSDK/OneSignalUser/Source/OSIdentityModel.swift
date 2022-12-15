@@ -87,7 +87,6 @@ class OSIdentityModel: OSModel {
 
     public override func hydrateModel(_ response: [String: Any]) {
         print("🔥 OSIdentityModel hydrateModel()")
-        // TODO: Update Model properties with the response
         for property in response {
             switch property.key {
             case "external_id":
