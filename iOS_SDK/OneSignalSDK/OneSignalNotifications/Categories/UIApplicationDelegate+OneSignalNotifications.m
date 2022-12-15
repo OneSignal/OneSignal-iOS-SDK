@@ -113,7 +113,7 @@ static NSMutableSet<Class>* swizzledClasses;
 - (void)oneSignalDidFailRegisterForRemoteNotification:(UIApplication*)app error:(NSError*)err {
     [OneSignalNotificationsAppDelegate traceCall:@"oneSignalDidFailRegisterForRemoteNotification:error:"];
     
-    if ([OSNotificationsManager getAppId])
+    if ([OneSignalConfigManager getAppId])
         [OSNotificationsManager handleDidFailRegisterForRemoteNotification:err];
     
     SwizzlingForwarder *forwarder = [[SwizzlingForwarder alloc]
@@ -147,7 +147,7 @@ static NSMutableSet<Class>* swizzledClasses;
 
     BOOL startedBackgroundJob = false;
     
-    if ([OSNotificationsManager getAppId]) {
+    if ([OneSignalConfigManager getAppId]) {
         let appState = [UIApplication sharedApplication].applicationState;
         let isVisibleNotification = userInfo[@"aps"][@"alert"] != nil;
         

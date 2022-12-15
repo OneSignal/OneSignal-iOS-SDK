@@ -27,6 +27,7 @@
 
 import OneSignalCore
 import OneSignalNotifications
+import OneSignalOSCore
 
 /**
  Involved in the login process and responsible for Identify User and Create User.
@@ -774,7 +775,9 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         // Rename "address" key as "token", if it exists
         var subscriptionParams = subscriptionObject
         subscriptionParams.removeValue(forKey: "address")
+        subscriptionParams.removeValue(forKey: "notificationTypes")
         subscriptionParams["token"] = subscriptionObject["address"]
+        subscriptionParams["notification_types"] = subscriptionObject["notificationTypes"]
 
         self.parameters = ["subscription": subscriptionParams]
         self.method = PATCH

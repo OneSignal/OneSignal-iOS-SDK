@@ -32,6 +32,8 @@
 #import "OSNotification+OneSignal.h"
 #import <OneSignalExtension/OneSignalAttachmentHandler.h>
 #import "OneSignalWebViewManager.h"
+#import "UNUserNotificationCenter+OneSignalNotifications.h"
+#import "UIApplicationDelegate+OneSignalNotifications.h"
 
 @implementation OSNotificationOpenedResult
 @synthesize notification = _notification, action = _action;
@@ -181,6 +183,25 @@ static NSString *_pushToken;
 static NSString *_pushSubscriptionId;
 + (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
     _pushSubscriptionId = pushSubscriptionId;
+}
+
++ (void)start {
+    // Swizzle - UIApplication delegate
+    //TODO: do the equivalent in the notificaitons module
+    injectSelector(
+        [UIApplication class],
+        @selector(setDelegate:),
+        [OneSignalNotificationsAppDelegate class],
+        @selector(setOneSignalDelegate:)
+   );
+    //TODO: This swizzling is done from notifications module
+    injectSelector(
+        [UIApplication class],
+        @selector(setApplicationIconBadgeNumber:),
+        [OneSignalNotificationsAppDelegate class],
+        @selector(onesignalSetApplicationIconBadgeNumber:)
+    );
+    [OneSignalNotificationsUNUserNotificationCenter setup];
 }
 
 + (void)resetLocals {
@@ -354,10 +375,8 @@ static NSString *_pushSubscriptionId;
 
     self.waitingForApnsResponse = false;
 
-    if (!_appId)
-        return;
-
     _pushToken = parsedDeviceToken;
+
     [self sendPushTokenToDelegate];
 }
 
