@@ -485,7 +485,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         self.stringDescription = "OSRequestAddAliases with aliases: \(aliases)"
         super.init()
         self.parameters = ["identity": aliases]
-        self.method = POST
+        self.method = PATCH
         _ = prepareForExecution() // sets the path property
     }
 
