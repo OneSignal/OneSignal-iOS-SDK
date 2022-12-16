@@ -34,7 +34,7 @@
 @end
 
 @interface OSObservable<__covariant ObserverType, __covariant ObjectType> : NSObject
-- (instancetype)initWithChangeSelector:(SEL)selector;
+- (instancetype _Nonnull)initWithChangeSelector:(SEL)selector;
 - (void)addObserver:(ObserverType)observer;
 - (void)removeObserver:(ObserverType)observer;
 - (BOOL)notifyChange:(ObjectType)state;
