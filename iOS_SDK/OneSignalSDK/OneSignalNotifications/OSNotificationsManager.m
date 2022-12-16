@@ -184,7 +184,8 @@ static NSString *_pushSubscriptionId;
 + (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
     _pushSubscriptionId = pushSubscriptionId;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 + (void)start {
     // Swizzle - UIApplication delegate
     //TODO: do the equivalent in the notificaitons module
@@ -203,6 +204,7 @@ static NSString *_pushSubscriptionId;
     );
     [OneSignalNotificationsUNUserNotificationCenter setup];
 }
+#pragma clang diagnostic pop
 
 + (void)resetLocals {
     _lastMessageReceived = nil;
