@@ -238,13 +238,6 @@ typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE, PATCH} HTTP
 // 1 week in seconds
 #define WEEK_IN_SECONDS 604800.0
 
-// Registration delay
-#define REGISTRATION_DELAY_SECONDS 30.0
-
-// How long the SDK will wait for APNS to respond
-// before registering the user anyways
-#define APNS_TIMEOUT 25.0
-
 // The SDK saves a list of category ID's allowing multiple notifications
 // to have their own unique buttons/etc.
 #define SHARED_CATEGORY_LIST @"com.onesignal.shared_registered_categories"
