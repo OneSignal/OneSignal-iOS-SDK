@@ -96,6 +96,7 @@ class OSIdentityModel: OSModel {
             default:
                 aliases[property.key] = property.value as? String
             }
+            self.set(property: "aliases", newValue: aliases)
         }
     }
 }
