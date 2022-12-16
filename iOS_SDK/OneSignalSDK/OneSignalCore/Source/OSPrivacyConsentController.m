@@ -46,8 +46,7 @@ THE SOFTWARE.
         [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:@"Cannot change requiresUserPrivacyConsent() from TRUE to FALSE"];
         return;
     }
-
-    [remoteParamController savePrivacyConsentRequired:required];
+    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT withValue:required];
 }
 
 + (BOOL)requiresUserPrivacyConsent {
