@@ -213,7 +213,6 @@ class OSUserExecutor {
 // MARK: - User Request Classes
 
 protocol OSUserRequest: OneSignalRequest, NSCoding {
-    var stringDescription: String { get }
     func prepareForExecution() -> Bool
 }
 
@@ -227,7 +226,10 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
  */
 class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     let stringDescription: String
-    
+    override var description: String {
+        return stringDescription
+    }
+
     let identityModel: OSIdentityModel
     let pushSubscriptionModel: OSSubscriptionModel
 
@@ -308,6 +310,10 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
  */
 class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let identityModelToIdentify: OSIdentityModel
     let identityModelToUpdate: OSIdentityModel
     let aliasLabel: String
@@ -387,6 +393,10 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
  */
 class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let identityModel: OSIdentityModel
     let aliasLabel: String?
     let aliasId: String?
@@ -451,6 +461,10 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
 
 class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let identityModel: OSIdentityModel
 
     // requires a `onesignal_id` to send this request
@@ -504,6 +518,10 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
 class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let labelToRemove: String
     let identityModel: OSIdentityModel
 
@@ -557,6 +575,10 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
 
 class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let modelToUpdate: OSPropertiesModel
     let identityModel: OSIdentityModel
 
@@ -624,6 +646,10 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
  */
 class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let subscriptionModel: OSSubscriptionModel
     let identityModel: OSIdentityModel
 
@@ -694,6 +720,10 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
  */
 class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let subscriptionModel: OSSubscriptionModel
     let identityModel: OSIdentityModel?
     let aliasLabel: String?
@@ -783,6 +813,10 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
  */
 class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
@@ -848,6 +882,10 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
  */
 class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
     let stringDescription: String
+    override var description: String {
+        return stringDescription
+    }
+
     let subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
