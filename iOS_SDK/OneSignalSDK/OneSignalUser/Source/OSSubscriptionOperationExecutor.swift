@@ -131,10 +131,10 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
         print("🔥 OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-
-            // Mock a response
-            let response = ["id": UUID().uuidString, "type": "SMS", "enabled": "true"]
-
+            guard let response = result?["subscription"] as? [String : Any] else {
+                OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
+                return
+            }
             // On success, remove request from cache, and hydrate model
             // For example, if app restarts and we read in operations between sending this off and getting the response
             self.requestQueue.removeAll(where: { $0 == request})
