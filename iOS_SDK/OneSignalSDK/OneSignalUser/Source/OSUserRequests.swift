@@ -192,6 +192,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     let pushSubscriptionModel: OSSubscriptionModel
 
     func prepareForExecution() -> Bool {
+        self.addJWTHeader(identityModel:identityModel)
         // The pushSub doesn't need to have a token.
         return true
     }
@@ -267,6 +268,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
     // requires a onesignal_id to send this request
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModelToIdentify.onesignalId {
+            self.addJWTHeader(identityModel: identityModelToIdentify)
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
             return true
         } else {
@@ -342,6 +344,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         // If there is an alias, use that
         if let aliasLabelToUse = aliasLabel,
            let aliasIdToUse = aliasId {
+            self.addJWTHeader(identityModel: identityModel)
             self.path = "user/by/\(aliasLabelToUse)/\(aliasIdToUse)"
             return true
         }
@@ -398,6 +401,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
     // requires a `onesignal_id` to send this request
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId {
+            self.addJWTHeader(identityModel: identityModel)
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity"
             return true
         } else {
@@ -447,6 +451,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
 
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId {
+            self.addJWTHeader(identityModel: identityModel)
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/identity/\(labelToRemove)"
             return true
         } else {
@@ -496,6 +501,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId {
+            self.addJWTHeader(identityModel: identityModel)
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
             return true
         } else {
@@ -560,6 +566,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     // Need the onesignal_id of the user
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId {
+            self.addJWTHeader(identityModel: identityModel)
             self.path = "user/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscription"
             return true
         } else {
@@ -636,8 +643,9 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
                 self.parameters?["identity"] = [label: id]
                 return true
             }
-            if let onesignalId = identityModel?.onesignalId {
+            if let identityModel = identityModel, let onesignalId = identityModel.onesignalId {
                 self.parameters?["identity"] = [OS_ONESIGNAL_ID: onesignalId]
+                self.addJWTHeader(identityModel: identityModel)
                 return true
             } else {
                 return false
@@ -805,5 +813,16 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
         _ = prepareForExecution()
+    }
+}
+
+internal extension OneSignalRequest {
+    func addJWTHeader(identityModel: OSIdentityModel) {
+        guard let token = identityModel.jwtBearerToken else {
+            return
+        }
+        var additionalHeaders = self.additionalHeaders ?? [String:String]()
+        additionalHeaders["Authorization"] = "Bearer \(token)"
+        self.additionalHeaders = additionalHeaders
     }
 }
