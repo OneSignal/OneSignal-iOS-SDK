@@ -66,6 +66,10 @@ import OneSignalNotifications
     func removeSmsNumber(_ number: String) -> Bool
     // Language
     func setLanguage(_ language: String?)
+    // JWT Token Expire
+    typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
+    typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
+    func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler)
 
     // TODO: UM This is a temporary function to create a push subscription for testing
     func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
@@ -92,6 +96,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     }
 
     private var hasCalledStart = false
+    
+    private var jwtExpiredHandler: OSJwtExpiredHandler?
 
     var user: OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -224,7 +230,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         prepareForNewUser()
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
-
+        newUser.identityModel.jwtBearerToken = token
         OSUserExecutor.createUser(newUser)
         return self.user
     }
@@ -265,11 +271,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         print("🔥 OneSignalUserManagerImpl private _login(\(externalId ?? "nil")) called")
 
         // If have token, validate token. Account for this being a requirement.
-
         // Logging into an identified user from an anonymous user
         if let externalId = externalId,
            let user = _user,
            user.isAnonymous {
+            user.identityModel.jwtBearerToken = token
             identifyUser(externalId: externalId, currentUser: user)
             return self.user
         }
@@ -386,6 +392,19 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             identityModel: identityModel
         )
     }
+    
+    
+    private func fireJwtExpired() {
+        guard let externalId = user.identityModel.externalId, let jwtExpiredHandler = self.jwtExpiredHandler else {
+            return
+        }
+        jwtExpiredHandler(externalId) { [self] (newToken) -> Void in
+            guard user.identityModel.externalId == externalId else {
+                return
+            }
+            user.identityModel.jwtBearerToken = newToken
+        }
+    }
 }
 
 // MARK: - Sessions
@@ -425,6 +444,10 @@ extension OneSignalUserManagerImpl {
 }
 
 extension OneSignalUserManagerImpl: OSUser {
+    public func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler) {
+        jwtExpiredHandler = expiredHandler
+    }
+    
     public var User: OSUser {
         start()
         return self
