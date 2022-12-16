@@ -75,6 +75,7 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
         pushSubscriptionModel = OSSubscriptionModel(type: .push, address: token, subscriptionId: subscriptionId, accepted: true, isDisabled: false, changeNotifier: OSEventProducer())
         print("🔥 OSUserInternalImpl has set pushSubcription for testing")
         return pushSubscriptionModel
+        
     }
 
     init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel) {

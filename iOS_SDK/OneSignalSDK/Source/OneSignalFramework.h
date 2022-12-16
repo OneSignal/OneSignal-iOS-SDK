@@ -118,6 +118,8 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId;
 + (void)exitLiveActivity:(NSString * _Nonnull)activityId withSuccess:(OSResultSuccessBlock _Nullable)successBlock withFailure:(OSFailureBlock _Nullable)failureBlock;
 
++ (void)executePendingLiveActivityUpdates;
+
 #pragma mark Logging
 + (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;
 

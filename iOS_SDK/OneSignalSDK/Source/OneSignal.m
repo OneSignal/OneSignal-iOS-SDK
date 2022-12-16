@@ -104,6 +104,7 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
        withSuccess:(OSResultSuccessBlock _Nullable)successBlock
        withFailure:(OSFailureBlock _Nullable)failureBlock;
 @end
+
 @implementation OSPendingLiveActivityUpdate
 
 - (id)initWith:(NSString *)activityId
@@ -120,6 +121,18 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 };
 @end
 
+@interface OSSubscriptionObserver: NSObject<OSPushSubscriptionObserver>
+@end
+
+@implementation OSSubscriptionObserver
+
+- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
+    if(stateChanges.to.subscriptionId){
+        [OneSignal executePendingLiveActivityUpdates];
+    }
+}
+@end
+
 @implementation OneSignal
 
 static NSString* mSDKType = @"native";
@@ -129,6 +142,8 @@ static OSResultSuccessBlock pendingGetTagsSuccessBlock;
 static OSFailureBlock pendingGetTagsFailureBlock;
 
 static NSMutableArray* pendingLiveActivityUpdates;
+static OSSubscriptionObserver* _subscriptionObserver;
+
 
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
@@ -173,6 +188,7 @@ static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
         _permissionStateChangesObserver = [[OSObservable alloc] initWithChangeSelector:@selector(onOSPermissionChanged:)];
     return _permissionStateChangesObserver;
 }
+
 
 /*
  Indicates if the iOS params request has started
@@ -413,16 +429,19 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         return;
     }
 
-    
-    if(self.currentSubscriptionState.userId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId token:token]
+    NSString *subscriptionId = [OneSignalUserManagerImpl.sharedInstance addObserver:_subscriptionObserver].subscriptionId;
+    if(subscriptionId) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityEnter withUserId:subscriptionId appId:appId activityId:activityId token:token]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock withResult:result];
         } onFailure:^(NSError *error) {
             [self callFailureBlockOnMainThread:failureBlock withError:error];
         }];
     } else {
+        _subscriptionObserver = [OSSubscriptionObserver new];
+        
         [self addPendingLiveActivityUpdate:activityId withToken:token isEnter:true withSuccess:successBlock withFailure:failureBlock];
+        
     }
 }
 
@@ -443,8 +462,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         }
         return;
     }
-    if(self.currentSubscriptionState.userId) {
-        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:self.currentSubscriptionState.userId appId:appId activityId:activityId]
+    
+    NSString *subscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId;
+    if(subscriptionId) {
+        [OneSignalClient.sharedClient executeRequest:[OSRequestLiveActivityExit withUserId:subscriptionId appId:appId activityId:activityId]
                                            onSuccess:^(NSDictionary *result) {
             [self callSuccessBlockOnMainThread:successBlock withResult:result];
         } onFailure:^(NSError *error) {
@@ -452,6 +473,22 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         }];
     } else {
         [self addPendingLiveActivityUpdate:activityId withToken:nil isEnter:false  withSuccess:successBlock withFailure:failureBlock];
+    }
+}
+
++ (void)callFailureBlockOnMainThread:(OSFailureBlock)failureBlock withError:(NSError *)error {
+    if (failureBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            failureBlock(error);
+        });
+    }
+}
+
++ (void)callSuccessBlockOnMainThread:(OSResultSuccessBlock)successBlock withResult:(NSDictionary *)result{
+    if (successBlock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            successBlock(result);
+        });
     }
 }
 
