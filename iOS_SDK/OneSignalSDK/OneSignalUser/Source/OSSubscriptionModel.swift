@@ -254,13 +254,13 @@ extension OSSubscriptionModel {
 
     // Calculates if the device is currently able to receive a push notification.
     func calculateIsSubscribed(subscriptionId: String?, address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
-        return (self.subscriptionId != nil) && (self.address != nil) && _accepted && _isDisabled
+        return (self.subscriptionId != nil) && (self.address != nil) && _accepted && !_isDisabled
     }
 
     // Calculates if push notifications are enabled on the device.
     // Does not consider the existence of the subscription_id, as we send this in the request to create a push subscription.
     func calculateIsEnabled(address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
-        return (self.address != nil) && _accepted && _isDisabled
+        return (self.address != nil) && _accepted && !_isDisabled
     }
 
     func updateNotificationTypes() {
