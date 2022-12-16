@@ -94,6 +94,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public var onesignalId: String? {
         return _user?.identityModel.onesignalId
     }
+    
+    @objc public var pushSubscriptionId: String? {
+        return _user?.pushSubscriptionModel.subscriptionId
+    }
 
     private var hasCalledStart = false
     
@@ -180,8 +184,6 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
            let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
-
-            // TODO: Pull user data here in init or on every new session?
         }
 
         // Creates an anonymous user if there isn't one in the cache
