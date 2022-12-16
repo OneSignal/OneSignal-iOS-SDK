@@ -85,7 +85,7 @@
     BOOL last = self.hasPrompted;
     _hasPrompted = inHasPrompted;
     if (last != self.hasPrompted)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (BOOL)hasPrompted {
@@ -104,7 +104,7 @@
     _provisional = provisional;
     
     if (previous != _provisional)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (BOOL)isProvisional {
@@ -115,7 +115,7 @@
     BOOL last = self.answeredPrompt;
     _answeredPrompt = inansweredPrompt;
     if (last != self.answeredPrompt)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (BOOL)answeredPrompt {
@@ -129,14 +129,14 @@
     BOOL changed = _accepted != accepted;
     _accepted = accepted;
     if (changed)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (void)setEphemeral:(BOOL)ephemeral {
     BOOL changed = _ephemeral != ephemeral;
     _ephemeral = ephemeral;
     if (changed)
-        [self.observable notifyChange:self];
+        [self.observable notifyChange:(OSPermissionState*)self];
 }
 
 - (void)setProvidesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
