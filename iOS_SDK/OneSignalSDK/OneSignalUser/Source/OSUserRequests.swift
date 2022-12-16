@@ -66,13 +66,7 @@ class OSUserExecutor {
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
-
-        guard modelInStore?.modelId == identityModel.modelId else {
-            return
-        }
-        if let identityObject = parseIdentityObjectResponse(response) {
-            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
-        }
+        // Always hydrate the subscription id since it is transferred between users
         if let subscriptionObject = parseSubscriptionObjectResponse(response) {
             for subModel in subscriptionObject {
                 if let subType = subModel["type"] as? String {
@@ -85,6 +79,13 @@ class OSUserExecutor {
                 }
             }
         }
+        guard modelInStore?.modelId == identityModel.modelId else {
+            return
+        }
+        if let identityObject = parseIdentityObjectResponse(response) {
+            OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
+        }
+        
         if let propertiesObject = parsePropertiesObjectResponse(response) {
             OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
         }
