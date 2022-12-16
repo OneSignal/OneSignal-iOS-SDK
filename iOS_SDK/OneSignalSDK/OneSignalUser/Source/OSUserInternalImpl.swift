@@ -62,8 +62,6 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
         return identityModel.externalId == nil
     }
 
-    var triggers: [String: String] = [:] // TODO: update to include bool, number...
-
     var identityModel: OSIdentityModel
     var propertiesModel: OSPropertiesModel
     var pushSubscriptionModel: OSSubscriptionModel
