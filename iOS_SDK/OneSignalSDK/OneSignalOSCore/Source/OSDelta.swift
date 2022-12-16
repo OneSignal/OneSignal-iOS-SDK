@@ -27,6 +27,9 @@
 
 import Foundation
 
+// TODO: Known Issue: Since these don't carry the app_id, it may have changed by the time Deltas become Requests, if app_id changes.
+// All requests requiring unique ID's will effectively be dropped.
+
 open class OSDelta: NSObject, NSCoding {
     public let name: String
     public let deltaId: String
