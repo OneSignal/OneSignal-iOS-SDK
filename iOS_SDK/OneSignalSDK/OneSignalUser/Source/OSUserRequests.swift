@@ -657,7 +657,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
             self.addJWTHeader(identityModel: identityModel)
-            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscription"
+            self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)/subscriptions"
             return true
         } else {
             self.path = "" // self.path is non-nil, so set to empty string
