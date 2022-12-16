@@ -427,7 +427,7 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Page Impression Request page id: %@",pageId]];
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessagePageViewed withAppId:OneSignal.appId
-                                                       withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                       withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                       withMessageId:message.messageId
                                                          withPageId:pageId
                                                        forVariantId:message.variantId];
@@ -467,7 +467,7 @@ static BOOL _isInAppMessagingPaused = false;
     
     // Create the request and attach a payload to it
     let metricsRequest = [OSRequestInAppMessageViewed withAppId:OneSignal.appId
-                                                   withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                   withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                   withMessageId:message.messageId
                                                    forVariantId:message.variantId];
     
@@ -572,7 +572,7 @@ static BOOL _isInAppMessagingPaused = false;
     return ![self.seenInAppMessages containsObject:message.messageId] &&
            [self.triggerController messageMatchesTriggers:message] &&
            ![message isFinished] &&
-           OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId != nil;
+           OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId != nil;
     return true;
 }
 
@@ -853,7 +853,7 @@ static BOOL _isInAppMessagingPaused = false;
     [message addClickId:clickId];
     
     let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.appId
-                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscription.subscriptionId
+                                                    withPlayerId:OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId
                                                    withMessageId:message.messageId
                                                     forVariantId:message.variantId
                                                       withAction:action];
@@ -968,15 +968,15 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSPushSubscriptionObserver Methods
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
-    if (stateChanges.to.subscriptionId == nil) {
+    if (stateChanges.to.id == nil) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
         return;
     }
     // Pull new IAMs when the subscription id changes to a new valid subscription id
-    if (stateChanges.from.subscriptionId != nil &&
-        [stateChanges.to.subscriptionId isEqualToString:stateChanges.from.subscriptionId]) {
+    if (stateChanges.from.id != nil &&
+        [stateChanges.to.id isEqualToString:stateChanges.from.id]) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
-        [self getInAppMessagesFromServer:stateChanges.to.subscriptionId];
+        [self getInAppMessagesFromServer:stateChanges.to.id];
     }
 }
 

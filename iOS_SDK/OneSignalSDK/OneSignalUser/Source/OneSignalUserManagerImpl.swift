@@ -79,10 +79,12 @@ import OneSignalNotifications
  This is the push subscription interface exposed to the public.
  */
 @objc public protocol OSPushSubscription {
-    var subscriptionId: String? { get }
+    var id: String? { get }
     var token: String? { get }
-    var enabled: Bool { get }
-    func enable(_ enable: Bool) -> Bool
+    var optedIn: Bool { get }
+
+    func optIn()
+    func optOut()
     func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState?
     func removeObserver(_ observer: OSPushSubscriptionObserver)
 }
@@ -617,7 +619,7 @@ extension OneSignalUserManagerImpl: OSUser {
 extension OneSignalUserManagerImpl: OSPushSubscription {
 
     public func addObserver(_ observer: OSPushSubscriptionObserver) -> OSPushSubscriptionState? {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "addObserver") else {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.addObserver") else {
             return nil
         }
         self.pushSubscriptionStateChangesObserver.addObserver(observer)
@@ -628,43 +630,43 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         self.pushSubscriptionStateChangesObserver.removeObserver(observer)
     }
 
-    public var subscriptionId: String? {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "subscriptionId") else {
+    public var id: String? {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.id") else {
             return nil
         }
         return user.pushSubscriptionModel.subscriptionId
     }
 
     public var token: String? {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "token") else {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.token") else {
             return nil
         }
         return user.pushSubscriptionModel.address
     }
-
-    /**
-     Get the `enabled` state.
-     */
-    public var enabled: Bool {
-        get {
-            guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "enabled") else {
-                return false
-            }
-            return user.pushSubscriptionModel.enabled
+    
+    public var optedIn: Bool {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optedIn") else {
+            return false
         }
+        return user.pushSubscriptionModel.optedIn
     }
 
     /**
-     Set the `enabled` state. After being set, we return whether this was successful, as one can attempt to set `enabled` to `true` but push is not actually enabled on the device. This can be due to system level permissions or missing push token, etc.
-     
-     - Returns: A boolean indicating if this method was successful.
+     Enable the push subscription, and prompts if needed. `optedIn` can still be `false` after `optIn()` is called if permission is not granted.
      */
-    public func enable(_ enable: Bool) -> Bool {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "enable") else {
-            return false
+    public func optIn() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optIn") else {
+            return
         }
-        user.pushSubscriptionModel._isDisabled = !enable
-        return user.pushSubscriptionModel.enabled != enable
+        user.pushSubscriptionModel._isDisabled = false
+        OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
+    }
+    
+    public func optOut() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optOut") else {
+            return
+        }
+        user.pushSubscriptionModel._isDisabled = true
     }
 }
 

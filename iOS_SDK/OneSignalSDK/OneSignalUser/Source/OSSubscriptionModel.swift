@@ -38,21 +38,22 @@ import OneSignalNotifications
 
 @objc
 public class OSPushSubscriptionState: NSObject {
-    @objc public let subscriptionId: String?
+    // TODO: Decide if optedIn will be observed
+    @objc public let id: String?
     @objc public let token: String?
     @objc public let enabled: Bool
 
-    init(subscriptionId: String?, token: String?, enabled: Bool) {
-        self.subscriptionId = subscriptionId
+    init(id: String?, token: String?, enabled: Bool) {
+        self.id = id
         self.token = token
         self.enabled = enabled
     }
 
     func toDictionary() -> NSDictionary {
-        let subscriptionId = self.subscriptionId ?? ""
-        let token = self.token ?? ""
+        let id = self.id ?? "nil"
+        let token = self.token ?? "nil"
         return [
-            "subscriptionId": subscriptionId,
+            "id": id,
             "token": token,
             "enabled": enabled
         ]
@@ -132,7 +133,14 @@ class OSSubscriptionModel: OSModel {
             return calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
         }
     }
-
+    
+    var optedIn: Bool {
+        // optedIn = permission + userPreference
+        get {
+            return _accepted && !_isDisabled
+        }
+    }
+    
     // Push Subscription Only
     // Initialize to be -1, so not to deal with unwrapping every time
     var notificationTypes = -1 {
@@ -162,7 +170,7 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    // Set by the app developer when they set User.pushSubscription.enabled
+    // Set by the app developer when they call User.pushSubscription.optOut()
     var _isDisabled: Bool { // Default to false for all subscriptions
         didSet {
             guard self.type == .push && _isDisabled != oldValue else {
@@ -246,7 +254,7 @@ class OSSubscriptionModel: OSModel {
 extension OSSubscriptionModel {
     // Only used for the push subscription model
     var currentPushSubscriptionState: OSPushSubscriptionState {
-        return OSPushSubscriptionState(subscriptionId: self.subscriptionId,
+        return OSPushSubscriptionState(id: self.subscriptionId,
                                        token: self.address,
                                        enabled: self.enabled
         )
@@ -277,28 +285,28 @@ extension OSSubscriptionModel {
     func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
         var prevIsSubscribed = true
         var prevIsEnabled = true
-        var prevSubscriptionState = OSPushSubscriptionState(subscriptionId: "", token: "", enabled: true)
+        var prevSubscriptionState = OSPushSubscriptionState(id: "", token: "", enabled: true)
 
         switch changedProperty {
         case .subscriptionId(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
             prevIsSubscribed = calculateIsSubscribed(subscriptionId: oldValue, address: address, accepted: _accepted, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: oldValue, token: address, enabled: prevIsSubscribed)
+            prevSubscriptionState = OSPushSubscriptionState(id: oldValue, token: address, enabled: prevIsSubscribed)
 
         case .accepted(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: address, accepted: oldValue, isDisabled: _isDisabled)
             prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: oldValue, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsSubscribed)
+            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, enabled: prevIsSubscribed)
 
         case .isDisabled(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: oldValue)
             prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: oldValue)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsSubscribed)
+            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, enabled: prevIsSubscribed)
 
         case .address(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
             prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: oldValue, enabled: prevIsSubscribed)
+            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: oldValue, enabled: prevIsSubscribed)
         }
 
         let newIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
@@ -309,7 +317,7 @@ extension OSSubscriptionModel {
             self.set(property: "enabled", newValue: newIsEnabled)
         }
 
-        let newSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: newIsSubscribed)
+        let newSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, enabled: newIsSubscribed)
 
         let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
 
