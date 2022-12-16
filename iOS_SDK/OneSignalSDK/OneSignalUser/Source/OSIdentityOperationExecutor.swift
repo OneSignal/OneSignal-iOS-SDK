@@ -132,7 +132,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
-            // On failure, retry logic, but order of operations matters
+            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
 
