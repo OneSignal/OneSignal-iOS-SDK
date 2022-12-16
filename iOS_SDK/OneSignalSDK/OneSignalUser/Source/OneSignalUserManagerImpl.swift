@@ -138,8 +138,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let pushSubscriptionStateChangesObserver = OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges>(change: #selector(OSPushSubscriptionObserver.onOSPushSubscriptionChanged(stateChanges:)))
         _pushSubscriptionStateChangesObserver = pushSubscriptionStateChangesObserver
 
-        // TODO: What's going on, fix this.
-        return pushSubscriptionStateChangesObserver ?? OSObservable<OSPushSubscriptionObserver, OSPushSubscriptionStateChanges>(change: #selector(OSPushSubscriptionObserver.onOSPushSubscriptionChanged(stateChanges:)))
+        return pushSubscriptionStateChangesObserver
     }
 
     // has Identity, Properties, and Subscription Model Stores
