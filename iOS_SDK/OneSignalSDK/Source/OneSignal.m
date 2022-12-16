@@ -120,10 +120,8 @@ static NSDictionary* appSettings;
 // Called after successfully calling setAppId and setLaunchOptions
 static BOOL initDone = false;
 
-//used to ensure registration occurs even if APNS does not respond
-static NSDate *initializationTime;
-static NSTimeInterval maxApnsWait = APNS_TIMEOUT;
-static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
+// Used to track last time SDK was initialized, for whether or not to start a new session
+static NSTimeInterval initializationTime;
 
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
@@ -219,9 +217,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _downloadedParameters = false;
     _didCallDownloadParameters = false;
     
-    maxApnsWait = APNS_TIMEOUT;
-    reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS;
-
     sessionLaunchTime = [NSDate date];
     performedOnSessionRequest = false;
 
@@ -381,17 +376,15 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     NSTimeInterval lastTimeClosed = [OneSignalUserDefaults.initStandard getSavedDoubleForKey:OSUD_APP_LAST_CLOSED_TIME defaultValue:0];
 
-    if (lastTimeClosed == 0) {
-        [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"shouldStartNewSession:lastTimeClosed: default."];
-        return true;
-    }
-
     // Make sure last time we closed app was more than 30 secs ago
     const int minTimeThreshold = 30;
-    NSTimeInterval delta = now - lastTimeClosed;
-    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSincelastClosed: %f", delta]];
+    NSTimeInterval timeSinceLastClosed = now - lastTimeClosed;
+    NSTimeInterval timeSinceInitialization = now - initializationTime;
 
-    return delta >= minTimeThreshold;
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSinceLastClosed: %f", timeSinceLastClosed]];
+    [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"shouldStartNewSession:timeSinceInitialization: %f", timeSinceInitialization]];
+
+    return MIN(timeSinceLastClosed, timeSinceInitialization) >= minTimeThreshold;
 }
 
 + (void)startNewSession:(BOOL)fromInit {
@@ -571,6 +564,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [self startUserManager]; // By here, app_id exists, and consent is granted.
     [self startInAppMessages];
     [self startNewSession:YES];
+    
+    initializationTime = [[NSDate date] timeIntervalSince1970];
     initDone = true;
 }
 
