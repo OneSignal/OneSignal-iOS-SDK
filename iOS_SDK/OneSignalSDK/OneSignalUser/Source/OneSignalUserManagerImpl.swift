@@ -292,6 +292,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _user = nil
         createUserIfNil()
     }
+    
+    @objc
+    public func clearAllModelsFromStores() {
+        prepareForNewUser()
+    }
 
     private func createUserIfNil() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
