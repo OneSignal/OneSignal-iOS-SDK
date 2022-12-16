@@ -132,6 +132,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
+            self.requestQueue.removeAll(where: { $0 == request})
             OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
@@ -151,7 +152,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
-            // On failure, retry logic, but order of operations matters
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
 }

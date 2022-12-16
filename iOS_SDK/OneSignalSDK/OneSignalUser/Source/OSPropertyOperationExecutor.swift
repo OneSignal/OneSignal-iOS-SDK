@@ -113,7 +113,8 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
 
         } onFailure: { error in
-            // On failure, retry logic, but order of operations matters
+            self.requestQueue.removeAll(where: { $0 == request})
+            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
 }
