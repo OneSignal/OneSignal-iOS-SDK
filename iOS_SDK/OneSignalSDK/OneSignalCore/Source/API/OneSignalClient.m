@@ -386,7 +386,7 @@
     if ([self willReattemptRequest:(int)statusCode withRequest:request success:successBlock failure:failureBlock asyncRequest:async])
         return;
     
-    if (error == nil && (statusCode == 200 || statusCode == 202)) {
+    if (error == nil && (statusCode == 200 || statusCode == 201 || statusCode == 202)) {
         if (successBlock != nil) {
             if (innerJson != nil)
                 successBlock(innerJson);
