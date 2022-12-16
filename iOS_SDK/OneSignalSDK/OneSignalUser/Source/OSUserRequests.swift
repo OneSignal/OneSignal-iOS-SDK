@@ -425,7 +425,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
-        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
+        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel ?? "nil") aliasId: \(aliasId ?? "nil")"
         super.init()
         self.method = GET
         _ = prepareForExecution() // sets the path property
@@ -451,7 +451,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
         self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
-        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
+        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel ?? "nil") aliasId: \(aliasId ?? "nil")"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
@@ -597,7 +597,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, modelToUpdate: OSPropertiesModel, identityModel: OSIdentityModel) {
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(deltas) refreshDeviceMetadata: \(refreshDeviceMetadata)"
+        self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing:deltas)) refreshDeviceMetadata: \(String(describing:refreshDeviceMetadata))"
         super.init()
 
         var params: [String: Any] = [:]
@@ -668,7 +668,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address)"
+        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
         super.init()
 
         var subscriptionParams: [String: Any] = [:]
@@ -704,7 +704,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address)"
+        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -902,7 +902,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
     init(subscriptionModel: OSSubscriptionModel) {
         self.subscriptionModel = subscriptionModel
-        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address)"
+        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
         super.init()
         self.method = DELETE
         _ = prepareForExecution() // sets the path property
@@ -924,7 +924,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel =  subscriptionModel
-        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address)"
+        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address ?? "nil")"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
