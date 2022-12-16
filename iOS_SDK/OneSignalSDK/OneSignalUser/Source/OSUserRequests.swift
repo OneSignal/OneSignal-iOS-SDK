@@ -583,7 +583,9 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     let identityModel: OSIdentityModel
 
     func prepareForExecution() -> Bool {
-        if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
+        if let onesignalId = identityModel.onesignalId,
+            let appId = OneSignalConfigManager.getAppId(),
+           addPushSubscriptionIdToAdditionalHeadersIfNeeded() {
             self.addJWTHeader(identityModel: identityModel)
             self.path = "apps/\(appId)/users/by/\(OS_ONESIGNAL_ID)/\(onesignalId)"
             return true
@@ -592,6 +594,23 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
             self.path = ""
             return false
         }
+    }
+    
+    func addPushSubscriptionIdToAdditionalHeadersIfNeeded() -> Bool {
+        guard let parameters = self.parameters else {
+            return true
+        }
+        if parameters["deltas"] != nil {
+            if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
+                var additionalHeaders = self.additionalHeaders ?? [String:String]()
+                additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
+                self.additionalHeaders = additionalHeaders
+                return true
+            } else {
+                return false
+            }
+        }
+        return true
     }
 
     init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, modelToUpdate: OSPropertiesModel, identityModel: OSIdentityModel) {
@@ -602,9 +621,10 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
 
         var params: [String: Any] = [:]
         params["properties"] = properties
-        params["deltas"] = deltas
         params["refresh_device_metadata"] = refreshDeviceMetadata
-
+        if let deltas = deltas {
+            params["deltas"] = deltas
+        }
         self.parameters = params
         self.method = PATCH
         _ = prepareForExecution() // sets the path property
