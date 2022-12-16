@@ -431,7 +431,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal `create/on_session`"];
 
     // TODO: Figure out if Create User also sets session_count automatically on backend
-    [OneSignalUserManagerImpl.sharedInstance updateSessionWithSessionCount:[NSNumber numberWithInt:1] sessionTime:nil refreshDeviceMetadata:true];
+    [OneSignalUserManagerImpl.sharedInstance startNewSession];
     
     // This is almost always going to be nil the first time.
     // The OSMessagingController is an OSPushSubscriptionObserver so that we pull IAMs once we have the sub id

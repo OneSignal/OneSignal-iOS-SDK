@@ -411,6 +411,21 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
 
 extension OneSignalUserManagerImpl {
     @objc
+    public func startNewSession() {
+        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
+            return
+        }
+        start()
+        
+        updateSession(sessionCount: 1, sessionTime: nil, refreshDeviceMetadata: true)
+
+        // Fetch the user's data if there is a onesignal_id
+        if let onesignalId = onesignalId {
+            OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel)
+        }
+    }
+    
+    @objc
     public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return
