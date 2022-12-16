@@ -144,7 +144,7 @@ class OSUserExecutor {
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
         OneSignalClient.shared().execute(request) { _ in
             // the anonymous user has been identified, still need to Fetch User + Transfer Push Sub
-            fetchUserByExternalId(externalId: request.aliasId, identityModel: request.identityModelToUpdate)
+            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
             // TODO: Don't need to transfer push sub, confirm.
             transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
             executePendingRequests() // TODO: Here or after fetch or after transfer?
@@ -152,7 +152,7 @@ class OSUserExecutor {
         } onFailure: { _ in
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             // If 409:
-            fetchUserByExternalId(externalId: request.aliasId, identityModel: request.identityModelToUpdate)
+            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
             // TODO: Link ^ to the new user
             transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
             executePendingRequests() // Here or after fetch or after transfer?
@@ -191,8 +191,8 @@ class OSUserExecutor {
         }
     }
 
-    static func fetchUserByExternalId(externalId: String, identityModel: OSIdentityModel) {
-        let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: OS_EXTERNAL_ID, aliasId: externalId)
+    static func fetchUser(aliasLabel: String, aliasId: String, identityModel: OSIdentityModel) {
+        let request = OSRequestFetchUser(identityModel: identityModel, aliasLabel: aliasLabel, aliasId: aliasId)
 
         guard request.prepareForExecution() else {
             // This should not happen as we set the alias to use for the request path, log error
