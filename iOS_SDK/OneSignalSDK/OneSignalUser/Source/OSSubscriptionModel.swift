@@ -236,7 +236,7 @@ class OSSubscriptionModel: OSModel {
                     self.notificationTypes = notificationTypes
                 }
             default:
-                OneSignalLog.onesignalLog(.LL_ERROR, message: "Unknown property on subscription model")
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "Unused property on subscription model")
             }
         }
     }
