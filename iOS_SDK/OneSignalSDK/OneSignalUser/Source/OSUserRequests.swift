@@ -212,6 +212,7 @@ class OSUserExecutor {
 // MARK: - User Request Classes
 
 protocol OSUserRequest: OneSignalRequest, NSCoding {
+    var stringDescription: String { get }
     func prepareForExecution() -> Bool
 }
 
@@ -224,6 +225,8 @@ protocol OSUserRequest: OneSignalRequest, NSCoding {
  There will be no properties sent.
  */
 class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
+    
     let identityModel: OSIdentityModel
     let pushSubscriptionModel: OSSubscriptionModel
 
@@ -240,6 +243,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
     init(identityModel: OSIdentityModel, pushSubscriptionModel: OSSubscriptionModel) {
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
+        self.stringDescription = "OSRequestCreateUser"
 
         super.init()
 
@@ -284,6 +288,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         }
         self.identityModel = identityModel
         self.pushSubscriptionModel = pushSubscriptionModel
+        self.stringDescription = "OSRequestCreateUser"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -301,6 +306,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
  which is the model used to make a subsequent ``OSRequestFetchUser``).
  */
 class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let identityModelToIdentify: OSIdentityModel
     let identityModelToUpdate: OSIdentityModel
     let aliasLabel: String
@@ -331,6 +337,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.stringDescription = "OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
         self.method = POST
@@ -364,6 +371,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.identityModelToUpdate = identityModelToUpdate
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.stringDescription = "OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.timestamp = timestamp
         self.parameters = parameters
@@ -377,6 +385,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
  The `identityModel` is also used to reference the user that is updated with the response.
  */
 class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let identityModel: OSIdentityModel
     let aliasLabel: String?
     let aliasId: String?
@@ -405,6 +414,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.method = GET
         _ = prepareForExecution() // sets the path property
@@ -430,6 +440,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
         self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
+        self.stringDescription = "OSRequestFetchUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
@@ -438,6 +449,7 @@ class OSRequestFetchUser: OneSignalRequest, OSUserRequest {
 }
 
 class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let identityModel: OSIdentityModel
 
     // requires a `onesignal_id` to send this request
@@ -455,6 +467,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 
     init(aliases: [String: String], identityModel: OSIdentityModel) {
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestAddAliases with aliases: \(aliases)"
         super.init()
         self.parameters = ["identity": aliases]
         self.method = POST
@@ -479,6 +492,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestAddAliases with parameters: \(parameters)"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -488,6 +502,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
 }
 
 class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let labelToRemove: String
     let identityModel: OSIdentityModel
 
@@ -506,6 +521,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     init(labelToRemove: String, identityModel: OSIdentityModel) {
         self.labelToRemove = labelToRemove
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestRemoveAlias with aliasLabel: \(labelToRemove)"
         super.init()
         self.method = DELETE
         _ = prepareForExecution() // sets the path property
@@ -530,6 +546,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
         }
         self.labelToRemove = labelToRemove
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestRemoveAlias with aliasLabel: \(labelToRemove)"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
@@ -538,6 +555,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
 }
 
 class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let modelToUpdate: OSPropertiesModel
     let identityModel: OSIdentityModel
 
@@ -556,6 +574,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, modelToUpdate: OSPropertiesModel, identityModel: OSIdentityModel) {
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(deltas) refreshDeviceMetadata: \(refreshDeviceMetadata)"
         super.init()
 
         var params: [String: Any] = [:]
@@ -589,6 +608,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         }
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestUpdateProperties with parameters: \(parameters)"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -602,6 +622,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
  this request because they will be created with ``OSRequestCreateUser``.
  */
 class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let subscriptionModel: OSSubscriptionModel
     let identityModel: OSIdentityModel
 
@@ -620,6 +641,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
     init(subscriptionModel: OSSubscriptionModel, identityModel: OSIdentityModel) {
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address)"
         super.init()
 
         var subscriptionParams: [String: Any] = [:]
@@ -655,6 +677,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         }
         self.subscriptionModel = subscriptionModel
         self.identityModel = identityModel
+        self.stringDescription = "OSRequestCreateSubscription with subscriptionModel: \(subscriptionModel.address)"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -669,6 +692,7 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
  The anticipated usage of this request is only for push subscriptions.
  */
 class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let subscriptionModel: OSSubscriptionModel
     let identityModel: OSIdentityModel?
     let aliasLabel: String?
@@ -713,6 +737,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
         self.identityModel = identityModel
         self.aliasLabel = aliasLabel
         self.aliasId = aliasId
+        self.stringDescription = "OSRequestTransferSubscription"
         super.init()
         self.parameters = [OS_RETAIN_PREVIOUS_USER: retainPreviousUser ?? true]
         self.method = PATCH
@@ -743,6 +768,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
         self.identityModel = coder.decodeObject(forKey: "identityModel") as? OSIdentityModel
         self.aliasLabel = coder.decodeObject(forKey: "aliasLabel") as? String
         self.aliasId = coder.decodeObject(forKey: "aliasId") as? String
+        self.stringDescription = "OSRequestTransferSubscription"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -755,6 +781,7 @@ class OSRequestTransferSubscription: OneSignalRequest, OSUserRequest {
  Currently, only the Push Subscription will make this Update Request.
  */
 class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
@@ -768,8 +795,10 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         }
     }
 
+    // TODO: just need the sub model and send it
     init(subscriptionObject: [String: Any], subscriptionModel: OSSubscriptionModel) {
         self.subscriptionModel = subscriptionModel
+        self.stringDescription = "OSRequestUpdateSubscription with subscriptionObject: \(subscriptionObject)"
         super.init()
 
         // Rename "address" key as "token", if it exists
@@ -802,6 +831,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel = subscriptionModel
+        self.stringDescription = "OSRequestUpdateSubscription with parameters: \(parameters)"
         super.init()
         self.parameters = parameters
         self.method = HTTPMethod(rawValue: rawMethod)
@@ -816,6 +846,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
  - Remark: If this model did not already exist in the store, no request is created.
  */
 class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
+    let stringDescription: String
     let subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
@@ -832,6 +863,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
     init(subscriptionModel: OSSubscriptionModel) {
         self.subscriptionModel = subscriptionModel
+        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address)"
         super.init()
         self.method = DELETE
         _ = prepareForExecution() // sets the path property
@@ -853,6 +885,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
             return nil
         }
         self.subscriptionModel =  subscriptionModel
+        self.stringDescription = "OSRequestDeleteSubscription with subscriptionModel: \(subscriptionModel.address)"
         super.init()
         self.method = HTTPMethod(rawValue: rawMethod)
         self.timestamp = timestamp
