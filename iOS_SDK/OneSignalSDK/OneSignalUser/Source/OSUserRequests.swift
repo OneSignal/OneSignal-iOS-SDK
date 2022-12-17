@@ -253,15 +253,17 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         var pushSubscriptionObject: [String: Any] = [:]
         pushSubscriptionObject["id"] = pushSubscriptionModel.subscriptionId
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
-        pushSubscriptionObject["token"] = "test"//pushSubscriptionModel.address
-        // ... and more ? ...
+        pushSubscriptionObject["token"] = pushSubscriptionModel.address ?? "test" + String(arc4random())
+        pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
+        pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
 
         var params: [String: Any] = [:]
+        params["identity"] = [:]
         if let externalId = identityModel.externalId {
             params["identity"] = [OS_EXTERNAL_ID: externalId]
         }
         params["subscriptions"] = [pushSubscriptionObject]
-        params["properties"] = nil
+        params["properties"] = [:]
 
         self.parameters = params
         self.method = POST
@@ -860,9 +862,9 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         var subscriptionParams = subscriptionObject
         subscriptionParams.removeValue(forKey: "address")
         subscriptionParams.removeValue(forKey: "notificationTypes")
-        subscriptionParams["token"] = subscriptionObject["address"]
-        subscriptionParams["notification_types"] = subscriptionObject["notificationTypes"]
-
+        subscriptionParams["token"] = subscriptionModel.address ?? ""
+        subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+        subscriptionParams["enabled"] = subscriptionModel.enabled
         self.parameters = ["subscription": subscriptionParams]
         self.method = PATCH
         _ = prepareForExecution() // sets the path property
@@ -954,11 +956,11 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
 
 internal extension OneSignalRequest {
     func addJWTHeader(identityModel: OSIdentityModel) {
-        guard let token = identityModel.jwtBearerToken else {
-            return
-        }
-        var additionalHeaders = self.additionalHeaders ?? [String:String]()
-        additionalHeaders["Authorization"] = "Bearer \(token)"
-        self.additionalHeaders = additionalHeaders
+//        guard let token = identityModel.jwtBearerToken else {
+//            return
+//        }
+//        var additionalHeaders = self.additionalHeaders ?? [String:String]()
+//        additionalHeaders["Authorization"] = "Bearer \(token)"
+//        self.additionalHeaders = additionalHeaders
     }
 }
