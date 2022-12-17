@@ -80,6 +80,7 @@
             [self attachQueryParametersToRequest:request withParameters:self.parameters];
             break;
         case POST:
+        case PATCH:
         case PUT:
             [self attachBodyToRequest:request withParameters:self.parameters];
             break;
