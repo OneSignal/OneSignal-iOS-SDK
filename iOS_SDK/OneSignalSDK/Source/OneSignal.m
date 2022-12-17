@@ -828,7 +828,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [[OSMigrationController new] migrate];
     sessionLaunchTime = [NSDate date];
     
-    [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController new]];
+    [OSDialogInstanceManager setSharedInstance:[OneSignalDialogController sharedInstance]];
 }
 
 /*
