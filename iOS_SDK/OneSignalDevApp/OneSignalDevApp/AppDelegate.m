@@ -120,11 +120,12 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"onOSPermissionChanged: %@", stateChanges);
 }
 
-- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
-    ViewController* mainController = (ViewController*) self.window.rootViewController;
-    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
-}
+// TODO: Add push sub observer
+//- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
+//    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
+//    ViewController* mainController = (ViewController*) self.window.rootViewController;
+//    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
+//}
 
 #pragma mark OSInAppMessageDelegate
 
