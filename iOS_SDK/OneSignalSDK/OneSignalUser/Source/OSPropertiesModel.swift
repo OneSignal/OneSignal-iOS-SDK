@@ -107,7 +107,7 @@ class OSPropertiesModel: OSModel {
             self.tags.removeValue(forKey: tag)
             tagsToSend[tag] = ""
         }
-        self.set(property: "aliases", newValue: tagsToSend)
+        self.set(property: "tags", newValue: tagsToSend)
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
