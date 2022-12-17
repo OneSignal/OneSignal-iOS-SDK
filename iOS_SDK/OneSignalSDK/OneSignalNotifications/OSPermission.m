@@ -241,7 +241,7 @@
 @implementation OSPermissionStateChanges
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionStateChanges:\nfrom: %@,\nto:   %@\n>";
+    static NSString* format = @"<OSPermissionStateChanges:\nfrom: %@,\nto:   %@\n>";
     return [NSString stringWithFormat:format, _from, _to];
 }
 
