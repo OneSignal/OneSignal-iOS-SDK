@@ -96,10 +96,6 @@ NSString* const kOSSettingsKeyInOmitNoAppIdLogging = @"kOSSettingsKeyInOmitNoApp
 
 static NSString* mSDKType = @"native";
 
-static NSMutableArray* pendingSendTagCallbacks;
-static OSResultSuccessBlock pendingGetTagsSuccessBlock;
-static OSFailureBlock pendingGetTagsFailureBlock;
-
 // Has attempted to register for push notifications with Apple since app was installed.
 static BOOL registeredWithApple = NO;
 
@@ -126,13 +122,7 @@ static NSTimeInterval initializationTime;
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
 
-NSString* emailToSet;
 static LanguageContext* languageContext;
-
-BOOL usesAutoPrompt = false;
-
-static BOOL performedOnSessionRequest = false;
-
 
 // static property def to add developer's OSPermissionStateChanges observers to.
 static ObservablePermissionStateChangesType* _permissionStateChangesObserver;
@@ -207,7 +197,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     launchOptions = false;
     appSettings = nil;
     initDone = false;
-    usesAutoPrompt = false;
     
     [OSNotificationsManager clearStatics];
     registeredWithApple = false;
@@ -218,16 +207,13 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     _didCallDownloadParameters = false;
     
     sessionLaunchTime = [NSDate date];
-    performedOnSessionRequest = false;
 
     [OSOutcomes clearStatics];
     
     [OSSessionManager resetSharedSessionManager];
 }
 
-#pragma mark User Model 🔥
-
-#pragma mark User Model - User Identity 🔥
+#pragma mark Namespaces
 
 + (id<OSUser>)User {
     return [OneSignalUserManagerImpl.sharedInstance User];
@@ -255,7 +241,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalUserManagerImpl.sharedInstance logout];
 }
 
-#pragma mark User Model - Notifications namespace 🔥
 + (Class<OSNotifications>)Notifications {
     return [OSNotificationsManager Notifications];
 }
@@ -271,6 +256,8 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 + (Class<OSLocation>)Location {
     return [OneSignalLocation Location];
 }
+
+#pragma mark Initialization
 
 /*
  This is should be set from all OneSignal entry points.
@@ -357,8 +344,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setProvidesNotificationSettingsView: providesView];
     }
 }
-
-#pragma mark Initialization
 
 + (BOOL)shouldStartNewSession {
     // return if the user has not granted privacy permissions
@@ -654,7 +639,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
             OneSignalUserManagerImpl.sharedInstance.requiresUserAuth = [result[IOS_REQUIRES_USER_ID_AUTHENTICATION] boolValue];
         }
 
-        if (!usesAutoPrompt && result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
+        if (result[IOS_USES_PROVISIONAL_AUTHORIZATION] != (id)[NSNull null]) {
             [OneSignalUserDefaults.initStandard saveBoolForKey:OSUD_USES_PROVISIONAL_PUSH_AUTHORIZATION withValue:[result[IOS_USES_PROVISIONAL_AUTHORIZATION] boolValue]];
 
             [OSNotificationsManager checkProvisionalAuthorizationStatus];

@@ -55,29 +55,6 @@
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 
-// TODO: Need to remove these too for user model
-
-// Subscription Classes
-@interface OSSubscriptionState : NSObject
-
-@property (readonly, nonatomic) BOOL isSubscribed; // (yes only if userId, pushToken, and setSubscription exists / are true)
-@property (readonly, nonatomic) BOOL isPushDisabled; // returns value of disablePush.
-@property (readonly, nonatomic, nullable) NSString* userId;    // AKA OneSignal PlayerId
-@property (readonly, nonatomic, nullable) NSString* pushToken; // AKA Apple Device Token
-- (NSDictionary* _Nonnull)toDictionary;
-
-@end
-
-@interface OSSubscriptionStateChanges : NSObject
-@property (readonly, nonnull) OSSubscriptionState* to;
-@property (readonly, nonnull) OSSubscriptionState* from;
-- (NSDictionary* _Nonnull)toDictionary;
-@end
-
-@protocol OSSubscriptionObserver <NSObject>
-- (void)onOSSubscriptionChanged:(OSSubscriptionStateChanges* _Nonnull)stateChanges;
-@end
-
 typedef void (^OSWebOpenURLResultBlock)(BOOL shouldOpen);
 
 /*Block for generic results on success and errors on failure*/
@@ -94,16 +71,14 @@ typedef void (^OSFailureBlock)(NSError* error);
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString* _Nonnull)type;
 
-#pragma mark User Model 🔥
-
-#pragma mark User Model - User Identity 🔥
+#pragma mark User
 + (id<OSUser>)User NS_REFINED_FOR_SWIFT;
 + (void)login:(NSString * _Nonnull)externalId;
 + (void)login:(NSString * _Nonnull)externalId withToken:(NSString * _Nullable)token
 NS_SWIFT_NAME(login(externalId:token:));
 + (void)logout;
 
-#pragma mark User Model - Notifications namespace 🔥
+#pragma mark Notifications
 + (Class<OSNotifications>)Notifications NS_REFINED_FOR_SWIFT;
 
 #pragma mark Initialization
