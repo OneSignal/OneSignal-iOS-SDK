@@ -226,7 +226,6 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)requestPermission:(OSUserResponseBlock)block {
-    NSLog(@"🔥 requestPermission:(OSUserResponseBlock)block called");
     // return if the user has not granted privacy permissions
     if ([OSPrivacyConsentController shouldLogMissingPrivacyConsentErrorWithMethodName:@"requestPermission:"])
         return;

@@ -90,7 +90,6 @@ public class OSOperationRepo: NSObject {
             return
         }
         start()
-        print("🔥 OSOperationRepo addExecutor: \(executor)")
         executors.append(executor)
         for delta in executor.supportedDeltas {
             deltasToExecutorMap[delta] = executor

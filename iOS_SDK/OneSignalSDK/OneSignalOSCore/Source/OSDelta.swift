@@ -38,6 +38,10 @@ open class OSDelta: NSObject, NSCoding {
     public let property: String
     public let value: Any
 
+    override open var description: String {
+        return "OSDelta \(name) with property: \(property) value: \(value)"
+    }
+
     public init(name: String, model: OSModel, property: String, value: Any) {
         self.name = name
         self.deltaId = UUID().uuidString

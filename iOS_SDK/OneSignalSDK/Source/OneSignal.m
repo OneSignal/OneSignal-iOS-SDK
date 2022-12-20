@@ -406,8 +406,6 @@ static AppEntryAction _appEntryState = APP_CLOSE;
 
     sessionLaunchTime = [NSDate date];
 
-    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"Calling OneSignal `create/on_session`"];
-
     // TODO: Figure out if Create User also sets session_count automatically on backend
     [OneSignalUserManagerImpl.sharedInstance startNewSession];
     
