@@ -100,9 +100,6 @@ class OSSubscriptionModel: OSModel {
                 return
             }
 
-            // Cache the push token as it persists across users on the device?
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_TOKEN_TO, withValue: address)
-
             updateNotificationTypes()
 
             firePushSubscriptionChanged(.address(oldValue))
