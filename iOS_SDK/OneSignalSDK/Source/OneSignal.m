@@ -630,7 +630,10 @@ static AppEntryAction _appEntryState = APP_CLOSE;
     [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
     // This will be nil unless we have a cached user
-    NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+    // TODO: Commented out. This will init the User Manager too early, and userId is not needed anyway.
+    // NSString *userId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId;
+    NSString *userId = nil;
+
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:userId appId:appId] onSuccess:^(NSDictionary *result) {
 
         if (result[IOS_REQUIRES_USER_ID_AUTHENTICATION]) {
