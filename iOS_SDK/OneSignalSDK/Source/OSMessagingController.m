@@ -976,16 +976,21 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark OSPushSubscriptionObserver Methods
 - (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges * _Nonnull)stateChanges {
+    // Don't pull IAMs if the new subscription ID is nil
     if (stateChanges.to.id == nil) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to nil subscription id"];
         return;
     }
-    // Pull new IAMs when the subscription id changes to a new valid subscription id
+    // Don't pull IAMs if the subscription ID has not changed
     if (stateChanges.from.id != nil &&
         [stateChanges.to.id isEqualToString:stateChanges.from.id]) {
-        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
-        [self getInAppMessagesFromServer:stateChanges.to.id];
+        [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to the same subscription id"];
+        return;
     }
+
+    // Pull new IAMs when the subscription id changes to a new valid subscription id
+    [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:@"OSMessagingController onOSPushSubscriptionChangedWithStateChanges: changed to new valid subscription id"];
+    [self getInAppMessagesFromServer:stateChanges.to.id];
 }
 
 @end
