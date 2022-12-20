@@ -854,6 +854,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
     }
 
     // TODO: just need the sub model and send it
+    // But the model may be outdated or not sync with the subscriptionObject
     init(subscriptionObject: [String: Any], subscriptionModel: OSSubscriptionModel) {
         self.subscriptionModel = subscriptionModel
         self.stringDescription = "OSRequestUpdateSubscription with subscriptionObject: \(subscriptionObject)"
@@ -866,6 +867,10 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         subscriptionParams["token"] = subscriptionModel.address ?? ""
         subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
         subscriptionParams["enabled"] = subscriptionModel.enabled
+        // TODO: The above is not quite right. If we hydrate, we will over-write any pending updates
+//        subscriptionParams["token"] = subscriptionObject["address"]
+//        subscriptionParams["notification_types"] = subscriptionObject["notificationTypes"]
+//        subscriptionParams["enabled"] = subscriptionObject["enabled"]
         self.parameters = ["subscription": subscriptionParams]
         self.method = PATCH
         _ = prepareForExecution() // sets the path property
