@@ -256,8 +256,12 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
         pushSubscriptionObject["token"] = pushSubscriptionModel.address
         pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
-        pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
-
+        
+        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
+        if (pushSubscriptionModel.notificationTypes != -1) {
+            pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
+        }
+        
         var params: [String: Any] = [:]
         params["identity"] = [:]
         if let externalId = identityModel.externalId {
@@ -863,8 +867,13 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         var subscriptionParams = subscriptionObject
         subscriptionParams.removeValue(forKey: "address")
         subscriptionParams.removeValue(forKey: "notificationTypes")
-        subscriptionParams["token"] = subscriptionModel.address ?? ""
-        subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+        subscriptionParams["token"] = subscriptionModel.address
+        
+        // notificationTypes defaults to -1 instead of nil, don't send if it's -1
+        if (subscriptionModel.notificationTypes != -1) {
+            subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
+        }
+        
         subscriptionParams["enabled"] = subscriptionModel.enabled
         // TODO: The above is not quite right. If we hydrate, we will over-write any pending updates
         // May use subscriptionObject, but enabled and notification_types should be sent together...
