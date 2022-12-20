@@ -38,7 +38,7 @@ struct OSPropertiesDeltas {
     func toDictionary() -> [String:Any] {
         var deltas = [String:Any]()
         deltas["session_count"] = sessionCount
-        deltas["session_time"] = sessionTime
+        deltas["session_time"] = sessionTime?.intValue // server expects an int
         deltas["amountSpent"] = amountSpent
         deltas["purchases"] = purchases
         return deltas
