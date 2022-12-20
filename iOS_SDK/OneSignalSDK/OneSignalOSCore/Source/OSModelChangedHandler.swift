@@ -43,6 +43,10 @@ public class OSModelChangedArgs: NSObject {
      */
     public let newValue: Any
 
+    override public var description: String {
+        return "OSModelChangedArgs for model: \(model) with property: \(property) value: \(newValue)"
+    }
+    
     init(model: OSModel, property: String, newValue: Any) {
         self.model = model
         self.property = property

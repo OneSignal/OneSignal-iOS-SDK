@@ -117,9 +117,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      We may still need references to model(s) in this store!
      */
     @objc func removeModelsFromUserDefaults() {
-        print("🔥 OSModelStore \(self.storeKey): removeModelsFromUserDefaults() called.")
-        // Clear the UserDefaults models cache when OS_ON_USER_WILL_CHANGE
-
+        // Clear the UserDefaults models cache when OS_ON_USER_WILL_CHANGEclearModelsFromStore() called
         OneSignalUserDefaults.initShared().removeValue(forKey: self.storeKey)
     }
 
@@ -129,7 +127,6 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      In contrast, it is not necessary for the Identity or Properties Model Stores to do so.
      */
     public func clearModelsFromStore() {
-        print("🔥 OSModelStore \(self.storeKey): clearModelsFromStore() called.")
         self.models = [:]
     }
 }

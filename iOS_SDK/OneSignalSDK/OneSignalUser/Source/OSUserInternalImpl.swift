@@ -46,9 +46,6 @@ protocol OSUserInternal {
     func setLocation(lat:Float, long:Float)
     // Language
     func setLanguage(_ language: String?)
-
-    // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel
 }
 
 /**
@@ -67,13 +64,6 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     var pushSubscriptionModel: OSSubscriptionModel
 
     // Sessions will be outside this?
-
-    // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) -> OSSubscriptionModel {
-        pushSubscriptionModel = OSSubscriptionModel(type: .push, address: token, subscriptionId: subscriptionId, accepted: true, isDisabled: false, changeNotifier: OSEventProducer())
-        print("🔥 OSUserInternalImpl has set pushSubcription for testing")
-        return pushSubscriptionModel
-    }
 
     init(identityModel: OSIdentityModel, propertiesModel: OSPropertiesModel, pushSubscriptionModel: OSSubscriptionModel) {
         self.identityModel = identityModel

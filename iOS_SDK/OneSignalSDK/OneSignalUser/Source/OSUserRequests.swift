@@ -235,6 +235,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
     func prepareForExecution() -> Bool {
         guard let appId = OneSignalConfigManager.getAppId() else {
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request due to null app ID.")
             return false
         }
         self.addJWTHeader(identityModel:identityModel)

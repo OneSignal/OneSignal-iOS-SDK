@@ -70,9 +70,6 @@ import OneSignalNotifications
     typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
     typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
     func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler)
-
-    // TODO: UM This is a temporary function to create a push subscription for testing
-    func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool)
 }
 
 /**
@@ -313,6 +310,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      and the operation repo flushing the current (soon to be old) user's operations.
      */
     private func prepareForNewUser() {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManagerImpl prepareForNewUser called")
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
         // This store MUST be cleared, Identity and Properties do not.
@@ -606,13 +604,6 @@ extension OneSignalUserManagerImpl: OSUser {
             return
         }
         user.setLanguage(language)
-    }
-
-    public func testCreatePushSubscription(subscriptionId: String, token: String, enabled: Bool) {
-        guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
-            return
-        }
-        user.testCreatePushSubscription(subscriptionId: subscriptionId, token: token, enabled: enabled)
     }
 }
 
