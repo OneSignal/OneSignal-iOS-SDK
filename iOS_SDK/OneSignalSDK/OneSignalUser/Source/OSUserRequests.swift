@@ -117,7 +117,7 @@ class OSUserExecutor {
             }
             executePendingRequests()
         } onFailure: { error in
-            print("ECM test + \(error.debugDescription)")
+            OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSUserExecutor create user request failed with error: \(error.debugDescription)")
             // Depending on error, Client is responsible for retrying.
             // executePendingRequests() ?
         }
@@ -254,7 +254,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         var pushSubscriptionObject: [String: Any] = [:]
         pushSubscriptionObject["id"] = pushSubscriptionModel.subscriptionId
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
-        pushSubscriptionObject["token"] = pushSubscriptionModel.address ?? "test" + String(arc4random())
+        pushSubscriptionObject["token"] = pushSubscriptionModel.address
         pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
         pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
 
@@ -268,7 +268,6 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
 
         self.parameters = params
         self.method = POST
-        
     }
 
     func encode(with coder: NSCoder) {
@@ -868,9 +867,8 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
         subscriptionParams["enabled"] = subscriptionModel.enabled
         // TODO: The above is not quite right. If we hydrate, we will over-write any pending updates
-//        subscriptionParams["token"] = subscriptionObject["address"]
-//        subscriptionParams["notification_types"] = subscriptionObject["notificationTypes"]
-//        subscriptionParams["enabled"] = subscriptionObject["enabled"]
+        // May use subscriptionObject, but enabled and notification_types should be sent together...
+
         self.parameters = ["subscription": subscriptionParams]
         self.method = PATCH
         _ = prepareForExecution() // sets the path property
