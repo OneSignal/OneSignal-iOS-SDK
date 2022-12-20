@@ -178,12 +178,26 @@ static OSPermissionStateInternal* _lastPermissionState;
     return _lastPermissionState;
 }
 
+// TODO: pushToken, pushSubscriptionId needs to be available... is this the right setup
 static NSString *_pushToken;
++ (NSString*)pushToken {
+    if (!_pushToken) {
+        _pushToken = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_TOKEN_TO defaultValue:nil];
+    }
+    return _pushToken;
+}
 
 static NSString *_pushSubscriptionId;
++ (NSString*)pushSubscriptionId {
+    if (!_pushSubscriptionId) {
+        _pushSubscriptionId = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+    }
+    return _pushSubscriptionId;
+}
 + (void)setPushSubscriptionId:(NSString *)pushSubscriptionId {
     _pushSubscriptionId = pushSubscriptionId;
 }
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 + (void)start {
@@ -377,6 +391,9 @@ static NSString *_pushSubscriptionId;
     self.waitingForApnsResponse = false;
 
     _pushToken = parsedDeviceToken;
+    
+    // Cache push token
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PUSH_TOKEN_TO withValue:_pushToken];
 
     [self sendPushTokenToDelegate];
 }
@@ -399,7 +416,8 @@ static NSString *_pushSubscriptionId;
 }
 
 + (void)sendPushTokenToDelegate {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(setPushToken:)]) {
+    // TODO: Keep this as a check on _pushToken instead of self.pushToken?
+    if (_pushToken != nil && self.delegate && [self.delegate respondsToSelector:@selector(setPushToken:)]) {
         [self.delegate setPushToken:_pushToken];
     }
 }
@@ -469,7 +487,8 @@ static NSString *_pushSubscriptionId;
     if (mSubscriptionStatus < -9)
         return mSubscriptionStatus;
     
-    if (OSNotificationsManager.waitingForApnsResponse && !_pushToken)
+    // This was previously nil if just accessing _pushToken
+    if (OSNotificationsManager.waitingForApnsResponse && !self.pushToken)
         return ERROR_PUSH_DELEGATE_NEVER_FIRED;
     
     OSPermissionStateInternal* permissionStatus = [OSNotificationsManager.osNotificationSettings getNotificationPermissionState];
