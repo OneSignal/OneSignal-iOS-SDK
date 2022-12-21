@@ -50,7 +50,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueDelta(_ delta: OSDelta) {
-        print("🔥 OSIdentityOperationExecutor enqueueDelta: \(delta)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor enqueueDelta: \(delta)")
         deltaQueue.append(delta)
     }
 
@@ -59,6 +59,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
+        if (!deltaQueue.isEmpty) {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
+        }
         for delta in deltaQueue {
             guard let model = delta.model as? OSIdentityModel,
                   let aliases = delta.value as? [String: String]
@@ -81,7 +84,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
             default:
                 // Log error
-                print("🔥 OSIdentityOperationExecutor met incompatible OSDelta type.")
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor met incompatible OSDelta type: \(delta)")
             }
         }
 
@@ -96,7 +99,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueRequest(_ request: OneSignalRequest) {
-        print("🔥 OSIdentityOperationExecutor enqueueRequest: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor enqueueRequest: \(request)")
         requestQueue.append(request)
     }
 
@@ -117,7 +120,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases) {
-        print("🔥 OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
+
         OneSignalClient.shared().execute(request) { result in
             // Mock a response
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
@@ -138,7 +142,8 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias) {
-        print("🔥 OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
+
         OneSignalClient.shared().execute(request) { result in
 
             // Mock a response

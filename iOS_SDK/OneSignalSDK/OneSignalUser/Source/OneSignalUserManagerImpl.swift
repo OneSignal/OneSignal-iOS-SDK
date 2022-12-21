@@ -172,7 +172,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         hasCalledStart = true
-        print("🔥 OneSignalUserManagerImpl start()")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager calling start")
 
         OSNotificationsManager.delegate = self
 
@@ -210,7 +210,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             // Log error
             return
         }
-        print("🔥 OneSignalUserManagerImpl login(\(externalId)) called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User login called with externalId: \(externalId)")
         _ = _login(externalId: externalId, token: token)
     }
 
@@ -267,8 +267,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return _mockUser
         }
-
-        print("🔥 OneSignalUserManagerImpl private _login(\(externalId ?? "nil")) called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager internal _login called with externalId: \(externalId ?? "nil")")
 
         // If have token, validate token. Account for this being a requirement.
         // Logging into an identified user from an anonymous user

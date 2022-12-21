@@ -50,7 +50,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueDelta(_ delta: OSDelta) {
-        print("🔥 OSPropertyOperationExecutor enqueue delta\(delta)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor enqueue delta\(delta)")
         deltaQueue.append(delta)
     }
 
@@ -59,6 +59,9 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
+        if (!deltaQueue.isEmpty) {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
+        }
         for delta in deltaQueue {
             guard let model = delta.model as? OSPropertiesModel else {
                 // Log error
@@ -84,7 +87,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueRequest(_ request: OneSignalRequest) {
-        print("🔥 OSPropertyOperationExecutor enqueueRequest: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor enqueueRequest: \(request)")
         requestQueue.append(request)
     }
 
@@ -104,7 +107,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
         guard request.prepareForExecution() else {
             return
         }
-        print("🔥 OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
 
             // On success, remove request from cache, and hydrate model
