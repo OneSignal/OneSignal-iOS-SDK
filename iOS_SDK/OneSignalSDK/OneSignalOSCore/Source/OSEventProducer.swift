@@ -26,28 +26,28 @@
  */
 
 import Foundation
+import OneSignalCore
 
 public class OSEventProducer<THandler>: NSObject {
     // Not an array as there is at most 1 subsriber per OSEventProducer anyway
     var subscriber: THandler?
 
     public func subscribe(_ handler: THandler) {
-        print("🔥 OSEventProducer.subscribe() called with handler: \(handler)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.subscribe() called with handler: \(handler)")
         // TODO: UM do we want to synchronize on subscribers
         subscriber = handler // TODO: UM style, implicit or explicit self?
     }
 
     public func unsubscribe(_ handler: THandler) {
-        print("🔥 OSEventProducer.unsubscribe() called with handler: \(handler)")
-
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.unsubscribe() called with handler: \(handler)")
         // TODO: UM do we want to synchronize on subscribers
         subscriber = nil
     }
 
     public func fire(callback: (THandler) -> Void) {
-        print("🔥 OSEventProducer.fire() called with the following subscribers:")
         // dump(subscribers) -> uncomment for more verbose log during testing
         if let subscriber = subscriber {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.fire() called with subscriber")
             callback(subscriber)
         }
     }

@@ -50,7 +50,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueDelta(_ delta: OSDelta) {
-        print("🔥 OSSubscriptionOperationExecutor enqueueDelta: \(delta)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor enqueueDelta: \(delta)")
         deltaQueue.append(delta)
     }
 
@@ -59,6 +59,9 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
+        if (!deltaQueue.isEmpty) {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
+        }
         for delta in deltaQueue {
             guard let model = delta.model as? OSSubscriptionModel else {
                 // Log error
@@ -88,7 +91,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
             default:
                 // Log error
-                print("🔥 OSSubscriptionOperationExecutor met incompatible OSDelta type.")
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSSubscriptionOperationExecutor met incompatible OSDelta type: \(delta).")
             }
         }
 
@@ -103,7 +106,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func enqueueRequest(_ request: OneSignalRequest) {
-        print("🔥 OSSubscriptionOperationExecutor enqueueRequest: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor enqueueRequest: \(request)")
         requestQueue.append(request)
     }
 
@@ -129,7 +132,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         guard request.prepareForExecution() else {
             return
         }
-        print("🔥 OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
             guard let response = result?["subscription"] as? [String : Any] else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
@@ -153,7 +156,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
 
         // This request can be executed as-is.
-        print("🔥 OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
 
             // On success, remove request from cache. No model hydration occurs.
@@ -168,7 +171,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription) {
-        print("🔥 OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
         
         guard request.prepareForExecution() else {
             return
