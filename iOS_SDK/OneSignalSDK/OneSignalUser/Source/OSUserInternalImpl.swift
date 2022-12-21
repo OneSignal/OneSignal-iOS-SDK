@@ -79,13 +79,13 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
      */
     func addAliases(_ aliases: [String: String]) {
         // Decide if the non-offending aliases should still be added.
-        print("🔥 OSUserInternalImpl addAliases() called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User addAliases called with: \(aliases)")
         guard aliases[OS_ONESIGNAL_ID] == nil,
               aliases[OS_EXTERNAL_ID] == nil,
               !aliases.values.contains("")
         else {
             // log error
-            print("🔥 OSUserInternal addAliases: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label. Or, cannot use empty string as an alias ID.")
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User addAliases error: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label. Or, cannot use empty string as an alias ID.")
             return
         }
         identityModel.addAliases(aliases)
@@ -95,12 +95,12 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
      Prohibit the removal of `onesignal_id` and `external_id`.
      */
     func removeAliases(_ labels: [String]) {
-        print("🔥 OSUserInternalImpl removeAliases() called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User removeAliases called with: \(labels)")
         guard !labels.contains(OS_ONESIGNAL_ID),
               !labels.contains(OS_EXTERNAL_ID)
         else {
             // log error
-            print("🔥 OSUserInternal removeAliases: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label.")
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignal.User removeAliases error: Cannot use \(OS_ONESIGNAL_ID) or \(OS_EXTERNAL_ID) as a alias label.")
             return
         }
         identityModel.removeAliases(labels)
@@ -109,19 +109,21 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
     // MARK: - Tags
 
     func addTags(_ tags: [String: String]) {
-        print("🔥 OSUserInternalImpl addTags() called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User addTags called with: \(tags)")
         propertiesModel.addTags(tags)
     }
 
     func removeTags(_ tags: [String]) {
-        print("🔥 OSUserInternalImpl removeTags() called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User removeTags called with: \(tags)")
+
         propertiesModel.removeTags(tags)
     }
     
     // MARK: - Location
     
     func setLocation(lat: Float, long: Float) {
-        print("🔥 OSUserInternalImpl setLocation() called")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User setLocation called with lat: \(lat) long: \(long)")
+
         propertiesModel.lat = lat
         propertiesModel.long = long
     }

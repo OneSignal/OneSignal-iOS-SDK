@@ -72,7 +72,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     }
 
     public func add(id: String, model: TModel) {
-        print("🔥 OSModelStore add with model \(model)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore add() called with model \(model)")
         // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
         models[id] = model
@@ -93,7 +93,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      This can happen if remove email or SMS is called and it doesn't exist in the store.
      */
     public func remove(_ id: String) -> Bool {
-        print("🔥 OSModelStore remove with model \(id)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore remove() called with model \(id)")
         // TODO: Nothing will happen if model doesn't exist in the store
         if let model = models[id] {
             models.removeValue(forKey: id)
@@ -143,7 +143,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
 extension OSModelStore: OSModelChangedHandler {
     public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
-        print("🔥 OSModelStore.onChanged() with args \(args)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore.onChanged() called with OSModelChangedArgs: \(args)")
 
         // persist the changed models to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)

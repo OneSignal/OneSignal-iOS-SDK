@@ -68,7 +68,6 @@ class OSIdentityModel: OSModel {
     // MARK: - Alias Methods
 
     func addAliases(_ aliases: [String: String]) {
-        print("🔥 OSIdentityModel.addAliases \(aliases).")
         for (label, id) in aliases {
             self.aliases[label] = id
         }
@@ -76,7 +75,6 @@ class OSIdentityModel: OSModel {
     }
 
     func removeAliases(_ labels: [String]) {
-        print("🔥 OSIdentityModel.removeAliases \(labels).")
         var aliasesToSend: [String: String] = [:]
         for label in labels {
             self.aliases.removeValue(forKey: label)
@@ -86,7 +84,7 @@ class OSIdentityModel: OSModel {
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
-        print("🔥 OSIdentityModel hydrateModel()")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityModel hydrateModel()")
         for property in response {
             switch property.key {
             case "external_id":

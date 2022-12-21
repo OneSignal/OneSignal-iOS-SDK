@@ -221,7 +221,7 @@ class OSSubscriptionModel: OSModel {
     }
 
     public override func hydrateModel(_ response: [String: Any]) {
-        print("🔥 OSSubscriptionModel hydrateModel()")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionModel hydrateModel()")
         for property in response {
             switch property.key {
             case "id":
@@ -323,8 +323,7 @@ extension OSSubscriptionModel {
         let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
 
         // TODO: Don't fire observer until server is udated
-        print("🔥 firePushSubscriptionChanged from \(prevSubscriptionState.toDictionary()) to \(newSubscriptionState.toDictionary())")
-        
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "firePushSubscriptionChanged from \(prevSubscriptionState.toDictionary()) to \(newSubscriptionState.toDictionary())")
         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionStateChangesObserver.notifyChange(stateChanges)
     }
 }
