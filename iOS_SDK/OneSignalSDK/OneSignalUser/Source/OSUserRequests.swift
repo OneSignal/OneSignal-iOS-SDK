@@ -61,33 +61,70 @@ class OSUserExecutor {
             OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_USER_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
         }
     }
-    
+
+    /**
+     Used to parse Create User and Fetch User responses.
+     */
     static func parseFetchUserResponse(response: [AnyHashable:Any], identityModel: OSIdentityModel) {
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
-        // Always hydrate the subscription id since it is transferred between users
-        if let subscriptionObject = parseSubscriptionObjectResponse(response) {
-            for subModel in subscriptionObject {
-                if let subType = subModel["type"] as? String {
-                    if subType == "iOSPush" {
-                        OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
-                        if let subId = subModel["id"] as? String {
-                            OSNotificationsManager.setPushSubscriptionId(subId)
+        
+        // TODO: Determine if we should be hydrating the push sub if sub_id exists in the SDK. I think not, revisit.
+        // Only hydrate the push subscription ID if it does not exist in the SDK
+        if (OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId == nil) {
+            if let subscriptionObject = parseSubscriptionObjectResponse(response) {
+                for subModel in subscriptionObject {
+                    if let subType = subModel["type"] as? String {
+                        if subType == "iOSPush" {
+                            OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
+                            if let subId = subModel["id"] as? String {
+                                OSNotificationsManager.setPushSubscriptionId(subId)
+                            }
                         }
                     }
                 }
             }
         }
+   
         guard modelInStore?.modelId == identityModel.modelId else {
             return
         }
+
         if let identityObject = parseIdentityObjectResponse(response) {
             OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
         }
         
         if let propertiesObject = parsePropertiesObjectResponse(response) {
             OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
+        }
+        
+        // Now parse email and sms subscriptions
+        if let subscriptionObject = parseSubscriptionObjectResponse(response) {
+            let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
+            for subModel in subscriptionObject {
+                if let address = subModel["token"] as? String,
+                   let type = OSSubscriptionType(rawValue: subModel["type"] as? String ?? ""),
+                   subModel["type"] as? String != "iOSPush"
+                {
+                    if let model = models[address] {
+                        // This subscription exists in the store, hydrate
+                        model.hydrate(subModel)
+                        
+                    } else {
+                        // This subscription does not exist in the store, add
+                        // TODO: This creates a Delta and sends a request when it should be hydrating
+                        OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
+                            type: type,
+                            address: subModel["token"] as? String,
+                            subscriptionId: subModel["id"] as? String,
+                            accepted: true,
+                            isDisabled: false,
+                            changeNotifier: OSEventProducer())
+                        )
+                    }
+                }
+            }
         }
     }
     
