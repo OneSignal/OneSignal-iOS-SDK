@@ -314,7 +314,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
         // This store MUST be cleared, Identity and Properties do not.
-        subscriptionModelStore.clearModelsFromStore()
+        subscriptionModelStore.clearModelsFromStore(modelToKeepId: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
     }
 
     /**
@@ -337,8 +337,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
 
         let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
-
-        subscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
+        
+        // Add pushSubscription to store if not present
+        if (!subscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY)) {
+            subscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
+        }
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         return self.user
