@@ -144,10 +144,9 @@ class OSUserExecutor {
 
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
         OneSignalClient.shared().execute(request) { _ in
-            // the anonymous user has been identified, still need to Fetch User + Transfer Push Sub
+            // the anonymous user has been identified, still need to Fetch User
             fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-            // TODO: Don't need to transfer push sub, confirm.
-            transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
+
             executePendingRequests() // TODO: Here or after fetch or after transfer?
 
         } onFailure: { _ in
@@ -353,7 +352,7 @@ class OSRequestIdentifyUser: OneSignalRequest, OSUserRequest {
         self.stringDescription = "OSRequestIdentifyUser with aliasLabel: \(aliasLabel) aliasId: \(aliasId)"
         super.init()
         self.parameters = ["identity": [aliasLabel: aliasId]]
-        self.method = POST
+        self.method = PATCH
         _ = prepareForExecution() // sets the path property
     }
 
