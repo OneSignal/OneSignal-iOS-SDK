@@ -65,27 +65,9 @@
 #define OSUD_PERMISSION_EPHEMERAL_FROM                                      @"OSUD_PERMISSION_EPHEMERAL_FROM"                                   // * OSUD_PERMISSION_EPHEMERAL_FROM
 #define OSUD_LANGUAGE                                                       @"OSUD_LANGUAGE"                                                    // * OSUD_LANGUAGE
 #define DEFAULT_LANGUAGE                                                    @"en"                                                               // * OSUD_LANGUAGE
-// Player
-#define OSUD_EXTERNAL_USER_ID                                               @"OS_EXTERNAL_USER_ID"                                              // * OSUD_EXTERNAL_USER_ID
-#define OSUD_PLAYER_ID_TO                                                   @"GT_PLAYER_ID"                                                     // * OSUD_PLAYER_ID_TO
-#define OSUD_PLAYER_ID_FROM                                                 @"GT_PLAYER_ID_LAST"                                                // * OSUD_PLAYER_ID_FROM
-#define OSUD_PUSH_TOKEN_TO                                                  @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN_TO
-#define OSUD_PUSH_TOKEN_FROM                                                @"GT_DEVICE_TOKEN_LAST"                                             // * OSUD_PUSH_TOKEN_FROM
-#define OSUD_USER_SUBSCRIPTION_TO                                           @"ONESIGNAL_SUBSCRIPTION"                                           // * OSUD_USER_SUBSCRIPTION_TO
-#define OSUD_USER_SUBSCRIPTION_FROM                                         @"ONESIGNAL_SUBSCRIPTION_SETTING"                                   // * OSUD_USER_SUBSCRIPTION_FROM
-#define OSUD_EXTERNAL_ID_AUTH_CODE                                          @"OSUD_EXTERNAL_ID_AUTH_CODE"                                       
-// Email
-#define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
-#define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID
-#define OSUD_EMAIL_EXTERNAL_USER_ID                                         @"OSUD_EMAIL_EXTERNAL_USER_ID"                                      // OSUD_EMAIL_EXTERNAL_USER_ID
-#define OSUD_REQUIRE_EMAIL_AUTH                                             @"GT_REQUIRE_EMAIL_AUTH"                                            // * OSUD_REQUIRE_EMAIL_AUTH
-#define OSUD_EMAIL_AUTH_CODE                                                @"GT_EMAIL_AUTH_CODE"                                               // * OSUD_EMAIL_AUTH_CODE
-// SMS
-#define OSUD_SMS_NUMBER                                                     @"OSUD_SMS_NUMBER"
-#define OSUD_SMS_PLAYER_ID                                                  @"OSUD_SMS_PLAYER_ID"
-#define OSUD_SMS_EXTERNAL_USER_ID                                           @"OSUD_SMS_EXTERNAL_USER_ID"
-#define OSUD_REQUIRE_SMS_AUTH                                               @"OSUD_REQUIRE_SMS_AUTH"
-#define OSUD_SMS_AUTH_CODE                                                  @"OSUD_SMS_AUTH_CODE"
+// Push Subscription
+#define OSUD_PUSH_SUBSCRIPTION_ID                                           @"GT_PLAYER_ID"                                                     // * OSUD_PUSH_SUBSCRIPTION_ID
+#define OSUD_PUSH_TOKEN                                                     @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN
 // Notification
 #define OSUD_LAST_MESSAGE_OPENED                                            @"GT_LAST_MESSAGE_OPENED_"                                          // * OSUD_MOST_RECENT_NOTIFICATION_OPENED
 #define OSUD_NOTIFICATION_OPEN_LAUNCH_URL                                   @"ONESIGNAL_INAPP_LAUNCH_URL"                                       // * OSUD_NOTIFICATION_OPEN_LAUNCH_URL
@@ -118,8 +100,6 @@
 #define OSUD_APP_LAST_CLOSED_TIME                                           @"GT_LAST_CLOSED_TIME"                                              // * OSUD_APP_LAST_CLOSED_TIME
 #define OSUD_UNSENT_ACTIVE_TIME                                             @"GT_UNSENT_ACTIVE_TIME"                                            // * OSUD_UNSENT_ACTIVE_TIME
 #define OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED                                  @"GT_UNSENT_ACTIVE_TIME_ATTRIBUTED"                                 // * OSUD_UNSENT_ACTIVE_TIME_ATTRIBUTED
-#define OSUD_PLAYER_TAGS                                                    @"OSUD_PLAYER_TAGS"
-    // * OSUD_PLAYER_TAGS
 
 // Deprecated Selectors
 #define DEPRECATED_SELECTORS @[ @"application:didReceiveLocalNotification:", \

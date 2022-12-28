@@ -38,7 +38,7 @@
 
 - (void)sendReceiveReceiptWithNotificationId:(NSString *)notificationId {
     let sharedUserDefaults = OneSignalUserDefaults.initShared;
-    let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+    let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
     let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
 
     [self sendReceiveReceiptWithPlayerId:playerId

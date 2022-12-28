@@ -118,7 +118,7 @@ class OSSubscriptionModel: OSModel {
             }
 
             // Cache the subscriptionId as it persists across users on the device??
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PLAYER_ID_TO, withValue: subscriptionId)
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
 
             firePushSubscriptionChanged(.subscriptionId(oldValue))
         }
