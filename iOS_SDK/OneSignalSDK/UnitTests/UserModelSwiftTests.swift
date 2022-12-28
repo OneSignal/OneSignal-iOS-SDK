@@ -28,17 +28,6 @@
 import XCTest
 import OneSignalFramework
 
-extension OSInAppMessages {
-    static var Paused: Bool {
-        get {
-            return __paused()
-        }
-        set {
-            __paused(newValue)
-        }
-    }
-}
-
 // Non-class type 'OSPushSubscriptionTestObserver' cannot conform to class protocol 'OSPushSubscriptionObserver'
 // ^ Cannot use a struct for an OSPushSubscriptionObserver
 
