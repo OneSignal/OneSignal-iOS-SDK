@@ -349,8 +349,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     func createDefaultPushSubscription() -> OSSubscriptionModel {
         let sharedUserDefaults = OneSignalUserDefaults.initShared()
         let accepted = OSNotificationsManager.currentPermissionState.accepted
-        let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN_TO, defaultValue: nil)
-        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PLAYER_ID_TO, defaultValue: nil)
+        let token = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_TOKEN, defaultValue: nil)
+        let subscriptionId = sharedUserDefaults.getSavedString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, defaultValue: nil)
 
         return OSSubscriptionModel(type: .push,
                                    address: token,
