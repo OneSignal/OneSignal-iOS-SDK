@@ -39,15 +39,15 @@ typedef void (^OSNotificationOpenedBlock)(OSNotificationOpenedResult * _Nonnull 
  Public API.
  */
 @protocol OSNotifications <NSObject>
-+ (BOOL)permission;
-+ (BOOL)canRequestPermission;
++ (BOOL)permission NS_REFINED_FOR_SWIFT;
++ (BOOL)canRequestPermission NS_REFINED_FOR_SWIFT;
 + (void)setNotificationWillShowInForegroundHandler:(OSNotificationWillShowInForegroundBlock _Nullable)block;
 + (void)setNotificationOpenedHandler:(OSNotificationOpenedBlock _Nullable)block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block;
 + (void)requestPermission:(OSUserResponseBlock _Nullable )block fallbackToSettings:(BOOL)fallback;
-+ (void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable )block;
-+ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer;
-+ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer;
++ (void)registerForProvisionalAuthorization:(OSUserResponseBlock _Nullable )block NS_REFINED_FOR_SWIFT;
++ (void)addPermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
++ (void)removePermissionObserver:(NSObject<OSPermissionObserver>*_Nonnull)observer NS_REFINED_FOR_SWIFT;
 + (void)clearAll;
 @end
 
