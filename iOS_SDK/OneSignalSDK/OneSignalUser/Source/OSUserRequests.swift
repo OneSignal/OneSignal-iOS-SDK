@@ -63,26 +63,31 @@ class OSUserExecutor {
     }
 
     /**
-     Used to parse Create User and Fetch User responses.
+     Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK (How again can that happen?). This is used to determine whether or not to hydrate the push subscription.
      */
-    static func parseFetchUserResponse(response: [AnyHashable:Any], identityModel: OSIdentityModel) {
+    static func parseFetchUserResponse(response: [AnyHashable:Any], identityModel: OSIdentityModel, originalPushToken: String?) {
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
         
-        // TODO: Determine if we should be hydrating the push sub if sub_id exists in the SDK. I think not, revisit.
-        // Only hydrate the push subscription ID if it does not exist in the SDK
-        if (OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId == nil) {
-            if let subscriptionObject = parseSubscriptionObjectResponse(response) {
-                for subModel in subscriptionObject {
-                    if let subType = subModel["type"] as? String {
-                        if subType == "iOSPush" {
-                            OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
-                            if let subId = subModel["id"] as? String {
-                                OSNotificationsManager.setPushSubscriptionId(subId)
-                            }
-                        }
+        // TODO: Determine how to hydrate the push subscription, which is still faulty.
+        // Hydrate by token if sub_id exists?
+        // Problem: a user can have multiple iOS push subscription, and perhaps missing token
+        // Ideally we only get push subscription for this device in the response, not others
+        
+        // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
+        if (OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId == nil),
+           let subscriptionObject = parseSubscriptionObjectResponse(response)
+        {
+            for subModel in subscriptionObject {
+                if subModel["type"] as? String == "iOSPush",
+                   subModel["token"] as? String == originalPushToken
+                {
+                    OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
+                    if let subId = subModel["id"] as? String {
+                        OSNotificationsManager.setPushSubscriptionId(subId)
                     }
+                    break;
                 }
             }
         }
@@ -104,8 +109,9 @@ class OSUserExecutor {
             let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
             for subModel in subscriptionObject {
                 if let address = subModel["token"] as? String,
-                   let type = OSSubscriptionType(rawValue: subModel["type"] as? String ?? ""),
-                   subModel["type"] as? String != "iOSPush"
+                   let rawType = subModel["type"] as? String,
+                   rawType != "iOSPush",
+                   let type = OSSubscriptionType(rawValue: rawType)
                 {
                     if let model = models[address] {
                         // This subscription exists in the store, hydrate
@@ -115,7 +121,7 @@ class OSUserExecutor {
                         // This subscription does not exist in the store, add
                         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
                             type: type,
-                            address: subModel["token"] as? String,
+                            address: address,
                             subscriptionId: subModel["id"] as? String,
                             accepted: true,
                             isDisabled: false,
@@ -141,6 +147,7 @@ class OSUserExecutor {
 
     // We will pass minimal properties to this request
     static func createUser(_ user: OSUserInternal) {
+        let originalPushToken = user.pushSubscriptionModel.address
         let request = OSRequestCreateUser(identityModel: user.identityModel, pushSubscriptionModel: user.pushSubscriptionModel)
 
         // Currently there are no requirements needed before sending this request
@@ -149,7 +156,7 @@ class OSUserExecutor {
         }
         OneSignalClient.shared().execute(request) { response in
             if let response = response {
-                parseFetchUserResponse(response: response, identityModel: request.identityModel)
+                parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: originalPushToken)
             }
             executePendingRequests()
         } onFailure: { error in
@@ -237,7 +244,7 @@ class OSUserExecutor {
 
         OneSignalClient.shared().execute(request) { response in
             if let response = response {
-                parseFetchUserResponse(response: response, identityModel: request.identityModel)
+                parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
             }
         } onFailure: { _ in
             // What?
