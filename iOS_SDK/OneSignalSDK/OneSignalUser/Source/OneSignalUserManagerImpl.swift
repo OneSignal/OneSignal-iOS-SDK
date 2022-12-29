@@ -140,15 +140,19 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         return pushSubscriptionStateChangesObserver
     }
 
-    // has Identity, Properties, and Subscription Model Stores
+    // has Identity, Properties, Subscription, and Push Subscription Model Stores
     let identityModelStore = OSModelStore<OSIdentityModel>(changeSubscription: OSEventProducer(), storeKey: OS_IDENTITY_MODEL_STORE_KEY)
     let propertiesModelStore = OSModelStore<OSPropertiesModel>(changeSubscription: OSEventProducer(), storeKey: OS_PROPERTIES_MODEL_STORE_KEY)
+    // Holds email and sms subscription models
     let subscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_SUBSCRIPTION_MODEL_STORE_KEY)
+    // Holds a single push subscription model
+    let pushSubscriptionModelStore = OSModelStore<OSSubscriptionModel>(changeSubscription: OSEventProducer(), storeKey: OS_PUSH_SUBSCRIPTION_MODEL_STORE_KEY)
 
     // These must be initialized in init()
     let identityModelStoreListener: OSIdentityModelStoreListener
     let propertiesModelStoreListener: OSPropertiesModelStoreListener
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
+    let pushSubscriptionModelStoreListener: OSSubscriptionModelStoreListener
 
     // has Property and Identity operation executors
     let propertyExecutor = OSPropertyOperationExecutor()
@@ -159,6 +163,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
         self.propertiesModelStoreListener = OSPropertiesModelStoreListener(store: propertiesModelStore)
         self.subscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: subscriptionModelStore)
+        self.pushSubscriptionModelStoreListener = OSSubscriptionModelStoreListener(store: pushSubscriptionModelStore)
     }
 
     // TODO: This method is called A LOT, check if all calls are needed.
@@ -180,7 +185,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Corrupted state if any of these models exist without the others
         if let identityModel = identityModelStore.getModels()[OS_IDENTITY_MODEL_KEY],
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
-           let pushSubscription = subscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
+           let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
         }
 
@@ -191,6 +196,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         identityModelStoreListener.start()
         propertiesModelStoreListener.start()
         subscriptionModelStoreListener.start()
+        pushSubscriptionModelStoreListener.start()
 
         // Setup the executors
         OSUserExecutor.start()
@@ -226,7 +232,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             }
         }
 
-        let pushSubscriptionModel = subscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
+        let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
@@ -251,7 +257,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let identityModelToIdentify = currentUser.identityModel
 
         // Immediately drop the old user and set a new user in the SDK
-        let pushSubscriptionModel = subscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
+        let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
         prepareForNewUser()
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
 
@@ -313,7 +319,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         NotificationCenter.default.post(name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
 
         // This store MUST be cleared, Identity and Properties do not.
-        subscriptionModelStore.clearModelsFromStore(modelToKeepId: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
+        subscriptionModelStore.clearModelsFromStore()
     }
 
     /**
@@ -338,8 +344,8 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
         
         // Add pushSubscription to store if not present
-        if (!subscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY)) {
-            subscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
+        if (!pushSubscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY)) {
+            pushSubscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
         }
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
