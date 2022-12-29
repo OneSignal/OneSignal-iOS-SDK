@@ -71,7 +71,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         return self.models
     }
 
-    public func add(id: String, model: TModel) {
+    public func add(id: String, model: TModel, hydrating: Bool) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore add() called with model \(model)")
         // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
@@ -82,7 +82,11 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
         // listen for changes to this model
         model.changeNotifier.subscribe(self)
-
+        
+        guard !hydrating else {
+            return
+        }
+        
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
         }

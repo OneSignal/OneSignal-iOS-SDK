@@ -334,10 +334,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         let identityModel = OSIdentityModel(aliases: aliases, changeNotifier: OSEventProducer())
-        self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel)
+        self.identityModelStore.add(id: OS_IDENTITY_MODEL_KEY, model: identityModel, hydrating: false)
 
         let propertiesModel = OSPropertiesModel(changeNotifier: OSEventProducer())
-        self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel)
+        self.propertiesModelStore.add(id: OS_PROPERTIES_MODEL_KEY, model: propertiesModel, hydrating: false)
 
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
 
@@ -345,7 +345,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         
         // Add pushSubscription to store if not present
         if (!pushSubscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY)) {
-            pushSubscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription)
+            pushSubscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription, hydrating: false)
         }
 
         _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
@@ -558,7 +558,7 @@ extension OneSignalUserManagerImpl: OSUser {
             isDisabled: false,
             changeNotifier: OSEventProducer()
         )
-        self.subscriptionModelStore.add(id: email, model: model)
+        self.subscriptionModelStore.add(id: email, model: model, hydrating: false)
     }
 
     /**
@@ -590,7 +590,7 @@ extension OneSignalUserManagerImpl: OSUser {
             isDisabled: false,
             changeNotifier: OSEventProducer()
         )
-        self.subscriptionModelStore.add(id: number, model: model)
+        self.subscriptionModelStore.add(id: number, model: model, hydrating: false)
     }
 
     /**

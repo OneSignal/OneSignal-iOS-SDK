@@ -113,14 +113,13 @@ class OSUserExecutor {
                         
                     } else {
                         // This subscription does not exist in the store, add
-                        // TODO: This creates a Delta and sends a request when it should be hydrating
                         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
                             type: type,
                             address: subModel["token"] as? String,
                             subscriptionId: subModel["id"] as? String,
                             accepted: true,
                             isDisabled: false,
-                            changeNotifier: OSEventProducer())
+                            changeNotifier: OSEventProducer()), hydrating: true
                         )
                     }
                 }
