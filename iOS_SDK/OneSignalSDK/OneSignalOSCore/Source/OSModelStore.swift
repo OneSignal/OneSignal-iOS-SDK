@@ -126,18 +126,8 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      When the User changes, the Subscription Model Store must remove all models.
      In contrast, it is not necessary for the Identity or Properties Model Stores to do so.
      */
-    public func clearModelsFromStore(modelToKeepId: String?) {
-        // TODO: For now, uglily have param for model to keep as workaround for clearing all models except push sub
-        // When we have a new user, the subscription store should be cleared except for push sub
-        // That's currently the only model store we call this from.
-        if let modelToKeepId,
-           let modelToKeep = self.models[modelToKeepId]
-        {
-            self.models = [modelToKeepId: modelToKeep]
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)
-        } else {
-            self.models = [:]
-        }
+    public func clearModelsFromStore() {
+        self.models = [:]
     }
 }
 
