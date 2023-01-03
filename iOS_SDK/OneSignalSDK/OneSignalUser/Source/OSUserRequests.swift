@@ -63,7 +63,7 @@ class OSUserExecutor {
     }
 
     /**
-     Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK (How again can that happen?). This is used to determine whether or not to hydrate the push subscription.
+     Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK. For example, when the request was created, there may be no push token yet, but soon after, the SDK receives a push token. This is used to determine whether or not to hydrate the push subscription.
      */
     static func parseFetchUserResponse(response: [AnyHashable:Any], identityModel: OSIdentityModel, originalPushToken: String?) {
         // On success, check if the current user is the same as the one in the request

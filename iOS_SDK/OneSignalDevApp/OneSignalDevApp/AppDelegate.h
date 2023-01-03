@@ -31,8 +31,7 @@
 #import <UIKit/UIKit.h>
 #import <OneSignalFramework/OneSignalFramework.h>
 
-// TODO: Add subscription observer
-@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSInAppMessageLifecycleHandler>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, OSPermissionObserver, OSInAppMessageLifecycleHandler, OSPushSubscriptionObserver>
 
 @property (strong, nonatomic) UIWindow *window;
 
