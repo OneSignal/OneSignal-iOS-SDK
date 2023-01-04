@@ -60,11 +60,23 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     }
 
     /**
-     Uses the ID that is used a key to store models in the store's models dictionary.
+     Uses the ID that is used as the key to store models in the store's models dictionary.
      Examples:  "person@example.com" for a subscription model or `OS_IDENTITY_MODEL_KEY` for an identity model.
      */
     public func getModel(key: String) -> TModel? {
         return self.models[key]
+    }
+    
+    /**
+     Uses the `modelId` to get the corresponding model in the store's models dictionary.
+     */
+    public func getModel(modelId: String) -> TModel? {
+        for model in models.values {
+            if model.modelId == modelId {
+                return model
+            }
+        }
+        return nil
     }
 
     public func getModels() -> [String: TModel] {
