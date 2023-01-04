@@ -39,7 +39,7 @@ class OSIdentityModel: OSModel {
     }
 
     var aliases: [String: String] = [:]
-    
+
     // TODO: We need to make this token secure
     public var jwtBearerToken: String?
 

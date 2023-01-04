@@ -58,6 +58,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
+        // TODO: opened handler Not triggered
         NSLog(@"OSNotificationOpenedResult: %@", result.action);
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wdeprecated"

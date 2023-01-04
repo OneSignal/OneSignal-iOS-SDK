@@ -65,33 +65,31 @@ class OSUserExecutor {
     /**
      Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK. For example, when the request was created, there may be no push token yet, but soon after, the SDK receives a push token. This is used to determine whether or not to hydrate the push subscription.
      */
-    static func parseFetchUserResponse(response: [AnyHashable:Any], identityModel: OSIdentityModel, originalPushToken: String?) {
+    static func parseFetchUserResponse(response: [AnyHashable: Any], identityModel: OSIdentityModel, originalPushToken: String?) {
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
-        
+
         // TODO: Determine how to hydrate the push subscription, which is still faulty.
         // Hydrate by token if sub_id exists?
         // Problem: a user can have multiple iOS push subscription, and perhaps missing token
         // Ideally we only get push subscription for this device in the response, not others
-        
+
         // Hydrate the push subscription if we don't already have a subscription ID AND token matches the original request
         if (OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.subscriptionId == nil),
-           let subscriptionObject = parseSubscriptionObjectResponse(response)
-        {
+           let subscriptionObject = parseSubscriptionObjectResponse(response) {
             for subModel in subscriptionObject {
                 if subModel["type"] as? String == "iOSPush",
-                   subModel["token"] as? String == originalPushToken
-                {
+                   subModel["token"] as? String == originalPushToken {
                     OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
                     if let subId = subModel["id"] as? String {
                         OSNotificationsManager.setPushSubscriptionId(subId)
                     }
-                    break;
+                    break
                 }
             }
         }
-   
+
         guard modelInStore?.modelId == identityModel.modelId else {
             return
         }
@@ -99,11 +97,11 @@ class OSUserExecutor {
         if let identityObject = parseIdentityObjectResponse(response) {
             OneSignalUserManagerImpl.sharedInstance.user.identityModel.hydrate(identityObject)
         }
-        
+
         if let propertiesObject = parsePropertiesObjectResponse(response) {
             OneSignalUserManagerImpl.sharedInstance.user.propertiesModel.hydrate(propertiesObject)
         }
-        
+
         // Now parse email and sms subscriptions
         if let subscriptionObject = parseSubscriptionObjectResponse(response) {
             let models = OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.getModels()
@@ -111,12 +109,11 @@ class OSUserExecutor {
                 if let address = subModel["token"] as? String,
                    let rawType = subModel["type"] as? String,
                    rawType != "iOSPush",
-                   let type = OSSubscriptionType(rawValue: rawType)
-                {
+                   let type = OSSubscriptionType(rawValue: rawType) {
                     if let model = models[address] {
                         // This subscription exists in the store, hydrate
                         model.hydrate(subModel)
-                        
+
                     } else {
                         // This subscription does not exist in the store, add
                         OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.add(id: address, model: OSSubscriptionModel(
@@ -132,17 +129,17 @@ class OSUserExecutor {
             }
         }
     }
-    
-    static func parseSubscriptionObjectResponse(_ response: [AnyHashable:Any]?) -> [[String:Any]]? {
-        return response?["subscriptions"] as? [[String:Any]]
+
+    static func parseSubscriptionObjectResponse(_ response: [AnyHashable: Any]?) -> [[String: Any]]? {
+        return response?["subscriptions"] as? [[String: Any]]
     }
-    
-    static func parsePropertiesObjectResponse(_ response: [AnyHashable:Any]?) -> [String:Any]? {
-        return response?["properties"] as? [String:Any]
+
+    static func parsePropertiesObjectResponse(_ response: [AnyHashable: Any]?) -> [String: Any]? {
+        return response?["properties"] as? [String: Any]
     }
-    
-    static func parseIdentityObjectResponse(_ response: [AnyHashable:Any]?) -> [String:Any]? {
-        return response?["identity"] as? [String:Any]
+
+    static func parseIdentityObjectResponse(_ response: [AnyHashable: Any]?) -> [String: Any]? {
+        return response?["identity"] as? [String: Any]
     }
 
     // We will pass minimal properties to this request
@@ -193,6 +190,7 @@ class OSUserExecutor {
             executePendingRequests() // TODO: Here or after fetch or after transfer?
 
         } onFailure: { _ in
+            // TODO: Actually account for error code when processing this failure response
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             // If 409:
             fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
@@ -226,11 +224,11 @@ class OSUserExecutor {
 
     static func executeTransferPushSubscriptionRequest(_ request: OSRequestTransferSubscription) {
         OneSignalClient.shared().execute(request) { _ in
-            // ... hydrate with returned identity object?
+            // TODO: ... hydrate with returned identity object?
             executePendingRequests()
 
         } onFailure: { _ in
-            // What happened? Client responsible for retrying.
+            // TODO: What happened? Client responsible for retrying.
         }
     }
 
@@ -247,7 +245,7 @@ class OSUserExecutor {
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
             }
         } onFailure: { _ in
-            // What?
+            // TODO: What?
         }
     }
 }
@@ -280,7 +278,7 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
             OneSignalLog.onesignalLog(.LL_DEBUG, message: "Cannot generate the create user request due to null app ID.")
             return false
         }
-        self.addJWTHeader(identityModel:identityModel)
+        self.addJWTHeader(identityModel: identityModel)
         self.path = "apps/\(appId)/users"
         // The pushSub doesn't need to have a token.
         return true
@@ -298,12 +296,12 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
         pushSubscriptionObject["token"] = pushSubscriptionModel.address
         pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
-        
+
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if (pushSubscriptionModel.notificationTypes != -1) {
+        if pushSubscriptionModel.notificationTypes != -1 {
             pushSubscriptionObject["notification_types"] = pushSubscriptionModel.notificationTypes
         }
-        
+
         var params: [String: Any] = [:]
         params["identity"] = [:]
         if let externalId = identityModel.externalId {
@@ -644,14 +642,14 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
             return false
         }
     }
-    
+
     func addPushSubscriptionIdToAdditionalHeadersIfNeeded() -> Bool {
         guard let parameters = self.parameters else {
             return true
         }
         if parameters["deltas"] != nil {
             if let pushSubscriptionId = OneSignalUserManagerImpl.sharedInstance.pushSubscriptionId {
-                var additionalHeaders = self.additionalHeaders ?? [String:String]()
+                var additionalHeaders = self.additionalHeaders ?? [String: String]()
                 additionalHeaders["OneSignal-Subscription-Id"] = pushSubscriptionId
                 self.additionalHeaders = additionalHeaders
                 return true
@@ -665,7 +663,7 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
     init(properties: [String: Any], deltas: [String: Any]?, refreshDeviceMetadata: Bool?, modelToUpdate: OSPropertiesModel, identityModel: OSIdentityModel) {
         self.modelToUpdate = modelToUpdate
         self.identityModel = identityModel
-        self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing:deltas)) refreshDeviceMetadata: \(String(describing:refreshDeviceMetadata))"
+        self.stringDescription = "OSRequestUpdateProperties with properties: \(properties) deltas: \(String(describing: deltas)) refreshDeviceMetadata: \(String(describing: refreshDeviceMetadata))"
         super.init()
 
         var params: [String: Any] = [:]
@@ -911,12 +909,12 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         subscriptionParams.removeValue(forKey: "address")
         subscriptionParams.removeValue(forKey: "notificationTypes")
         subscriptionParams["token"] = subscriptionModel.address
-        
+
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
-        if (subscriptionModel.notificationTypes != -1) {
+        if subscriptionModel.notificationTypes != -1 {
             subscriptionParams["notification_types"] = subscriptionModel.notificationTypes
         }
-        
+
         subscriptionParams["enabled"] = subscriptionModel.enabled
         // TODO: The above is not quite right. If we hydrate, we will over-write any pending updates
         // May use subscriptionObject, but enabled and notification_types should be sent together...

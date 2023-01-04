@@ -66,7 +66,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     public func getModel(key: String) -> TModel? {
         return self.models[key]
     }
-    
+
     /**
      Uses the `modelId` to get the corresponding model in the store's models dictionary.
      */
@@ -87,6 +87,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore add() called with model \(model)")
         // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
+            // Check API endpoint for behavior
         models[id] = model
 
         // persist the models (including new model) to storage
@@ -94,11 +95,11 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
         // listen for changes to this model
         model.changeNotifier.subscribe(self)
-        
+
         guard !hydrating else {
             return
         }
-        
+
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
         }

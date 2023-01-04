@@ -52,9 +52,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY)")
         }
-        
+
         // Read unfinished requests from cache, if any...
-        
+
         if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
@@ -70,7 +70,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
-        
+
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
@@ -98,7 +98,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if (!deltaQueue.isEmpty) {
+        if !deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
         }
         for delta in deltaQueue {
@@ -138,7 +138,7 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
 
     func processRequestQueue() {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue
-        
+
         if requestQueue.isEmpty {
             return
         }
@@ -160,8 +160,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     func executeAddAliasesRequest(_ request: OSRequestAddAliases) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
 
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalClient.shared().execute(request) { _ in
             // Mock a response
+            // TODO: Is there even a response to hydrate?
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
             // On success, remove request from cache, and hydrate model
@@ -182,9 +183,10 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
 
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalClient.shared().execute(request) { _ in
 
             // Mock a response
+            // TODO: Is there even a response to hydrate?
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
             // On success, remove request from cache, and hydrate model

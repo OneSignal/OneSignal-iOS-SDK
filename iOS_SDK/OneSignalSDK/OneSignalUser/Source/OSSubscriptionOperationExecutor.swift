@@ -53,15 +53,14 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_DELTA_QUEUE_KEY)")
         }
-        
+
         // Read unfinished requests from cache, if any...
 
         if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestCreateSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in addRequestQueue.enumerated().reversed() {
                 if let subscriptionModel = getSubscriptionModelFromStores(modelId: request.subscriptionModel.modelId),
-                   let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId)
-                {
+                   let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
                     // The models exist in the stores, set it to be the Request's models
                     request.subscriptionModel = subscriptionModel
                     request.identityModel = identityModel
@@ -74,7 +73,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
         }
-        
+
         if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestDeleteSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in removeRequestQueue.enumerated().reversed() {
@@ -90,7 +89,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         } else {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OSSubscriptionOperationExecutor error encountered reading from cache for \(OS_SUBSCRIPTION_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY)")
         }
-        
+
         if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateSubscription] {
             // Hook each uncached Request to the model in the store
             for (index, request) in updateRequestQueue.enumerated().reversed() {
@@ -131,7 +130,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if (!deltaQueue.isEmpty) {
+        if !deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
         }
         for delta in deltaQueue {
@@ -181,11 +180,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
     func processRequestQueue() {
         let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue + updateRequestQueue
-        
+
         if requestQueue.isEmpty {
             return
         }
-        
+
         // Sort the requestQueue by timestamp
         for request in requestQueue.sorted(by: { first, second in
             return first.timestamp < second.timestamp
@@ -208,7 +207,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
-            guard let response = result?["subscription"] as? [String : Any] else {
+            guard let response = result?["subscription"] as? [String: Any] else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
                 return
             }
@@ -231,7 +230,7 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
         // This request can be executed as-is.
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeDeleteSubscriptionRequest making request: \(request)")
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalClient.shared().execute(request) { _ in
 
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
@@ -246,11 +245,11 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
 
     func executeUpdateSubscriptionRequest(_ request: OSRequestUpdateSubscription) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeUpdateSubscriptionRequest making request: \(request)")
-        
+
         guard request.prepareForExecution() else {
             return
         }
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalClient.shared().execute(request) { _ in
 
             // On success, remove request from cache. No model hydration occurs.
             // For example, if app restarts and we read in operations between sending this off and getting the response
