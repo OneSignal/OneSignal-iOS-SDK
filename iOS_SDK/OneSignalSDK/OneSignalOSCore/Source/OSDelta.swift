@@ -34,7 +34,7 @@ open class OSDelta: NSObject, NSCoding {
     public let name: String
     public let deltaId: String
     public let timestamp: Date
-    public let model: OSModel
+    public var model: OSModel
     public let property: String
     public let value: Any
 
