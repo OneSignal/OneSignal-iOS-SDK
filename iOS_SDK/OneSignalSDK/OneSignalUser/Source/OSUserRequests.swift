@@ -513,7 +513,7 @@ class OSRequestAddAliases: OneSignalRequest, OSUserRequest {
         return stringDescription
     }
 
-    let identityModel: OSIdentityModel
+    var identityModel: OSIdentityModel
 
     // requires a `onesignal_id` to send this request
     func prepareForExecution() -> Bool {
@@ -571,7 +571,7 @@ class OSRequestRemoveAlias: OneSignalRequest, OSUserRequest {
     }
 
     let labelToRemove: String
-    let identityModel: OSIdentityModel
+    var identityModel: OSIdentityModel
 
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId, let appId = OneSignalConfigManager.getAppId() {
@@ -627,8 +627,9 @@ class OSRequestUpdateProperties: OneSignalRequest, OSUserRequest {
         return stringDescription
     }
 
-    let modelToUpdate: OSPropertiesModel
-    let identityModel: OSIdentityModel
+    // TODO: does updating properties even have a response in which we need to hydrate from? Then we can get rid of modelToUpdate
+    var modelToUpdate: OSPropertiesModel
+    var identityModel: OSIdentityModel
 
     func prepareForExecution() -> Bool {
         if let onesignalId = identityModel.onesignalId,
@@ -718,8 +719,8 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         return stringDescription
     }
 
-    let subscriptionModel: OSSubscriptionModel
-    let identityModel: OSIdentityModel
+    var subscriptionModel: OSSubscriptionModel
+    var identityModel: OSIdentityModel
 
     // Need the onesignal_id of the user
     func prepareForExecution() -> Bool {
@@ -885,7 +886,7 @@ class OSRequestUpdateSubscription: OneSignalRequest, OSUserRequest {
         return stringDescription
     }
 
-    let subscriptionModel: OSSubscriptionModel
+    var subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
     func prepareForExecution() -> Bool {
@@ -963,7 +964,7 @@ class OSRequestDeleteSubscription: OneSignalRequest, OSUserRequest {
         return stringDescription
     }
 
-    let subscriptionModel: OSSubscriptionModel
+    var subscriptionModel: OSSubscriptionModel
 
     // Need the subscription_id
     func prepareForExecution() -> Bool {
