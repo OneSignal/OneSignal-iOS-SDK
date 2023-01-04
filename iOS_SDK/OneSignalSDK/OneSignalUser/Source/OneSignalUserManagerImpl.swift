@@ -154,10 +154,10 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     let subscriptionModelStoreListener: OSSubscriptionModelStoreListener
     let pushSubscriptionModelStoreListener: OSSubscriptionModelStoreListener
 
-    // has Property and Identity operation executors
-    let propertyExecutor = OSPropertyOperationExecutor()
-    let identityExecutor = OSIdentityOperationExecutor()
-    let subscriptionExecutor = OSSubscriptionOperationExecutor()
+    // Executors must be initialize after sharedInstance is initialized
+    var propertyExecutor: OSPropertyOperationExecutor?
+    var identityExecutor: OSIdentityOperationExecutor?
+    var subscriptionExecutor: OSSubscriptionOperationExecutor?
 
     private override init() {
         self.identityModelStoreListener = OSIdentityModelStoreListener(store: identityModelStore)
@@ -201,6 +201,14 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Setup the executors
         OSUserExecutor.start()
         OSOperationRepo.sharedInstance.start()
+        
+        // Cannot initialize these executors in `init` as they reference the sharedInstance
+        let propertyExecutor = OSPropertyOperationExecutor()
+        let identityExecutor = OSIdentityOperationExecutor()
+        let subscriptionExecutor = OSSubscriptionOperationExecutor()
+        self.propertyExecutor = propertyExecutor
+        self.identityExecutor = identityExecutor
+        self.subscriptionExecutor = subscriptionExecutor
         OSOperationRepo.sharedInstance.addExecutor(identityExecutor)
         OSOperationRepo.sharedInstance.addExecutor(propertyExecutor)
         OSOperationRepo.sharedInstance.addExecutor(subscriptionExecutor)
@@ -399,12 +407,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         let identityModel = user.identityModel
         let propertiesModel = user.propertiesModel
         let propertiesDeltas = OSPropertiesDeltas(sessionTime: nil, sessionCount: nil, amountSpent: nil, purchases: purchases)
-        propertyExecutor.updateProperties(
-            propertiesDeltas: propertiesDeltas,
-            refreshDeviceMetadata: false,
-            propertiesModel: propertiesModel,
-            identityModel: identityModel
-        )
+
+        // propertyExecutor should exist as this should be called after `start()` has been called
+        if let propertyExecutor = self.propertyExecutor {
+            propertyExecutor.updateProperties(
+                propertiesDeltas: propertiesDeltas,
+                refreshDeviceMetadata: false,
+                propertiesModel: propertiesModel,
+                identityModel: identityModel
+            )
+        } else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.sendPurchases with purchases: \(purchases) cannot be executed due to missing property executor.")
+        }
     }
     
     
@@ -449,12 +463,18 @@ extension OneSignalUserManagerImpl {
         let identityModel = user.identityModel
         let propertiesModel = user.propertiesModel
         let propertiesDeltas = OSPropertiesDeltas(sessionTime: sessionTime, sessionCount: sessionCount, amountSpent: nil, purchases: nil)
-        propertyExecutor.updateProperties(
-            propertiesDeltas: propertiesDeltas,
-            refreshDeviceMetadata: refreshDeviceMetadata,
-            propertiesModel: propertiesModel,
-            identityModel: identityModel
-        )
+       
+        // propertyExecutor should exist as this should be called after `start()` has been called
+        if let propertyExecutor = self.propertyExecutor {
+            propertyExecutor.updateProperties(
+                propertiesDeltas: propertiesDeltas,
+                refreshDeviceMetadata: refreshDeviceMetadata,
+                propertiesModel: propertiesModel,
+                identityModel: identityModel
+            )
+        } else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.updateSession with sessionCount: \(String(describing: sessionCount)) sessionTime: \(String(describing: sessionTime)) cannot be executed due to missing property executor.")
+        }
     }
 
     /**
