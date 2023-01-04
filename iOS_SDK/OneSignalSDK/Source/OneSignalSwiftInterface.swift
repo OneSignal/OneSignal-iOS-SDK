@@ -55,7 +55,7 @@ public extension OneSignal {
     static var Location: OSLocation.Type {
         return __location()
     }
-    
+
     static var requiresPrivacyConsent: Bool {
         get {
             return __requiresPrivacyConsent()
@@ -64,7 +64,7 @@ public extension OneSignal {
             __setRequiresPrivacyConsent(newValue)
         }
     }
-    
+
     static var privacyConsent: Bool {
         get {
             return __getPrivacyConsent()
@@ -96,7 +96,7 @@ public extension OSNotifications {
     static var permission: Bool {
         return __permission()
     }
-    
+
     static var canRequestPermission: Bool {
         return __canRequestPermission()
     }
@@ -104,7 +104,7 @@ public extension OSNotifications {
     static func registerForProvisionalAuthorization(_ block: OSUserResponseBlock?) {
         return __register(forProvisionalAuthorization: block)
     }
-    
+
     static func addPermissionObserver(_ observer: OSPermissionObserver) {
         return __add(observer)
     }
