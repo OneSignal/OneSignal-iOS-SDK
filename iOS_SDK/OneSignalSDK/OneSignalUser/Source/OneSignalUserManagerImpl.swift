@@ -40,7 +40,7 @@ import OneSignalNotifications
     // Location
     func setLocation(latitude: Float, longitude: Float)
     // Purchase Tracking
-    func sendPurchases(_ purchases:[[String:AnyObject]])
+    func sendPurchases(_ purchases: [[String: AnyObject]])
 }
 
 /**
@@ -65,7 +65,7 @@ import OneSignalNotifications
     func addSmsNumber(_ number: String)
     func removeSmsNumber(_ number: String) -> Bool
     // Language
-    func setLanguage(_ language: String?)
+    func setLanguage(_ language: String?) // TODO: why optional? As a remove?
     // JWT Token Expire
     typealias OSJwtCompletionBlock = (_ newJwtToken: String) -> Void
     typealias OSJwtExpiredHandler =  (_ externalId: String, _ completion: OSJwtCompletionBlock) -> Void
@@ -93,13 +93,13 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
     @objc public var onesignalId: String? {
         return _user?.identityModel.onesignalId
     }
-    
+
     @objc public var pushSubscriptionId: String? {
         return _user?.pushSubscriptionModel.subscriptionId
     }
 
     private var hasCalledStart = false
-    
+
     private var jwtExpiredHandler: OSJwtExpiredHandler?
 
     var user: OSUserInternal {
@@ -187,6 +187,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
            let propertiesModel = propertiesModelStore.getModels()[OS_PROPERTIES_MODEL_KEY],
            let pushSubscription = pushSubscriptionModelStore.getModels()[OS_PUSH_SUBSCRIPTION_MODEL_KEY] {
             _user = OSUserInternalImpl(identityModel: identityModel, propertiesModel: propertiesModel, pushSubscriptionModel: pushSubscription)
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.start called, loaded the user from cache.")
         }
 
         // Creates an anonymous user if there isn't one in the cache
@@ -201,7 +202,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Setup the executors
         OSUserExecutor.start()
         OSOperationRepo.sharedInstance.start()
-        
+
         // Cannot initialize these executors in `init` as they reference the sharedInstance
         let propertyExecutor = OSPropertyOperationExecutor()
         let identityExecutor = OSIdentityOperationExecutor()
@@ -236,6 +237,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // Check if the existing user is the same one being logged in. If so, return.
         if let user = _user {
             guard user.identityModel.externalId != externalId || externalId == nil else {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignalUserManager.createNewUser: not creating new user due to logging into the same user.)")
                 return user
             }
         }
@@ -305,7 +307,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         _user = nil
         createUserIfNil()
     }
-    
+
     @objc
     public func clearAllModelsFromStores() {
         prepareForNewUser()
@@ -350,9 +352,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         // TODO: We will have to save subscription_id and push_token to user defaults when we get them
 
         let pushSubscription = pushSubscriptionModel ?? createDefaultPushSubscription()
-        
+
         // Add pushSubscription to store if not present
-        if (!pushSubscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY)) {
+        if !pushSubscriptionModelStore.getModels().keys.contains(OS_PUSH_SUBSCRIPTION_MODEL_KEY) {
             pushSubscriptionModelStore.add(id: OS_PUSH_SUBSCRIPTION_MODEL_KEY, model: pushSubscription, hydrating: false)
         }
 
@@ -373,15 +375,15 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
                                    isDisabled: false,
                                    changeNotifier: OSEventProducer())
     }
-    
+
     @objc
-    public func getTags() -> [String:String]? {
+    public func getTags() -> [String: String]? {
         guard let user = _user else {
             return nil
         }
         return user.propertiesModel.tags
     }
-    
+
     @objc
     public func setLocation(latitude: Float, longitude: Float) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLocation") else {
@@ -393,9 +395,9 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
         user.setLocation(lat: latitude, long: longitude)
     }
-    
+
     @objc
-    public func sendPurchases(_ purchases: [[String : AnyObject]]) {
+    public func sendPurchases(_ purchases: [[String: AnyObject]]) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "sendPurchases") else {
             return
         }
@@ -420,8 +422,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
             OneSignalLog.onesignalLog(.LL_ERROR, message: "OneSignalUserManagerImpl.sendPurchases with purchases: \(purchases) cannot be executed due to missing property executor.")
         }
     }
-    
-    
+
     private func fireJwtExpired() {
         guard let externalId = user.identityModel.externalId, let jwtExpiredHandler = self.jwtExpiredHandler else {
             return
@@ -444,15 +445,16 @@ extension OneSignalUserManagerImpl {
             return
         }
         start()
-        
+
         updateSession(sessionCount: 1, sessionTime: nil, refreshDeviceMetadata: true)
 
         // Fetch the user's data if there is a onesignal_id
+        // TODO: What if onesignal_id is missing, because we may init a user from cache but it may be missing onesignal_id. Is this ok.
         if let onesignalId = onesignalId {
             OSUserExecutor.fetchUser(aliasLabel: OS_ONESIGNAL_ID, aliasId: onesignalId, identityModel: user.identityModel)
         }
     }
-    
+
     @objc
     public func updateSession(sessionCount: NSNumber?, sessionTime: NSNumber?, refreshDeviceMetadata: Bool) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
@@ -463,7 +465,7 @@ extension OneSignalUserManagerImpl {
         let identityModel = user.identityModel
         let propertiesModel = user.propertiesModel
         let propertiesDeltas = OSPropertiesDeltas(sessionTime: sessionTime, sessionCount: sessionCount, amountSpent: nil, purchases: nil)
-       
+
         // propertyExecutor should exist as this should be called after `start()` has been called
         if let propertyExecutor = self.propertyExecutor {
             propertyExecutor.updateProperties(
@@ -496,7 +498,7 @@ extension OneSignalUserManagerImpl: OSUser {
     public func onJwtExpired(expiredHandler: @escaping OSJwtExpiredHandler) {
         jwtExpiredHandler = expiredHandler
     }
-    
+
     public var User: OSUser {
         start()
         return self
@@ -626,7 +628,7 @@ extension OneSignalUserManagerImpl: OSUser {
         createUserIfNil()
         return self.subscriptionModelStore.remove(number)
     }
-    
+
     public func setLanguage(_ language: String?) {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "setLanguage") else {
             return
@@ -662,7 +664,7 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         }
         return user.pushSubscriptionModel.address
     }
-    
+
     public var optedIn: Bool {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optedIn") else {
             return false
@@ -680,7 +682,7 @@ extension OneSignalUserManagerImpl: OSPushSubscription {
         user.pushSubscriptionModel._isDisabled = false
         OSNotificationsManager.requestPermission(nil, fallbackToSettings: true)
     }
-    
+
     public func optOut() {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: "pushSubscription.optOut") else {
             return

@@ -189,7 +189,7 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.InAppMessages.Paused = true
         let paused = OneSignal.InAppMessages.Paused
     }
-    
+
     func testJWTTokenExpired() {
         OneSignal.User.onJwtExpired { externalId, completion in
             let newToken = externalId + "newtokenbasedonexternalid"

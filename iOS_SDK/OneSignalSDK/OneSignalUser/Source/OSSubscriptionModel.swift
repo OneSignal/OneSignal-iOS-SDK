@@ -130,14 +130,14 @@ class OSSubscriptionModel: OSModel {
             return calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
         }
     }
-    
+
     var optedIn: Bool {
         // optedIn = permission + userPreference
         get {
             return calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
         }
     }
-    
+
     // Push Subscription Only
     // Initialize to be -1, so not to deal with unwrapping every time, and simplifies caching
     var notificationTypes = -1 {
@@ -259,7 +259,7 @@ extension OSSubscriptionModel {
                                        optedIn: self.optedIn
         )
     }
-    
+
     // Calculates if the device is opted in to push notification.
     // Must have permission and not be opted out.
     func calculateIsOptedIn(accepted: Bool, isDisabled: Bool) -> Bool {
