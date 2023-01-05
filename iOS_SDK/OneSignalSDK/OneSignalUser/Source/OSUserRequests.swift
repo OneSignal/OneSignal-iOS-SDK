@@ -80,7 +80,7 @@ class OSUserExecutor {
            let subscriptionObject = parseSubscriptionObjectResponse(response) {
             for subModel in subscriptionObject {
                 if subModel["type"] as? String == "iOSPush",
-                   subModel["token"] as? String == originalPushToken {
+                   areTokensEqual(tokenA: originalPushToken, tokenB: subModel["token"] as? String) { // response may have "" token or no token
                     OneSignalUserManagerImpl.sharedInstance.user.pushSubscriptionModel.hydrate(subModel)
                     if let subId = subModel["id"] as? String {
                         OSNotificationsManager.setPushSubscriptionId(subId)
@@ -128,6 +128,21 @@ class OSUserExecutor {
                 }
             }
         }
+    }
+
+    /**
+     Returns if 2 tokens are equal. This is needed as a nil token is equal to the empty string "".
+     */
+    static func areTokensEqual(tokenA: String?, tokenB: String?) -> Bool {
+        // They are both strings or both nil
+        if tokenA == tokenB {
+            return true
+        }
+        // One is nil and the other is ""
+        if (tokenA == nil && tokenB == "") || (tokenA == "" && tokenB == nil) {
+            return true
+        }
+        return false
     }
 
     static func parseSubscriptionObjectResponse(_ response: [AnyHashable: Any]?) -> [[String: Any]]? {
