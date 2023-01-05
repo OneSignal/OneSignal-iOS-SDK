@@ -243,7 +243,11 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         }
 
         let pushSubscriptionModel = pushSubscriptionModelStore.getModel(key: OS_PUSH_SUBSCRIPTION_MODEL_KEY)
-        prepareForNewUser()
+
+        // prepareForNewUser may be already called by logout, so we don't want to call it again. Also, there should be no need to call this method if there is no user.
+        if _user != nil {
+            prepareForNewUser()
+        }
 
         let newUser = setNewInternalUser(externalId: externalId, pushSubscriptionModel: pushSubscriptionModel)
         newUser.identityModel.jwtBearerToken = token
@@ -304,6 +308,7 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
      */
     @objc
     public func logout() {
+        prepareForNewUser()
         _user = nil
         createUserIfNil()
     }
