@@ -765,9 +765,9 @@ class OSRequestCreateSubscription: OneSignalRequest, OSUserRequest {
         var subscriptionParams: [String: Any] = [:]
         subscriptionParams["type"] = subscriptionModel.type.rawValue
         subscriptionParams["token"] = subscriptionModel.address
-        subscriptionParams["enabled"] = subscriptionModel.enabled
-
-        // TODO: Add more to `subscriptionParams`?
+        // 1/5/2023: For email and SMS, either send `enabled` AND `notification_types` or don't send either
+        // TODO: ^ Backend changes may require us to come back and change this request's payload.
+        // TODO: Since this is not used for push, don't send either of those. Revisit if we ever create push subscriptions with this request.
 
         self.parameters = ["subscription": subscriptionParams]
         self.method = POST
