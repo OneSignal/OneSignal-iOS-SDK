@@ -167,8 +167,17 @@ class OSUserExecutor {
             return
         }
         OneSignalClient.shared().execute(request) { response in
+            // TODO: Differentiate if we need to fetch based on response code 200, 201, 202
+            // Create User's response won't send us the user's complete info if this user already existed.
+            // We can parse the response OR fetch user (and then parse response then)
+            // For now, do both, as we should parse to get the subscription_id from this request
             if let response = response {
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: originalPushToken)
+                // If we logged into an external_id, fetch the user data
+                if let identity = request.parameters?["identity"] as? [String: String],
+                   let externalId = identity[OS_EXTERNAL_ID] {
+                    fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: externalId, identityModel: request.identityModel)
+                }
             }
             executePendingRequests()
         } onFailure: { error in
