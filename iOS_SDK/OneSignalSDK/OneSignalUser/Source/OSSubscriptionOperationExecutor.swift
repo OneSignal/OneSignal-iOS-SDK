@@ -207,14 +207,15 @@ class OSSubscriptionOperationExecutor: OSOperationExecutor {
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionOperationExecutor: executeCreateSubscriptionRequest making request: \(request)")
         OneSignalClient.shared().execute(request) { result in
+            // On success, remove request from cache (even if not hydrating model), and hydrate model
+            // For example, if app restarts and we read in operations between sending this off and getting the response
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+
             guard let response = result?["subscription"] as? [String: Any] else {
                 OneSignalLog.onesignalLog(.LL_ERROR, message: "Unabled to parse response to create subscription request")
                 return
             }
-            // On success, remove request from cache, and hydrate model
-            // For example, if app restarts and we read in operations between sending this off and getting the response
-            self.addRequestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_SUBSCRIPTION_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
             request.subscriptionModel.hydrate(response)
 
         } onFailure: { error in
