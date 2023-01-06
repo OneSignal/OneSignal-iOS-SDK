@@ -1,3 +1,7 @@
+<h1 align="center">OneSignal SDK v5.0.0-alpha1 Migration Guide</h1>
+
+![Screen Shot 2022-12-20 at 2 55 24 AM](https://user-images.githubusercontent.com/11739227/208625336-d28c8d01-a7cf-4f8e-9643-ac8d1948e9ae.png)
+
 # Intro
 
 In this release, we are making a significant shift from a device-centered model to a user-centered model. A user-centered model allows for more powerful omni-channel integrations within the OneSignal platform.
@@ -36,9 +40,26 @@ As mentioned above, the iOS SDK is making the jump from `v3` to `v5`, in order t
 
 ## SDK Installation
 
-Update the OneSignal SDK in your Xcode project
+### Import Changes
+**Objective-C**
 
-TODO: What changes, if any, for importing OneSignal into a project via CocoaPods, SwiftPM
+```objc
+    // Replace the old import statement
+    #import <OneSignal/OneSignal.h>
+    
+    // With the new import statement
+    #import <OneSignalFramework/OneSignalFramework.h>
+```
+**Swift**
+```swift
+    // Replace the old import statement
+    import OneSignal
+    
+    // With the new import statement
+    import OneSignalFramework
+```
+
+Update the version of the OneSignal iOS SDK your application uses to `5.0.0`. Other than updating the import statement above, there are no additional changes needed to import the OneSignal SDK in your Xcode project. See [the existing installation instructions](https://documentation.onesignal.com/docs/ios-sdk-setup#step-3-import-the-onesignal-sdk-into-your-xcode-project).
 
 # API Changes
 ## Namespaces
@@ -197,8 +218,8 @@ The SDK is still accessible via a `OneSignal` static class. It provides access t
 | `OneSignal.logout()`                                                                                     | `[OneSignal logout]`                                                                                     | *Logout the user previously logged in via [login]. The [user] property now references a new device-scoped user. A device-scoped user has no user identity that can later be retrieved, except through this device as long as the app remains installed and the app data is not cleared.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `let granted: Bool = OneSignal.privacyConsent`<br><br>`OneSignal.privacyConsent = true`                  | `BOOL granted = OneSignal.getPrivacyConsent`<br><br>`[OneSignal setPrivacyConsent:true]`                 | *Indicates whether privacy consent has been granted. This field is only relevant when the application has opted into data privacy protections. See [requiresPrivacyConsent].*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `let required: Bool = OneSignal.requiresPrivacyConsent`<br><br>`OneSignal.requiresPrivacyConsent = true` | `BOOL required = [OneSignal requiresPrivacyConsent]`<br><br>`[OneSignal setRequiresPrivacyConsent:true]` | *Determines whether a user must consent to privacy prior to their user data being sent up to OneSignal.  This should be set to* `*true*` *prior to the invocation of* `initialize` *to ensure compliance.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to* `*true*` *to launch all notifications with a URL in the app instead of the default web browser. Make sure to call* `*setLaunchURLsInApp*` *before the* `*initialize*` *call.*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `OneSignal.setProvidesNotificationSettingsView(true)`                                                    | `[OneSignal setProvidesNotificationSettingsView:true]`                                                   | TODO: Not new but I can’t find this in our documentation at all.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `OneSignal.setLaunchURLsInApp(true)`                                                                     | `[OneSignal setLaunchURLsInApp:true]`                                                                    | *This method can be used to set if launch URLs should be opened in safari or within the application. Set to* `*true*` *to launch all notifications with a URL in the app instead of the default web browser. Make sure to call* `*setLaunchURLsInApp*` *before the* `*initialize*` *call.*                                                                                                                                                                                                                                                                                                               
+|
 
 
 
