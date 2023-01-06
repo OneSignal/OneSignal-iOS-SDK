@@ -26,6 +26,7 @@
  */
 
 import Foundation
+import OneSignalCore
 
 public protocol OSModelStoreListener: OSModelStoreChangedHandler {
     associatedtype TModel: OSModel
@@ -51,7 +52,7 @@ extension OSModelStoreListener {
     }
 
     public func onAdded(_ model: OSModel) {
-        print("🔥 OSModelStoreListener.onAdded() with model \(model)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStoreListener.onAdded() with model \(model)")
         guard let addedModel = model as? Self.TModel else {
             // log error
             return
@@ -62,14 +63,14 @@ extension OSModelStoreListener {
     }
 
     public func onUpdated(_ args: OSModelChangedArgs) {
-        print("🔥 OSModelStoreListener.onUpdated() with args \(args)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStoreListener.onUpdated() with args \(args)")
         if let delta = getUpdateModelDelta(args) {
             OSOperationRepo.sharedInstance.enqueueDelta(delta)
         }
     }
 
     public func onRemoved(_ model: OSModel) {
-        print("🔥 OSModelStoreListener.onRemoved() with model \(model)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStoreListener.onRemoved() called with model \(model)")
         guard let removedModel = model as? Self.TModel else {
             // log error
             return
