@@ -90,16 +90,14 @@ NS_SWIFT_NAME(login(externalId:token:));
 + (Class<OSDebug>)Debug NS_REFINED_FOR_SWIFT;
 
 #pragma mark Privacy Consent
-+ (void)setPrivacyConsent:(BOOL)granted;
-+ (BOOL)getPrivacyConsent;
++ (void)setPrivacyConsent:(BOOL)granted NS_REFINED_FOR_SWIFT;
++ (BOOL)getPrivacyConsent NS_REFINED_FOR_SWIFT;
 /**
  * Tells your application if privacy consent is still needed from the current device.
  * Consent should be provided prior to the invocation of `initialize` to ensure compliance.
  */
-+ (BOOL)requiresPrivacyConsent;
-+ (void)setRequiresPrivacyConsent:(BOOL)required;
-
-#pragma mark Permission, Subscription, and Email Observers
++ (BOOL)requiresPrivacyConsent NS_REFINED_FOR_SWIFT;
++ (void)setRequiresPrivacyConsent:(BOOL)required NS_REFINED_FOR_SWIFT;
 
 #pragma mark In-App Messaging
 + (Class<OSInAppMessages>)InAppMessages NS_REFINED_FOR_SWIFT;
@@ -107,7 +105,7 @@ NS_SWIFT_NAME(login(externalId:token:));
 #pragma mark Location
 + (Class<OSLocation>)Location NS_REFINED_FOR_SWIFT;
 
-#pragma mark Outcomes
+#pragma mark Session
 + (Class<OSSession>)Session NS_REFINED_FOR_SWIFT;
 
 #pragma mark Extension

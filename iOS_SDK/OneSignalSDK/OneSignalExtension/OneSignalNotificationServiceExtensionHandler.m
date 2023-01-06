@@ -139,7 +139,7 @@
         
         // Track confirmed delivery
         let sharedUserDefaults = OneSignalUserDefaults.initShared;
-        let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+        let playerId = [sharedUserDefaults getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
         let appId = [sharedUserDefaults getSavedStringForKey:OSUD_APP_ID defaultValue:nil];
         // Randomize send of confirmed deliveries to lessen traffic for high recipient notifications
         int randomDelay = semaphore != nil ? arc4random_uniform(MAX_CONF_DELIVERY_DELAY) : 0;

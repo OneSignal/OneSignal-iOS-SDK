@@ -745,7 +745,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging;
 				PRODUCT_NAME = OneSignalExample;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalDevApp/OneSignalExample-Bridging-Header.h";
@@ -776,7 +776,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging;
 				PRODUCT_NAME = OneSignalExample;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "OneSignalDevApp/OneSignalExample-Bridging-Header.h";
@@ -804,7 +804,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -832,7 +832,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.OneSignalNotificationServiceExtensionA;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.OneSignalNotificationServiceExtensionA;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -877,7 +877,7 @@
 				MARKETING_VERSION = 1.4.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.Clip;
 				PRODUCT_NAME = OneSignalExampleClip;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -915,7 +915,7 @@
 				);
 				MARKETING_VERSION = 1.4.4;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.staging.Clip;
 				PRODUCT_NAME = OneSignalExampleClip;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
