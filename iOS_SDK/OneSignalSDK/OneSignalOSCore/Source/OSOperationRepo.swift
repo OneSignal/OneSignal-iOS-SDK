@@ -58,7 +58,7 @@ public class OSOperationRepo: NSObject {
         }
         hasCalledStart = true
 
-        print("🔥 OSOperationRepo start()")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo calling start()")
         // register as user observer
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(self.flushDeltaQueue),
@@ -76,7 +76,6 @@ public class OSOperationRepo: NSObject {
 
     private func pollFlushQueue() {
         DispatchQueue.global().asyncAfter(deadline: .now() + .seconds(pollIntervalSeconds)) { [weak self] in
-            print("🔥 OSOperationRepo pollFlushQueue: begin flush")
             self?.flushDeltaQueue()
             self?.pollFlushQueue()
         }
@@ -101,7 +100,7 @@ public class OSOperationRepo: NSObject {
             return
         }
         start()
-        print("🔥 OSOperationRepo enqueueDelta: \(delta)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo enqueueDelta: \(delta)")
         deltaQueue.append(delta)
 
         // Persist the deltas (including new delta) to storage
@@ -113,7 +112,9 @@ public class OSOperationRepo: NSObject {
             return
         }
         start()
-        print("🔥 OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
+        if !deltaQueue.isEmpty {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
+        }
 
         var index = 0
         for delta in deltaQueue {
