@@ -49,10 +49,13 @@ open class OSModelStore<TModel: OSModel>: NSObject {
         for model in self.models.values {
             model.changeNotifier.subscribe(self)
         }
+    }
 
-        // register as user observer
+    public func registerAsUserObserver() -> OSModelStore {
+        // This method was taken out of the initializer as the push subscription model store should not be clearing its user defaults
         NotificationCenter.default.addObserver(self, selector: #selector(self.removeModelsFromUserDefaults),
                                                name: Notification.Name(OS_ON_USER_WILL_CHANGE), object: nil)
+        return self
     }
 
     deinit {
