@@ -42,13 +42,17 @@ public class OSPushSubscriptionState: NSObject {
     @objc public let token: String?
     @objc public let optedIn: Bool
 
+    @objc public override var description: String {
+        return "<OSPushSubscriptionState: id: \(id ?? "nil"), token: \(token ?? "nil"), optedIn: \(optedIn)>"
+    }
+
     init(id: String?, token: String?, optedIn: Bool) {
         self.id = id
         self.token = token
         self.optedIn = optedIn
     }
 
-    func toDictionary() -> NSDictionary {
+    @objc public func toDictionary() -> NSDictionary {
         let id = self.id ?? "nil"
         let token = self.token ?? "nil"
         return [
@@ -64,12 +68,16 @@ public class OSPushSubscriptionStateChanges: NSObject {
     @objc public let to: OSPushSubscriptionState
     @objc public let from: OSPushSubscriptionState
 
+    @objc public override var description: String {
+        return "<OSPushSubscriptionStateChanges:\nfrom: \(self.from),\nto:   \(self.to)\n>"
+    }
+
     init(to: OSPushSubscriptionState, from: OSPushSubscriptionState) {
         self.to = to
         self.from = from
     }
 
-    func toDictionary() -> NSDictionary {
+    @objc public func toDictionary() -> NSDictionary {
         return ["from": from.toDictionary(), "to": to.toDictionary()]
     }
 }
