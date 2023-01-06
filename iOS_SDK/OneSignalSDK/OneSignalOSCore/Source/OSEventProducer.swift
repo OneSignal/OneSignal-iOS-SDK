@@ -47,7 +47,6 @@ public class OSEventProducer<THandler>: NSObject {
     public func fire(callback: (THandler) -> Void) {
         // dump(subscribers) -> uncomment for more verbose log during testing
         if let subscriber = subscriber {
-            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSEventProducer.fire() called with subscriber")
             callback(subscriber)
         }
     }

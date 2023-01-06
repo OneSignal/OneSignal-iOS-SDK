@@ -27,15 +27,15 @@
 
 import OneSignalCore
 
+// TODO: Concrete executors drop OSDeltas and Requests when initializing from the cache, when they cannot be connected to their respective models anymore. Revisit this behavior of dropping.
+
 public protocol OSOperationExecutor {
     var supportedDeltas: [String] { get }
     var deltaQueue: [OSDelta] { get }
-    var requestQueue: [OneSignalRequest] { get }
 
     func enqueueDelta(_ delta: OSDelta)
     func cacheDeltaQueue()
     func processDeltaQueue()
 
-    func enqueueRequest(_ request: OneSignalRequest)
     func processRequestQueue()
 }

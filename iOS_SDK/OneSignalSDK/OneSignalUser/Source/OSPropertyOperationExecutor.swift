@@ -31,21 +31,43 @@ import OneSignalCore
 class OSPropertyOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_UPDATE_PROPERTIES_DELTA]
     var deltaQueue: [OSDelta] = []
-    var requestQueue: [OneSignalRequest] = []
+    var updateRequestQueue: [OSRequestUpdateProperties] = []
 
     init() {
-        // Read unfinished deltas and requests from cache, if any...
-
-        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        // Read unfinished deltas from cache, if any...
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+            // Hook each uncached Delta to the model in the store
+            for (index, delta) in deltaQueue.enumerated().reversed() {
+                if let modelInStore = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: delta.model.modelId) {
+                    // The model exists in the properties model store, set it to be the Delta's model
+                    delta.model = modelInStore
+                } else {
+                    // The model does not exist, drop this Delta
+                    deltaQueue.remove(at: index)
+                }
+            }
             self.deltaQueue = deltaQueue
         } else {
-            // log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY)")
         }
 
-        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OneSignalRequest] {
-            self.requestQueue = requestQueue
+        // Read unfinished requests from cache, if any...
+        if var updateRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestUpdateProperties] {
+            // Hook each uncached Request to the model in the store
+            for (index, request) in updateRequestQueue.enumerated().reversed() {
+                if let propertiesModel = OneSignalUserManagerImpl.sharedInstance.propertiesModelStore.getModel(modelId: request.modelToUpdate.modelId),
+                   let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
+                    // The models exist in the stores, set it to be the Request's models
+                    request.modelToUpdate = propertiesModel
+                    request.identityModel = identityModel
+                } else if !request.prepareForExecution() {
+                    // The models do not exist AND this request cannot be sent, drop this Request
+                    updateRequestQueue.remove(at: index)
+                }
+            }
+            self.updateRequestQueue = updateRequestQueue
         } else {
-            // log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSPropertyOperationExecutor error encountered reading from cache for \(OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY)")
         }
     }
 
@@ -59,7 +81,7 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if (!deltaQueue.isEmpty) {
+        if !deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
         }
         for delta in deltaQueue {
@@ -75,31 +97,24 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
                 modelToUpdate: model,
                 identityModel: OneSignalUserManagerImpl.sharedInstance.user.identityModel // TODO: Make sure this is ok
             )
-            enqueueRequest(request)
+            updateRequestQueue.append(request)
         }
         self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
 
         // persist executor's requests (including new request) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
 
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
         processRequestQueue()
     }
 
-    func enqueueRequest(_ request: OneSignalRequest) {
-        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor enqueueRequest: \(request)")
-        requestQueue.append(request)
-    }
-
     func processRequestQueue() {
-        if requestQueue.isEmpty {
+        if updateRequestQueue.isEmpty {
             return
         }
 
-        for request in requestQueue {
-            if let updatePropertiesRequest = request as? OSRequestUpdateProperties {
-                executeUpdatePropertiesRequest(updatePropertiesRequest)
-            }
+        for request in updateRequestQueue {
+            executeUpdatePropertiesRequest(request)
         }
     }
 
@@ -108,15 +123,16 @@ class OSPropertyOperationExecutor: OSOperationExecutor {
             return
         }
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSPropertyOperationExecutor: executeUpdatePropertiesRequest making request: \(request)")
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalClient.shared().execute(request) { _ in
 
             // On success, remove request from cache, and hydrate model
+            // TODO: Do we actually hydrate model though?
             // For example, if app restarts and we read in operations between sending this off and getting the response
-            self.requestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            self.updateRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
 
         } onFailure: { error in
-            self.requestQueue.removeAll(where: { $0 == request})
+            self.updateRequestQueue.removeAll(where: { $0 == request})
             OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
@@ -133,7 +149,7 @@ extension OSPropertyOperationExecutor {
             modelToUpdate: propertiesModel,
             identityModel: identityModel)
 
-        enqueueRequest(request)
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+        updateRequestQueue.append(request)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_PROPERTIES_EXECUTOR_UPDATE_REQUEST_QUEUE_KEY, withValue: self.updateRequestQueue)
     }
 }
