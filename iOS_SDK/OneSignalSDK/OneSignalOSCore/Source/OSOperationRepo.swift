@@ -112,8 +112,7 @@ public class OSOperationRepo: NSObject {
             return
         }
         start()
-        if (!deltaQueue.isEmpty) {
-            
+        if !deltaQueue.isEmpty {
             OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSOperationRepo flushDeltaQueue with queue: \(deltaQueue)")
         }
 

@@ -50,14 +50,15 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
 //    [FIRApp configure];
     
     NSLog(@"Bundle URL: %@", [[NSBundle mainBundle] bundleURL]);
+    [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
+    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
     
     [OneSignal initialize:[AppDelegate getOneSignalAppId] withLaunchOptions:launchOptions];
     
-    [OneSignal.Debug setLogLevel:ONE_S_LL_VERBOSE];
-    [OneSignal.Debug setVisualLevel:ONE_S_LL_NONE];
     _notificationDelegate = [OneSignalNotificationCenterDelegate new];
     
     id openNotificationHandler = ^(OSNotificationOpenedResult *result) {
+        // TODO: opened handler Not triggered
         NSLog(@"OSNotificationOpenedResult: %@", result.action);
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wdeprecated"
@@ -94,6 +95,11 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal.Notifications setNotificationWillShowInForegroundHandler:notificationReceiverBlock];
     [OneSignal.Notifications setNotificationOpenedHandler:openNotificationHandler];
 
+    OSPushSubscriptionState* state = [OneSignal.User.pushSubscription addObserver:self];
+    NSLog(@"OneSignal Demo App push subscription observer added, current state: %@", state);
+    
+    [OneSignal.Notifications addPermissionObserver:self];
+    
     NSLog(@"UNUserNotificationCenter.delegate: %@", UNUserNotificationCenter.currentNotificationCenter.delegate);
     
     return YES;
@@ -120,12 +126,11 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     NSLog(@"onOSPermissionChanged: %@", stateChanges);
 }
 
-// TODO: Add push sub observer
-//- (void) onOSSubscriptionChanged:(OSSubscriptionStateChanges*)stateChanges {
-//    NSLog(@"onOSSubscriptionChanged: %@", stateChanges);
-//    ViewController* mainController = (ViewController*) self.window.rootViewController;
-//    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.isSubscribed;
-//}
+- (void)onOSPushSubscriptionChangedWithStateChanges:(OSPushSubscriptionStateChanges *)stateChanges {
+    NSLog(@"onOSPushSubscriptionChangedWithStateChanges: %@", stateChanges);
+    ViewController* mainController = (ViewController*) self.window.rootViewController;
+    mainController.subscriptionSegmentedControl.selectedSegmentIndex = (NSInteger) stateChanges.to.optedIn;
+}
 
 #pragma mark OSInAppMessageDelegate
 
