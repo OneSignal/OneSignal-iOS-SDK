@@ -331,6 +331,7 @@ static AppEntryAction _appEntryState = APP_CLOSE;
         [OSNotificationsManager setColdStartFromTapOnNotification:YES];
 }
 
+// TODO: Should this be in the InAppMessages namespace?
 + (void)setLaunchURLsInApp:(BOOL)launchInApp {
     NSMutableDictionary *newSettings = [[NSMutableDictionary alloc] initWithDictionary:appSettings];
     newSettings[kOSSettingsKeyInAppLaunchURL] = launchInApp ? @true : @false;
