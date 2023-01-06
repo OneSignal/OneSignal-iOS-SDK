@@ -31,12 +31,14 @@
 
 @implementation OneSignalUserDefaults : NSObject
 
+// TODO: Revisit if we should use a singletone, not init so much
 + (OneSignalUserDefaults * _Nonnull)initStandard {
     OneSignalUserDefaults *instance = [OneSignalUserDefaults new];
     instance.userDefaults = [instance getStandardUserDefault];
     return instance;
 }
 
+// TODO: Revisit if we should use a singletone, not init so much
 + (OneSignalUserDefaults * _Nonnull)initShared {
     OneSignalUserDefaults *instance = [OneSignalUserDefaults new];
     instance.userDefaults = [instance getSharedUserDefault];

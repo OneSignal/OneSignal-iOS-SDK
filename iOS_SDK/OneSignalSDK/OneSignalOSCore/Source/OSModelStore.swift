@@ -60,21 +60,34 @@ open class OSModelStore<TModel: OSModel>: NSObject {
     }
 
     /**
-     Uses the ID that is used a key to store models in the store's models dictionary.
+     Uses the ID that is used as the key to store models in the store's models dictionary.
      Examples:  "person@example.com" for a subscription model or `OS_IDENTITY_MODEL_KEY` for an identity model.
      */
     public func getModel(key: String) -> TModel? {
         return self.models[key]
     }
 
+    /**
+     Uses the `modelId` to get the corresponding model in the store's models dictionary.
+     */
+    public func getModel(modelId: String) -> TModel? {
+        for model in models.values {
+            if model.modelId == modelId {
+                return model
+            }
+        }
+        return nil
+    }
+
     public func getModels() -> [String: TModel] {
         return self.models
     }
 
-    public func add(id: String, model: TModel) {
-        print("🔥 OSModelStore add with model \(model)")
+    public func add(id: String, model: TModel, hydrating: Bool) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore add() called with model \(model)")
         // TODO: Check if we are adding the same model? Do we replace?
             // For example, calling addEmail multiple times with the same email
+            // Check API endpoint for behavior
         models[id] = model
 
         // persist the models (including new model) to storage
@@ -82,6 +95,10 @@ open class OSModelStore<TModel: OSModel>: NSObject {
 
         // listen for changes to this model
         model.changeNotifier.subscribe(self)
+
+        guard !hydrating else {
+            return
+        }
 
         self.changeSubscription.fire { modelStoreListener in
             modelStoreListener.onAdded(model)
@@ -93,7 +110,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      This can happen if remove email or SMS is called and it doesn't exist in the store.
      */
     public func remove(_ id: String) -> Bool {
-        print("🔥 OSModelStore remove with model \(id)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore remove() called with model \(id)")
         // TODO: Nothing will happen if model doesn't exist in the store
         if let model = models[id] {
             models.removeValue(forKey: id)
@@ -117,9 +134,7 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      We may still need references to model(s) in this store!
      */
     @objc func removeModelsFromUserDefaults() {
-        print("🔥 OSModelStore \(self.storeKey): removeModelsFromUserDefaults() called.")
-        // Clear the UserDefaults models cache when OS_ON_USER_WILL_CHANGE
-
+        // Clear the UserDefaults models cache when OS_ON_USER_WILL_CHANGEclearModelsFromStore() called
         OneSignalUserDefaults.initShared().removeValue(forKey: self.storeKey)
     }
 
@@ -129,14 +144,13 @@ open class OSModelStore<TModel: OSModel>: NSObject {
      In contrast, it is not necessary for the Identity or Properties Model Stores to do so.
      */
     public func clearModelsFromStore() {
-        print("🔥 OSModelStore \(self.storeKey): clearModelsFromStore() called.")
         self.models = [:]
     }
 }
 
 extension OSModelStore: OSModelChangedHandler {
     public func onModelUpdated(args: OSModelChangedArgs, hydrating: Bool) {
-        print("🔥 OSModelStore.onChanged() with args \(args)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSModelStore.onChanged() called with OSModelChangedArgs: \(args)")
 
         // persist the changed models to storage
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: self.storeKey, withValue: self.models)

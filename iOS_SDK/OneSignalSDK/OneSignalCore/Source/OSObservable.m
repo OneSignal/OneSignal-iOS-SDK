@@ -34,7 +34,7 @@ NSHashTable* observers;
 SEL changeSelector;
 }
 
-- (instancetype)initWithChangeSelector:(SEL)selector {
+- (instancetype _Nonnull)initWithChangeSelector:(SEL)selector {
     if (self = [super init]) {
         observers = [NSHashTable weakObjectsHashTable];
         changeSelector = selector;

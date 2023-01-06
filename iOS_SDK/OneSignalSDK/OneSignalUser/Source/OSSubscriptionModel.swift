@@ -38,23 +38,23 @@ import OneSignalNotifications
 
 @objc
 public class OSPushSubscriptionState: NSObject {
-    @objc public let subscriptionId: String?
+    @objc public let id: String?
     @objc public let token: String?
-    @objc public let enabled: Bool
+    @objc public let optedIn: Bool
 
-    init(subscriptionId: String?, token: String?, enabled: Bool) {
-        self.subscriptionId = subscriptionId
+    init(id: String?, token: String?, optedIn: Bool) {
+        self.id = id
         self.token = token
-        self.enabled = enabled
+        self.optedIn = optedIn
     }
 
     func toDictionary() -> NSDictionary {
-        let subscriptionId = self.subscriptionId ?? ""
-        let token = self.token ?? ""
+        let id = self.id ?? "nil"
+        let token = self.token ?? "nil"
         return [
-            "subscriptionId": subscriptionId,
+            "id": id,
             "token": token,
-            "enabled": enabled
+            "optedIn": optedIn
         ]
     }
 }
@@ -99,9 +99,6 @@ class OSSubscriptionModel: OSModel {
                 return
             }
 
-            // Cache the push token as it persists across users on the device?
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_TOKEN_TO, withValue: address)
-
             updateNotificationTypes()
 
             firePushSubscriptionChanged(.address(oldValue))
@@ -121,20 +118,28 @@ class OSSubscriptionModel: OSModel {
             }
 
             // Cache the subscriptionId as it persists across users on the device??
-            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PLAYER_ID_TO, withValue: subscriptionId)
+            OneSignalUserDefaults.initShared().saveString(forKey: OSUD_PUSH_SUBSCRIPTION_ID, withValue: subscriptionId)
 
             firePushSubscriptionChanged(.subscriptionId(oldValue))
         }
     }
 
-    var enabled: Bool { // Note: This behaves like the current `isSubscribed`
+    // Internal property to send to server, not meant for outside access
+    var enabled: Bool { // Does not consider subscription_id in the calculation
         get {
-            return calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
+            return calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
+        }
+    }
+
+    var optedIn: Bool {
+        // optedIn = permission + userPreference
+        get {
+            return calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
         }
     }
 
     // Push Subscription Only
-    // Initialize to be -1, so not to deal with unwrapping every time
+    // Initialize to be -1, so not to deal with unwrapping every time, and simplifies caching
     var notificationTypes = -1 {
         didSet {
             guard self.type == .push && notificationTypes != oldValue else {
@@ -162,7 +167,7 @@ class OSSubscriptionModel: OSModel {
         }
     }
 
-    // Set by the app developer when they set User.pushSubscription.enabled
+    // Set by the app developer when they call User.pushSubscription.optOut()
     var _isDisabled: Bool { // Default to false for all subscriptions
         didSet {
             guard self.type == .push && _isDisabled != oldValue else {
@@ -195,6 +200,7 @@ class OSSubscriptionModel: OSModel {
         coder.encode(subscriptionId, forKey: "subscriptionId")
         coder.encode(_accepted, forKey: "_accepted")
         coder.encode(_isDisabled, forKey: "_isDisabled")
+        coder.encode(notificationTypes, forKey: "notificationTypes")
     }
 
     required init?(coder: NSCoder) {
@@ -210,12 +216,37 @@ class OSSubscriptionModel: OSModel {
         self.subscriptionId = coder.decodeObject(forKey: "subscriptionId") as? String
         self._accepted = coder.decodeBool(forKey: "_accepted")
         self._isDisabled = coder.decodeBool(forKey: "_isDisabled")
+        self.notificationTypes = coder.decodeInteger(forKey: "notificationTypes")
         super.init(coder: coder)
     }
 
-    public override func hydrateModel(_ response: [String: String]) {
-        print("🔥 OSSubscriptionModel hydrateModel()")
-        // TODO: Update Model properties with the response
+    public override func hydrateModel(_ response: [String: Any]) {
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSSubscriptionModel hydrateModel()")
+        for property in response {
+            switch property.key {
+            case "id":
+                self.subscriptionId = property.value as? String
+            case "type":
+                if let type = OSSubscriptionType(rawValue: property.value as? String ?? "") {
+                    self.type = type
+                }
+            // case "token":
+                // TODO: For now, don't hydrate token
+                // self.address = property.value as? String
+            case "enabled":
+                if let enabled = property.value as? Bool {
+                    if self.enabled != enabled { // TODO: Is this right?
+                        _isDisabled = !enabled
+                    }
+                }
+            case "notification_types":
+                if let notificationTypes = property.value as? Int {
+                    self.notificationTypes = notificationTypes
+                }
+            default:
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "Unused property on subscription model")
+            }
+        }
     }
 }
 
@@ -223,21 +254,22 @@ class OSSubscriptionModel: OSModel {
 extension OSSubscriptionModel {
     // Only used for the push subscription model
     var currentPushSubscriptionState: OSPushSubscriptionState {
-        return OSPushSubscriptionState(subscriptionId: self.subscriptionId,
+        return OSPushSubscriptionState(id: self.subscriptionId,
                                        token: self.address,
-                                       enabled: self.enabled
+                                       optedIn: self.optedIn
         )
     }
 
-    // Calculates if the device is currently able to receive a push notification.
-    func calculateIsSubscribed(subscriptionId: String?, address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
-        return (self.subscriptionId != nil) && (self.address != nil) && _accepted && _isDisabled
+    // Calculates if the device is opted in to push notification.
+    // Must have permission and not be opted out.
+    func calculateIsOptedIn(accepted: Bool, isDisabled: Bool) -> Bool {
+        return _accepted && !_isDisabled
     }
 
     // Calculates if push notifications are enabled on the device.
     // Does not consider the existence of the subscription_id, as we send this in the request to create a push subscription.
     func calculateIsEnabled(address: String?, accepted: Bool, isDisabled: Bool) -> Bool {
-        return (self.address != nil) && _accepted && _isDisabled
+        return (self.address != nil) && _accepted && !_isDisabled
     }
 
     func updateNotificationTypes() {
@@ -252,33 +284,33 @@ extension OSSubscriptionModel {
     }
 
     func firePushSubscriptionChanged(_ changedProperty: OSPushPropertyChanged) {
-        var prevIsSubscribed = true
+        var prevIsOptedIn = true
         var prevIsEnabled = true
-        var prevSubscriptionState = OSPushSubscriptionState(subscriptionId: "", token: "", enabled: true)
+        var prevSubscriptionState = OSPushSubscriptionState(id: "", token: "", optedIn: true)
 
         switch changedProperty {
         case .subscriptionId(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
-            prevIsSubscribed = calculateIsSubscribed(subscriptionId: oldValue, address: address, accepted: _accepted, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: oldValue, token: address, enabled: prevIsSubscribed)
+            prevIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(id: oldValue, token: address, optedIn: prevIsOptedIn)
 
         case .accepted(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: address, accepted: oldValue, isDisabled: _isDisabled)
-            prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: oldValue, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsSubscribed)
+            prevIsOptedIn = calculateIsOptedIn(accepted: oldValue, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: prevIsOptedIn)
 
         case .isDisabled(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: oldValue)
-            prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: oldValue)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: prevIsSubscribed)
+            prevIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: oldValue)
+            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: prevIsOptedIn)
 
         case .address(let oldValue):
             prevIsEnabled = calculateIsEnabled(address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
-            prevIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: oldValue, accepted: _accepted, isDisabled: _isDisabled)
-            prevSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: oldValue, enabled: prevIsSubscribed)
+            prevIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
+            prevSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: oldValue, optedIn: prevIsOptedIn)
         }
 
-        let newIsSubscribed = calculateIsSubscribed(subscriptionId: subscriptionId, address: address, accepted: _accepted, isDisabled: _isDisabled)
+        let newIsOptedIn = calculateIsOptedIn(accepted: _accepted, isDisabled: _isDisabled)
 
         let newIsEnabled = calculateIsEnabled(address: address, accepted: _accepted, isDisabled: _isDisabled)
 
@@ -286,12 +318,12 @@ extension OSSubscriptionModel {
             self.set(property: "enabled", newValue: newIsEnabled)
         }
 
-        let newSubscriptionState = OSPushSubscriptionState(subscriptionId: subscriptionId, token: address, enabled: newIsSubscribed)
+        let newSubscriptionState = OSPushSubscriptionState(id: subscriptionId, token: address, optedIn: newIsOptedIn)
 
         let stateChanges = OSPushSubscriptionStateChanges(to: newSubscriptionState, from: prevSubscriptionState)
 
         // TODO: Don't fire observer until server is udated
-        print("🔥 firePushSubscriptionChanged from \(prevSubscriptionState) to \(newSubscriptionState)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "firePushSubscriptionChanged from \(prevSubscriptionState.toDictionary()) to \(newSubscriptionState.toDictionary())")
         OneSignalUserManagerImpl.sharedInstance.pushSubscriptionStateChangesObserver.notifyChange(stateChanges)
     }
 }

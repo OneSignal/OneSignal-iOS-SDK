@@ -101,13 +101,14 @@
                 results[identifier] = result;
                 // Add a success as 1 (success) to the response
                 response[identifier] = @{ @"success" : @(true) };
-                [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
                 // Add a success as 0 (failed) to the response
                 response[identifier] = @{ @"success" : @(false) };
                 [OneSignalLog onesignalLog:ONE_S_LL_ERROR message:[NSString stringWithFormat:@"Request %@ fail result error %@", request, error]];
+
                 dispatch_group_leave(group);
             }];
         }
@@ -153,7 +154,7 @@
             dispatch_group_enter(group);
             [self executeRequest:request onSuccess:^(NSDictionary *result) {
                 results[identifier] = result;
-                [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
+                [OneSignalLog onesignalLog:ONE_S_LL_DEBUG message:[NSString stringWithFormat:@"Request %@ success result %@", request, result]];
                 dispatch_group_leave(group);
             } onFailure:^(NSError *error) {
                 errors[identifier] = error;
@@ -386,7 +387,7 @@
     if ([self willReattemptRequest:(int)statusCode withRequest:request success:successBlock failure:failureBlock asyncRequest:async])
         return;
     
-    if (error == nil && (statusCode == 200 || statusCode == 202)) {
+    if (error == nil && (statusCode == 200 || statusCode == 201 || statusCode == 202)) {
         if (successBlock != nil) {
             if (innerJson != nil)
                 successBlock(innerJson);

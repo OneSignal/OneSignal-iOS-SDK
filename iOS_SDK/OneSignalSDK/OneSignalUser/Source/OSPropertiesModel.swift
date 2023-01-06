@@ -27,17 +27,18 @@
 
 import Foundation
 import OneSignalOSCore
+import OneSignalCore
 
 struct OSPropertiesDeltas {
     let sessionTime: NSNumber?
     let sessionCount: NSNumber?
     let amountSpent: NSNumber?
-    let purchases: [[String:AnyObject]]?
-    
-    func toDictionary() -> [String:Any] {
-        var deltas = [String:Any]()
+    let purchases: [[String: AnyObject]]?
+
+    func toDictionary() -> [String: Any] {
+        var deltas = [String: Any]()
         deltas["session_count"] = sessionCount
-        deltas["session_time"] = sessionTime
+        deltas["session_time"] = sessionTime?.intValue // server expects an int
         deltas["amountSpent"] = amountSpent
         deltas["purchases"] = purchases
         return deltas
@@ -50,13 +51,13 @@ class OSPropertiesModel: OSModel {
             self.set(property: "language", newValue: language)
         }
     }
-    
+
     var lat: Float? {
         didSet {
             self.set(property: "lat", newValue: lat)
         }
     }
-    
+
     var long: Float? {
         didSet {
             self.set(property: "long", newValue: long)
@@ -106,10 +107,19 @@ class OSPropertiesModel: OSModel {
             self.tags.removeValue(forKey: tag)
             tagsToSend[tag] = ""
         }
-        self.set(property: "aliases", newValue: tagsToSend)
+        self.set(property: "tags", newValue: tagsToSend)
     }
 
-    public override func hydrateModel(_ response: [String: String]) {
-        // TODO: Update Model properties with the response
+    public override func hydrateModel(_ response: [String: Any]) {
+        for property in response {
+            switch property.key {
+            case "language":
+                self.language = property.value as? String
+            case "tags":
+                self.tags = property.value as? [String: String] ?? [:]
+            default:
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "Not hydrating properties model for property: \(property)")
+            }
+        }
     }
 }

@@ -165,11 +165,14 @@
 }
 
 - (IBAction)setExternalUserId:(UIButton *)sender {
-    NSLog(@"setExternalUserId is no longer supported. Please use login or addAlias.");
+    NSString* externalUserId = self.externalUserIdTextField.text;
+    NSLog(@"Dev App: Logging in to external user ID %@", externalUserId);
+    [OneSignal login:externalUserId];
 }
 
 - (IBAction)removeExternalUserId:(UIButton *)sender {
-    NSLog(@"setExternalUserId is no longer supported. Please use logout or removeAlias.");
+    NSLog(@"Dev App: Logout called.");
+    [OneSignal logout];
 }
 
 #pragma mark UITextFieldDelegate Methods

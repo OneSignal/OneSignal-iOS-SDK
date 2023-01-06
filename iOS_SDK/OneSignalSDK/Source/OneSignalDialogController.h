@@ -32,7 +32,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OneSignalDialogController : NSObject <UIAlertViewDelegate, OSDialogPresenter>
-
++ (instancetype _Nonnull)sharedInstance;
 @end
 
 NS_ASSUME_NONNULL_END
