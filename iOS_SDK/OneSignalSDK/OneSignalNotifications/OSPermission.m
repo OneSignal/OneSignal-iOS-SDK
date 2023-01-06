@@ -159,6 +159,37 @@
     return OSNotificationPermissionNotDetermined;
 }
 
+- (BOOL)compare:(OSPermissionStateInternal*)from {
+    return self.accepted != from.accepted ||
+           self.ephemeral != from.ephemeral ||
+           self.answeredPrompt != from.answeredPrompt ||
+           self.hasPrompted != from.hasPrompted;
+}
+
+- (OSPermissionState *)getExternalState {
+    return [[OSPermissionState alloc] initWithStatus:self.status reachable:self.reachable hasPrompted:self.hasPrompted provisional:self.provisional providesAppNotificationSettings:self.providesAppNotificationSettings];
+}
+
+- (NSString*)description {
+    static NSString* format = @"<OSPermissionStateInternal: hasPrompted: %d, status: %@, provisional: %d>";
+    return [NSString stringWithFormat:format, self.hasPrompted, self.status, self.provisional];
+}
+
+
+
+@end
+
+@implementation OSPermissionState
+    
+- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
+    _status = status;
+    _reachable = reachable;
+    _hasPrompted = hasPrompted;
+    _providesAppNotificationSettings = providesAppNotificationSettings;
+    _provisional = provisional;
+    return self;
+}
+
 - (NSString*)statusAsString {
     switch(self.status) {
         case OSNotificationPermissionNotDetermined:
@@ -175,35 +206,9 @@
     return @"NotDetermined";
 }
 
-- (BOOL)compare:(OSPermissionStateInternal*)from {
-    return self.accepted != from.accepted ||
-           self.ephemeral != from.ephemeral ||
-           self.answeredPrompt != from.answeredPrompt ||
-           self.hasPrompted != from.hasPrompted;
-}
-
-- (OSPermissionState *)getExternalState {
-    return [[OSPermissionState alloc] initWithStatus:self.status reachable:self.reachable hasPrompted:self.hasPrompted provisional:self.provisional providesAppNotificationSettings:self.providesAppNotificationSettings];
-}
-
 - (NSString*)description {
     static NSString* format = @"<OSPermissionState: hasPrompted: %d, status: %@, provisional: %d>";
     return [NSString stringWithFormat:format, self.hasPrompted, self.statusAsString, self.provisional];
-}
-
-
-
-@end
-
-@implementation OSPermissionState
-    
-- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings {
-    _status = status;
-    _reachable = reachable;
-    _hasPrompted = hasPrompted;
-    _providesAppNotificationSettings = providesAppNotificationSettings;
-    _provisional = provisional;
-    return self;
 }
 
 - (NSDictionary*)toDictionary {
