@@ -31,26 +31,65 @@ import OneSignalCore
 class OSIdentityOperationExecutor: OSOperationExecutor {
     var supportedDeltas: [String] = [OS_ADD_ALIAS_DELTA, OS_REMOVE_ALIAS_DELTA]
     var deltaQueue: [OSDelta] = []
-    var requestQueue: [OneSignalRequest] = []
+    // To simplify uncaching, we maintain separate request queues for each type
+    var addRequestQueue: [OSRequestAddAliases] = []
+    var removeRequestQueue: [OSRequestRemoveAlias] = []
 
     init() {
-        // Read unfinished deltas and requests from cache, if any...
-
-        if let deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+        // Read unfinished deltas from cache, if any...
+        if var deltaQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, defaultValue: []) as? [OSDelta] {
+            // Hook each uncached Delta to the model in the store
+            for (index, delta) in deltaQueue.enumerated().reversed() {
+                if let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: delta.model.modelId) {
+                    // The model exists in the store, set it to be the Delta's model
+                    delta.model = modelInStore
+                } else {
+                    // The model does not exist, drop this Delta
+                    deltaQueue.remove(at: index)
+                }
+            }
             self.deltaQueue = deltaQueue
         } else {
-            // log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY)")
         }
 
-        if let requestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, defaultValue: []) as? [OneSignalRequest] {
-            self.requestQueue = requestQueue
+        // Read unfinished requests from cache, if any...
+
+        if var addRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestAddAliases] {
+            // Hook each uncached Request to the model in the store
+            for (index, request) in addRequestQueue.enumerated().reversed() {
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
+                    // The model exists in the store, set it to be the Request's models
+                    request.identityModel = identityModel
+                } else if !request.prepareForExecution() {
+                    // The models do not exist AND this request cannot be sent, drop this Request
+                    addRequestQueue.remove(at: index)
+                }
+            }
+            self.addRequestQueue = addRequestQueue
         } else {
-            // log error
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY)")
+        }
+
+        if var removeRequestQueue = OneSignalUserDefaults.initShared().getSavedCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, defaultValue: []) as? [OSRequestRemoveAlias] {
+            // Hook each uncached Request to the model in the store
+            for (index, request) in removeRequestQueue.enumerated().reversed() {
+                if let identityModel = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(modelId: request.identityModel.modelId) {
+                    // The model exists in the store, set it to be the Request's model
+                    request.identityModel = identityModel
+                } else if !request.prepareForExecution() {
+                    // The model does not exist AND this request cannot be sent, drop this Request
+                    removeRequestQueue.remove(at: index)
+                }
+            }
+            self.removeRequestQueue = removeRequestQueue
+        } else {
+            OneSignalLog.onesignalLog(.LL_ERROR, message: "OSIdentityOperationExecutor error encountered reading from cache for \(OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY)")
         }
     }
 
     func enqueueDelta(_ delta: OSDelta) {
-        print("🔥 OSIdentityOperationExecutor enqueueDelta: \(delta)")
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor enqueueDelta: \(delta)")
         deltaQueue.append(delta)
     }
 
@@ -59,10 +98,9 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
     }
 
     func processDeltaQueue() {
-        if deltaQueue.isEmpty {
-            return
+        if !deltaQueue.isEmpty {
+            OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor processDeltaQueue with queue: \(deltaQueue)")
         }
-
         for delta in deltaQueue {
             guard let model = delta.model as? OSIdentityModel,
                   let aliases = delta.value as? [String: String]
@@ -74,88 +112,93 @@ class OSIdentityOperationExecutor: OSOperationExecutor {
             switch delta.name {
             case OS_ADD_ALIAS_DELTA:
                 let request = OSRequestAddAliases(aliases: aliases, identityModel: model)
-                enqueueRequest(request)
+                addRequestQueue.append(request)
 
             case OS_REMOVE_ALIAS_DELTA:
                 if let label = aliases.first?.key {
                     let request = OSRequestRemoveAlias(labelToRemove: label, identityModel: model)
-                    enqueueRequest(request)
+                    removeRequestQueue.append(request)
                 }
-                // Log error
 
             default:
-                // Log error
-                print("🔥 OSIdentityOperationExecutor met incompatible OSDelta type.")
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor met incompatible OSDelta type: \(delta)")
             }
         }
 
         self.deltaQueue = [] // TODO: Check that we can simply clear all the deltas in the deltaQueue
 
         // persist executor's requests (including new request) to storage
-        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
+        OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
 
         OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_DELTA_QUEUE_KEY, withValue: self.deltaQueue) // This should be empty, can remove instead?
 
         processRequestQueue()
     }
 
-    func enqueueRequest(_ request: OneSignalRequest) {
-        print("🔥 OSIdentityOperationExecutor enqueueRequest: \(request)")
-        requestQueue.append(request)
-    }
-
     func processRequestQueue() {
+        let requestQueue: [OneSignalRequest] = addRequestQueue + removeRequestQueue
+
         if requestQueue.isEmpty {
             return
         }
 
-        for request in requestQueue {
+        // Sort the requestQueue by timestamp
+        for request in requestQueue.sorted(by: { first, second in
+            return first.timestamp < second.timestamp
+        }) {
             if request.isKind(of: OSRequestAddAliases.self), let addAliasesRequest = request as? OSRequestAddAliases {
                 executeAddAliasesRequest(addAliasesRequest)
             } else if request.isKind(of: OSRequestRemoveAlias.self), let removeAliasRequest = request as? OSRequestRemoveAlias {
                 executeRemoveAliasRequest(removeAliasRequest)
             } else {
-                // Log Error
+                OneSignalLog.onesignalLog(.LL_DEBUG, message: "OSIdentityOperationExecutor.processRequestQueue met incompatible OneSignalRequest type: \(request).")
             }
         }
     }
 
     func executeAddAliasesRequest(_ request: OSRequestAddAliases) {
-        print("🔥 OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeAddAliasesRequest making request: \(request)")
+
+        OneSignalClient.shared().execute(request) { _ in
             // Mock a response
+            // TODO: Is there even a response to hydrate?
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
             // On success, remove request from cache, and hydrate model
             // For example, if app restarts and we read in operations between sending this off and getting the response
-            self.requestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_ADD_REQUEST_QUEUE_KEY, withValue: self.addRequestQueue)
 
             // instead: modelstore.hydratewithresponse with modelid passed in.. request.modeltoupdate.modelId
                 // store can determine if modelid is same, then hydrate or do nothign
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
-            // On failure, retry logic, but order of operations matters
+            self.addRequestQueue.removeAll(where: { $0 == request})
+            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
 
     func executeRemoveAliasRequest(_ request: OSRequestRemoveAlias) {
-        print("🔥 OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
-        OneSignalClient.shared().execute(request) { result in
+        OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OSIdentityOperationExecutor: executeRemoveAliasRequest making request: \(request)")
+
+        OneSignalClient.shared().execute(request) { _ in
 
             // Mock a response
+            // TODO: Is there even a response to hydrate?
             let response = ["onesignalId": UUID().uuidString, "label01": "id01"]
 
             // On success, remove request from cache, and hydrate model
             // For example, if app restarts and we read in operations between sending this off and getting the response
-            self.requestQueue.removeAll(where: { $0 == request})
-            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REQUEST_QUEUE_KEY, withValue: self.requestQueue)
+            self.removeRequestQueue.removeAll(where: { $0 == request})
+            OneSignalUserDefaults.initShared().saveCodeableData(forKey: OS_IDENTITY_EXECUTOR_REMOVE_REQUEST_QUEUE_KEY, withValue: self.removeRequestQueue)
 
             request.identityModel.hydrate(response)
 
         } onFailure: { error in
-            // On failure, retry logic, but order of operations matters
+            self.removeRequestQueue.removeAll(where: { $0 == request})
+            OneSignalLog.onesignalLog(.LL_ERROR, message: error.debugDescription)
         }
     }
 }

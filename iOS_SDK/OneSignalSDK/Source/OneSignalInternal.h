@@ -39,19 +39,11 @@
 
 @interface OneSignal (OneSignalInternal)
 
-+ (BOOL)shouldPromptToShowURL;
-+ (void)setIsOnSessionSuccessfulForCurrentState:(BOOL)value;
-+ (BOOL)shouldRegisterNow;
-
 + (NSDate *_Nonnull)sessionLaunchTime;
 
 
 @property (class, readonly) BOOL didCallDownloadParameters;
 @property (class, readonly) BOOL downloadedParameters;
-//Indicates we have attempted to register the user and it has succeeded or failed
-@property (class, readonly) BOOL isRegisterUserFinished;
-//Indicates that registering the user was successful
-@property (class, readonly) BOOL isRegisterUserSuccessful;
 
 @property (class) AppEntryAction appEntryState;
 @property (class) OSSessionManager* _Nonnull sessionManager;
