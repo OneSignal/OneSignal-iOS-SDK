@@ -27,13 +27,20 @@
 
 import Foundation
 
+// TODO: Known Issue: Since these don't carry the app_id, it may have changed by the time Deltas become Requests, if app_id changes.
+// All requests requiring unique ID's will effectively be dropped.
+
 open class OSDelta: NSObject, NSCoding {
     public let name: String
     public let deltaId: String
     public let timestamp: Date
-    public let model: OSModel
+    public var model: OSModel
     public let property: String
     public let value: Any
+
+    override open var description: String {
+        return "OSDelta \(name) with property: \(property) value: \(value)"
+    }
 
     public init(name: String, model: OSModel, property: String, value: Any) {
         self.name = name

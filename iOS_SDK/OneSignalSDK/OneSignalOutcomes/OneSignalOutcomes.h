@@ -48,7 +48,8 @@
 @protocol OSSession <NSObject>
 + (void)addOutcome:(NSString * _Nonnull)name;
 + (void)addUniqueOutcome:(NSString * _Nonnull)name;
-+ (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
++ (void)addOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value NS_REFINED_FOR_SWIFT;
+
 @end
 
 @interface OSOutcomes : NSObject <OSSession>

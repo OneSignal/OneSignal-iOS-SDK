@@ -55,11 +55,11 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @property (readonly, nonatomic) BOOL providesAppNotificationSettings;
 @property (readonly, nonatomic) OSNotificationPermission status;
 - (NSDictionary* _Nonnull)toDictionary;
-- (instancetype)initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings;
+- (instancetype _Nonnull )initWithStatus:(OSNotificationPermission)status reachable:(BOOL)reachable hasPrompted:(BOOL)hasPrompted provisional:(BOOL)provisional providesAppNotificationSettings:(BOOL)providesAppNotificationSettings;
 @end
 
 @protocol OSPermissionStateObserver<NSObject>
-- (void)onChanged:(OSPermissionState*)state;
+- (void)onChanged:(OSPermissionState * _Nonnull)state;
 @end
 
 typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> ObservablePermissionStateType;
@@ -80,15 +80,15 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 @property (readonly, nonatomic) OSNotificationPermission status;
 @property int notificationTypes;
 
-@property (nonatomic) ObservablePermissionStateType* observable;
+@property (nonatomic) ObservablePermissionStateType * _Nonnull observable;
 
 - (void) persistAsFrom;
 
-- (instancetype)initAsTo;
-- (instancetype)initAsFrom;
+- (instancetype _Nonnull )initAsTo;
+- (instancetype _Nonnull )initAsFrom;
 
-- (BOOL)compare:(OSPermissionStateInternal*)from;
-- (OSPermissionState *)getExternalState;
+- (BOOL)compare:(OSPermissionStateInternal * _Nonnull)from;
+- (OSPermissionState * _Nonnull)getExternalState;
 
 @end
 
@@ -97,18 +97,18 @@ typedef OSObservable<NSObject<OSPermissionStateObserver>*, OSPermissionState*> O
 @property (readonly, nonnull) OSPermissionState* to;
 @property (readonly, nonnull) OSPermissionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
-- (instancetype)initAsTo:(OSPermissionState *)to from:(OSPermissionState *)from;
+- (instancetype _Nonnull)initAsTo:(OSPermissionState * _Nonnull)to from:(OSPermissionState * _Nonnull)from;
 @end
 
 @protocol OSPermissionObserver <NSObject>
-- (void)onOSPermissionChanged:(OSPermissionStateChanges* _Nonnull)stateChanges;
+- (void)onOSPermissionChanged:(OSPermissionStateChanges * _Nonnull)stateChanges;
 @end
 
 typedef OSObservable<NSObject<OSPermissionObserver>*, OSPermissionStateChanges*> ObservablePermissionStateChangesType;
 
 
 @interface OSPermissionChangedInternalObserver : NSObject<OSPermissionStateObserver>
-+ (void)fireChangesObserver:(OSPermissionStateInternal*)state;
++ (void)fireChangesObserver:(OSPermissionStateInternal * _Nonnull)state;
 @end
 
 
