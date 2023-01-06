@@ -31,6 +31,7 @@ import OneSignalOSCore
 /**
  This is the user interface exposed to the public.
  */
+// TODO: Wrong description above? Not exposed to public.
 protocol OSUserInternal {
     var isAnonymous: Bool { get }
     var pushSubscriptionModel: OSSubscriptionModel { get }
@@ -43,7 +44,7 @@ protocol OSUserInternal {
     func addTags(_ tags: [String: String])
     func removeTags(_ tags: [String])
     // Location
-    func setLocation(lat:Float, long:Float)
+    func setLocation(lat: Float, long: Float)
     // Language
     func setLanguage(_ language: String?)
 }
@@ -52,7 +53,7 @@ protocol OSUserInternal {
  Internal user object that implements the OSUserInternal protocol.
  */
 class OSUserInternalImpl: NSObject, OSUserInternal {
-    
+
     // TODO: Determine if having any alias should return true
     // Is an anon user who has added aliases, still an anon user?
     var isAnonymous: Bool {
@@ -118,18 +119,18 @@ class OSUserInternalImpl: NSObject, OSUserInternal {
 
         propertiesModel.removeTags(tags)
     }
-    
+
     // MARK: - Location
-    
+
     func setLocation(lat: Float, long: Float) {
         OneSignalLog.onesignalLog(.LL_VERBOSE, message: "OneSignal.User setLocation called with lat: \(lat) long: \(long)")
 
         propertiesModel.lat = lat
         propertiesModel.long = long
     }
-    
+
     // MARK: - Language
-    
+
     func setLanguage(_ language: String?) {
         propertiesModel.language = language
     }

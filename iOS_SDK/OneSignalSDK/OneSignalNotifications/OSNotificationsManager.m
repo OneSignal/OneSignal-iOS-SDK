@@ -182,7 +182,7 @@ static OSPermissionStateInternal* _lastPermissionState;
 static NSString *_pushToken;
 + (NSString*)pushToken {
     if (!_pushToken) {
-        _pushToken = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_TOKEN_TO defaultValue:nil];
+        _pushToken = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_TOKEN defaultValue:nil];
     }
     return _pushToken;
 }
@@ -190,7 +190,7 @@ static NSString *_pushToken;
 static NSString *_pushSubscriptionId;
 + (NSString*)pushSubscriptionId {
     if (!_pushSubscriptionId) {
-        _pushSubscriptionId = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PLAYER_ID_TO defaultValue:nil];
+        _pushSubscriptionId = [OneSignalUserDefaults.initShared getSavedStringForKey:OSUD_PUSH_SUBSCRIPTION_ID defaultValue:nil];
     }
     return _pushSubscriptionId;
 }
@@ -393,7 +393,7 @@ static NSString *_pushSubscriptionId;
     _pushToken = parsedDeviceToken;
     
     // Cache push token
-    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PUSH_TOKEN_TO withValue:_pushToken];
+    [OneSignalUserDefaults.initShared saveStringForKey:OSUD_PUSH_TOKEN withValue:_pushToken];
 
     [self sendPushTokenToDelegate];
 }
