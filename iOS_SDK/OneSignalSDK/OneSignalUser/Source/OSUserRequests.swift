@@ -214,16 +214,19 @@ class OSUserExecutor {
 
             executePendingRequests() // TODO: Here or after fetch or after transfer?
 
-        } onFailure: { _ in
-            // TODO: Actually account for error code when processing this failure response
+        } onFailure: { error in
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
-            // If 409:
-            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-            // TODO: Link ^ to the new user
-            transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
-            executePendingRequests() // Here or after fetch or after transfer?
+            if error?._code == 409 {
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest returned 409, failed due to alias already assigned to a different user. Now switch to this user.")
 
-            // If not 409, we retry, depending on what the error is?
+                fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
+                // TODO: Link ^ to the new user... what was this todo for?
+                transferPushSubscriptionTo(aliasLabel: request.aliasLabel, aliasId: request.aliasId, retainPreviousUser: true) // update logic to determine flag
+                executePendingRequests() // Here or after fetch or after transfer?
+            } else {
+                // If not 409, we retry, depending on what the error is?
+                OneSignalLog.onesignalLog(.LL_VERBOSE, message: "executeIdentifyUserRequest failed without returning a 409.")
+            }
         }
     }
 
