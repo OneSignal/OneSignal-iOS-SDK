@@ -529,6 +529,7 @@ static BOOL _isInAppMessagingPaused = false;
 
     if (messageDismissed && redisplayMessageSavedData) {
         [OneSignalLog onesignalLog:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Redisplay IAM: %@", message.jsonRepresentation.description]];
+        
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
 

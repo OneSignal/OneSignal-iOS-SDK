@@ -43,7 +43,7 @@
                                                     <constraint firstAttribute="width" constant="68" id="com-ja-CVD"/>
                                                 </constraints>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Get Tags"/>
+                                                <state key="normal" title="INFO"/>
                                                 <connections>
                                                     <action selector="getTagsButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Pp8-oA-Zrh"/>
                                                 </connections>
@@ -298,7 +298,7 @@
                                                 <rect key="frame" x="118" y="581" width="136" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Set External User Id"/>
+                                                <state key="normal" title="Login to External User Id"/>
                                                 <connections>
                                                     <action selector="setExternalUserId:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DXf-1K-Lkc"/>
                                                 </connections>
@@ -374,11 +374,11 @@
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
-                                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OiG-L7-Ot2" userLabel="Remove External User Id">
+                                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OiG-L7-Ot2" userLabel="Logout">
                                                 <rect key="frame" x="103" y="619" width="168" height="30"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
                                                 <color key="tintColor" red="1" green="0.1367101157" blue="0.01701983743" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <state key="normal" title="Remove External User Id"/>
+                                                <state key="normal" title="Logout"/>
                                                 <connections>
                                                     <action selector="removeExternalUserId:" destination="BYZ-38-t0r" eventType="touchUpInside" id="F3N-HQ-tSv"/>
                                                 </connections>
