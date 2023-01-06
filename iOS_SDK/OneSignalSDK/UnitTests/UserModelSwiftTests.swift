@@ -28,17 +28,6 @@
 import XCTest
 import OneSignalFramework
 
-extension OSInAppMessages {
-    static var Paused: Bool {
-        get {
-            return __paused()
-        }
-        set {
-            __paused(newValue)
-        }
-    }
-}
-
 // Non-class type 'OSPushSubscriptionTestObserver' cannot conform to class protocol 'OSPushSubscriptionObserver'
 // ^ Cannot use a struct for an OSPushSubscriptionObserver
 
@@ -200,7 +189,7 @@ class UserModelSwiftTests: XCTestCase {
         OneSignal.InAppMessages.Paused = true
         let paused = OneSignal.InAppMessages.Paused
     }
-    
+
     func testJWTTokenExpired() {
         OneSignal.User.onJwtExpired { externalId, completion in
             let newToken = externalId + "newtokenbasedonexternalid"
