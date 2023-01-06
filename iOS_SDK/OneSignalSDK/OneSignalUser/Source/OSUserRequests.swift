@@ -209,6 +209,7 @@ class OSUserExecutor {
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
         OneSignalClient.shared().execute(request) { _ in
             // the anonymous user has been identified, still need to Fetch User
+            // TODO: Is the above true, do we need to Fetch? If the anon user is identified, then no user with this external_id existed, correct?
             fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
 
             executePendingRequests() // TODO: Here or after fetch or after transfer?
