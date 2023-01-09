@@ -72,10 +72,6 @@
     
     return request;
 }
-
--(BOOL)missingAppId {
-    return false; //this request doesn't have an app ID parameter
-}
 @end
 
 @implementation OSRequestSendTagsToServer
