@@ -283,6 +283,18 @@ public class OneSignalUserManagerImpl: NSObject, OneSignalUserManager {
         )
     }
 
+    /**
+     Clears the existing user's data in preparation for hydration via a fetch user call.
+     */
+    func clearUserData() {
+        // Identity and property models should still be the same instances, but with data cleared
+        _user?.identityModel.clearData()
+        _user?.propertiesModel.clearData()
+
+        // Subscription model store should be cleared completely
+        OneSignalUserManagerImpl.sharedInstance.subscriptionModelStore.clearModelsFromStore()
+    }
+
     private func _login(externalId: String?, token: String?) -> OSUserInternal {
         guard !OneSignalConfigManager.shouldAwaitAppIdAndLogMissingPrivacyConsent(forMethod: nil) else {
             return _mockUser

@@ -167,13 +167,14 @@ class OSUserExecutor {
             return
         }
         OneSignalClient.shared().execute(request) { response in
-            // TODO: Differentiate if we need to fetch based on response code 200, 201, 202
-            // Create User's response won't send us the user's complete info if this user already existed.
-            // We can parse the response OR fetch user (and then parse response then)
-            // For now, do both, as we should parse to get the subscription_id from this request
+            // TODO: Differentiate if we need to fetch the user based on response code of 200, 201, 202
+            // Create User's response won't send us the user's complete info if this user already exists
             if let response = response {
+                // Parse the response for any data we need to update
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: originalPushToken)
-                // If we logged into an external_id, fetch the user data
+
+                // If this user already exists and we logged into an external_id, fetch the user data
+                // TODO: Only do this if response code is 200 or 202
                 if let identity = request.parameters?["identity"] as? [String: String],
                    let externalId = identity[OS_EXTERNAL_ID] {
                     fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: externalId, identityModel: request.identityModel)
@@ -208,12 +209,8 @@ class OSUserExecutor {
 
     static func executeIdentifyUserRequest(_ request: OSRequestIdentifyUser) {
         OneSignalClient.shared().execute(request) { _ in
-            // the anonymous user has been identified, still need to Fetch User
-            // TODO: Is the above true, do we need to Fetch? If the anon user is identified, then no user with this external_id existed, correct?
-            fetchUser(aliasLabel: OS_EXTERNAL_ID, aliasId: request.aliasId, identityModel: request.identityModelToUpdate)
-
-            executePendingRequests() // TODO: Here or after fetch or after transfer?
-
+            // the anonymous user has been identified, no further action needed, no need to fetch user
+            executePendingRequests()
         } onFailure: { error in
             // Returns 409 if any provided (label, id) pair exists on another User, so the SDK will switch to this user.
             if error?._code == 409 {
@@ -269,6 +266,9 @@ class OSUserExecutor {
         }
 
         OneSignalClient.shared().execute(request) { response in
+            // Clear local data in preparation for hydration
+            OneSignalUserManagerImpl.sharedInstance.clearUserData()
+
             if let response = response {
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
             }

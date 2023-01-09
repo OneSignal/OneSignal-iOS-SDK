@@ -65,6 +65,13 @@ class OSIdentityModel: OSModel {
         self.aliases = aliases
     }
 
+    /**
+     Called to clear the model's data in preparation for hydration via a fetch user call.
+     */
+    func clearData() {
+        self.aliases = [:]
+    }
+
     // MARK: - Alias Methods
 
     func addAliases(_ aliases: [String: String]) {

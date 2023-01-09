@@ -92,6 +92,14 @@ class OSPropertiesModel: OSModel {
         // ... and more
     }
 
+    /**
+     Called to clear the model's data in preparation for hydration via a fetch user call.
+     */
+    func clearData() {
+        // TODO: What about language, lat, long?
+        self.tags = [:]
+    }
+
     // MARK: - Tag Methods
 
     func addTags(_ tags: [String: String]) {
