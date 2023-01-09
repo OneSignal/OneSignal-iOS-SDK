@@ -266,10 +266,9 @@ class OSUserExecutor {
         }
 
         OneSignalClient.shared().execute(request) { response in
-            // Clear local data in preparation for hydration
-            OneSignalUserManagerImpl.sharedInstance.clearUserData()
-
             if let response = response {
+                // Clear local data in preparation for hydration
+                OneSignalUserManagerImpl.sharedInstance.clearUserData()
                 parseFetchUserResponse(response: response, identityModel: request.identityModel, originalPushToken: OneSignalUserManagerImpl.sharedInstance.token)
             }
         } onFailure: { _ in
