@@ -52,4 +52,4 @@
 #import <OneSignalCore/OneSignalSelectorHelpers.h>
 #import <OneSignalCore/OneSignalConfigManager.h>
 #import <OneSignalCore/OSRemoteParamController.h>
-
+#import <OneSignalCore/OneSignalMobileProvision.h>

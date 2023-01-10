@@ -66,6 +66,13 @@ class OSUserExecutor {
      Used to parse Create User and Fetch User responses. The `originalPushToken` is the push token when the request was created, which may be different from the push token currently in the SDK. For example, when the request was created, there may be no push token yet, but soon after, the SDK receives a push token. This is used to determine whether or not to hydrate the push subscription.
      */
     static func parseFetchUserResponse(response: [AnyHashable: Any], identityModel: OSIdentityModel, originalPushToken: String?) {
+
+        // If this was a create user, it hydrates the onesignal_id of the request's identityModel
+        // The model in the store may be different, and it may be waiting on the onesignal_id of this previous model
+        if let identityObject = parseIdentityObjectResponse(response) {
+            identityModel.hydrate(identityObject)
+        }
+
         // On success, check if the current user is the same as the one in the request
         // If user has changed, don't hydrate, except for push subscription
         let modelInStore = OneSignalUserManagerImpl.sharedInstance.identityModelStore.getModel(key: OS_IDENTITY_MODEL_KEY)
@@ -323,6 +330,11 @@ class OSRequestCreateUser: OneSignalRequest, OSUserRequest {
         pushSubscriptionObject["type"] = pushSubscriptionModel.type.rawValue
         pushSubscriptionObject["token"] = pushSubscriptionModel.address
         pushSubscriptionObject["enabled"] = pushSubscriptionModel.enabled
+
+        pushSubscriptionObject["test_type"] = pushSubscriptionModel.testType
+        pushSubscriptionObject["device_os"] = pushSubscriptionModel.deviceOs
+        pushSubscriptionObject["sdk"] = pushSubscriptionModel.sdk
+        pushSubscriptionObject["device_model"] = pushSubscriptionModel.deviceModel
 
         // notificationTypes defaults to -1 instead of nil, don't send if it's -1
         if pushSubscriptionModel.notificationTypes != -1 {
