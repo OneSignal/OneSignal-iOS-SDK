@@ -670,6 +670,16 @@ The Debug namespace is accessible via `OneSignal.Debug` and provide access to de
 **device-scoped user**
 > An anonymous user with no aliases that cannot be retrieved except through the current device or OneSignal dashboard. On app install, the OneSignal SDK is initialized with a *device-scoped user*. A *device-scoped user* can be upgraded to an identified user by calling `OneSignal.login("USER_EXTERNAL_ID")`  to identify the user by the specified external user ID. 
 
-# Known Limitations
+# Limitations
 
-// TODO: Fill in
+- Recommend using only in development and staging environments for Alpha releases
+- Aliases will be available in a future release
+- Outcomes will be available in a future release
+- Users are deleted when the last Subscription (push, email, or sms) is removed
+- Any `User` namespace calls must be invoked **after** initialization. Example: `OneSignal.User.addTag("tag", "2")`
+
+# Known issues
+- User properties may not update correctly when Subscriptions are transferred
+    - Please report any issues you find with this
+- Identity Verification 
+    - We will be introducing JWT in a follow up Alpha or Beta release
