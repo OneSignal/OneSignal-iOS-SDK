@@ -1,0 +1,11 @@
+framework module OneSignalFramework {
+  umbrella header "OneSignalFramework.h"
+
+  export *
+  module * { export * }
+}
+
+module OneSignalFramework.Swift {
+  header "OneSignalFramework-Swift.h"
+  requires objc
+}

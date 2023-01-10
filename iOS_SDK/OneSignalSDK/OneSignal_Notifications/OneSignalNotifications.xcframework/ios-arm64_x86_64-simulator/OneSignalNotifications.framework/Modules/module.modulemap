@@ -1,0 +1,6 @@
+framework module OneSignalNotifications {
+  umbrella header "OneSignalNotifications.h"
+
+  export *
+  module * { export * }
+}
