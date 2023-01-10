@@ -4,6 +4,10 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Headers/NSDateFormatter+OneSignal.h</key>
+		<data>
+		ifs8KRiBPsLi2tcZaH5fqH8jlNg=
+		</data>
 		<key>Headers/NSString+OneSignal.h</key>
 		<data>
 		/HTg8wbY+rfIy9/kCShHF2Oev6Y=
@@ -12,17 +16,29 @@
 		<data>
 		RUcvMsE7Pj+BUpa1H4SgBH/O/EQ=
 		</data>
+		<key>Headers/OSDeviceUtils.h</key>
+		<data>
+		qZnSYyg9QxHCH9m743tw/0wlLEE=
+		</data>
+		<key>Headers/OSDialogInstanceManager.h</key>
+		<data>
+		PnoiGb2/H8T+q91po5vPVhJMXnA=
+		</data>
 		<key>Headers/OSJSONHandling.h</key>
 		<data>
-		91d8OZhU9KOTu2qY+EdAF+M47+E=
+		4LPubo4CHRtzWQ0TUlW8TcnrpnA=
 		</data>
 		<key>Headers/OSMacros.h</key>
 		<data>
 		7HmaM9ljZnw77iovX0v/wnb3bX0=
 		</data>
+		<key>Headers/OSNetworkingUtils.h</key>
+		<data>
+		LwlsUTJlqWyOXjg5jrd2MiXaYUI=
+		</data>
 		<key>Headers/OSNotification+Internal.h</key>
 		<data>
-		hwttm7oX6fN2cgP1Z4laQAKP49Q=
+		4e+6YBjSX6NRA8rNizQp2+aBQ30=
 		</data>
 		<key>Headers/OSNotification.h</key>
 		<data>
@@ -30,51 +46,75 @@
 		</data>
 		<key>Headers/OSNotificationClasses.h</key>
 		<data>
-		iNvshoGLl4IEMy2K1Lq2stVxdB4=
+		ffIK3c1zT2cADgVHard2wYmgrvQ=
+		</data>
+		<key>Headers/OSObservable.h</key>
+		<data>
+		EKZEgY7y78TFR02v2BdqFWq6wVc=
 		</data>
 		<key>Headers/OSPrivacyConsentController.h</key>
 		<data>
-		//dQV0JwOyLrzhcfN4IkI2abbFM=
+		M+s6N3SgUW271aVJk0EYnL/UIAo=
+		</data>
+		<key>Headers/OSRemoteParamController.h</key>
+		<data>
+		vX2LZhQ43LmAjwjYp/La6Hloomc=
 		</data>
 		<key>Headers/OSRequests.h</key>
 		<data>
-		MqtDyOupA+cu7c+vEvwpMBVA1b4=
+		UZS3D91540HrPy/+mptjek+Cnhk=
 		</data>
 		<key>Headers/OneSignalClient.h</key>
 		<data>
-		TAYBk2YV4sw9wzS85jL0QtcAen0=
+		xP3ln1gkiz3rYTGL3cLbXxIleq4=
 		</data>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<data>
-		1eS5Ug1Qlv9xeX/u6irY7k1VOg4=
+		tlUNi+6DSJlbVTqB2JwrRPm8wF4=
+		</data>
+		<key>Headers/OneSignalConfigManager.h</key>
+		<data>
+		rs5am2kldk0oFRiHVIRnYiOwwfk=
 		</data>
 		<key>Headers/OneSignalCore.h</key>
 		<data>
-		T109aNL3gpg8ZtBUTteB6+7IuQ8=
+		bYttD+ZlFuou9kO+yEcixhnk96M=
 		</data>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<data>
-		xQeNeuYQWybV7qex/9h0H2mvUqI=
+		AWb5daVf6cRJe0A0e5x5Gp7jU+U=
 		</data>
 		<key>Headers/OneSignalLog.h</key>
 		<data>
-		8fVibMV9iMCVoj/I14R7AwCROpk=
+		+AiZ0kKN8BatL469uOR7lP2dKUk=
+		</data>
+		<key>Headers/OneSignalMobileProvision.h</key>
+		<data>
+		7ZQcyM590dEqGyz7BtLDG3YORL0=
 		</data>
 		<key>Headers/OneSignalRequest.h</key>
 		<data>
-		/uBkuxddG/dPmbTbANavHELydCw=
+		MxsNsoartS9iesNGTQE5YZ5qp64=
+		</data>
+		<key>Headers/OneSignalSelectorHelpers.h</key>
+		<data>
+		3CBAjr2xx3yz874iThgaAtmtaAo=
 		</data>
 		<key>Headers/OneSignalTrackFirebaseAnalytics.h</key>
 		<data>
-		oUxC/1Bnj1fAEZ+hPm30tS5H+f0=
+		3x6uorCcPwt7XTytGlVwmVv3NXE=
 		</data>
 		<key>Headers/OneSignalUserDefaults.h</key>
 		<data>
 		ZvwZZD2HkwwG1wOkh8jGhnl2lTY=
 		</data>
+		<key>Headers/SwizzlingForwarder.h</key>
+		<data>
+		HfyVhL3eh5S045pKiGtUIUEbITU=
+		</data>
 		<key>Info.plist</key>
 		<data>
-		c3CTwSjDZqeyEB+lk9WpQHCwWK4=
+		KXsDbLNDRTIFTwr5LJBEYI6WLzs=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -83,6 +123,13 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/NSDateFormatter+OneSignal.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hn2vYW78u8AOY/ve3SKGul3cFrG350NV3Um0+EzhGHU=
+			</data>
+		</dict>
 		<key>Headers/NSString+OneSignal.h</key>
 		<dict>
 			<key>hash2</key>
@@ -97,11 +144,25 @@
 			DC9WcVr/94eTh7NHtwKhA8C2fPJVJfY0nn9A6fuHGhA=
 			</data>
 		</dict>
+		<key>Headers/OSDeviceUtils.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			CJpM5If7vZz4m960lM+ulaOZohExs1bTVVH5q0zODe4=
+			</data>
+		</dict>
+		<key>Headers/OSDialogInstanceManager.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			VHQRipAjzHtXPkUXXH4YvMFBZS9BgNyDe0llpuFstT8=
+			</data>
+		</dict>
 		<key>Headers/OSJSONHandling.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kwMvLl1JtYBgIUz5NHRrummY0mdnyAPM2lP6HtOGETw=
+			s3NgkOLqd6fRlHYOq0qucoCdi9UhfSqxLGpl26BnNck=
 			</data>
 		</dict>
 		<key>Headers/OSMacros.h</key>
@@ -111,11 +172,18 @@
 			aKanW/TgpNzztpIpYJVbnxfUUFcNJAolzoX8n0+EwJc=
 			</data>
 		</dict>
+		<key>Headers/OSNetworkingUtils.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ItFeaL2odYTkJOQJKL87zSdrc69fJx36bv6/fi0gBDQ=
+			</data>
+		</dict>
 		<key>Headers/OSNotification+Internal.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			bz9UK/DGxP8LAEzMdBiUj0l9UsfhSo11AUAW6X1NfNQ=
+			HTm2j1hepBvpJTVpL9yoinrtVoXPyBqD6UVOtRJcoGY=
 			</data>
 		</dict>
 		<key>Headers/OSNotification.h</key>
@@ -129,70 +197,105 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			TfTvbYwUILlXsIfPJ92tgrhSS23UTibhhKt6j4Q984U=
+			egqNeJ1zJAyIjXAvTNBFqVuEQFl67+LbQ/B7V0jK2Rk=
+			</data>
+		</dict>
+		<key>Headers/OSObservable.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			R123THdisLYR5MKy2Wn8W5io6MEKh/bDRfZmFNF0YLQ=
 			</data>
 		</dict>
 		<key>Headers/OSPrivacyConsentController.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Nl0w50EzXPgal1ghTEM3QIoYLzOYHH195NTzq3Zlvmo=
+			ZbsLBZFACw0H6sd80zOvxaGw6Jq/0Sz1diu28fYUOZY=
+			</data>
+		</dict>
+		<key>Headers/OSRemoteParamController.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ksHXJtuz3uj948tfqdNMchzP74zrK8cUPqvAVUHa3tQ=
 			</data>
 		</dict>
 		<key>Headers/OSRequests.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			YdFlpQOMH+9m9N627gcvPVwShSPrBzKvDm3E3FCYHvk=
+			M/MLqkkd57nFrH1WC5Rxa4vhOv3dQqS1upnW0aHrl+I=
 			</data>
 		</dict>
 		<key>Headers/OneSignalClient.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			cbF3Wa3Lqa0Wb2275ot3ploX1KXQ+znQBiBOu0TzV6M=
+			CSAZbyxJ1QBEtH5JYy/HwJiYsj+udPG1u4dhMFgkUtQ=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCommonDefines.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			eqM+JeBS7UHFUhH5+9VG9IniNho+Ty3RnfIngZcsDMY=
+			cdCnbPkA8/s6gZ1onf57+ViY/4vwE9C0iX0t248KVkY=
+			</data>
+		</dict>
+		<key>Headers/OneSignalConfigManager.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			6+sJzc6wU2Vd6ZJtouqBsA12C1qGLBjFS/ED/+he950=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCore.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			uLAWfHauq9MJASOHxa8O6emo1oXTfJcLShIdOAUxG88=
+			iHKL75wMiv4mJ4emUkeYjDhpelhCMWjQE0+DCGnjbuo=
 			</data>
 		</dict>
 		<key>Headers/OneSignalCoreHelper.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vK6D0j+ZbW5ycXiO3jb9aLvluPdvyYGxCSFl1gkVp14=
+			UGIkfh6atqLP1mZmCLrT4t6Sw99OCMnd/8aGq8vaUYU=
 			</data>
 		</dict>
 		<key>Headers/OneSignalLog.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GajjtheSMz3cfqOsaWZFUEdWm75d/HAwr00JdpDcUp0=
+			nyebF5JgbuqB46Vsbi6A0g0HVGb9YNyMX1PaHKTScVw=
+			</data>
+		</dict>
+		<key>Headers/OneSignalMobileProvision.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			l0RcO5v+JFSsTR7XTKreN7doUQ28JwnxoHpQKZd00vU=
 			</data>
 		</dict>
 		<key>Headers/OneSignalRequest.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			69iw4bnJGwQNk11KAchyrRMPCM6Rf4C9Wvn+HMnTCXc=
+			b0DH58A5Q4B9Cj/lCH23eT3A6PqLAijRhgpNgm6nCbQ=
+			</data>
+		</dict>
+		<key>Headers/OneSignalSelectorHelpers.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			FcuF30Rl2JdaHXFJ+B6tKmImZk5GiiEUtfmseHgsVO8=
 			</data>
 		</dict>
 		<key>Headers/OneSignalTrackFirebaseAnalytics.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			VCgGIHlXYAQKerOcmqkIesJ+B+oWLXQya/3m1cYjnKc=
+			QQQ+yTOmYNCSKMYVwsP/jh0kJrt6EWJcaywB7947kO0=
 			</data>
 		</dict>
 		<key>Headers/OneSignalUserDefaults.h</key>
@@ -200,6 +303,13 @@
 			<key>hash2</key>
 			<data>
 			QIYtzchiCKQguyJOSY6PEhV0H98JRi2PdXSBmZxxLN4=
+			</data>
+		</dict>
+		<key>Headers/SwizzlingForwarder.h</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			9kEbEQebIgu9aMkeBUQpTkT17xgIRXd1EC50UYWEmL8=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

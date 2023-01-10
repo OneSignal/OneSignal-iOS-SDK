@@ -25,7 +25,7 @@
  * THE SOFTWARE.
  */
 
-#import "OSNotification.h"
+#import <OneSignalCore/OSNotification.h>
 
 // Pass in nil means a notification will not display
 typedef void (^OSNotificationDisplayResponse)(OSNotification* _Nullable  notification);
